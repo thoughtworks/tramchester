@@ -1,0 +1,20 @@
+package com.tramchester.dataimport.parsers;
+
+import com.tramchester.domain.RouteData;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class RouteDataParserTest {
+    private String route = "MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
+
+    @Test
+    public void shouldParseRoute() throws Exception {
+        RouteParser routeParser = new RouteParser();
+        RouteData result = routeParser.parseEntry(this.route.split(","));
+
+        assertThat(result.getId()).isEqualTo("MET:MET4:O:");
+        assertThat(result.getCode()).isEqualTo("MET4");
+        assertThat(result.getName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
+    }
+}

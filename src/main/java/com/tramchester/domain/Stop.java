@@ -1,40 +1,39 @@
 package com.tramchester.domain;
 
+
 public class Stop {
-    private String id;
-    private String code;
-    private String name;
-    private String latitude;
-    private String longitude;
+    private final String arrivalTime;
+    private final String departureTime;
+    private final Station station;
+    private final String stopSequence;
+    private final StopType stopType;
 
-    private Stop() {
+    public Stop(String arrivalTime, String departureTime, Station station, String stopSequence, StopType stopType) {
+
+        this.arrivalTime = arrivalTime;
+        this.departureTime = departureTime;
+        this.station = station;
+        this.stopSequence = stopSequence;
+        this.stopType = stopType;
     }
 
-    public Stop(String id, String code, String name, String latitude, String longitude) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public String getArrivalTime() {
+        return arrivalTime;
     }
 
-    public String getId() {
-        return id;
+    public String getDepartureTime() {
+        return departureTime;
     }
 
-    public String getCode() {
-        return code;
+    public Station getStation() {
+        return station;
     }
 
-    public String getName() {
-        return name;
+    public String getStopSequence() {
+        return stopSequence;
     }
 
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
+    public StopType getStopType() {
+        return stopType;
     }
 }
