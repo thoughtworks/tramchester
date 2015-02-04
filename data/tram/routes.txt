@@ -1,0 +1,9 @@
+route_id,agency_id,route_short_name,route_long_name,route_type
+MET:MET1:I:,MET,MET1,Abraham Moss - Bury,0
+MET:MET1:O:,MET,MET1,Bury - Abraham Moss,0
+MET:MET2:I:,MET,MET2,Altrincham - Manchester - Bury,0
+MET:MET2:O:,MET,MET2,Bury - Manchester - Altrincham,0
+MET:MET3:I:,MET,MET3,Altrincham - Manchester,0
+MET:MET3:O:,MET,MET3,Manchester - Altrincham,0
+MET:MET4:I:,MET,MET4,Eccles - Manchester - Ashton-Under-Lyne,0
+MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0
