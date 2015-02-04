@@ -4,7 +4,6 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.domain.TransportData;
-import org.joda.time.DateTime;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,10 +20,7 @@ public class TestResource {
     @Timed
     public Response get() {
 
-        System.out.println("start: " + DateTime.now());
         TransportData transportData = new TransportDataImporter().load();
-        System.out.println("finish " + DateTime.now());
-
         return Response.ok(transportData).build();
 
 

@@ -1,6 +1,6 @@
-package com.tramchester.dataimport;
+package com.tramchester.dataimport.data;
 
-public class StopTime {
+public class StopTimeData {
     private String tripId;
     private String arrivalTime;
     private String departureTime;
@@ -9,7 +9,7 @@ public class StopTime {
     private String pickupType;
     private String dropOffType;
 
-    public StopTime(String tripId, String arrivalTime, String departureTime, String stopId, String stopSequence, String pickupType, String dropOffType) {
+    public StopTimeData(String tripId, String arrivalTime, String departureTime, String stopId, String stopSequence, String pickupType, String dropOffType) {
 
         this.tripId = tripId;
         this.arrivalTime = arrivalTime;
@@ -20,7 +20,7 @@ public class StopTime {
         this.dropOffType = dropOffType;
     }
 
-    private StopTime() {
+    private StopTimeData() {
     }
 
     public String getTripId() {

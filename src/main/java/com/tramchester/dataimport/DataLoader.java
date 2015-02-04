@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DataLoader<T> {
@@ -20,17 +21,17 @@ public class DataLoader<T> {
         this.parser = parser;
     }
 
-    public List<T> loadAll() {
-        Reader reader;
+    public List<T> loadAll() throws IOException {
+        Reader reader = null;
         try {
             reader = new FileReader("data/tram/" + fileName + ".txt");
             CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(reader).entryParser(parser).strategy(CSVStrategy.UK_DEFAULT).build();
             return csvPersonReader.readAll();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } finally {
+            reader.close();
         }
-        return null;
+        return new ArrayList<>();
     }
 }

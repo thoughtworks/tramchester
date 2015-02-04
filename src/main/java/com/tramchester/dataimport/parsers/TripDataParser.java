@@ -1,9 +1,9 @@
 package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
-import com.tramchester.domain.TripData;
+import com.tramchester.dataimport.data.TripData;
 
-public class TripParser implements CSVEntryParser<TripData> {
+public class TripDataParser implements CSVEntryParser<TripData> {
     public TripData parseEntry(String... data) {
         String routeId = data[0];
         String serviceId = data[1];

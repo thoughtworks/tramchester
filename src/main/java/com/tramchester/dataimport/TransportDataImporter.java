@@ -1,44 +1,48 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.dataimport.parsers.RouteParser;
-import com.tramchester.dataimport.parsers.StopParser;
-import com.tramchester.dataimport.parsers.StopTimeParser;
-import com.tramchester.dataimport.parsers.TripParser;
-import com.tramchester.domain.RouteData;
-import com.tramchester.domain.StopData;
+import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.dataimport.parsers.RouteDataParser;
+import com.tramchester.dataimport.parsers.StopDataParser;
+import com.tramchester.dataimport.parsers.StopTimeDataParser;
+import com.tramchester.dataimport.parsers.TripDataParser;
+import com.tramchester.dataimport.data.RouteData;
+import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.TransportData;
-import com.tramchester.domain.TripData;
+import com.tramchester.dataimport.data.TripData;
 
+import java.io.IOException;
 import java.util.List;
 
 public class TransportDataImporter {
 
     public TransportData load() {
-        List<StopData> stopDatas = getStops();
-        List<RouteData> routeDatas = getRoutes();
-        List<TripData> tripDatas = getTrips();
-        List<StopTime> stopTimes = getStopTimes();
+        try {
+            List<StopData> stopData = getStops();
+            List<RouteData> routeData = getRoutes();
+            List<TripData> tripData = getTrips();
+            List<StopTimeData> stopTimeData = getStopTimes();
 
-        return new TransportData(stopDatas, routeDatas, tripDatas, stopTimes);
+            return new TransportData(stopData, routeData, tripData, stopTimeData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private List<StopTime> getStopTimes() {
-        DataLoader<StopTime> tripLoader = new DataLoader<>("stop_times", new StopTimeParser());
-        return tripLoader.loadAll();    }
-
-    private List<TripData> getTrips() {
-        DataLoader<TripData> tripLoader = new DataLoader<>("trips", new TripParser());
-        return tripLoader.loadAll();
+    private List<StopTimeData> getStopTimes() throws IOException {
+        return new DataLoader<>("stop_times", new StopTimeDataParser()).loadAll();
     }
 
-    private List<StopData> getStops() {
-        DataLoader<StopData> stopLoader = new DataLoader<>("stops", new StopParser());
-        return stopLoader.loadAll();
+    private List<TripData> getTrips() throws IOException {
+        return new DataLoader<>("trips", new TripDataParser()).loadAll();
     }
 
-    public List<RouteData> getRoutes() {
-        DataLoader<RouteData> routeLoader = new DataLoader<>("routes", new RouteParser());
-        return routeLoader.loadAll();
+    private List<StopData> getStops() throws IOException {
+        return new DataLoader<>("stops", new StopDataParser()).loadAll();
+    }
+
+    public List<RouteData> getRoutes() throws IOException {
+        return new DataLoader<>("routes", new RouteDataParser()).loadAll();
     }
 }
 

@@ -1,9 +1,9 @@
 package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
-import com.tramchester.domain.StopData;
+import com.tramchester.dataimport.data.StopData;
 
-public class StopParser implements CSVEntryParser<StopData> {
+public class StopDataParser implements CSVEntryParser<StopData> {
     public StopData parseEntry(String... data) {
         String id = data[0];
         String code = data[1];

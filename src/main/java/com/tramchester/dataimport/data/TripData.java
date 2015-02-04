@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.dataimport.data;
 
 public class TripData {
     private String routeId;

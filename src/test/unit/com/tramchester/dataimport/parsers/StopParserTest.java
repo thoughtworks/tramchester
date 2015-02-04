@@ -1,6 +1,6 @@
 package com.tramchester.dataimport.parsers;
 
-import com.tramchester.domain.StopData;
+import com.tramchester.dataimport.data.StopData;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,8 +10,8 @@ public class StopParserTest {
 
     @Test
     public void shouldParseStop() throws Exception {
-        StopParser stopParser = new StopParser();
-        StopData stopData = stopParser.parseEntry(this.stop.split(","));
+        StopDataParser stopDataParser = new StopDataParser();
+        StopData stopData = stopDataParser.parseEntry(this.stop.split(","));
 
         assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT2");
         assertThat(stopData.getCode()).isEqualTo("mantwjdt");

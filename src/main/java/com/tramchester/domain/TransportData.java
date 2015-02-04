@@ -1,6 +1,9 @@
 package com.tramchester.domain;
 
-import com.tramchester.dataimport.StopTime;
+import com.tramchester.dataimport.data.RouteData;
+import com.tramchester.dataimport.data.StopData;
+import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.dataimport.data.TripData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +15,7 @@ public class TransportData {
     private HashMap<String, Route> routes = new HashMap<>();
 
 
-    public TransportData(List<StopData> stopDataList, List<RouteData> routeDataList, List<TripData> tripDataList, List<StopTime> stopTimes) {
+    public TransportData(List<StopData> stopDataList, List<RouteData> routeDataList, List<TripData> tripDataList, List<StopTimeData> stopTimeDatas) {
         for (StopData stopData : stopDataList) {
             if (!stations.keySet().contains(stopData.getId())) {
                 stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getCode(), stopData.getName(), stopData.getLatitude(), stopData.getLongitude()));
@@ -35,9 +38,9 @@ public class TransportData {
             }
         }
 
-        for (StopTime stopTime : stopTimes) {
-            Trip trip = getTrip(stopTime.getTripId());
-            Stop stop = new Stop(stopTime.getArrivalTime(), stopTime.getDepartureTime(), stations.get(stopTime.getStopId()), stopTime.getStopSequence(), getStopType(stopTime));
+        for (StopTimeData stopTimeData : stopTimeDatas) {
+            Trip trip = getTrip(stopTimeData.getTripId());
+            Stop stop = new Stop(stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(), stations.get(stopTimeData.getStopId()), stopTimeData.getStopSequence(), getStopType(stopTimeData));
             trip.addStop(stop);
         }
 
@@ -55,10 +58,10 @@ public class TransportData {
         return routes;
     }
 
-    private StopType getStopType(StopTime stopTime) {
-        if (stopTime.getPickupType().equals("0") && stopTime.getDropOffType().equals("1")) {
+    private StopType getStopType(StopTimeData stopTimeData) {
+        if (stopTimeData.getPickupType().equals("0") && stopTimeData.getDropOffType().equals("1")) {
             return StopType.START;
-        } else if (stopTime.getPickupType() == "1" && stopTime.getDropOffType() == "0") {
+        } else if (stopTimeData.getPickupType() == "1" && stopTimeData.getDropOffType() == "0") {
             return StopType.END;
         }
         return StopType.MIDDLE;
