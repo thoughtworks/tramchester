@@ -1,14 +1,8 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.dataimport.parsers.RouteDataParser;
-import com.tramchester.dataimport.parsers.StopDataParser;
-import com.tramchester.dataimport.parsers.StopTimeDataParser;
-import com.tramchester.dataimport.parsers.TripDataParser;
-import com.tramchester.dataimport.data.RouteData;
-import com.tramchester.dataimport.data.StopData;
+import com.tramchester.dataimport.data.*;
+import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.TransportData;
-import com.tramchester.dataimport.data.TripData;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,12 +15,17 @@ public class TransportDataImporter {
             List<RouteData> routeData = getRoutes();
             List<TripData> tripData = getTrips();
             List<StopTimeData> stopTimeData = getStopTimes();
+            List<CalendarData> calendarData = getCalendar();
 
-            return new TransportData(stopData, routeData, tripData, stopTimeData);
+            return new TransportData(stopData, routeData, tripData, stopTimeData, calendarData);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private List<CalendarData> getCalendar() throws IOException {
+        return new DataLoader<>("calendar", new CalendarDataParser()).loadAll();
     }
 
     private List<StopTimeData> getStopTimes() throws IOException {

@@ -1,9 +1,6 @@
 package com.tramchester.domain;
 
-import com.tramchester.dataimport.data.RouteData;
-import com.tramchester.dataimport.data.StopData;
-import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.dataimport.data.TripData;
+import com.tramchester.dataimport.data.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +12,7 @@ public class TransportData {
     private HashMap<String, Route> routes = new HashMap<>();
 
 
-    public TransportData(List<StopData> stopDataList, List<RouteData> routeDataList, List<TripData> tripDataList, List<StopTimeData> stopTimeDatas) {
+    public TransportData(List<StopData> stopDataList, List<RouteData> routeDataList, List<TripData> tripDataList, List<StopTimeData> stopTimeDatas, List<CalendarData> calendarData) {
         for (StopData stopData : stopDataList) {
             if (!stations.keySet().contains(stopData.getId())) {
                 stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getCode(), stopData.getName(), stopData.getLatitude(), stopData.getLongitude()));
@@ -33,15 +30,35 @@ public class TransportData {
             Route route = routes.get(tripData.getRouteId());
             if (route != null) {
                 service.addTrip(trip);
-
                 route.addService(service);
             }
         }
 
         for (StopTimeData stopTimeData : stopTimeDatas) {
             Trip trip = getTrip(stopTimeData.getTripId());
-            Stop stop = new Stop(stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(), stations.get(stopTimeData.getStopId()), stopTimeData.getStopSequence(), getStopType(stopTimeData));
+
+            Stop stop = new Stop(stopTimeData.getArrivalTime(),
+                    stopTimeData.getDepartureTime(),
+                    stations.get(stopTimeData.getStopId()),
+                    stopTimeData.getStopSequence(),
+                    getStopType(stopTimeData));
+
             trip.addStop(stop);
+        }
+
+        for (CalendarData calendar : calendarData) {
+            Service service = services.get(calendar.getServiceId());
+            if (service != null) {
+                service.setDays(
+                        calendar.isMonday(),
+                        calendar.isTuesday(),
+                        calendar.isWednesday(),
+                        calendar.isThursday(),
+                        calendar.isFriday(),
+                        calendar.isSaturday(),
+                        calendar.isSunday()
+                );
+            }
         }
 
     }
