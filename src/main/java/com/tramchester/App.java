@@ -40,7 +40,7 @@ public class App extends Application<AppConfiguration> {
         dependencies.initialise(configuration);
         //Register Resources
         environment.jersey().register(dependencies.get(TestResource.class));
-
+        dependencies.get(TestResource.class).get();
         addCrossOriginFilter(environment);
 
     }

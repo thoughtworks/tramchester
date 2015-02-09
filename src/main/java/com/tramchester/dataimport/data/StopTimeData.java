@@ -1,15 +1,18 @@
 package com.tramchester.dataimport.data;
 
+import org.joda.time.DateTime;
+
 public class StopTimeData {
     private String tripId;
-    private String arrivalTime;
-    private String departureTime;
+    private DateTime arrivalTime;
+    private DateTime departureTime;
     private String stopId;
     private String stopSequence;
     private String pickupType;
     private String dropOffType;
+    private int minutesFromMidnight;
 
-    public StopTimeData(String tripId, String arrivalTime, String departureTime, String stopId, String stopSequence, String pickupType, String dropOffType) {
+    public StopTimeData(String tripId, DateTime arrivalTime, DateTime departureTime, String stopId, String stopSequence, String pickupType, String dropOffType, int minutesFromMidnight) {
 
         this.tripId = tripId;
         this.arrivalTime = arrivalTime;
@@ -18,6 +21,7 @@ public class StopTimeData {
         this.stopSequence = stopSequence;
         this.pickupType = pickupType;
         this.dropOffType = dropOffType;
+        this.minutesFromMidnight = minutesFromMidnight;
     }
 
     private StopTimeData() {
@@ -27,11 +31,11 @@ public class StopTimeData {
         return tripId;
     }
 
-    public String getArrivalTime() {
+    public DateTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public String getDepartureTime() {
+    public DateTime getDepartureTime() {
         return departureTime;
     }
 
@@ -49,5 +53,9 @@ public class StopTimeData {
 
     public String getDropOffType() {
         return dropOffType;
+    }
+
+    public int getMinutesFromMidnight() {
+        return minutesFromMidnight;
     }
 }

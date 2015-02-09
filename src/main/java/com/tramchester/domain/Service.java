@@ -38,4 +38,8 @@ public class Service {
         days.put(DaysOfWeek.Saturday, saturday);
         days.put(DaysOfWeek.Sunday, sunday);
     }
+
+    public HashMap<DaysOfWeek, Boolean> getDays() {
+        return days;
+    }
 }

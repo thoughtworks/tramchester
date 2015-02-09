@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.dataimport.data.*;
+import org.joda.time.DateTime;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,23 +42,29 @@ public class TransportData {
                     stopTimeData.getDepartureTime(),
                     stations.get(stopTimeData.getStopId()),
                     stopTimeData.getStopSequence(),
-                    getStopType(stopTimeData));
+                    getStopType(stopTimeData),
+                    stopTimeData.getMinutesFromMidnight());
 
             trip.addStop(stop);
         }
 
         for (CalendarData calendar : calendarData) {
             Service service = services.get(calendar.getServiceId());
+
             if (service != null) {
-                service.setDays(
-                        calendar.isMonday(),
-                        calendar.isTuesday(),
-                        calendar.isWednesday(),
-                        calendar.isThursday(),
-                        calendar.isFriday(),
-                        calendar.isSaturday(),
-                        calendar.isSunday()
-                );
+                if (calendar.getStart().equals(new DateTime(2015, 01, 05, 0, 0, 0))) {
+                    service.setDays(
+                            calendar.isMonday(),
+                            calendar.isTuesday(),
+                            calendar.isWednesday(),
+                            calendar.isThursday(),
+                            calendar.isFriday(),
+                            calendar.isSaturday(),
+                            calendar.isSunday()
+                    );
+                } else {
+                    services.remove(calendar.getServiceId());
+                }
             }
         }
 

@@ -4,6 +4,8 @@ import com.googlecode.jcsv.CSVStrategy;
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.googlecode.jcsv.reader.CSVReader;
 import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,8 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataLoader<T> {
-    private String fileName;
-    private CSVEntryParser<T> parser;
+    private final String fileName;
+    private final CSVEntryParser<T> parser;
+    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
 
     public DataLoader(String fileName, CSVEntryParser<T> parser) {
         this.fileName = fileName;
@@ -22,6 +25,7 @@ public class DataLoader<T> {
     }
 
     public List<T> loadAll() throws IOException {
+        logger.info("Loading data from " + fileName + ".txt file.");
         Reader reader = null;
         try {
             reader = new FileReader("data/tram/" + fileName + ".txt");

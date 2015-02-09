@@ -1,5 +1,7 @@
 package com.tramchester.dataimport.data;
 
+import org.joda.time.DateTime;
+
 public class CalendarData {
     private final String serviceId;
     private final boolean monday;
@@ -9,8 +11,10 @@ public class CalendarData {
     private final boolean friday;
     private final boolean saturday;
     private final boolean sunday;
+    private final DateTime start;
+    private final DateTime end;
 
-    public CalendarData(String serviceId, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
+    public CalendarData(String serviceId, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday, DateTime start, DateTime end) {
 
         this.serviceId = serviceId;
         this.monday = monday;
@@ -20,6 +24,8 @@ public class CalendarData {
         this.friday = friday;
         this.saturday = saturday;
         this.sunday = sunday;
+        this.start = start;
+        this.end = end;
     }
 
     public String getServiceId() {
@@ -52,5 +58,13 @@ public class CalendarData {
 
     public boolean isSunday() {
         return sunday;
+    }
+
+    public DateTime getEnd() {
+        return end;
+    }
+
+    public DateTime getStart() {
+        return start;
     }
 }

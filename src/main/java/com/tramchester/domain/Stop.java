@@ -1,27 +1,31 @@
 package com.tramchester.domain;
 
 
+import org.joda.time.DateTime;
+
 public class Stop {
-    private final String arrivalTime;
-    private final String departureTime;
+    private final DateTime arrivalTime;
+    private final DateTime departureTime;
     private final Station station;
     private final String stopSequence;
     private final StopType stopType;
+    private int minutesFromMidnight;
 
-    public Stop(String arrivalTime, String departureTime, Station station, String stopSequence, StopType stopType) {
+    public Stop(DateTime arrivalTime, DateTime departureTime, Station station, String stopSequence, StopType stopType, int minutesFromMidnight) {
 
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.station = station;
         this.stopSequence = stopSequence;
         this.stopType = stopType;
+        this.minutesFromMidnight = minutesFromMidnight;
     }
 
-    public String getArrivalTime() {
+    public DateTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public String getDepartureTime() {
+    public DateTime getDepartureTime() {
         return departureTime;
     }
 
@@ -35,5 +39,9 @@ public class Stop {
 
     public StopType getStopType() {
         return stopType;
+    }
+
+    public int getMinutesFromMidnight() {
+        return minutesFromMidnight;
     }
 }

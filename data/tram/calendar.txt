@@ -1,4 +1,3 @@
-service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date
 Serv000001,1,1,1,1,1,0,0,20141020,20141219
 Serv000002,0,0,0,0,0,1,0,20141020,20141219
 Serv000003,1,1,1,1,1,0,0,20141020,20141219
