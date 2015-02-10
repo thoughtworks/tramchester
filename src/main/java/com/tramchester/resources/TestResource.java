@@ -7,8 +7,6 @@ import com.tramchester.domain.*;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportRelationshipTypes;
-import org.joda.time.DateTime;
-import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
 import org.slf4j.Logger;
@@ -40,38 +38,8 @@ public class TestResource {
     @GET
     @Timed
     public Response get() {
-
-//        TransportData transportData = new TransportDataImporter().load();
-//        Transaction tx = graphDatabaseService.beginTx();
-//        try {
 //
-//            for (Route route : transportData.getRoutes().values()) {
-//
-//                for (int j = 0; j < route.getServices().size(); j++) {
-//                    Service service = route.getServices().get(j);
-//                    for (Trip trip : service.getTrips()) {
-//                        List<Stop> stops = trip.getStops();
-//
-//
-//                        for (int i = 0; i < stops.size() - 1; i++) {
-//                            Node from = getStation(stops.get(i).getStation());
-//                            Node to = getStation(stops.get(i + 1).getStation());
-//                            createRelationship(from, to, TransportRelationshipTypes.GOES_TO, stops.get(i),
-//                                    stops.get(i + 1).getMinutesFromMidnight() - stops.get(i).getMinutesFromMidnight(),
-//                                    service, route, trip);
-//                        }
-//                    }
-//                }
-//
-//
-//            }
-//
-//
-//            tx.success();
-//        } finally {
-//            tx.close();
-//            //graphDatabaseService.shutdown();
-//        }
+        //build();
 
 
         //routeCalculator.calculateRoute("9400ZZMAECS","9400ZZMANIS", 500);
@@ -80,8 +48,6 @@ public class TestResource {
        //
        routeCalculator.calculateRoute( "9400ZZMAPOM", "9400ZZMASFD",500);
 
-        //System.out.printf(topRoute.toString());
-
 
 
         return Response.ok().build();
@@ -89,22 +55,41 @@ public class TestResource {
 
     }
 
-    private void printRoute(WeightedPath topRoute) {
-        String path = "\n";
+    private void build() {
+        TransportData transportData = new TransportDataImporter().load();
+        Transaction tx = graphDatabaseService.beginTx();
+        try {
 
-        Iterable<Relationship> relationships = topRoute.relationships();
-        for (Relationship relationship : relationships) {
-            if (topRoute.startNode().equals(relationship.getStartNode())) {
-                path += String.format("(%s)", relationship.getStartNode().getProperty("name"));
+            for (Route route : transportData.getRoutes().values()) {
+
+                for (int j = 0; j < route.getServices().size(); j++) {
+                    Service service = route.getServices().get(j);
+                    for (Trip trip : service.getTrips()) {
+                        List<Stop> stops = trip.getStops();
+
+
+                        for (int i = 0; i < stops.size() - 1; i++) {
+
+                            Node from = getRouteStation(stops.get(i).getStation(), route);
+                            Node to = getRouteStation(stops.get(i + 1).getStation(), route);
+                            createRelationship(from, to, TransportRelationshipTypes.GOES_TO, stops.get(i),
+                                    stops.get(i + 1).getMinutesFromMidnight() - stops.get(i).getMinutesFromMidnight(),
+                                    service, route, trip);
+                        }
+                    }
+                }
+
+
             }
-            path += "---" + relationship.getProperty("route") + "-" + relationship.getProperty("service_id") + "--" +relationship.getProperty("service_id")+"-->";
-            path += String.format("(%s)", relationship.getEndNode().getProperty("name"));
-        }
-        path += "weight: " + topRoute.weight();
-        System.out.println(path);
-        System.out.println("------------------------------------------------------------------------------------");
 
+
+            tx.success();
+        } finally {
+            tx.close();
+            //graphDatabaseService.shutdown();
+        }
     }
+
 
     private Node getStation(Station station) {
 
@@ -129,13 +114,41 @@ public class TestResource {
         return trams;
     }
 
+    private Index<Node> getRouteStationsIndex() {
+        if (routeStations == null) {
+            routeStations = graphDatabaseService.index().forNodes("route_stations");
+        }
+        return routeStations;
+    }
+
+    Index<Node> routeStations = null;
+
+    private Node getRouteStation(Station station, Route route) {
+        Node stationNode = getStation(station);
+
+
+        Node node = getRouteStationsIndex().get("id", station.getId() + route.getId()).getSingle();
+
+        if (node == null) {
+            logger.info("Creating route station node: " + station.getName() + " " + route.getName());
+            node = graphDatabaseService.createNode();
+            node.setProperty("id", station.getId() + route.getId());
+            getRouteStationsIndex().add(node, "id", station.getId() + route.getId());
+
+            Relationship boardRelationshipTo = stationNode.createRelationshipTo(node, TransportRelationshipTypes.BOARD);
+            boardRelationshipTo.setProperty("cost", 5);
+            Relationship departRelationship = node.createRelationshipTo(stationNode, TransportRelationshipTypes.DEPART);
+            departRelationship.setProperty("cost", 5);
+        }
+        return node;
+    }
 
     private Relationship createRelationship(Node node1, Node node2, TransportRelationshipTypes transportRelationshipType, Stop stop, int cost, Service service, Route route, Trip trip) {
 
         Relationship relationship = getRelationship(service, node1);
 
         if (relationship == null && runsAtleastADay(service.getDays())) {
-            logger.info("create relationship from " + node1.getProperty("name") + " to " + node2.getProperty("name") + " for route " + route.getName());
+            logger.info("create relationship from " + node1.getProperty("id") + " to " + node2.getProperty("id") + " for route " + route.getName());
             List<Integer> times = new ArrayList<>();
             List<String> trips = new ArrayList<>();
             times.add(stop.getMinutesFromMidnight());
@@ -207,7 +220,7 @@ public class TestResource {
     private Relationship getRelationship(Service service, Node node1) {
         Iterable<Relationship> relationships = node1.getRelationships(Direction.OUTGOING);
         for (Relationship relationship : relationships) {
-            if (relationship.getProperty("service_id").toString().equals(service.getServiceId())) {
+            if (relationship.hasProperty("service_id") && relationship.getProperty("service_id").toString().equals(service.getServiceId())) {
                 return relationship;
             }
         }

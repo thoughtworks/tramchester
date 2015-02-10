@@ -3,7 +3,6 @@ package com.tramchester.graph;
 
 import com.google.common.collect.Lists;
 import com.tramchester.domain.DaysOfWeek;
-import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
@@ -29,34 +28,28 @@ public class TripPathExpander implements PathExpander<Integer> {
     public Iterable<Relationship> expand(Path path, BranchState<Integer> state) {
         List<Relationship> results = new ArrayList<>();
 
+
         List<Relationship> relationships = Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.GOES_TO.name())));
+        if(path.endNode().hasProperty("name")){
+            relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.BOARD.name()))));
+        } else{
+            relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.DEPART.name()))));
+        }
         int currentTime = state.getState();
-        String currentService = null;
-        if (path.lastRelationship() != null) {
-            currentTime = currentTime + (int) path.lastRelationship().getProperty("cost");
-            currentService = (String) path.lastRelationship().getProperty("service_id");
-        }
-
-        List<Relationship> sameService = new ArrayList<>();
 
         for (Relationship r : relationships) {
 
-            if (currentService != null && r.getProperty("service_id").toString().equals(currentService)) {
-                sameService.add(r);
+            if(r.isType(TransportRelationshipTypes.GOES_TO)){
+                boolean[] days = (boolean[]) r.getProperty("days");
+                int[] times = (int[]) r.getProperty("times");
+                if (operatesOnday(days, today) && operatesOnTime(times, currentTime)) {
+                    results.add(r);
+                }
             }
-        }
-
-
-//        if (sameService.size() > 0) {
-//            return sameService;
-//        }
-
-        for (Relationship r : relationships) {
-            boolean[] days = (boolean[]) r.getProperty("days");
-            int[] times = (int[]) r.getProperty("times");
-            if (operatesOnday(days, today) && operatesOnTime(times, currentTime)) {
+            if(r.isType(TransportRelationshipTypes.BOARD) || r.isType(TransportRelationshipTypes.DEPART)){
                 results.add(r);
             }
+
         }
 
         return results;

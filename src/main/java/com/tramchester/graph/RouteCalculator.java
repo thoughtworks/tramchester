@@ -40,7 +40,6 @@ public class RouteCalculator {
             });
 
     private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator("cost");
-    public static final Label LOCATION = DynamicLabel.label("Location");
     private GraphDatabaseService db;
 
     public RouteCalculator(GraphDatabaseService db) {
@@ -50,15 +49,6 @@ public class RouteCalculator {
     public Iterable<Node> calculateRoute(String start, String end, int interval) {
         try (Transaction tx = db.beginTx()) {
             logger.info("[x]-------[x] finding route!");
-            // TraversalDescription deliveryBaseFinder = createDeliveryBaseFinder(interval);
-
-//            Path upLeg = findRouteToDeliveryBase(start, deliveryBaseFinder);
-//
-//            System.out.printf("************************" + upLeg.toString());
-//
-//            Path downLeg = findRouteToDeliveryBase(end, deliveryBaseFinder);
-//
-//            System.out.printf("************************" + downLeg.toString());
 
 
             Iterable<WeightedPath> paths = findRouteBetweenDeliveryBases(
@@ -67,29 +57,35 @@ public class RouteCalculator {
                     interval);
             for (WeightedPath path : paths) {
                 printRoute(path);
-                System.out.printf(path.toString());
             }
-            //System.out.printf(topRoute.toString());
-
-            //Set<Node> routes = combineRoutes(upLeg, downLeg, topRoute);
             tx.success();
             return null;
         }
     }
 
-    private void printRoute(WeightedPath topRoute) {
-        String path = "\n";
+    private void printRoute(WeightedPath path) {
+        String stringPath = "\n";
 
-        Iterable<Relationship> relationships = topRoute.relationships();
+        Iterable<Relationship> relationships = path.relationships();
         for (Relationship relationship : relationships) {
-            if (topRoute.startNode().equals(relationship.getStartNode())) {
-                path += String.format("(%s)", relationship.getStartNode().getProperty("name"));
+            if (relationship.isType(TransportRelationshipTypes.GOES_TO)) {
+                if (path.startNode().equals(relationship.getStartNode())) {
+                    stringPath += String.format("(%s)", relationship.getStartNode().getProperty("name"));
+                }
+                stringPath += "---" + relationship.getProperty("route") + "-" + relationship.getProperty("service_id") + "-->";
+                if (relationship.getEndNode().hasProperty("name")) {
+                    stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
+                }
+            } else if(relationship.isType(TransportRelationshipTypes.BOARD)){
+                if (path.startNode().equals(relationship.getStartNode())) {
+                    stringPath += String.format("(%s)", relationship.getStartNode().getProperty("name"));
+                }
+            } else if(relationship.isType(TransportRelationshipTypes.DEPART)){
+                    stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
             }
-            path += "---" + relationship.getProperty("route") + "-" + relationship.getProperty("service_id") + "-->";
-            path += String.format("(%s)", relationship.getEndNode().getProperty("name"));
         }
-        path += "weight: " + topRoute.weight();
-        System.out.println(path);
+        stringPath += "weight: " + path.weight();
+        System.out.println(stringPath);
         System.out.println("------------------------------------------------------------------------------------");
 
     }
@@ -101,7 +97,7 @@ public class RouteCalculator {
         PathFinder<WeightedPath> routeBetweenDeliveryBasesFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
                 new InitialBranchState.State<>(interval, interval),
-                new TripCostEvaluator());
+                COST_EVALUATOR);
 
         return routeBetweenDeliveryBasesFinder.findAllPaths(startNode, endNode);
     }
