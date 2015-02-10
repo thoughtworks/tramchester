@@ -1,65 +1,34 @@
 package com.tramchester.graph;
 
-
 import com.tramchester.domain.DaysOfWeek;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.traversal.Evaluation;
-import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.InitialBranchState;
-import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.kernel.Traversal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.neo4j.graphdb.DynamicRelationshipType.withName;
-
 public class RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
-
-    private static final PathExpander<Integer> pathExpander = new TripPathExpander(DaysOfWeek.fromToday(), 650);
-
-    private static final TraversalDescription DELIVERY_BASE_FINDER = Traversal.description()
-            .depthFirst()
-            .evaluator(new Evaluator() {
-                private final RelationshipType DELIVERY_ROUTE = withName("GOES_TO");
-
-                @Override
-                public Evaluation evaluate(Path path) {
-                    if (isDeliveryBase(path)) {
-                        return Evaluation.INCLUDE_AND_PRUNE;
-                    }
-
-                    return Evaluation.EXCLUDE_AND_CONTINUE;
-                }
-
-                private boolean isDeliveryBase(Path path) {
-                    return !path.endNode().hasRelationship(DELIVERY_ROUTE, Direction.INCOMING);
-                }
-            });
-
-    private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator("cost");
-    private GraphDatabaseService db;
+    private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(GraphStaticKeys.COST);
+    private static final PathExpander<Integer> pathExpander = new TimeBasedPathExpander(DaysOfWeek.fromToday(), 650);
+    private final GraphDatabaseService db;
+    private Index<Node> trams = null;
 
     public RouteCalculator(GraphDatabaseService db) {
         this.db = db;
     }
 
-    public Iterable<Node> calculateRoute(String start, String end, int interval) {
+    public Iterable<WeightedPath> calculateRoute(String start, String end, int time) {
         try (Transaction tx = db.beginTx()) {
-            logger.info("[x]-------[x] finding route!");
 
+            Iterable<WeightedPath> paths = findShortestPath(start, end, time);
 
-            Iterable<WeightedPath> paths = findRouteBetweenDeliveryBases(
-                    start,
-                    end,
-                    interval);
             for (WeightedPath path : paths) {
                 printRoute(path);
             }
             tx.success();
-            return null;
+            return paths;
         }
     }
 
@@ -76,12 +45,12 @@ public class RouteCalculator {
                 if (relationship.getEndNode().hasProperty("name")) {
                     stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
                 }
-            } else if(relationship.isType(TransportRelationshipTypes.BOARD)){
+            } else if (relationship.isType(TransportRelationshipTypes.BOARD)) {
                 if (path.startNode().equals(relationship.getStartNode())) {
                     stringPath += String.format("(%s)", relationship.getStartNode().getProperty("name"));
                 }
-            } else if(relationship.isType(TransportRelationshipTypes.DEPART)){
-                    stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
+            } else if (relationship.isType(TransportRelationshipTypes.DEPART)) {
+                stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
             }
         }
         stringPath += "weight: " + path.weight();
@@ -90,24 +59,18 @@ public class RouteCalculator {
 
     }
 
-    private Iterable<WeightedPath> findRouteBetweenDeliveryBases(String start, String end, int interval) {
+    private Iterable<WeightedPath> findShortestPath(String start, String end, int time) {
         Node startNode = getStationsIndex().get("id", start).getSingle();
         Node endNode = getStationsIndex().get("id", end).getSingle();
+        logger.info(String.format("Finding shortest path for (%s) --> (%s)", startNode.getProperty("name"), endNode.getProperty("name")));
 
-        PathFinder<WeightedPath> routeBetweenDeliveryBasesFinder = GraphAlgoFactory.dijkstra(
+        PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
-                new InitialBranchState.State<>(interval, interval),
+                new InitialBranchState.State<>(time, time),
                 COST_EVALUATOR);
 
-        return routeBetweenDeliveryBasesFinder.findAllPaths(startNode, endNode);
+        return pathFinder.findAllPaths(startNode, endNode);
     }
-
-    private TraversalDescription createDeliveryBaseFinder(int interval) {
-        return DELIVERY_BASE_FINDER.expand(pathExpander,
-                new InitialBranchState.State<>(interval, interval));
-    }
-
-    Index<Node> trams = null;
 
     private Index<Node> getStationsIndex() {
         if (trams == null) {
@@ -115,5 +78,4 @@ public class RouteCalculator {
         }
         return trams;
     }
-
 }

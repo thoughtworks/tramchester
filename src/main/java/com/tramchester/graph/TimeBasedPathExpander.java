@@ -14,12 +14,12 @@ import java.util.List;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-public class TripPathExpander implements PathExpander<Integer> {
+public class TimeBasedPathExpander implements PathExpander<Integer> {
 
     private DaysOfWeek today;
     private int initialTime;
 
-    public TripPathExpander(DaysOfWeek today, int initialTime) {
+    public TimeBasedPathExpander(DaysOfWeek today, int initialTime) {
         this.today = today;
         this.initialTime = initialTime;
     }
@@ -28,13 +28,8 @@ public class TripPathExpander implements PathExpander<Integer> {
     public Iterable<Relationship> expand(Path path, BranchState<Integer> state) {
         List<Relationship> results = new ArrayList<>();
 
+        List<Relationship> relationships = getRelationships(path);
 
-        List<Relationship> relationships = Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.GOES_TO.name())));
-        if(path.endNode().hasProperty("name")){
-            relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.BOARD.name()))));
-        } else{
-            relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.DEPART.name()))));
-        }
         int currentTime = state.getState();
 
         for (Relationship r : relationships) {
@@ -42,7 +37,7 @@ public class TripPathExpander implements PathExpander<Integer> {
             if(r.isType(TransportRelationshipTypes.GOES_TO)){
                 boolean[] days = (boolean[]) r.getProperty("days");
                 int[] times = (int[]) r.getProperty("times");
-                if (operatesOnday(days, today) && operatesOnTime(times, currentTime)) {
+                if (operatesOnDay(days, today) && operatesOnTime(times, currentTime)) {
                     results.add(r);
                 }
             }
@@ -55,6 +50,20 @@ public class TripPathExpander implements PathExpander<Integer> {
         return results;
     }
 
+    private List<Relationship> getRelationships(Path path) {
+        List<Relationship> relationships = Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.GOES_TO.name())));
+        if(isStation(path)){
+            relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.BOARD.name()))));
+        } else{
+            relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.DEPART.name()))));
+        }
+        return relationships;
+    }
+
+    private boolean isStation(Path path) {
+        return path.endNode().hasProperty("name");
+    }
+
     private boolean operatesOnTime(int[] times, int currentTime) {
         for (int i = 0; i < times.length - 1; i++) {
             if (currentTime >= times[i] && currentTime <= times[i + 1]) {
@@ -64,7 +73,7 @@ public class TripPathExpander implements PathExpander<Integer> {
         return false;
     }
 
-    private boolean operatesOnday(boolean[] days, DaysOfWeek today) {
+    private boolean operatesOnDay(boolean[] days, DaysOfWeek today) {
         switch (today) {
             case Monday:
                 return days[0];
