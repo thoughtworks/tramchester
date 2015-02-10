@@ -7,20 +7,20 @@ import com.tramchester.domain.*;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportRelationshipTypes;
-import org.joda.time.DateTime;
-import org.joda.time.Instant;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.jvm.hotspot.utilities.Interval;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -39,14 +39,14 @@ public class TestResource {
     @Timed
     public Response get() {
 
-        //build();
+        build();
 
 
         //Pomona to stretford
         //routeCalculator.calculateRoute( "9400ZZMAPOM", "9400ZZMASFD",500);
 
         //Altringham to eccels
-        routeCalculator.calculateRoute("9400ZZMAALT", "9400ZZMAECC", 500);
+        routeCalculator.calculateRoute("9400ZZMAALT", "9400ZZMANIS", 500);
 
 
         return Response.ok().build();
@@ -134,10 +134,15 @@ public class TestResource {
             node.setProperty("id", station.getId() + route.getId());
             getRouteStationsIndex().add(node, "id", station.getId() + route.getId());
 
+
             Relationship boardRelationshipTo = stationNode.createRelationshipTo(node, TransportRelationshipTypes.BOARD);
-            boardRelationshipTo.setProperty("cost", 5);
+            if (stationNode.getProperty("id").equals("9400ZZMACRN")) {
+                boardRelationshipTo.setProperty("cost", 3);
+            } else {
+                boardRelationshipTo.setProperty("cost", 5);
+            }
             Relationship departRelationship = node.createRelationshipTo(stationNode, TransportRelationshipTypes.DEPART);
-            departRelationship.setProperty("cost", 5);
+            departRelationship.setProperty("cost", 0);
         }
         return node;
     }
