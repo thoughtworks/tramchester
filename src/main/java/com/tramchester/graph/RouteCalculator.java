@@ -50,7 +50,7 @@ public class RouteCalculator {
     public Iterable<Node> calculateRoute(String start, String end, int interval) {
         try (Transaction tx = db.beginTx()) {
             logger.info("[x]-------[x] finding route!");
-           // TraversalDescription deliveryBaseFinder = createDeliveryBaseFinder(interval);
+            // TraversalDescription deliveryBaseFinder = createDeliveryBaseFinder(interval);
 
 //            Path upLeg = findRouteToDeliveryBase(start, deliveryBaseFinder);
 //
@@ -85,7 +85,7 @@ public class RouteCalculator {
             if (topRoute.startNode().equals(relationship.getStartNode())) {
                 path += String.format("(%s)", relationship.getStartNode().getProperty("name"));
             }
-            path += "---" + relationship.getProperty("route") + "-" + relationship.getProperty("service_id") + "--" +relationship.getProperty("service_id")+"-->";
+            path += "---" + relationship.getProperty("route") + "-" + relationship.getProperty("service_id") + "-->";
             path += String.format("(%s)", relationship.getEndNode().getProperty("name"));
         }
         path += "weight: " + topRoute.weight();
@@ -101,7 +101,7 @@ public class RouteCalculator {
         PathFinder<WeightedPath> routeBetweenDeliveryBasesFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
                 new InitialBranchState.State<>(interval, interval),
-                COST_EVALUATOR);
+                new TripCostEvaluator());
 
         return routeBetweenDeliveryBasesFinder.findAllPaths(startNode, endNode);
     }

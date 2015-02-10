@@ -3,6 +3,7 @@ package com.tramchester.graph;
 
 import com.google.common.collect.Lists;
 import com.tramchester.domain.DaysOfWeek;
+import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
@@ -32,19 +33,27 @@ public class TripPathExpander implements PathExpander<Integer> {
         int currentTime = state.getState();
         String currentService = null;
         if (path.lastRelationship() != null) {
-            currentTime = currentTime + (int)path.lastRelationship().getProperty("cost");
+            currentTime = currentTime + (int) path.lastRelationship().getProperty("cost");
             currentService = (String) path.lastRelationship().getProperty("service_id");
         }
+
+        List<Relationship> sameService = new ArrayList<>();
+
+        for (Relationship r : relationships) {
+
+            if (currentService != null && r.getProperty("service_id").toString().equals(currentService)) {
+                sameService.add(r);
+            }
+        }
+
+
+//        if (sameService.size() > 0) {
+//            return sameService;
+//        }
 
         for (Relationship r : relationships) {
             boolean[] days = (boolean[]) r.getProperty("days");
             int[] times = (int[]) r.getProperty("times");
-            if(currentService != null && r.getProperty("service_id").toString().equals(currentService)){
-                List<Relationship> sameService = new ArrayList<>();
-                sameService.add(r);
-                return sameService;
-               // results.add(r);
-            } else
             if (operatesOnday(days, today) && operatesOnTime(times, currentTime)) {
                 results.add(r);
             }
@@ -87,3 +96,4 @@ public class TripPathExpander implements PathExpander<Integer> {
         return this;
     }
 }
+

@@ -76,7 +76,9 @@ public class TestResource {
 
         //routeCalculator.calculateRoute("9400ZZMAECS","9400ZZMANIS", 500);
 
-       routeCalculator.calculateRoute("9400ZZMAALT", "9400ZZMAGMX", 500);
+      // routeCalculator.calculateRoute("9400ZZMAALT", "9400ZZMAGMX", 500);
+       //
+       routeCalculator.calculateRoute( "9400ZZMAPOM", "9400ZZMASFD",500);
 
         //System.out.printf(topRoute.toString());
 
