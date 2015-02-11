@@ -10,7 +10,6 @@ public class Route {
     private List<Service> services = new ArrayList<>();
 
     public Route(String id, String code, String name) {
-
         this.id = id;
         this.code = code;
         this.name = name;

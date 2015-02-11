@@ -29,9 +29,15 @@ public class DataLoader<T> {
         Reader reader = null;
         try {
             reader = new FileReader("data/tram/" + fileName + ".txt");
-            CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(reader).entryParser(parser).strategy(CSVStrategy.UK_DEFAULT).build();
+
+            CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(reader)
+                    .entryParser(parser)
+                    .strategy(CSVStrategy.UK_DEFAULT)
+                    .build();
+
             return csvPersonReader.readAll();
         } catch (FileNotFoundException e) {
+            logger.error("File not found: " + fileName + ".txt");
             e.printStackTrace();
         } finally {
             reader.close();

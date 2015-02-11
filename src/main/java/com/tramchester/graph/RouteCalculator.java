@@ -8,10 +8,13 @@ import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
+
 public class RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
-    private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(GraphStaticKeys.COST);
-    private static final PathExpander<Integer> pathExpander = new TimeBasedPathExpander(DaysOfWeek.fromToday(), 650);
+    private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
+    private static final PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(COST_EVALUATOR);
     private final GraphDatabaseService db;
     private Index<Node> trams = null;
 
@@ -62,11 +65,12 @@ public class RouteCalculator {
     private Iterable<WeightedPath> findShortestPath(String start, String end, int time) {
         Node startNode = getStationsIndex().get("id", start).getSingle();
         Node endNode = getStationsIndex().get("id", end).getSingle();
-        logger.info(String.format("Finding shortest path for (%s) --> (%s)", startNode.getProperty("name"), endNode.getProperty("name")));
+        logger.info(String.format("Finding shortest path for (%s) --> (%s)", startNode.getProperty(NAME), endNode.getProperty(NAME)));
 
+        GraphBranchState state = new GraphBranchState(time, DaysOfWeek.fromToday());
         PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
-                new InitialBranchState.State<>(time, time),
+                new InitialBranchState.State<>(state, state),
                 COST_EVALUATOR);
 
         return pathFinder.findAllPaths(startNode, endNode);
@@ -74,7 +78,7 @@ public class RouteCalculator {
 
     private Index<Node> getStationsIndex() {
         if (trams == null) {
-            trams = db.index().forNodes(GraphStaticKeys.Station.IndexName);
+            trams = db.index().forNodes(Station.IndexName);
         }
         return trams;
     }

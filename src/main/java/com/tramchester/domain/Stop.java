@@ -12,7 +12,6 @@ public class Stop {
     private int minutesFromMidnight;
 
     public Stop(DateTime arrivalTime, DateTime departureTime, Station station, String stopSequence, StopType stopType, int minutesFromMidnight) {
-
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.station = station;

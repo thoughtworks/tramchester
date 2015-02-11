@@ -3,6 +3,8 @@ package com.tramchester.graph;
 
 import com.google.common.collect.Lists;
 import com.tramchester.domain.DaysOfWeek;
+import org.neo4j.graphalgo.CostEvaluator;
+import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
@@ -12,39 +14,35 @@ import org.neo4j.graphdb.traversal.BranchState;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-public class TimeBasedPathExpander implements PathExpander<Integer> {
+public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
+    private CostEvaluator<Double> costEvaluator;
 
-    private DaysOfWeek today;
-    private int initialTime;
-
-    public TimeBasedPathExpander(DaysOfWeek today, int initialTime) {
-        this.today = today;
-        this.initialTime = initialTime;
+    public TimeBasedPathExpander(CostEvaluator<Double> costEvaluator) {
+        this.costEvaluator = costEvaluator;
     }
 
     @Override
-    public Iterable<Relationship> expand(Path path, BranchState<Integer> state) {
+    public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> state) {
         List<Relationship> results = new ArrayList<>();
 
-        List<Relationship> relationships = getRelationships(path);
+        double currentWeight = new WeightedPathImpl(costEvaluator, path).weight();
+        int currentTime = (int) (currentWeight + state.getState().getTime());
 
-        int currentTime = state.getState();
+        for (Relationship relationship : getRelationships(path)) {
 
-        for (Relationship r : relationships) {
-
-            if(r.isType(TransportRelationshipTypes.GOES_TO)){
-                boolean[] days = (boolean[]) r.getProperty("days");
-                int[] times = (int[]) r.getProperty("times");
-                if (operatesOnDay(days, today) && operatesOnTime(times, currentTime)) {
-                    results.add(r);
+            if (relationship.isType(TransportRelationshipTypes.GOES_TO)) {
+                boolean[] days = (boolean[]) relationship.getProperty(DAYS);
+                int[] times = (int[]) relationship.getProperty(TIMES);
+                if (operatesOnDay(days, state.getState().getDay()) && operatesOnTime(times, currentTime)) {
+                    results.add(relationship);
                 }
+            } else {
+                results.add(relationship);
             }
-            if(r.isType(TransportRelationshipTypes.BOARD) || r.isType(TransportRelationshipTypes.DEPART)){
-                results.add(r);
-            }
-
         }
 
         return results;
@@ -52,16 +50,16 @@ public class TimeBasedPathExpander implements PathExpander<Integer> {
 
     private List<Relationship> getRelationships(Path path) {
         List<Relationship> relationships = Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.GOES_TO.name())));
-        if(isStation(path)){
+        if (isStation(path)) {
             relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.BOARD.name()))));
-        } else{
+        } else {
             relationships.addAll(Lists.newArrayList(path.endNode().getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.DEPART.name()))));
         }
         return relationships;
     }
 
     private boolean isStation(Path path) {
-        return path.endNode().hasProperty("name");
+        return path.endNode().hasProperty(NAME);
     }
 
     private boolean operatesOnTime(int[] times, int currentTime) {
@@ -94,7 +92,7 @@ public class TimeBasedPathExpander implements PathExpander<Integer> {
     }
 
     @Override
-    public PathExpander<Integer> reverse() {
+    public PathExpander<GraphBranchState> reverse() {
         return this;
     }
 }

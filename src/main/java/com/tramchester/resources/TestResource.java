@@ -27,6 +27,8 @@ import java.util.List;
 public class TestResource {
     private GraphDatabaseService graphDatabaseService;
     private RouteCalculator routeCalculator;
+    private Index<Node> routeStations = null;
+    private Index<Node> trams = null;
     private static final Logger logger = LoggerFactory.getLogger(TestResource.class);
 
     public TestResource(GraphDatabaseService graphDatabaseService, RouteCalculator routeCalculator) {
@@ -39,8 +41,7 @@ public class TestResource {
     @Timed
     public Response get() {
 
-        build();
-
+        //build();
 
         //Pomona to stretford
         //routeCalculator.calculateRoute( "9400ZZMAPOM", "9400ZZMASFD",500);
@@ -48,11 +49,9 @@ public class TestResource {
         //Altringham to eccels
         routeCalculator.calculateRoute("9400ZZMAALT", "9400ZZMANIS", 500);
 
-
         return Response.ok().build();
-
-
     }
+
 
     private void build() {
         TransportData transportData = new TransportDataImporter().load();
@@ -61,14 +60,10 @@ public class TestResource {
 
             for (Route route : transportData.getRoutes().values()) {
 
-                for (int j = 0; j < route.getServices().size(); j++) {
-                    Service service = route.getServices().get(j);
+                for (Service service : route.getServices()) {
                     for (Trip trip : service.getTrips()) {
                         List<Stop> stops = trip.getStops();
-
-
                         for (int i = 0; i < stops.size() - 1; i++) {
-
                             Node from = getRouteStation(stops.get(i).getStation(), route);
                             Node to = getRouteStation(stops.get(i + 1).getStation(), route);
                             createRelationship(from, to, TransportRelationshipTypes.GOES_TO, stops.get(i),
@@ -104,8 +99,6 @@ public class TestResource {
         return node;
     }
 
-    Index<Node> trams = null;
-
     private Index<Node> getStationsIndex() {
         if (trams == null) {
             trams = graphDatabaseService.index().forNodes(GraphStaticKeys.Station.IndexName);
@@ -120,7 +113,6 @@ public class TestResource {
         return routeStations;
     }
 
-    Index<Node> routeStations = null;
 
     private Node getRouteStation(Station station, Route route) {
         Node stationNode = getStation(station);
@@ -151,7 +143,7 @@ public class TestResource {
 
         Relationship relationship = getRelationship(service, node1);
 
-        if (relationship == null && runsAtleastADay(service.getDays())) {
+        if (relationship == null && runsAtLeastADay(service.getDays())) {
             logger.info("create relationship from " + node1.getProperty("id") + " to " + node2.getProperty("id") + " for route " + route.getName());
             List<Integer> times = new ArrayList<>();
             List<String> trips = new ArrayList<>();
@@ -164,25 +156,15 @@ public class TestResource {
             relationship.setProperty("days", toBoolArray(service.getDays()));
             relationship.setProperty("route", route.getCode());
             relationship.setProperty("route_name", route.getName());
-            //relationship.setProperty("trips", toString(trips));
         } else if (relationship != null) {
             int[] times = (int[]) relationship.getProperty("times");
-            //String[] trips = (String[]) relationship.getProperty("times");
             relationship.setProperty("times", toIntArray(times, stop.getMinutesFromMidnight()));
         }
 
         return relationship;
     }
 
-    private String[] toString(List<String> trips) {
-        String[] array = new String[trips.size()];
-        for (int i = 0; i < trips.size(); i++) {
-            array[i] = trips.get(i);
-        }
-        return array;
-    }
-
-    private boolean runsAtleastADay(HashMap<DaysOfWeek, Boolean> days) {
+    private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
         return days.values().contains(true);
     }
 
