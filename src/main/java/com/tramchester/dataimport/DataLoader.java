@@ -28,7 +28,7 @@ public class DataLoader<T> {
         logger.info("Loading data from " + fileName + ".txt file.");
         Reader reader = null;
         try {
-            reader = new FileReader("data/tram/" + fileName + ".txt");
+            reader = new FileReader(String.format("data/tram/%s.txt", fileName));
 
             CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(reader)
                     .entryParser(parser)

@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-
 import com.google.common.collect.Lists;
 import com.tramchester.domain.DaysOfWeek;
 import org.neo4j.graphalgo.CostEvaluator;

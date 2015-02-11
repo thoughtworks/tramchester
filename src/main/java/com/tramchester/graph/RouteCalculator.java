@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphStaticKeys.Station.ID;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 
 public class RouteCalculator {
@@ -22,7 +23,7 @@ public class RouteCalculator {
         this.db = db;
     }
 
-    public Iterable<WeightedPath> calculateRoute(String start, String end, int time) {
+    public void calculateRoute(String start, String end, int time) {
         try (Transaction tx = db.beginTx()) {
 
             Iterable<WeightedPath> paths = findShortestPath(start, end, time);
@@ -30,8 +31,8 @@ public class RouteCalculator {
             for (WeightedPath path : paths) {
                 printRoute(path);
             }
+
             tx.success();
-            return paths;
         }
     }
 
@@ -63,8 +64,8 @@ public class RouteCalculator {
     }
 
     private Iterable<WeightedPath> findShortestPath(String start, String end, int time) {
-        Node startNode = getStationsIndex().get("id", start).getSingle();
-        Node endNode = getStationsIndex().get("id", end).getSingle();
+        Node startNode = getStationsIndex().get(ID, start).getSingle();
+        Node endNode = getStationsIndex().get(ID, end).getSingle();
         logger.info(String.format("Finding shortest path for (%s) --> (%s)", startNode.getProperty(NAME), endNode.getProperty(NAME)));
 
         GraphBranchState state = new GraphBranchState(time, DaysOfWeek.fromToday());
