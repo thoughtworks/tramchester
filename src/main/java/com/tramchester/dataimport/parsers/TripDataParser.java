@@ -8,7 +8,7 @@ public class TripDataParser implements CSVEntryParser<TripData> {
         String routeId = data[0];
         String serviceId = data[1];
         String tripId = data[2];
-        String tripHeadsign = data[3];
+        String tripHeadsign = data[3].split(",")[1].replace("(Manchester Metrolink)", "").replace("\"", "").trim();
 
         return new TripData(routeId, serviceId, tripId, tripHeadsign);
     }
