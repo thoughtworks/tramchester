@@ -82,7 +82,6 @@ public class TransportGraphBuilder {
         return routeStations;
     }
 
-
     private Node getRouteStation(Station station, Route route) {
         Node stationNode = getStation(station);
 
