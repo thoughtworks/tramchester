@@ -1,0 +1,8 @@
+9400ZZMAABM1,mantpmaw,"Cheetham Hill, Abraham Moss (Manchester Metrolink)",53.51046,-2.23550,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAABM1
+9400ZZMAABM2,mantpmda,"Cheetham Hill, Abraham Moss (Manchester Metrolink)",53.51091,-2.23611,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAABM2
+9400ZZMAAIR1,mantwjmp,"Manchester Airport, Manchester Airport (Manchester Metrolink)",53.36537,-2.27247,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAIR1
+9400ZZMAALT1,mantpmjm,"Altrincham, Altrincham Station (Manchester Metrolink)",53.38745,-2.34741,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAALT1
+9400ZZMAAMO1,mantwdpw,"Ashton Moss, Ashton Moss (Manchester Metrolink)",53.48373,-2.12194,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAMO1
+9400ZZMAAMO2,mantwdta,"Ashton Moss, Ashton Moss (Manchester Metrolink)",53.48350,-2.12203,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAMO2
+9400ZZMAANC1,mantpjmd,"Salford Quays, Anchorage (Manchester Metrolink)",53.47426,-2.28608,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAANC1
+9400ZZMAANC2,mantpjmg,"Salford Quays, Anchorage (Manchester Metrolink)",53.47429,-2.28594,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAANC2

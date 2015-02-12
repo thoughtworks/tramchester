@@ -54,7 +54,7 @@ run {
 sourceSets {
     test {
         java {
-            srcDirs = ['src/test/unit', 'src/test/service']
+            srcDirs = ['src/test/unit', 'src/test/integration']
         }
     }
 }

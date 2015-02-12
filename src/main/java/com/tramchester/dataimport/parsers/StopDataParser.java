@@ -8,8 +8,8 @@ public class StopDataParser implements CSVEntryParser<StopData> {
         String id = data[0].substring(0, data[0].length() - 1);
         String code = data[1];
         String name = data[2].split(",")[1].replace(" (Manchester Metrolink)", "").replace("\"", "").trim();
-        String latitude = data[4];
-        String longitude = data[5];
+        String latitude = data[3];
+        String longitude = data[4];
 
         return new StopData(id, code, name, latitude, longitude);
     }
