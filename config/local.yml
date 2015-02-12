@@ -6,6 +6,8 @@ server:
     type: http
     port: 8090
 
+rebuildGraph: false
+
 logging:
   level: INFO
   loggers:

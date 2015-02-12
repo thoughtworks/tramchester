@@ -7,6 +7,8 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 
@@ -15,6 +17,8 @@ import static org.eclipse.jetty.servlets.CrossOriginFilter.*;
 
 public class App extends Application<AppConfiguration> {
     public static final String SERVICE_NAME = "tramchester";
+    private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
+    public static final String GRAPH_NAME = "tramchester.db";
 
     private final Dependencies dependencies;
 
@@ -40,9 +44,8 @@ public class App extends Application<AppConfiguration> {
         dependencies.initialise(configuration);
         //Register Resources
         environment.jersey().register(dependencies.get(TestResource.class));
-        dependencies.get(TestResource.class).get();
-        addCrossOriginFilter(environment);
 
+        addCrossOriginFilter(environment);
     }
 
     private void addCrossOriginFilter(Environment environment) {
@@ -51,5 +54,7 @@ public class App extends Application<AppConfiguration> {
         filterHolder.setInitParameter(ALLOWED_METHODS_PARAM, "GET,POST,PUT,OPTIONS");
         filterHolder.setInitParameter(ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control,Access-Control-Allow-Origin,Authorization");
     }
+
+
 
 }

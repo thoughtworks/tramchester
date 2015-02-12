@@ -23,21 +23,23 @@ public class RouteCalculator {
         this.db = db;
     }
 
-    public void calculateRoute(String start, String end, int time) {
+    public String calculateRoute(String start, String end, int time) {
+        String result = "";
         try (Transaction tx = db.beginTx()) {
 
             Iterable<WeightedPath> paths = findShortestPath(start, end, time);
 
             for (WeightedPath path : paths) {
-                printRoute(path);
+                result += printRoute(path);
             }
 
             tx.success();
         }
+        return result;
     }
 
-    private void printRoute(WeightedPath path) {
-        String stringPath = "\n";
+    private String printRoute(WeightedPath path) {
+        String stringPath = "\n\n";
 
         Iterable<Relationship> relationships = path.relationships();
         for (Relationship relationship : relationships) {
@@ -58,9 +60,7 @@ public class RouteCalculator {
             }
         }
         stringPath += "weight: " + path.weight();
-        System.out.println(stringPath);
-        System.out.println("------------------------------------------------------------------------------------");
-
+        return stringPath;
     }
 
     private Iterable<WeightedPath> findShortestPath(String start, String end, int time) {
