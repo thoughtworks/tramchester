@@ -4,10 +4,10 @@ public class Station {
     private final String id;
     private final String code;
     private final String name;
-    private final String latitude;
-    private final String longitude;
+    private final double latitude;
+    private final double longitude;
 
-    public Station(String id, String code, String name, String latitude, String longitude) {
+    public Station(String id, String code, String name, double latitude, double longitude) {
 
         this.id = id;
         this.code = code;
@@ -28,11 +28,11 @@ public class Station {
         return name;
     }
 
-    public String getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public String getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 }

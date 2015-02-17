@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+
 public class TransportGraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
     private GraphDatabaseService graphDatabaseService;
@@ -72,6 +73,9 @@ public class TransportGraphBuilder {
             node = graphDatabaseService.createNode();
             node.setProperty("id", station.getId());
             node.setProperty("name", station.getName());
+            node.setProperty("lat", station.getLatitude());
+            node.setProperty("lon", station.getLongitude());
+            getSpatialIndex().add(node, station.getId(), station.getName());
             getStationsIndex().add(node, "id", station.getId());
         }
         return node;

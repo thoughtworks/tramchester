@@ -4,13 +4,13 @@ public class StopData {
     private String id;
     private String code;
     private String name;
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
 
     private StopData() {
     }
 
-    public StopData(String id, String code, String name, String latitude, String longitude) {
+    public StopData(String id, String code, String name, double latitude, double longitude) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -30,11 +30,11 @@ public class StopData {
         return name;
     }
 
-    public String getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public String getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 }
