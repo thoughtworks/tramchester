@@ -28,8 +28,8 @@ public class DataLoaderTest {
 
         assertThat(calendarData).hasSize(12);
         assertThat(calendarData.get(0).getServiceId()).isEqualTo("Serv000001");
-        assertThat(calendarData.get(0).getStart().toString()).isEqualTo("2014-10-20T00:00:00.000+01:00");
-        assertThat(calendarData.get(0).getEnd().toString()).isEqualTo("2014-12-19T00:00:00.000Z");
+        assertThat(calendarData.get(0).getStart().toString()).contains("2014-10-20");
+        assertThat(calendarData.get(0).getEnd().toString()).contains("2014-12-19");
     }
 
     @Test
