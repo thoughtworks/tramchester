@@ -1,6 +1,8 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Stage;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
@@ -8,9 +10,16 @@ import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.tramchester.graph.GraphStaticKeys.COST;
+import static com.tramchester.graph.GraphStaticKeys.Station;
 import static com.tramchester.graph.GraphStaticKeys.Station.ID;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
+import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
+import static com.tramchester.graph.TransportRelationshipTypes.DEPART;
+import static com.tramchester.graph.TransportRelationshipTypes.GOES_TO;
 
 public class RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
@@ -23,19 +32,35 @@ public class RouteCalculator {
         this.db = db;
     }
 
-    public String calculateRoute(String start, String end, int time) {
-        String result = "";
+    public List<Journey> calculateRoute(String start, String end, int time) {
+        ArrayList<Journey> journeys = new ArrayList<>();
         try (Transaction tx = db.beginTx()) {
 
             Iterable<WeightedPath> paths = findShortestPath(start, end, time);
 
             for (WeightedPath path : paths) {
-                result += printRoute(path);
+                journeys.add(mapJourney(path));
             }
 
             tx.success();
         }
-        return result;
+        return journeys;
+    }
+
+    private Journey mapJourney(WeightedPath path) {
+        List<Stage> stages = new ArrayList<>();
+        Iterable<Relationship> relationships = path.relationships();
+        Stage currentStage = null;
+        for (Relationship relationship : relationships) {
+            if (relationship.isType(BOARD)) {
+                currentStage = new Stage(relationship.getStartNode().getProperty("name").toString(), relationship.getEndNode().getProperty("route_name").toString());
+            } else if(relationship.isType(DEPART)) {
+                currentStage.setLastStation(relationship.getEndNode().getProperty("name").toString());
+                stages.add(currentStage);
+            }
+        }
+
+        return new Journey(stages);
     }
 
     private String printRoute(WeightedPath path) {
@@ -43,7 +68,7 @@ public class RouteCalculator {
 
         Iterable<Relationship> relationships = path.relationships();
         for (Relationship relationship : relationships) {
-            if (relationship.isType(TransportRelationshipTypes.GOES_TO)) {
+            if (relationship.isType(GOES_TO)) {
                 if (path.startNode().equals(relationship.getStartNode())) {
                     stringPath += String.format("(%s)", relationship.getStartNode().getProperty("name"));
                 }
@@ -51,7 +76,7 @@ public class RouteCalculator {
                 if (relationship.getEndNode().hasProperty("name")) {
                     stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
                 }
-            } else if (relationship.isType(TransportRelationshipTypes.BOARD)) {
+            } else if (relationship.isType(BOARD)) {
                 if (path.startNode().equals(relationship.getStartNode())) {
                     stringPath += String.format("(%s)", relationship.getStartNode().getProperty("name"));
                 }

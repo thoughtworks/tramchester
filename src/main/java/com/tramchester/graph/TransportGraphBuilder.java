@@ -92,6 +92,8 @@ public class TransportGraphBuilder {
             logger.info("Creating route station node: " + station.getName() + " " + route.getName());
             node = graphDatabaseService.createNode();
             node.setProperty("id", station.getId() + route.getId());
+            node.setProperty("route_name", route.getName());
+            node.setProperty("route_id", route.getId());
             getRouteStationsIndex().add(node, "id", station.getId() + route.getId());
 
 
