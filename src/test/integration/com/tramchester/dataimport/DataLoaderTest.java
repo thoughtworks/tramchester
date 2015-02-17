@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DataLoaderTest {
 
     @Test
-    public void shouldLoadRouteDate() throws Exception {
+    public void shouldLoadRouteData() throws Exception {
         DataLoader<RouteData> dataLoader = new DataLoader<>("data/test/routes", new RouteDataParser());
         List<RouteData> routeData = dataLoader.loadAll();
 
@@ -22,7 +22,7 @@ public class DataLoaderTest {
     }
 
     @Test
-    public void shouldLoadCalendarDate() throws Exception {
+    public void shouldLoadCalendarData() throws Exception {
         DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar", new CalendarDataParser());
         List<CalendarData> calendarData = dataLoader.loadAll();
 
@@ -33,7 +33,7 @@ public class DataLoaderTest {
     }
 
     @Test
-    public void shouldLoadStopDate() throws Exception {
+    public void shouldLoadStopData() throws Exception {
         DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops", new StopDataParser());
         List<StopData> stopData = dataLoader.loadAll();
 
@@ -41,12 +41,12 @@ public class DataLoaderTest {
         assertThat(stopData.get(0).getCode()).isEqualTo("mantpmaw");
         assertThat(stopData.get(0).getId()).isEqualTo("9400ZZMAABM");
         assertThat(stopData.get(0).getName()).isEqualTo("Abraham Moss");
-        assertThat(stopData.get(0).getLatitude()).isEqualTo("53.51046");
-        assertThat(stopData.get(0).getLongitude()).isEqualTo("-2.23550");
+        assertThat(stopData.get(0).getLatitude()).isEqualTo(53.51046);
+        assertThat(stopData.get(0).getLongitude()).isEqualTo(-2.23550);
     }
 
     @Test
-    public void shouldLoadStopTimeDate() throws Exception {
+    public void shouldLoadStopTimeData() throws Exception {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times", new StopTimeDataParser());
         List<StopTimeData> stopTimeData = dataLoader.loadAll();
 
@@ -61,7 +61,7 @@ public class DataLoaderTest {
     }
 
     @Test
-    public void shouldLoadTripDate() throws Exception {
+    public void shouldLoadTripData() throws Exception {
         DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips", new TripDataParser());
         List<TripData> tripData = dataLoader.loadAll();
 
