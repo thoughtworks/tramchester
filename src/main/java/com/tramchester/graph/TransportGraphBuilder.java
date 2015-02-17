@@ -3,6 +3,7 @@ package com.tramchester.graph;
 
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.domain.*;
+import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
 import org.slf4j.Logger;
@@ -52,6 +53,14 @@ public class TransportGraphBuilder {
         } finally {
             tx.close();
         }
+    }
+    Index<Node> spatialIndex = null;
+
+    private Index<Node> getSpatialIndex() {
+        if (spatialIndex == null)
+            spatialIndex = graphDatabaseService.index().forNodes("spatial_index", SpatialIndexProvider.SIMPLE_POINT_CONFIG);
+
+        return spatialIndex;
     }
 
     private Node getStation(Station station) {

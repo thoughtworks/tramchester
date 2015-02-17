@@ -10,7 +10,17 @@ project.ext {
     dropwizardVersion = '0.8.0-rc2'
 }
 repositories {
+    maven {
+        url "http://m2.neo4j.org/releases/"
+    }
+    maven {
+        url "http://download.osgeo.org/webdav/geotools/"
+    }
+    maven {
+        url "http://download.java.net/maven/2"
+    }
     mavenCentral()
+
 }
 
 
@@ -18,6 +28,7 @@ dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
             'org.neo4j:neo4j:2.1.6',
+            'org.neo4j:neo4j-spatial:0.12-neo4j-2.0.0-M06',
             'joda-time:joda-time:2.4',
             'com.googlecode.jcsv:jcsv:1.4.0'
 
