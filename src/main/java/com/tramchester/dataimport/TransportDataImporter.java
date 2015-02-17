@@ -11,7 +11,11 @@ import java.util.List;
 
 public class TransportDataImporter {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataImporter.class);
-    private static String PATH = "data/tram/";
+    private final String path;
+
+    public TransportDataImporter(String path) {
+        this.path = path;
+    }
 
     public TransportData load() {
         try {
@@ -29,23 +33,23 @@ public class TransportDataImporter {
     }
 
     private List<CalendarData> getCalendar() throws IOException {
-        return new DataLoader<>(PATH + "calendar", new CalendarDataParser()).loadAll();
+        return new DataLoader<>(path + "calendar", new CalendarDataParser()).loadAll();
     }
 
     private List<StopTimeData> getStopTimes() throws IOException {
-        return new DataLoader<>(PATH + "stop_times", new StopTimeDataParser()).loadAll();
+        return new DataLoader<>(path + "stop_times", new StopTimeDataParser()).loadAll();
     }
 
     private List<TripData> getTrips() throws IOException {
-        return new DataLoader<>(PATH + "trips", new TripDataParser()).loadAll();
+        return new DataLoader<>(path + "trips", new TripDataParser()).loadAll();
     }
 
     private List<StopData> getStops() throws IOException {
-        return new DataLoader<>(PATH + "stops", new StopDataParser()).loadAll();
+        return new DataLoader<>(path + "stops", new StopDataParser()).loadAll();
     }
 
     public List<RouteData> getRoutes() throws IOException {
-        return new DataLoader<>(PATH + "routes", new RouteDataParser()).loadAll();
+        return new DataLoader<>(path + "routes", new RouteDataParser()).loadAll();
     }
 }
 

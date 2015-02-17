@@ -22,6 +22,7 @@ public class Dependencies {
     public static final String GRAPH_NAME = "tramchester.db";
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
+    private static String PATH = "data/tram/";
 
     public void initialise(AppConfiguration configuration) throws IOException {
 
@@ -30,7 +31,7 @@ public class Dependencies {
 
         picoContainer.addComponent(TestResource.class);
         picoContainer.addComponent(RouteCalculator.class);
-        picoContainer.addComponent(TransportDataImporter.class);
+        picoContainer.addComponent(TransportDataImporter.class, new TransportDataImporter(PATH));
         picoContainer.addComponent(TransportGraphBuilder.class);
 
         rebuildGraph(configuration);
