@@ -1,0 +1,5 @@
+<root>
+    <item name='java.util.HashMap'>
+        <annotation name='java.lang.annotation.Deprecated'/>
+    </item>
+</root>

@@ -3,6 +3,7 @@ package com.tramchester.domain;
 import com.tramchester.dataimport.data.*;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class TransportData {
     private HashMap<String, Route> routes = new HashMap<>();
 
 
-    public TransportData(List<StopData> stopDataList, List<RouteData> routeDataList, List<TripData> tripDataList, List<StopTimeData> stopTimeDatas, List<CalendarData> calendarData) {
+    public TransportData(List<StopData> stopDataList, List<RouteData> routeDataList, List<TripData> tripDataList, List<StopTimeData> stopTimeDataList, List<CalendarData> calendarDataList) {
         for (StopData stopData : stopDataList) {
             if (!stations.keySet().contains(stopData.getId())) {
                 stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getCode(), stopData.getName(), stopData.getLatitude(), stopData.getLongitude()));
@@ -35,7 +36,7 @@ public class TransportData {
             }
         }
 
-        for (StopTimeData stopTimeData : stopTimeDatas) {
+        for (StopTimeData stopTimeData : stopTimeDataList) {
             Trip trip = getTrip(stopTimeData.getTripId());
 
             Stop stop = new Stop(stopTimeData.getArrivalTime(),
@@ -48,7 +49,7 @@ public class TransportData {
             trip.addStop(stop);
         }
 
-        for (CalendarData calendar : calendarData) {
+        for (CalendarData calendar : calendarDataList) {
             Service service = services.get(calendar.getServiceId());
 
             if (service != null) {
@@ -97,6 +98,12 @@ public class TransportData {
             trips.put(tripId, new Trip(tripId));
         }
         return trips.get(tripId);
+    }
+
+    public List<Station> getStations() {
+        ArrayList<Station> stationList = new ArrayList<>();
+        stationList.addAll(stations.values());
+        return stationList;
     }
 
 }

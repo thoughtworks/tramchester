@@ -2,6 +2,7 @@ package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.resources.TestResource;
+import com.tramchester.resources.StationResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -44,6 +45,7 @@ public class App extends Application<AppConfiguration> {
         dependencies.initialise(configuration);
         //Register Resources
         environment.jersey().register(dependencies.get(TestResource.class));
+        environment.jersey().register(dependencies.get(StationResource.class));
 
         addCrossOriginFilter(environment);
     }

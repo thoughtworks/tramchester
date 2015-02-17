@@ -1,34 +1,31 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.domain.*;
+import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 public class TransportGraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
     private GraphDatabaseService graphDatabaseService;
-    private TransportDataImporter transportDataImporter;
+    private TransportData transportData;
     private Index<Node> routeStations = null;
     private Index<Node> trams = null;
 
-    public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportDataImporter transportDataImporter) {
+    public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData ) {
         this.graphDatabaseService = graphDatabaseService;
-        this.transportDataImporter = transportDataImporter;
+        this.transportData = transportData;
     }
 
     public void buildGraph() {
-        TransportData transportData = transportDataImporter.load();
         Transaction tx = graphDatabaseService.beginTx();
         try {
             logger.info("Rebuilding the graph...");
@@ -79,6 +76,21 @@ public class TransportGraphBuilder {
             getStationsIndex().add(node, "id", station.getId());
         }
         return node;
+    }
+
+    public List<Node> getNearestStopsTo(double lat, double lon, int count) {
+        Map<String, Object> params = new HashMap<>();
+        params.put(LayerNodeIndex.POINT_PARAMETER, new Double[]{lat, lon});
+        params.put(LayerNodeIndex.DISTANCE_IN_KM_PARAMETER, 100.0);
+        IndexHits<Node> query = getSpatialIndex().query(LayerNodeIndex.WITHIN_DISTANCE_QUERY, params);
+        List<Node> nearestNodes = new ArrayList<Node>();
+        int addedCount = 0;
+
+        while (query.hasNext() && addedCount < count) {
+            nearestNodes.add(query.next());
+            addedCount++;
+        }
+        return nearestNodes;
     }
 
     private Index<Node> getStationsIndex() {
