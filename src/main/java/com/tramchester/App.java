@@ -2,7 +2,6 @@ package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.resources.StationResource;
-import com.tramchester.resources.TestResource;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -38,6 +37,7 @@ public class App extends Application<AppConfiguration> {
 
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
+
         bootstrap.addBundle(new AssetsBundle("/assets","/","index.html"));
         bootstrap.addBundle(new AssetsBundle("/assets/css","/css"));
         bootstrap.addBundle(new AssetsBundle("/assets/images","/images"));
@@ -49,7 +49,8 @@ public class App extends Application<AppConfiguration> {
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         dependencies.initialise(configuration);
         //Register Resources
-        environment.jersey().register(dependencies.get(TestResource.class));
+        environment.jersey().setUrlPattern("/api/*");
+
         environment.jersey().register(dependencies.get(StationResource.class));
 
         addCrossOriginFilter(environment);

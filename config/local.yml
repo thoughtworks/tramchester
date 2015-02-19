@@ -1,10 +1,11 @@
 server:
   type: simple
   applicationContextPath: /
+  rootPath: /api/*
   adminContextPath: /admin
   connector:
     type: http
-    port: 8090
+    port: 8080
 
 rebuildGraph: false
 

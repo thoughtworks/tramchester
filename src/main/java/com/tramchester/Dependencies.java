@@ -6,8 +6,8 @@ import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.domain.TransportData;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportGraphBuilder;
-import com.tramchester.resources.TestResource;
 import com.tramchester.resources.StationResource;
+import com.tramchester.services.SpatialService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.util.FileUtils;
@@ -31,12 +31,12 @@ public class Dependencies {
         logger.info("Creating dependencies");
         picoContainer.addComponent(AppConfiguration.class, configuration);
 
-        picoContainer.addComponent(TestResource.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(RouteCalculator.class);
         TransportDataImporter transportDataImporter = new TransportDataImporter(PATH);
         picoContainer.addComponent(TransportData.class, transportDataImporter.load());
         picoContainer.addComponent(TransportGraphBuilder.class);
+        picoContainer.addComponent(SpatialService.class);
 
         rebuildGraph(configuration);
     }

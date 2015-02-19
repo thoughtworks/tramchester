@@ -21,7 +21,7 @@ public class TransportGraphBuilder {
     private Index<Node> routeStations = null;
     private Index<Node> trams = null;
 
-    public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData ) {
+    public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData) {
         this.graphDatabaseService = graphDatabaseService;
         this.transportData = transportData;
     }
@@ -53,6 +53,7 @@ public class TransportGraphBuilder {
             tx.close();
         }
     }
+
     Index<Node> spatialIndex = null;
 
     private Index<Node> getSpatialIndex() {
@@ -78,7 +79,6 @@ public class TransportGraphBuilder {
         }
         return node;
     }
-
 
 
     private Index<Node> getStationsIndex() {
