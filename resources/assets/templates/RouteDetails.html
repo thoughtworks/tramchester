@@ -1,0 +1,41 @@
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <a class="navbar-button" ng-click="goBack()"><span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <h5 class="navbar-title">Select Route</h5>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div ng-show="NoRoutes">
+            No routes!
+        </div>
+        <div class="col-12 col-sm-12 col-lg-" ng-hide="NoRoutes">
+            <div ng-show="!journeyPlan.journeys.length" class="text-center">
+                <img src="images/loader.gif" class="medium-loading"/>
+            </div>
+            <div ng-repeat="journey in journeyPlan.journeys" ng-click="showJourneyDetails(journey)">
+                <div class="panel {{journey.stages[0].tramRouteId}}">
+                    <div class="panel-heading">{{journey.stages[0].tramRouteName}} Tram Line</div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        <a ng-click="showJourneyDetails(journey)" class="list-group-item">
+                            <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.stages[0].beginStop.name}}</strong>
+                            <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                        </a></div>
+                    <ul class="list-group">
+                        <li class="list-group-item"><span class="glyphicon glyphicon-random pull-right"></span>
+                            {{journey.summary}}
+                        </li>
+                    </ul>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>{{journey.expectedArrivalTime}}</strong> Arrive at <strong>{{journey.stages[journey.stages.length
+                            - 1].endStop.name}}</strong>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>

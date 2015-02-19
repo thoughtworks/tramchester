@@ -1,9 +1,10 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.resources.TestResource;
 import com.tramchester.resources.StationResource;
+import com.tramchester.resources.TestResource;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -18,8 +19,7 @@ import static org.eclipse.jetty.servlets.CrossOriginFilter.*;
 
 public class App extends Application<AppConfiguration> {
     public static final String SERVICE_NAME = "tramchester";
-    private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
-    public static final String GRAPH_NAME = "tramchester.db";
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private final Dependencies dependencies;
 
@@ -38,6 +38,11 @@ public class App extends Application<AppConfiguration> {
 
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
+        bootstrap.addBundle(new AssetsBundle("/assets","/","index.html"));
+        bootstrap.addBundle(new AssetsBundle("/assets/css","/css"));
+        bootstrap.addBundle(new AssetsBundle("/assets/images","/images"));
+        bootstrap.addBundle(new AssetsBundle("/assets/javascript","/javascript"));
+        bootstrap.addBundle(new AssetsBundle("/assets/views","/views"));
     }
 
     @Override

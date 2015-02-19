@@ -20,12 +20,12 @@ repositories {
         url "http://download.java.net/maven/2"
     }
     mavenCentral()
-
 }
 
 
 dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
+    compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
             'org.neo4j:neo4j:2.1.6',
             'org.neo4j:neo4j-spatial:0.13-neo4j-2.1.4',

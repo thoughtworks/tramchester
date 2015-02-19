@@ -1,0 +1,335 @@
+/*!
+ * Tramchester
+ * FAC 514
+ */
+
+html {
+    font-family: Helvetica, sans-serif;
+}
+
+/* BRANDING */
+
+.StudioNeon {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+}
+
+.tcr {
+    color: #81725e;
+    background-color: #e8e8e3;
+}
+
+.tcr a {
+    color: #191c1f;
+}
+
+.tcr .heading {
+    text-align: center;
+}
+
+.tcr hr {
+    border-top: 2px solid #191c1f;
+}
+
+.tcr legend {
+    color: #81725e;
+    border-width: 0;;
+}
+
+.tcr .btn:hover,
+.tcr .btn:focus {
+    color: #ffffff;
+    background-color: #191c1f;
+}
+
+.tcr a.list-group-item:hover,
+.tcr a.list-group-item:focus {
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #191c1f;
+    border-radius: 0px;
+}
+
+.btn-tcr {
+    background-color: #ffe100;
+    color: #191c1f;
+    border: 2px solid #191c1f;
+}
+
+.tcr-splash {
+    background-color: #ffe100;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 100%;
+}
+
+.tcr-map .navbar {
+    margin-bottom: 0;
+}
+
+.navbar-button {
+    float: left;
+    margin-top: 20px;
+}
+
+.navbar-title {
+    display: block;
+    max-width: 200px;
+    padding: 8px 10px;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #000;
+    text-align: center;
+}
+
+.tcr-start .tcr-navbar .navbar-brand {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.5em;
+    color: #191c1f;
+}
+
+.tcr-splash h1 {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 3em;
+    color: #191c1f;
+    border-top: 2px solid #191c1f;
+    border-bottom: 10px solid #191c1f;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.jumbotron {
+    padding: 0;
+    margin-bottom: 30px;
+    color: #191c1f;
+    background-color: #ffe100;
+}
+
+.jumbotron h1 {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 2em;
+    color: #191c1f;
+    border-top: 2px solid #191c1f;
+    border-bottom: 10px solid #191c1f;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.jumbotron p {
+    line-height: 1.4;
+    font-size: 18px;
+}
+
+.tcr-navbar {
+    background-color: #ffe100;
+    border-radius: 0px;
+    border-top: 2px solid #191c1f;
+    border-bottom: 10px solid #191c1f;
+}
+
+.tcr-navbar .navbar-brand {
+    color: #191c1f;
+}
+
+.tcr .panel {
+    -moz-box-shadow: 4px 4px 2px #ccc;
+    -webkit-box-shadow: 4px 4px 2px #ccc;
+    box-shadow: 4px 4px 2px #ccc;
+    border-color: #999;
+}
+
+.tcr .panel-heading {
+    margin-bottom: -16px;
+}
+
+.tcr-change {
+    font-size: 1.5em;
+    text-align: center;
+    color: #ccc;
+    text-shadow: 0px 2px 2px #fff;
+    margin-bottom: 10px;
+}
+.trc-change-text{
+    font-size: 20px;
+    margin-left: 20px;
+}
+
+.tcr .well {
+    background-color: #ffffff;
+    -moz-box-shadow: 4px 4px 2px #ccc;
+    -webkit-box-shadow: 4px 4px 2px #ccc;
+    box-shadow: 4px 4px 2px #ccc;
+    border-color: #999;
+}
+
+.tcr-footer, .tcr-footer a {
+    color: #ccc;
+    text-align: center;
+    text-shadow: 0px 2px 2px #fff;
+}
+
+.tcr-footer hr {
+    border-top: 2px solid #ccc;
+    border-bottom: 1px solid #fff;
+}
+
+.tcr-splash .tcr-footer, .tcr-splash .tcr-footer a {
+    color: #bfa900;
+    text-align: center;
+    text-shadow: 0px 2px 2px #fffbb3;
+}
+
+.tcr-splash .tcr-footer hr {
+    border-top: 2px solid #bfa900;
+    border-bottom: 1px solid #fffbb3;
+}
+
+/*! Directions */
+
+.tcr-directions table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: #fff;
+}
+
+.tcr-directions table tbody > tr > td {
+    padding: 5px;
+    line-height: 1.428571429;
+    vertical-align: top;
+    border-top: 1px solid #e8e8e3;
+}
+
+.tram-stop {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #81725e;
+    border-radius: 10px;
+}
+
+.small-loading {
+    margin-top: -5px;
+}
+
+.medium-loading {
+    margin-top: 40px;
+    height: 80px;
+    width: 80px
+}
+
+#map-container {
+    position: relative;
+}
+
+/*! BREAKPOINT STUFF */
+
+@media (min-width: 768px) {
+    .container {
+        margin-right: 10%;
+        margin-left: 10%;
+    }
+
+    .navbar-brand {
+        float: none;
+    }
+}
+
+@media (min-width: 991px) {
+    .container {
+        margin-right: 20%;
+        margin-left: 20%;
+    }
+
+    .navbar-brand {
+        float: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        margin-right: 25%;
+        margin-left: 25%;
+    }
+
+    .navbar-brand {
+        float: none;
+    }
+}
+
+/* iOS form inputs */
+
+input[type="time"], input[type="datetime-local"] {
+    -webkit-appearance: none;
+}
+
+/*! METROLINK COLOURS */
+
+/*! Altrincham - Bury*/
+.MET2 .panel-heading {
+    background-color: #00ac4f;
+    color: #ffffff;
+}
+
+/*! Altrincham - Piccadilly */
+.MET3 .panel-heading {
+    background-color: #ffdb4e;
+    color: #191c1f;
+}
+
+/*! Bury - Droylsden */
+.MET1 .panel-heading {
+    background-color: #40c8f4;
+    color: #191c1f;
+}
+
+/*! East Didsbury - Rochdale Railway Station */
+.MET5 .panel-heading {
+    background-color: #9853a1;
+    color: #ffffff;
+}
+
+/*! Eccles - Piccadilly */
+.MET4 .panel-heading {
+    background-color: #f287b7;
+    color: #191c1f;
+}
+
+/*! MediaCityUK - Cornbrook */
+.m-c .panel-heading {
+    background-color: #a57036;
+    color: #ffffff;
+}
+
+/*! Tram stop */
+.stop .panel-heading {
+    background-color: #81725e;
+    color: #ffffff;
+}
+
+/*! Line interchange */
+.line {
+    background-color: #000000;
+}
+
+/*! Park + Ride / Cycle Hub */
+.ride {
+    background-color: #009bc9;
+}
+
+/*! City Centre / Generic Grey */
+.cc {
+    background-color: #e8e8e3;
+}

@@ -1,0 +1,55 @@
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <a class="navbar-button" ng-click="goBack(journey)"><span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <h5 class="navbar-title">Directions</h5>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" ng-hide='!journey.stages.length'>
+            <button class="btn btn-default btn-sm pull-left" ng-click="previousTram()"
+                    ng-disabled="disablePreviousTram"><span class="glyphicon glyphicon-chevron-left"></span></button>
+            <button class="btn btn-default btn-sm pull-right" ng-click="nextTram()" ng-disabled="disableNextTram"><span
+                    class="glyphicon glyphicon-chevron-right"></span></button>
+            <h4 class="heading">{{journey.stages[0].serviceTimes[serviceTimeIndex].departureTime}}
+                from
+                {{journey.stages[0].beginStop.name}}</h4>
+
+            <div ng-repeat="stage in journey.stages | filter:{tramStage: true}">
+                <div ng-class-even="'tcr-change'" ng-class-odd="'hidden'"><span
+                        class="glyphicon glyphicon-random"></span>
+                    <span class="trc-change-text">Change Tram</span>
+                </div>
+
+                <div class="panel {{stage.tramRouteId}}">
+                    <div class="panel-heading">{{stage.tramRouteName}} Tram Line</div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        <a ng-click="showMap(stage)" class="list-group-item">
+                            <h4>Walk to <strong>{{stage.beginStop.name}}</strong> <span
+                                    ng-class-odd="'glyphicon glyphicon-chevron-right pull-right'"
+                                    ng-class-even="'glyphicon glyphicon-map-marker pull-right'"></span></h4>
+
+                            <p>Platform {{stage.beginStop.platform}}</p>
+                        </a></div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>{{stage.serviceTimes[serviceTimeIndex].departureTime}}</strong> Catch
+                            {{stage.serviceTimes[0].headSign}} Tram
+                        </li>
+                        <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>
+                            Duration <strong>{{stage.duration}} min</strong></li>
+                        <li class="list-group-item">
+                            <strong>{{stage.serviceTimes[serviceTimeIndex].arrivalTime}}</strong> Arrive at
+                            {{stage.endStop.name}} Platform {{stage.endStop.platform}}
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+            <p><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>

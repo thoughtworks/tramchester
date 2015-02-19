@@ -1,0 +1,33 @@
+body {
+    height: 100%;
+    width: 100%;
+}
+
+.top-bar {
+    position: absolute;
+    top: 75px;
+    left: 20px;
+    z-index: 9;
+    width: 93%
+}
+
+.top-bar .top-bar-trigger {
+    position: absolute;
+    bottom: 0;
+    right: 1em;
+}
+
+.top-bar label {
+    min-width: 3em;
+}
+
+.top-bar select {
+    width: 13em;
+}
+
+.bottom-bar {
+    position: absolute;
+    bottom: 20px;
+    z-index: 10;
+    width: 93%;
+}

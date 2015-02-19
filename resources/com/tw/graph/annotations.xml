@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <item name="com.tw.graph.TramchesterGraphDbService org.neo4j.graphdb.Node getService(java.lang.String)">
+    <annotation name="java.lang.Override" />
+  </item>
+  <item name="com.tw.graph.TramchesterGraphDbService org.neo4j.graphdb.Node getStop(java.lang.String)">
+    <annotation name="java.lang.Override" />
+  </item>
+  <item name="com.tw.graph.TramchesterGraphDbService void shutdown()">
+    <annotation name="java.lang.Override" />
+  </item>
+</root>
+

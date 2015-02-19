@@ -1,0 +1,41 @@
+<div class="navbar tcr-navbar">
+    <a class="navbar-brand StudioNeon" ng-href="/#/"><span class="glyphicon glyphicon-chevron-left"></span>
+        Tramchester</a>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" id="route-planner">
+            <form name="journeyPlanForm">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="fromStop">From Location</label>
+                        <input class="form-control input-lg" type="text" placeholder="Enter a location or postcode"
+                               ng-model="fromStop">
+                    </div>
+                    <div class="form-group">
+                        <label for="toStop">To Location</label>
+                        <input class="form-control input-lg" type="text" placeholder="Enter a location or postcode"
+                               ng-model="toStop">
+                    </div>
+                    <div class="form-group">
+                        <label for="hour">Departure Date / Time</label>
+                        <input type="datetime-local" class="form-control input-lg"
+                               placeholder="Choose departure date/time" ng-model="departureTime">
+                    </div>
+                    <button type="submit" class="btn btn-default btn-lg btn-block"
+                            ng-click="findRoute(fromStop, toStop, departureTime, journeyPlanForm)">
+                        Find Routes
+                    </button>
+
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>
+
+
+
+
+
+
