@@ -1,4 +1,4 @@
-package com.tramchester.resources;
+package com.tramchester.resource;
 
 
 import com.tramchester.dataimport.data.*;

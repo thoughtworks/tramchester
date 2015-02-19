@@ -37,19 +37,18 @@ public class App extends Application<AppConfiguration> {
 
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
-
-        bootstrap.addBundle(new AssetsBundle("/assets","/","index.html"));
-        bootstrap.addBundle(new AssetsBundle("/assets/css","/css"));
-        bootstrap.addBundle(new AssetsBundle("/assets/images","/images"));
-        bootstrap.addBundle(new AssetsBundle("/assets/javascript","/javascript"));
-        bootstrap.addBundle(new AssetsBundle("/assets/views","/views"));
+        bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.htm", "static"));
+        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
+        bootstrap.addBundle(new AssetsBundle("/assets/images", "/images", null, "images"));
+        bootstrap.addBundle(new AssetsBundle("/assets/javascript", "/javascript", null, "js"));
+        bootstrap.addBundle(new AssetsBundle("/assets/views", "/views", null, "views"));
     }
 
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         dependencies.initialise(configuration);
         //Register Resources
-        environment.jersey().setUrlPattern("/api/*");
+        //environment.jersey().setUrlPattern("/api/*");
 
         environment.jersey().register(dependencies.get(StationResource.class));
 
@@ -62,7 +61,6 @@ public class App extends Application<AppConfiguration> {
         filterHolder.setInitParameter(ALLOWED_METHODS_PARAM, "GET,POST,PUT,OPTIONS");
         filterHolder.setInitParameter(ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control,Access-Control-Allow-Origin,Authorization");
     }
-
 
 
 }

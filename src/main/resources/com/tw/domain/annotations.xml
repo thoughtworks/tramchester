@@ -1,5 +1,0 @@
-<root>
-    <item name='com.tw.domain.Neo4jSpatialService java.util.List&lt;com.tw.dataTransfer.TransportStop&gt; reorderNearestStops(java.lang.Double, java.lang.Double, java.util.List&lt;com.tw.dataTransfer.TransportStop&gt;)'>
-        <annotation name='java.lang.Override'/>
-    </item>
-</root>

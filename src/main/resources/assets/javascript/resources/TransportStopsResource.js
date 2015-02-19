@@ -3,15 +3,15 @@
 techLabApp.factory('transportStops', function($resource){
     return {
         getAll: function(){
-            return $resource('/service/transportStop', {});
+            return $resource('/api/stations', {});
         },
 
         getNearStops: function(lat, lon){
-            return $resource('/service/transportStop/'+ lat + '/' + lon, {});
+            return $resource('/api/stations/'+ lat + '/' + lon, {});
         },
 
         getTrams: function(){
-            return $resource('/service/transportTrams/', {});
+            return $resource('/api/stations/', {});
         }
     };
 });
