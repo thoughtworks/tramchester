@@ -11,7 +11,7 @@ project.ext {
 }
 repositories {
     maven {
-        url "http://m2.neo4j.org/releases/"
+        url "http://m2.neo4j.org/content/repositories/releases"
     }
     maven {
         url "http://download.osgeo.org/webdav/geotools/"
