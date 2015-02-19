@@ -6,6 +6,7 @@ public class Station {
     private final String name;
     private final double latitude;
     private final double longitude;
+    private String proximityGroup;
 
     public Station(String id, String code, String name, double latitude, double longitude) {
 
@@ -34,5 +35,13 @@ public class Station {
 
     public double getLongitude() {
         return longitude;
+    }
+
+    public void setProximityGroup(String proximityGroup) {
+        this.proximityGroup = proximityGroup;
+    }
+
+    public String getProximityGroup() {
+        return proximityGroup;
     }
 }
