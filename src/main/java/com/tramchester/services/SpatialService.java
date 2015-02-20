@@ -1,10 +1,12 @@
 package com.tramchester.services;
 
 import com.tramchester.domain.Station;
+import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 
@@ -15,35 +17,44 @@ import java.util.Map;
 
 public class SpatialService {
     private GraphDatabaseService graphDatabaseService;
+    private TransportGraphBuilder transportGraphBuilder;
     private Index<Node> spatialIndex = null;
 
-    public SpatialService(GraphDatabaseService graphDatabaseService) {
+    public SpatialService(GraphDatabaseService graphDatabaseService, TransportGraphBuilder transportGraphBuilder) {
         this.graphDatabaseService = graphDatabaseService;
+        this.transportGraphBuilder = transportGraphBuilder;
     }
 
     public List<Station> reorderNearestStations(Double latitude, Double longitude, List<Station> stations) {
-        List<Node> nearestStations = getNearestStationsTo(latitude, longitude, 10);
-        List<Station> reorderedStations = new ArrayList<>();
-        int count = 0;
+        Transaction tx = graphDatabaseService.beginTx();
+        try {
+            List<Node> nearestStations = getNearestStationsTo(latitude, longitude, 10);
+            List<Station> reorderedStations = new ArrayList<>();
+            int count = 0;
 
-        for (Node node : nearestStations) {
-            String id = node.getProperty("id").toString();
-            Station nearestStation = getStation(stations, id);
-            if (nearestStation != null) {
-                nearestStation.setProximityGroup("Nearest Stops");
-                reorderedStations.add(nearestStation);
-                count++;
+            for (Node node : nearestStations) {
+                String id = node.getProperty("id").toString();
+                Station nearestStation = getStation(stations, id);
+                if (nearestStation != null) {
+                    nearestStation.setProximityGroup("Nearest Stops");
+                    reorderedStations.add(nearestStation);
+                    count++;
+                }
+                if (count > 6)
+                    break;
             }
-            if (count > 6)
-                break;
-        }
 
-        for (Station distinctStop : stations) {
-            if (reorderedStations.contains(distinctStop) == false) {
-                reorderedStations.add(distinctStop);
+            for (Station station : stations) {
+                if (reorderedStations.contains(station) == false) {
+                    station.setProximityGroup("All Stops");
+                    reorderedStations.add(station);
+                }
             }
+            tx.success();
+            return reorderedStations;
+        } finally {
+            tx.close();
         }
-        return reorderedStations;
     }
 
     private Station getStation(List<Station> stations, String id) {
