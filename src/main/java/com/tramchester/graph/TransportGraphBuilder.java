@@ -2,15 +2,16 @@ package com.tramchester.graph;
 
 
 import com.tramchester.domain.*;
-import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.index.IndexHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class TransportGraphBuilder {
@@ -60,29 +61,6 @@ public class TransportGraphBuilder {
             spatialIndex = graphDatabaseService.index().forNodes("spatial_index", SpatialIndexProvider.SIMPLE_POINT_CONFIG);
 
         return spatialIndex;
-    }
-
-    public List<Node> getNearestStationsTo(double latitude, double longitude, int count) {
-        Transaction tx = graphDatabaseService.beginTx();
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put(LayerNodeIndex.POINT_PARAMETER, new Double[]{latitude, longitude});
-            params.put(LayerNodeIndex.DISTANCE_IN_KM_PARAMETER, 100.0);
-            IndexHits<Node> query = getSpatialIndex().query(LayerNodeIndex.WITHIN_DISTANCE_QUERY, params);
-            List<Node> nearestNodes = new ArrayList<>();
-            int addedCount = 0;
-
-            while (query.hasNext() && addedCount < count) {
-                nearestNodes.add(query.next());
-                addedCount++;
-            }
-
-            tx.success();
-            return nearestNodes;
-
-        } finally {
-            tx.close();
-        }
     }
 
     private Node getStation(Station station) {

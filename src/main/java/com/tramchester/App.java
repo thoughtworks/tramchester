@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.resources.StationResource;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -51,6 +52,7 @@ public class App extends Application<AppConfiguration> {
         //environment.jersey().setUrlPattern("/api/*");
 
         environment.jersey().register(dependencies.get(StationResource.class));
+        environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
 
         addCrossOriginFilter(environment);
     }
