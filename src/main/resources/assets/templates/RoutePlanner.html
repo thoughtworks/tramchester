@@ -13,7 +13,7 @@
                     <div class="form-group">
                         <label for="fromStop">From</label>
                         <select ng-model="fromStop" required
-                                ng-options="stop.id as stop.name group by stop.proximityGroup for stop in stops"
+                                ng-options="stop.id as stop.name group by stop.proximityGroup for stop in stops | orderBy:'name'"
                                 ng-show="stops.length"
                                 class="form-control input-lg">
                             <option value="">- Please select tram stop -</option>

@@ -106,4 +106,7 @@ public class TransportData {
         return stationList;
     }
 
+    public Station getStation(String stationId) {
+        return stations.get(stationId);
+    }
 }

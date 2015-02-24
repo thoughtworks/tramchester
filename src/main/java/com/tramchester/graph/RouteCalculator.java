@@ -53,9 +53,9 @@ public class RouteCalculator {
         Stage currentStage = null;
         for (Relationship relationship : relationships) {
             if (relationship.isType(BOARD)) {
-                currentStage = new Stage(relationship.getStartNode().getProperty("name").toString(), relationship.getEndNode().getProperty("route_name").toString());
+                currentStage = new Stage(relationship.getStartNode().getProperty("id").toString(), relationship.getEndNode().getProperty("route_name").toString());
             } else if(relationship.isType(DEPART)) {
-                currentStage.setLastStation(relationship.getEndNode().getProperty("name").toString());
+                currentStage.setLastStation(relationship.getEndNode().getProperty("id").toString());
                 stages.add(currentStage);
             }
         }
