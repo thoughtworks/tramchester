@@ -110,9 +110,9 @@ public class TransportData {
         return stations.get(stationId);
     }
 
-    public List<ServiceTime> getTimes(String routeId, int minutesFromMidnight) {
-        Route route = routes.get(routeId);
-        //route.getServices()
+    public List<ServiceTime> getTimes(String serviceId, String stationId, int minutesFromMidnight) {
+        Service service = services.get(serviceId);
+        List<Trip> tripsAfter = service.getTripsAfter(stationId, minutesFromMidnight);
         return null;
     }
 }

@@ -1,11 +1,14 @@
 package com.tramchester.domain;
 
+import java.util.List;
+
 public class Stage {
     private String firstStation;
     private String route;
     private String routeId;
     private String lastStation;
     private String serviceId;
+    private List<ServiceTime> times;
 
     public Stage(String firstStation, String route, String routeId) {
         this.firstStation = firstStation;
@@ -39,5 +42,17 @@ public class Stage {
 
     public void setServiceId(String serviceId) {
         this.serviceId = serviceId;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setTimes(List<ServiceTime> times) {
+        this.times = times;
+    }
+
+    public List<ServiceTime> getTimes() {
+        return times;
     }
 }

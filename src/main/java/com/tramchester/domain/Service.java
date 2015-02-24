@@ -42,4 +42,16 @@ public class Service {
     public HashMap<DaysOfWeek, Boolean> getDays() {
         return days;
     }
+
+    public List<Trip> getTripsAfter(String stationId, int minutesFromMidnight) {
+        List<Trip> validTrips = new ArrayList<>();
+        int count = 0;
+        for (Trip trip : trips) {
+            if (trip.isAfter(minutesFromMidnight, stationId) && count < 5) {
+                validTrips.add(trip);
+                count++;
+            }
+        }
+        return validTrips;
+    }
 }
