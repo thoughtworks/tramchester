@@ -11,7 +11,6 @@ var techLabApp = angular.module('techLabApp', ['ngResource']).
                 controller: 'AdvancedRoutePlannerController'
             }).
             when('/routeDetails', {templateUrl: 'templates/RouteDetails.html', controller: 'RouteDetailsController'}).
-            when('/liveMap', {templateUrl: 'templates/LiveMap.html', controller: 'LiveMapController'}).
             when('/', {templateUrl: 'templates/splash.html'}).
             when('/disclaimer', {templateUrl: 'templates/Disclaimer.html'}).
             when('/map', {templateUrl: 'templates/map.html', controller: 'MapController'}).

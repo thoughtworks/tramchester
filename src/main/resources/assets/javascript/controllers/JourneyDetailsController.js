@@ -8,6 +8,7 @@ techLabApp.controller('JourneyDetailsController',
         $scope.disablePreviousTram = true;
         $scope.showChangeIndicator = false;
         console.log($scope.journey);
+
         $scope.showMap = function (stage) {
             if ($scope.journey.stages.indexOf(stage) == 0) {
                 $location.url('/map?lat=' + stage.beginStop.lat + "&lon=" + stage.beginStop.lon + "&name=" + stage.beginStop.name + "&direction=1");

@@ -57,8 +57,8 @@ techLabApp.factory('journeyPlanService', function () {
 
         for (var i = 0; i < journeyPlan.journeys.length; i++) {
             for (var j = 0; j < journeyPlan.journeys[i].stages.length; j++) {
-                journeyPlan.journeys[i].stages[j].beginStop = getStop(journeyPlan.stops, journeyPlan.journeys[i].stages[j].beginStopId);
-                journeyPlan.journeys[i].stages[j].endStop = getStop(journeyPlan.stops, journeyPlan.journeys[i].stages[j].endStopId);
+                journeyPlan.journeys[i].stages[j].beginStop = getStop(journeyPlan.stations, journeyPlan.journeys[i].stages[j].beginStopId);
+                journeyPlan.journeys[i].stages[j].endStop = getStop(journeyPlan.stations, journeyPlan.journeys[i].stages[j].endStopId);
             }
         }
         return journeyPlan;
