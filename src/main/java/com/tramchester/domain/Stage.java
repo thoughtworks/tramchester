@@ -3,11 +3,13 @@ package com.tramchester.domain;
 public class Stage {
     private String firstStation;
     private String route;
+    private String routeId;
     private String lastStation;
 
-    public Stage(String firstStation, String route) {
+    public Stage(String firstStation, String route, String routeId) {
         this.firstStation = firstStation;
         this.route = route;
+        this.routeId = routeId;
     }
 
     public void setLastStation(String lastStation) {
@@ -24,5 +26,9 @@ public class Stage {
 
     public String getLastStation() {
         return lastStation;
+    }
+
+    public String getRouteId() {
+        return routeId;
     }
 }
