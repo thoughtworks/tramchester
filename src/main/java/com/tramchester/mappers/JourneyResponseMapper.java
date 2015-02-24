@@ -20,7 +20,14 @@ public class JourneyResponseMapper {
 
     public JourneyPlanRepresentation map(List<Journey> journeys) {
         Set<Station> stations = getStations(journeys);
-        return new JourneyPlanRepresentation(journeys, stations);
+        return new JourneyPlanRepresentation(setSummaries(journeys, stations), stations);
+    }
+
+    private List<Journey> setSummaries(List<Journey> journeys, Set<Station> stations) {
+        for (Journey journey : journeys) {
+            journey.setSummary(getJourneySummary(journey, stations));
+        }
+        return journeys;
     }
 
     private Set<Station> getStations(List<Journey> journeys) {
@@ -34,4 +41,20 @@ public class JourneyResponseMapper {
         }
         return stations;
     }
+
+    private String getJourneySummary(Journey journey, Set<Station> stations) {
+        if (journey.getStages().size() < 2) {
+            return "Direct";
+        }
+        String endStopId = journey.getStages().get(0).getLastStation();
+        Station station = null;
+        for (Station stop : stations) {
+            if (stop.getId().equals(endStopId)) {
+                station = stop;
+                break;
+            }
+        }
+        return String.format("Change at %s", station.getName());
+    }
+
 }
