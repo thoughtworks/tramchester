@@ -31,4 +31,8 @@ public class Stage {
     public String getRouteId() {
         return routeId;
     }
+
+    public String getTramRouteId() {
+        return routeId.substring(4, 8);
+    }
 }
