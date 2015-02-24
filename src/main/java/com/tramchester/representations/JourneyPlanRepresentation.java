@@ -4,12 +4,13 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
 
 import java.util.List;
+import java.util.Set;
 
 public class JourneyPlanRepresentation {
     private final List<Journey> journeys;
-    private final List<Station> stations;
+    private final Set<Station> stations;
 
-    public JourneyPlanRepresentation(List<Journey> journeys, List<Station> stations) {
+    public JourneyPlanRepresentation(List<Journey> journeys, Set<Station> stations) {
         this.journeys = journeys;
         this.stations = stations;
     }
@@ -18,7 +19,7 @@ public class JourneyPlanRepresentation {
         return journeys;
     }
 
-    public List<Station> getStations() {
+    public Set<Station> getStations() {
         return stations;
     }
 }
