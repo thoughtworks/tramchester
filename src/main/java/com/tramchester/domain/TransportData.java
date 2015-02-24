@@ -111,8 +111,13 @@ public class TransportData {
     }
 
     public List<ServiceTime> getTimes(String serviceId, String stationId, int minutesFromMidnight) {
+        List<ServiceTime> serviceTimes = new ArrayList<>();
         Service service = services.get(serviceId);
         List<Trip> tripsAfter = service.getTripsAfter(stationId, minutesFromMidnight);
-        return null;
+        for (Trip trip : tripsAfter) {
+            Stop stop = trip.getStop(stationId);
+            serviceTimes.add(new ServiceTime(stop.getDepartureTime(), stop.getArrivalTime(), "route", serviceId, "headsign", 4));
+        }
+        return serviceTimes;
     }
 }

@@ -1,6 +1,10 @@
 package com.tramchester.domain;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.mappers.TimeJsonSerializer;
+import org.joda.time.DateTime;
+
 import java.util.List;
 
 public class Journey {
@@ -22,5 +26,22 @@ public class Journey {
 
     public String getSummary() {
         return summary;
+    }
+
+    @JsonSerialize(using = TimeJsonSerializer.class)
+    public DateTime getFirstDepartureTime() {
+        if (stages.size() == 0) {
+            return new DateTime(0);
+        }
+        List<ServiceTime> serviceTimes = stages.get(0).getServiceTimes();
+        return serviceTimes.get(0).getDepartureTime();
+    }
+
+    @JsonSerialize(using = TimeJsonSerializer.class)
+    public DateTime getExpectedArrivalTime() {
+        if (stages.size() == 0) {
+            return new DateTime(0);
+        }
+        return stages.get(stages.size() - 1).getExpectedArrivalTime();
     }
 }

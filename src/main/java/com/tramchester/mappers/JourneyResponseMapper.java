@@ -27,7 +27,7 @@ public class JourneyResponseMapper {
         for (Journey journey : journeys) {
             journey.setSummary(getJourneySummary(journey, stations));
             for (Stage stage : journey.getStages()) {
-                stage.setTimes(transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), minutesFromMidnight));
+                stage.setServiceTimes(transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), minutesFromMidnight));
             }
         }
         return journeys;

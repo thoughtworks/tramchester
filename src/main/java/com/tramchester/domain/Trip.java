@@ -26,10 +26,19 @@ public class Trip {
 
     public boolean isAfter(int minutesFromMidnight, String stationId) {
         for (Stop stop : stops) {
-            if(stop.getStation().getId().equals(stationId) && stop.getMinutesFromMidnight() > minutesFromMidnight){
+            if (stop.getStation().getId().equals(stationId) && stop.getMinutesFromMidnight() > minutesFromMidnight) {
                 return true;
             }
         }
         return false;
+    }
+
+    public Stop getStop(String stationId) {
+        for (Stop stop : stops) {
+            if (stop.getStation().getId().equals(stationId)) {
+                return stop;
+            }
+        }
+        return null;
     }
 }

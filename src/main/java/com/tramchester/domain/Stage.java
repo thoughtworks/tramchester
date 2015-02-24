@@ -1,5 +1,9 @@
 package com.tramchester.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.mappers.TimeJsonSerializer;
+import org.joda.time.DateTime;
+
 import java.util.List;
 
 public class Stage {
@@ -8,7 +12,7 @@ public class Stage {
     private String routeId;
     private String lastStation;
     private String serviceId;
-    private List<ServiceTime> times;
+    private List<ServiceTime> serviceTimes;
 
     public Stage(String firstStation, String route, String routeId) {
         this.firstStation = firstStation;
@@ -48,11 +52,28 @@ public class Stage {
         return serviceId;
     }
 
-    public void setTimes(List<ServiceTime> times) {
-        this.times = times;
+    public void setServiceTimes(List<ServiceTime> times) {
+        this.serviceTimes = times;
     }
 
-    public List<ServiceTime> getTimes() {
-        return times;
+    public List<ServiceTime> getServiceTimes() {
+        return serviceTimes;
+    }
+
+    @JsonSerialize(using = TimeJsonSerializer.class)
+    public DateTime getExpectedArrivalTime() {
+        DateTime firstArrivalTime = DateTime.now();
+        if (serviceTimes.size() > 0) {
+            firstArrivalTime = serviceTimes.get(0).getArrivalTime();
+        }
+        return firstArrivalTime;
+    }
+    @JsonSerialize(using = TimeJsonSerializer.class)
+    public DateTime getFirstDepartureTime() {
+        DateTime firstDepartureTime = DateTime.now();
+        if (serviceTimes.size() > 0) {
+            firstDepartureTime = serviceTimes.get(0).getDepartureTime();
+        }
+        return firstDepartureTime;
     }
 }
