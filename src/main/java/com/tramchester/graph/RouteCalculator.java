@@ -17,9 +17,7 @@ import static com.tramchester.graph.GraphStaticKeys.COST;
 import static com.tramchester.graph.GraphStaticKeys.Station;
 import static com.tramchester.graph.GraphStaticKeys.Station.ID;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
-import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
-import static com.tramchester.graph.TransportRelationshipTypes.DEPART;
-import static com.tramchester.graph.TransportRelationshipTypes.GOES_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
@@ -57,6 +55,8 @@ public class RouteCalculator {
             } else if(relationship.isType(DEPART)) {
                 currentStage.setLastStation(relationship.getEndNode().getProperty("id").toString());
                 stages.add(currentStage);
+            } else if(relationship.isType(GOES_TO)) {
+                currentStage.setServiceId(relationship.getProperty("service_id").toString());
             }
         }
 

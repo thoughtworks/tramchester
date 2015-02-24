@@ -33,7 +33,7 @@ public class JourneyPlannerResource {
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId, @QueryParam("departureTime") String departureTime) throws Exception {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
         List<Journey> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight);
-        return Response.ok(journeyResponseMapper.map(journeys)).build();
+        return Response.ok(journeyResponseMapper.map(journeys, minutesFromMidnight)).build();
     }
 
 }

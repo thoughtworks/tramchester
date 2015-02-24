@@ -18,14 +18,17 @@ public class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    public JourneyPlanRepresentation map(List<Journey> journeys) {
+    public JourneyPlanRepresentation map(List<Journey> journeys, int minutesFromMidnight) {
         Set<Station> stations = getStations(journeys);
-        return new JourneyPlanRepresentation(setSummaries(journeys, stations), stations);
+        return new JourneyPlanRepresentation(decorateJourneys(journeys, stations, minutesFromMidnight), stations);
     }
 
-    private List<Journey> setSummaries(List<Journey> journeys, Set<Station> stations) {
+    private List<Journey> decorateJourneys(List<Journey> journeys, Set<Station> stations, int minutesFromMidnight) {
         for (Journey journey : journeys) {
             journey.setSummary(getJourneySummary(journey, stations));
+            for (Stage stage : journey.getStages()) {
+               // stage.setTimes(transportData.getTimes(stage.getRouteId(), minutesFromMidnight));
+            }
         }
         return journeys;
     }

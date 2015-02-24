@@ -5,6 +5,7 @@ public class Stage {
     private String route;
     private String routeId;
     private String lastStation;
+    private String serviceId;
 
     public Stage(String firstStation, String route, String routeId) {
         this.firstStation = firstStation;
@@ -34,5 +35,9 @@ public class Stage {
 
     public String getTramRouteId() {
         return routeId.substring(4, 8);
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 }

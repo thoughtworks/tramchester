@@ -109,4 +109,10 @@ public class TransportData {
     public Station getStation(String stationId) {
         return stations.get(stationId);
     }
+
+    public List<ServiceTime> getTimes(String routeId, int minutesFromMidnight) {
+        Route route = routes.get(routeId);
+        //route.getServices()
+        return null;
+    }
 }
