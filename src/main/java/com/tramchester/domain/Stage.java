@@ -13,6 +13,7 @@ public class Stage {
     private String lastStation;
     private String serviceId;
     private List<ServiceTime> serviceTimes;
+    private int duration;
 
     public Stage(String firstStation, String route, String routeId) {
         this.firstStation = firstStation;
@@ -68,6 +69,7 @@ public class Stage {
         }
         return firstArrivalTime;
     }
+
     @JsonSerialize(using = TimeJsonSerializer.class)
     public DateTime getFirstDepartureTime() {
         DateTime firstDepartureTime = DateTime.now();
@@ -75,5 +77,12 @@ public class Stage {
             firstDepartureTime = serviceTimes.get(0).getDepartureTime();
         }
         return firstDepartureTime;
+    }
+
+    public int getDuration() {
+        if (serviceTimes.size() > 0) {
+            return serviceTimes.get(0).getArrivalTime().getMinuteOfDay() - serviceTimes.get(0).getDepartureTime().getMinuteOfDay();
+        }
+        return 0;
     }
 }

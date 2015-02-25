@@ -24,10 +24,12 @@ public class JourneyResponseMapper {
     }
 
     private List<Journey> decorateJourneys(List<Journey> journeys, Set<Station> stations, int minutesFromMidnight) {
+        int minutesPast = 0;
         for (Journey journey : journeys) {
             journey.setSummary(getJourneySummary(journey, stations));
             for (Stage stage : journey.getStages()) {
-                stage.setServiceTimes(transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), minutesFromMidnight));
+                stage.setServiceTimes(transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), stage.getLastStation(), minutesFromMidnight + minutesPast));
+                minutesPast += stage.getDuration();
             }
         }
         return journeys;
