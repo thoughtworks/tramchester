@@ -16,7 +16,7 @@
                 from
                 {{journey.stages[0].beginStop.name}}</h4>
 
-            <div ng-repeat="stage in journey.stages | filter:{tramStage: true}">
+            <div ng-repeat="stage in journey.stages ">
                 <div ng-class-even="'tcr-change'" ng-class-odd="'hidden'"><span
                         class="glyphicon glyphicon-random"></span>
                     <span class="trc-change-text">Change Tram</span>
