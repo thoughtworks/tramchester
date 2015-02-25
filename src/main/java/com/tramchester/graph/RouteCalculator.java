@@ -35,9 +35,12 @@ public class RouteCalculator {
         try (Transaction tx = db.beginTx()) {
 
             Iterable<WeightedPath> paths = findShortestPath(start, end, time);
+            int index = 0;
 
             for (WeightedPath path : paths) {
-                journeys.add(mapJourney(path));
+                Journey journey = mapJourney(path);
+                journey.setJourneyIndex(index++);
+                journeys.add(journey);
             }
 
             tx.success();

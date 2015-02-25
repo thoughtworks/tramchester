@@ -11,6 +11,7 @@ public class Journey {
 
     private List<Stage> stages;
     private String summary;
+    private int journeyIndex;
 
     public Journey(List<Stage> stages) {
         this.stages = stages;
@@ -43,5 +44,13 @@ public class Journey {
             return new DateTime(0);
         }
         return stages.get(stages.size() - 1).getExpectedArrivalTime();
+    }
+
+    public int getJourneyIndex() {
+        return journeyIndex;
+    }
+
+    public void setJourneyIndex(int journeyIndex) {
+        this.journeyIndex = journeyIndex;
     }
 }
