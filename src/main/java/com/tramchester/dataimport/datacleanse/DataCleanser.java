@@ -1,53 +1,38 @@
 package com.tramchester.dataimport.datacleanse;
 
 import com.tramchester.dataimport.TransportDataReader;
-import com.tramchester.dataimport.data.CalendarData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
-import com.tramchester.dataimport.data.TripData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 public class DataCleanser {
     private static final String path = "data/new/";
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
-    private static final TransportDataReader transportDataReader= new TransportDataReader(path);
-    private static final TransportDataWriter transportDataWriter= new TransportDataWriter(path);
+    private static final TransportDataReader transportDataReader = new TransportDataReader(path);
+    private static final TransportDataWriter transportDataWriter = new TransportDataWriter(path);
 
     public static void main(String[] args) throws Exception {
-        List<RouteData> routes = transportDataReader.getRoutes();
-        String routeSting = cleanseRoutes(routes);
-        String filename = "routes";
-        transportDataWriter.writeFile(routeSting, filename);
+        cleanseRoutes();
+       // cleanseStops();
+
+        String filename;
 
 
-        List<TripData> trips = transportDataReader.getTrips();
-
-        String tripSting = "";
-        for (TripData trip : trips) {
-            if (trip.getRouteId().startsWith("MET")) {
-                tripSting += trip.getRouteId() + "," + trip.getServiceId() + "," + trip.getTripId() + "," + trip.getTripHeadsign() + "\n";
-            }
-        }
-        filename = "trips";
-        transportDataWriter.writeFile(tripSting, filename);
-
-
-        List<StopData> stops = transportDataReader.getStops();
-
-        String stopSting = "";
-        for (StopData stop : stops) {
-            if (stop.getId().startsWith("9400")) {
-                stopSting += stop.getId() + "," + stop.getCode() + "," + stop.getName() + "," + stop.getLatitude() + "," + stop.getLongitude() + "\n";
-
-            }
-        }
-        filename = "stops";
-        transportDataWriter.writeFile(stopSting, filename);
+//        List<TripData> trips = transportDataReader.getTrips();
+//
+//        String tripSting = "";
+//        for (TripData trip : trips) {
+//            if (trip.getRouteId().startsWith("MET")) {
+//                tripSting += trip.getRouteId() + "," + trip.getServiceId() + "," + trip.getTripId() + "," + trip.getTripHeadsign() + "\n";
+//            }
+//        }
+//        filename = "trips";
+//        transportDataWriter.writeFile(tripSting, filename);
+//
 
 
 //        List<StopTimeData> stopTimes = getStopTimes();
@@ -70,42 +55,56 @@ public class DataCleanser {
 
         /////////////
 
-        List<TripData> trips1 = transportDataReader.getTrips();
-        Set<String> services = new HashSet<>();
-        for (TripData tripData : trips1) {
-            services.add(tripData.getServiceId());
-        }
-        List<CalendarData> calendar = transportDataReader.getCalendar();
+//        List<TripData> trips1 = transportDataReader.getTrips();
+//        Set<String> services = new HashSet<>();
+//        for (TripData tripData : trips1) {
+//            services.add(tripData.getServiceId());
+//        }
+//        List<CalendarData> calendar = transportDataReader.getCalendar();
+//
+//        String calendarSting = "";
+//        for (CalendarData calendarData : calendar) {
+//            if (services.contains(calendarData.getServiceId())) {
+//                calendarSting += calendarData.getServiceId() + "," + getInt(calendarData.isMonday())+ "," + getInt(calendarData.isTuesday())
+//                        + "," + getInt(calendarData.isWednesday())
+//                        + "," + getInt(calendarData.isThursday())
+//                        + "," + getInt(calendarData.isFriday())
+//                        + "," + getInt(calendarData.isSaturday())
+//                        + "," + getInt(calendarData.isSunday())
+//                        + "," + calendarData.getStart().toString("YYYMMdd")+ "," + calendarData.getEnd().toString("YYYMMdd") + "\n";
+//            }
+//        }
+//        filename = "calendar";
+//        transportDataWriter.writeFile(calendarSting, filename);
+        System.out.println("Done!!!");
+    }
 
-        String calendarSting = "";
-        for (CalendarData calendarData : calendar) {
-            if (services.contains(calendarData.getServiceId())) {
-                calendarSting += calendarData.getServiceId() + "," + getInt(calendarData.isMonday())+ "," + getInt(calendarData.isTuesday())
-                        + "," + getInt(calendarData.isWednesday())
-                        + "," + getInt(calendarData.isThursday())
-                        + "," + getInt(calendarData.isFriday())
-                        + "," + getInt(calendarData.isSaturday())
-                        + "," + getInt(calendarData.isSunday())
-                        + "," + calendarData.getStart().toString("YYYMMdd")+ "," + calendarData.getEnd().toString("YYYMMdd") + "\n";
+    private static void cleanseStops() throws IOException {
+        logger.info("**** Start cleansing routes.");
+        List<StopData> stops = transportDataReader.getStops();
+        String content = "";
+        for (StopData stop : stops) {
+            if (stop.getId().startsWith("9400")) {
+                content += stop.getId() + "," + stop.getCode() + "," + stop.getName() + "," + stop.getLatitude() + "," + stop.getLongitude() + "\n";
             }
         }
-        filename = "calendar";
-        transportDataWriter.writeFile(calendarSting, filename);
-        System.out.println("Done!!!");
+        transportDataWriter.writeFile(content, "stops");
+        logger.info("**** Start cleansing routes.");
+    }
+
+    private static void cleanseRoutes() throws IOException {
+        logger.info("**** Start cleansing routes.");
+        List<RouteData> routes = transportDataReader.getRoutes();
+        StringBuilder content = new StringBuilder();
+
+        routes.stream().filter(route -> route.getId().startsWith("MET")).forEach(route -> content.append(String.format("%s,MET,%s,%s,0\n", route.getId(), route.getCode(), route.getName())));
+
+        transportDataWriter.writeFile(content.toString(), "routes");
+        logger.info("**** Start cleansing routes.");
     }
 
     private static String getInt(boolean monday) {
         return monday ? "1" : "0";
-    }
-
-    private static String cleanseRoutes(List<RouteData> routes) {
-        String routeSting = "";
-        for (RouteData route : routes) {
-            if (route.getId().startsWith("MET")) {
-                routeSting += route.getId() + ", MET, " + route.getCode() + ", " + route.getName() + ",0 \n";
-            }
-        }
-        return routeSting;
     }
 
 
