@@ -4,14 +4,30 @@ import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.StopTimeData;
 import org.joda.time.DateTime;
 
+import static java.lang.Character.isDigit;
+
 
 public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
     public StopTimeData parseEntry(String... data) {
         String tripId = data[0];
-        DateTime arrivalTime = getDateTime(data[1]);
-        DateTime departureTime = getDateTime(data[2]);
-        int minutesFromMidnight = getMinutes(data[1]);
-        String stopId = data[3].substring(0, data[3].length() - 1);
+        DateTime arrivalTime = new DateTime();
+        if (data[1].contains(":")) {
+            arrivalTime = getDateTime(data[1]);
+        }
+        DateTime departureTime = new DateTime();
+        if (data[2].contains(":")) {
+            departureTime = getDateTime(data[2]);
+        }
+        int minutesFromMidnight = 0;
+        if (data[1].contains(":")) {
+            minutesFromMidnight = getMinutes(data[1]);
+        }
+
+        String stopId = data[3];
+        if (isDigit(stopId.toCharArray()[data[3].length() - 1])) {
+            stopId = stopId.substring(0, data[3].length() - 1);
+        }
+
         String stopSequence = data[4];
         String pickupType = data[5];
         String dropOffType = data[6];

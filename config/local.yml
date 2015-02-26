@@ -7,8 +7,6 @@ server:
     type: http
     port: 8080
 
-rebuildGraph: true
-
 logging:
   level: INFO
   loggers:
