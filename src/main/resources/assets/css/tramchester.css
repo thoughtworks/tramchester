@@ -285,26 +285,32 @@ input[type="time"], input[type="datetime-local"] {
 
 /*! Altrincham - Piccadilly */
 .MET3 .panel-heading {
-    background-color: #ffdb4e;
+    background-color: #f0ca43;
     color: #191c1f;
 }
 
 /*! Bury - Droylsden */
 .MET1 .panel-heading {
-    background-color: #40c8f4;
+    background-color: #60b0db;
     color: #191c1f;
 }
 
 /*! East Didsbury - Rochdale Railway Station */
 .MET5 .panel-heading {
-    background-color: #9853a1;
+    background-color: #7b437e;
     color: #ffffff;
 }
 
-/*! Eccles - Piccadilly */
+/*! Eccles - Ashton-under-Lyne */
 .MET4 .panel-heading {
-    background-color: #f287b7;
+    background-color: #ce799f;
     color: #191c1f;
+}
+
+/*! Manchester Airport - Cornbrook */
+.MET6 .panel-heading {
+    background-color: #1a569a;
+    color: #ffffff;
 }
 
 /*! MediaCityUK - Cornbrook */

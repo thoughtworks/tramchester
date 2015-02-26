@@ -1,176 +1,178 @@
-9400ZZMAABM1,mantpmaw,"Cheetham Hill, Abraham Moss (Manchester Metrolink)",53.51046,-2.23550,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAABM1
-9400ZZMAABM2,mantpmda,"Cheetham Hill, Abraham Moss (Manchester Metrolink)",53.51091,-2.23611,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAABM2
-9400ZZMAAIR1,mantwjmp,"Manchester Airport, Manchester Airport (Manchester Metrolink)",53.36537,-2.27247,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAIR1
-9400ZZMAALT1,mantpmjm,"Altrincham, Altrincham Station (Manchester Metrolink)",53.38745,-2.34741,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAALT1
-9400ZZMAAMO1,mantwdpw,"Ashton Moss, Ashton Moss (Manchester Metrolink)",53.48373,-2.12194,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAMO1
-9400ZZMAAMO2,mantwdta,"Ashton Moss, Ashton Moss (Manchester Metrolink)",53.48350,-2.12203,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAMO2
-9400ZZMAANC1,mantpjmd,"Salford Quays, Anchorage (Manchester Metrolink)",53.47426,-2.28608,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAANC1
-9400ZZMAANC2,mantpjmg,"Salford Quays, Anchorage (Manchester Metrolink)",53.47429,-2.28594,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAANC2
-9400ZZMAAUD1,mantwdpj,"Audenshaw, Audenshaw (Manchester Metrolink)",53.47822,-2.13096,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAUD1
-9400ZZMAAUD2,mantwdpm,"Audenshaw, Audenshaw (Manchester Metrolink)",53.47821,-2.13124,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAUD2
-9400ZZMAAUL1,mantwdtp,"Ashton Under Lyne, Ashton-Under-Lyne (Manchester Metrolink)",53.49036,-2.09798,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAUL1
-9400ZZMAAUL2,mantwdtw,"Ashton Under Lyne, Ashton-Under-Lyne (Manchester Metrolink)",53.49031,-2.09811,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAUL2
-9400ZZMAAWT1,mantwdtg,"Ashton Moss, Ashton West (Manchester Metrolink)",53.49030,-2.10974,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAWT1
-9400ZZMAAWT2,mantwdtj,"Ashton Moss, Ashton West (Manchester Metrolink)",53.49017,-2.10992,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAWT2
-9400ZZMABAG1,mantwgwm,"Baguley, Baguley (Manchester Metrolink)",53.39676,-2.29255,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABAG1
-9400ZZMABAG2,mantwgwp,"Baguley, Baguley (Manchester Metrolink)",53.39684,-2.29279,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABAG2
-9400ZZMABAR1,mantwgpj,"Chorltonville, Barlow Moor Road (Manchester Metrolink)",53.43278,-2.26935,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABAR1
-9400ZZMABAR2,mantwgpm,"Chorltonville, Barlow Moor Road (Manchester Metrolink)",53.43286,-2.26939,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABAR2
-9400ZZMABKS1,mantpmgt,"Brooklands, Brooklands (Manchester Metrolink)",53.41727,-2.32579,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABKS1
-9400ZZMABKS2,mantpmgp,"Brooklands, Brooklands (Manchester Metrolink)",53.41715,-2.32611,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABKS2
-9400ZZMABLL1,mantwjaw,"Benchill, Benchill (Manchester Metrolink)",53.38709,-2.25613,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABLL1
-9400ZZMABLL2,mantwjda,"Benchill, Benchill (Manchester Metrolink)",53.38708,-2.25629,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABLL2
-9400ZZMABNR1,mantwdat,"West Didsbury, Burton Road (Manchester Metrolink)",53.42910,-2.24064,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABNR1
-9400ZZMABNR2,mantwdaw,"West Didsbury, Burton Road (Manchester Metrolink)",53.42915,-2.24050,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABNR2
-9400ZZMABOB1,mantpjwd,"Besses O Th Barn, Besses o'th'barn (Manchester Metrolink)",53.54207,-2.28616,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABOB1
-9400ZZMABOB2,mantpjwg,"Besses O Th Barn, Besses o'th'barn (Manchester Metrolink)",53.54207,-2.28608,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABOB2
-9400ZZMABOW1,mantpmad,"Bowker Vale, Bowker Vale (Manchester Metrolink)",53.52484,-2.24991,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABOW1
-9400ZZMABOW2,mantpmag,"Bowker Vale, Bowker Vale (Manchester Metrolink)",53.52492,-2.24985,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABOW2
-9400ZZMABUR1,mantpjtg,"Bury, Bury Interchange (Manchester Metrolink)",53.59084,-2.29726,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABUR1
-9400ZZMABUR2,mantpjtj,"Bury, Bury Interchange (Manchester Metrolink)",53.59084,-2.29711,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABUR2
-9400ZZMABWY1,mantpjpa,"Broadway, Broadway (Manchester Metrolink)",53.47479,-2.29506,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABWY1
-9400ZZMABWY2,mantpjpd,"Broadway, Broadway (Manchester Metrolink)",53.47483,-2.29488,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMABWY2
-9400ZZMACEM1,mantwada,"Droylsden, Cemetery Road (Manchester Metrolink)",53.47993,-2.15502,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACEM1
-9400ZZMACEM2,mantwadg,"Droylsden, Cemetery Road (Manchester Metrolink)",53.47984,-2.15502,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACEM2
-9400ZZMACHO1,mantpgtd,"Chorlton, Chorlton Station (Manchester Metrolink)",53.44264,-2.27335,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACHO1
-9400ZZMACHO2,mantpjdm,"Chorlton, Chorlton Station (Manchester Metrolink)",53.44281,-2.27366,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACHO2
-9400ZZMACLN1,mantpwpg,"Clayton, Clayton Hall (Manchester Metrolink)",53.48281,-2.18256,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACLN1
-9400ZZMACLN2,mantpwpj,"Clayton, Clayton Hall (Manchester Metrolink)",53.48276,-2.18208,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACLN2
-9400ZZMACRN1,mantpgwg,"Cornbrook, Cornbrook (Manchester Metrolink)",53.46997,-2.26768,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACRN1
-9400ZZMACRN2,mantpjda,"Cornbrook, Cornbrook (Manchester Metrolink)",53.47002,-2.26744,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACRN2
-9400ZZMACRU1,mantpmap,"Higher Crumpsall, Crumpsall (Manchester Metrolink)",53.51727,-2.24114,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACRU1
-9400ZZMACRU2,mantpmat,"Higher Crumpsall, Crumpsall (Manchester Metrolink)",53.51729,-2.24094,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACRU2
-9400ZZMACSS1,mantwjdj,"Wythenshawe, Crossacres (Manchester Metrolink)",53.38330,-2.25621,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACSS1
-9400ZZMACSS2,mantwjdm,"Wythenshawe, Crossacres (Manchester Metrolink)",53.38336,-2.25632,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACSS2
-9400ZZMACTP1,mantpmtd,"Newton Heath, Central Park Station (Manchester Metrolink)",53.50163,-2.19917,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACTP1
-9400ZZMACTP2,mantpmtg,"Newton Heath, Central Park Station (Manchester Metrolink)",53.50155,-2.19915,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMACTP2
-9400ZZMADER1,mantpwag,"Derker, Derker (Manchester Metrolink)",53.54992,-2.10171,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADER1
-9400ZZMADER2,mantpwaj,"Derker, Derker (Manchester Metrolink)",53.54980,-2.10154,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADER2
-9400ZZMADID1,mantwdgw,"Didsbury, Didsbury Village (Manchester Metrolink)",53.41671,-2.22862,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADID1
-9400ZZMADID2,mantwdja,"Didsbury, Didsbury Village (Manchester Metrolink)",53.41671,-2.22841,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADID2
-9400ZZMADNE1,mantpmga,"Sale, Dane Road (Manchester Metrolink)",53.43024,-2.31153,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADNE1
-9400ZZMADNE2,mantpmgd,"Sale, Dane Road (Manchester Metrolink)",53.43019,-2.31137,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADNE2
-9400ZZMADRO1,mantwadm,"Droylsden, Droylsden (Manchester Metrolink)",53.47953,-2.14518,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADRO1
-9400ZZMADRO2,mantwadp,"Droylsden, Droylsden (Manchester Metrolink)",53.47943,-2.14448,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMADRO2
-9400ZZMAECC1,mantpjtd,"Eccles, Eccles (Manchester Metrolink)",53.48308,-2.33454,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAECC1
-9400ZZMAECS1,mantpwmj,"Sportcity, Etihad Campus (Manchester Metrolink)",53.48537,-2.20221,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAECS1
-9400ZZMAECS2,mantpwmp,"Sportcity, Etihad Campus (Manchester Metrolink)",53.48537,-2.20063,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAECS2
-9400ZZMAEDY1,mantwdjm,"East Didsbury, East Didsbury (Manchester Metrolink)",53.41210,-2.21739,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAEDY1
-9400ZZMAEDY2,mantwdjg,"East Didsbury, East Didsbury (Manchester Metrolink)",53.41202,-2.21713,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAEDY2
-9400ZZMAELN1,mantpwpt,"Droylsden, Edge Lane (Manchester Metrolink)",53.48088,-2.16512,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAELN1
-9400ZZMAELN2,mantpwpw,"Droylsden, Edge Lane (Manchester Metrolink)",53.48085,-2.16540,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAELN2
-9400ZZMAEXC1,mantpjgp,"Salford Quays, Exchange Quay (Manchester Metrolink)",53.46770,-2.28242,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAEXC1
-9400ZZMAEXC2,mantpjgt,"Salford Quays, Exchange Quay (Manchester Metrolink)",53.46768,-2.28228,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAEXC2
-9400ZZMAFIR1,mantpgtm,"Firswood, Firswood Station (Manchester Metrolink)",53.45129,-2.27773,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAFIR1
-9400ZZMAFIR2,mantpjdj,"Firswood, Firswood Station (Manchester Metrolink)",53.45130,-2.27769,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAFIR2
-9400ZZMAFRE1,mantptag,"Chadderton, Freehold (Manchester Metrolink)",53.53739,-2.13871,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAFRE1
-9400ZZMAFRE2,mantptaj,"Chadderton, Freehold (Manchester Metrolink)",53.53804,-2.13718,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAFRE2
-9400ZZMAFWH1,mantpmtw,"Failsworth, Failsworth (Manchester Metrolink)",53.51071,-2.16290,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAFWH1
-9400ZZMAFWH2,mantpmwa,"Failsworth, Failsworth (Manchester Metrolink)",53.51072,-2.16266,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAFWH2
-9400ZZMAGMX1,mantpgwj,"Manchester City Centre, Deansgate-Castlefield (Manchester Metrolink)",53.47481,-2.25149,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAGMX1
-9400ZZMAGMX2,mantpjaw,"Manchester City Centre, Deansgate-Castlefield (Manchester Metrolink)",53.47469,-2.25021,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAGMX2
-9400ZZMAHCY1,mantpjmp,"The Lowry, Harbour City (Manchester Metrolink)",53.47402,-2.29174,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHCY1
-9400ZZMAHCY2,mantpjmj,"The Lowry, Harbour City (Manchester Metrolink)",53.47431,-2.28954,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHCY2
-9400ZZMAHEA1,mantpjwp,"Heaton Park, Heaton Park (Manchester Metrolink)",53.53037,-2.26699,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHEA1
-9400ZZMAHEA2,mantpjwt,"Heaton Park, Heaton Park (Manchester Metrolink)",53.53050,-2.26692,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHEA2
-9400ZZMAHOL1,mantpmwg,"Hollinwood, Hollinwood (Manchester Metrolink)",53.51998,-2.14744,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHOL1
-9400ZZMAHOL2,mantpmwj,"Hollinwood, Hollinwood (Manchester Metrolink)",53.51962,-2.14729,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHOL2
-9400ZZMAHTN1,mantpwma,"Holt Town, Holt Town (Manchester Metrolink)",53.48321,-2.21228,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHTN1
-9400ZZMAHTN2,mantpwmd,"Holt Town, Holt Town (Manchester Metrolink)",53.48325,-2.21202,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAHTN2
-9400ZZMAKNY1,mantwadw,"Milnrow, Kingsway (Manchester Metrolink)",53.61095,-2.12321,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAKNY1
-9400ZZMAKNY2,mantwaga,"Milnrow, Kingsway (Manchester Metrolink)",53.61124,-2.12423,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAKNY2
-9400ZZMALDY1,mantpjpw,"Ladywell, Ladywell (Manchester Metrolink)",53.48394,-2.32688,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMALDY1
-9400ZZMALDY2,mantpjta,"Ladywell, Ladywell (Manchester Metrolink)",53.48403,-2.32689,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMALDY2
-9400ZZMALWY1,mantpjpg,"Langworthy, Langworthy (Manchester Metrolink)",53.48051,-2.29563,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMALWY1
-9400ZZMALWY2,mantpjpj,"Langworthy, Langworthy (Manchester Metrolink)",53.48067,-2.29631,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMALWY2
-9400ZZMAMCU1,mantpjmw,"MediaCityUK, MediaCityUK (Manchester Metrolink)",53.47215,-2.29733,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMCU1
-9400ZZMAMFT1,mantwjam,"Newall Green, Martinscroft (Manchester Metrolink)",53.39183,-2.27966,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMFT1
-9400ZZMAMFT2,mantwjap,"Newall Green, Martinscroft (Manchester Metrolink)",53.39192,-2.27999,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMFT2
-9400ZZMAMIL1,mantpwdm,"Milnrow, Milnrow (Manchester Metrolink)",53.60799,-2.11199,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMIL1
-9400ZZMAMIL2,mantpwdp,"Milnrow, Milnrow (Manchester Metrolink)",53.60802,-2.11179,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMIL2
-9400ZZMAMKT1,mantpjam,"Manchester City Centre, Market Street (Manchester Metrolink)",53.48194,-2.23883,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMKT1
-9400ZZMAMKT2,mantpgwp,"Manchester City Centre, Market Street (Manchester Metrolink)",53.48189,-2.23883,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMKT2
-9400ZZMAMON1,mantpmpw,"Monsall, Monsall Station (Manchester Metrolink)",53.50113,-2.21061,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMON1
-9400ZZMAMON2,mantpmta,"Monsall, Monsall Station (Manchester Metrolink)",53.50105,-2.21061,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMON2
-9400ZZMAMRD1,mantwgwd,"Baguley, Moor Road (Manchester Metrolink)",53.40333,-2.29509,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMRD1
-9400ZZMAMRD2,mantwgwg,"Baguley, Moor Road (Manchester Metrolink)",53.40342,-2.29530,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAMRD2
-9400ZZMANAV1,mantpmjg,"Navigation Road, Navigation Road (Manchester Metrolink)",53.39591,-2.34331,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANAV1
-9400ZZMANBD1,mantpwdw,"Newbold, Newbold (Manchester Metrolink)",53.61341,-2.13566,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANBD1
-9400ZZMANBD2,mantpwga,"Newbold, Newbold (Manchester Metrolink)",53.61337,-2.13534,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANBD2
-9400ZZMANEW1,mantpmtj,"Newton Heath, Newton Heath & Moston (Manchester Metrolink)",53.50419,-2.18366,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANEW1
-9400ZZMANHY1,mantpwda,"Newhey, Newhey (Manchester Metrolink)",53.60083,-2.09497,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANHY1
-9400ZZMANHY2,mantpwdg,"Newhey, Newhey (Manchester Metrolink)",53.60095,-2.09496,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANHY2
-9400ZZMANIS1,mantpwjp,"New Islington, New Islington (Manchester Metrolink)",53.48116,-2.21976,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANIS1
-9400ZZMANIS2,mantpwjt,"New Islington, New Islington (Manchester Metrolink)",53.48098,-2.21982,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANIS2
-9400ZZMANMR1,mantwgtg,"Northern Moor, Northern Moor (Manchester Metrolink)",53.41456,-2.28804,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANMR1
-9400ZZMANMR2,mantwgtj,"Northern Moor, Northern Moor (Manchester Metrolink)",53.41452,-2.28832,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMANMR2
-9400ZZMAOKS1,mantwgdw,"Oldham, Oldham King St (Manchester Metrolink)",53.53958,-2.11703,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOKS1
-9400ZZMAOKS2,mantwgja,"Oldham, Oldham King St (Manchester Metrolink)",53.53953,-2.11718,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOKS2
-9400ZZMAOLD1,mantpmdm,"Old Trafford, Old Trafford (Manchester Metrolink)",53.45636,-2.28496,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOLD1
-9400ZZMAOLD2,mantpmdp,"Old Trafford, Old Trafford (Manchester Metrolink)",53.45628,-2.28466,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOLD2
-9400ZZMAOMC1,mantwgjg,"Oldham, Oldham Central (Manchester Metrolink)",53.54029,-2.11232,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOMC1
-9400ZZMAOMC2,mantwgjm,"Oldham, Oldham Central (Manchester Metrolink)",53.54025,-2.11223,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOMC2
-9400ZZMAOMP1,mantptap,"Oldham Mumps, Oldham Mumps (Manchester Metrolink)",53.54248,-2.10321,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOMP1
-9400ZZMAOMP2,mantpwgp,"Oldham Mumps, Oldham Mumps (Manchester Metrolink)",53.54236,-2.10350,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAOMP2
-9400ZZMAPGD1,mantpjgd,"Piccadilly Gardens, Piccadilly Gardens (Manchester Metrolink)",53.48030,-2.23705,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPGD1
-9400ZZMAPGD2,mantpjga,"Piccadilly Gardens, Piccadilly Gardens (Manchester Metrolink)",53.48026,-2.23704,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPGD2
-9400ZZMAPIC1,mantpjdw,"Manchester City Centre, Piccadilly Station (Manchester Metrolink)",53.47732,-2.23121,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPIC1
-9400ZZMAPIC2,mantpjdt,"Manchester City Centre, Piccadilly Station (Manchester Metrolink)",53.47709,-2.23122,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPIC2
-9400ZZMAPLL1,mantwjgt,"Peel Hall, Peel Hall (Manchester Metrolink)",53.37375,-2.25038,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPLL1
-9400ZZMAPLL2,mantwjgw,"Peel Hall, Peel Hall (Manchester Metrolink)",53.37370,-2.25052,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPLL2
-9400ZZMAPOM1,mantpjgm,"Salford Quays, Pomona (Manchester Metrolink)",53.46523,-2.27791,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPOM1
-9400ZZMAPOM2,mantpjgj,"Salford Quays, Pomona (Manchester Metrolink)",53.46520,-2.27791,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPOM2
-9400ZZMAPWC1,mantpjwj,"Prestwich, Prestwich (Manchester Metrolink)",53.53327,-2.28198,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPWC1
-9400ZZMAPWC2,mantpjwm,"Prestwich, Prestwich (Manchester Metrolink)",53.53336,-2.28183,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAPWC2
-9400ZZMAQRD1,mantwgad,"Smedley, Queens Road (Manchester Metrolink)",53.50172,-2.22673,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAQRD1
-9400ZZMAQRD2,mantwgag,"Smedley, Queens Road (Manchester Metrolink)",53.50163,-2.22656,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAQRD2
-9400ZZMARAD1,mantpjtm,"Radcliffe, Radcliffe (Manchester Metrolink)",53.56237,-2.32112,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARAD1
-9400ZZMARAD2,mantpjtp,"Radcliffe, Radcliffe (Manchester Metrolink)",53.56241,-2.32094,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARAD2
-9400ZZMARIN1,mantwdwm,"Rochdale, Rochdale Interchange (Manchester Metrolink)",53.61737,-2.15508,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARIN1
-9400ZZMARIN2,mantwdwp,"Rochdale, Rochdale Interchange (Manchester Metrolink)",53.61726,-2.15557,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARIN2
-9400ZZMARND1,mantwjad,"Roundthorn, Roundthorn (Manchester Metrolink)",53.39268,-2.28908,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARND1
-9400ZZMARND2,mantwjag,"Roundthorn, Roundthorn (Manchester Metrolink)",53.39266,-2.28929,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARND2
-9400ZZMARRS1,mantpwgj,"Rochdale, Rochdale Railway Station (Manchester Metrolink)",53.61103,-2.15449,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARRS1
-9400ZZMARRS2,mantpwgm,"Rochdale, Rochdale Railway Station (Manchester Metrolink)",53.61099,-2.15440,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARRS2
-9400ZZMARWD1,mantwjgd,"Wythenshawe, Robinswood Road (Manchester Metrolink)",53.37681,-2.26000,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARWD1
-9400ZZMARWD2,mantwjgj,"Wythenshawe, Robinswood Road (Manchester Metrolink)",53.37614,-2.25744,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMARWD2
-9400ZZMASCH1,mantpmwp,"White Gate, South Chadderton (Manchester Metrolink)",53.52647,-2.14537,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASCH1
-9400ZZMASCH2,mantpmwt,"White Gate, South Chadderton (Manchester Metrolink)",53.52646,-2.14520,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASCH2
-9400ZZMASDW1,mantwjmd,"Woodhouse Park, Shawdowmoss (Manchester Metrolink)",53.36757,-2.25240,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASDW1
-9400ZZMASDW2,mantwjmg,"Woodhouse Park, Shawdowmoss (Manchester Metrolink)",53.36759,-2.25264,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASDW2
-9400ZZMASFD1,mantpmdw,"Stretford, Stretford (Manchester Metrolink)",53.44610,-2.30361,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASFD1
-9400ZZMASFD2,mantpmdt,"Stretford, Stretford (Manchester Metrolink)",53.44615,-2.30380,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASFD2
-9400ZZMASHA1,mantpwap,"Shaw, Shaw and Crompton (Manchester Metrolink)",53.57631,-2.08963,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASHA1
-9400ZZMASHA2,mantpwat,"Shaw, Shaw and Crompton (Manchester Metrolink)",53.57638,-2.08951,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASHA2
-9400ZZMASHU1,mantpgwt,"Manchester City Centre, Shudehill (Manchester Metrolink)",53.48525,-2.23918,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASHU1
-9400ZZMASHU2,mantpjaj,"Manchester City Centre, Shudehill (Manchester Metrolink)",53.48531,-2.23907,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASHU2
-9400ZZMASLE1,mantpmgm,"Sale, Sale (Manchester Metrolink)",53.42412,-2.31909,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASLE1
-9400ZZMASLE2,mantpmgj,"Sale, Sale (Manchester Metrolink)",53.42418,-2.31925,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASLE2
-9400ZZMASQY1,mantpjgw,"Salford Quays, Salford Quays (Manchester Metrolink)",53.47031,-2.28408,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASQY1
-9400ZZMASQY2,mantpjma,"Salford Quays, Salford Quays (Manchester Metrolink)",53.47030,-2.28393,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASQY2
-9400ZZMASTP1,mantpjat,"Manchester City Centre, St Peters Square (Manchester Metrolink)",53.47779,-2.24371,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASTP1
-9400ZZMASTP2,mantpgwm,"Manchester City Centre, St Peters Square (Manchester Metrolink)",53.47784,-2.24382,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASTP2
-9400ZZMASTW1,mantpgta,"Chorlton, St Werburgh's Rd Station (Manchester Metrolink)",53.43872,-2.26547,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASTW1
-9400ZZMASTW2,mantpjdp,"Chorlton, St Werburgh's Rd Station (Manchester Metrolink)",53.43876,-2.26546,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASTW2
-9400ZZMASWP1,mantwgpw,"Sale, Sale Water Park (Manchester Metrolink)",53.42814,-2.29112,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASWP1
-9400ZZMASWP2,mantwgta,"Sale, Sale Water Park (Manchester Metrolink)",53.42832,-2.29063,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMASWP2
-9400ZZMATIM1,mantpmja,"Timperley, Timperley (Manchester Metrolink)",53.40422,-2.33834,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMATIM1
-9400ZZMATIM2,mantpmgw,"Timperley, Timperley (Manchester Metrolink)",53.40427,-2.33849,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMATIM2
-9400ZZMATRA1,mantpgwd,"Trafford Bar, Trafford Bar (Manchester Metrolink)",53.46189,-2.27711,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMATRA1
-9400ZZMATRA2,mantpjdg,"Trafford Bar, Trafford Bar (Manchester Metrolink)",53.46181,-2.27702,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMATRA2
-9400ZZMAVPK1,mantpwmw,"Sportcity, Velopark (Manchester Metrolink)",53.48225,-2.19330,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAVPK1
-9400ZZMAVPK2,mantpwpa,"Sportcity, Velopark (Manchester Metrolink)",53.48219,-2.19311,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAVPK2
-9400ZZMAWFD1,mantpjtw,"Whitefield, Whitefield (Manchester Metrolink)",53.55120,-2.29535,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWFD1
-9400ZZMAWFD2,mantpjwa,"Whitefield, Whitefield (Manchester Metrolink)",53.55128,-2.29527,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWFD2
-9400ZZMAWIT1,mantwdag,"Withington, Withington (Manchester Metrolink)",53.43270,-2.24928,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWIT1
-9400ZZMAWIT2,mantwdam,"Withington, Withington (Manchester Metrolink)",53.43283,-2.24937,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWIT2
-9400ZZMAWPK1,mantwgtp,"Northern Moor, Wythenshawe Park (Manchester Metrolink)",53.40763,-2.29560,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWPK1
-9400ZZMAWPK2,mantwgtw,"Northern Moor, Wythenshawe Park (Manchester Metrolink)",53.40771,-2.29565,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWPK2
-9400ZZMAWST1,mantpjpm,"Weaste, Weaste (Manchester Metrolink)",53.48240,-2.30773,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWST1
-9400ZZMAWST2,mantpjpt,"Weaste, Weaste (Manchester Metrolink)",53.48248,-2.30768,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWST2
-9400ZZMAWTD1,mantwdgd,"West Didsbury, West Didsbury (Manchester Metrolink)",53.42455,-2.23625,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWTD1
-9400ZZMAWTD2,mantwdgt,"West Didsbury, West Didsbury (Manchester Metrolink)",53.42458,-2.23602,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWTD2
-9400ZZMAWWD1,mantwgdm,"Westwood, Westwood (Manchester Metrolink)",53.54237,-2.12597,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWWD1
-9400ZZMAWWD2,mantwgdp,"Westwood, Westwood (Manchester Metrolink)",53.54230,-2.12587,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWWD2
-9400ZZMAWYT1,mantwjdw,"Wythenshawe, Wythenshawe Town Centre (Manchester Metrolink)",53.38002,-2.26371,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT1
-9400ZZMAWYT2,mantwjdt,"Wythenshawe, Wythenshawe Town Centre (Manchester Metrolink)",53.38003,-2.26381,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT2
+9400ZZMAABM,mantpmaw,Abraham Moss,53.51046,-2.2355
+9400ZZMAABM,mantpmda,Abraham Moss,53.51091,-2.23611
+9400ZZMAAIR,mantwjmp,Manchester Airport,53.36537,-2.27247
+9400ZZMAALT,mantpmjm,Altrincham Station,53.38745,-2.34741
+9400ZZMAAMO,mantwdpw,Ashton Moss,53.48373,-2.12194
+9400ZZMAAMO,mantwdta,Ashton Moss,53.4835,-2.12203
+9400ZZMAANC,mantpjmd,Anchorage,53.47426,-2.28608
+9400ZZMAANC,mantpjmg,Anchorage,53.47429,-2.28594
+9400ZZMAAUD,mantwdpj,Audenshaw,53.47822,-2.13096
+9400ZZMAAUD,mantwdpm,Audenshaw,53.47821,-2.13124
+9400ZZMAAUL,mantwdtp,Ashton-Under-Lyne,53.49036,-2.09798
+9400ZZMAAUL,mantwdtw,Ashton-Under-Lyne,53.49031,-2.09811
+9400ZZMAAWT,mantwdtg,Ashton West,53.4903,-2.10974
+9400ZZMAAWT,mantwdtj,Ashton West,53.49017,-2.10992
+9400ZZMABAG,mantwgwm,Baguley,53.39676,-2.29255
+9400ZZMABAG,mantwgwp,Baguley,53.39684,-2.29279
+9400ZZMABAR,mantwgpj,Barlow Moor Road,53.43278,-2.26935
+9400ZZMABAR,mantwgpm,Barlow Moor Road,53.43286,-2.26939
+9400ZZMABKS,mantpmgt,Brooklands,53.41727,-2.32579
+9400ZZMABKS,mantpmgp,Brooklands,53.41715,-2.32611
+9400ZZMABLL,mantwjaw,Benchill,53.38709,-2.25613
+9400ZZMABLL,mantwjda,Benchill,53.38708,-2.25629
+9400ZZMABNR,mantwdat,Burton Road,53.4291,-2.24064
+9400ZZMABNR,mantwdaw,Burton Road,53.42915,-2.2405
+9400ZZMABOB,mantpjwd,Besses o'th'barn,53.54207,-2.28616
+9400ZZMABOB,mantpjwg,Besses o'th'barn,53.54207,-2.28608
+9400ZZMABOW,mantpmad,Bowker Vale,53.52484,-2.24991
+9400ZZMABOW,mantpmag,Bowker Vale,53.52492,-2.24985
+9400ZZMABUR,mantpjtg,Bury Interchange,53.59084,-2.29726
+9400ZZMABUR,mantpjtj,Bury Interchange,53.59084,-2.29711
+9400ZZMABWY,mantpjpa,Broadway,53.47479,-2.29506
+9400ZZMABWY,mantpjpd,Broadway,53.47483,-2.29488
+9400ZZMACEM,mantwada,Cemetery Road,53.47993,-2.15502
+9400ZZMACEM,mantwadg,Cemetery Road,53.47984,-2.15502
+9400ZZMACHO,mantpgtd,Chorlton Station,53.44264,-2.27335
+9400ZZMACHO,mantpjdm,Chorlton Station,53.44281,-2.27366
+9400ZZMACLN,mantpwpg,Clayton Hall,53.48281,-2.18256
+9400ZZMACLN,mantpwpj,Clayton Hall,53.48276,-2.18208
+9400ZZMACRN,mantpgwg,Cornbrook,53.46997,-2.26768
+9400ZZMACRN,mantpjda,Cornbrook,53.47002,-2.26744
+9400ZZMACRU,mantpmap,Crumpsall,53.51727,-2.24114
+9400ZZMACRU,mantpmat,Crumpsall,53.51729,-2.24094
+9400ZZMACSS,mantwjdj,Crossacres,53.3833,-2.25621
+9400ZZMACSS,mantwjdm,Crossacres,53.38336,-2.25632
+9400ZZMACTP,mantpmtd,Central Park Station,53.50163,-2.19917
+9400ZZMACTP,mantpmtg,Central Park Station,53.50155,-2.19915
+9400ZZMADER,mantpwag,Derker,53.54992,-2.10171
+9400ZZMADER,mantpwaj,Derker,53.5498,-2.10154
+9400ZZMADID,mantwdgw,Didsbury Village,53.41671,-2.22862
+9400ZZMADID,mantwdja,Didsbury Village,53.41671,-2.22841
+9400ZZMADNE,mantpmga,Dane Road,53.43024,-2.31153
+9400ZZMADNE,mantpmgd,Dane Road,53.43019,-2.31137
+9400ZZMADRO,mantwadm,Droylsden,53.47953,-2.14518
+9400ZZMADRO,mantwadp,Droylsden,53.47943,-2.14448
+9400ZZMAECC,mantpjtd,Eccles,53.48308,-2.33454
+9400ZZMAECS,mantpwmj,Etihad Campus,53.48537,-2.20221
+9400ZZMAECS,mantpwmp,Etihad Campus,53.48537,-2.20063
+9400ZZMAEDY,mantwdjm,East Didsbury,53.4121,-2.21739
+9400ZZMAEDY,mantwdjg,East Didsbury,53.41202,-2.21713
+9400ZZMAELN,mantpwpt,Edge Lane,53.48088,-2.16512
+9400ZZMAELN,mantpwpw,Edge Lane,53.48085,-2.1654
+9400ZZMAEXC,mantpjgp,Exchange Quay,53.4677,-2.28242
+9400ZZMAEXC,mantpjgt,Exchange Quay,53.46768,-2.28228
+9400ZZMAFIR,mantpgtm,Firswood Station,53.45129,-2.27773
+9400ZZMAFIR,mantpjdj,Firswood Station,53.4513,-2.27769
+9400ZZMAFRE,mantptag,Freehold,53.53739,-2.13871
+9400ZZMAFRE,mantptaj,Freehold,53.53804,-2.13718
+9400ZZMAFWH,mantpmtw,Failsworth,53.51071,-2.1629
+9400ZZMAFWH,mantpmwa,Failsworth,53.51072,-2.16266
+9400ZZMAGMX,mantpgwj,Deansgate-Castlefield,53.47481,-2.25149
+9400ZZMAGMX,mantpjaw,Deansgate-Castlefield,53.47469,-2.25021
+9400ZZMAHCY,mantpjmp,Harbour City,53.47402,-2.29174
+9400ZZMAHCY,mantpjmj,Harbour City,53.47431,-2.28954
+9400ZZMAHEA,mantpjwp,Heaton Park,53.53037,-2.26699
+9400ZZMAHEA,mantpjwt,Heaton Park,53.5305,-2.26692
+9400ZZMAHOL,mantpmwg,Hollinwood,53.51998,-2.14744
+9400ZZMAHOL,mantpmwj,Hollinwood,53.51962,-2.14729
+9400ZZMAHTN,mantpwma,Holt Town,53.48321,-2.21228
+9400ZZMAHTN,mantpwmd,Holt Town,53.48325,-2.21202
+9400ZZMAKNY,mantwadw,Kingsway,53.61095,-2.12321
+9400ZZMAKNY,mantwaga,Kingsway,53.61124,-2.12423
+9400ZZMALDY,mantpjpw,Ladywell,53.48394,-2.32688
+9400ZZMALDY,mantpjta,Ladywell,53.48403,-2.32689
+9400ZZMALWY,mantpjpg,Langworthy,53.48051,-2.29563
+9400ZZMALWY,mantpjpj,Langworthy,53.48067,-2.29631
+9400ZZMAMCU,mantpjmw,MediaCityUK,53.47215,-2.29733
+9400ZZMAMFT,mantwjam,Martinscroft,53.39183,-2.27966
+9400ZZMAMFT,mantwjap,Martinscroft,53.39192,-2.27999
+9400ZZMAMIL,mantpwdm,Milnrow,53.60799,-2.11199
+9400ZZMAMIL,mantpwdp,Milnrow,53.60802,-2.11179
+9400ZZMAMKT,mantpjam,Market Street,53.48194,-2.23883
+9400ZZMAMKT,mantpgwp,Market Street,53.48189,-2.23883
+9400ZZMAMON,mantpmpw,Monsall Station,53.50113,-2.21061
+9400ZZMAMON,mantpmta,Monsall Station,53.50105,-2.21061
+9400ZZMAMRD,mantwgwd,Moor Road,53.40333,-2.29509
+9400ZZMAMRD,mantwgwg,Moor Road,53.40342,-2.2953
+9400ZZMANAV,mantpmjg,Navigation Road,53.39591,-2.34331
+9400ZZMANBD,mantpwdw,Newbold,53.61341,-2.13566
+9400ZZMANBD,mantpwga,Newbold,53.61337,-2.13534
+9400ZZMANEW,mantpmtj,Newton Heath & Moston,53.50419,-2.18366
+9400ZZMANHY,mantpwda,Newhey,53.60083,-2.09497
+9400ZZMANHY,mantpwdg,Newhey,53.60095,-2.09496
+9400ZZMANIS,mantpwjp,New Islington,53.48116,-2.21976
+9400ZZMANIS,mantpwjt,New Islington,53.48098,-2.21982
+9400ZZMANMR,mantwgtg,Northern Moor,53.41456,-2.28804
+9400ZZMANMR,mantwgtj,Northern Moor,53.41452,-2.28832
+9400ZZMAOKS,mantwgdw,Oldham King St,53.53958,-2.11703
+9400ZZMAOKS,mantwgja,Oldham King St,53.53953,-2.11718
+9400ZZMAOLD,mantpmdm,Old Trafford,53.45636,-2.28496
+9400ZZMAOLD,mantpmdp,Old Trafford,53.45628,-2.28466
+9400ZZMAOMC,mantwgjg,Oldham Central,53.54029,-2.11232
+9400ZZMAOMC,mantwgjm,Oldham Central,53.54025,-2.11223
+9400ZZMAOMP,mantptap,Oldham Mumps,53.54248,-2.10321
+9400ZZMAOMP,mantpwgp,Oldham Mumps,53.54236,-2.1035
+9400ZZMAPGD,mantpjgd,Piccadilly Gardens,53.4803,-2.23705
+9400ZZMAPGD,mantpjga,Piccadilly Gardens,53.48026,-2.23704
+9400ZZMAPIC,mantpjdw,Piccadilly Station,53.47732,-2.23121
+9400ZZMAPIC,mantpjdt,Piccadilly Station,53.47709,-2.23122
+9400ZZMAPLL,mantwjgt,Peel Hall,53.37375,-2.25038
+9400ZZMAPLL,mantwjgw,Peel Hall,53.3737,-2.25052
+9400ZZMAPOM,mantpjgm,Pomona,53.46523,-2.27791
+9400ZZMAPOM,mantpjgj,Pomona,53.4652,-2.27791
+9400ZZMAPWC,mantpjwj,Prestwich,53.53327,-2.28198
+9400ZZMAPWC,mantpjwm,Prestwich,53.53336,-2.28183
+9400ZZMAQRD,mantwgad,Queens Road,53.50172,-2.22673
+9400ZZMAQRD,mantwgag,Queens Road,53.50163,-2.22656
+9400ZZMARAD,mantpjtm,Radcliffe,53.56237,-2.32112
+9400ZZMARAD,mantpjtp,Radcliffe,53.56241,-2.32094
+9400ZZMARIN,mantwdwm,Rochdale Interchange,53.61737,-2.15508
+9400ZZMARIN,mantwdwp,Rochdale Interchange,53.61726,-2.15557
+9400ZZMARND,mantwjad,Roundthorn,53.39268,-2.28908
+9400ZZMARND,mantwjag,Roundthorn,53.39266,-2.28929
+9400ZZMARRS,mantpwgj,Rochdale Railway Station,53.61103,-2.15449
+9400ZZMARRS,mantpwgm,Rochdale Railway Station,53.61099,-2.1544
+9400ZZMARWD,mantwjgd,Robinswood Road,53.37681,-2.26
+9400ZZMARWD,mantwjgj,Robinswood Road,53.37614,-2.25744
+9400ZZMASCH,mantpmwp,South Chadderton,53.52647,-2.14537
+9400ZZMASCH,mantpmwt,South Chadderton,53.52646,-2.1452
+9400ZZMASDW,mantwjmd,Shadowmoss,53.36757,-2.2524
+9400ZZMASDW,mantwjmg,Shadowmoss,53.36759,-2.25264
+9400ZZMASFD,mantpmdw,Stretford,53.4461,-2.30361
+9400ZZMASFD,mantpmdt,Stretford,53.44615,-2.3038
+9400ZZMASHA,mantpwap,Shaw and Crompton,53.57631,-2.08963
+9400ZZMASHA,mantpwat,Shaw and Crompton,53.57638,-2.08951
+9400ZZMASHU,mantpgwt,Shudehill,53.48525,-2.23918
+9400ZZMASHU,mantpjaj,Shudehill,53.48531,-2.23907
+9400ZZMASLE,mantpmgm,Sale,53.42412,-2.31909
+9400ZZMASLE,mantpmgj,Sale,53.42418,-2.31925
+9400ZZMASQY,mantpjgw,Salford Quays,53.47031,-2.28408
+9400ZZMASQY,mantpjma,Salford Quays,53.4703,-2.28393
+9400ZZMASTP,mantpjat,St Peters Square,53.47779,-2.24371
+9400ZZMASTP,mantpgwm,St Peters Square,53.47784,-2.24382
+9400ZZMASTW,mantpgta,St Werburgh's Rd Station,53.43872,-2.26547
+9400ZZMASTW,mantpjdp,St Werburgh's Rd Station,53.43876,-2.26546
+9400ZZMASWP,mantwgpw,Sale Water Park,53.42814,-2.29112
+9400ZZMASWP,mantwgta,Sale Water Park,53.42832,-2.29063
+9400ZZMATIM,mantpmja,Timperley,53.40422,-2.33834
+9400ZZMATIM,mantpmgw,Timperley,53.40427,-2.33849
+9400ZZMATRA,mantpgwd,Trafford Bar,53.46189,-2.27711
+9400ZZMATRA,mantpjdg,Trafford Bar,53.46181,-2.27702
+9400ZZMAVIC,mantpjad,Victoria Station,53.48782,-2.2418
+9400ZZMAVIC,mantpjag,Victoria Station,53.48778,-2.24175
+9400ZZMAVPK,mantpwmw,Velopark,53.48225,-2.1933
+9400ZZMAVPK,mantpwpa,Velopark,53.48219,-2.19311
+9400ZZMAWFD,mantpjtw,Whitefield,53.5512,-2.29535
+9400ZZMAWFD,mantpjwa,Whitefield,53.55128,-2.29527
+9400ZZMAWIT,mantwdag,Withington,53.4327,-2.24928
+9400ZZMAWIT,mantwdam,Withington,53.43283,-2.24937
+9400ZZMAWPK,mantwgtp,Wythenshawe Park,53.40763,-2.2956
+9400ZZMAWPK,mantwgtw,Wythenshawe Park,53.40771,-2.29565
+9400ZZMAWST,mantpjpm,Weaste,53.4824,-2.30773
+9400ZZMAWST,mantpjpt,Weaste,53.48248,-2.30768
+9400ZZMAWTD,mantwdgd,West Didsbury,53.42455,-2.23625
+9400ZZMAWTD,mantwdgt,West Didsbury,53.42458,-2.23602
+9400ZZMAWWD,mantwgdm,Westwood,53.54237,-2.12597
+9400ZZMAWWD,mantwgdp,Westwood,53.5423,-2.12587
+9400ZZMAWYT,mantwjdw,Wythenshawe Town Centre,53.38002,-2.26371
+9400ZZMAWYT,mantwjdt,Wythenshawe Town Centre,53.38003,-2.26381

@@ -19,7 +19,7 @@ import static com.tramchester.graph.GraphStaticKeys.Station.ID;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
-public class RouteCalculator {
+public class    RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
     private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
     private static final PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(COST_EVALUATOR);

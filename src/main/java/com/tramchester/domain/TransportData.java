@@ -1,7 +1,6 @@
 package com.tramchester.domain;
 
 import com.tramchester.dataimport.data.*;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +52,7 @@ public class TransportData {
             Service service = services.get(calendar.getServiceId());
 
             if (service != null) {
-                if (calendar.getStart().equals(new DateTime(2015, 01, 05, 0, 0, 0))) {
+              //  if (calendar.getStart().equals(new DateTime(2015, 01, 05, 0, 0, 0))) {
                     service.setDays(
                             calendar.isMonday(),
                             calendar.isTuesday(),
@@ -63,9 +62,9 @@ public class TransportData {
                             calendar.isSaturday(),
                             calendar.isSunday()
                     );
-                } else {
-                    services.remove(calendar.getServiceId());
-                }
+//                } else {
+//                    services.remove(calendar.getServiceId());
+//                }
             }
         }
 

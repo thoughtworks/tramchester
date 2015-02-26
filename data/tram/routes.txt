@@ -1,8 +1,12 @@
-MET:MET1:I:,MET,MET1,Abraham Moss - Bury,0
-MET:MET1:O:,MET,MET1,Bury - Abraham Moss,0
 MET:MET2:I:,MET,MET2,Altrincham - Manchester - Bury,0
 MET:MET2:O:,MET,MET2,Bury - Manchester - Altrincham,0
 MET:MET3:I:,MET,MET3,Altrincham - Manchester,0
 MET:MET3:O:,MET,MET3,Manchester - Altrincham,0
 MET:MET4:I:,MET,MET4,Eccles - Manchester - Ashton-Under-Lyne,0
 MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0
+MET:MET1:I:,MET,MET1,Etihad Campus - Bury,0
+MET:MET1:O:,MET,MET1,Bury - Etihad Campus,0
+MET:MET5:I:,MET,MET5,East Didsbury - Manchester - Oldham - Rochdale,0
+MET:MET5:O:,MET,MET5,Rochdale - Oldham - Manchester - East Didsbury,0
+MET:MET6:I:,MET,MET6,Cornbrook - Manchester Airport,0
+MET:MET6:O:,MET,MET6,Manchester Airport - Cornbrook,0
