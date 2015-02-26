@@ -29,7 +29,7 @@ public class DataCleanser {
 
     public static void main(String[] args) throws Exception {
         fetchData();
-        unzip();
+
         cleanseRoutes();
 
         cleanseStops();
@@ -44,18 +44,7 @@ public class DataCleanser {
         FileUtils.forceDelete(new File(path + "/data.zip"));
     }
 
-    public static void unzip() {
-        String source = path + "data.zip";
-        String destination = path;
-        try {
-            ZipFile zipFile = new ZipFile(source);
 
-            zipFile.extractAll(destination);
-
-        } catch (ZipException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static void fetchData() throws IOException {
         logger.info("**** Downloading data...");
@@ -65,7 +54,13 @@ public class DataCleanser {
         FileOutputStream fos = new FileOutputStream(path + "data.zip");
         fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         logger.info("**** Unziping data...");
+        try {
+            ZipFile zipFile = new ZipFile(path + "data.zip");
 
+            zipFile.extractAll(path);
+        } catch (ZipException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void cleanseCalendar() throws IOException {
