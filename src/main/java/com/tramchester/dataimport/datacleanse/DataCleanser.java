@@ -3,22 +3,33 @@ package com.tramchester.dataimport.datacleanse;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.services.DateTimeService;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 public class DataCleanser {
-    private static final String path = "data/new/";
+    private static final String path = "data/tram/";
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
-    private static final TransportDataReader transportDataReader = new TransportDataReader(path);
+    private static final TransportDataReader transportDataReader = new TransportDataReader(path + "/gtdf-out/");
     private static final TransportDataWriter transportDataWriter = new TransportDataWriter(path);
     public static final String TIME_FORMAT = "YYYMMdd";
 
     public static void main(String[] args) throws Exception {
+        fetchData();
+        unzip();
         cleanseRoutes();
 
         cleanseStops();
@@ -28,6 +39,43 @@ public class DataCleanser {
         cleanseStoptimes();
 
         cleanseCalendar();
+
+        FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
+    }
+
+    public static void unzip() {
+        String source = path + "data.zip";
+        String destination = path;
+        String password = "password";
+
+        try {
+            ZipFile zipFile = new ZipFile(source);
+            if (zipFile.isEncrypted()) {
+                zipFile.setPassword(password);
+            }
+            zipFile.extractAll(destination);
+            File file = new File(path + "data.zip");
+            if (file.exists()) {
+                file.delete();
+            }
+        } catch (ZipException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void fetchData() throws IOException {
+        logger.info("**** Downloading data...");
+        File file = new File(path + "data.zip");
+        if (file.exists()) {
+            file.delete();
+        }
+
+        URL website = new URL("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+        FileOutputStream fos = new FileOutputStream(path + "data.zip");
+        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+        logger.info("**** Unziping data...");
+
     }
 
     private static void cleanseCalendar() throws IOException {
