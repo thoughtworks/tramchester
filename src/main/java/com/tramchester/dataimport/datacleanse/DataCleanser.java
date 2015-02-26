@@ -3,6 +3,7 @@ package com.tramchester.dataimport.datacleanse;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
+import com.tramchester.dataimport.data.TripData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,22 +18,10 @@ public class DataCleanser {
 
     public static void main(String[] args) throws Exception {
         cleanseRoutes();
-       // cleanseStops();
+        cleanseStops();
+        cleanseTrips();
 
         String filename;
-
-
-//        List<TripData> trips = transportDataReader.getTrips();
-//
-//        String tripSting = "";
-//        for (TripData trip : trips) {
-//            if (trip.getRouteId().startsWith("MET")) {
-//                tripSting += trip.getRouteId() + "," + trip.getServiceId() + "," + trip.getTripId() + "," + trip.getTripHeadsign() + "\n";
-//            }
-//        }
-//        filename = "trips";
-//        transportDataWriter.writeFile(tripSting, filename);
-//
 
 
 //        List<StopTimeData> stopTimes = getStopTimes();
@@ -79,17 +68,36 @@ public class DataCleanser {
         System.out.println("Done!!!");
     }
 
-    private static void cleanseStops() throws IOException {
-        logger.info("**** Start cleansing routes.");
-        List<StopData> stops = transportDataReader.getStops();
-        String content = "";
-        for (StopData stop : stops) {
-            if (stop.getId().startsWith("9400")) {
-                content += stop.getId() + "," + stop.getCode() + "," + stop.getName() + "," + stop.getLatitude() + "," + stop.getLongitude() + "\n";
+    private static void cleanseTrips() throws IOException {
+        List<TripData> trips = transportDataReader.getTrips();
+
+        StringBuilder content = new StringBuilder();
+        for (TripData trip : trips) {
+            if (trip.getRouteId().startsWith("MET")) {
+                content.append(String.format("%s,%s,%s,%s\n",
+                        trip.getRouteId(),
+                        trip.getServiceId(),
+                        trip.getTripId(),
+                        trip.getTripHeadsign()));
             }
         }
-        transportDataWriter.writeFile(content, "stops");
-        logger.info("**** Start cleansing routes.");
+        transportDataWriter.writeFile(content.toString(), "trips");
+    }
+
+    private static void cleanseStops() throws IOException {
+        logger.info("**** Start cleansing stops.");
+        List<StopData> stops = transportDataReader.getStops();
+        StringBuilder content = new StringBuilder();
+
+        stops.stream().filter(stop -> stop.getId().startsWith("9400")).forEach(stop -> content.append(String.format("%s,%s,%s,%s,%s\n",
+                stop.getId(),
+                stop.getCode(),
+                stop.getName(),
+                stop.getLatitude(),
+                stop.getLongitude())));
+
+        transportDataWriter.writeFile(content.toString(), "stops");
+        logger.info("**** End cleansing stops.\n\n");
     }
 
     private static void cleanseRoutes() throws IOException {
@@ -97,10 +105,14 @@ public class DataCleanser {
         List<RouteData> routes = transportDataReader.getRoutes();
         StringBuilder content = new StringBuilder();
 
-        routes.stream().filter(route -> route.getId().startsWith("MET")).forEach(route -> content.append(String.format("%s,MET,%s,%s,0\n", route.getId(), route.getCode(), route.getName())));
+        routes.stream().filter(route -> route.getId().startsWith("MET")).forEach(route -> content.append(String.format("%s,MET,%s,%s,0\n",
+                route.getId(),
+                route.getCode(),
+                route.getName()
+        )));
 
         transportDataWriter.writeFile(content.toString(), "routes");
-        logger.info("**** Start cleansing routes.");
+        logger.info("**** Start cleansing routes.\n\n");
     }
 
     private static String getInt(boolean monday) {
