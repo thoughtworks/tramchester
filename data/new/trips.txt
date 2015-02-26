@@ -1,0 +1,3855 @@
+MET:MET2:I:,Serv000001,Trip000001,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000002,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000003,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000004,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000005,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000006,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000007,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000008,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000009,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000010,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000011,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000012,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000013,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000014,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000015,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000016,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000017,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000018,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000019,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000020,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000021,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000022,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000023,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000024,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000025,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000026,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000027,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000028,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000029,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000030,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000031,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000032,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000033,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000034,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000035,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000036,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000037,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000038,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000039,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000040,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000041,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000042,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000043,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000044,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000045,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000046,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000047,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000048,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000049,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000050,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000051,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000052,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000053,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000054,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000055,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000056,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000057,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000058,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000059,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000060,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000061,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000062,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000063,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000064,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000065,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000066,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000067,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000068,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000069,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000070,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000071,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000072,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000073,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000074,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000075,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000076,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000077,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000078,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000079,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000080,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000081,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000082,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000083,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000084,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000085,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000086,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000087,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000088,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000089,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000090,Bury Interchange
+MET:MET2:I:,Serv000002,Trip000091,Bury Interchange
+MET:MET2:I:,Serv000003,Trip000092,Bury Interchange
+MET:MET2:I:,Serv000003,Trip000093,Bury Interchange
+MET:MET2:I:,Serv000003,Trip000094,Bury Interchange
+MET:MET2:I:,Serv000003,Trip000095,Bury Interchange
+MET:MET2:I:,Serv000004,Trip000096,Old Trafford
+MET:MET2:I:,Serv000005,Trip000097,Bury Interchange
+MET:MET2:I:,Serv000005,Trip000098,Victoria Station
+MET:MET2:I:,Serv000005,Trip000099,Victoria Station
+MET:MET2:I:,Serv000005,Trip000100,Victoria Station
+MET:MET2:I:,Serv000005,Trip000101,Victoria Station
+MET:MET2:I:,Serv000006,Trip000102,Bury Interchange
+MET:MET2:I:,Serv000007,Trip000103,Bury Interchange
+MET:MET2:I:,Serv000008,Trip000104,Piccadilly Station
+MET:MET2:I:,Serv000008,Trip000105,Piccadilly Station
+MET:MET2:I:,Serv000008,Trip000106,Piccadilly Station
+MET:MET2:I:,Serv000009,Trip000107,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000108,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000109,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000110,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000111,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000112,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000113,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000114,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000115,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000116,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000117,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000118,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000119,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000120,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000121,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000122,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000123,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000124,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000125,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000126,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000127,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000128,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000129,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000130,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000131,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000132,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000133,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000134,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000135,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000136,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000137,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000138,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000139,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000140,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000141,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000142,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000143,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000144,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000145,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000146,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000147,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000148,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000149,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000150,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000151,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000152,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000153,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000154,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000155,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000156,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000157,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000158,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000159,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000160,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000161,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000162,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000163,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000164,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000165,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000166,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000167,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000168,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000169,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000170,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000171,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000172,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000173,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000174,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000175,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000176,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000177,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000178,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000179,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000180,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000181,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000182,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000183,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000184,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000185,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000186,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000187,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000188,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000189,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000190,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000191,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000192,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000193,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000194,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000195,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000196,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000197,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000198,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000199,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000200,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000201,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000202,Bury Interchange
+MET:MET2:I:,Serv000009,Trip000203,Victoria Station
+MET:MET2:I:,Serv000009,Trip000204,Victoria Station
+MET:MET2:I:,Serv000009,Trip000205,Victoria Station
+MET:MET2:I:,Serv000009,Trip000206,Victoria Station
+MET:MET2:I:,Serv000009,Trip000207,Bury Interchange
+MET:MET2:O:,Serv000010,Trip000208,Altrincham Station
+MET:MET2:O:,Serv000011,Trip000209,Altrincham Station
+MET:MET2:O:,Serv000011,Trip000210,Altrincham Station
+MET:MET2:O:,Serv000012,Trip000211,Altrincham Station
+MET:MET2:O:,Serv000013,Trip000212,Altrincham Station
+MET:MET2:O:,Serv000014,Trip000213,Altrincham Station
+MET:MET2:O:,Serv000015,Trip000214,Altrincham Station
+MET:MET2:O:,Serv000016,Trip000215,Altrincham Station
+MET:MET2:O:,Serv000017,Trip000216,Altrincham Station
+MET:MET2:O:,Serv000018,Trip000217,Altrincham Station
+MET:MET2:O:,Serv000019,Trip000218,Altrincham Station
+MET:MET2:O:,Serv000020,Trip000219,Altrincham Station
+MET:MET2:O:,Serv000021,Trip000220,Altrincham Station
+MET:MET2:O:,Serv000022,Trip000221,Altrincham Station
+MET:MET2:O:,Serv000023,Trip000222,Altrincham Station
+MET:MET2:O:,Serv000024,Trip000223,Altrincham Station
+MET:MET2:O:,Serv000025,Trip000224,Altrincham Station
+MET:MET2:O:,Serv000026,Trip000225,Altrincham Station
+MET:MET2:O:,Serv000027,Trip000226,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000227,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000228,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000229,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000230,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000231,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000232,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000233,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000234,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000235,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000236,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000237,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000238,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000239,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000240,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000241,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000242,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000243,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000244,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000245,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000246,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000247,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000248,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000249,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000250,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000251,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000252,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000253,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000254,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000255,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000256,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000257,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000258,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000259,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000260,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000261,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000262,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000263,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000264,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000265,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000266,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000267,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000268,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000269,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000270,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000271,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000272,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000273,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000274,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000275,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000276,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000277,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000278,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000279,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000280,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000281,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000282,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000283,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000284,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000285,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000286,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000287,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000288,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000289,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000290,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000291,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000292,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000293,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000294,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000295,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000296,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000297,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000298,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000299,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000300,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000301,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000302,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000303,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000304,Altrincham Station
+MET:MET2:O:,Serv000028,Trip000305,Altrincham Station
+MET:MET2:O:,Serv000029,Trip000306,Altrincham Station
+MET:MET2:O:,Serv000030,Trip000307,Altrincham Station
+MET:MET2:O:,Serv000031,Trip000308,Altrincham Station
+MET:MET2:O:,Serv000031,Trip000309,Altrincham Station
+MET:MET2:O:,Serv000031,Trip000310,Altrincham Station
+MET:MET2:O:,Serv000031,Trip000311,Altrincham Station
+MET:MET2:O:,Serv000031,Trip000312,Altrincham Station
+MET:MET2:O:,Serv000031,Trip000313,Altrincham Station
+MET:MET2:O:,Serv000031,Trip000314,Trafford Bar
+MET:MET2:O:,Serv000031,Trip000315,Trafford Bar
+MET:MET2:O:,Serv000031,Trip000316,Trafford Bar
+MET:MET2:O:,Serv000032,Trip000317,Piccadilly Station
+MET:MET2:O:,Serv000032,Trip000318,Piccadilly Station
+MET:MET2:O:,Serv000033,Trip000319,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000320,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000321,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000322,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000323,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000324,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000325,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000326,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000327,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000328,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000329,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000330,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000331,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000332,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000333,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000334,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000335,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000336,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000337,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000338,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000339,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000340,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000341,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000342,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000343,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000344,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000345,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000346,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000347,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000348,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000349,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000350,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000351,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000352,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000353,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000354,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000355,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000356,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000357,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000358,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000359,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000360,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000361,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000362,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000363,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000364,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000365,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000366,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000367,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000368,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000369,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000370,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000371,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000372,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000373,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000374,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000375,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000376,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000377,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000378,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000379,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000380,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000381,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000382,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000383,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000384,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000385,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000386,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000387,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000388,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000389,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000390,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000391,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000392,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000393,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000394,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000395,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000396,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000397,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000398,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000399,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000400,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000401,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000402,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000403,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000404,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000405,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000406,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000407,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000408,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000409,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000410,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000411,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000412,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000413,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000414,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000415,Altrincham Station
+MET:MET2:O:,Serv000033,Trip000416,Trafford Bar
+MET:MET2:O:,Serv000033,Trip000417,Trafford Bar
+MET:MET2:O:,Serv000033,Trip000418,Trafford Bar
+MET:MET3:I:,Serv000034,Trip000419,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000420,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000421,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000422,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000423,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000424,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000425,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000426,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000427,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000428,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000429,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000430,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000431,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000432,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000433,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000434,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000435,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000436,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000437,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000438,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000439,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000440,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000441,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000442,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000443,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000444,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000445,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000446,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000447,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000448,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000449,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000450,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000451,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000452,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000453,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000454,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000455,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000456,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000457,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000458,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000459,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000460,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000461,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000462,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000463,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000464,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000465,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000466,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000467,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000468,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000469,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000470,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000471,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000472,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000473,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000474,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000475,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000476,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000477,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000478,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000479,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000480,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000481,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000482,Piccadilly Station
+MET:MET3:I:,Serv000034,Trip000483,Old Trafford
+MET:MET3:I:,Serv000034,Trip000484,Old Trafford
+MET:MET3:I:,Serv000034,Trip000485,Old Trafford
+MET:MET3:I:,Serv000034,Trip000486,Old Trafford
+MET:MET3:I:,Serv000035,Trip000487,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000488,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000489,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000490,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000491,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000492,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000493,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000494,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000495,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000496,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000497,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000498,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000499,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000500,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000501,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000502,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000503,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000504,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000505,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000506,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000507,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000508,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000509,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000510,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000511,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000512,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000513,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000514,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000515,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000516,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000517,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000518,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000519,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000520,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000521,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000522,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000523,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000524,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000525,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000526,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000527,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000528,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000529,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000530,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000531,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000532,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000533,Piccadilly Station
+MET:MET3:I:,Serv000035,Trip000534,Old Trafford
+MET:MET3:I:,Serv000035,Trip000535,Old Trafford
+MET:MET3:I:,Serv000035,Trip000536,Old Trafford
+MET:MET3:I:,Serv000035,Trip000537,Old Trafford
+MET:MET3:I:,Serv000036,Trip000538,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000539,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000540,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000541,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000542,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000543,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000544,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000545,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000546,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000547,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000548,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000549,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000550,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000551,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000552,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000553,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000554,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000555,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000556,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000557,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000558,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000559,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000560,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000561,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000562,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000563,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000564,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000565,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000566,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000567,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000568,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000569,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000570,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000571,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000572,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000573,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000574,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000575,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000576,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000577,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000578,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000579,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000580,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000581,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000582,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000583,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000584,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000585,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000586,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000587,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000588,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000589,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000590,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000591,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000592,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000593,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000594,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000595,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000596,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000597,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000598,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000599,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000600,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000601,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000602,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000603,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000604,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000605,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000606,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000607,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000608,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000609,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000610,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000611,Piccadilly Station
+MET:MET3:I:,Serv000036,Trip000612,Old Trafford
+MET:MET3:I:,Serv000036,Trip000613,Old Trafford
+MET:MET3:I:,Serv000037,Trip000614,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000615,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000616,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000617,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000618,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000619,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000620,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000621,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000622,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000623,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000624,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000625,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000626,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000627,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000628,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000629,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000630,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000631,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000632,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000633,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000634,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000635,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000636,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000637,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000638,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000639,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000640,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000641,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000642,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000643,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000644,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000645,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000646,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000647,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000648,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000649,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000650,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000651,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000652,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000653,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000654,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000655,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000656,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000657,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000658,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000659,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000660,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000661,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000662,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000663,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000664,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000665,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000666,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000667,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000668,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000669,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000670,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000671,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000672,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000673,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000674,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000675,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000676,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000677,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000678,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000679,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000680,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000681,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000682,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000683,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000684,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000685,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000686,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000687,Piccadilly Station
+MET:MET3:I:,Serv000037,Trip000688,Old Trafford
+MET:MET3:I:,Serv000037,Trip000689,Old Trafford
+MET:MET3:O:,Serv000038,Trip000690,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000691,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000692,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000693,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000694,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000695,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000696,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000697,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000698,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000699,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000700,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000701,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000702,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000703,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000704,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000705,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000706,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000707,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000708,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000709,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000710,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000711,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000712,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000713,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000714,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000715,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000716,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000717,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000718,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000719,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000720,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000721,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000722,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000723,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000724,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000725,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000726,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000727,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000728,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000729,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000730,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000731,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000732,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000733,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000734,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000735,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000736,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000737,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000738,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000739,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000740,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000741,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000742,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000743,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000744,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000745,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000746,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000747,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000748,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000749,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000750,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000751,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000752,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000753,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000754,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000755,Altrincham Station
+MET:MET3:O:,Serv000038,Trip000756,Trafford Bar
+MET:MET3:O:,Serv000038,Trip000757,Trafford Bar
+MET:MET3:O:,Serv000039,Trip000758,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000759,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000760,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000761,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000762,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000763,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000764,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000765,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000766,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000767,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000768,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000769,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000770,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000771,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000772,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000773,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000774,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000775,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000776,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000777,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000778,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000779,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000780,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000781,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000782,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000783,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000784,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000785,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000786,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000787,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000788,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000789,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000790,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000791,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000792,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000793,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000794,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000795,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000796,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000797,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000798,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000799,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000800,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000801,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000802,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000803,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000804,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000805,Altrincham Station
+MET:MET3:O:,Serv000039,Trip000806,Trafford Bar
+MET:MET3:O:,Serv000039,Trip000807,Trafford Bar
+MET:MET3:O:,Serv000040,Trip000808,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000809,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000810,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000811,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000812,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000813,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000814,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000815,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000816,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000817,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000818,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000819,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000820,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000821,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000822,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000823,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000824,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000825,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000826,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000827,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000828,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000829,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000830,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000831,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000832,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000833,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000834,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000835,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000836,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000837,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000838,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000839,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000840,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000841,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000842,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000843,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000844,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000845,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000846,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000847,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000848,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000849,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000850,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000851,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000852,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000853,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000854,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000855,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000856,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000857,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000858,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000859,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000860,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000861,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000862,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000863,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000864,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000865,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000866,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000867,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000868,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000869,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000870,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000871,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000872,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000873,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000874,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000875,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000876,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000877,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000878,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000879,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000880,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000881,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000882,Altrincham Station
+MET:MET3:O:,Serv000040,Trip000883,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000884,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000885,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000886,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000887,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000888,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000889,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000890,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000891,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000892,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000893,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000894,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000895,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000896,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000897,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000898,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000899,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000900,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000901,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000902,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000903,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000904,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000905,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000906,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000907,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000908,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000909,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000910,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000911,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000912,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000913,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000914,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000915,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000916,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000917,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000918,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000919,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000920,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000921,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000922,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000923,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000924,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000925,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000926,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000927,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000928,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000929,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000930,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000931,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000932,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000933,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000934,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000935,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000936,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000937,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000938,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000939,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000940,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000941,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000942,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000943,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000944,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000945,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000946,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000947,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000948,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000949,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000950,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000951,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000952,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000953,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000954,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000955,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000956,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000957,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000958,Altrincham Station
+MET:MET3:O:,Serv000041,Trip000959,Altrincham Station
+MET:MET4:I:,Serv000042,Trip000960,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000961,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000962,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000963,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000964,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000965,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000966,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000967,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000968,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000969,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000970,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000971,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000972,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000973,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000974,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000975,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000976,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000977,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000978,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000979,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000980,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000981,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000982,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000983,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000984,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000985,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000986,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000987,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000988,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000989,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000990,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000991,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000992,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000993,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000994,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000995,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000996,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000997,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000998,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip000999,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001000,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001001,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001002,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001003,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001004,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001005,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001006,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001007,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001008,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001009,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001010,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001011,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001012,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001013,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001014,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001015,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001016,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001017,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001018,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001019,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001020,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001021,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001022,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001023,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001024,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001025,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001026,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001027,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001028,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001029,Ashton-Under-Lyne
+MET:MET4:I:,Serv000042,Trip001030,Ashton-Under-Lyne
+MET:MET4:I:,Serv000043,Trip001031,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001032,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001033,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001034,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001035,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001036,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001037,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001038,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001039,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001040,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001041,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001042,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001043,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001044,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001045,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001046,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001047,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001048,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001049,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001050,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001051,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001052,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001053,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001054,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001055,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001056,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001057,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001058,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001059,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001060,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001061,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001062,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001063,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001064,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001065,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001066,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001067,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001068,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001069,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001070,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001071,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001072,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001073,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001074,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001075,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001076,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001077,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001078,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001079,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001080,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001081,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001082,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001083,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001084,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001085,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001086,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001087,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001088,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001089,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001090,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001091,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001092,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001093,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001094,Piccadilly Station
+MET:MET4:I:,Serv000044,Trip001095,Ashton-Under-Lyne
+MET:MET4:I:,Serv000045,Trip001096,Cornbrook
+MET:MET4:I:,Serv000046,Trip001097,Cornbrook
+MET:MET4:I:,Serv000047,Trip001098,Ashton-Under-Lyne
+MET:MET4:I:,Serv000048,Trip001099,Cornbrook
+MET:MET4:I:,Serv000049,Trip001100,Cornbrook
+MET:MET4:I:,Serv000050,Trip001101,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001102,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001103,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001104,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001105,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001106,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001107,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001108,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001109,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001110,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001111,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001112,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001113,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001114,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001115,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001116,Ashton-Under-Lyne
+MET:MET4:I:,Serv000050,Trip001117,Ashton-Under-Lyne
+MET:MET4:I:,Serv000051,Trip001118,Ashton-Under-Lyne
+MET:MET4:I:,Serv000052,Trip001119,Piccadilly Station
+MET:MET4:I:,Serv000053,Trip001120,Ashton-Under-Lyne
+MET:MET4:I:,Serv000054,Trip001121,Piccadilly Station
+MET:MET4:I:,Serv000055,Trip001122,Ashton-Under-Lyne
+MET:MET4:I:,Serv000055,Trip001123,Ashton-Under-Lyne
+MET:MET4:I:,Serv000055,Trip001124,Ashton-Under-Lyne
+MET:MET4:I:,Serv000055,Trip001125,Piccadilly Station
+MET:MET4:I:,Serv000055,Trip001126,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001127,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001128,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001129,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001130,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001131,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001132,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001133,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001134,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001135,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001136,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001137,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001138,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001139,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001140,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001141,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001142,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001143,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001144,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001145,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001146,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001147,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001148,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001149,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001150,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001151,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001152,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001153,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001154,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001155,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001156,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001157,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001158,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001159,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001160,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001161,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001162,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001163,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001164,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001165,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001166,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001167,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001168,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001169,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001170,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001171,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001172,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001173,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001174,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001175,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001176,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001177,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001178,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001179,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001180,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001181,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001182,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001183,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001184,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001185,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001186,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001187,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001188,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001189,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001190,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001191,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001192,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001193,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001194,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001195,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001196,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001197,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001198,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001199,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001200,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001201,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001202,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001203,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001204,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001205,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001206,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001207,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001208,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001209,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001210,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001211,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001212,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001213,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001214,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001215,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001216,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001217,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001218,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001219,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001220,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001221,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001222,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001223,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001224,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001225,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001226,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001227,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001228,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001229,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001230,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001231,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001232,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001233,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001234,Cornbrook
+MET:MET4:I:,Serv000056,Trip001235,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001236,Cornbrook
+MET:MET4:I:,Serv000056,Trip001237,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001238,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001239,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001240,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001241,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001242,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001243,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001244,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001245,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001246,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001247,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001248,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001249,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001250,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001251,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001252,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001253,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001254,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001255,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001256,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001257,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001258,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001259,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001260,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001261,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001262,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001263,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001264,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001265,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001266,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001267,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001268,Ashton-Under-Lyne
+MET:MET4:I:,Serv000056,Trip001269,Piccadilly Station
+MET:MET4:I:,Serv000056,Trip001270,Piccadilly Station
+MET:MET4:I:,Serv000057,Trip001271,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001272,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001273,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001274,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001275,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001276,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001277,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001278,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001279,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001280,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001281,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001282,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001283,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001284,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001285,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001286,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001287,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001288,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001289,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001290,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001291,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001292,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001293,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001294,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001295,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001296,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001297,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001298,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001299,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001300,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001301,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001302,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001303,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001304,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001305,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001306,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001307,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001308,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001309,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001310,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001311,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001312,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001313,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001314,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001315,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001316,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001317,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001318,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001319,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001320,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001321,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001322,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001323,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001324,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001325,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001326,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001327,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001328,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001329,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001330,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001331,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001332,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001333,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001334,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001335,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001336,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001337,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001338,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001339,Piccadilly Station
+MET:MET4:I:,Serv000057,Trip001340,Piccadilly Station
+MET:MET4:I:,Serv000057,Trip001341,Piccadilly Station
+MET:MET4:I:,Serv000057,Trip001342,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001343,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001344,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001345,Ashton-Under-Lyne
+MET:MET4:I:,Serv000057,Trip001346,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001347,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001348,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001349,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001350,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001351,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001352,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001353,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001354,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001355,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001356,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001357,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001358,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001359,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001360,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001361,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001362,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001363,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001364,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001365,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001366,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001367,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001368,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001369,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001370,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001371,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001372,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001373,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001374,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001375,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001376,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001377,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001378,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001379,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001380,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001381,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001382,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001383,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001384,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001385,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001386,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001387,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001388,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001389,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001390,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001391,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001392,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001393,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001394,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001395,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001396,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001397,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001398,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001399,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001400,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001401,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001402,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001403,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001404,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001405,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001406,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001407,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001408,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001409,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001410,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001411,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001412,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001413,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001414,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001415,Piccadilly Station
+MET:MET4:I:,Serv000058,Trip001416,Piccadilly Station
+MET:MET4:I:,Serv000058,Trip001417,Piccadilly Station
+MET:MET4:I:,Serv000058,Trip001418,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001419,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001420,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001421,Ashton-Under-Lyne
+MET:MET4:I:,Serv000058,Trip001422,Ashton-Under-Lyne
+MET:MET4:O:,Serv000059,Trip001423,Eccles
+MET:MET4:O:,Serv000059,Trip001424,Eccles
+MET:MET4:O:,Serv000059,Trip001425,Eccles
+MET:MET4:O:,Serv000059,Trip001426,Eccles
+MET:MET4:O:,Serv000059,Trip001427,Eccles
+MET:MET4:O:,Serv000059,Trip001428,Eccles
+MET:MET4:O:,Serv000059,Trip001429,Eccles
+MET:MET4:O:,Serv000059,Trip001430,Eccles
+MET:MET4:O:,Serv000059,Trip001431,Eccles
+MET:MET4:O:,Serv000059,Trip001432,Eccles
+MET:MET4:O:,Serv000059,Trip001433,Eccles
+MET:MET4:O:,Serv000059,Trip001434,Eccles
+MET:MET4:O:,Serv000059,Trip001435,Eccles
+MET:MET4:O:,Serv000059,Trip001436,Eccles
+MET:MET4:O:,Serv000059,Trip001437,Eccles
+MET:MET4:O:,Serv000059,Trip001438,Eccles
+MET:MET4:O:,Serv000059,Trip001439,Eccles
+MET:MET4:O:,Serv000059,Trip001440,Eccles
+MET:MET4:O:,Serv000059,Trip001441,Eccles
+MET:MET4:O:,Serv000059,Trip001442,Eccles
+MET:MET4:O:,Serv000059,Trip001443,Eccles
+MET:MET4:O:,Serv000059,Trip001444,Eccles
+MET:MET4:O:,Serv000059,Trip001445,Eccles
+MET:MET4:O:,Serv000059,Trip001446,Eccles
+MET:MET4:O:,Serv000059,Trip001447,Eccles
+MET:MET4:O:,Serv000059,Trip001448,Eccles
+MET:MET4:O:,Serv000059,Trip001449,Eccles
+MET:MET4:O:,Serv000059,Trip001450,Eccles
+MET:MET4:O:,Serv000059,Trip001451,Eccles
+MET:MET4:O:,Serv000059,Trip001452,Eccles
+MET:MET4:O:,Serv000059,Trip001453,Eccles
+MET:MET4:O:,Serv000059,Trip001454,Eccles
+MET:MET4:O:,Serv000059,Trip001455,Eccles
+MET:MET4:O:,Serv000059,Trip001456,Eccles
+MET:MET4:O:,Serv000059,Trip001457,Eccles
+MET:MET4:O:,Serv000059,Trip001458,Eccles
+MET:MET4:O:,Serv000059,Trip001459,Eccles
+MET:MET4:O:,Serv000059,Trip001460,Eccles
+MET:MET4:O:,Serv000059,Trip001461,Eccles
+MET:MET4:O:,Serv000059,Trip001462,Eccles
+MET:MET4:O:,Serv000059,Trip001463,Eccles
+MET:MET4:O:,Serv000059,Trip001464,Eccles
+MET:MET4:O:,Serv000059,Trip001465,Eccles
+MET:MET4:O:,Serv000059,Trip001466,Eccles
+MET:MET4:O:,Serv000059,Trip001467,Eccles
+MET:MET4:O:,Serv000059,Trip001468,Eccles
+MET:MET4:O:,Serv000059,Trip001469,Eccles
+MET:MET4:O:,Serv000059,Trip001470,Eccles
+MET:MET4:O:,Serv000059,Trip001471,Eccles
+MET:MET4:O:,Serv000059,Trip001472,Eccles
+MET:MET4:O:,Serv000059,Trip001473,Eccles
+MET:MET4:O:,Serv000059,Trip001474,Eccles
+MET:MET4:O:,Serv000059,Trip001475,Eccles
+MET:MET4:O:,Serv000059,Trip001476,Eccles
+MET:MET4:O:,Serv000059,Trip001477,Eccles
+MET:MET4:O:,Serv000059,Trip001478,Eccles
+MET:MET4:O:,Serv000059,Trip001479,Eccles
+MET:MET4:O:,Serv000059,Trip001480,Eccles
+MET:MET4:O:,Serv000059,Trip001481,Eccles
+MET:MET4:O:,Serv000059,Trip001482,Eccles
+MET:MET4:O:,Serv000059,Trip001483,Eccles
+MET:MET4:O:,Serv000059,Trip001484,Eccles
+MET:MET4:O:,Serv000059,Trip001485,Eccles
+MET:MET4:O:,Serv000060,Trip001486,Trafford Bar
+MET:MET4:O:,Serv000060,Trip001487,Trafford Bar
+MET:MET4:O:,Serv000061,Trip001488,Trafford Bar
+MET:MET4:O:,Serv000061,Trip001489,Trafford Bar
+MET:MET4:O:,Serv000062,Trip001490,Eccles
+MET:MET4:O:,Serv000062,Trip001491,Eccles
+MET:MET4:O:,Serv000062,Trip001492,Eccles
+MET:MET4:O:,Serv000062,Trip001493,Eccles
+MET:MET4:O:,Serv000062,Trip001494,Eccles
+MET:MET4:O:,Serv000063,Trip001495,MediaCityUK
+MET:MET4:O:,Serv000064,Trip001496,Eccles
+MET:MET4:O:,Serv000065,Trip001497,MediaCityUK
+MET:MET4:O:,Serv000066,Trip001498,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001499,Eccles
+MET:MET4:O:,Serv000067,Trip001500,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001501,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001502,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001503,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001504,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001505,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001506,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001507,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001508,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001509,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001510,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001511,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001512,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001513,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001514,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001515,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001516,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001517,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001518,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001519,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001520,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001521,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001522,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001523,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001524,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001525,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001526,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001527,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001528,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001529,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001530,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001531,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001532,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001533,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001534,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001535,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001536,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001537,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001538,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001539,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001540,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001541,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001542,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001543,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001544,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001545,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001546,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001547,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001548,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001549,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001550,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001551,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001552,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001553,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001554,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001555,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001556,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001557,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001558,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001559,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001560,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001561,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001562,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001563,MediaCityUK
+MET:MET4:O:,Serv000067,Trip001564,Eccles
+MET:MET4:O:,Serv000067,Trip001565,Eccles
+MET:MET4:O:,Serv000067,Trip001566,Eccles
+MET:MET4:O:,Serv000067,Trip001567,Eccles
+MET:MET4:O:,Serv000067,Trip001568,Eccles
+MET:MET4:O:,Serv000067,Trip001569,Eccles
+MET:MET4:O:,Serv000067,Trip001570,Eccles
+MET:MET4:O:,Serv000067,Trip001571,Eccles
+MET:MET4:O:,Serv000067,Trip001572,Eccles
+MET:MET4:O:,Serv000067,Trip001573,Eccles
+MET:MET4:O:,Serv000067,Trip001574,Eccles
+MET:MET4:O:,Serv000067,Trip001575,Eccles
+MET:MET4:O:,Serv000067,Trip001576,Eccles
+MET:MET4:O:,Serv000067,Trip001577,Eccles
+MET:MET4:O:,Serv000067,Trip001578,Eccles
+MET:MET4:O:,Serv000067,Trip001579,Eccles
+MET:MET4:O:,Serv000067,Trip001580,Eccles
+MET:MET4:O:,Serv000067,Trip001581,Eccles
+MET:MET4:O:,Serv000067,Trip001582,Eccles
+MET:MET4:O:,Serv000067,Trip001583,Eccles
+MET:MET4:O:,Serv000068,Trip001584,Eccles
+MET:MET4:O:,Serv000068,Trip001585,Eccles
+MET:MET4:O:,Serv000068,Trip001586,Eccles
+MET:MET4:O:,Serv000068,Trip001587,Eccles
+MET:MET4:O:,Serv000068,Trip001588,Eccles
+MET:MET4:O:,Serv000069,Trip001589,Eccles
+MET:MET4:O:,Serv000069,Trip001590,Eccles
+MET:MET4:O:,Serv000069,Trip001591,Eccles
+MET:MET4:O:,Serv000069,Trip001592,Eccles
+MET:MET4:O:,Serv000069,Trip001593,Eccles
+MET:MET4:O:,Serv000069,Trip001594,Eccles
+MET:MET4:O:,Serv000069,Trip001595,Eccles
+MET:MET4:O:,Serv000069,Trip001596,Eccles
+MET:MET4:O:,Serv000069,Trip001597,Eccles
+MET:MET4:O:,Serv000069,Trip001598,Eccles
+MET:MET4:O:,Serv000069,Trip001599,Eccles
+MET:MET4:O:,Serv000069,Trip001600,Eccles
+MET:MET4:O:,Serv000069,Trip001601,Eccles
+MET:MET4:O:,Serv000069,Trip001602,Eccles
+MET:MET4:O:,Serv000069,Trip001603,Eccles
+MET:MET4:O:,Serv000069,Trip001604,Eccles
+MET:MET4:O:,Serv000069,Trip001605,Eccles
+MET:MET4:O:,Serv000069,Trip001606,Eccles
+MET:MET4:O:,Serv000069,Trip001607,Eccles
+MET:MET4:O:,Serv000069,Trip001608,Eccles
+MET:MET4:O:,Serv000069,Trip001609,Eccles
+MET:MET4:O:,Serv000069,Trip001610,Eccles
+MET:MET4:O:,Serv000069,Trip001611,Eccles
+MET:MET4:O:,Serv000069,Trip001612,Eccles
+MET:MET4:O:,Serv000069,Trip001613,Eccles
+MET:MET4:O:,Serv000069,Trip001614,Eccles
+MET:MET4:O:,Serv000069,Trip001615,Eccles
+MET:MET4:O:,Serv000069,Trip001616,Eccles
+MET:MET4:O:,Serv000069,Trip001617,Eccles
+MET:MET4:O:,Serv000069,Trip001618,Eccles
+MET:MET4:O:,Serv000069,Trip001619,Eccles
+MET:MET4:O:,Serv000069,Trip001620,Eccles
+MET:MET4:O:,Serv000069,Trip001621,Eccles
+MET:MET4:O:,Serv000069,Trip001622,Eccles
+MET:MET4:O:,Serv000069,Trip001623,Eccles
+MET:MET4:O:,Serv000069,Trip001624,Eccles
+MET:MET4:O:,Serv000069,Trip001625,Eccles
+MET:MET4:O:,Serv000069,Trip001626,Eccles
+MET:MET4:O:,Serv000069,Trip001627,Eccles
+MET:MET4:O:,Serv000069,Trip001628,Eccles
+MET:MET4:O:,Serv000069,Trip001629,Eccles
+MET:MET4:O:,Serv000069,Trip001630,Eccles
+MET:MET4:O:,Serv000069,Trip001631,Eccles
+MET:MET4:O:,Serv000069,Trip001632,Trafford Bar
+MET:MET4:O:,Serv000069,Trip001633,Trafford Bar
+MET:MET4:O:,Serv000069,Trip001634,Eccles
+MET:MET4:O:,Serv000069,Trip001635,Eccles
+MET:MET4:O:,Serv000069,Trip001636,Eccles
+MET:MET4:O:,Serv000069,Trip001637,Eccles
+MET:MET4:O:,Serv000069,Trip001638,Eccles
+MET:MET4:O:,Serv000069,Trip001639,Eccles
+MET:MET4:O:,Serv000069,Trip001640,Eccles
+MET:MET4:O:,Serv000069,Trip001641,Eccles
+MET:MET4:O:,Serv000069,Trip001642,Eccles
+MET:MET4:O:,Serv000069,Trip001643,Eccles
+MET:MET4:O:,Serv000069,Trip001644,Eccles
+MET:MET4:O:,Serv000069,Trip001645,Eccles
+MET:MET4:O:,Serv000069,Trip001646,Eccles
+MET:MET4:O:,Serv000069,Trip001647,Eccles
+MET:MET4:O:,Serv000069,Trip001648,Eccles
+MET:MET4:O:,Serv000069,Trip001649,Eccles
+MET:MET4:O:,Serv000069,Trip001650,Eccles
+MET:MET4:O:,Serv000069,Trip001651,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001652,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001653,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001654,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001655,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001656,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001657,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001658,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001659,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001660,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001661,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001662,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001663,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001664,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001665,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001666,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001667,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001668,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001669,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001670,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001671,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001672,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001673,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001674,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001675,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001676,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001677,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001678,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001679,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001680,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001681,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001682,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001683,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001684,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001685,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001686,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001687,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001688,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001689,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001690,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001691,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001692,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001693,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001694,MediaCityUK
+MET:MET4:O:,Serv000069,Trip001695,Eccles
+MET:MET4:O:,Serv000069,Trip001696,Eccles
+MET:MET4:O:,Serv000069,Trip001697,Eccles
+MET:MET4:O:,Serv000069,Trip001698,Eccles
+MET:MET4:O:,Serv000069,Trip001699,Eccles
+MET:MET4:O:,Serv000069,Trip001700,Eccles
+MET:MET4:O:,Serv000069,Trip001701,Eccles
+MET:MET4:O:,Serv000069,Trip001702,Eccles
+MET:MET4:O:,Serv000069,Trip001703,Eccles
+MET:MET4:O:,Serv000069,Trip001704,Eccles
+MET:MET4:O:,Serv000069,Trip001705,Eccles
+MET:MET4:O:,Serv000069,Trip001706,Eccles
+MET:MET4:O:,Serv000069,Trip001707,Eccles
+MET:MET4:O:,Serv000069,Trip001708,Eccles
+MET:MET4:O:,Serv000069,Trip001709,Eccles
+MET:MET4:O:,Serv000069,Trip001710,Eccles
+MET:MET4:O:,Serv000069,Trip001711,Eccles
+MET:MET4:O:,Serv000069,Trip001712,Eccles
+MET:MET4:O:,Serv000069,Trip001713,Eccles
+MET:MET4:O:,Serv000069,Trip001714,Eccles
+MET:MET4:O:,Serv000069,Trip001715,Eccles
+MET:MET4:O:,Serv000069,Trip001716,Eccles
+MET:MET4:O:,Serv000069,Trip001717,Eccles
+MET:MET4:O:,Serv000069,Trip001718,Eccles
+MET:MET4:O:,Serv000069,Trip001719,Eccles
+MET:MET4:O:,Serv000069,Trip001720,Eccles
+MET:MET4:O:,Serv000069,Trip001721,Eccles
+MET:MET4:O:,Serv000069,Trip001722,Eccles
+MET:MET4:O:,Serv000069,Trip001723,Eccles
+MET:MET4:O:,Serv000069,Trip001724,Eccles
+MET:MET4:O:,Serv000069,Trip001725,Eccles
+MET:MET4:O:,Serv000069,Trip001726,Eccles
+MET:MET4:O:,Serv000069,Trip001727,Eccles
+MET:MET4:O:,Serv000069,Trip001728,Eccles
+MET:MET4:O:,Serv000069,Trip001729,Eccles
+MET:MET4:O:,Serv000070,Trip001730,Eccles
+MET:MET4:O:,Serv000070,Trip001731,Eccles
+MET:MET4:O:,Serv000070,Trip001732,Eccles
+MET:MET4:O:,Serv000070,Trip001733,Eccles
+MET:MET4:O:,Serv000070,Trip001734,Eccles
+MET:MET4:O:,Serv000070,Trip001735,Eccles
+MET:MET4:O:,Serv000070,Trip001736,Eccles
+MET:MET4:O:,Serv000070,Trip001737,Eccles
+MET:MET4:O:,Serv000070,Trip001738,Eccles
+MET:MET4:O:,Serv000070,Trip001739,Eccles
+MET:MET4:O:,Serv000070,Trip001740,Eccles
+MET:MET4:O:,Serv000070,Trip001741,Eccles
+MET:MET4:O:,Serv000070,Trip001742,Eccles
+MET:MET4:O:,Serv000070,Trip001743,Eccles
+MET:MET4:O:,Serv000070,Trip001744,Eccles
+MET:MET4:O:,Serv000070,Trip001745,Eccles
+MET:MET4:O:,Serv000070,Trip001746,Eccles
+MET:MET4:O:,Serv000070,Trip001747,Eccles
+MET:MET4:O:,Serv000070,Trip001748,Eccles
+MET:MET4:O:,Serv000070,Trip001749,Eccles
+MET:MET4:O:,Serv000070,Trip001750,Eccles
+MET:MET4:O:,Serv000070,Trip001751,Eccles
+MET:MET4:O:,Serv000070,Trip001752,Eccles
+MET:MET4:O:,Serv000070,Trip001753,Eccles
+MET:MET4:O:,Serv000070,Trip001754,Eccles
+MET:MET4:O:,Serv000070,Trip001755,Eccles
+MET:MET4:O:,Serv000070,Trip001756,Eccles
+MET:MET4:O:,Serv000070,Trip001757,Eccles
+MET:MET4:O:,Serv000070,Trip001758,Eccles
+MET:MET4:O:,Serv000070,Trip001759,Eccles
+MET:MET4:O:,Serv000070,Trip001760,Eccles
+MET:MET4:O:,Serv000070,Trip001761,Eccles
+MET:MET4:O:,Serv000070,Trip001762,Eccles
+MET:MET4:O:,Serv000070,Trip001763,Eccles
+MET:MET4:O:,Serv000070,Trip001764,Eccles
+MET:MET4:O:,Serv000070,Trip001765,Eccles
+MET:MET4:O:,Serv000070,Trip001766,Eccles
+MET:MET4:O:,Serv000070,Trip001767,Eccles
+MET:MET4:O:,Serv000070,Trip001768,Eccles
+MET:MET4:O:,Serv000070,Trip001769,Eccles
+MET:MET4:O:,Serv000070,Trip001770,Eccles
+MET:MET4:O:,Serv000070,Trip001771,Eccles
+MET:MET4:O:,Serv000070,Trip001772,Eccles
+MET:MET4:O:,Serv000070,Trip001773,Eccles
+MET:MET4:O:,Serv000070,Trip001774,Eccles
+MET:MET4:O:,Serv000070,Trip001775,Eccles
+MET:MET4:O:,Serv000070,Trip001776,Eccles
+MET:MET4:O:,Serv000070,Trip001777,Eccles
+MET:MET4:O:,Serv000070,Trip001778,Eccles
+MET:MET4:O:,Serv000070,Trip001779,Eccles
+MET:MET4:O:,Serv000070,Trip001780,Eccles
+MET:MET4:O:,Serv000070,Trip001781,Eccles
+MET:MET4:O:,Serv000070,Trip001782,Eccles
+MET:MET4:O:,Serv000070,Trip001783,Eccles
+MET:MET4:O:,Serv000070,Trip001784,Eccles
+MET:MET4:O:,Serv000070,Trip001785,Eccles
+MET:MET4:O:,Serv000070,Trip001786,Eccles
+MET:MET4:O:,Serv000070,Trip001787,Eccles
+MET:MET4:O:,Serv000070,Trip001788,Eccles
+MET:MET4:O:,Serv000070,Trip001789,Eccles
+MET:MET4:O:,Serv000070,Trip001790,Eccles
+MET:MET4:O:,Serv000070,Trip001791,Eccles
+MET:MET4:O:,Serv000070,Trip001792,Eccles
+MET:MET4:O:,Serv000070,Trip001793,Eccles
+MET:MET4:O:,Serv000070,Trip001794,Eccles
+MET:MET4:O:,Serv000070,Trip001795,Eccles
+MET:MET4:O:,Serv000070,Trip001796,Eccles
+MET:MET4:O:,Serv000070,Trip001797,Eccles
+MET:MET4:O:,Serv000070,Trip001798,Eccles
+MET:MET4:O:,Serv000070,Trip001799,Eccles
+MET:MET4:O:,Serv000070,Trip001800,Trafford Bar
+MET:MET4:O:,Serv000070,Trip001801,Trafford Bar
+MET:MET4:O:,Serv000070,Trip001802,Trafford Bar
+MET:MET4:O:,Serv000070,Trip001803,Trafford Bar
+MET:MET4:O:,Serv000070,Trip001804,Trafford Bar
+MET:MET4:O:,Serv000071,Trip001805,Eccles
+MET:MET4:O:,Serv000071,Trip001806,Eccles
+MET:MET4:O:,Serv000071,Trip001807,Eccles
+MET:MET4:O:,Serv000071,Trip001808,Eccles
+MET:MET4:O:,Serv000071,Trip001809,Eccles
+MET:MET4:O:,Serv000071,Trip001810,Eccles
+MET:MET4:O:,Serv000071,Trip001811,Eccles
+MET:MET4:O:,Serv000071,Trip001812,Eccles
+MET:MET4:O:,Serv000071,Trip001813,Eccles
+MET:MET4:O:,Serv000071,Trip001814,Eccles
+MET:MET4:O:,Serv000071,Trip001815,Eccles
+MET:MET4:O:,Serv000071,Trip001816,Eccles
+MET:MET4:O:,Serv000071,Trip001817,Eccles
+MET:MET4:O:,Serv000071,Trip001818,Eccles
+MET:MET4:O:,Serv000071,Trip001819,Eccles
+MET:MET4:O:,Serv000071,Trip001820,Eccles
+MET:MET4:O:,Serv000071,Trip001821,Eccles
+MET:MET4:O:,Serv000071,Trip001822,Eccles
+MET:MET4:O:,Serv000071,Trip001823,Eccles
+MET:MET4:O:,Serv000071,Trip001824,Eccles
+MET:MET4:O:,Serv000071,Trip001825,Eccles
+MET:MET4:O:,Serv000071,Trip001826,Eccles
+MET:MET4:O:,Serv000071,Trip001827,Eccles
+MET:MET4:O:,Serv000071,Trip001828,Eccles
+MET:MET4:O:,Serv000071,Trip001829,Eccles
+MET:MET4:O:,Serv000071,Trip001830,Eccles
+MET:MET4:O:,Serv000071,Trip001831,Eccles
+MET:MET4:O:,Serv000071,Trip001832,Eccles
+MET:MET4:O:,Serv000071,Trip001833,Eccles
+MET:MET4:O:,Serv000071,Trip001834,Eccles
+MET:MET4:O:,Serv000071,Trip001835,Eccles
+MET:MET4:O:,Serv000071,Trip001836,Eccles
+MET:MET4:O:,Serv000071,Trip001837,Eccles
+MET:MET4:O:,Serv000071,Trip001838,Eccles
+MET:MET4:O:,Serv000071,Trip001839,Eccles
+MET:MET4:O:,Serv000071,Trip001840,Eccles
+MET:MET4:O:,Serv000071,Trip001841,Eccles
+MET:MET4:O:,Serv000071,Trip001842,Eccles
+MET:MET4:O:,Serv000071,Trip001843,Eccles
+MET:MET4:O:,Serv000071,Trip001844,Eccles
+MET:MET4:O:,Serv000071,Trip001845,Eccles
+MET:MET4:O:,Serv000071,Trip001846,Eccles
+MET:MET4:O:,Serv000071,Trip001847,Eccles
+MET:MET4:O:,Serv000071,Trip001848,Eccles
+MET:MET4:O:,Serv000071,Trip001849,Eccles
+MET:MET4:O:,Serv000071,Trip001850,Eccles
+MET:MET4:O:,Serv000071,Trip001851,Eccles
+MET:MET4:O:,Serv000071,Trip001852,Eccles
+MET:MET4:O:,Serv000071,Trip001853,Eccles
+MET:MET4:O:,Serv000071,Trip001854,Eccles
+MET:MET4:O:,Serv000071,Trip001855,Eccles
+MET:MET4:O:,Serv000071,Trip001856,Eccles
+MET:MET4:O:,Serv000071,Trip001857,Eccles
+MET:MET4:O:,Serv000071,Trip001858,Eccles
+MET:MET4:O:,Serv000071,Trip001859,Eccles
+MET:MET4:O:,Serv000071,Trip001860,Eccles
+MET:MET4:O:,Serv000071,Trip001861,Eccles
+MET:MET4:O:,Serv000071,Trip001862,Eccles
+MET:MET4:O:,Serv000071,Trip001863,Eccles
+MET:MET4:O:,Serv000071,Trip001864,Eccles
+MET:MET4:O:,Serv000071,Trip001865,Eccles
+MET:MET4:O:,Serv000071,Trip001866,Eccles
+MET:MET4:O:,Serv000071,Trip001867,Eccles
+MET:MET4:O:,Serv000071,Trip001868,Eccles
+MET:MET4:O:,Serv000071,Trip001869,Eccles
+MET:MET4:O:,Serv000071,Trip001870,Eccles
+MET:MET4:O:,Serv000071,Trip001871,Eccles
+MET:MET4:O:,Serv000071,Trip001872,Eccles
+MET:MET4:O:,Serv000071,Trip001873,Eccles
+MET:MET4:O:,Serv000071,Trip001874,Eccles
+MET:MET4:O:,Serv000071,Trip001875,Trafford Bar
+MET:MET4:O:,Serv000071,Trip001876,Trafford Bar
+MET:MET4:O:,Serv000071,Trip001877,Trafford Bar
+MET:MET4:O:,Serv000071,Trip001878,Trafford Bar
+MET:MET4:O:,Serv000071,Trip001879,Trafford Bar
+MET:MET1:I:,Serv000910,Trip014492,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014493,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014494,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014495,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014496,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014497,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014498,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014499,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014500,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014501,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014502,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014503,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014504,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014505,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014506,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014507,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014508,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014509,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014510,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014511,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014512,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014513,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014514,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014515,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014516,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014517,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014518,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014519,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014520,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014521,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014522,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014523,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014524,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014525,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014526,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014527,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014528,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014529,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014530,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014531,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014532,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014533,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014534,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014535,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014536,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014537,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014538,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014539,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014540,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014541,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014542,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014543,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014544,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014545,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014546,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014547,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014548,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014549,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014550,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014551,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014552,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014553,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014554,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014555,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014556,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014557,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014558,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014559,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014560,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014561,Bury Interchange
+MET:MET1:I:,Serv000910,Trip014562,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014563,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014564,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014565,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014566,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014567,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014568,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014569,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014570,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014571,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014572,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014573,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014574,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014575,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014576,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014577,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014578,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014579,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014580,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014581,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014582,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014583,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014584,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014585,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014586,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014587,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014588,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014589,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014590,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014591,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014592,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014593,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014594,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014595,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014596,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014597,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014598,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014599,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014600,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014601,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014602,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014603,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014604,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014605,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014606,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014607,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014608,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014609,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014610,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014611,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014612,Bury Interchange
+MET:MET1:I:,Serv000911,Trip014613,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014614,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014615,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014616,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014617,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014618,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014619,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014620,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014621,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014622,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014623,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014624,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014625,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014626,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014627,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014628,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014629,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014630,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014631,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014632,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014633,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014634,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014635,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014636,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014637,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014638,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014639,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014640,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014641,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014642,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014643,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014644,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014645,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014646,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014647,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014648,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014649,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014650,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014651,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014652,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014653,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014654,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014655,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014656,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014657,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014658,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014659,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014660,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014661,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014662,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014663,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014664,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014665,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014666,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014667,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014668,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014669,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014670,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014671,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014672,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014673,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014674,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014675,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014676,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014677,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014678,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014679,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014680,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014681,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014682,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014683,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014684,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014685,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014686,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014687,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014688,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014689,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014690,Bury Interchange
+MET:MET1:I:,Serv000912,Trip014691,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014692,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014693,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014694,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014695,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014696,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014697,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014698,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014699,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014700,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014701,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014702,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014703,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014704,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014705,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014706,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014707,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014708,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014709,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014710,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014711,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014712,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014713,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014714,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014715,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014716,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014717,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014718,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014719,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014720,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014721,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014722,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014723,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014724,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014725,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014726,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014727,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014728,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014729,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014730,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014731,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014732,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014733,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014734,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014735,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014736,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014737,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014738,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014739,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014740,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014741,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014742,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014743,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014744,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014745,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014746,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014747,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014748,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014749,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014750,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014751,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014752,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014753,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014754,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014755,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014756,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014757,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014758,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014759,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014760,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014761,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014762,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014763,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014764,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014765,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014766,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014767,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014768,Bury Interchange
+MET:MET1:I:,Serv000913,Trip014769,Bury Interchange
+MET:MET1:O:,Serv000914,Trip014770,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014771,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014772,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014773,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014774,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014775,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014776,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014777,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014778,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014779,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014780,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014781,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014782,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014783,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014784,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014785,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014786,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014787,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014788,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014789,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014790,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014791,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014792,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014793,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014794,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014795,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014796,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014797,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014798,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014799,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014800,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014801,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014802,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014803,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014804,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014805,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014806,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014807,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014808,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014809,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014810,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014811,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014812,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014813,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014814,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014815,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014816,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014817,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014818,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014819,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014820,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014821,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014822,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014823,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014824,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014825,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014826,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014827,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014828,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014829,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014830,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014831,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014832,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014833,Etihad Campus
+MET:MET1:O:,Serv000914,Trip014834,Abraham Moss
+MET:MET1:O:,Serv000914,Trip014835,Abraham Moss
+MET:MET1:O:,Serv000914,Trip014836,Abraham Moss
+MET:MET1:O:,Serv000914,Trip014837,Abraham Moss
+MET:MET1:O:,Serv000914,Trip014838,Abraham Moss
+MET:MET1:O:,Serv000914,Trip014839,Abraham Moss
+MET:MET1:O:,Serv000914,Trip014840,Abraham Moss
+MET:MET1:O:,Serv000915,Trip014841,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014842,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014843,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014844,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014845,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014846,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014847,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014848,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014849,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014850,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014851,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014852,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014853,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014854,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014855,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014856,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014857,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014858,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014859,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014860,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014861,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014862,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014863,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014864,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014865,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014866,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014867,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014868,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014869,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014870,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014871,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014872,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014873,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014874,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014875,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014876,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014877,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014878,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014879,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014880,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014881,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014882,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014883,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014884,Etihad Campus
+MET:MET1:O:,Serv000915,Trip014885,Abraham Moss
+MET:MET1:O:,Serv000915,Trip014886,Abraham Moss
+MET:MET1:O:,Serv000915,Trip014887,Abraham Moss
+MET:MET1:O:,Serv000915,Trip014888,Abraham Moss
+MET:MET1:O:,Serv000915,Trip014889,Abraham Moss
+MET:MET1:O:,Serv000915,Trip014890,Abraham Moss
+MET:MET1:O:,Serv000915,Trip014891,Abraham Moss
+MET:MET1:O:,Serv000916,Trip014892,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014893,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014894,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014895,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014896,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014897,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014898,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014899,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014900,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014901,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014902,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014903,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014904,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014905,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014906,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014907,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014908,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014909,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014910,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014911,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014912,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014913,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014914,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014915,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014916,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014917,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014918,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014919,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014920,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014921,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014922,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014923,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014924,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014925,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014926,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014927,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014928,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014929,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014930,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014931,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014932,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014933,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014934,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014935,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014936,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014937,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014938,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014939,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014940,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014941,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014942,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014943,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014944,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014945,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014946,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014947,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014948,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014949,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014950,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014951,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014952,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014953,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014954,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014955,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014956,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014957,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014958,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014959,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014960,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014961,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014962,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014963,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014964,Piccadilly Station
+MET:MET1:O:,Serv000916,Trip014965,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014966,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014967,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014968,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014969,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014970,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014971,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014972,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014973,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014974,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014975,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014976,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014977,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014978,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014979,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014980,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014981,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014982,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014983,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014984,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014985,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014986,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014987,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014988,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014989,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014990,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014991,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014992,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014993,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014994,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014995,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014996,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014997,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014998,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip014999,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015000,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015001,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015002,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015003,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015004,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015005,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015006,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015007,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015008,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015009,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015010,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015011,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015012,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015013,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015014,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015015,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015016,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015017,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015018,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015019,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015020,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015021,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015022,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015023,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015024,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015025,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015026,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015027,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015028,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015029,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015030,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015031,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015032,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015033,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015034,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015035,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015036,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015037,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015038,Piccadilly Station
+MET:MET1:O:,Serv000917,Trip015039,Piccadilly Station
+MET:MET5:I:,Serv000918,Trip015040,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015041,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015042,Shaw and Crompton
+MET:MET5:I:,Serv000918,Trip015043,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015044,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015045,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015046,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015047,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015048,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015049,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015050,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015051,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015052,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015053,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015054,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015055,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015056,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015057,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015058,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015059,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015060,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015061,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015062,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015063,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015064,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015065,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015066,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015067,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015068,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015069,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015070,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015071,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015072,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015073,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015074,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015075,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015076,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015077,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015078,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015079,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015080,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015081,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015082,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015083,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015084,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015085,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015086,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015087,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015088,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015089,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015090,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015091,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015092,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015093,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015094,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015095,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015096,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015097,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015098,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015099,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015100,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015101,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015102,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015103,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015104,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015105,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015106,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015107,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015108,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015109,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015110,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015111,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015112,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015113,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015114,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015115,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015116,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015117,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015118,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015119,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015120,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015121,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015122,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015123,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015124,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015125,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015126,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015127,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015128,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015129,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015130,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015131,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015132,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015133,Rochdale Interchange
+MET:MET5:I:,Serv000918,Trip015134,Rochdale Interchange
+MET:MET5:I:,Serv000919,Trip015135,Shaw and Crompton
+MET:MET5:I:,Serv000920,Trip015136,Rochdale Interchange
+MET:MET5:I:,Serv000921,Trip015137,Victoria Station
+MET:MET5:I:,Serv000922,Trip015138,Rochdale Interchange
+MET:MET5:I:,Serv000923,Trip015139,Victoria Station
+MET:MET5:I:,Serv000924,Trip015140,Rochdale Interchange
+MET:MET5:I:,Serv000924,Trip015141,Rochdale Interchange
+MET:MET5:I:,Serv000924,Trip015142,Rochdale Interchange
+MET:MET5:I:,Serv000924,Trip015143,Shaw and Crompton
+MET:MET5:I:,Serv000924,Trip015144,Victoria Station
+MET:MET5:I:,Serv000924,Trip015145,Piccadilly Station
+MET:MET5:I:,Serv000925,Trip015146,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015147,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015148,Shaw and Crompton
+MET:MET5:I:,Serv000925,Trip015149,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015150,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015151,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015152,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015153,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015154,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015155,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015156,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015157,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015158,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015159,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015160,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015161,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015162,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015163,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015164,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015165,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015166,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015167,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015168,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015169,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015170,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015171,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015172,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015173,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015174,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015175,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015176,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015177,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015178,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015179,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015180,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015181,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015182,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015183,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015184,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015185,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015186,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015187,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015188,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015189,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015190,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015191,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015192,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015193,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015194,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015195,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015196,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015197,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015198,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015199,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015200,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015201,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015202,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015203,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015204,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015205,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015206,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015207,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015208,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015209,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015210,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015211,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015212,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015213,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015214,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015215,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015216,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015217,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015218,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015219,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015220,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015221,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015222,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015223,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015224,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015225,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015226,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015227,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015228,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015229,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015230,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015231,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015232,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015233,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015234,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015235,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015236,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015237,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015238,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015239,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015240,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015241,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015242,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015243,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015244,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015245,Rochdale Interchange
+MET:MET5:I:,Serv000925,Trip015246,Shaw and Crompton
+MET:MET5:I:,Serv000925,Trip015247,Victoria Station
+MET:MET5:I:,Serv000925,Trip015248,Piccadilly Station
+MET:MET5:I:,Serv000926,Trip015249,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015250,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015251,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015252,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015253,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015254,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015255,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015256,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015257,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015258,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015259,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015260,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015261,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015262,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015263,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015264,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015265,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015266,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015267,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015268,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015269,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015270,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015271,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015272,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015273,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015274,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015275,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015276,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015277,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015278,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015279,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015280,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015281,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015282,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015283,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015284,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015285,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015286,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015287,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015288,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015289,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015290,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015291,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015292,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015293,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015294,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015295,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015296,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015297,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015298,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015299,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015300,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015301,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015302,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015303,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015304,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015305,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015306,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015307,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015308,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015309,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015310,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015311,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015312,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015313,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015314,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015315,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015316,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015317,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015318,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015319,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015320,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015321,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015322,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015323,Rochdale Interchange
+MET:MET5:I:,Serv000926,Trip015324,Shaw and Crompton
+MET:MET5:I:,Serv000926,Trip015325,Victoria Station
+MET:MET5:I:,Serv000926,Trip015326,Victoria Station
+MET:MET5:I:,Serv000926,Trip015327,Victoria Station
+MET:MET5:I:,Serv000927,Trip015328,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015329,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015330,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015331,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015332,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015333,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015334,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015335,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015336,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015337,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015338,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015339,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015340,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015341,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015342,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015343,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015344,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015345,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015346,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015347,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015348,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015349,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015350,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015351,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015352,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015353,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015354,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015355,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015356,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015357,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015358,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015359,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015360,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015361,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015362,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015363,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015364,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015365,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015366,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015367,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015368,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015369,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015370,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015371,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015372,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015373,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015374,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015375,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015376,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015377,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015378,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015379,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015380,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015381,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015382,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015383,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015384,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015385,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015386,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015387,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015388,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015389,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015390,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015391,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015392,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015393,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015394,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015395,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015396,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015397,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015398,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015399,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015400,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015401,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015402,Rochdale Interchange
+MET:MET5:I:,Serv000927,Trip015403,Shaw and Crompton
+MET:MET5:I:,Serv000927,Trip015404,Victoria Station
+MET:MET5:I:,Serv000927,Trip015405,Victoria Station
+MET:MET5:I:,Serv000927,Trip015406,Victoria Station
+MET:MET5:O:,Serv000928,Trip015407,East Didsbury
+MET:MET5:O:,Serv000928,Trip015408,East Didsbury
+MET:MET5:O:,Serv000928,Trip015409,East Didsbury
+MET:MET5:O:,Serv000928,Trip015410,East Didsbury
+MET:MET5:O:,Serv000928,Trip015411,East Didsbury
+MET:MET5:O:,Serv000928,Trip015412,East Didsbury
+MET:MET5:O:,Serv000928,Trip015413,East Didsbury
+MET:MET5:O:,Serv000928,Trip015414,East Didsbury
+MET:MET5:O:,Serv000928,Trip015415,East Didsbury
+MET:MET5:O:,Serv000928,Trip015416,East Didsbury
+MET:MET5:O:,Serv000928,Trip015417,East Didsbury
+MET:MET5:O:,Serv000928,Trip015418,East Didsbury
+MET:MET5:O:,Serv000928,Trip015419,East Didsbury
+MET:MET5:O:,Serv000928,Trip015420,East Didsbury
+MET:MET5:O:,Serv000928,Trip015421,East Didsbury
+MET:MET5:O:,Serv000928,Trip015422,East Didsbury
+MET:MET5:O:,Serv000928,Trip015423,East Didsbury
+MET:MET5:O:,Serv000928,Trip015424,East Didsbury
+MET:MET5:O:,Serv000928,Trip015425,East Didsbury
+MET:MET5:O:,Serv000928,Trip015426,East Didsbury
+MET:MET5:O:,Serv000928,Trip015427,East Didsbury
+MET:MET5:O:,Serv000928,Trip015428,East Didsbury
+MET:MET5:O:,Serv000928,Trip015429,East Didsbury
+MET:MET5:O:,Serv000928,Trip015430,East Didsbury
+MET:MET5:O:,Serv000928,Trip015431,East Didsbury
+MET:MET5:O:,Serv000928,Trip015432,East Didsbury
+MET:MET5:O:,Serv000928,Trip015433,East Didsbury
+MET:MET5:O:,Serv000928,Trip015434,East Didsbury
+MET:MET5:O:,Serv000928,Trip015435,East Didsbury
+MET:MET5:O:,Serv000928,Trip015436,East Didsbury
+MET:MET5:O:,Serv000928,Trip015437,East Didsbury
+MET:MET5:O:,Serv000928,Trip015438,East Didsbury
+MET:MET5:O:,Serv000928,Trip015439,East Didsbury
+MET:MET5:O:,Serv000928,Trip015440,East Didsbury
+MET:MET5:O:,Serv000928,Trip015441,East Didsbury
+MET:MET5:O:,Serv000928,Trip015442,East Didsbury
+MET:MET5:O:,Serv000928,Trip015443,East Didsbury
+MET:MET5:O:,Serv000928,Trip015444,East Didsbury
+MET:MET5:O:,Serv000928,Trip015445,East Didsbury
+MET:MET5:O:,Serv000928,Trip015446,East Didsbury
+MET:MET5:O:,Serv000928,Trip015447,East Didsbury
+MET:MET5:O:,Serv000928,Trip015448,East Didsbury
+MET:MET5:O:,Serv000928,Trip015449,East Didsbury
+MET:MET5:O:,Serv000928,Trip015450,East Didsbury
+MET:MET5:O:,Serv000928,Trip015451,East Didsbury
+MET:MET5:O:,Serv000928,Trip015452,East Didsbury
+MET:MET5:O:,Serv000928,Trip015453,East Didsbury
+MET:MET5:O:,Serv000928,Trip015454,East Didsbury
+MET:MET5:O:,Serv000928,Trip015455,East Didsbury
+MET:MET5:O:,Serv000928,Trip015456,East Didsbury
+MET:MET5:O:,Serv000928,Trip015457,East Didsbury
+MET:MET5:O:,Serv000928,Trip015458,East Didsbury
+MET:MET5:O:,Serv000928,Trip015459,East Didsbury
+MET:MET5:O:,Serv000928,Trip015460,East Didsbury
+MET:MET5:O:,Serv000928,Trip015461,East Didsbury
+MET:MET5:O:,Serv000928,Trip015462,East Didsbury
+MET:MET5:O:,Serv000928,Trip015463,East Didsbury
+MET:MET5:O:,Serv000928,Trip015464,East Didsbury
+MET:MET5:O:,Serv000928,Trip015465,East Didsbury
+MET:MET5:O:,Serv000928,Trip015466,East Didsbury
+MET:MET5:O:,Serv000928,Trip015467,East Didsbury
+MET:MET5:O:,Serv000928,Trip015468,East Didsbury
+MET:MET5:O:,Serv000928,Trip015469,East Didsbury
+MET:MET5:O:,Serv000928,Trip015470,East Didsbury
+MET:MET5:O:,Serv000928,Trip015471,East Didsbury
+MET:MET5:O:,Serv000928,Trip015472,East Didsbury
+MET:MET5:O:,Serv000928,Trip015473,East Didsbury
+MET:MET5:O:,Serv000928,Trip015474,East Didsbury
+MET:MET5:O:,Serv000928,Trip015475,East Didsbury
+MET:MET5:O:,Serv000928,Trip015476,East Didsbury
+MET:MET5:O:,Serv000928,Trip015477,East Didsbury
+MET:MET5:O:,Serv000928,Trip015478,East Didsbury
+MET:MET5:O:,Serv000928,Trip015479,East Didsbury
+MET:MET5:O:,Serv000928,Trip015480,East Didsbury
+MET:MET5:O:,Serv000928,Trip015481,East Didsbury
+MET:MET5:O:,Serv000928,Trip015482,East Didsbury
+MET:MET5:O:,Serv000928,Trip015483,East Didsbury
+MET:MET5:O:,Serv000928,Trip015484,East Didsbury
+MET:MET5:O:,Serv000928,Trip015485,East Didsbury
+MET:MET5:O:,Serv000928,Trip015486,East Didsbury
+MET:MET5:O:,Serv000928,Trip015487,East Didsbury
+MET:MET5:O:,Serv000928,Trip015488,East Didsbury
+MET:MET5:O:,Serv000928,Trip015489,East Didsbury
+MET:MET5:O:,Serv000928,Trip015490,East Didsbury
+MET:MET5:O:,Serv000928,Trip015491,East Didsbury
+MET:MET5:O:,Serv000928,Trip015492,East Didsbury
+MET:MET5:O:,Serv000928,Trip015493,East Didsbury
+MET:MET5:O:,Serv000928,Trip015494,East Didsbury
+MET:MET5:O:,Serv000928,Trip015495,East Didsbury
+MET:MET5:O:,Serv000928,Trip015496,East Didsbury
+MET:MET5:O:,Serv000928,Trip015497,East Didsbury
+MET:MET5:O:,Serv000929,Trip015498,Trafford Bar
+MET:MET5:O:,Serv000930,Trip015499,East Didsbury
+MET:MET5:O:,Serv000931,Trip015500,Trafford Bar
+MET:MET5:O:,Serv000932,Trip015501,East Didsbury
+MET:MET5:O:,Serv000933,Trip015502,Trafford Bar
+MET:MET5:O:,Serv000934,Trip015503,East Didsbury
+MET:MET5:O:,Serv000935,Trip015504,Trafford Bar
+MET:MET5:O:,Serv000936,Trip015505,East Didsbury
+MET:MET5:O:,Serv000937,Trip015506,Trafford Bar
+MET:MET5:O:,Serv000938,Trip015507,East Didsbury
+MET:MET5:O:,Serv000939,Trip015508,Monsall Station
+MET:MET5:O:,Serv000939,Trip015509,Monsall Station
+MET:MET5:O:,Serv000940,Trip015510,East Didsbury
+MET:MET5:O:,Serv000941,Trip015511,Monsall Station
+MET:MET5:O:,Serv000942,Trip015512,Monsall Station
+MET:MET5:O:,Serv000942,Trip015513,Monsall Station
+MET:MET5:O:,Serv000942,Trip015514,Monsall Station
+MET:MET5:O:,Serv000942,Trip015515,Monsall Station
+MET:MET5:O:,Serv000942,Trip015516,Monsall Station
+MET:MET5:O:,Serv000942,Trip015517,Monsall Station
+MET:MET5:O:,Serv000943,Trip015518,East Didsbury
+MET:MET5:O:,Serv000943,Trip015519,East Didsbury
+MET:MET5:O:,Serv000943,Trip015520,East Didsbury
+MET:MET5:O:,Serv000943,Trip015521,East Didsbury
+MET:MET5:O:,Serv000943,Trip015522,East Didsbury
+MET:MET5:O:,Serv000943,Trip015523,East Didsbury
+MET:MET5:O:,Serv000943,Trip015524,East Didsbury
+MET:MET5:O:,Serv000943,Trip015525,East Didsbury
+MET:MET5:O:,Serv000943,Trip015526,East Didsbury
+MET:MET5:O:,Serv000943,Trip015527,East Didsbury
+MET:MET5:O:,Serv000943,Trip015528,East Didsbury
+MET:MET5:O:,Serv000943,Trip015529,East Didsbury
+MET:MET5:O:,Serv000943,Trip015530,East Didsbury
+MET:MET5:O:,Serv000943,Trip015531,East Didsbury
+MET:MET5:O:,Serv000943,Trip015532,East Didsbury
+MET:MET5:O:,Serv000943,Trip015533,East Didsbury
+MET:MET5:O:,Serv000943,Trip015534,East Didsbury
+MET:MET5:O:,Serv000943,Trip015535,East Didsbury
+MET:MET5:O:,Serv000943,Trip015536,East Didsbury
+MET:MET5:O:,Serv000943,Trip015537,East Didsbury
+MET:MET5:O:,Serv000943,Trip015538,East Didsbury
+MET:MET5:O:,Serv000943,Trip015539,East Didsbury
+MET:MET5:O:,Serv000943,Trip015540,East Didsbury
+MET:MET5:O:,Serv000943,Trip015541,East Didsbury
+MET:MET5:O:,Serv000943,Trip015542,East Didsbury
+MET:MET5:O:,Serv000943,Trip015543,East Didsbury
+MET:MET5:O:,Serv000943,Trip015544,East Didsbury
+MET:MET5:O:,Serv000943,Trip015545,East Didsbury
+MET:MET5:O:,Serv000943,Trip015546,East Didsbury
+MET:MET5:O:,Serv000943,Trip015547,East Didsbury
+MET:MET5:O:,Serv000943,Trip015548,East Didsbury
+MET:MET5:O:,Serv000943,Trip015549,East Didsbury
+MET:MET5:O:,Serv000943,Trip015550,East Didsbury
+MET:MET5:O:,Serv000943,Trip015551,East Didsbury
+MET:MET5:O:,Serv000943,Trip015552,East Didsbury
+MET:MET5:O:,Serv000943,Trip015553,East Didsbury
+MET:MET5:O:,Serv000943,Trip015554,East Didsbury
+MET:MET5:O:,Serv000943,Trip015555,East Didsbury
+MET:MET5:O:,Serv000943,Trip015556,East Didsbury
+MET:MET5:O:,Serv000943,Trip015557,East Didsbury
+MET:MET5:O:,Serv000943,Trip015558,East Didsbury
+MET:MET5:O:,Serv000943,Trip015559,East Didsbury
+MET:MET5:O:,Serv000943,Trip015560,East Didsbury
+MET:MET5:O:,Serv000943,Trip015561,East Didsbury
+MET:MET5:O:,Serv000943,Trip015562,East Didsbury
+MET:MET5:O:,Serv000943,Trip015563,East Didsbury
+MET:MET5:O:,Serv000943,Trip015564,East Didsbury
+MET:MET5:O:,Serv000943,Trip015565,East Didsbury
+MET:MET5:O:,Serv000943,Trip015566,East Didsbury
+MET:MET5:O:,Serv000943,Trip015567,East Didsbury
+MET:MET5:O:,Serv000943,Trip015568,East Didsbury
+MET:MET5:O:,Serv000943,Trip015569,East Didsbury
+MET:MET5:O:,Serv000943,Trip015570,East Didsbury
+MET:MET5:O:,Serv000943,Trip015571,East Didsbury
+MET:MET5:O:,Serv000943,Trip015572,East Didsbury
+MET:MET5:O:,Serv000943,Trip015573,East Didsbury
+MET:MET5:O:,Serv000943,Trip015574,East Didsbury
+MET:MET5:O:,Serv000943,Trip015575,East Didsbury
+MET:MET5:O:,Serv000943,Trip015576,East Didsbury
+MET:MET5:O:,Serv000943,Trip015577,East Didsbury
+MET:MET5:O:,Serv000943,Trip015578,East Didsbury
+MET:MET5:O:,Serv000943,Trip015579,East Didsbury
+MET:MET5:O:,Serv000943,Trip015580,East Didsbury
+MET:MET5:O:,Serv000943,Trip015581,East Didsbury
+MET:MET5:O:,Serv000943,Trip015582,East Didsbury
+MET:MET5:O:,Serv000943,Trip015583,East Didsbury
+MET:MET5:O:,Serv000943,Trip015584,East Didsbury
+MET:MET5:O:,Serv000943,Trip015585,East Didsbury
+MET:MET5:O:,Serv000943,Trip015586,East Didsbury
+MET:MET5:O:,Serv000943,Trip015587,East Didsbury
+MET:MET5:O:,Serv000943,Trip015588,East Didsbury
+MET:MET5:O:,Serv000943,Trip015589,East Didsbury
+MET:MET5:O:,Serv000943,Trip015590,East Didsbury
+MET:MET5:O:,Serv000943,Trip015591,East Didsbury
+MET:MET5:O:,Serv000943,Trip015592,East Didsbury
+MET:MET5:O:,Serv000943,Trip015593,East Didsbury
+MET:MET5:O:,Serv000943,Trip015594,East Didsbury
+MET:MET5:O:,Serv000943,Trip015595,East Didsbury
+MET:MET5:O:,Serv000943,Trip015596,East Didsbury
+MET:MET5:O:,Serv000943,Trip015597,East Didsbury
+MET:MET5:O:,Serv000943,Trip015598,East Didsbury
+MET:MET5:O:,Serv000943,Trip015599,East Didsbury
+MET:MET5:O:,Serv000943,Trip015600,East Didsbury
+MET:MET5:O:,Serv000943,Trip015601,East Didsbury
+MET:MET5:O:,Serv000943,Trip015602,East Didsbury
+MET:MET5:O:,Serv000943,Trip015603,East Didsbury
+MET:MET5:O:,Serv000943,Trip015604,East Didsbury
+MET:MET5:O:,Serv000943,Trip015605,East Didsbury
+MET:MET5:O:,Serv000943,Trip015606,East Didsbury
+MET:MET5:O:,Serv000943,Trip015607,East Didsbury
+MET:MET5:O:,Serv000943,Trip015608,East Didsbury
+MET:MET5:O:,Serv000943,Trip015609,East Didsbury
+MET:MET5:O:,Serv000943,Trip015610,East Didsbury
+MET:MET5:O:,Serv000943,Trip015611,East Didsbury
+MET:MET5:O:,Serv000943,Trip015612,East Didsbury
+MET:MET5:O:,Serv000943,Trip015613,East Didsbury
+MET:MET5:O:,Serv000943,Trip015614,East Didsbury
+MET:MET5:O:,Serv000943,Trip015615,Monsall Station
+MET:MET5:O:,Serv000943,Trip015616,Monsall Station
+MET:MET5:O:,Serv000943,Trip015617,Monsall Station
+MET:MET5:O:,Serv000943,Trip015618,Monsall Station
+MET:MET5:O:,Serv000943,Trip015619,Monsall Station
+MET:MET5:O:,Serv000943,Trip015620,Monsall Station
+MET:MET5:O:,Serv000943,Trip015621,Monsall Station
+MET:MET5:O:,Serv000944,Trip015622,East Didsbury
+MET:MET5:O:,Serv000944,Trip015623,East Didsbury
+MET:MET5:O:,Serv000944,Trip015624,East Didsbury
+MET:MET5:O:,Serv000944,Trip015625,East Didsbury
+MET:MET5:O:,Serv000944,Trip015626,East Didsbury
+MET:MET5:O:,Serv000944,Trip015627,East Didsbury
+MET:MET5:O:,Serv000944,Trip015628,East Didsbury
+MET:MET5:O:,Serv000944,Trip015629,East Didsbury
+MET:MET5:O:,Serv000944,Trip015630,East Didsbury
+MET:MET5:O:,Serv000944,Trip015631,East Didsbury
+MET:MET5:O:,Serv000944,Trip015632,East Didsbury
+MET:MET5:O:,Serv000944,Trip015633,East Didsbury
+MET:MET5:O:,Serv000944,Trip015634,East Didsbury
+MET:MET5:O:,Serv000944,Trip015635,East Didsbury
+MET:MET5:O:,Serv000944,Trip015636,East Didsbury
+MET:MET5:O:,Serv000944,Trip015637,East Didsbury
+MET:MET5:O:,Serv000944,Trip015638,East Didsbury
+MET:MET5:O:,Serv000944,Trip015639,East Didsbury
+MET:MET5:O:,Serv000944,Trip015640,East Didsbury
+MET:MET5:O:,Serv000944,Trip015641,East Didsbury
+MET:MET5:O:,Serv000944,Trip015642,East Didsbury
+MET:MET5:O:,Serv000944,Trip015643,East Didsbury
+MET:MET5:O:,Serv000944,Trip015644,East Didsbury
+MET:MET5:O:,Serv000944,Trip015645,East Didsbury
+MET:MET5:O:,Serv000944,Trip015646,East Didsbury
+MET:MET5:O:,Serv000944,Trip015647,East Didsbury
+MET:MET5:O:,Serv000944,Trip015648,East Didsbury
+MET:MET5:O:,Serv000944,Trip015649,East Didsbury
+MET:MET5:O:,Serv000944,Trip015650,East Didsbury
+MET:MET5:O:,Serv000944,Trip015651,East Didsbury
+MET:MET5:O:,Serv000944,Trip015652,East Didsbury
+MET:MET5:O:,Serv000944,Trip015653,East Didsbury
+MET:MET5:O:,Serv000944,Trip015654,East Didsbury
+MET:MET5:O:,Serv000944,Trip015655,East Didsbury
+MET:MET5:O:,Serv000944,Trip015656,East Didsbury
+MET:MET5:O:,Serv000944,Trip015657,East Didsbury
+MET:MET5:O:,Serv000944,Trip015658,East Didsbury
+MET:MET5:O:,Serv000944,Trip015659,East Didsbury
+MET:MET5:O:,Serv000944,Trip015660,East Didsbury
+MET:MET5:O:,Serv000944,Trip015661,East Didsbury
+MET:MET5:O:,Serv000944,Trip015662,East Didsbury
+MET:MET5:O:,Serv000944,Trip015663,East Didsbury
+MET:MET5:O:,Serv000944,Trip015664,East Didsbury
+MET:MET5:O:,Serv000944,Trip015665,East Didsbury
+MET:MET5:O:,Serv000944,Trip015666,East Didsbury
+MET:MET5:O:,Serv000944,Trip015667,East Didsbury
+MET:MET5:O:,Serv000944,Trip015668,East Didsbury
+MET:MET5:O:,Serv000944,Trip015669,East Didsbury
+MET:MET5:O:,Serv000944,Trip015670,East Didsbury
+MET:MET5:O:,Serv000944,Trip015671,East Didsbury
+MET:MET5:O:,Serv000944,Trip015672,East Didsbury
+MET:MET5:O:,Serv000944,Trip015673,East Didsbury
+MET:MET5:O:,Serv000944,Trip015674,East Didsbury
+MET:MET5:O:,Serv000944,Trip015675,East Didsbury
+MET:MET5:O:,Serv000944,Trip015676,East Didsbury
+MET:MET5:O:,Serv000944,Trip015677,East Didsbury
+MET:MET5:O:,Serv000944,Trip015678,East Didsbury
+MET:MET5:O:,Serv000944,Trip015679,East Didsbury
+MET:MET5:O:,Serv000944,Trip015680,East Didsbury
+MET:MET5:O:,Serv000944,Trip015681,East Didsbury
+MET:MET5:O:,Serv000944,Trip015682,East Didsbury
+MET:MET5:O:,Serv000944,Trip015683,East Didsbury
+MET:MET5:O:,Serv000944,Trip015684,East Didsbury
+MET:MET5:O:,Serv000944,Trip015685,East Didsbury
+MET:MET5:O:,Serv000944,Trip015686,East Didsbury
+MET:MET5:O:,Serv000944,Trip015687,East Didsbury
+MET:MET5:O:,Serv000944,Trip015688,East Didsbury
+MET:MET5:O:,Serv000944,Trip015689,East Didsbury
+MET:MET5:O:,Serv000944,Trip015690,East Didsbury
+MET:MET5:O:,Serv000944,Trip015691,East Didsbury
+MET:MET5:O:,Serv000944,Trip015692,East Didsbury
+MET:MET5:O:,Serv000944,Trip015693,East Didsbury
+MET:MET5:O:,Serv000944,Trip015694,East Didsbury
+MET:MET5:O:,Serv000944,Trip015695,East Didsbury
+MET:MET5:O:,Serv000944,Trip015696,East Didsbury
+MET:MET5:O:,Serv000944,Trip015697,Trafford Bar
+MET:MET5:O:,Serv000944,Trip015698,Monsall Station
+MET:MET5:O:,Serv000944,Trip015699,Monsall Station
+MET:MET5:O:,Serv000944,Trip015700,Monsall Station
+MET:MET5:O:,Serv000945,Trip015701,East Didsbury
+MET:MET5:O:,Serv000945,Trip015702,East Didsbury
+MET:MET5:O:,Serv000945,Trip015703,East Didsbury
+MET:MET5:O:,Serv000945,Trip015704,East Didsbury
+MET:MET5:O:,Serv000945,Trip015705,East Didsbury
+MET:MET5:O:,Serv000945,Trip015706,East Didsbury
+MET:MET5:O:,Serv000945,Trip015707,East Didsbury
+MET:MET5:O:,Serv000945,Trip015708,East Didsbury
+MET:MET5:O:,Serv000945,Trip015709,East Didsbury
+MET:MET5:O:,Serv000945,Trip015710,East Didsbury
+MET:MET5:O:,Serv000945,Trip015711,East Didsbury
+MET:MET5:O:,Serv000945,Trip015712,East Didsbury
+MET:MET5:O:,Serv000945,Trip015713,East Didsbury
+MET:MET5:O:,Serv000945,Trip015714,East Didsbury
+MET:MET5:O:,Serv000945,Trip015715,East Didsbury
+MET:MET5:O:,Serv000945,Trip015716,East Didsbury
+MET:MET5:O:,Serv000945,Trip015717,East Didsbury
+MET:MET5:O:,Serv000945,Trip015718,East Didsbury
+MET:MET5:O:,Serv000945,Trip015719,East Didsbury
+MET:MET5:O:,Serv000945,Trip015720,East Didsbury
+MET:MET5:O:,Serv000945,Trip015721,East Didsbury
+MET:MET5:O:,Serv000945,Trip015722,East Didsbury
+MET:MET5:O:,Serv000945,Trip015723,East Didsbury
+MET:MET5:O:,Serv000945,Trip015724,East Didsbury
+MET:MET5:O:,Serv000945,Trip015725,East Didsbury
+MET:MET5:O:,Serv000945,Trip015726,East Didsbury
+MET:MET5:O:,Serv000945,Trip015727,East Didsbury
+MET:MET5:O:,Serv000945,Trip015728,East Didsbury
+MET:MET5:O:,Serv000945,Trip015729,East Didsbury
+MET:MET5:O:,Serv000945,Trip015730,East Didsbury
+MET:MET5:O:,Serv000945,Trip015731,East Didsbury
+MET:MET5:O:,Serv000945,Trip015732,East Didsbury
+MET:MET5:O:,Serv000945,Trip015733,East Didsbury
+MET:MET5:O:,Serv000945,Trip015734,East Didsbury
+MET:MET5:O:,Serv000945,Trip015735,East Didsbury
+MET:MET5:O:,Serv000945,Trip015736,East Didsbury
+MET:MET5:O:,Serv000945,Trip015737,East Didsbury
+MET:MET5:O:,Serv000945,Trip015738,East Didsbury
+MET:MET5:O:,Serv000945,Trip015739,East Didsbury
+MET:MET5:O:,Serv000945,Trip015740,East Didsbury
+MET:MET5:O:,Serv000945,Trip015741,East Didsbury
+MET:MET5:O:,Serv000945,Trip015742,East Didsbury
+MET:MET5:O:,Serv000945,Trip015743,East Didsbury
+MET:MET5:O:,Serv000945,Trip015744,East Didsbury
+MET:MET5:O:,Serv000945,Trip015745,East Didsbury
+MET:MET5:O:,Serv000945,Trip015746,East Didsbury
+MET:MET5:O:,Serv000945,Trip015747,East Didsbury
+MET:MET5:O:,Serv000945,Trip015748,East Didsbury
+MET:MET5:O:,Serv000945,Trip015749,East Didsbury
+MET:MET5:O:,Serv000945,Trip015750,East Didsbury
+MET:MET5:O:,Serv000945,Trip015751,East Didsbury
+MET:MET5:O:,Serv000945,Trip015752,East Didsbury
+MET:MET5:O:,Serv000945,Trip015753,East Didsbury
+MET:MET5:O:,Serv000945,Trip015754,East Didsbury
+MET:MET5:O:,Serv000945,Trip015755,East Didsbury
+MET:MET5:O:,Serv000945,Trip015756,East Didsbury
+MET:MET5:O:,Serv000945,Trip015757,East Didsbury
+MET:MET5:O:,Serv000945,Trip015758,East Didsbury
+MET:MET5:O:,Serv000945,Trip015759,East Didsbury
+MET:MET5:O:,Serv000945,Trip015760,East Didsbury
+MET:MET5:O:,Serv000945,Trip015761,East Didsbury
+MET:MET5:O:,Serv000945,Trip015762,East Didsbury
+MET:MET5:O:,Serv000945,Trip015763,East Didsbury
+MET:MET5:O:,Serv000945,Trip015764,East Didsbury
+MET:MET5:O:,Serv000945,Trip015765,East Didsbury
+MET:MET5:O:,Serv000945,Trip015766,East Didsbury
+MET:MET5:O:,Serv000945,Trip015767,East Didsbury
+MET:MET5:O:,Serv000945,Trip015768,East Didsbury
+MET:MET5:O:,Serv000945,Trip015769,East Didsbury
+MET:MET5:O:,Serv000945,Trip015770,East Didsbury
+MET:MET5:O:,Serv000945,Trip015771,East Didsbury
+MET:MET5:O:,Serv000945,Trip015772,East Didsbury
+MET:MET5:O:,Serv000945,Trip015773,East Didsbury
+MET:MET5:O:,Serv000945,Trip015774,East Didsbury
+MET:MET5:O:,Serv000945,Trip015775,East Didsbury
+MET:MET5:O:,Serv000945,Trip015776,Trafford Bar
+MET:MET5:O:,Serv000945,Trip015777,Monsall Station
+MET:MET5:O:,Serv000945,Trip015778,Monsall Station
+MET:MET5:O:,Serv000945,Trip015779,Monsall Station
+MET:MET6:I:,Serv001833,Trip025874,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025875,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025876,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025877,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025878,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025879,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025880,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025881,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025882,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025883,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025884,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025885,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025886,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025887,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025888,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025889,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025890,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025891,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025892,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025893,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025894,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025895,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025896,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025897,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025898,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025899,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025900,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025901,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025902,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025903,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025904,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025905,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025906,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025907,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025908,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025909,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025910,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025911,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025912,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025913,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025914,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025915,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025916,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025917,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025918,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025919,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025920,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025921,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025922,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025923,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025924,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025925,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025926,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025927,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025928,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025929,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025930,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025931,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025932,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025933,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025934,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025935,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025936,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025937,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025938,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025939,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025940,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025941,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025942,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025943,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025944,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025945,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025946,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025947,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025948,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025949,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025950,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025951,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025952,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025953,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025954,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025955,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025956,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025957,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025958,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025959,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025960,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025961,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025962,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025963,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025964,Manchester Airport
+MET:MET6:I:,Serv001833,Trip025965,Manchester Airport
+MET:MET6:I:,Serv001834,Trip025966,Manchester Airport
+MET:MET6:I:,Serv001834,Trip025967,Manchester Airport
+MET:MET6:I:,Serv001834,Trip025968,Manchester Airport
+MET:MET6:I:,Serv001834,Trip025969,Manchester Airport
+MET:MET6:I:,Serv001834,Trip025970,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025971,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025972,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025973,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025974,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025975,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025976,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025977,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025978,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025979,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025980,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025981,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025982,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025983,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025984,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025985,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025986,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025987,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025988,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025989,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025990,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025991,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025992,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025993,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025994,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025995,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025996,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025997,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025998,Manchester Airport
+MET:MET6:I:,Serv001835,Trip025999,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026000,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026001,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026002,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026003,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026004,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026005,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026006,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026007,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026008,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026009,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026010,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026011,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026012,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026013,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026014,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026015,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026016,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026017,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026018,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026019,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026020,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026021,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026022,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026023,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026024,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026025,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026026,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026027,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026028,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026029,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026030,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026031,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026032,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026033,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026034,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026035,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026036,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026037,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026038,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026039,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026040,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026041,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026042,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026043,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026044,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026045,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026046,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026047,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026048,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026049,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026050,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026051,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026052,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026053,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026054,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026055,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026056,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026057,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026058,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026059,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026060,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026061,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026062,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026063,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026064,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026065,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026066,Manchester Airport
+MET:MET6:I:,Serv001835,Trip026067,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026068,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026069,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026070,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026071,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026072,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026073,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026074,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026075,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026076,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026077,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026078,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026079,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026080,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026081,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026082,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026083,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026084,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026085,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026086,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026087,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026088,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026089,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026090,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026091,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026092,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026093,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026094,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026095,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026096,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026097,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026098,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026099,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026100,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026101,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026102,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026103,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026104,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026105,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026106,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026107,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026108,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026109,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026110,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026111,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026112,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026113,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026114,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026115,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026116,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026117,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026118,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026119,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026120,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026121,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026122,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026123,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026124,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026125,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026126,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026127,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026128,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026129,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026130,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026131,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026132,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026133,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026134,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026135,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026136,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026137,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026138,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026139,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026140,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026141,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026142,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026143,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026144,Manchester Airport
+MET:MET6:I:,Serv001836,Trip026145,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026146,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026147,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026148,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026149,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026150,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026151,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026152,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026153,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026154,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026155,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026156,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026157,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026158,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026159,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026160,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026161,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026162,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026163,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026164,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026165,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026166,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026167,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026168,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026169,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026170,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026171,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026172,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026173,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026174,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026175,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026176,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026177,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026178,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026179,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026180,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026181,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026182,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026183,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026184,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026185,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026186,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026187,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026188,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026189,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026190,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026191,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026192,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026193,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026194,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026195,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026196,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026197,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026198,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026199,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026200,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026201,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026202,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026203,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026204,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026205,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026206,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026207,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026208,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026209,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026210,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026211,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026212,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026213,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026214,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026215,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026216,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026217,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026218,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026219,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026220,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026221,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026222,Manchester Airport
+MET:MET6:I:,Serv001837,Trip026223,Manchester Airport
+MET:MET6:O:,Serv001838,Trip026224,Cornbrook
+MET:MET6:O:,Serv001838,Trip026225,Cornbrook
+MET:MET6:O:,Serv001838,Trip026226,Cornbrook
+MET:MET6:O:,Serv001838,Trip026227,Cornbrook
+MET:MET6:O:,Serv001838,Trip026228,Cornbrook
+MET:MET6:O:,Serv001838,Trip026229,Cornbrook
+MET:MET6:O:,Serv001838,Trip026230,Cornbrook
+MET:MET6:O:,Serv001838,Trip026231,Cornbrook
+MET:MET6:O:,Serv001838,Trip026232,Cornbrook
+MET:MET6:O:,Serv001838,Trip026233,Cornbrook
+MET:MET6:O:,Serv001838,Trip026234,Cornbrook
+MET:MET6:O:,Serv001838,Trip026235,Cornbrook
+MET:MET6:O:,Serv001838,Trip026236,Cornbrook
+MET:MET6:O:,Serv001838,Trip026237,Cornbrook
+MET:MET6:O:,Serv001838,Trip026238,Cornbrook
+MET:MET6:O:,Serv001838,Trip026239,Cornbrook
+MET:MET6:O:,Serv001838,Trip026240,Cornbrook
+MET:MET6:O:,Serv001838,Trip026241,Cornbrook
+MET:MET6:O:,Serv001838,Trip026242,Cornbrook
+MET:MET6:O:,Serv001838,Trip026243,Cornbrook
+MET:MET6:O:,Serv001838,Trip026244,Cornbrook
+MET:MET6:O:,Serv001838,Trip026245,Cornbrook
+MET:MET6:O:,Serv001838,Trip026246,Cornbrook
+MET:MET6:O:,Serv001838,Trip026247,Cornbrook
+MET:MET6:O:,Serv001838,Trip026248,Cornbrook
+MET:MET6:O:,Serv001838,Trip026249,Cornbrook
+MET:MET6:O:,Serv001838,Trip026250,Cornbrook
+MET:MET6:O:,Serv001838,Trip026251,Cornbrook
+MET:MET6:O:,Serv001838,Trip026252,Cornbrook
+MET:MET6:O:,Serv001838,Trip026253,Cornbrook
+MET:MET6:O:,Serv001838,Trip026254,Cornbrook
+MET:MET6:O:,Serv001838,Trip026255,Cornbrook
+MET:MET6:O:,Serv001838,Trip026256,Cornbrook
+MET:MET6:O:,Serv001838,Trip026257,Cornbrook
+MET:MET6:O:,Serv001838,Trip026258,Cornbrook
+MET:MET6:O:,Serv001838,Trip026259,Cornbrook
+MET:MET6:O:,Serv001838,Trip026260,Cornbrook
+MET:MET6:O:,Serv001838,Trip026261,Cornbrook
+MET:MET6:O:,Serv001838,Trip026262,Cornbrook
+MET:MET6:O:,Serv001838,Trip026263,Cornbrook
+MET:MET6:O:,Serv001838,Trip026264,Cornbrook
+MET:MET6:O:,Serv001838,Trip026265,Cornbrook
+MET:MET6:O:,Serv001838,Trip026266,Cornbrook
+MET:MET6:O:,Serv001838,Trip026267,Cornbrook
+MET:MET6:O:,Serv001838,Trip026268,Cornbrook
+MET:MET6:O:,Serv001838,Trip026269,Cornbrook
+MET:MET6:O:,Serv001838,Trip026270,Cornbrook
+MET:MET6:O:,Serv001838,Trip026271,Cornbrook
+MET:MET6:O:,Serv001838,Trip026272,Cornbrook
+MET:MET6:O:,Serv001838,Trip026273,Cornbrook
+MET:MET6:O:,Serv001838,Trip026274,Cornbrook
+MET:MET6:O:,Serv001838,Trip026275,Cornbrook
+MET:MET6:O:,Serv001838,Trip026276,Cornbrook
+MET:MET6:O:,Serv001838,Trip026277,Cornbrook
+MET:MET6:O:,Serv001838,Trip026278,Cornbrook
+MET:MET6:O:,Serv001838,Trip026279,Cornbrook
+MET:MET6:O:,Serv001838,Trip026280,Cornbrook
+MET:MET6:O:,Serv001838,Trip026281,Cornbrook
+MET:MET6:O:,Serv001838,Trip026282,Cornbrook
+MET:MET6:O:,Serv001838,Trip026283,Cornbrook
+MET:MET6:O:,Serv001838,Trip026284,Cornbrook
+MET:MET6:O:,Serv001838,Trip026285,Cornbrook
+MET:MET6:O:,Serv001838,Trip026286,Cornbrook
+MET:MET6:O:,Serv001838,Trip026287,Cornbrook
+MET:MET6:O:,Serv001838,Trip026288,Cornbrook
+MET:MET6:O:,Serv001838,Trip026289,Cornbrook
+MET:MET6:O:,Serv001838,Trip026290,Cornbrook
+MET:MET6:O:,Serv001838,Trip026291,Cornbrook
+MET:MET6:O:,Serv001838,Trip026292,Cornbrook
+MET:MET6:O:,Serv001838,Trip026293,Cornbrook
+MET:MET6:O:,Serv001838,Trip026294,Cornbrook
+MET:MET6:O:,Serv001838,Trip026295,Cornbrook
+MET:MET6:O:,Serv001838,Trip026296,Cornbrook
+MET:MET6:O:,Serv001838,Trip026297,Cornbrook
+MET:MET6:O:,Serv001838,Trip026298,Cornbrook
+MET:MET6:O:,Serv001838,Trip026299,Cornbrook
+MET:MET6:O:,Serv001838,Trip026300,Cornbrook
+MET:MET6:O:,Serv001838,Trip026301,Cornbrook
+MET:MET6:O:,Serv001838,Trip026302,Cornbrook
+MET:MET6:O:,Serv001838,Trip026303,Cornbrook
+MET:MET6:O:,Serv001838,Trip026304,Cornbrook
+MET:MET6:O:,Serv001838,Trip026305,Cornbrook
+MET:MET6:O:,Serv001838,Trip026306,Cornbrook
+MET:MET6:O:,Serv001838,Trip026307,Cornbrook
+MET:MET6:O:,Serv001838,Trip026308,Cornbrook
+MET:MET6:O:,Serv001838,Trip026309,Cornbrook
+MET:MET6:O:,Serv001838,Trip026310,Cornbrook
+MET:MET6:O:,Serv001838,Trip026311,Cornbrook
+MET:MET6:O:,Serv001839,Trip026312,Cornbrook
+MET:MET6:O:,Serv001839,Trip026313,Cornbrook
+MET:MET6:O:,Serv001839,Trip026314,Cornbrook
+MET:MET6:O:,Serv001839,Trip026315,Cornbrook
+MET:MET6:O:,Serv001839,Trip026316,Cornbrook
+MET:MET6:O:,Serv001840,Trip026317,Cornbrook
+MET:MET6:O:,Serv001840,Trip026318,Cornbrook
+MET:MET6:O:,Serv001840,Trip026319,Cornbrook
+MET:MET6:O:,Serv001840,Trip026320,Cornbrook
+MET:MET6:O:,Serv001840,Trip026321,Cornbrook
+MET:MET6:O:,Serv001840,Trip026322,Cornbrook
+MET:MET6:O:,Serv001840,Trip026323,Cornbrook
+MET:MET6:O:,Serv001840,Trip026324,Cornbrook
+MET:MET6:O:,Serv001840,Trip026325,Cornbrook
+MET:MET6:O:,Serv001840,Trip026326,Cornbrook
+MET:MET6:O:,Serv001840,Trip026327,Cornbrook
+MET:MET6:O:,Serv001840,Trip026328,Cornbrook
+MET:MET6:O:,Serv001840,Trip026329,Cornbrook
+MET:MET6:O:,Serv001840,Trip026330,Cornbrook
+MET:MET6:O:,Serv001840,Trip026331,Cornbrook
+MET:MET6:O:,Serv001840,Trip026332,Cornbrook
+MET:MET6:O:,Serv001840,Trip026333,Cornbrook
+MET:MET6:O:,Serv001840,Trip026334,Cornbrook
+MET:MET6:O:,Serv001840,Trip026335,Cornbrook
+MET:MET6:O:,Serv001840,Trip026336,Cornbrook
+MET:MET6:O:,Serv001840,Trip026337,Cornbrook
+MET:MET6:O:,Serv001840,Trip026338,Cornbrook
+MET:MET6:O:,Serv001840,Trip026339,Cornbrook
+MET:MET6:O:,Serv001840,Trip026340,Cornbrook
+MET:MET6:O:,Serv001840,Trip026341,Cornbrook
+MET:MET6:O:,Serv001840,Trip026342,Cornbrook
+MET:MET6:O:,Serv001840,Trip026343,Cornbrook
+MET:MET6:O:,Serv001840,Trip026344,Cornbrook
+MET:MET6:O:,Serv001840,Trip026345,Cornbrook
+MET:MET6:O:,Serv001840,Trip026346,Cornbrook
+MET:MET6:O:,Serv001840,Trip026347,Cornbrook
+MET:MET6:O:,Serv001840,Trip026348,Cornbrook
+MET:MET6:O:,Serv001840,Trip026349,Cornbrook
+MET:MET6:O:,Serv001840,Trip026350,Cornbrook
+MET:MET6:O:,Serv001840,Trip026351,Cornbrook
+MET:MET6:O:,Serv001840,Trip026352,Cornbrook
+MET:MET6:O:,Serv001840,Trip026353,Cornbrook
+MET:MET6:O:,Serv001840,Trip026354,Cornbrook
+MET:MET6:O:,Serv001840,Trip026355,Cornbrook
+MET:MET6:O:,Serv001840,Trip026356,Cornbrook
+MET:MET6:O:,Serv001840,Trip026357,Cornbrook
+MET:MET6:O:,Serv001840,Trip026358,Cornbrook
+MET:MET6:O:,Serv001840,Trip026359,Cornbrook
+MET:MET6:O:,Serv001840,Trip026360,Cornbrook
+MET:MET6:O:,Serv001840,Trip026361,Cornbrook
+MET:MET6:O:,Serv001840,Trip026362,Cornbrook
+MET:MET6:O:,Serv001840,Trip026363,Cornbrook
+MET:MET6:O:,Serv001840,Trip026364,Cornbrook
+MET:MET6:O:,Serv001840,Trip026365,Cornbrook
+MET:MET6:O:,Serv001840,Trip026366,Cornbrook
+MET:MET6:O:,Serv001840,Trip026367,Cornbrook
+MET:MET6:O:,Serv001840,Trip026368,Cornbrook
+MET:MET6:O:,Serv001840,Trip026369,Cornbrook
+MET:MET6:O:,Serv001840,Trip026370,Cornbrook
+MET:MET6:O:,Serv001840,Trip026371,Cornbrook
+MET:MET6:O:,Serv001840,Trip026372,Cornbrook
+MET:MET6:O:,Serv001840,Trip026373,Cornbrook
+MET:MET6:O:,Serv001840,Trip026374,Cornbrook
+MET:MET6:O:,Serv001840,Trip026375,Cornbrook
+MET:MET6:O:,Serv001840,Trip026376,Cornbrook
+MET:MET6:O:,Serv001840,Trip026377,Cornbrook
+MET:MET6:O:,Serv001840,Trip026378,Cornbrook
+MET:MET6:O:,Serv001840,Trip026379,Cornbrook
+MET:MET6:O:,Serv001840,Trip026380,Cornbrook
+MET:MET6:O:,Serv001840,Trip026381,Cornbrook
+MET:MET6:O:,Serv001840,Trip026382,Cornbrook
+MET:MET6:O:,Serv001840,Trip026383,Cornbrook
+MET:MET6:O:,Serv001840,Trip026384,Cornbrook
+MET:MET6:O:,Serv001840,Trip026385,Cornbrook
+MET:MET6:O:,Serv001840,Trip026386,Cornbrook
+MET:MET6:O:,Serv001840,Trip026387,Cornbrook
+MET:MET6:O:,Serv001840,Trip026388,Cornbrook
+MET:MET6:O:,Serv001840,Trip026389,Cornbrook
+MET:MET6:O:,Serv001840,Trip026390,Cornbrook
+MET:MET6:O:,Serv001840,Trip026391,Cornbrook
+MET:MET6:O:,Serv001840,Trip026392,Cornbrook
+MET:MET6:O:,Serv001840,Trip026393,Cornbrook
+MET:MET6:O:,Serv001840,Trip026394,Cornbrook
+MET:MET6:O:,Serv001840,Trip026395,Cornbrook
+MET:MET6:O:,Serv001840,Trip026396,Cornbrook
+MET:MET6:O:,Serv001840,Trip026397,Cornbrook
+MET:MET6:O:,Serv001840,Trip026398,Cornbrook
+MET:MET6:O:,Serv001840,Trip026399,Cornbrook
+MET:MET6:O:,Serv001840,Trip026400,Cornbrook
+MET:MET6:O:,Serv001840,Trip026401,Cornbrook
+MET:MET6:O:,Serv001840,Trip026402,Cornbrook
+MET:MET6:O:,Serv001840,Trip026403,Cornbrook
+MET:MET6:O:,Serv001840,Trip026404,Cornbrook
+MET:MET6:O:,Serv001840,Trip026405,Cornbrook
+MET:MET6:O:,Serv001840,Trip026406,Cornbrook
+MET:MET6:O:,Serv001840,Trip026407,Cornbrook
+MET:MET6:O:,Serv001840,Trip026408,Cornbrook
+MET:MET6:O:,Serv001840,Trip026409,Cornbrook
+MET:MET6:O:,Serv001841,Trip026410,Cornbrook
+MET:MET6:O:,Serv001841,Trip026411,Cornbrook
+MET:MET6:O:,Serv001841,Trip026412,Cornbrook
+MET:MET6:O:,Serv001841,Trip026413,Cornbrook
+MET:MET6:O:,Serv001841,Trip026414,Cornbrook
+MET:MET6:O:,Serv001841,Trip026415,Cornbrook
+MET:MET6:O:,Serv001841,Trip026416,Cornbrook
+MET:MET6:O:,Serv001841,Trip026417,Cornbrook
+MET:MET6:O:,Serv001841,Trip026418,Cornbrook
+MET:MET6:O:,Serv001841,Trip026419,Cornbrook
+MET:MET6:O:,Serv001841,Trip026420,Cornbrook
+MET:MET6:O:,Serv001841,Trip026421,Cornbrook
+MET:MET6:O:,Serv001841,Trip026422,Cornbrook
+MET:MET6:O:,Serv001841,Trip026423,Cornbrook
+MET:MET6:O:,Serv001841,Trip026424,Cornbrook
+MET:MET6:O:,Serv001841,Trip026425,Cornbrook
+MET:MET6:O:,Serv001841,Trip026426,Cornbrook
+MET:MET6:O:,Serv001841,Trip026427,Cornbrook
+MET:MET6:O:,Serv001841,Trip026428,Cornbrook
+MET:MET6:O:,Serv001841,Trip026429,Cornbrook
+MET:MET6:O:,Serv001841,Trip026430,Cornbrook
+MET:MET6:O:,Serv001841,Trip026431,Cornbrook
+MET:MET6:O:,Serv001841,Trip026432,Cornbrook
+MET:MET6:O:,Serv001841,Trip026433,Cornbrook
+MET:MET6:O:,Serv001841,Trip026434,Cornbrook
+MET:MET6:O:,Serv001841,Trip026435,Cornbrook
+MET:MET6:O:,Serv001841,Trip026436,Cornbrook
+MET:MET6:O:,Serv001841,Trip026437,Cornbrook
+MET:MET6:O:,Serv001841,Trip026438,Cornbrook
+MET:MET6:O:,Serv001841,Trip026439,Cornbrook
+MET:MET6:O:,Serv001841,Trip026440,Cornbrook
+MET:MET6:O:,Serv001841,Trip026441,Cornbrook
+MET:MET6:O:,Serv001841,Trip026442,Cornbrook
+MET:MET6:O:,Serv001841,Trip026443,Cornbrook
+MET:MET6:O:,Serv001841,Trip026444,Cornbrook
+MET:MET6:O:,Serv001841,Trip026445,Cornbrook
+MET:MET6:O:,Serv001841,Trip026446,Cornbrook
+MET:MET6:O:,Serv001841,Trip026447,Cornbrook
+MET:MET6:O:,Serv001841,Trip026448,Cornbrook
+MET:MET6:O:,Serv001841,Trip026449,Cornbrook
+MET:MET6:O:,Serv001841,Trip026450,Cornbrook
+MET:MET6:O:,Serv001841,Trip026451,Cornbrook
+MET:MET6:O:,Serv001841,Trip026452,Cornbrook
+MET:MET6:O:,Serv001841,Trip026453,Cornbrook
+MET:MET6:O:,Serv001841,Trip026454,Cornbrook
+MET:MET6:O:,Serv001841,Trip026455,Cornbrook
+MET:MET6:O:,Serv001841,Trip026456,Cornbrook
+MET:MET6:O:,Serv001841,Trip026457,Cornbrook
+MET:MET6:O:,Serv001841,Trip026458,Cornbrook
+MET:MET6:O:,Serv001841,Trip026459,Cornbrook
+MET:MET6:O:,Serv001841,Trip026460,Cornbrook
+MET:MET6:O:,Serv001841,Trip026461,Cornbrook
+MET:MET6:O:,Serv001841,Trip026462,Cornbrook
+MET:MET6:O:,Serv001841,Trip026463,Cornbrook
+MET:MET6:O:,Serv001841,Trip026464,Cornbrook
+MET:MET6:O:,Serv001841,Trip026465,Cornbrook
+MET:MET6:O:,Serv001841,Trip026466,Cornbrook
+MET:MET6:O:,Serv001841,Trip026467,Cornbrook
+MET:MET6:O:,Serv001841,Trip026468,Cornbrook
+MET:MET6:O:,Serv001841,Trip026469,Cornbrook
+MET:MET6:O:,Serv001841,Trip026470,Cornbrook
+MET:MET6:O:,Serv001841,Trip026471,Cornbrook
+MET:MET6:O:,Serv001841,Trip026472,Cornbrook
+MET:MET6:O:,Serv001841,Trip026473,Cornbrook
+MET:MET6:O:,Serv001841,Trip026474,Cornbrook
+MET:MET6:O:,Serv001841,Trip026475,Cornbrook
+MET:MET6:O:,Serv001841,Trip026476,Cornbrook
+MET:MET6:O:,Serv001841,Trip026477,Cornbrook
+MET:MET6:O:,Serv001841,Trip026478,Cornbrook
+MET:MET6:O:,Serv001841,Trip026479,Cornbrook
+MET:MET6:O:,Serv001841,Trip026480,Cornbrook
+MET:MET6:O:,Serv001841,Trip026481,Cornbrook
+MET:MET6:O:,Serv001841,Trip026482,Cornbrook
+MET:MET6:O:,Serv001841,Trip026483,Firswood Station
+MET:MET6:O:,Serv001841,Trip026484,Firswood Station
+MET:MET6:O:,Serv001841,Trip026485,Firswood Station
+MET:MET6:O:,Serv001842,Trip026486,Cornbrook
+MET:MET6:O:,Serv001842,Trip026487,Cornbrook
+MET:MET6:O:,Serv001842,Trip026488,Cornbrook
+MET:MET6:O:,Serv001842,Trip026489,Cornbrook
+MET:MET6:O:,Serv001842,Trip026490,Cornbrook
+MET:MET6:O:,Serv001842,Trip026491,Cornbrook
+MET:MET6:O:,Serv001842,Trip026492,Cornbrook
+MET:MET6:O:,Serv001842,Trip026493,Cornbrook
+MET:MET6:O:,Serv001842,Trip026494,Cornbrook
+MET:MET6:O:,Serv001842,Trip026495,Cornbrook
+MET:MET6:O:,Serv001842,Trip026496,Cornbrook
+MET:MET6:O:,Serv001842,Trip026497,Cornbrook
+MET:MET6:O:,Serv001842,Trip026498,Cornbrook
+MET:MET6:O:,Serv001842,Trip026499,Cornbrook
+MET:MET6:O:,Serv001842,Trip026500,Cornbrook
+MET:MET6:O:,Serv001842,Trip026501,Cornbrook
+MET:MET6:O:,Serv001842,Trip026502,Cornbrook
+MET:MET6:O:,Serv001842,Trip026503,Cornbrook
+MET:MET6:O:,Serv001842,Trip026504,Cornbrook
+MET:MET6:O:,Serv001842,Trip026505,Cornbrook
+MET:MET6:O:,Serv001842,Trip026506,Cornbrook
+MET:MET6:O:,Serv001842,Trip026507,Cornbrook
+MET:MET6:O:,Serv001842,Trip026508,Cornbrook
+MET:MET6:O:,Serv001842,Trip026509,Cornbrook
+MET:MET6:O:,Serv001842,Trip026510,Cornbrook
+MET:MET6:O:,Serv001842,Trip026511,Cornbrook
+MET:MET6:O:,Serv001842,Trip026512,Cornbrook
+MET:MET6:O:,Serv001842,Trip026513,Cornbrook
+MET:MET6:O:,Serv001842,Trip026514,Cornbrook
+MET:MET6:O:,Serv001842,Trip026515,Cornbrook
+MET:MET6:O:,Serv001842,Trip026516,Cornbrook
+MET:MET6:O:,Serv001842,Trip026517,Cornbrook
+MET:MET6:O:,Serv001842,Trip026518,Cornbrook
+MET:MET6:O:,Serv001842,Trip026519,Cornbrook
+MET:MET6:O:,Serv001842,Trip026520,Cornbrook
+MET:MET6:O:,Serv001842,Trip026521,Cornbrook
+MET:MET6:O:,Serv001842,Trip026522,Cornbrook
+MET:MET6:O:,Serv001842,Trip026523,Cornbrook
+MET:MET6:O:,Serv001842,Trip026524,Cornbrook
+MET:MET6:O:,Serv001842,Trip026525,Cornbrook
+MET:MET6:O:,Serv001842,Trip026526,Cornbrook
+MET:MET6:O:,Serv001842,Trip026527,Cornbrook
+MET:MET6:O:,Serv001842,Trip026528,Cornbrook
+MET:MET6:O:,Serv001842,Trip026529,Cornbrook
+MET:MET6:O:,Serv001842,Trip026530,Cornbrook
+MET:MET6:O:,Serv001842,Trip026531,Cornbrook
+MET:MET6:O:,Serv001842,Trip026532,Cornbrook
+MET:MET6:O:,Serv001842,Trip026533,Cornbrook
+MET:MET6:O:,Serv001842,Trip026534,Cornbrook
+MET:MET6:O:,Serv001842,Trip026535,Cornbrook
+MET:MET6:O:,Serv001842,Trip026536,Cornbrook
+MET:MET6:O:,Serv001842,Trip026537,Cornbrook
+MET:MET6:O:,Serv001842,Trip026538,Cornbrook
+MET:MET6:O:,Serv001842,Trip026539,Cornbrook
+MET:MET6:O:,Serv001842,Trip026540,Cornbrook
+MET:MET6:O:,Serv001842,Trip026541,Cornbrook
+MET:MET6:O:,Serv001842,Trip026542,Cornbrook
+MET:MET6:O:,Serv001842,Trip026543,Cornbrook
+MET:MET6:O:,Serv001842,Trip026544,Cornbrook
+MET:MET6:O:,Serv001842,Trip026545,Cornbrook
+MET:MET6:O:,Serv001842,Trip026546,Cornbrook
+MET:MET6:O:,Serv001842,Trip026547,Cornbrook
+MET:MET6:O:,Serv001842,Trip026548,Cornbrook
+MET:MET6:O:,Serv001842,Trip026549,Cornbrook
+MET:MET6:O:,Serv001842,Trip026550,Cornbrook
+MET:MET6:O:,Serv001842,Trip026551,Cornbrook
+MET:MET6:O:,Serv001842,Trip026552,Cornbrook
+MET:MET6:O:,Serv001842,Trip026553,Cornbrook
+MET:MET6:O:,Serv001842,Trip026554,Cornbrook
+MET:MET6:O:,Serv001842,Trip026555,Cornbrook
+MET:MET6:O:,Serv001842,Trip026556,Cornbrook
+MET:MET6:O:,Serv001842,Trip026557,Cornbrook
+MET:MET6:O:,Serv001842,Trip026558,Cornbrook
+MET:MET6:O:,Serv001842,Trip026559,Firswood Station
+MET:MET6:O:,Serv001842,Trip026560,Firswood Station
+MET:MET6:O:,Serv001842,Trip026561,Firswood Station

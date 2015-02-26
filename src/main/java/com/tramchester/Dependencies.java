@@ -3,6 +3,7 @@ package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.dataimport.TransportDataImporter;
+import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.domain.TransportData;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -38,7 +39,8 @@ public class Dependencies {
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(JourneyResponseMapper.class);
-        TransportDataImporter transportDataImporter = new TransportDataImporter(PATH);
+        TransportDataReader dataReader = new TransportDataReader(PATH);
+        TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
         picoContainer.addComponent(TransportData.class, transportDataImporter.load());
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);

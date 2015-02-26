@@ -10,7 +10,8 @@ public class TransportDataImporterTest {
 
     @Test
     public void shouldLoadTransportData() {
-        TransportDataImporter transportDataImporter = new TransportDataImporter(PATH);
+        TransportDataReader transportDataReader = new TransportDataReader(PATH);
+        TransportDataImporter transportDataImporter = new TransportDataImporter(transportDataReader);
 
         TransportData transportData = transportDataImporter.load();
 
