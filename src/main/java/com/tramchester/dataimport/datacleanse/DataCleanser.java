@@ -69,6 +69,7 @@ public class DataCleanser {
     }
 
     private static void cleanseTrips() throws IOException {
+        logger.info("**** Start cleansing trips.");
         List<TripData> trips = transportDataReader.getTrips();
 
         StringBuilder content = new StringBuilder();
@@ -82,6 +83,7 @@ public class DataCleanser {
             }
         }
         transportDataWriter.writeFile(content.toString(), "trips");
+        logger.info("**** End cleansing trips.\n\n");
     }
 
     private static void cleanseStops() throws IOException {
