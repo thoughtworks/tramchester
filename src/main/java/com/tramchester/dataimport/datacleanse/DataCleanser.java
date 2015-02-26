@@ -41,23 +41,17 @@ public class DataCleanser {
         cleanseCalendar();
 
         FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
+        FileUtils.forceDelete(new File(path + "/data.zip"));
     }
 
     public static void unzip() {
         String source = path + "data.zip";
         String destination = path;
-        String password = "password";
-
         try {
             ZipFile zipFile = new ZipFile(source);
-            if (zipFile.isEncrypted()) {
-                zipFile.setPassword(password);
-            }
+
             zipFile.extractAll(destination);
-            File file = new File(path + "data.zip");
-            if (file.exists()) {
-                file.delete();
-            }
+
         } catch (ZipException e) {
             e.printStackTrace();
         }
@@ -65,10 +59,6 @@ public class DataCleanser {
 
     private static void fetchData() throws IOException {
         logger.info("**** Downloading data...");
-        File file = new File(path + "data.zip");
-        if (file.exists()) {
-            file.delete();
-        }
 
         URL website = new URL("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
         ReadableByteChannel rbc = Channels.newChannel(website.openStream());
