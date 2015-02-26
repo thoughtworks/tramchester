@@ -4,6 +4,7 @@ package com.tramchester;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.domain.TransportData;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -30,8 +31,10 @@ public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
     private static String PATH = "data/tram/";
 
-    public void initialise(AppConfiguration configuration) throws IOException {
-
+    public void initialise(AppConfiguration configuration) throws Exception {
+        if (configuration.isRebuildGraph()) {
+            new DataCleanser().main(null);
+        }
         logger.info("Creating dependencies");
         picoContainer.addComponent(AppConfiguration.class, configuration);
 
@@ -39,6 +42,7 @@ public class Dependencies {
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(JourneyResponseMapper.class);
+
         TransportDataReader dataReader = new TransportDataReader(PATH);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
         picoContainer.addComponent(TransportData.class, transportDataImporter.load());
