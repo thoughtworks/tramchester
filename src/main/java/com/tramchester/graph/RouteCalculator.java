@@ -43,6 +43,9 @@ public class RouteCalculator {
                 Journey journey = mapJourney(path);
                 journey.setJourneyIndex(index++);
                 journeys.add(journey);
+                if(index == 2){
+                    break;
+                }
             }
 
             tx.success();

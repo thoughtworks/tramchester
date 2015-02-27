@@ -53,10 +53,6 @@ public class ServiceTime {
         return Minutes.minutesBetween(this.departureTime, this.arrivalTime).getMinutes();
     }
 
-    public int getDurationFromStart() {
-        return durationFromStart;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
