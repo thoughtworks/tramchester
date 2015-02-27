@@ -15,6 +15,7 @@ bin
 dist
 .gradle/
 build/
+data/tram/*.txt
 
 TEST-*.xml
 database/scripts/

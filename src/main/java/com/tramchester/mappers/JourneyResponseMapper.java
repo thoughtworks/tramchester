@@ -1,9 +1,6 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Stage;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.TransportData;
+import com.tramchester.domain.*;
 import com.tramchester.representations.JourneyPlanRepresentation;
 
 import java.util.HashSet;
@@ -28,7 +25,8 @@ public class JourneyResponseMapper {
         for (Journey journey : journeys) {
             journey.setSummary(getJourneySummary(journey, stations));
             for (Stage stage : journey.getStages()) {
-                stage.setServiceTimes(transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), stage.getLastStation(), minutesFromMidnight + minutesPast));
+                List<ServiceTime> times = transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), stage.getLastStation(), minutesFromMidnight + minutesPast);
+                stage.setServiceTimes(times);
                 minutesPast += stage.getDuration();
             }
         }

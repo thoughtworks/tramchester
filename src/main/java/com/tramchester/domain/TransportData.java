@@ -121,7 +121,7 @@ public class TransportData {
         for (Trip trip : tripsAfter) {
             Stop firstStop = trip.getStop(firstStationId);
             Stop lastStop = trip.getStop(lastStationId);
-            serviceTimes.add(new ServiceTime(firstStop.getDepartureTime(), lastStop.getArrivalTime(), "route", serviceId, trip.getHeadSign(), 4));
+            serviceTimes.add(new ServiceTime(firstStop.getDepartureTime(), lastStop.getArrivalTime(), serviceId, trip.getHeadSign()));
         }
         return serviceTimes;
     }

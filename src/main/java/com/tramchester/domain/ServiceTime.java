@@ -9,18 +9,14 @@ import org.joda.time.Minutes;
 public class ServiceTime {
     private final DateTime departureTime;
     private final DateTime arrivalTime;
-    private final String routeId;
     private final String serviceId;
     private final String headSign;
-    private int durationFromStart;
 
-    public ServiceTime(DateTime departureTime, DateTime arrivalTime, String routeId, String serviceId, String headSign, int durationFromStart) {
+    public ServiceTime(DateTime departureTime, DateTime arrivalTime, String serviceId, String headSign) {
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
-        this.routeId = routeId;
         this.serviceId = serviceId;
         this.headSign = headSign;
-        this.durationFromStart = durationFromStart;
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -31,10 +27,6 @@ public class ServiceTime {
     @JsonSerialize(using = TimeJsonSerializer.class)
     public DateTime getArrivalTime() {
         return arrivalTime;
-    }
-
-    public String getRouteId() {
-        return routeId;
     }
 
     public String getServiceId() {
@@ -56,7 +48,7 @@ public class ServiceTime {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("[%s %s %s %s %s]",routeId, serviceId, headSign, DateTimeService.formatTime(departureTime), DateTimeService.formatTime(arrivalTime)));
+        sb.append(String.format("[%s %s %s %s %s]", serviceId, headSign, DateTimeService.formatTime(departureTime), DateTimeService.formatTime(arrivalTime)));
         return sb.toString();
     }
 }
