@@ -7,19 +7,9 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.EnumSet;
-
-import static javax.servlet.DispatcherType.REQUEST;
-import static org.eclipse.jetty.servlets.CrossOriginFilter.*;
 
 public class App extends Application<AppConfiguration> {
     public static final String SERVICE_NAME = "tramchester";
-    private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private final Dependencies dependencies;
 
@@ -48,21 +38,8 @@ public class App extends Application<AppConfiguration> {
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         dependencies.initialise(configuration);
-        //Register Resources
-        //environment.jersey().setUrlPattern("/api/*");
 
         environment.jersey().register(dependencies.get(StationResource.class));
         environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
-
-        addCrossOriginFilter(environment);
     }
-
-    private void addCrossOriginFilter(Environment environment) {
-        FilterHolder filterHolder = environment.getApplicationContext().addFilter(CrossOriginFilter.class, "/*", EnumSet.of(REQUEST));
-        filterHolder.setInitParameter(EXPOSED_HEADERS_PARAM, "Location");
-        filterHolder.setInitParameter(ALLOWED_METHODS_PARAM, "GET,POST,PUT,OPTIONS");
-        filterHolder.setInitParameter(ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control,Access-Control-Allow-Origin,Authorization");
-    }
-
-
 }
