@@ -5,11 +5,12 @@ import java.util.List;
 
 public class Trip {
     private String tripId;
+    private String headSign;
     private List<Stop> stops = new ArrayList<>();
 
-    public Trip(String tripId) {
-
+    public Trip(String tripId, String headSign) {
         this.tripId = tripId;
+        this.headSign = headSign;
     }
 
     public String getTripId() {
@@ -40,5 +41,9 @@ public class Trip {
             }
         }
         return null;
+    }
+
+    public String getHeadSign() {
+        return headSign;
     }
 }

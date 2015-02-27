@@ -26,7 +26,7 @@ public class TransportData {
         }
 
         for (TripData tripData : tripDataList) {
-            Trip trip = getTrip(tripData.getTripId());
+            Trip trip = getTrip(tripData.getTripId(), tripData.getTripHeadsign());
             Service service = getService(tripData.getServiceId());
             Route route = routes.get(tripData.getRouteId());
             if (route != null) {
@@ -70,6 +70,13 @@ public class TransportData {
 
     }
 
+    private Trip getTrip(String tripId, String tripHeadsign) {
+        if (!trips.keySet().contains(tripId)) {
+            trips.put(tripId, new Trip(tripId, tripHeadsign));
+        }
+        return trips.get(tripId);
+    }
+
 
     private Service getService(String serviceId) {
         if (!services.keySet().contains(serviceId)) {
@@ -93,9 +100,7 @@ public class TransportData {
     }
 
     private Trip getTrip(String tripId) {
-        if (!trips.keySet().contains(tripId)) {
-            trips.put(tripId, new Trip(tripId));
-        }
+
         return trips.get(tripId);
     }
 
@@ -116,7 +121,7 @@ public class TransportData {
         for (Trip trip : tripsAfter) {
             Stop firstStop = trip.getStop(firstStationId);
             Stop lastStop = trip.getStop(lastStationId);
-            serviceTimes.add(new ServiceTime(firstStop.getDepartureTime(), lastStop.getArrivalTime(), "route", serviceId, "headsign", 4));
+            serviceTimes.add(new ServiceTime(firstStop.getDepartureTime(), lastStop.getArrivalTime(), "route", serviceId, trip.getHeadSign(), 4));
         }
         return serviceTimes;
     }
