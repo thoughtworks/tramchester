@@ -67,4 +67,8 @@ public class CalendarData {
     public DateTime getStart() {
         return start;
     }
+
+    public boolean runsAtLeastADay() {
+        return monday || tuesday || wednesday || thursday || friday || saturday || sunday;
+    }
 }

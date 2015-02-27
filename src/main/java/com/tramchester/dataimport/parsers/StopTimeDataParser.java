@@ -39,6 +39,11 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         String[] split = time.split(":");
         int hour = Integer.parseInt(split[0]);
         int minute = Integer.parseInt(split[1]);
+        if(hour == 0){
+            hour = 24;
+        } else if(hour == 1){
+            hour = 25;
+        }
         return (hour * 60) + minute;
     }
 

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class DataCleanser {
     private static final String path = "data/tram/";
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
-    private static final TransportDataReader transportDataReader = new TransportDataReader(path + "/gtdf-out/");
+    private static final TransportDataReader transportDataReader = new TransportDataReader(path + "gtdf-out/");
     private static final TransportDataWriter transportDataWriter = new TransportDataWriter(path);
     public static final String TIME_FORMAT = "YYYMMdd";
 
@@ -43,8 +43,6 @@ public class DataCleanser {
         FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
         FileUtils.forceDelete(new File(path + "/data.zip"));
     }
-
-
 
     private static void fetchData() throws IOException {
         logger.info("**** Downloading data...");
@@ -71,7 +69,7 @@ public class DataCleanser {
         List<CalendarData> calendar = transportDataReader.getCalendar();
 
         StringBuilder content = new StringBuilder();
-        calendar.stream().filter(calendarData -> services.contains(calendarData.getServiceId()))
+        calendar.stream().filter(calendarData -> services.contains(calendarData.getServiceId()) && calendarData.runsAtLeastADay())
                 .forEach(calendarData -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
                         calendarData.getServiceId(),
                         runsOnDay(calendarData.isMonday()),
@@ -90,7 +88,7 @@ public class DataCleanser {
     }
 
     private static Set<String> getUniqueServices() throws IOException {
-        return transportDataReader.getTrips().stream().map(TripData::getServiceId).collect(Collectors.toSet());
+        return new TransportDataReader(path).getTrips().stream().map(TripData::getServiceId).collect(Collectors.toSet());
     }
 
     private static void cleanseStoptimes() throws IOException {

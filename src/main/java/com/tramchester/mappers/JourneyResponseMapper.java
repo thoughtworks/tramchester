@@ -18,12 +18,12 @@ public class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    public JourneyPlanRepresentation map(List<Journey> journeys, int minutesFromMidnight) {
+    public JourneyPlanRepresentation map(Set<Journey> journeys, int minutesFromMidnight) {
         Set<Station> stations = getStations(journeys);
         return new JourneyPlanRepresentation(decorateJourneys(journeys, stations, minutesFromMidnight), stations);
     }
 
-    private List<Journey> decorateJourneys(List<Journey> journeys, Set<Station> stations, int minutesFromMidnight) {
+    private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations, int minutesFromMidnight) {
         int minutesPast = 0;
         for (Journey journey : journeys) {
             journey.setSummary(getJourneySummary(journey, stations));
@@ -35,7 +35,7 @@ public class JourneyResponseMapper {
         return journeys;
     }
 
-    private Set<Station> getStations(List<Journey> journeys) {
+    private Set<Station> getStations(Set<Journey> journeys) {
         Set<Station> stations = new HashSet<>();
         for (Journey journey : journeys) {
             List<Stage> stages = journey.getStages();

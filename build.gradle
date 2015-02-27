@@ -22,7 +22,6 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }

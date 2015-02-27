@@ -34,6 +34,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         for (Relationship relationship : getRelationships(path)) {
 
             if (relationship.isType(TransportRelationshipTypes.GOES_TO)) {
+                String service_id = relationship.getProperty("service_id").toString();
                 boolean[] days = (boolean[]) relationship.getProperty(DAYS);
                 int[] times = (int[]) relationship.getProperty(TIMES);
                 if (operatesOnDay(days, state.getState().getDay()) && operatesOnTime(times, currentTime)) {

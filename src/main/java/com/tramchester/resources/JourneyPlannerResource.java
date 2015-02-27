@@ -13,7 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import java.util.Set;
 
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,7 +32,7 @@ public class JourneyPlannerResource {
     @GET
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId, @QueryParam("departureTime") String departureTime) throws Exception {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
-        List<Journey> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight);
+        Set<Journey> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight);
         return Response.ok(journeyResponseMapper.map(journeys, minutesFromMidnight)).build();
     }
 

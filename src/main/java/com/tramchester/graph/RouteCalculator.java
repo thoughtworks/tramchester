@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static com.tramchester.graph.GraphStaticKeys.Station;
@@ -19,7 +21,7 @@ import static com.tramchester.graph.GraphStaticKeys.Station.ID;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
-public class    RouteCalculator {
+public class RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
     private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
     private static final PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(COST_EVALUATOR);
@@ -30,8 +32,8 @@ public class    RouteCalculator {
         this.db = db;
     }
 
-    public List<Journey> calculateRoute(String start, String end, int time) {
-        ArrayList<Journey> journeys = new ArrayList<>();
+    public Set<Journey> calculateRoute(String start, String end, int time) {
+        Set<Journey> journeys = new HashSet<>();
         try (Transaction tx = db.beginTx()) {
 
             Iterable<WeightedPath> paths = findShortestPath(start, end, time);
@@ -55,10 +57,10 @@ public class    RouteCalculator {
         for (Relationship relationship : relationships) {
             if (relationship.isType(BOARD)) {
                 currentStage = new Stage(relationship.getStartNode().getProperty("id").toString(), relationship.getEndNode().getProperty("route_name").toString(), relationship.getEndNode().getProperty("route_id").toString());
-            } else if(relationship.isType(DEPART)) {
+            } else if (relationship.isType(DEPART)) {
                 currentStage.setLastStation(relationship.getEndNode().getProperty("id").toString());
                 stages.add(currentStage);
-            } else if(relationship.isType(GOES_TO)) {
+            } else if (relationship.isType(GOES_TO)) {
                 currentStage.setServiceId(relationship.getProperty("service_id").toString());
             }
         }
@@ -66,30 +68,6 @@ public class    RouteCalculator {
         return new Journey(stages);
     }
 
-    private String printRoute(WeightedPath path) {
-        String stringPath = "\n\n";
-
-        Iterable<Relationship> relationships = path.relationships();
-        for (Relationship relationship : relationships) {
-            if (relationship.isType(GOES_TO)) {
-                if (path.startNode().equals(relationship.getStartNode())) {
-                    stringPath += String.format("(%s)", relationship.getStartNode().getProperty("name"));
-                }
-                stringPath += "---" + relationship.getProperty("route") + "-" + relationship.getProperty("service_id") + "-->";
-                if (relationship.getEndNode().hasProperty("name")) {
-                    stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
-                }
-            } else if (relationship.isType(BOARD)) {
-                if (path.startNode().equals(relationship.getStartNode())) {
-                    stringPath += String.format("(%s)", relationship.getStartNode().getProperty("name"));
-                }
-            } else if (relationship.isType(TransportRelationshipTypes.DEPART)) {
-                stringPath += String.format("(%s)", relationship.getEndNode().getProperty("name"));
-            }
-        }
-        stringPath += "weight: " + path.weight();
-        return stringPath;
-    }
 
     private Iterable<WeightedPath> findShortestPath(String start, String end, int time) {
         Node startNode = getStationsIndex().get(ID, start).getSingle();
