@@ -46,7 +46,7 @@ public class DataCleanser {
 
     private static void fetchData() throws IOException {
         logger.info("**** Downloading data...");
-
+        FileUtils.forceMkdir(new File(path));
         URL website = new URL("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
         ReadableByteChannel rbc = Channels.newChannel(website.openStream());
         FileOutputStream fos = new FileOutputStream(path + "data.zip");
