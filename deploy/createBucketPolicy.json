@@ -1,0 +1,37 @@
+
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "S3 Template for creating a bucket policy so a given IP can access the given bucket",
+
+  "Parameters" : {
+	"vpc" : { "Type" : "String" },
+    "env" : { "Type" : "String" },
+    "bucketName" : { "Type" : "String", "Default": "tramchester2dist" }
+   },
+
+   "Resources" : {
+
+    "BucketPolicy" : {
+       "Type" : "AWS::S3::BucketPolicy",
+       "Properties" : {
+          "PolicyDocument" : {
+             "Id" :  "TramchesterBucketPolicy",
+             "Statement" : [ 
+		{
+                  "Sid"         : "Allow only specific IP read for VPCs ",
+                  "Action"      : [ "s3:GetObject" ],
+                  "Effect"      : "Allow",
+                  "Resource"    : { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]] },
+                  "Condition"   : { 
+						"IpAddress": { "aws:SourceIp": ["52.16.114.47/32", "52.16.121.176/32" ] }
+						 },
+                  "Principal"   : { "AWS" : "*" } 
+		}
+		]
+         },
+         "Bucket" : { "Ref" : "bucketName" }
+       }
+    }
+  }
+}

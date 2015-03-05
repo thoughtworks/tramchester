@@ -1,0 +1,106 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: set up ACL for web subnet",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"webSubnetZoneA" : { "Type" : "String" , "Description" : "::webSubnetZoneA" },
+			"webSubnetZoneB" : { "Type" : "String" , "Description" : "::webSubnetZoneB" }
+		},
+		"Resources" : 
+		{
+			"assocAclWebSubnetA" : {
+				"Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+				"Properties" : {
+					"SubnetId" : { "Ref": "webSubnetZoneA" },
+					"NetworkAclId" : { "Ref": "webAcl" }
+				}
+			},
+			"assocAclWebSubnetB" : {
+				"Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+				"Properties" : {
+					"SubnetId" : { "Ref": "webSubnetZoneB" },
+					"NetworkAclId" : { "Ref": "webAcl" }
+				}
+			},
+			"webAcl" : {
+				"Type" : "AWS::EC2::NetworkAcl",
+				"Properties" : {
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+			"sgWeb": {
+				"Type": "AWS::EC2::SecurityGroup",
+				"Properties": {
+					"GroupDescription": "Web Server security group",
+					"VpcId" : { "Ref" : "vpc" },
+					"SecurityGroupIngress": [
+						{ "IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": "10.0.0.0/16" },
+						{ "IpProtocol": "tcp", "FromPort": "8080", "ToPort": "8080", "CidrIp": "10.0.0.0/16" },
+						{ "IpProtocol": "icmp", "FromPort": "-1", "ToPort": "-1", "CidrIp": "10.0.0.0/16" }
+					],
+						"SecurityGroupEgress": [
+						{ "IpProtocol": "tcp", "FromPort": "1", "ToPort": "65535", "CidrIp": "0.0.0.0/0" },
+						{ "IpProtocol": "icmp", "FromPort": "-1", "ToPort": "-1", "CidrIp": "10.0.0.0/16" }
+					]
+				}
+			},
+			"webAclOutboundEthemeralPorts" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "100" ,"RuleAction": "allow",  "Egress": "true","CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"1024" , "To": "65535" }
+				}
+			},
+			"webAclOutboundHttp" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "101" ,"RuleAction": "allow",  "Egress": "true","CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"80" , "To": "80" }
+				}
+			},
+			"webAclOutboundHttps" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "102" ,"RuleAction": "allow",  "Egress": "true","CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"443" , "To": "443" }
+				}
+			},
+			"webAclOutboundIcmp" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "103" ,"RuleAction": "allow",  "Egress": "true","CidrBlock": "10.0.0.0/16", "Protocol": "1", "Icmp" : { "Code" : "-1", "Type" : "-1" }
+				}
+			},
+			"webAclInboundSSH" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "104" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "10.0.0.0/16", "Protocol": "6"	, "PortRange": { "From":"22" , "To": "22" }
+				}
+			},
+			"webAclInboundWebPort8080" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "105" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "10.0.0.0/16", "Protocol": "6"	, "PortRange": { "From":"8080", "To": "8080" }
+				}
+			},
+			"webAclInboundEphemeral" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "106" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"1024" , "To": "65535" }
+				}
+			},
+			"webAclInboundICMP" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "webAcl" },
+					"RuleNumber": "107" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "10.0.0.0/16", "Protocol": "1", "Icmp" : { "Code" : "-1", "Type" : "-1" }
+				}
+			}
+		}
+
+}

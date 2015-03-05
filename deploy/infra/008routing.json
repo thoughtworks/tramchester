@@ -1,0 +1,81 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "projectBootstrap VPC set up template",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"webSubnetZoneA" : { "Type" : "String" , "Description" : "::webSubnetZoneA" },
+			"webSubnetZoneB" : { "Type" : "String" , "Description" : "::webSubnetZoneB" },
+			"lbSubnet" : { "Type" : "String" , "Description" : "::lbSubnet" },
+			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" },
+			"natInstance" : { "Type" : "String" , "Description" : "::natInstance" },
+			"internetGateway" : { "Type" : "String" , "Description" : "::internetGateway" }
+		},
+		"Resources" : {
+			"webRouteTable" : { "Type" : "AWS::EC2::RouteTable",
+				"Properties" : {
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+			"webRouteDefault" : {
+				"Type" : "AWS::EC2::Route",
+				"Properties" : {
+					"RouteTableId" : { "Ref" : "webRouteTable" },
+					"DestinationCidrBlock" : "0.0.0.0/0", "InstanceId" : { "Ref" : "natInstance" }
+				}
+			},
+			"webRouteTableAssociationA" : {
+				"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+				"Properties" : {
+					"SubnetId" : { "Ref" : "webSubnetZoneA" },
+					"RouteTableId" : { "Ref" : "webRouteTable" }
+				}
+			},
+			"webRouteTableAssociationB" : {
+				"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+				"Properties" : {
+					"SubnetId" : { "Ref" : "webSubnetZoneB" },
+					"RouteTableId" : { "Ref" : "webRouteTable" }
+				}
+			},
+			"lbRouteTable" : { "Type" : "AWS::EC2::RouteTable",
+				"Properties" : {
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+			"lbRouteDefault" : {
+				"Type" : "AWS::EC2::Route",
+				"Properties" : {
+					"RouteTableId" : { "Ref" : "lbRouteTable" },
+					"DestinationCidrBlock" : "0.0.0.0/0", "GatewayId" : { "Ref" : "internetGateway" }
+				}
+			},
+			"lbRouteTableAssociation" : {
+				"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+				"Properties" : {
+					"SubnetId" : { "Ref" : "lbSubnet" },
+					"RouteTableId" : { "Ref" : "lbRouteTable" }
+				}
+			},
+			"natRouteTable" : { 
+				"Type" : "AWS::EC2::RouteTable",
+				"Properties" : {
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+			"natRouteDefault" : {
+				"Type" : "AWS::EC2::Route",
+				"Properties" : {
+					"RouteTableId" : { "Ref" : "natRouteTable" },
+					"DestinationCidrBlock" : "0.0.0.0/0", "GatewayId" : { "Ref" : "internetGateway" }
+				}
+			},
+			"natRouteTableAssociation" : {
+				"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+				"Properties" : {
+					"SubnetId" : { "Ref" : "natSubnet" },
+					"RouteTableId" : { "Ref" : "natRouteTable" }
+				}
+			}
+		}
+}

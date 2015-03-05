@@ -1,0 +1,38 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: ELB",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"lbSubnet" : { "Type" : "String", "Description" : "::lbSubnet" },
+			"sgLoadBalance" : { "Type" : "String", "Description" : "::sgLoadBalance" }
+		},
+		"Resources" : {
+			"loadBalancer": {
+				"Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+				"Properties": {
+					"Subnets": [ { "Ref" : "lbSubnet" } ],
+					"SecurityGroups" : [ { "Ref" : "sgLoadBalance" } ],
+					"HealthCheck": {
+						"HealthyThreshold": "2",
+						"Interval": "15",
+						"Target": "HTTP:8080/",
+						"Timeout": "5",
+						"UnhealthyThreshold": "2"
+					},
+					"Listeners": [
+					{
+						"InstancePort": "8080",
+						"LoadBalancerPort": "80",
+						"Protocol": "HTTP",
+						"PolicyNames": [ ]
+					}
+					]
+				}
+			}
+		},
+		"Outputs" : {
+			"LoadBalanacerDNS" : { "Value" : { "Fn::GetAtt" : [ "loadBalancer", "DNSName" ] }, "Description":"::CFN_TAG" }
+		}
+
+}

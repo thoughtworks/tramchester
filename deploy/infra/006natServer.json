@@ -1,0 +1,47 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: set up NAT server",
+		"Mappings" : {
+			"environMap" : {
+				"Dev" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-4c619229" },
+				"UAT" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-4c619229" }
+			}
+		},
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" },
+			"sgNat" : { "Type" : "String" , "Description" : "::sgNat" },
+			"zoneA" : { "Type" : "String" , "Default" : "eu-west-1a" }
+		},
+		"Resources" : {
+			"natInstance": {
+				"Type": "AWS::EC2::Instance",
+				"Properties": {
+					"AvailabilityZone": { "Ref" : "zoneA" },
+					"DisableApiTermination": "FALSE",
+					"ImageId": "ami-e5e2d991",
+					"InstanceType": "t1.micro",
+					"KernelId": "aki-71665e05",
+					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
+					"Monitoring": "false",
+					"SecurityGroupIds" : [ { "Ref" : "sgNat" } ],
+					"SubnetId": { "Ref" : "natSubnet" },
+					"SourceDestCheck" : "false",
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["", [ { "Ref": "env" } , "NatServer" ] ] } }
+                    ]
+				}
+			},
+			"natInstanceEIPAssociation" : {
+				"Type": "AWS::EC2::EIPAssociation",
+				"Properties" : {
+					"InstanceId" : { "Ref" : "natInstance" },
+					"AllocationId": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]}
+				}
+			}
+		},
+		"Outputs" : {
+				"EIPAllocID" : { "Value" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]} , "Description":"::CFN_TAG" }
+		}
+}

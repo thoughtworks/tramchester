@@ -1,0 +1,24 @@
+#cloud-config
+output: {all: '| tee -a /var/log/cloud-init-output.log'}
+
+# check this is valid yaml BEFORE check in
+# For example use http://yaml-online-parser.appspot.com/
+
+manage_etc_hosts: true
+
+# add a source that has oracle JRE available
+apt_sources:
+ - source: "ppa:webupd8team/java"
+
+bootcmd:
+ - [ sh, -c,  "echo oracle-java8-installer shared/present-oracle-license-v1-1 note | debconf-set-selections" ]
+ - [ sh, -c,  "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 boolean true | debconf-set-selections" ]
+ - [ sh, -c,  "echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections" ]
+
+packages:
+ - language-pack-en
+ - ntp
+ - uuid
+ - unzip
+ - oracle-java8-installer
+ - oracle-java8-set-default
