@@ -32,7 +32,7 @@ public class Dependencies {
     private static String PATH = "data/tram/";
 
     public void initialise(AppConfiguration configuration) throws Exception {
-        if (configuration.isRebuildGraph()) {
+        if (configuration.isPullData()) {
             new DataCleanser().main(null);
         }
         logger.info("Creating dependencies");

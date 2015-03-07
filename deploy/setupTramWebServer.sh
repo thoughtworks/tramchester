@@ -24,6 +24,8 @@ logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $ENV
 # fetch and install the package
 distUrl=$ARTIFACTSURL/$BUILD/tramchester-1.0.zip
 dist=`basename $distUrl`
+dataUrl=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
+data=`basename $dataUrl`
 
 target=tramchester-1.0
 
@@ -34,6 +36,9 @@ cd server
 logger Attempt to fetch files from $distUrl
 wget $distUrl -O $dist
 unzip $dist
+logger Attempt to fetch data files from $dataUrl
+wget $dataUrl -O $data
+unzip $data
 
 # cloudwatch logs agent setup
 logger Set up amazon cloudwatch logs agent
@@ -47,7 +52,7 @@ chown -R ubuntu .
 
 # start 
 logger Start tramchester server
-sudo -E -u ubuntu bash ./$target/bin/tramchester server &
+sudo -E -u ubuntu bash ./$target/bin/tramchester server config/local.yml &
 
 # Get Cloud Formation call back URL from user data
 callbackUrl=`ec2metadata --user-data | grep WAITURL | cut -d = -f 2-`

@@ -10,7 +10,14 @@ public class AppConfiguration extends Configuration {
     @JsonProperty("rebuildGraph")
     private boolean rebuildGraph;
 
+    @JsonProperty("pullData")
+    private boolean pullData;
+
     public boolean isRebuildGraph() {
         return rebuildGraph;
+    }
+
+    public boolean isPullData() {
+        return pullData;
     }
 }
