@@ -18,6 +18,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class DataCleanser {
@@ -66,10 +67,10 @@ public class DataCleanser {
 
         Set<String> services = getUniqueServices();
 
-        List<CalendarData> calendar = transportDataReader.getCalendar();
+        Stream<CalendarData> calendar = transportDataReader.getCalendar();
 
         StringBuilder content = new StringBuilder();
-        calendar.stream().filter(calendarData -> services.contains(calendarData.getServiceId()) && calendarData.runsAtLeastADay())
+        calendar.filter(calendarData -> services.contains(calendarData.getServiceId()) && calendarData.runsAtLeastADay())
                 .forEach(calendarData -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
                         calendarData.getServiceId(),
                         runsOnDay(calendarData.isMonday()),
@@ -88,17 +89,17 @@ public class DataCleanser {
     }
 
     private static Set<String> getUniqueServices() throws IOException {
-        return new TransportDataReader(path).getTrips().stream().map(TripData::getServiceId).collect(Collectors.toSet());
+        return new TransportDataReader(path).getTrips().map(TripData::getServiceId).collect(Collectors.toSet());
     }
 
     private static void cleanseStoptimes() throws IOException {
         logger.info("**** Start cleansing stop times.");
 
-        List<StopTimeData> stopTimes = transportDataReader.getStopTimes();
+        Stream<StopTimeData> stopTimes = transportDataReader.getStopTimes();
 
         StringBuilder content = new StringBuilder();
 
-        stopTimes.stream().filter(stopTime -> stopTime.getStopId().startsWith("9400Z"))
+        stopTimes.filter(stopTime -> stopTime.getStopId().startsWith("9400Z"))
                 .forEach(stopTime -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s\n",
                         stopTime.getTripId(),
                         DateTimeService.formatTime(stopTime.getArrivalTime()),
@@ -115,10 +116,10 @@ public class DataCleanser {
 
     private static void cleanseTrips() throws IOException {
         logger.info("**** Start cleansing trips.");
-        List<TripData> trips = transportDataReader.getTrips();
+        Stream<TripData> trips = transportDataReader.getTrips();
 
         StringBuilder content = new StringBuilder();
-        trips.stream().filter(trip -> trip.getRouteId().startsWith("MET")).forEach(trip -> content.append(String.format("%s,%s,%s,%s\n",
+        trips.filter(trip -> trip.getRouteId().startsWith("MET")).forEach(trip -> content.append(String.format("%s,%s,%s,%s\n",
                 trip.getRouteId(),
                 trip.getServiceId(),
                 trip.getTripId(),
@@ -129,10 +130,10 @@ public class DataCleanser {
 
     private static void cleanseStops() throws IOException {
         logger.info("**** Start cleansing stops.");
-        List<StopData> stops = transportDataReader.getStops();
+        Stream<StopData> stops = transportDataReader.getStops();
         StringBuilder content = new StringBuilder();
 
-        stops.stream().filter(stop -> stop.getId().startsWith("9400")).forEach(stop -> content.append(String.format("%s,%s,%s,%s,%s\n",
+        stops.filter(stop -> stop.getId().startsWith("9400")).forEach(stop -> content.append(String.format("%s,%s,%s,%s,%s\n",
                 stop.getId(),
                 stop.getCode(),
                 stop.getName(),
@@ -145,10 +146,10 @@ public class DataCleanser {
 
     private static void cleanseRoutes() throws IOException {
         logger.info("**** Start cleansing routes.");
-        List<RouteData> routes = transportDataReader.getRoutes();
+        Stream<RouteData> routes = transportDataReader.getRoutes();
         StringBuilder content = new StringBuilder();
 
-        routes.stream().filter(route -> route.getId().startsWith("MET")).forEach(route -> content.append(String.format("%s,MET,%s,%s,0\n",
+        routes.filter(route -> route.getId().startsWith("MET")).forEach(route -> content.append(String.format("%s,MET,%s,%s,0\n",
                 route.getId(),
                 route.getCode(),
                 route.getName()

@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class DataLoader<T> {
     private final String fileName;
@@ -24,7 +26,7 @@ public class DataLoader<T> {
         this.parser = parser;
     }
 
-    public List<T> loadAll() throws IOException {
+    public Stream<T> loadAll() throws IOException {
         logger.info("Loading data from " + fileName + ".txt file.");
         Reader reader = null;
         try {
@@ -35,13 +37,17 @@ public class DataLoader<T> {
                     .strategy(CSVStrategy.UK_DEFAULT)
                     .build();
 
-            return csvPersonReader.readAll();
+            logger.info("Finished loading data from " + fileName + ".txt file.");
+
+            Stream<T> resultStream = StreamSupport.stream(csvPersonReader.spliterator(), false);
+            return resultStream;
+
         } catch (FileNotFoundException e) {
             logger.error("File not found: " + fileName + ".txt");
             e.printStackTrace();
         } finally {
-            reader.close();
+            //reader.close();
         }
-        return new ArrayList<>();
+        return Stream.empty();
     }
 }

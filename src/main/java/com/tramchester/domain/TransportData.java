@@ -5,6 +5,7 @@ import com.tramchester.dataimport.data.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class TransportData {
     private HashMap<String, Trip> trips = new HashMap<>();
@@ -13,19 +14,20 @@ public class TransportData {
     private HashMap<String, Route> routes = new HashMap<>();
 
 
-    public TransportData(List<StopData> stopDataList, List<RouteData> routeDataList, List<TripData> tripDataList, List<StopTimeData> stopTimeDataList, List<CalendarData> calendarDataList) {
-        for (StopData stopData : stopDataList) {
+    public TransportData(Stream<StopData> stopDataList, Stream<RouteData> routeDataList, Stream<TripData> tripDataList,
+                         Stream<StopTimeData> stopTimeDataList, Stream<CalendarData> calendarDataList) {
+        stopDataList.forEach((stopData) -> {
             if (!stations.keySet().contains(stopData.getId())) {
                 stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getCode(), stopData.getName(), stopData.getLatitude(), stopData.getLongitude()));
             }
-        }
+        } );
 
-        for (RouteData routeData : routeDataList) {
+        routeDataList.forEach((routeData) -> {
             Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName());
             routes.put(route.getId(), route);
-        }
+        } );
 
-        for (TripData tripData : tripDataList) {
+        tripDataList.forEach((tripData) -> {
             Trip trip = getTrip(tripData.getTripId(), tripData.getTripHeadsign());
             Service service = getService(tripData.getServiceId());
             Route route = routes.get(tripData.getRouteId());
@@ -33,9 +35,9 @@ public class TransportData {
                 service.addTrip(trip);
                 route.addService(service);
             }
-        }
+        });
 
-        for (StopTimeData stopTimeData : stopTimeDataList) {
+        stopTimeDataList.forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
 
             Stop stop = new Stop(stopTimeData.getArrivalTime(),
@@ -46,9 +48,9 @@ public class TransportData {
                     stopTimeData.getMinutesFromMidnight());
 
             trip.addStop(stop);
-        }
+        });
 
-        for (CalendarData calendar : calendarDataList) {
+        calendarDataList.forEach((calendar) -> {
             Service service = services.get(calendar.getServiceId());
 
             if (service != null) {
@@ -66,7 +68,7 @@ public class TransportData {
 //                    services.remove(calendar.getServiceId());
 //                }
             }
-        }
+        } );
 
     }
 

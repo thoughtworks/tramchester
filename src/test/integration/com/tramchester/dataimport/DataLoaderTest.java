@@ -5,6 +5,7 @@ import com.tramchester.dataimport.parsers.*;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +14,7 @@ public class DataLoaderTest {
     @Test
     public void shouldLoadRouteData() throws Exception {
         DataLoader<RouteData> dataLoader = new DataLoader<>("data/test/routes", new RouteDataParser());
-        List<RouteData> routeData = dataLoader.loadAll();
+        List<RouteData> routeData = dataLoader.loadAll().collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);
         assertThat(routeData.get(0).getCode()).isEqualTo("MET1");
@@ -24,7 +25,7 @@ public class DataLoaderTest {
     @Test
     public void shouldLoadCalendarData() throws Exception {
         DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar", new CalendarDataParser());
-        List<CalendarData> calendarData = dataLoader.loadAll();
+        List<CalendarData> calendarData = dataLoader.loadAll().collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(12);
         assertThat(calendarData.get(0).getServiceId()).isEqualTo("Serv000001");
@@ -35,7 +36,7 @@ public class DataLoaderTest {
     @Test
     public void shouldLoadStopData() throws Exception {
         DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops", new StopDataParser());
-        List<StopData> stopData = dataLoader.loadAll();
+        List<StopData> stopData = dataLoader.loadAll().collect(Collectors.toList());
 
         assertThat(stopData).hasSize(8);
         assertThat(stopData.get(0).getCode()).isEqualTo("mantpmaw");
@@ -48,7 +49,7 @@ public class DataLoaderTest {
     @Test
     public void shouldLoadStopTimeData() throws Exception {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times", new StopTimeDataParser());
-        List<StopTimeData> stopTimeData = dataLoader.loadAll();
+        List<StopTimeData> stopTimeData = dataLoader.loadAll().collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(20);
         assertThat(stopTimeData.get(0).getStopId()).isEqualTo("9400ZZMAABM");
@@ -63,7 +64,7 @@ public class DataLoaderTest {
     @Test
     public void shouldLoadTripData() throws Exception {
         DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips", new TripDataParser());
-        List<TripData> tripData = dataLoader.loadAll();
+        List<TripData> tripData = dataLoader.loadAll().collect(Collectors.toList());
 
         assertThat(tripData).hasSize(20);
         assertThat(tripData.get(0).getTripHeadsign()).isEqualTo("Bury Interchange");
