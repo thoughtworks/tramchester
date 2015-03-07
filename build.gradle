@@ -5,7 +5,6 @@ apply plugin: 'application'
 mainClassName = 'com.tramchester.App'
 
 def antBuild = new groovy.util.AntBuilder()
-
 def buildNumber = System.getenv("SNAP_PIPELINE_COUNTER") ?: "0"
 def environment = System.getenv("ENV") ?: "Dev"
 
@@ -14,6 +13,7 @@ version = '1.0'
 project.ext {
     dropwizardVersion = '0.8.0-rc2'
 }
+
 repositories {
     maven {
         url "http://m2.neo4j.org/content/repositories/releases"
