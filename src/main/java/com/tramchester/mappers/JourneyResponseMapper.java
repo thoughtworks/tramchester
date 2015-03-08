@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Int;
 
 import java.util.HashSet;
 import java.util.List;
@@ -23,18 +24,35 @@ public class JourneyResponseMapper {
         return new JourneyPlanRepresentation(decorateJourneys(journeys, stations, minutesFromMidnight), stations);
     }
 
-    private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations, int minutesFromMidnight) {
-        int minutesPast = 0;
+    private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations, int originMinutesFromMidnight) {
+        int journeyClock = originMinutesFromMidnight;
         for (Journey journey : journeys) {
             journey.setSummary(getJourneySummary(journey, stations));
             logger.info("Add services times for " + journey.getSummary());
             for (Stage stage : journey.getStages()) {
-                List<ServiceTime> times = transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), stage.getLastStation(), minutesFromMidnight + minutesPast);
+                logger.info(String.format("Journey clock is now %s ", journeyClock));
+
+                List<ServiceTime> times = transportData.getTimes(stage.getServiceId(),
+                        stage.getFirstStation(), stage.getLastStation(), journeyClock);
                 stage.setServiceTimes(times);
-                minutesPast += stage.getDuration();
+                int departsAtMinutes = findEarliestDepartureTime(times);
+                int duration = stage.getDuration();
+                journeyClock = departsAtMinutes + duration;
+                logger.info(String.format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
+                        duration, departsAtMinutes, journeyClock));
             }
         }
         return journeys;
+    }
+
+    private int findEarliestDepartureTime(List<ServiceTime> times) {
+        int earliest = Integer.MAX_VALUE;
+        for(ServiceTime time : times) {
+           if (time.getFromMidnight()<earliest) {
+               earliest = time.getFromMidnight();
+           }
+        }
+        return earliest;
     }
 
     private Set<Station> getStations(Set<Journey> journeys) {

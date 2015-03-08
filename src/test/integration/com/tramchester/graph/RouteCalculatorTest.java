@@ -1,37 +1,51 @@
 package com.tramchester.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Stage;
 import com.tramchester.services.DateTimeService;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class RouteCalculatorTest {
 
-    private static RouteCalculator calculator;
-    private static DateTimeService dateTimeService;
+    private static Dependencies dependencies;
+
+    private RouteCalculator calculator;
+    private DateTimeService dateTimeService;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
-        Dependencies dependencies = new Dependencies();
-        dependencies.initialise(new TestConfig());
+        dependencies = new Dependencies();
+        dependencies.initialise(new IntegrationTestConfig());
+    }
 
+    @Before
+    public void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
         dateTimeService = dependencies.get(DateTimeService.class);
+    }
+
+    @AfterClass
+    public static void OnceAfterAllTestsAreFinished() {
+        dependencies.close();
     }
 
     @Test
     public void testJourneyFromAltyToAirport() throws Exception {
         int minutes = dateTimeService.getMinutesFromMidnight("11:43:00");
-        Set<Journey> results = calculator.calculateRoute(Stations.Altrincham, Stations.ManAirport, minutes);
+        Set<Journey> results = calculator.calculateRoute(Stations.Altrincham, Stations.ManAirport, minutes, DaysOfWeek.Sunday);
 
         assertEquals(1, results.size());    // results is iterator
         for (Journey result : results) {
@@ -46,16 +60,4 @@ public class RouteCalculatorTest {
         }
     }
 
-    private static class TestConfig extends TramchesterConfig {
-
-        @Override
-        public boolean isRebuildGraph() {
-            return false;
-        }
-
-        @Override
-        public boolean isPullData() {
-            return false;
-        }
-    }
 }

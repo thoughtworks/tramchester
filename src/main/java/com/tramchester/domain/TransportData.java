@@ -128,8 +128,12 @@ public class TransportData {
         for (Trip trip : tripsAfter) {
             Stop firstStop = trip.getStop(firstStationId);
             Stop lastStop = trip.getStop(lastStationId);
-            ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(), lastStop.getArrivalTime(), serviceId, trip.getHeadSign());
-            logger.debug("Adding service time: " + serviceTime);
+            int fromMidnight = firstStop.getMinutesFromMidnight();
+
+            ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(),
+                    lastStop.getArrivalTime(), serviceId, trip.getHeadSign(), fromMidnight);
+
+            logger.debug(String.format("Add trip: %s with minutes offset %s", serviceTime, fromMidnight));
             serviceTimes.add(serviceTime);
         }
         return serviceTimes;

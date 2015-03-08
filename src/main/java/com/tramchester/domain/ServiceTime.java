@@ -11,12 +11,14 @@ public class ServiceTime {
     private final DateTime arrivalTime;
     private final String serviceId;
     private final String headSign;
+    private final int fromMidnight;
 
-    public ServiceTime(DateTime departureTime, DateTime arrivalTime, String serviceId, String headSign) {
+    public ServiceTime(DateTime departureTime, DateTime arrivalTime, String serviceId, String headSign, int fromMidnight) {
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
         this.serviceId = serviceId;
         this.headSign = headSign;
+        this.fromMidnight = fromMidnight;
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -48,12 +50,16 @@ public class ServiceTime {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("[%s %s %s %s]",
+        sb.append(String.format("[%s %s %s %s %s]",
                 serviceId,
                 headSign,
                 DateTimeService.formatTime(departureTime),
-                DateTimeService.formatTime(arrivalTime)));
+                DateTimeService.formatTime(arrivalTime), fromMidnight));
         return sb.toString();
+    }
+
+    public int getFromMidnight() {
+        return fromMidnight;
     }
 }
 

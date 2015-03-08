@@ -27,7 +27,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class Dependencies {
-    public static final String GRAPH_NAME = "tramchester.db";
+    //public static final String GRAPH_NAME = "tramchester.db";
+
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
     private static String PATH = "data/tram/";
@@ -56,19 +57,23 @@ public class Dependencies {
     }
 
     private void rebuildGraph(TramchesterConfig configuration) throws IOException {
+        String graphName = configuration.getGraphName();
+        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
+
         if (configuration.isRebuildGraph()) {
-            logger.info("Deleting previous graph db for " + GRAPH_NAME);
+            logger.info("Deleting previous graph db for " + graphName);
             try {
-                FileUtils.deleteRecursively(new File(GRAPH_NAME));
+                FileUtils.deleteRecursively(new File(graphName));
             } catch (IOException e) {
                 logger.error("Error deleting the graph!");
                 throw e;
             }
-            picoContainer.addComponent(GraphDatabaseService.class, new GraphDatabaseFactory().newEmbeddedDatabase(GRAPH_NAME));
+            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
             picoContainer.getComponent(TransportGraphBuilder.class).buildGraph();
+            logger.info("Graph rebuild is finished for " + graphName);
         } else {
-            logger.warn("Not rebuilding graph");
-            picoContainer.addComponent(GraphDatabaseService.class, new GraphDatabaseFactory().newEmbeddedDatabase(GRAPH_NAME));
+            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
+            logger.info("Not rebuilding graph " + graphName);
         }
     }
 
@@ -76,4 +81,11 @@ public class Dependencies {
         return picoContainer.getComponent(klass);
     }
 
+    public void close() {
+        GraphDatabaseService graphService = picoContainer.getComponent(GraphDatabaseService.class);
+        if (graphService.isAvailable(1)) {
+            logger.info("Shutting down graphDB");
+            graphService.shutdown();
+        }
+    }
 }

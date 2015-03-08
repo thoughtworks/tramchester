@@ -13,6 +13,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("pullData")
     private boolean pullData;
 
+    @JsonProperty("graphName")
+    private String graphName;
+
     public boolean isRebuildGraph() {
         return rebuildGraph;
     }
@@ -20,4 +23,6 @@ public class AppConfiguration extends TramchesterConfig {
     public boolean isPullData() {
         return pullData;
     }
+
+    public String getGraphName() { return graphName; }
 }

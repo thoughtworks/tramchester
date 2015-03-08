@@ -23,6 +23,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
+
     private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
     private static final PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(COST_EVALUATOR);
     private final GraphDatabaseService db;
@@ -32,11 +33,11 @@ public class RouteCalculator {
         this.db = db;
     }
 
-    public Set<Journey> calculateRoute(String start, String end, int time) {
+    public Set<Journey> calculateRoute(String start, String end, int time, DaysOfWeek dayOfWeek) {
         Set<Journey> journeys = new HashSet<>();
         try (Transaction tx = db.beginTx()) {
 
-            Iterable<WeightedPath> paths = findShortestPath(start, end, time);
+            Iterable<WeightedPath> paths = findShortestPath(start, end, time, dayOfWeek);
             int index = 0;
 
             for (WeightedPath path : paths) {
@@ -70,7 +71,6 @@ public class RouteCalculator {
                 currentStage.setLastStation(endNode.getProperty("id").toString());
                 stages.add(currentStage);
             } else if (relationship.isType(GOES_TO)) {
-                //logger.debug("GOES_TO: service:" + relationship.getProperty("service_id"));
                 currentStage.setServiceId(relationship.getProperty("service_id").toString());
             }
         }
@@ -79,12 +79,12 @@ public class RouteCalculator {
     }
 
 
-    private Iterable<WeightedPath> findShortestPath(String start, String end, int time) {
+    private Iterable<WeightedPath> findShortestPath(String start, String end, int time, DaysOfWeek dayOfWeek) {
         Node startNode = getStationsIndex().get(ID, start).getSingle();
         Node endNode = getStationsIndex().get(ID, end).getSingle();
         logger.info(String.format("Finding shortest path for (%s) --> (%s)", startNode.getProperty(NAME), endNode.getProperty(NAME)));
 
-        GraphBranchState state = new GraphBranchState(time, DaysOfWeek.fromToday());
+        GraphBranchState state = new GraphBranchState(time, dayOfWeek);
         PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
                 new InitialBranchState.State<>(state, state),

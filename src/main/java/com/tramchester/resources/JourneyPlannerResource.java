@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Journey;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.mappers.JourneyResponseMapper;
@@ -32,14 +33,15 @@ public class JourneyPlannerResource {
 
     @GET
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId, @QueryParam("departureTime") String departureTime) throws Exception {
-        JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, departureTime);
+        DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
+        JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, departureTime, dayOfWeek);
         return Response.ok(planRepresentation).build();
     }
 
-    public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime) {
+    public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime, DaysOfWeek dayOfWeek) {
         logger.info(String.format("start: %s end: %s departure time: %s", startId, endId, departureTime));
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
-        Set<Journey> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight);
+        Set<Journey> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek);
         logger.info("number of journeys: " + journeys.size());
         return journeyResponseMapper.map(journeys, minutesFromMidnight);
     }

@@ -44,12 +44,14 @@ public class TransportGraphBuilder {
                         }
                     }
                 }
-
-
             }
-
             tx.success();
-        } finally {
+            logger.info("Graph rebuild finished");
+
+        } catch (Exception except) {
+            logger.error("Exception while rebuilding the graph", except);
+        }
+        finally {
             tx.close();
         }
     }

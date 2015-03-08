@@ -2,34 +2,47 @@ package com.tramchester.resources;
 
 
 import com.tramchester.Dependencies;
+import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Stage;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 
 public class JourneyPlannerTest {
-    private static JourneyPlannerResource planner;
+    private JourneyPlannerResource planner;
+    private static Dependencies dependencies;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
-        Dependencies dependencies = new Dependencies();
-        dependencies.initialise(new TestConfig());
+        dependencies = new Dependencies();
+        dependencies.initialise(new IntegrationTestConfig());
+    }
 
+    @Before
+    public void beforeEachTestRuns() {
         planner = dependencies.get(JourneyPlannerResource.class);
+    }
+
+    @AfterClass
+    public static void OnceAfterAllTestsAreFinished() {
+        dependencies.close();
     }
 
     @Test
     public void testAltyToManAirport() throws Exception {
-        JourneyPlanRepresentation results = planner.createJourneyPlan(Stations.Altrincham, Stations.ManAirport, "11:43:00");
+        JourneyPlanRepresentation results = planner.createJourneyPlan(Stations.Altrincham, Stations.ManAirport, "11:43:00", DaysOfWeek.Sunday);
         Set<Journey> journeys = results.getJourneys();
 
         assertEquals(1, journeys.size());
@@ -49,16 +62,5 @@ public class JourneyPlannerTest {
         }
     }
 
-    private static class TestConfig extends TramchesterConfig {
 
-        @Override
-        public boolean isRebuildGraph() {
-            return false;
-        }
-
-        @Override
-        public boolean isPullData() {
-            return false;
-        }
-    }
 }

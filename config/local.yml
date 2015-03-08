@@ -9,13 +9,14 @@ server:
 
 rebuildGraph: true
 pullData: false
+graphName: tramchester.db
 
 logging:
   level: INFO
   loggers:
     root: INFO
     com.tramchester: DEBUG
-    org.eclipse.jetty.servlet": DEBUG
+    org.eclipse.jetty.servlet: DEBUG
     io.dropwizard.jersey.jackson: DEBUG
 
   appenders:

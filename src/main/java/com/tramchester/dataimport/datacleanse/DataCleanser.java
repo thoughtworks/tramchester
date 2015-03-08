@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,7 +28,7 @@ public class DataCleanser {
     public static final String TIME_FORMAT = "YYYMMdd";
 
     public static void main(String[] args) throws Exception {
-        fetchData();
+        fetchData("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
 
         cleanseRoutes();
 
@@ -45,21 +44,29 @@ public class DataCleanser {
         FileUtils.forceDelete(new File(path + "/data.zip"));
     }
 
-    private static void fetchData() throws IOException {
-        logger.info("**** Downloading data...");
-        FileUtils.forceMkdir(new File(path));
-        URL website = new URL("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
-        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        FileOutputStream fos = new FileOutputStream(path + "data.zip");
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        logger.info("**** Unziping data...");
-        try {
-            ZipFile zipFile = new ZipFile(path + "data.zip");
+    private static void fetchData(String dataUrl) throws IOException {
+        String filename = "data.zip";
+        pullDataFromURL(filename, new URL(dataUrl));
+        unzipData(filename);
+    }
 
+    private static void unzipData(String filename) {
+        logger.info("Unziping data...");
+        try {
+            ZipFile zipFile = new ZipFile(path + filename);
             zipFile.extractAll(path);
         } catch (ZipException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void pullDataFromURL(String filename, URL website) throws IOException {
+        logger.info("Downloading data from " + website);
+
+        FileUtils.forceMkdir(new File(path));
+        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+        FileOutputStream fos = new FileOutputStream(path + filename);
+        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
     }
 
     private static void cleanseCalendar() throws IOException {

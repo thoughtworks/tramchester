@@ -62,6 +62,10 @@ jar {
 
 task stage(dependsOn: ['clean', 'installApp'])
 
+clean {
+	delete "int_test_tramchester.db"
+}
+
 run {
     args 'server', 'config/local.yml'
 }
