@@ -1,6 +1,8 @@
 package com.tramchester.domain;
 
 import com.tramchester.dataimport.data.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class TransportData {
+    private static final Logger logger = LoggerFactory.getLogger(TransportData.class);
     private HashMap<String, Trip> trips = new HashMap<>();
     private HashMap<String, Station> stations = new HashMap<>();
     private HashMap<String, Service> services = new HashMap<>();
@@ -117,13 +120,17 @@ public class TransportData {
     }
 
     public List<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId, int minutesFromMidnight) {
+        logger.info(String.format("Add times for service %s from %s to %s at minutes past %s",
+                serviceId, firstStationId, lastStationId, minutesFromMidnight));
         List<ServiceTime> serviceTimes = new ArrayList<>();
         Service service = services.get(serviceId);
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, minutesFromMidnight);
         for (Trip trip : tripsAfter) {
             Stop firstStop = trip.getStop(firstStationId);
             Stop lastStop = trip.getStop(lastStationId);
-            serviceTimes.add(new ServiceTime(firstStop.getDepartureTime(), lastStop.getArrivalTime(), serviceId, trip.getHeadSign()));
+            ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(), lastStop.getArrivalTime(), serviceId, trip.getHeadSign());
+            logger.debug("Adding service time: " + serviceTime);
+            serviceTimes.add(serviceTime);
         }
         return serviceTimes;
     }

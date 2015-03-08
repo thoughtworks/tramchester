@@ -2,6 +2,7 @@ package com.tramchester;
 
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
@@ -31,12 +32,13 @@ public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
     private static String PATH = "data/tram/";
 
-    public void initialise(AppConfiguration configuration) throws Exception {
+    public void initialise(TramchesterConfig configuration) throws Exception {
         if (configuration.isPullData()) {
+            logger.info("Pulling and cleansing data");
             new DataCleanser().main(null);
         }
         logger.info("Creating dependencies");
-        picoContainer.addComponent(AppConfiguration.class, configuration);
+        picoContainer.addComponent(TramchesterConfig.class, configuration);
 
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
@@ -53,7 +55,7 @@ public class Dependencies {
         rebuildGraph(configuration);
     }
 
-    private void rebuildGraph(AppConfiguration configuration) throws IOException {
+    private void rebuildGraph(TramchesterConfig configuration) throws IOException {
         if (configuration.isRebuildGraph()) {
             logger.info("Deleting previous graph db for " + GRAPH_NAME);
             try {
@@ -65,6 +67,7 @@ public class Dependencies {
             picoContainer.addComponent(GraphDatabaseService.class, new GraphDatabaseFactory().newEmbeddedDatabase(GRAPH_NAME));
             picoContainer.getComponent(TransportGraphBuilder.class).buildGraph();
         } else {
+            logger.warn("Not rebuilding graph");
             picoContainer.addComponent(GraphDatabaseService.class, new GraphDatabaseFactory().newEmbeddedDatabase(GRAPH_NAME));
         }
     }

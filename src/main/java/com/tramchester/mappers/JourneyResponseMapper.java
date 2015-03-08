@@ -2,12 +2,15 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.representations.JourneyPlanRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class JourneyResponseMapper {
+    private static final Logger logger = LoggerFactory.getLogger(JourneyResponseMapper.class);
 
     private TransportData transportData;
 
@@ -24,6 +27,7 @@ public class JourneyResponseMapper {
         int minutesPast = 0;
         for (Journey journey : journeys) {
             journey.setSummary(getJourneySummary(journey, stations));
+            logger.info("Add services times for " + journey.getSummary());
             for (Stage stage : journey.getStages()) {
                 List<ServiceTime> times = transportData.getTimes(stage.getServiceId(), stage.getFirstStation(), stage.getLastStation(), minutesFromMidnight + minutesPast);
                 stage.setServiceTimes(times);

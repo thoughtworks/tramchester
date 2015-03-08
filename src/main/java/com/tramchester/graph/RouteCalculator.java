@@ -57,17 +57,24 @@ public class RouteCalculator {
         List<Stage> stages = new ArrayList<>();
         Iterable<Relationship> relationships = path.relationships();
         Stage currentStage = null;
+
         for (Relationship relationship : relationships) {
+            Node startNode = relationship.getStartNode();
+            Node endNode = relationship.getEndNode();
+
             if (relationship.isType(BOARD)) {
-                currentStage = new Stage(relationship.getStartNode().getProperty("id").toString(), relationship.getEndNode().getProperty("route_name").toString(), relationship.getEndNode().getProperty("route_id").toString());
+                logger.info(String.format("board tram: at:'%s' route:'%s' routeId:%s",startNode.getProperty("id"), endNode.getProperty("route_name"), endNode.getProperty("route_id")));
+                currentStage = new Stage(startNode.getProperty("id").toString(), endNode.getProperty("route_name").toString(), endNode.getProperty("route_id").toString());
             } else if (relationship.isType(DEPART)) {
-                currentStage.setLastStation(relationship.getEndNode().getProperty("id").toString());
+                logger.info("depart tram: at:" + endNode.getProperty("id"));
+                currentStage.setLastStation(endNode.getProperty("id").toString());
                 stages.add(currentStage);
             } else if (relationship.isType(GOES_TO)) {
+                //logger.debug("GOES_TO: service:" + relationship.getProperty("service_id"));
                 currentStage.setServiceId(relationship.getProperty("service_id").toString());
             }
         }
-
+        logger.info("Number of stages: " + stages.size());
         return new Journey(stages);
     }
 

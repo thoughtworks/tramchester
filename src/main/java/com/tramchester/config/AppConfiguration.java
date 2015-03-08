@@ -6,7 +6,7 @@ import io.dropwizard.Configuration;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AppConfiguration extends Configuration {
+public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("rebuildGraph")
     private boolean rebuildGraph;
 

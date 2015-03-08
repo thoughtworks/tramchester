@@ -48,7 +48,11 @@ public class ServiceTime {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("[%s %s %s %s %s]", serviceId, headSign, DateTimeService.formatTime(departureTime), DateTimeService.formatTime(arrivalTime)));
+        sb.append(String.format("[%s %s %s %s]",
+                serviceId,
+                headSign,
+                DateTimeService.formatTime(departureTime),
+                DateTimeService.formatTime(arrivalTime)));
         return sb.toString();
     }
 }
