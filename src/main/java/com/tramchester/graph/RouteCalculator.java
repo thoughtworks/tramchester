@@ -3,10 +3,12 @@ package com.tramchester.graph;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Stage;
+import org.joda.time.DateTime;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.traversal.InitialBranchState;
+import org.neo4j.graphdb.traversal.TraversalMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +16,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static com.tramchester.graph.GraphStaticKeys.Station;
@@ -37,10 +42,10 @@ public class RouteCalculator {
         Set<Journey> journeys = new HashSet<>();
         try (Transaction tx = db.beginTx()) {
 
-            Iterable<WeightedPath> paths = findShortestPath(start, end, time, dayOfWeek);
+            Iterable<WeightedPath> pathIterator = findShortestPath(start, end, time, dayOfWeek);
             int index = 0;
-
-            for (WeightedPath path : paths) {
+            // todo eliminate duplicate journeys
+            for (WeightedPath path : pathIterator) {
                 Journey journey = mapJourney(path);
                 journey.setJourneyIndex(index++);
                 journeys.add(journey);
@@ -48,7 +53,6 @@ public class RouteCalculator {
                     break;
                 }
             }
-
             tx.success();
         }
         return journeys;
@@ -56,16 +60,24 @@ public class RouteCalculator {
 
     private Journey mapJourney(WeightedPath path) {
         List<Stage> stages = new ArrayList<>();
-        Iterable<Relationship> relationships = path.relationships();
         Stage currentStage = null;
 
+        Iterable<Relationship> relationships = path.relationships();
+
+        int totalCost = 0;
         for (Relationship relationship : relationships) {
             Node startNode = relationship.getStartNode();
             Node endNode = relationship.getEndNode();
-
-            if (relationship.isType(BOARD)) {
-                logger.info(String.format("board tram: at:'%s' route:'%s' routeId:%s",startNode.getProperty("id"), endNode.getProperty("route_name"), endNode.getProperty("route_id")));
-                currentStage = new Stage(startNode.getProperty("id").toString(), endNode.getProperty("route_name").toString(), endNode.getProperty("route_id").toString());
+            int cost = Integer.parseInt(relationship.getProperty("cost").toString());
+            totalCost += cost;
+            if (relationship.isType(BOARD) || relationship.isType(INTERCHANGE)) {
+                logger.info(String.format("board tram: at:'%s' route:'%s' routeId:%s",
+                        startNode.getProperty("id"),
+                        endNode.getProperty("route_name"),
+                        endNode.getProperty("route_id")));
+                currentStage = new Stage(startNode.getProperty("id").toString(),
+                        endNode.getProperty("route_name").toString(),
+                        endNode.getProperty("route_id").toString());
             } else if (relationship.isType(DEPART)) {
                 logger.info("depart tram: at:" + endNode.getProperty("id"));
                 currentStage.setLastStation(endNode.getProperty("id").toString());
@@ -74,7 +86,7 @@ public class RouteCalculator {
                 currentStage.setServiceId(relationship.getProperty("service_id").toString());
             }
         }
-        logger.info("Number of stages: " + stages.size());
+        logger.info(String.format("Number of stages: %s Total cost:%s ",stages.size(), totalCost));
         return new Journey(stages);
     }
 
@@ -90,7 +102,9 @@ public class RouteCalculator {
                 new InitialBranchState.State<>(state, state),
                 COST_EVALUATOR);
 
-        return pathFinder.findAllPaths(startNode, endNode);
+        Iterable<WeightedPath> allPaths = pathFinder.findAllPaths(startNode, endNode);
+
+        return allPaths;
     }
 
     private Index<Node> getStationsIndex() {

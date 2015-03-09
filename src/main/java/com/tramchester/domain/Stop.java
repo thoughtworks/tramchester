@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.services.DateTimeService;
 import org.joda.time.DateTime;
 
 public class Stop {
@@ -42,5 +43,18 @@ public class Stop {
 
     public int getMinutesFromMidnight() {
         return minutesFromMidnight;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Stop{" +
+                "arrivalTime=" + DateTimeService.formatTime(arrivalTime) +
+                ", departureTime=" + DateTimeService.formatTime(departureTime) +
+                ", station=" + station +
+                ", stopSequence='" + stopSequence + '\'' +
+                ", stopType=" + stopType +
+                ", minutesFromMidnight=" + minutesFromMidnight +
+                '}';
     }
 }

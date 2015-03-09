@@ -16,6 +16,16 @@ import java.util.List;
 
 public class TransportGraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
+
+    public static final String CORNBROOK = "9400ZZMACRN";
+    public static final String ST_PETERS_SQUARE = "9400ZZMASTP";
+    private static final String PIC_GARDENS = "9400ZZMAPGD";
+    private static final String TRAF_BAR = "9400ZZMATRA";
+    private static final String ST_WS_ROAD = "9400ZZMASTW";
+    private static final String VICTORIA = "9400ZZMAVIC";
+    public static final List<String> interchanges = Arrays.asList(new String[]{
+            CORNBROOK, ST_PETERS_SQUARE, PIC_GARDENS, TRAF_BAR, ST_WS_ROAD, VICTORIA});
+
     private GraphDatabaseService graphDatabaseService;
     private TransportData transportData;
     private Index<Node> routeStations = null;
@@ -36,11 +46,15 @@ public class TransportGraphBuilder {
                     for (Trip trip : service.getTrips()) {
                         List<Stop> stops = trip.getStops();
                         for (int i = 0; i < stops.size() - 1; i++) {
-                            Node from = getRouteStation(stops.get(i).getStation(), route);
-                            Node to = getRouteStation(stops.get(i + 1).getStation(), route);
-                            createRelationship(from, to, TransportRelationshipTypes.GOES_TO, stops.get(i),
-                                    stops.get(i + 1).getMinutesFromMidnight() - stops.get(i).getMinutesFromMidnight(),
-                                    service, route, trip);
+                            Stop currentStop = stops.get(i);
+                            Stop nextStop = stops.get(i + 1);
+
+                            Node from = getRouteStation(currentStop.getStation(), route);
+                            Node to = getRouteStation(nextStop.getStation(), route);
+
+                            int duration = nextStop.getMinutesFromMidnight() - currentStop.getMinutesFromMidnight();
+                            createOrUpdateRelationship(from, to, TransportRelationshipTypes.GOES_TO, currentStop,
+                                    duration, service, route, trip);
                         }
                     }
                 }
@@ -111,12 +125,12 @@ public class TransportGraphBuilder {
             node.setProperty("route_id", route.getId());
             getRouteStationsIndex().add(node, "id", station.getId() + route.getId());
 
-
-            Relationship boardRelationshipTo = stationNode.createRelationshipTo(node, TransportRelationshipTypes.BOARD);
-            if (stationNode.getProperty("id").equals("9400ZZMACRN")) {
+            if (preferedInterchange(stationNode)) {
+                Relationship boardRelationshipTo = stationNode.createRelationshipTo(node, TransportRelationshipTypes.INTERCHANGE);
                 boardRelationshipTo.setProperty("cost", 3);
             } else {
-                boardRelationshipTo.setProperty("cost", 5);
+                Relationship boardRelationshipTo = stationNode.createRelationshipTo(node, TransportRelationshipTypes.BOARD);
+                boardRelationshipTo.setProperty("cost", 5); // was 5
             }
             Relationship departRelationship = node.createRelationshipTo(stationNode, TransportRelationshipTypes.DEPART);
             departRelationship.setProperty("cost", 0);
@@ -124,28 +138,47 @@ public class TransportGraphBuilder {
         return node;
     }
 
-    private Relationship createRelationship(Node node1, Node node2, TransportRelationshipTypes transportRelationshipType, Stop stop, int cost, Service service, Route route, Trip trip) {
+    private boolean preferedInterchange(Node stationNode) {
+        return interchanges.contains(stationNode.getProperty("id"));
+    }
 
-        Relationship relationship = getRelationship(service, node1);
+    private Relationship createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
+                                                    Stop stop, int cost, Service service, Route route, Trip trip) {
+        // Confusingly some services can go different routes and hence have different GOES relationships from
+        // the same node, so we have to check both start and end nodes for each relationship
+
+        Relationship relationship = getRelationship(service, start, end);
 
         if (relationship == null && runsAtLeastADay(service.getDays())) {
-            logger.info("create relationship from " + node1.getProperty("id") + " to " + node2.getProperty("id") + " for route " + route.getName());
-            List<Integer> times = new ArrayList<>();
-            List<String> trips = new ArrayList<>();
-            times.add(stop.getMinutesFromMidnight());
-            trips.add(trip.getTripId());
-            relationship = node1.createRelationshipTo(node2, transportRelationshipType);
-            relationship.setProperty("times", toIntArray(times));
-            relationship.setProperty("cost", cost);
-            relationship.setProperty("service_id", service.getServiceId());
-            relationship.setProperty("days", toBoolArray(service.getDays()));
-            relationship.setProperty("route", route.getCode());
-            relationship.setProperty("route_name", route.getName());
+            relationship = createRelationship(start, end, transportRelationshipType, stop, cost, service, route);
         } else if (relationship != null) {
+            // services run particular days, so no need to update that here
+            int fromMidnight = stop.getMinutesFromMidnight();
             int[] times = (int[]) relationship.getProperty("times");
-            relationship.setProperty("times", toIntArray(times, stop.getMinutesFromMidnight()));
+            relationship.setProperty("times", toIntArray(times, fromMidnight));
+            int earliest = Integer.parseInt(relationship.getProperty("earliest").toString());
+            if (fromMidnight<earliest) {
+                relationship.setProperty("earliest", fromMidnight);
+            }
         }
 
+        return relationship;
+    }
+
+    private Relationship createRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType, Stop stop, int cost, Service service, Route route) {
+        Relationship relationship;
+        logger.info("create relationship from " + start.getProperty("id") + " to " + end.getProperty("id") + " for route " + route.getName());
+        List<Integer> times = new ArrayList<>();
+        int minutesFromMidnight = stop.getMinutesFromMidnight();
+        times.add(minutesFromMidnight);
+        relationship = start.createRelationshipTo(end, transportRelationshipType);
+        relationship.setProperty("times", toIntArray(times));
+        relationship.setProperty("earliest", minutesFromMidnight);
+        relationship.setProperty("cost", cost);
+        relationship.setProperty("service_id", service.getServiceId());
+        relationship.setProperty("days", toBoolArray(service.getDays()));
+        relationship.setProperty("route", route.getCode());
+        relationship.setProperty("route_name", route.getName());
         return relationship;
     }
 
@@ -188,11 +221,14 @@ public class TransportGraphBuilder {
         return array;
     }
 
-    private Relationship getRelationship(Service service, Node node1) {
-        Iterable<Relationship> relationships = node1.getRelationships(Direction.OUTGOING);
+    private Relationship getRelationship(Service service, Node startNode, Node end) {
+        Iterable<Relationship> relationships = startNode.getRelationships(Direction.OUTGOING);
         for (Relationship relationship : relationships) {
-            if (relationship.hasProperty("service_id") && relationship.getProperty("service_id").toString().equals(service.getServiceId())) {
-                return relationship;
+            if (relationship.getEndNode().getId()==end.getId()) {
+                if (relationship.hasProperty("service_id") &&
+                        relationship.getProperty("service_id").toString().equals(service.getServiceId())) {
+                    return relationship;
+                }
             }
         }
         return null;

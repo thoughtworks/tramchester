@@ -47,19 +47,21 @@ public class ServiceTime {
         return Minutes.minutesBetween(this.departureTime, this.arrivalTime).getMinutes();
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("[%s %s %s %s %s]",
-                serviceId,
-                headSign,
-                DateTimeService.formatTime(departureTime),
-                DateTimeService.formatTime(arrivalTime), fromMidnight));
-        return sb.toString();
-    }
+
 
     public int getFromMidnight() {
         return fromMidnight;
+    }
+
+    @Override
+    public String toString() {
+        return "ServiceTime{" +
+                "departureTime=" + DateTimeService.formatTime(departureTime) +
+                ", arrivalTime=" + DateTimeService.formatTime(arrivalTime) +
+                ", serviceId='" + serviceId + '\'' +
+                ", headSign='" + headSign + '\'' +
+                ", fromMidnight=" + fromMidnight +
+                '}';
     }
 }
 

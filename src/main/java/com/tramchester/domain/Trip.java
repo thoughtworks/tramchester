@@ -1,9 +1,14 @@
 package com.tramchester.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Trip {
+    private static final Logger logger = LoggerFactory.getLogger(Trip.class);
+
     private String tripId;
     private String headSign;
     private List<Stop> stops = new ArrayList<>();
@@ -25,9 +30,29 @@ public class Trip {
         stops.add(stop);
     }
 
-    public boolean isAfter(int minutesFromMidnight, String stationId) {
+//    public boolean isAfter(int minutesFromMidnight, String originStation) {
+//        for (Stop stop : stops) {
+//            String stopStationId = stop.getStation().getId();
+//            if (stopStationId.equals(originStation) && stop.getMinutesFromMidnight() > minutesFromMidnight) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+    public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
+        boolean seenFirst = false;
+        boolean seenSecond = false;
         for (Stop stop : stops) {
-            if (stop.getStation().getId().equals(stationId) && stop.getMinutesFromMidnight() > minutesFromMidnight) {
+            if (stop.getMinutesFromMidnight()>=minutesFromMidnight) {
+                String stopStationId = stop.getStation().getId();
+                if (firstStationId.equals(stopStationId)) {
+                    seenFirst = true;
+                } else if (lastStationId.equals(stopStationId)) {
+                    seenSecond = true;
+                }
+            }
+            if (seenFirst && seenSecond) {
                 return true;
             }
         }
@@ -40,10 +65,21 @@ public class Trip {
                 return stop;
             }
         }
+        logger.error(String.format("Could not find a stop in trip %s for station %s", tripId, stationId));
         return null;
     }
 
     public String getHeadSign() {
         return headSign;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Trip{" +
+                "tripId='" + tripId + '\'' +
+                ", headSign='" + headSign + '\'' +
+                ", stops=" + stops +
+                '}';
     }
 }

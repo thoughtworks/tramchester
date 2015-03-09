@@ -85,4 +85,16 @@ public class Stage {
         }
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return "Stage{" +
+                "firstStation='" + firstStation + '\'' +
+                ", route='" + route + '\'' +
+                ", routeId='" + routeId + '\'' +
+                ", lastStation='" + lastStation + '\'' +
+                ", serviceId='" + serviceId + '\'' +
+                ", serviceTimes=" + serviceTimes +
+                '}';
+    }
 }

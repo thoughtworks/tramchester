@@ -53,4 +53,14 @@ public class Journey {
     public void setJourneyIndex(int journeyIndex) {
         this.journeyIndex = journeyIndex;
     }
+
+
+    @Override
+    public String toString() {
+        return "Journey{" +
+                "stages=" + stages +
+                ", summary='" + summary + '\'' +
+                ", journeyIndex=" + journeyIndex +
+                '}';
+    }
 }

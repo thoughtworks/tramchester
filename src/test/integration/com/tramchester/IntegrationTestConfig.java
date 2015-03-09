@@ -16,6 +16,7 @@ public class IntegrationTestConfig extends TramchesterConfig {
     @Override
     public boolean isRebuildGraph() {
         return rebuildNeeded;
+//        return true;
     }
 
     @Override

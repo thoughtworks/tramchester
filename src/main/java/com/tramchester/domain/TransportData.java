@@ -120,11 +120,12 @@ public class TransportData {
     }
 
     public List<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId, int minutesFromMidnight) {
-        logger.info(String.format("Add times for service %s from %s to %s at minutes past %s",
+        logger.info(String.format("Get times for service %s from %s to %s at minutes past %s",
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
         List<ServiceTime> serviceTimes = new ArrayList<>();
         Service service = services.get(serviceId);
-        List<Trip> tripsAfter = service.getTripsAfter(firstStationId, minutesFromMidnight);
+
+        List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight);
         for (Trip trip : tripsAfter) {
             Stop firstStop = trip.getStop(firstStationId);
             Stop lastStop = trip.getStop(lastStationId);
@@ -133,7 +134,7 @@ public class TransportData {
             ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(),
                     lastStop.getArrivalTime(), serviceId, trip.getHeadSign(), fromMidnight);
 
-            logger.debug(String.format("Add trip: %s with minutes offset %s", serviceTime, fromMidnight));
+            logger.info(String.format("Add service time: %s ", serviceTime));
             serviceTimes.add(serviceTime);
         }
         return serviceTimes;

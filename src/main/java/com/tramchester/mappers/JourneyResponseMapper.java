@@ -25,21 +25,27 @@ public class JourneyResponseMapper {
     }
 
     private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations, int originMinutesFromMidnight) {
-        int journeyClock = originMinutesFromMidnight;
         for (Journey journey : journeys) {
+            int journeyClock = originMinutesFromMidnight;
+
             journey.setSummary(getJourneySummary(journey, stations));
-            logger.info("Add services times for " + journey.getSummary());
+            logger.info("Add services times for " + journey.toString());
             for (Stage stage : journey.getStages()) {
-                logger.info(String.format("Journey clock is now %s ", journeyClock));
+                logger.info(String.format("ServiceId: %s Journey clock is now %s ", stage.getServiceId(), journeyClock));
 
                 List<ServiceTime> times = transportData.getTimes(stage.getServiceId(),
                         stage.getFirstStation(), stage.getLastStation(), journeyClock);
                 stage.setServiceTimes(times);
-                int departsAtMinutes = findEarliestDepartureTime(times);
-                int duration = stage.getDuration();
-                journeyClock = departsAtMinutes + duration;
-                logger.info(String.format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
-                        duration, departsAtMinutes, journeyClock));
+                if (times.size() > 0) {
+                    int departsAtMinutes = findEarliestDepartureTime(times);
+                    int duration = stage.getDuration();
+                    journeyClock = departsAtMinutes + duration;
+                    logger.info(String.format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
+                            duration, departsAtMinutes, journeyClock));
+                } else {
+                    logger.error("Cannot complete journey, no times for stage available");
+                    break;
+                }
             }
         }
         return journeys;
@@ -47,10 +53,10 @@ public class JourneyResponseMapper {
 
     private int findEarliestDepartureTime(List<ServiceTime> times) {
         int earliest = Integer.MAX_VALUE;
-        for(ServiceTime time : times) {
-           if (time.getFromMidnight()<earliest) {
-               earliest = time.getFromMidnight();
-           }
+        for (ServiceTime time : times) {
+            if (time.getFromMidnight() < earliest) {
+                earliest = time.getFromMidnight();
+            }
         }
         return earliest;
     }

@@ -8,6 +8,11 @@ public class Station {
     private final double longitude;
     private String proximityGroup;
 
+    @Override
+    public String toString() {
+        return String.format("Station: [%s %s]",id,code);
+    }
+
     public Station(String id, String code, String name, double latitude, double longitude) {
 
         this.id = id;

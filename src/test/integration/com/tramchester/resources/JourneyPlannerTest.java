@@ -4,9 +4,7 @@ package com.tramchester.resources;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Stage;
+import com.tramchester.domain.*;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -14,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -41,12 +40,37 @@ public class JourneyPlannerTest {
     }
 
     @Test
-    public void testAltyToManAirport() throws Exception {
+    public void testAltyToManAirportHasRealisticTranferAtCornbrook() throws Exception {
         JourneyPlanRepresentation results = planner.createJourneyPlan(Stations.Altrincham, Stations.ManAirport, "11:43:00", DaysOfWeek.Sunday);
         Set<Journey> journeys = results.getJourneys();
 
         assertEquals(1, journeys.size());
         checkDepartsAfterPreviousArrival(journeys);
+    }
+
+    @Test
+    public void testVeloParkToPeelHallPeformanceIssue() {
+        JourneyPlanRepresentation results = planner.createJourneyPlan(Stations.VeloPark, Stations.PeelHall, "12:00:00", DaysOfWeek.Monday);
+        Set<Journey> journeys = results.getJourneys();
+
+        assertEquals(2, journeys.size());
+        checkDepartsAfterPreviousArrival(journeys);
+    }
+
+    @Test
+    public void testEachStationToEveryOther() {
+        TransportData data = dependencies.get(TransportData.class);
+        List<Station> allStations = data.getStations();
+        for(Station start : allStations) {
+            for(Station end: allStations) {
+                String startCode = start.getId();
+                String endCode = end.getId();
+                if (!startCode.equals(endCode)) {
+                    JourneyPlanRepresentation results = planner.createJourneyPlan(startCode, endCode, "12:00:00", DaysOfWeek.Monday);
+                    assertTrue(results.getJourneys().size() > 0);
+                }
+            }
+        }
     }
 
     private void checkDepartsAfterPreviousArrival(Set<Journey> journeys) {
