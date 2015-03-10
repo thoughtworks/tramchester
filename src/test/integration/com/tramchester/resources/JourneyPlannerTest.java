@@ -48,6 +48,8 @@ public class JourneyPlannerTest {
         checkDepartsAfterPreviousArrival(journeys);
     }
 
+    // related helpful cypher query:
+    // match (start { id: "9400ZZMAVPKMET:MET4:O:"} )-[route]->dest return route
     @Test
     public void testVeloParkToPeelHallPeformanceIssue() {
         JourneyPlanRepresentation results = planner.createJourneyPlan(Stations.VeloPark, Stations.PeelHall, "12:00:00", DaysOfWeek.Monday);

@@ -20,7 +20,7 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
 public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private static final Logger logger = LoggerFactory.getLogger(TimeBasedPathExpander.class);
-    private static final int MAX_WAIT_TIME = 15;
+    private static final int MAX_WAIT_TIME = 15; // todo into config
     private CostEvaluator<Double> costEvaluator;
 
     public TimeBasedPathExpander(CostEvaluator<Double> costEvaluator) {
@@ -43,8 +43,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 boolean[] days = (boolean[]) relationship.getProperty(DAYS);
                 int[] times = (int[]) relationship.getProperty(TIMES);
                 if (operatesOnDay(days, state.getState().getDay())
-                        && operatesOnTime(times, elapsedTime)
-                        && reasonableTime(relationship, elapsedTime)) {
+                        && operatesOnTime(times, elapsedTime)) {
                     results.add(relationship);
                 }
             } else {
@@ -55,19 +54,6 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
             logger.warn("Duration >90mins at node " + path.endNode().getProperty("id"));
         }
         return results;
-    }
-
-    private boolean reasonableTime(Relationship relationship, int elapsedTime) {
-        if (relationship.hasProperty("earliest")) {
-            int earliest = Integer.parseInt(relationship.getProperty("earliest").toString());
-            if ((earliest-elapsedTime)>15) {
-                logger.warn(String.format("Excluding relationship as earliest time too far out current:%s earliest:%s",elapsedTime,earliest));
-                return false;
-            }
-        } else {
-            logger.error("earliest time missing from relationship " + relationship.getId());
-        }
-       return true;
     }
 
     private Set<Relationship> getRelationships(Path path) {
@@ -95,15 +81,19 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     }
 
     private boolean operatesOnTime(int[] times, int currentTime) {
+        // the times array is sorted in ascending order
         for (int i = 0; i < times.length - 1; i++) {
             int timeA = times[i];
             int timeB = times[i + 1];
-            if (currentTime >= timeA && currentTime <= timeB) {
-                // make sure next service does not depart too far in the future
-                if ((timeB-currentTime)<MAX_WAIT_TIME) {
-                    return true;
-                }
+            if ((timeB-currentTime)>MAX_WAIT_TIME) {
+                // next tram too far in future, so stop searching now
+                return false;
             }
+
+            if (currentTime >= timeA && currentTime <= timeB)   {
+                return true;
+            }
+
         }
         return false;
     }

@@ -1,13 +1,16 @@
 package com.tramchester.graph;
 
 
+import com.sun.javafx.collections.SortHelper;
 import com.tramchester.domain.*;
+import javafx.collections.transformation.SortedList;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,7 +117,6 @@ public class TransportGraphBuilder {
     private Node getRouteStation(Station station, Route route) {
         Node stationNode = getStation(station);
 
-
         Node node = getRouteStationsIndex().get("id", station.getId() + route.getId()).getSingle();
 
         if (node == null) {
@@ -146,6 +148,7 @@ public class TransportGraphBuilder {
                                                     Stop stop, int cost, Service service, Route route, Trip trip) {
         // Confusingly some services can go different routes and hence have different GOES relationships from
         // the same node, so we have to check both start and end nodes for each relationship
+        SortHelper helper = new SortHelper();
 
         Relationship relationship = getRelationship(service, start, end);
 
@@ -154,12 +157,16 @@ public class TransportGraphBuilder {
         } else if (relationship != null) {
             // services run particular days, so no need to update that here
             int fromMidnight = stop.getMinutesFromMidnight();
-            int[] times = (int[]) relationship.getProperty("times");
-            relationship.setProperty("times", toIntArray(times, fromMidnight));
-            int earliest = Integer.parseInt(relationship.getProperty("earliest").toString());
-            if (fromMidnight<earliest) {
-                relationship.setProperty("earliest", fromMidnight);
+
+            int[] array = (int[]) relationship.getProperty("times");
+            if (Arrays.binarySearch(array,fromMidnight)<0) {
+                int[] newTimes = Arrays.copyOf(array, array.length + 1);
+                newTimes[array.length] = fromMidnight;
+                // keep times sorted
+                Arrays.sort(newTimes);
+                relationship.setProperty("times", newTimes);
             }
+
         }
 
         return relationship;
@@ -168,12 +175,10 @@ public class TransportGraphBuilder {
     private Relationship createRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType, Stop stop, int cost, Service service, Route route) {
         Relationship relationship;
         logger.info("create relationship from " + start.getProperty("id") + " to " + end.getProperty("id") + " for route " + route.getName());
-        List<Integer> times = new ArrayList<>();
         int minutesFromMidnight = stop.getMinutesFromMidnight();
-        times.add(minutesFromMidnight);
         relationship = start.createRelationshipTo(end, transportRelationshipType);
-        relationship.setProperty("times", toIntArray(times));
-        relationship.setProperty("earliest", minutesFromMidnight);
+        int[] times = new int[] {minutesFromMidnight};
+        relationship.setProperty("times", times);
         relationship.setProperty("cost", cost);
         relationship.setProperty("service_id", service.getServiceId());
         relationship.setProperty("days", toBoolArray(service.getDays()));
@@ -198,28 +203,28 @@ public class TransportGraphBuilder {
         return daysArray;
     }
 
-    private int[] toIntArray(int[] times, int minutesFromMidnight) {
-        if (Arrays.binarySearch(times, minutesFromMidnight) < 0) {
+//    private int[] toIntArray(int[] times, int minutesFromMidnight) {
+//        if (Arrays.binarySearch(times, minutesFromMidnight) < 0) {
+//
+//            int[] array = new int[times.length + 1];
+//            for (int i = 0; i < times.length; i++) {
+//                array[i] = times[i];
+//            }
+//            array[times.length] = minutesFromMidnight;
+//            return array;
+//        } else {
+//            return times;
+//        }
+//    }
 
-            int[] array = new int[times.length + 1];
-            for (int i = 0; i < times.length; i++) {
-                array[i] = times[i];
-            }
-            array[times.length] = minutesFromMidnight;
-            return array;
-        } else {
-            return times;
-        }
-    }
-
-    private int[] toIntArray(List<Integer> times) {
-        int[] array = new int[times.size()];
-        for (int i = 0; i < times.size(); i++) {
-            array[i] = times.get(i);
-        }
-        Arrays.sort(array);
-        return array;
-    }
+//    private int[] toIntArray(List<Integer> times) {
+//        int[] array = new int[times.size()];
+//        for (int i = 0; i < times.size(); i++) {
+//            array[i] = times.get(i);
+//        }
+//        Arrays.sort(array);
+//        return array;
+//    }
 
     private Relationship getRelationship(Service service, Node startNode, Node end) {
         Iterable<Relationship> relationships = startNode.getRelationships(Direction.OUTGOING);
