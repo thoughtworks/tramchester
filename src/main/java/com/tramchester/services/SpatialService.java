@@ -1,6 +1,7 @@
 package com.tramchester.services;
 
 import com.tramchester.domain.Station;
+import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
@@ -33,7 +34,7 @@ public class SpatialService {
             int count = 0;
 
             for (Node node : nearestStations) {
-                String id = node.getProperty("id").toString();
+                String id = node.getProperty(GraphStaticKeys.Station.ID).toString();
                 Station nearestStation = getStation(stations, id);
                 if (nearestStation != null) {
                     nearestStation.setProximityGroup("Nearest Stops");

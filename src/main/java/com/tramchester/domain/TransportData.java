@@ -4,24 +4,23 @@ import com.tramchester.dataimport.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class TransportData {
     private static final Logger logger = LoggerFactory.getLogger(TransportData.class);
-    private HashMap<String, Trip> trips = new HashMap<>();
-    private HashMap<String, Station> stations = new HashMap<>();
-    private HashMap<String, Service> services = new HashMap<>();
-    private HashMap<String, Route> routes = new HashMap<>();
+    private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
+    private HashMap<String, Station> stations = new HashMap<>();  // station id -> station
+    private HashMap<String, Service> services = new HashMap<>();  // service id -> service
+    private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
 
 
     public TransportData(Stream<StopData> stopDataList, Stream<RouteData> routeDataList, Stream<TripData> tripDataList,
                          Stream<StopTimeData> stopTimeDataList, Stream<CalendarData> calendarDataList) {
         stopDataList.forEach((stopData) -> {
             if (!stations.keySet().contains(stopData.getId())) {
-                stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getCode(), stopData.getName(), stopData.getLatitude(), stopData.getLongitude()));
+                stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getCode(), stopData.getName(),
+                        stopData.getLatitude(), stopData.getLongitude()));
             }
         } );
 
@@ -31,8 +30,8 @@ public class TransportData {
         } );
 
         tripDataList.forEach((tripData) -> {
-            Trip trip = getTrip(tripData.getTripId(), tripData.getTripHeadsign());
-            Service service = getService(tripData.getServiceId());
+            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), tripData.getServiceId());
+            Service service = getOrInsertService(tripData.getServiceId(), tripData.getRouteId());
             Route route = routes.get(tripData.getRouteId());
             if (route != null) {
                 service.addTrip(trip);
@@ -57,7 +56,6 @@ public class TransportData {
             Service service = services.get(calendar.getServiceId());
 
             if (service != null) {
-              //  if (calendar.getStart().equals(new DateTime(2015, 01, 05, 0, 0, 0))) {
                     service.setDays(
                             calendar.isMonday(),
                             calendar.isTuesday(),
@@ -67,25 +65,28 @@ public class TransportData {
                             calendar.isSaturday(),
                             calendar.isSunday()
                     );
-//                } else {
-//                    services.remove(calendar.getServiceId());
-//                }
             }
         } );
 
+        // update svcs where calendar data is missing
+        services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
+            logger.warn(String.format("Service %s is missing calendar information", svc.getServiceId()));
+            svc.setDays(false, false, false, false, false, false, false);
+        });
+
     }
 
-    private Trip getTrip(String tripId, String tripHeadsign) {
+    private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId) {
         if (!trips.keySet().contains(tripId)) {
-            trips.put(tripId, new Trip(tripId, tripHeadsign));
+            trips.put(tripId, new Trip(tripId, tripHeadsign, serviceId));
         }
         return trips.get(tripId);
     }
 
 
-    private Service getService(String serviceId) {
+    private Service getOrInsertService(String serviceId, String routeId) {
         if (!services.keySet().contains(serviceId)) {
-            services.put(serviceId, new Service(serviceId));
+            services.put(serviceId, new Service(serviceId, routeId));
         }
         return services.get(serviceId);
     }
@@ -119,13 +120,15 @@ public class TransportData {
         return stations.get(stationId);
     }
 
-    public List<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId, int minutesFromMidnight) {
+    public List<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId,
+                                      int minutesFromMidnight, int maxNumberOfTrips) {
         logger.info(String.format("Get times for service %s from %s to %s at minutes past %s",
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
         List<ServiceTime> serviceTimes = new ArrayList<>();
         Service service = services.get(serviceId);
 
-        List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight);
+        List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,
+                maxNumberOfTrips);
         for (Trip trip : tripsAfter) {
             Stop firstStop = trip.getStop(firstStationId);
             Stop lastStop = trip.getStop(lastStationId);
@@ -138,5 +141,23 @@ public class TransportData {
             serviceTimes.add(serviceTime);
         }
         return serviceTimes;
+    }
+
+    public Service getService(String svcId) {
+        return services.get(svcId);
+    }
+
+    public Collection<Service> getServices() {
+        return services.values();
+    }
+
+    public List<Trip> getTripsFor(String stationId) {
+        List<Trip> callingTrips = new LinkedList<>();
+        trips.values().forEach(trip -> {
+            if (trip.getStop(stationId)!=null) {
+                callingTrips.add(trip);
+            }
+        });
+        return callingTrips;
     }
 }

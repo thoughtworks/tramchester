@@ -72,4 +72,5 @@ public class DataLoaderTest {
         assertThat(tripData.get(0).getServiceId()).isEqualTo("Serv000001");
         assertThat(tripData.get(0).getRouteId()).isEqualTo("MET:MET1:I:");
     }
+
 }

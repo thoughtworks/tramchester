@@ -8,14 +8,16 @@ import java.util.List;
 
 public class Trip {
     private static final Logger logger = LoggerFactory.getLogger(Trip.class);
+    private final String serviceId;
 
     private String tripId;
     private String headSign;
     private List<Stop> stops = new ArrayList<>();
 
-    public Trip(String tripId, String headSign) {
+    public Trip(String tripId, String headSign, String serviceId) {
         this.tripId = tripId;
         this.headSign = headSign;
+        this.serviceId = serviceId;
     }
 
     public String getTripId() {
@@ -73,13 +75,17 @@ public class Trip {
         return headSign;
     }
 
-
     @Override
     public String toString() {
         return "Trip{" +
                 "tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +
+                ", service='" + serviceId + '\'' +
                 ", stops=" + stops +
                 '}';
+    }
+
+    public String getServiceId() {
+        return serviceId;
     }
 }

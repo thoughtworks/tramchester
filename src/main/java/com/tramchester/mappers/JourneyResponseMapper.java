@@ -4,7 +4,6 @@ import com.tramchester.domain.*;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Int;
 
 import java.util.HashSet;
 import java.util.List;
@@ -19,12 +18,14 @@ public class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    public JourneyPlanRepresentation map(Set<Journey> journeys, int minutesFromMidnight) {
+    public JourneyPlanRepresentation map(Set<Journey> journeys, int minutesFromMidnight, int maxNumberOfTrips) {
         Set<Station> stations = getStations(journeys);
-        return new JourneyPlanRepresentation(decorateJourneys(journeys, stations, minutesFromMidnight), stations);
+        return new JourneyPlanRepresentation(decorateJourneys(journeys, stations, minutesFromMidnight, maxNumberOfTrips), stations);
     }
 
-    private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations, int originMinutesFromMidnight) {
+    private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations,
+                                          int originMinutesFromMidnight, int maxNumberOfTrips) {
+        logger.info("Decorating the discovered journeys " + journeys.size());
         for (Journey journey : journeys) {
             int journeyClock = originMinutesFromMidnight;
 
@@ -34,7 +35,7 @@ public class JourneyResponseMapper {
                 logger.info(String.format("ServiceId: %s Journey clock is now %s ", stage.getServiceId(), journeyClock));
 
                 List<ServiceTime> times = transportData.getTimes(stage.getServiceId(),
-                        stage.getFirstStation(), stage.getLastStation(), journeyClock);
+                        stage.getFirstStation(), stage.getLastStation(), journeyClock, maxNumberOfTrips);
                 stage.setServiceTimes(times);
                 if (times.size() > 0) {
                     int departsAtMinutes = findEarliestDepartureTime(times);

@@ -1,7 +1,11 @@
 package com.tramchester.graph;
 
-import com.google.common.collect.Lists;
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.Relationships.GoesToRelationship;
+import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.graph.Relationships.TramRelationship;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
@@ -10,117 +14,137 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
-import static org.neo4j.graphdb.DynamicRelationshipType.withName;
-
 public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private static final Logger logger = LoggerFactory.getLogger(TimeBasedPathExpander.class);
-    private static final int MAX_WAIT_TIME = 15; // todo into config
-    private CostEvaluator<Double> costEvaluator;
 
-    public TimeBasedPathExpander(CostEvaluator<Double> costEvaluator) {
+    private final NodeFactory nodeFactory;
+    private CostEvaluator<Double> costEvaluator;
+    private int maxWaitMinutes;
+    private RelationshipFactory relationshipFactory;
+
+    public TimeBasedPathExpander(CostEvaluator<Double> costEvaluator, int maxWaitMinutes) {
+        this.nodeFactory = new NodeFactory();
         this.costEvaluator = costEvaluator;
+        this.maxWaitMinutes = maxWaitMinutes;
+        relationshipFactory = new RelationshipFactory();
     }
 
     @Override
     public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> state) {
+        GraphBranchState branchState = state.getState();
+
+        TramNode currentNode = nodeFactory.getNode(path.endNode());
+        Set<Relationship> relationships = currentNode.getRelationships();
+
+        if (path.length()==0) {
+            return relationships;
+        }
+
+        TramRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
         List<Relationship> results = new ArrayList<>();
 
         int duration = (int)new WeightedPathImpl(costEvaluator, path).weight();
-        int journeyStartTime = state.getState().getTime();
+        int journeyStartTime = branchState.getTime();
         int elapsedTime = duration + journeyStartTime;
+        List<GoesToRelationship> servicesFilteredOut = new ArrayList<>();
+        int servicesOutbound = 0;
 
-        Set<Relationship> relationships = getRelationships(path);
-
-        for (Relationship relationship : relationships) {
-
-            if (relationship.isType(TransportRelationshipTypes.GOES_TO)) {
-                boolean[] days = (boolean[]) relationship.getProperty(DAYS);
-                int[] times = (int[]) relationship.getProperty(TIMES);
-                if (operatesOnDay(days, state.getState().getDay())
-                        && operatesOnTime(times, elapsedTime)) {
-                    results.add(relationship);
+        for (Relationship graphRelationship : relationships) {
+            TramRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
+            if (outgoing.isGoesTo()) {
+                GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
+                servicesOutbound++;
+                // filter route station -> route station relationships
+                if (operatesOnTime(goesToRelationship.getTimesTramRuns(), elapsedTime) &&
+                        operatesOnDay(goesToRelationship.getDaysTramRuns(), branchState.getDay()) &&
+                        noInFlightChangeOfService(incoming, goesToRelationship)
+                        ) {
+                    results.add(graphRelationship);
+                } else {
+                    servicesFilteredOut.add(goesToRelationship);
                 }
+            } else if (outgoing.isInterchange()) {
+                // add interchange relationships
+                results.add(graphRelationship);
             } else {
-                results.add(relationship);
+                // add board and depart
+                results.add(graphRelationship);
             }
         }
+
         if (duration>90) {
-            logger.warn("Duration >90mins at node " + path.endNode().getProperty("id"));
+            logger.warn("Duration >90mins at node " + currentNode);
+        }
+        if ((servicesOutbound>0) && (servicesFilteredOut.size()==servicesOutbound)) {
+            logger.warn(String.format("Filtered out all %s services for node %s time %s ", servicesFilteredOut.size(), currentNode, elapsedTime));
+//            logger.debug("Filtered out services were: " + servicesFilteredOut);
         }
         return results;
     }
 
-    private Set<Relationship> getRelationships(Path path) {
-        Node endNode = path.endNode();
-        HashSet<Relationship> relationships = new HashSet<>();
-
-        List<Relationship> goesTo = Lists.newArrayList(endNode.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.GOES_TO.name())));
-        relationships.addAll(goesTo);
-        if (isStation(path)) {
-            if (path.length()==0) {
-                logger.debug("Add boarding relationships");
-                relationships.addAll(Lists.newArrayList(endNode.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.BOARD.name()))));
-            }
-            ArrayList<Relationship> interchanges = Lists.newArrayList(endNode.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.INTERCHANGE.name())));
-            relationships.addAll(interchanges);
-        } else {
-            relationships.addAll(Lists.newArrayList(endNode.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.DEPART.name()))));
+    public boolean noInFlightChangeOfService(TramRelationship incoming, GoesToRelationship outgoing) {
+        if (!incoming.isGoesTo()) {
+            return true; // not a tram service relationship
         }
-
-        return relationships;
+        GoesToRelationship inComingTram = (GoesToRelationship) incoming;
+        return inComingTram.getService().equals(outgoing.getService());
     }
 
-    private boolean isStation(Path path) {
-        return path.endNode().hasProperty(NAME);
-    }
-
-    private boolean operatesOnTime(int[] times, int currentTime) {
+    public boolean operatesOnTime(int[] times, int currentTime) {
         // the times array is sorted in ascending order
-        for (int i = 0; i < times.length - 1; i++) {
-            int timeA = times[i];
-            int timeB = times[i + 1];
-            if ((timeB-currentTime)>MAX_WAIT_TIME) {
-                // next tram too far in future, so stop searching now
-                return false;
+        for (int nextTram : times) {
+            if ((nextTram - currentTime) > maxWaitMinutes) {
+                return false; // array sorted, so no need to go further
             }
 
-            if (currentTime >= timeA && currentTime <= timeB)   {
-                return true;
+            if (nextTram>=currentTime) { // check next tram not in the past
+                if ((nextTram-currentTime) <= maxWaitMinutes) {
+                    return true;  // within max wait time
+                }
             }
-
         }
         return false;
     }
 
-    private boolean operatesOnDay(boolean[] days, DaysOfWeek today) {
+    public boolean operatesOnDay(boolean[] days, DaysOfWeek today) {
+        boolean operates = false;
         switch (today) {
             case Monday:
-                return days[0];
+                operates = days[0];
+                break;
             case Tuesday:
-                return days[1];
+                operates = days[1];
+                break;
             case Wednesday:
-                return days[2];
+                operates =  days[2];
+                break;
             case Thursday:
-                return days[3];
+                operates = days[3];
+                break;
             case Friday:
-                return days[4];
+                operates = days[4];
+                break;
             case Saturday:
-                return days[5];
+                operates = days[5];
+                break;
             case Sunday:
-                return days[6];
+                operates = days[6];
+                break;
+
         }
-        return false;
+//        if (!operates) {
+//            logger.info("Service does not run on " + today);
+//        }
+        return operates;
     }
 
     @Override
     public PathExpander<GraphBranchState> reverse() {
         return this;
     }
+
 }
 

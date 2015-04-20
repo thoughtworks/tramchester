@@ -5,23 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.ToIntFunction;
 
 public class Service {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
+    private final String routeId;
 
     private String serviceId;
     private List<Trip> trips = new ArrayList<>();
     private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
 
-    public Service(String serviceId) {
+    public Service(String serviceId, String routeId) {
         this.serviceId = serviceId;
-    }
-
-    private Service() {
+        this.routeId = routeId;
     }
 
     public String getServiceId() {
@@ -50,7 +47,7 @@ public class Service {
         return days;
     }
 
-    public List<Trip> getTripsAfter(String firstStationId, String lastStationId, int minutesFromMidnight) {
+    public List<Trip> getTripsAfter(String firstStationId, String lastStationId, int minutesFromMidnight, int maxNumberOfTrips) {
         logger.info(String.format("Find service %s trips from %s to %s after %s", serviceId, firstStationId, lastStationId, minutesFromMidnight));
         ArrayList<Trip> validTrips = new ArrayList<>();
         StringBuilder tripIds = new StringBuilder();
@@ -63,16 +60,24 @@ public class Service {
 
         logger.info(String.format("Selected %s of %s trips %s", validTrips.size(), trips.size(), tripIds.toString()));
 
-//        validTrips.sort(new Comparator<Trip>() {
-//            @Override
-//            public int compare(Trip o1, Trip o2) {
-//                return o1.getStop(firstStationId).getMinutesFromMidnight() - o2.getStop(firstStationId).getMinutesFromMidnight();
-//            }
-//        });
-        int limit = 5;
-        if (validTrips.size()<5) {
+        int limit = maxNumberOfTrips;
+        if (validTrips.size()<maxNumberOfTrips) {
             limit = validTrips.size();
         }
         return validTrips.subList(0,limit);
+    }
+
+    @Override
+    public String toString() {
+        return "Service{" +
+                "routeId='" + routeId + '\'' +
+                ", serviceId='" + serviceId + '\'' +
+                ", trips=" + trips +
+                ", days=" + days +
+                '}';
+    }
+
+    public String getRouteId() {
+        return routeId;
     }
 }

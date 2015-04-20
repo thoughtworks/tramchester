@@ -24,6 +24,8 @@ public class JourneyPlannerResource {
     private RouteCalculator routeCalculator;
     private DateTimeService dateTimeService;
     private JourneyResponseMapper journeyResponseMapper;
+    // user for the journey mapper
+    private int maxNumberOfTrips = 5;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService, JourneyResponseMapper journeyResponseMapper) {
         this.routeCalculator = routeCalculator;
@@ -39,11 +41,13 @@ public class JourneyPlannerResource {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime, DaysOfWeek dayOfWeek) {
-        logger.info(String.format("start: %s end: %s departure time: %s", startId, endId, departureTime));
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
+        logger.info(String.format("start: %s end: %s departure time: %s (%s) on %s",
+                startId, endId, departureTime, minutesFromMidnight, dayOfWeek));
+
         Set<Journey> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek);
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, minutesFromMidnight);
+        return journeyResponseMapper.map(journeys, minutesFromMidnight, maxNumberOfTrips);
     }
 
 }

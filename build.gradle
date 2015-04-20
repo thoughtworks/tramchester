@@ -41,7 +41,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11',
             'org.assertj:assertj-core:1.2.0',
             'org.mockito:mockito-core:1.9.5',
-            'io.dropwizard:dropwizard-testing:0.8.0-rc2'
+            'io.dropwizard:dropwizard-testing:0.8.0-rc2',
+			'org.easymock:easymock:3.3.1'
 }
 
 jar {
@@ -149,6 +150,12 @@ task deploy(dependsOn: cfnassist) << {
 task updateLB(dependsOn: cfnassist) << {
     antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
 		ELBUpdate(typeTag: 'web')
+	}
+}
+
+task tidy(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, sns: 'true') {
+		TidyStacks(target: 'deploy/servers.json', typeTag:'web')
 	}
 }
 
