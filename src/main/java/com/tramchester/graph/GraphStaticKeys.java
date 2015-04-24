@@ -4,8 +4,11 @@ public class GraphStaticKeys {
     // node type and types
     public static final String STATION_TYPE = "station_type";
     // the two types
-    public static final String STATION = "route_station";
-    public static final String ROUTE_STATION = "station";
+    //public static final String STATION = "route_station";
+    //public static final String ROUTE_STATION = "station";
+
+    public static final String STATION = "station";
+    public static final String ROUTE_STATION = "route_station";
 
     // relationship properties
     public static final String DAYS = "days";

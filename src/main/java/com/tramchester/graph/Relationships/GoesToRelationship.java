@@ -10,12 +10,19 @@ public class GoesToRelationship extends TramCostRelationship {
     private boolean[] daysRunning;
     private int[] timesRunning;
 
+    public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning) {
+        super(cost);
+        this.service = service;
+        this.daysRunning = daysRunning;
+        this.timesRunning = timesRunning;
+    }
+
     public GoesToRelationship(Relationship graphRelationship) {
         super(graphRelationship);
 
-        this.service = graphRelationship.getProperty(GraphStaticKeys.SERVICE_ID).toString();
         daysRunning = (boolean[]) graphRelationship.getProperty(GraphStaticKeys.DAYS);
         timesRunning = (int[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
+        service = graphRelationship.getProperty(GraphStaticKeys.SERVICE_ID).toString();
     }
 
     public boolean[] getDaysTramRuns() {
@@ -56,7 +63,7 @@ public class GoesToRelationship extends TramCostRelationship {
                 "service='" + service + '\'' +
                 ", daysRunning=" + Arrays.toString(daysRunning) +
                 ", timesRunning=" + Arrays.toString(timesRunning) +
-                ", cost=" + super.cost +
+                ", cost=" + super.getCost() +
                 '}';
     }
 

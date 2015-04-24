@@ -28,19 +28,23 @@ import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 public class RouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    private static final int MAX_WAIT_TIME_MINS = 25; // todo into config
-    private static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
-    private static final PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS);
+    public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
+    public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
+//    private static final PathExpander<GraphBranchState> pathExpander =
+//            new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS);
 
     private final GraphDatabaseService db;
     private NodeFactory nodeFactory;
 
     private Index<Node> trams = null;
     private Index<Node> routeStations = null;
+    private PathExpander pathExpander;
 
     public RouteCalculator(GraphDatabaseService db) {
         this.db = db;
         nodeFactory = new NodeFactory();
+        RelationshipFactory routeFactory = new RelationshipFactory();
+        pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, routeFactory, nodeFactory);
     }
 
     public Set<Journey> calculateRoute(String start, String end, int time, DaysOfWeek dayOfWeek) {

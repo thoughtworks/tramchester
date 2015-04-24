@@ -25,11 +25,13 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private int maxWaitMinutes;
     private RelationshipFactory relationshipFactory;
 
-    public TimeBasedPathExpander(CostEvaluator<Double> costEvaluator, int maxWaitMinutes) {
-        this.nodeFactory = new NodeFactory();
+    public TimeBasedPathExpander(CostEvaluator<Double> costEvaluator, int maxWaitMinutes,
+                                 RelationshipFactory relationshipFactory,
+                                 NodeFactory nodeFactory) {
         this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = maxWaitMinutes;
-        relationshipFactory = new RelationshipFactory();
+        this.relationshipFactory = relationshipFactory;
+        this.nodeFactory = nodeFactory;
     }
 
     @Override

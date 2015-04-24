@@ -5,20 +5,23 @@ import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Relationship;
 
 public abstract class TramCostRelationship implements TramRelationship {
-    private final Relationship graphRelationship;
-    protected int cost;
+    private final int cost;
+
+    public TramCostRelationship(int cost) {
+        this.cost = cost;
+    }
 
     public TramCostRelationship(Relationship graphRelationship) {
-        this.graphRelationship = graphRelationship;
-        this.cost = Integer.parseInt(graphRelationship.getProperty(GraphStaticKeys.COST).toString());
+        Object property = graphRelationship.getProperty(GraphStaticKeys.COST);
+        cost = Integer.parseInt(property.toString());
     }
 
     @Override
     public int getCost() {
-        return cost;
+        return cost;    
     }
 
-    public Relationship getRelationship() {
-        return graphRelationship;
-    }
+//    public Relationship getRelationship() {
+//        return graphRelationship;
+//    }
 }
