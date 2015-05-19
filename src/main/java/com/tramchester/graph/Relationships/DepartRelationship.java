@@ -29,6 +29,6 @@ public class DepartRelationship extends TramCostRelationship {
 
     @Override
     public String toString() {
-        return "DepartRelationship{cost:"+ super.getCost() +"}";
+        return "DepartRelationship{cost:"+ super.getCost() +", id:" + super.getId() + "}";
     }
 }

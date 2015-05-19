@@ -2,10 +2,8 @@ package com.tramchester.resource;
 
 
 import com.tramchester.dataimport.data.*;
-import com.tramchester.domain.TransportData;
+import com.tramchester.domain.TransportDataFromFiles;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 public class TransportDataBuilder {
@@ -15,7 +13,7 @@ public class TransportDataBuilder {
     private Stream<StopTimeData> stopTimeDataList = Stream.empty();
     private Stream<CalendarData> calendarDataList = Stream.empty();
 
-    public TransportData build() {
-        return new TransportData(stopDataList, routeDataList, tripDataList, stopTimeDataList, calendarDataList);
+    public TransportDataFromFiles build() {
+        return new TransportDataFromFiles(stopDataList, routeDataList, tripDataList, stopTimeDataList, calendarDataList);
     }
 }

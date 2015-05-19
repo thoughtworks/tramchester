@@ -26,7 +26,7 @@ public class TestNodeFactory extends EasyMockSupport {
     @Test
     public void shouldGetNodeOfCorrectTypeStation() {
         EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.STATION);
-        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.ID)).andReturn("stationId");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn("stationName");
 
         replayAll();
@@ -39,9 +39,9 @@ public class TestNodeFactory extends EasyMockSupport {
     @Test
     public void shouldGetNodeOfCorrectTypeRouteStation() {
         EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.ROUTE_STATION);
-        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.ID)).andReturn("stationId");
-        EasyMock.expect(node.getProperty(GraphStaticKeys.ROUTE_NAME)).andReturn("routeName");
-        EasyMock.expect(node.getProperty(GraphStaticKeys.ROUTE_ID)).andReturn("routeId");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME)).andReturn("routeName");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID)).andReturn("routeId");
 
         replayAll();
         TramNode tramNode = factory.getNode(node);

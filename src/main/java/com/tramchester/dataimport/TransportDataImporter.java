@@ -1,12 +1,11 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.dataimport.data.*;
-import com.tramchester.domain.TransportData;
+import com.tramchester.domain.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.stream.Stream;
 
 public class TransportDataImporter {
@@ -17,7 +16,7 @@ public class TransportDataImporter {
         this.transportDataReader = transportDataReader;
     }
 
-    public TransportData load() {
+    public TransportDataFromFiles load() {
         try {
             Stream<StopData> stopData = transportDataReader.getStops();
             Stream<RouteData> routeData = transportDataReader.getRoutes();
@@ -25,7 +24,7 @@ public class TransportDataImporter {
             Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
             Stream<CalendarData> calendarData = transportDataReader.getCalendar();
             logger.info("Finished reading csv files.");
-            return new TransportData(stopData, routeData, tripData, stopTimeData, calendarData);
+            return new TransportDataFromFiles(stopData, routeData, tripData, stopTimeData, calendarData);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Journey;
 import com.tramchester.graph.RouteCalculator;
+import com.tramchester.graph.UnknownStationException;
 import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import com.tramchester.services.DateTimeService;
@@ -40,7 +41,7 @@ public class JourneyPlannerResource {
         return Response.ok(planRepresentation).build();
     }
 
-    public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime, DaysOfWeek dayOfWeek) {
+    public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime, DaysOfWeek dayOfWeek) throws UnknownStationException {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
         logger.info(String.format("start: %s end: %s departure time: %s (%s) on %s",
                 startId, endId, departureTime, minutesFromMidnight, dayOfWeek));

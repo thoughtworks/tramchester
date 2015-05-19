@@ -1,6 +1,6 @@
 package com.tramchester.resource;
 
-import com.tramchester.domain.TransportData;
+import com.tramchester.domain.TransportDataFromFiles;
 import com.tramchester.resources.StationResource;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 
 public class StationResourceTest {
 
-    private static final TransportData transportData = new TransportDataBuilder().build();
+    private static final TransportDataFromFiles transportData = new TransportDataBuilder().build();
     private static final SpatialService spatialService = mock(SpatialService.class);
 
 

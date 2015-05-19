@@ -21,9 +21,9 @@ public class RouteStationNode implements TramNode {
 
     public RouteStationNode(Node node) {
         this.node = node;
-        this.id = node.getProperty(GraphStaticKeys.Station.ID).toString();
-        this.routeName = node.getProperty(GraphStaticKeys.ROUTE_NAME).toString();
-        this.routeId = node.getProperty(GraphStaticKeys.ROUTE_ID).toString();
+        this.id = node.getProperty(GraphStaticKeys.ID).toString();
+        this.routeName = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME).toString();
+        this.routeId = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID).toString();
     }
 
     @Override

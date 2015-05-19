@@ -4,8 +4,8 @@ import org.neo4j.graphdb.Relationship;
 
 public class BoardRelationship extends TramCostRelationship {
 
-    public BoardRelationship(int cost) {
-        super(cost);
+    public BoardRelationship(int cost, String id) {
+        super(cost, id);
     }
 
     public BoardRelationship(Relationship graphRelationship) {
@@ -34,6 +34,6 @@ public class BoardRelationship extends TramCostRelationship {
 
     @Override
     public String toString() {
-        return "BoardRelationship{cost:"+ super.getCost() +"}";
+        return "BoardRelationship{cost:"+ super.getCost() +", id:" + super.getId() + "}";
     }
 }

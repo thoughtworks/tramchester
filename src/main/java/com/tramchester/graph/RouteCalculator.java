@@ -22,7 +22,7 @@ import java.util.*;
 
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static com.tramchester.graph.GraphStaticKeys.Station;
-import static com.tramchester.graph.GraphStaticKeys.Station.ID;
+import static com.tramchester.graph.GraphStaticKeys.ID;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 
 public class RouteCalculator {
@@ -47,11 +47,11 @@ public class RouteCalculator {
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, routeFactory, nodeFactory);
     }
 
-    public Set<Journey> calculateRoute(String start, String end, int time, DaysOfWeek dayOfWeek) {
+    public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek) throws UnknownStationException {
         Set<Journey> journeys = new HashSet<>();
         try (Transaction tx = db.beginTx()) {
 
-            Iterable<WeightedPath> pathIterator = findShortestPath(start, end, time, dayOfWeek);
+            Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, time, dayOfWeek);
             int index = 0;
             // todo eliminate duplicate journeys that use different services??
             for (WeightedPath path : pathIterator) {
@@ -115,9 +115,10 @@ public class RouteCalculator {
         return new Journey(stages);
     }
 
-    private Iterable<WeightedPath> findShortestPath(String start, String end, int time, DaysOfWeek dayOfWeek) {
-        Node startNode = getStationsIndex().get(ID, start).getSingle();
-        Node endNode = getStationsIndex().get(ID, end).getSingle();
+    private Iterable<WeightedPath> findShortestPath(String start, String end, int time, DaysOfWeek dayOfWeek) throws UnknownStationException {
+        Index<Node> stationsIndex = getStationsIndex();
+        Node startNode = getStationByID(start, stationsIndex);
+        Node endNode = getStationByID(end, stationsIndex);
         logger.info(String.format("Finding shortest path for (%s) --> (%s) on %s",
                 startNode.getProperty(NAME),
                 endNode.getProperty(NAME), dayOfWeek));
@@ -131,6 +132,15 @@ public class RouteCalculator {
         Iterable<WeightedPath> allPaths = pathFinder.findAllPaths(startNode, endNode);
 
         return allPaths;
+    }
+
+    private Node getStationByID(String stationId, Index<Node> stationsIndex) throws UnknownStationException {
+        Node node = stationsIndex.get(ID, stationId).getSingle();
+        if (node==null) {
+            logger.error("Unable to find station for ID " + stationId);
+            throw new UnknownStationException(stationId);
+        }
+        return node;
     }
 
     private Index<Node> getStationsIndex() {
@@ -147,12 +157,12 @@ public class RouteCalculator {
         return routeStations;
     }
 
-    public List<TramRelationship> getOutboundStationRelationships(String stationId) {
+    public List<TramRelationship> getOutboundStationRelationships(String stationId) throws UnknownStationException {
         RelationshipFactory relationshipFactory = new RelationshipFactory();
 
         try (Transaction tx = db.beginTx()) {
             List<TramRelationship> relationships = new LinkedList<>();
-            Node startNode = getStationsIndex().get(ID, stationId).getSingle();
+            Node startNode = getStationByID(stationId, getStationsIndex());
             for (Relationship relate : startNode.getRelationships(Direction.OUTGOING)) {
                 relationships.add(relationshipFactory.getRelationship(relate));
             }
@@ -161,12 +171,12 @@ public class RouteCalculator {
         }
     }
 
-    public List<TramRelationship> getOutboundRouteStationRelationships(String routeStationId) {
+    public List<TramRelationship> getOutboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
         RelationshipFactory relationshipFactory = new RelationshipFactory();
 
         try (Transaction tx = db.beginTx()) {
             List<TramRelationship> relationships = new LinkedList<>();
-            Node startNode = getRouteStationsIndex().get(ID, routeStationId).getSingle();
+            Node startNode = getStationByID(routeStationId, getRouteStationsIndex());
             for (Relationship relate : startNode.getRelationships(Direction.OUTGOING)) {
                 relationships.add(relationshipFactory.getRelationship(relate));
             }

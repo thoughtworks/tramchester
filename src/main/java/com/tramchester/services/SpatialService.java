@@ -18,12 +18,10 @@ import java.util.Map;
 
 public class SpatialService {
     private GraphDatabaseService graphDatabaseService;
-    private TransportGraphBuilder transportGraphBuilder;
     private Index<Node> spatialIndex = null;
 
-    public SpatialService(GraphDatabaseService graphDatabaseService, TransportGraphBuilder transportGraphBuilder) {
+    public SpatialService(GraphDatabaseService graphDatabaseService) {
         this.graphDatabaseService = graphDatabaseService;
-        this.transportGraphBuilder = transportGraphBuilder;
     }
 
     public List<Station> reorderNearestStations(Double latitude, Double longitude, List<Station> stations) {
@@ -34,7 +32,7 @@ public class SpatialService {
             int count = 0;
 
             for (Node node : nearestStations) {
-                String id = node.getProperty(GraphStaticKeys.Station.ID).toString();
+                String id = node.getProperty(GraphStaticKeys.ID).toString();
                 Station nearestStation = getStation(stations, id);
                 if (nearestStation != null) {
                     nearestStation.setProximityGroup("Nearest Stops");

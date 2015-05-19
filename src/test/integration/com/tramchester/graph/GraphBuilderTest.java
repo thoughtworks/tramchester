@@ -4,20 +4,15 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.TransportData;
+import com.tramchester.domain.TransportDataFromFiles;
 import com.tramchester.domain.Trip;
 import com.tramchester.graph.Relationships.DepartRelationship;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
-import com.tramchester.services.DateTimeService;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -31,7 +26,7 @@ public class GraphBuilderTest {
     private static Dependencies dependencies;
 
     private RouteCalculator calculator;
-    private TransportData transportData;
+    private TransportDataFromFiles transportData;
     public static final String ASH_TO_ECCLES_SVC = "MET:MET4:O:";
 
     @BeforeClass
@@ -43,7 +38,7 @@ public class GraphBuilderTest {
     @Before
     public void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
-        transportData = dependencies.get(TransportData.class);
+        transportData = dependencies.get(TransportDataFromFiles.class);
     }
 
     @AfterClass
@@ -53,7 +48,7 @@ public class GraphBuilderTest {
 
     // this test is data specific and could fail if change to routes happen
     @Test
-    public void shouldValidateGraphRepresentationMatchesTransportData() {
+    public void shouldValidateGraphRepresentationMatchesTransportData() throws UnknownStationException {
         String svcId = "Serv000070";
 
         List<TramRelationship> outbounds =
@@ -109,7 +104,7 @@ public class GraphBuilderTest {
     }
 
     @Test
-    public void shouldCheckServiceThatNormallyGoesToEcclesCallsAtTraffordBar() {
+    public void shouldCheckServiceThatNormallyGoesToEcclesCallsAtTraffordBar() throws UnknownStationException {
         String svcId = "Serv000069";  // can go to eccles, media city or trafford bar
 
         // trips for this journey are currently Trip001632 and Trip001633
@@ -118,7 +113,7 @@ public class GraphBuilderTest {
     }
 
     @Test
-    public void shouldRepresentBranchingServicesCorrectlyAtHarbourCity() {
+    public void shouldRepresentBranchingServicesCorrectlyAtHarbourCity() throws UnknownStationException {
         String svcId = "Serv000069";  // can go to eccles, media city or trafford bar
 
         List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity + ASH_TO_ECCLES_SVC);
@@ -126,7 +121,7 @@ public class GraphBuilderTest {
     }
 
     @Test
-    public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() {
+    public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() throws UnknownStationException {
 
         List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark + ASH_TO_ECCLES_SVC);
 

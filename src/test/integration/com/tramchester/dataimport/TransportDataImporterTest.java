@@ -17,7 +17,7 @@ public class TransportDataImporterTest {
 
         assertThat(transportData.getRoutes()).hasSize(2);
 
-        Route route = transportData.getRoutes().get("MET:MET1:I:");
+        Route route = transportData.getRoute("MET:MET1:I:");
         assertThat(route.getName()).isEqualTo("Abraham Moss - Bury");
         assertThat(route.getServices()).hasSize(20);
 

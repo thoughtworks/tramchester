@@ -21,7 +21,7 @@ public class StationNode implements TramNode {
 
     public StationNode(Node node) {
         this.node = node;
-        this.id = node.getProperty(GraphStaticKeys.Station.ID).toString();
+        this.id = node.getProperty(GraphStaticKeys.ID).toString();
         this.name = node.getProperty(GraphStaticKeys.Station.NAME).toString();
     }
 

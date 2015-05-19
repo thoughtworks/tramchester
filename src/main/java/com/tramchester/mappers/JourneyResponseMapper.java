@@ -12,9 +12,9 @@ import java.util.Set;
 public class JourneyResponseMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyResponseMapper.class);
 
-    private TransportData transportData;
+    private TransportDataFromFiles transportData;
 
-    public JourneyResponseMapper(TransportData transportData) {
+    public JourneyResponseMapper(TransportDataFromFiles transportData) {
         this.transportData = transportData;
     }
 

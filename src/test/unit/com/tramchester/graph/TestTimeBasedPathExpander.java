@@ -64,6 +64,11 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         public int getCost() {
             return 2;
         }
+
+        @Override
+        public String getId() {
+            return "ID";
+        }
     };
     private int goesToACost;
     private int goesToBCost;
@@ -86,20 +91,14 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         EasyMock.expect(interchange.getProperty(GraphStaticKeys.COST)).andStubReturn(3);
         // outgoing A
         goesToA = createMock(Relationship.class);
-        EasyMock.expect(goesToA.getType()).andStubReturn(TransportRelationshipTypes.GOES_TO);
         goesToACost = 5;
+        EasyMock.expect(goesToA.getType()).andStubReturn(TransportRelationshipTypes.GOES_TO);
         EasyMock.expect(goesToA.getProperty(GraphStaticKeys.COST)).andStubReturn(goesToACost);
-        EasyMock.expect(goesToA.getProperty(GraphStaticKeys.SERVICE_ID)).andStubReturn("00063");
-        EasyMock.expect(goesToA.getProperty(GraphStaticKeys.DAYS)).andStubReturn(days);
-        EasyMock.expect(goesToA.getProperty(GraphStaticKeys.TIMES)).andStubReturn(times);
         // outgoing B
         goesToB = createMock(Relationship.class);
         goesToBCost = 10;
         EasyMock.expect(goesToB.getType()).andStubReturn(TransportRelationshipTypes.GOES_TO);
         EasyMock.expect(goesToB.getProperty(GraphStaticKeys.COST)).andStubReturn(goesToBCost);
-        EasyMock.expect(goesToB.getProperty(GraphStaticKeys.SERVICE_ID)).andStubReturn("00042");
-        EasyMock.expect(goesToB.getProperty(GraphStaticKeys.DAYS)).andStubReturn(days);
-        EasyMock.expect(goesToB.getProperty(GraphStaticKeys.TIMES)).andStubReturn(times);
     }
 
     @Test
@@ -154,8 +153,8 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         TramRelationship board = new BoardRelationship(boards);
         TramRelationship depart = new DepartRelationship(departs);
         TramRelationship change = new InterchangeRelationship(interchange);
-        GoesToRelationship outA = new GoesToRelationship(this.goesToA);
-        GoesToRelationship outB = new GoesToRelationship(this.goesToB);
+        GoesToRelationship outA = new GoesToRelationship("0042", 10, days, times, "id1");
+        GoesToRelationship outB = new GoesToRelationship("0048", 5, days, times, "id2");
         TimeBasedPathExpander expander = new TimeBasedPathExpander(
                 CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
 
@@ -233,9 +232,6 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         EasyMock.expect(longDurationInbound.getType()).andStubReturn(TransportRelationshipTypes.GOES_TO);
         EasyMock.expect(longDurationInbound.getProperty(GraphStaticKeys.COST)).andStubReturn(
                 inboundDuration);
-        EasyMock.expect(longDurationInbound.getProperty(GraphStaticKeys.SERVICE_ID)).andStubReturn("00042");
-        EasyMock.expect(longDurationInbound.getProperty(GraphStaticKeys.DAYS)).andStubReturn(days);
-        EasyMock.expect(longDurationInbound.getProperty(GraphStaticKeys.TIMES)).andStubReturn(times);
 
         int[] outboundTimes = new int[] { journeyStartTime+inboundDuration+1 };
         int results = countExpandedRelationships(maxWait, journeyStartTime, DaysOfWeek.Monday, "0042", "0042",
@@ -334,7 +330,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
                                            String incomingService, Relationship incomingTram) {
         EasyMock.expect(path.length()).andReturn(1);
         EasyMock.expect(path.lastRelationship()).andReturn(incomingTram);
-        TramRelationship gotoRelationship = new GoesToRelationship(incomingService, goesToBCost, days, times);
+        TramRelationship gotoRelationship = new GoesToRelationship(incomingService, goesToBCost, days, times, "id");
         EasyMock.expect(mockRelationshipFactory.getRelationship(incomingTram)).andReturn(gotoRelationship);
         // neo gets current cost by adding up steps so far
         List<Relationship> pathSoFar = new LinkedList<>();
@@ -346,7 +342,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
                                             String service, int[] outgoingTimes, Relationship outgoingTram) {
         EasyMock.expect(mockRelationshipFactory.getRelationship(departs)).andReturn(departsRelationship);
         boolean[] expectedDays = new boolean[] { true, false, false, false, false, false, false };
-        GoesToRelationship outgoingRelationship = new GoesToRelationship(service, outgoingStageCost, expectedDays, outgoingTimes);
+        GoesToRelationship outgoingRelationship = new GoesToRelationship(service, outgoingStageCost, expectedDays, outgoingTimes, "id");
         EasyMock.expect(mockRelationshipFactory.getRelationship(outgoingTram)).andReturn(outgoingRelationship);
     }
 

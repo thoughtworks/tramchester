@@ -29,6 +29,6 @@ public class InterchangeRelationship extends TramCostRelationship {
 
     @Override
     public String toString() {
-        return "InterchangeRelationship{cost:"+ super.getCost() +"}";
+        return "InterchangeRelationship{cost:"+ super.getCost() +", id:" + super.getId() + "}";
     }
 }

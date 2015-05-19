@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 
-import com.sun.javafx.collections.SortHelper;
 import com.tramchester.domain.*;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
@@ -29,6 +28,10 @@ public class TransportGraphBuilder {
     public static final List<String> interchanges = Arrays.asList(new String[]{
             CORNBROOK, ST_PETERS_SQUARE, PIC_GARDENS, TRAF_BAR, ST_WS_ROAD, VICTORIA, PICCADILLY});
 
+    public static final int INTERCHANGE_COST = 3;
+    public static final int BOARDING_COST = 2;
+    public static final int DEPARTS_COST = 1;
+
     private GraphDatabaseService graphDatabaseService;
     private TransportData transportData;
     private Index<Node> routeStations = null;
@@ -43,7 +46,7 @@ public class TransportGraphBuilder {
         Transaction tx = graphDatabaseService.beginTx();
         try {
             logger.info("Rebuilding the graph...");
-            for (Route route : transportData.getRoutes().values()) {
+            for (Route route : transportData.getRoutes()) {
                 for (Service service : route.getServices()) {
                     for (Trip trip : service.getTrips()) {
                         AddRouteServiceTrip(route, service, trip);
@@ -89,19 +92,19 @@ public class TransportGraphBuilder {
     private Node getOrCreateStation(Station station) {
 
         Index<Node> stationsIndex = getStationsIndex();
-        Node node = stationsIndex.get(GraphStaticKeys.Station.ID, station.getId()).getSingle();
+        Node node = stationsIndex.get(GraphStaticKeys.ID, station.getId()).getSingle();
 
         if (node == null) {
             logger.info("Creating station node: " + station.getName());
             node = graphDatabaseService.createNode();
             node.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
 
-            node.setProperty(GraphStaticKeys.Station.ID, station.getId());
+            node.setProperty(GraphStaticKeys.ID, station.getId());
             node.setProperty(GraphStaticKeys.Station.NAME, station.getName());
             node.setProperty(GraphStaticKeys.Station.LAT, station.getLatitude());
             node.setProperty(GraphStaticKeys.Station.LONG, station.getLongitude());
             getSpatialIndex().add(node, station.getId(), station.getName());
-            stationsIndex.add(node, GraphStaticKeys.Station.ID, station.getId());
+            stationsIndex.add(node, GraphStaticKeys.ID, station.getId());
         }
         return node;
     }
@@ -124,7 +127,7 @@ public class TransportGraphBuilder {
         Node stationNode = getOrCreateStation(station);
 
         String routeStationId = createRouteStationId(station, route);
-        Node routeStation = getRouteStationsIndex().get(GraphStaticKeys.Station.ID, routeStationId).getSingle();
+        Node routeStation = getRouteStationsIndex().get(GraphStaticKeys.ID, routeStationId).getSingle();
 
         if (routeStation == null) {
             routeStation = createRouteStation(station, route, routeStationId);
@@ -134,18 +137,21 @@ public class TransportGraphBuilder {
         if (preferedInterchange(stationNode)) {
             if (!alreadyHas(stationNode, routeStation, TransportRelationshipTypes.INTERCHANGE)) {
                 Relationship interchangeRelationshipTo = stationNode.createRelationshipTo(routeStation, TransportRelationshipTypes.INTERCHANGE);
-                interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, 3);
+                interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, INTERCHANGE_COST);
+                interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, routeStationId);
             }
         } else {
             if (!alreadyHas(stationNode, routeStation, TransportRelationshipTypes.BOARD)) {
                 Relationship boardRelationshipTo = stationNode.createRelationshipTo(routeStation, TransportRelationshipTypes.BOARD);
-                boardRelationshipTo.setProperty(GraphStaticKeys.COST, 5); // was 5
+                boardRelationshipTo.setProperty(GraphStaticKeys.COST, BOARDING_COST); // was 5
+                boardRelationshipTo.setProperty(GraphStaticKeys.ID, routeStationId);
             }
         }
         // route station -> station
         if (!alreadyHas(routeStation, stationNode, TransportRelationshipTypes.DEPART)) {
             Relationship departRelationship = routeStation.createRelationshipTo(stationNode, TransportRelationshipTypes.DEPART);
-            departRelationship.setProperty(GraphStaticKeys.COST, 0);
+            departRelationship.setProperty(GraphStaticKeys.COST, DEPARTS_COST);
+            departRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
         }
 
         return routeStation;
@@ -155,11 +161,11 @@ public class TransportGraphBuilder {
         logger.info("Creating route station node: " + station.getId() + " " + route.getId());
         Node routeStation = graphDatabaseService.createNode();
         routeStation.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.ROUTE_STATION);
-        routeStation.setProperty(GraphStaticKeys.Station.ID, routeStationId);
-        routeStation.setProperty(GraphStaticKeys.ROUTE_NAME, route.getName());
-        routeStation.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
-        routeStation.setProperty(GraphStaticKeys.STATION_NAME, station.getName());
-        getRouteStationsIndex().add(routeStation, GraphStaticKeys.Station.ID, routeStationId);
+        routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
+        routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
+        routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_ID, route.getId());
+        routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
+        getRouteStationsIndex().add(routeStation, GraphStaticKeys.ID, routeStationId);
         return routeStation;
     }
 
@@ -178,7 +184,7 @@ public class TransportGraphBuilder {
     }
 
     private boolean preferedInterchange(Node stationNode) {
-        return interchanges.contains(stationNode.getProperty(GraphStaticKeys.Station.ID));
+        return interchanges.contains(stationNode.getProperty(GraphStaticKeys.ID));
     }
 
     private Relationship createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
@@ -192,7 +198,7 @@ public class TransportGraphBuilder {
         if (relationship == null && runsAtLeastADay(service.getDays())) {
             logger.info(String.format("create relationship svc %s from %s to %s route %s time %s",
                     service.getServiceId(),
-                    start.getProperty(GraphStaticKeys.Station.ID),end.getProperty(GraphStaticKeys.Station.ID),
+                    start.getProperty(GraphStaticKeys.ID),end.getProperty(GraphStaticKeys.ID),
                     route.getId(), fromMidnight));
             relationship = createRelationship(start, end, transportRelationshipType, stop, cost, service, route);
         } else if (relationship != null) {
@@ -222,7 +228,8 @@ public class TransportGraphBuilder {
         relationship.setProperty(GraphStaticKeys.COST, cost);
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-        relationship.setProperty(GraphStaticKeys.ROUTE_NAME, route.getName());
+        relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
+        relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
 
         return relationship;
     }

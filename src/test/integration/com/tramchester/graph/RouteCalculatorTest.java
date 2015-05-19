@@ -23,7 +23,7 @@ public class RouteCalculatorTest {
 
     private RouteCalculator calculator;
     private DateTimeService dateTimeService;
-    private TransportData transportData;
+    private TransportDataFromFiles transportData;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -35,7 +35,7 @@ public class RouteCalculatorTest {
     public void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
         dateTimeService = dependencies.get(DateTimeService.class);
-        transportData = dependencies.get(TransportData.class);
+        transportData = dependencies.get(TransportDataFromFiles.class);
     }
 
     @AfterClass
@@ -62,7 +62,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldGetToRouteStopsAtVelopark() {
+    public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
         List<TramRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark);
         assertEquals(2, boarding.size());
         assertTrue(boarding.get(0).isBoarding());  // we can get to either platform

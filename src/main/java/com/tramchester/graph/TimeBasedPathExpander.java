@@ -46,6 +46,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         }
 
         TramRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
+
         List<Relationship> results = new ArrayList<>();
 
         int duration = (int)new WeightedPathImpl(costEvaluator, path).weight();
@@ -60,9 +61,9 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
                 servicesOutbound++;
                 // filter route station -> route station relationships
-                if (operatesOnTime(goesToRelationship.getTimesTramRuns(), elapsedTime) &&
-                        operatesOnDay(goesToRelationship.getDaysTramRuns(), branchState.getDay()) &&
-                        noInFlightChangeOfService(incoming, goesToRelationship)
+                if (operatesOnTime(goesToRelationship.getTimesTramRuns(), elapsedTime)
+                        && operatesOnDay(goesToRelationship.getDaysTramRuns(), branchState.getDay())
+                        && noInFlightChangeOfService(incoming, goesToRelationship)
                         ) {
                     results.add(graphRelationship);
                 } else {
@@ -70,9 +71,11 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 }
             } else if (outgoing.isInterchange()) {
                 // add interchange relationships
+                //logger.debug("Add interchange relationship " + outgoing);
                 results.add(graphRelationship);
             } else {
                 // add board and depart
+                // TODO Only really need these at destination and originating nodes?
                 results.add(graphRelationship);
             }
         }
@@ -81,7 +84,8 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
             logger.warn("Duration >90mins at node " + currentNode);
         }
         if ((servicesOutbound>0) && (servicesFilteredOut.size()==servicesOutbound)) {
-            logger.warn(String.format("Filtered out all %s services for node %s time %s ", servicesFilteredOut.size(), currentNode, elapsedTime));
+            logger.warn(String.format("Filtered out all %s services for node %s time %s ",
+                    servicesFilteredOut.size(), currentNode, elapsedTime));
 //            logger.debug("Filtered out services were: " + servicesFilteredOut);
         }
         return results;
@@ -92,7 +96,12 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
             return true; // not a tram service relationship
         }
         GoesToRelationship inComingTram = (GoesToRelationship) incoming;
-        return inComingTram.getService().equals(outgoing.getService());
+        boolean flag = inComingTram.getService().equals(outgoing.getService());
+        if (!flag) {
+            logger.debug(String.format("Filtered out inflight change from service %s to %s",
+                    inComingTram.getService(), outgoing.getService()));
+        }
+        return flag;
     }
 
     public boolean operatesOnTime(int[] times, int currentTime) {

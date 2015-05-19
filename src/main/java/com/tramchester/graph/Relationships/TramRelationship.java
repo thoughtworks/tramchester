@@ -6,5 +6,6 @@ public interface  TramRelationship {
     public boolean isDepartTram();
     public boolean isInterchange();
     int getCost();
+    String getId();
 
 }

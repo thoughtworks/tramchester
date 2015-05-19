@@ -10,8 +10,8 @@ public class GoesToRelationship extends TramCostRelationship {
     private boolean[] daysRunning;
     private int[] timesRunning;
 
-    public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning) {
-        super(cost);
+    public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id) {
+        super(cost, id);
         this.service = service;
         this.daysRunning = daysRunning;
         this.timesRunning = timesRunning;
@@ -64,6 +64,7 @@ public class GoesToRelationship extends TramCostRelationship {
                 ", daysRunning=" + Arrays.toString(daysRunning) +
                 ", timesRunning=" + Arrays.toString(timesRunning) +
                 ", cost=" + super.getCost() +
+                ", id=" + super.getId() +
                 '}';
     }
 

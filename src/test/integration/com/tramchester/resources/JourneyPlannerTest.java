@@ -5,6 +5,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
+import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -51,27 +52,27 @@ public class JourneyPlannerTest {
     // related helpful cypher query:
     // match (start { id: "9400ZZMAVPKMET:MET4:O:"} )-[route]->dest return route
     @Test
-    public void testVeloParkToPeelHallPeformanceIssue() {
+    public void testVeloParkToPeelHallPeformanceIssue() throws UnknownStationException {
         validateJourney(Stations.VeloPark, Stations.PeelHall, "12:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteWhenTramsDontCallAtStopOftenSaturday() {
+    public void shouldFindRouteWhenTramsDontCallAtStopOftenSaturday() throws UnknownStationException {
         validateJourney(Stations.VeloPark, Stations.MediaCityUK, "08:00:00", DaysOfWeek.Saturday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToEtihad() {
+    public void shouldFindRouteVeloToEtihad() throws UnknownStationException {
         validateJourney(Stations.VeloPark, Stations.Etihad, "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToHoltTownAt8AM() {
+    public void shouldFindRouteVeloToHoltTownAt8AM() throws UnknownStationException {
         validateJourney(Stations.VeloPark, "9400ZZMAHTN", "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
+    public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() throws UnknownStationException {
         for(int i=0; i<60; i++) {
             String time = String.format("08:%02d:00", i);
             validateJourney(Stations.VeloPark, "9400ZZMAHTN", time, DaysOfWeek.Monday, 1);
@@ -79,56 +80,56 @@ public class JourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindRouteVeloToPiccGardens() {
+    public void shouldFindRouteVeloToPiccGardens() throws UnknownStationException {
         validateJourney(Stations.VeloPark, "9400ZZMAPGD", "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToStPetersSquare() {
+    public void shouldFindRouteVeloToStPetersSquare() throws UnknownStationException {
         validateJourney(Stations.VeloPark, "9400ZZMASTP", "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToCornbrook() {
+    public void shouldFindRouteVeloToCornbrook() throws UnknownStationException {
         validateJourney(Stations.VeloPark, Stations.Cornbrook, "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToPomona() {
+    public void shouldFindRouteVeloToPomona() throws UnknownStationException {
         validateJourney(Stations.VeloPark, "9400ZZMAPOM", "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToHarbourCity() {
+    public void shouldFindRouteVeloToHarbourCity() throws UnknownStationException {
         validateJourney(Stations.VeloPark, "9400ZZMAHCY", "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteHarbourCityToMediaCityAtInterchangeTime() {
+    public void shouldFindRouteHarbourCityToMediaCityAtInterchangeTime() throws UnknownStationException {
         validateJourney("9400ZZMAHCY", Stations.MediaCityUK, "08:33:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToEccles() {
+    public void shouldFindRouteVeloToEccles() throws UnknownStationException {
         validateJourney(Stations.VeloPark, "9400ZZMAECC" , "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteVeloToTraffordBarChangeIsRequired() {
+    public void shouldFindRouteVeloToTraffordBarChangeIsRequired() throws UnknownStationException {
         validateJourney(Stations.VeloPark, Stations.TraffordBar, "08:00:00", DaysOfWeek.Monday, 2);
     }
 
     @Test
-    public void shouldFindRouteVeloToMediaCityChangeIsRequired() {
+    public void shouldFindRouteVeloToMediaCityChangeIsRequired() throws UnknownStationException {
         validateJourney(Stations.VeloPark, Stations.MediaCityUK, "08:00:00", DaysOfWeek.Monday, 1);
     }
 
     @Test
-    public void shouldFindRouteCornbrookToMediaCityAtInterchangeTimeForVelo() {
+    public void shouldFindRouteCornbrookToMediaCityAtInterchangeTimeForVelo() throws UnknownStationException {
         validateJourney(Stations.Cornbrook, Stations.MediaCityUK , "08:20:00", DaysOfWeek.Monday, 1);
     }
 
-    private void validateJourney(String start, String end, String time, DaysOfWeek dayOfWeek, int expected) {
+    private void validateJourney(String start, String end, String time, DaysOfWeek dayOfWeek, int expected) throws UnknownStationException {
         JourneyPlanRepresentation results = planner.createJourneyPlan(start, end, time, dayOfWeek);
         Set<Journey> journeys = results.getJourneys();
 

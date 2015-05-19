@@ -20,7 +20,7 @@ public class TestStationNode extends EasyMockSupport {
 
     @Test
     public void shouldHaveExpectedProperties() {
-        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.ID)).andReturn("stationId");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn("stationName");
 
         replayAll();

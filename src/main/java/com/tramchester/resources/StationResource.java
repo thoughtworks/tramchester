@@ -2,7 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.TransportData;
+import com.tramchester.domain.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
 
 import javax.ws.rs.GET;
@@ -20,7 +20,7 @@ public class StationResource {
     private final List<Station> stations;
     private final SpatialService spatialService;
 
-    public StationResource(TransportData transportData, SpatialService spatialService) {
+    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService) {
         this.spatialService = spatialService;
         this.stations = transportData.getStations();
     }
