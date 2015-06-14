@@ -61,7 +61,7 @@ public class GraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        assertEquals(9, svcsToMediaCity.size());
+        assertEquals(13, svcsToMediaCity.size());
     }
 
     @Test

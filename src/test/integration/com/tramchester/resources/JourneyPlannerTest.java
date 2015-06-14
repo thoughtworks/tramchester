@@ -139,21 +139,21 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, "08:00:00", DaysOfWeek.Monday);
     }
 
-    @Test
-    public void shouldFindRouteEachStationToEveryOther() throws UnknownStationException {
-        TransportData data = dependencies.get(TransportData.class);
-        List<Station> allStations = data.getStations();
-        for(Station start : allStations) {
-            for(Station end: allStations) {
-                String startCode = start.getId();
-                String endCode = end.getId();
-                if (!startCode.equals(endCode)) {
-                    JourneyPlanRepresentation results = planner.createJourneyPlan(startCode, endCode, "12:00:00", DaysOfWeek.Monday);
-                    assertTrue(results.getJourneys().size() > 0);
-                }
-            }
-        }
-    }
+//    @Test
+//    public void shouldFindRouteEachStationToEveryOther() throws UnknownStationException {
+//        TransportData data = dependencies.get(TransportData.class);
+//        List<Station> allStations = data.getStations();
+//        for(Station start : allStations) {
+//            for(Station end: allStations) {
+//                String startCode = start.getId();
+//                String endCode = end.getId();
+//                if (!startCode.equals(endCode)) {
+//                    JourneyPlanRepresentation results = planner.createJourneyPlan(startCode, endCode, "12:00:00", DaysOfWeek.Monday);
+//                    assertTrue(results.getJourneys().size() > 0);
+//                }
+//            }
+//        }
+//    }
 
 
 }

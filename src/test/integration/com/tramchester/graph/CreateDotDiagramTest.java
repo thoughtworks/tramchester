@@ -6,6 +6,7 @@ import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramRelationship;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,6 +36,11 @@ public class CreateDotDiagramTest {
     public void beforeEachOfTheTestsRun() {
         graphService = dependencies.get(GraphDatabaseService.class);
         relationshipFactory = new RelationshipFactory();
+    }
+
+    @AfterClass
+    public static void OnceAfterAllTestsAreFinished() {
+        dependencies.close();
     }
 
     @Test
@@ -97,15 +103,4 @@ public class CreateDotDiagramTest {
 
     }
 
-    private class TestPathExpander implements PathExpander<GraphBranchState> {
-        @Override
-        public Iterable<Relationship> expand(Path path, BranchState state) {
-            return path.endNode().getRelationships();
-        }
-
-        @Override
-        public PathExpander reverse() {
-            return this;
-        }
-    }
 }
