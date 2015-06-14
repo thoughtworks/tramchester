@@ -12,9 +12,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 
 public class TestGraphWithSimpleRoute {
 
@@ -37,31 +38,31 @@ public class TestGraphWithSimpleRoute {
 
     @Test
     public void shouldTestSimpleJourneyIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat2Id", 5, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat2Id", 8*60, DaysOfWeek.Monday);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 5, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 8*60, DaysOfWeek.Monday);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 16, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 9*60, DaysOfWeek.Monday);
         assertEquals(0, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat3Id", 5, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat3Id", 8*60, DaysOfWeek.Monday);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat4Id", 5, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat4Id", 8*60, DaysOfWeek.Monday);
         assertEquals(1, journeys.size());
     }
 
@@ -90,29 +91,29 @@ public class TestGraphWithSimpleRoute {
             // trip: 1 -> 2 -> cornbrook -> 3
             Trip tripA = new Trip("trip1Id", "headSign", serviceAId);
             serviceA.addTrip(tripA);
-            int startTime = 7;
+            int startTime = 8*60; // 8am
 
-            Station station = new Station("stat1Id", "stat1Code", "startStation", 180.00, 270.0);
-            tripA.addStop(createStop(station, createTime(00, 7), createTime(00, 8), startTime));
+            Station station = new Station("stat1Id", "startStation", 180.00, 270.0);
+            tripA.addStop(createStop(station, createTime(8, 0), createTime(8, 3), startTime+3));
 
-            station = new Station("stat2Id", "stat2Code", "secondStation", 180.00, 270.0);
-            tripA.addStop(createStop(station, createTime(00, 10), createTime(00, 11), startTime + 3));
+            station = new Station("stat2Id", "secondStation", 180.00, 270.0);
+            tripA.addStop(createStop(station, createTime(8, 6), createTime(8, 7), startTime + 6));
 
-            Station interchangeStation = new Station(TransportGraphBuilder.CORNBROOK, "stat2Code", "cornbrook", 180.00, 270.00);
-            tripA.addStop(createStop(interchangeStation, createTime(00, 14), createTime(00, 15), startTime + 8));
+            Station interchangeStation = new Station(TransportGraphBuilder.CORNBROOK, "cornbrook", 180.00, 270.00);
+            tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 21), startTime + 20));
 
-            station = new Station("stat3Id", "stat3Code", "endStation", 180.00, 270.00);
-            tripA.addStop(createStop(station, createTime(00, 14), createTime(00, 15),
+            station = new Station("stat3Id", "endStation", 180.00, 270.00);
+            tripA.addStop(createStop(station, createTime(8, 40), createTime(00, 41),
                     RouteCalculator.MAX_WAIT_TIME_MINS + startTime));
 
             // cornbrook -> 4
             Trip tripB = new Trip("trip2Id", "headSign", serviceBId);
             serviceB.addTrip(tripB);
-            tripB.addStop(createStop(interchangeStation, createTime(00,26), createTime(00,27),
+            tripB.addStop(createStop(interchangeStation, createTime(8,26), createTime(8,27),
                     startTime+RouteCalculator.MAX_WAIT_TIME_MINS+2));
 
-            station = new Station("stat4Id", "stat4Code", "stat4Station", 170.00, 160.00);
-            tripB.addStop(createStop(station, createTime(00,35), createTime(00,36),
+            station = new Station("stat4Id", "stat4Station", 170.00, 160.00);
+            tripB.addStop(createStop(station, createTime(8,35), createTime(8,36),
                     startTime + RouteCalculator.MAX_WAIT_TIME_MINS+10));
 
         }
@@ -134,6 +135,11 @@ public class TestGraphWithSimpleRoute {
 
         @Override
         public Route getRoute(String routeId) {
+            return null;
+        }
+
+        @Override
+        public List<Station> getStations() {
             return null;
         }
     }

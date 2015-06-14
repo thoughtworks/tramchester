@@ -50,14 +50,6 @@ public class RouteStationNode implements TramNode {
                 '}';
     }
 
-    @Override
-    public Set<Relationship> getRelationships() {
-        HashSet<Relationship> outbound = new HashSet<>();
-        outbound.addAll(getDepartsTram());
-        outbound.addAll(getOutgoingTrams());
-        return outbound;
-    }
-
     public String getRouteName() {
         return routeName;
     }
@@ -66,11 +58,4 @@ public class RouteStationNode implements TramNode {
         return routeId;
     }
 
-    private ArrayList<Relationship> getOutgoingTrams() {
-        return Lists.newArrayList(node.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.GOES_TO.name())));
-    }
-
-    private ArrayList<Relationship> getDepartsTram() {
-        return Lists.newArrayList(node.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.DEPART.name())));
-    }
 }

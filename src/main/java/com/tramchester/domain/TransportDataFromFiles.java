@@ -19,7 +19,7 @@ public class TransportDataFromFiles implements TransportData {
                                   Stream<StopTimeData> stopTimeDataList, Stream<CalendarData> calendarDataList) {
         stopDataList.forEach((stopData) -> {
             if (!stations.keySet().contains(stopData.getId())) {
-                stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getCode(), stopData.getName(),
+                stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getName(),
                         stopData.getLatitude(), stopData.getLongitude()));
             }
         } );

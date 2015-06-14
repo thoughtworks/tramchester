@@ -9,6 +9,4 @@ public interface TramNode {
     boolean isRouteStation();
 
     String getId();
-
-    Set<Relationship> getRelationships();
 }

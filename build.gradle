@@ -24,6 +24,9 @@ repositories {
     maven {
         url "http://download.java.net/maven/2"
     }
+    maven {
+        url "https://raw.github.com/neo4j-contrib/m2/master/releases"
+    }
     mavenCentral()
 }
 
@@ -31,8 +34,8 @@ dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
-            'org.neo4j:neo4j:2.1.6',
-            'org.neo4j:neo4j-spatial:0.13-neo4j-2.1.4',
+            'org.neo4j:neo4j:2.2.2',
+            'org.neo4j:neo4j-spatial:0.14-neo4j-2.2.2',
             'joda-time:joda-time:2.4',
             'com.googlecode.jcsv:jcsv:1.4.0',
             'net.lingala.zip4j:zip4j:1.2.3',

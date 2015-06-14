@@ -6,5 +6,6 @@ public enum TransportRelationshipTypes implements RelationshipType {
     GOES_TO,
     BOARD,
     DEPART,
-    INTERCHANGE
+    INTERCHANGE_BOARD,
+    INTERCHANGE_DEPART
 }

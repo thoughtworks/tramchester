@@ -52,20 +52,4 @@ public class StationNode implements TramNode {
         return name;
     }
 
-    @Override
-    public Set<Relationship> getRelationships() {
-        HashSet<Relationship> outbound = new HashSet<>();
-
-        outbound.addAll(getBoardingRelationships());
-        outbound.addAll(getInterchangeRelationships());
-        return outbound;
-    }
-
-    private ArrayList<Relationship> getBoardingRelationships() {
-        return Lists.newArrayList(node.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.BOARD.name())));
-    }
-
-    private ArrayList<Relationship> getInterchangeRelationships() {
-        return Lists.newArrayList(node.getRelationships(Direction.OUTGOING, withName(TransportRelationshipTypes.INTERCHANGE.name())));
-    }
 }

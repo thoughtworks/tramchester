@@ -18,19 +18,21 @@ public class TransportGraphBuilder {
 
     public static final String CORNBROOK = "9400ZZMACRN";
     public static final String ST_PETERS_SQUARE = "9400ZZMASTP";
-    private static final String PIC_GARDENS = "9400ZZMAPGD";
-    private static final String TRAF_BAR = "9400ZZMATRA";
-    private static final String ST_WS_ROAD = "9400ZZMASTW";
-    private static final String VICTORIA = "9400ZZMAVIC";
-    // piccadily is not an official interchange but several services terminate here
-    private static final String PICCADILLY = "9400ZZMAPIC";
+    public static final String PIC_GARDENS = "9400ZZMAPGD";
+    public static final String TRAF_BAR = "9400ZZMATRA";
+    public static final String ST_WS_ROAD = "9400ZZMASTW";
+    public static final String VICTORIA = "9400ZZMAVIC";
+    // not an official interchanges but several services terminate/branch here
+    public static final String PICCADILLY = "9400ZZMAPIC";
+    public static final String HARBOURCITY = "9400ZZMAHCY";
 
     public static final List<String> interchanges = Arrays.asList(new String[]{
-            CORNBROOK, ST_PETERS_SQUARE, PIC_GARDENS, TRAF_BAR, ST_WS_ROAD, VICTORIA, PICCADILLY});
+            CORNBROOK, ST_PETERS_SQUARE, PIC_GARDENS, TRAF_BAR, ST_WS_ROAD, VICTORIA, PICCADILLY, HARBOURCITY});
 
-    public static final int INTERCHANGE_COST = 3;
+    public static final int INTERCHANGE_DEPART_COST = 1;
+    public static final int INTERCHANGE_BOARD_COST = 1;
     public static final int BOARDING_COST = 2;
-    public static final int DEPARTS_COST = 1;
+    public static final int DEPARTS_COST = 2;
 
     private GraphDatabaseService graphDatabaseService;
     private TransportData transportData;
@@ -74,8 +76,10 @@ public class TransportGraphBuilder {
             Node to = getOrCreateRouteStation(nextStop.getStation(), route);
 
             int duration = nextStop.getMinutesFromMidnight() - currentStop.getMinutesFromMidnight();
-            createOrUpdateRelationship(from, to, TransportRelationshipTypes.GOES_TO, currentStop,
-                    duration, service, route);
+            if (runsAtLeastADay(service.getDays())) {
+                createOrUpdateRelationship(from, to, TransportRelationshipTypes.GOES_TO, currentStop,
+                        duration, service, route, nextStop.getStation().getName());
+            }
         }
     }
 
@@ -92,10 +96,10 @@ public class TransportGraphBuilder {
     private Node getOrCreateStation(Station station) {
 
         Index<Node> stationsIndex = getStationsIndex();
-        Node node = stationsIndex.get(GraphStaticKeys.ID, station.getId()).getSingle();
+        Node node = getStationNode(station, stationsIndex);
 
         if (node == null) {
-            logger.info("Creating station node: " + station.getName());
+            logger.info("Creating station node: " + station);
             node = graphDatabaseService.createNode();
             node.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
 
@@ -103,10 +107,15 @@ public class TransportGraphBuilder {
             node.setProperty(GraphStaticKeys.Station.NAME, station.getName());
             node.setProperty(GraphStaticKeys.Station.LAT, station.getLatitude());
             node.setProperty(GraphStaticKeys.Station.LONG, station.getLongitude());
-            getSpatialIndex().add(node, station.getId(), station.getName());
             stationsIndex.add(node, GraphStaticKeys.ID, station.getId());
+
+            getSpatialIndex().add(node, station.getId(), station.getName());
         }
         return node;
+    }
+
+    private Node getStationNode(Station station, Index<Node> stationsIndex) {
+        return stationsIndex.get(GraphStaticKeys.ID, station.getId()).getSingle();
     }
 
     private Index<Node> getStationsIndex() {
@@ -124,37 +133,51 @@ public class TransportGraphBuilder {
     }
 
     private Node getOrCreateRouteStation(Station station, Route route) {
-        Node stationNode = getOrCreateStation(station);
-
         String routeStationId = createRouteStationId(station, route);
-        Node routeStation = getRouteStationsIndex().get(GraphStaticKeys.ID, routeStationId).getSingle();
+        Node routeStation = getRouteStation(routeStationId);
 
         if (routeStation == null) {
             routeStation = createRouteStation(station, route, routeStationId);
         }
 
-        // station -> route station
+        Node stationNode = getOrCreateStation(station);
+
+        TransportRelationshipTypes boardType;
+        TransportRelationshipTypes departType;
+        int boardCost;
+        int departCost;
         if (preferedInterchange(stationNode)) {
-            if (!alreadyHas(stationNode, routeStation, TransportRelationshipTypes.INTERCHANGE)) {
-                Relationship interchangeRelationshipTo = stationNode.createRelationshipTo(routeStation, TransportRelationshipTypes.INTERCHANGE);
-                interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, INTERCHANGE_COST);
-                interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, routeStationId);
-            }
-        } else {
-            if (!alreadyHas(stationNode, routeStation, TransportRelationshipTypes.BOARD)) {
-                Relationship boardRelationshipTo = stationNode.createRelationshipTo(routeStation, TransportRelationshipTypes.BOARD);
-                boardRelationshipTo.setProperty(GraphStaticKeys.COST, BOARDING_COST); // was 5
-                boardRelationshipTo.setProperty(GraphStaticKeys.ID, routeStationId);
-            }
+            boardType = TransportRelationshipTypes.INTERCHANGE_BOARD;
+            boardCost = INTERCHANGE_BOARD_COST;
+            departType = TransportRelationshipTypes.INTERCHANGE_DEPART;
+            departCost = INTERCHANGE_DEPART_COST;
+        } else
+        {
+            boardType = TransportRelationshipTypes.BOARD;
+            boardCost = BOARDING_COST;
+            departType = TransportRelationshipTypes.DEPART;
+            departCost = DEPARTS_COST;
         }
+
+        // station -> routeStation
+        if (!alreadyHas(stationNode, routeStation, boardType)) {
+            Relationship interchangeRelationshipTo = stationNode.createRelationshipTo(routeStation, boardType);
+            interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, boardCost);
+            interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, routeStationId);
+        }
+
         // route station -> station
-        if (!alreadyHas(routeStation, stationNode, TransportRelationshipTypes.DEPART)) {
-            Relationship departRelationship = routeStation.createRelationshipTo(stationNode, TransportRelationshipTypes.DEPART);
-            departRelationship.setProperty(GraphStaticKeys.COST, DEPARTS_COST);
+        if (!alreadyHas(routeStation, stationNode, departType)) {
+            Relationship departRelationship = routeStation.createRelationshipTo(stationNode, departType);
+            departRelationship.setProperty(GraphStaticKeys.COST, departCost);
             departRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
         }
 
         return routeStation;
+    }
+
+    private Node getRouteStation(String routeStationId) {
+        return getRouteStationsIndex().get(GraphStaticKeys.ID, routeStationId).getSingle();
     }
 
     private Node createRouteStation(Station station, Route route, String routeStationId) {
@@ -183,26 +206,26 @@ public class TransportGraphBuilder {
         return station.getId() + route.getId();
     }
 
-    private boolean preferedInterchange(Node stationNode) {
+    public static boolean preferedInterchange(Node stationNode) {
         return interchanges.contains(stationNode.getProperty(GraphStaticKeys.ID));
     }
 
-    private Relationship createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
-                                                    Stop stop, int cost, Service service, Route route) {
+    private void createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
+                                                    Stop stop, int cost, Service service, Route route, String dest) {
+
         // Confusingly some services can go different routes and hence have different outbound GOES relationships from
         // the same node, so we have to check both start and end nodes for each relationship
 
-        Relationship relationship = getRelationship(service, start, end);
         int fromMidnight = stop.getMinutesFromMidnight();
+        Relationship relationship = getRelationship(service, start, end);
 
-        if (relationship == null && runsAtLeastADay(service.getDays())) {
-            logger.info(String.format("create relationship svc %s from %s to %s route %s time %s",
-                    service.getServiceId(),
-                    start.getProperty(GraphStaticKeys.ID),end.getProperty(GraphStaticKeys.ID),
-                    route.getId(), fromMidnight));
-            relationship = createRelationship(start, end, transportRelationshipType, stop, cost, service, route);
-        } else if (relationship != null) {
-
+        if (relationship == null) {
+//            logger.info(String.format("create relationship svc %s from %s to %s route %s time %s",
+//                    service.getServiceId(),
+//                    start.getProperty(GraphStaticKeys.ID),end.getProperty(GraphStaticKeys.ID),
+//                    route.getId(), fromMidnight));
+            createRelationship(start, end, transportRelationshipType, stop, cost, service, route, dest);
+        } else  {
             // add the time of this stop to the service relationship
             int[] array = (int[]) relationship.getProperty(GraphStaticKeys.TIMES);
             if (Arrays.binarySearch(array,fromMidnight)<0) {
@@ -211,27 +234,25 @@ public class TransportGraphBuilder {
                 // keep times sorted
                 Arrays.sort(newTimes);
                 relationship.setProperty(GraphStaticKeys.TIMES, newTimes);
-
             }
         }
-
-        return relationship;
     }
 
-    private Relationship createRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
-                                            Stop stop, int cost, Service service, Route route) {
-
-        int[] times = new int[] {stop.getMinutesFromMidnight()};   // initial contents
+    private void createRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
+                                            Stop stop, int cost, Service service,
+                                            Route route, String dest) {
 
         Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
+
+        int[] times = new int[] {stop.getMinutesFromMidnight()};   // initial contents
         relationship.setProperty(GraphStaticKeys.TIMES, times);
         relationship.setProperty(GraphStaticKeys.COST, cost);
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
         relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
         relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
+        relationship.setProperty(GraphStaticKeys.ROUTE_STATION, dest);
 
-        return relationship;
     }
 
     private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
@@ -251,12 +272,17 @@ public class TransportGraphBuilder {
     }
 
     private Relationship getRelationship(Service service, Node startNode, Node end) {
-        Iterable<Relationship> relationships = startNode.getRelationships(Direction.OUTGOING);
-        for (Relationship relationship : relationships) {
-            if (relationship.getEndNode().getId()==end.getId()) {
-                if (relationship.hasProperty(GraphStaticKeys.SERVICE_ID) &&
-                        relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString().equals(service.getServiceId())) {
-                    return relationship;
+        String serviceId = service.getServiceId();
+
+        Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING);
+        for (Relationship outgoing : existing) {
+            if (outgoing.hasProperty(GraphStaticKeys.SERVICE_ID)) {
+                String existingSvcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+                if (existingSvcId.equals(serviceId)) {
+                    long relationshipDestId = outgoing.getEndNode().getId();
+                    if (relationshipDestId==end.getId()) {
+                        return outgoing;
+                    }
                 }
             }
         }

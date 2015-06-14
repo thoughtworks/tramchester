@@ -69,14 +69,69 @@ public class RouteCalculatorTest {
         assertTrue(boarding.get(1).isBoarding());
     }
 
-
     @Test
-    public void shouldGetCorrectNumberOfTrips() {
-        String svcId = "Serv000069";  // can go to eccles, media city or trafford bar
+    public void shouldGetCorrectNumberOfTripsVeloToMediaCityDirectSaturdayService() {
+        String svcId = "Serv000069";
 
         int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
         int numTrips = 10;
         List<ServiceTime> times = transportData.getTimes(svcId, Stations.VeloPark, Stations.MediaCityUK,
+                minutesFromMidnight, numTrips);
+        assertEquals(numTrips, times.size());
+    }
+
+    @Test
+    public void shouldTestNumberOfTripsFromVeloToPiccadilyMondayMorning() {
+        String svcId = "Serv000059";
+
+        int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
+        int numTrips = 10;
+        List<ServiceTime> times = transportData.getTimes(svcId, Stations.VeloPark, Stations.Piccadily,
+                minutesFromMidnight, numTrips);
+        assertEquals(numTrips, times.size());
+
+    }
+
+    @Test
+    public void shouldTestNumberOfTripsFromVeloToHarbourCityMondayMorning() {
+        String svcId = "Serv000059";
+
+        int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
+        int numTrips = 10;
+        List<ServiceTime> times = transportData.getTimes(svcId, Stations.VeloPark, Stations.HarbourCity,
+                minutesFromMidnight, numTrips);
+        assertEquals(numTrips, times.size());
+    }
+
+    @Test
+    public void shouldTestNumberOfTripsFromHarbourCityToMediaCityMondayMorning() {
+        String svcId = "Serv000067";
+
+        int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
+        int numTrips = 10;
+        List<ServiceTime> times = transportData.getTimes(svcId, Stations.HarbourCity, Stations.MediaCityUK,
+                minutesFromMidnight, numTrips);
+        assertEquals(numTrips, times.size());
+    }
+
+    @Test
+    public void shouldGetCorrectNumberOfTripsVeloToPiccadilyWeekdayService() {
+        String svcId = "Serv000059";  // velo to piccadily on weekday
+
+        int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
+        int numTrips = 10;
+        List<ServiceTime> times = transportData.getTimes(svcId, Stations.VeloPark, Stations.Piccadily,
+                minutesFromMidnight, numTrips);
+        assertEquals(numTrips, times.size());
+    }
+
+    @Test
+    public void shouldGetCorrectNumberOfTripsPiccadilyToMediaCityWeekdayService() {
+        String svcId = "Serv000067";  // piccadily to mediacity
+
+        int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
+        int numTrips = 10;
+        List<ServiceTime> times = transportData.getTimes(svcId, Stations.Piccadily, Stations.MediaCityUK,
                 minutesFromMidnight, numTrips);
         assertEquals(numTrips, times.size());
     }
@@ -87,9 +142,8 @@ public class RouteCalculatorTest {
         Collection<Service> svcs = transportData.getServices();
         for(Service svc : svcs) {
             HashMap<DaysOfWeek, Boolean> days = svc.getDays();
-            assertNotNull(svc.getServiceId(),days.get(DaysOfWeek.Monday));
-            boolean flag = days.get(DaysOfWeek.Monday);
-            if (flag) {
+            boolean monday = days.get(DaysOfWeek.Monday);
+            if (monday) {
                 mondayServices.add(svc);
             }
         }

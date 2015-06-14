@@ -46,7 +46,7 @@ public class Trip {
         boolean seenFirst = false;
         boolean seenSecond = false;
         for (Stop stop : stops) {
-            if (stop.getMinutesFromMidnight()>=minutesFromMidnight) {
+            if (stop.getMinutesFromMidnight()>minutesFromMidnight) {
                 String stopStationId = stop.getStation().getId();
                 if (firstStationId.equals(stopStationId)) {
                     seenFirst = true;

@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -13,9 +14,7 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private static final Logger logger = LoggerFactory.getLogger(TimeBasedPathExpander.class);
@@ -38,8 +37,10 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> state) {
         GraphBranchState branchState = state.getState();
 
-        TramNode currentNode = nodeFactory.getNode(path.endNode());
-        Set<Relationship> relationships = currentNode.getRelationships();
+        Node endNode = path.endNode();
+        TramNode currentNode = nodeFactory.getNode(endNode);
+
+        Iterable<Relationship> relationships = endNode.getRelationships(Direction.OUTGOING);
 
         if (path.length()==0) {
             return relationships;
@@ -52,30 +53,22 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         int duration = (int)new WeightedPathImpl(costEvaluator, path).weight();
         int journeyStartTime = branchState.getTime();
         int elapsedTime = duration + journeyStartTime;
-        List<GoesToRelationship> servicesFilteredOut = new ArrayList<>();
+        Map<GoesToRelationship,ServiceReason> servicesFilteredOut = new HashMap<>();
         int servicesOutbound = 0;
 
         for (Relationship graphRelationship : relationships) {
             TramRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
             if (outgoing.isGoesTo()) {
+                // filter route station -> route station relationships
                 GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
                 servicesOutbound++;
-                // filter route station -> route station relationships
-                if (operatesOnTime(goesToRelationship.getTimesTramRuns(), elapsedTime)
-                        && operatesOnDay(goesToRelationship.getDaysTramRuns(), branchState.getDay())
-                        && noInFlightChangeOfService(incoming, goesToRelationship)
-                        ) {
+                ServiceReason serviceReason = checkServiceHeuristics(branchState, incoming, elapsedTime, goesToRelationship);
+                if (serviceReason==ServiceReason.IsValid) {
                     results.add(graphRelationship);
                 } else {
-                    servicesFilteredOut.add(goesToRelationship);
+                    servicesFilteredOut.put(goesToRelationship, serviceReason);
                 }
-            } else if (outgoing.isInterchange()) {
-                // add interchange relationships
-                //logger.debug("Add interchange relationship " + outgoing);
-                results.add(graphRelationship);
-            } else {
-                // add board and depart
-                // TODO Only really need these at destination and originating nodes?
+            } else  {
                 results.add(graphRelationship);
             }
         }
@@ -83,12 +76,47 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         if (duration>90) {
             logger.warn("Duration >90mins at node " + currentNode);
         }
+        // all filtered out
         if ((servicesOutbound>0) && (servicesFilteredOut.size()==servicesOutbound)) {
-            logger.warn(String.format("Filtered out all %s services for node %s time %s ",
-                    servicesFilteredOut.size(), currentNode, elapsedTime));
-//            logger.debug("Filtered out services were: " + servicesFilteredOut);
+            logger.warn("All services filtered out " + currentNode);
+            reportFilterReasons(currentNode, elapsedTime, servicesFilteredOut, incoming);
         }
+
+        results.forEach(result -> {
+            TramRelationship relationship = relationshipFactory.getRelationship(result);
+            String currentLocation = currentNode.toString();
+            if (relationship.getId().contains(branchState.getDest())) {
+                logger.info("Dest is in relationship list for: " + currentLocation);
+            }
+        });
+
+
         return results;
+    }
+
+    private void reportFilterReasons(TramNode currentNode, int elapsedTime, Map<GoesToRelationship, ServiceReason> servicesFilteredOut, TramRelationship incoming) {
+        if (servicesFilteredOut.size()==0) {
+            return;
+        }
+        logger.debug(String.format("Time:%s Filtered:%s services for node:%s inbound:%s",
+                elapsedTime, servicesFilteredOut.size(), currentNode, incoming));
+        servicesFilteredOut.forEach((service, reason) -> {
+            logger.debug(String.format("time:%s service:%s dest:%s reason:%s",
+                    elapsedTime, service.getService(), service.getDest(), reason));
+        });
+    }
+
+    private ServiceReason checkServiceHeuristics(GraphBranchState branchState, TramRelationship incoming, int elapsedTime, GoesToRelationship goesToRelationship) {
+        if (!operatesOnDay(goesToRelationship.getDaysTramRuns(), branchState.getDay())) {
+            return ServiceReason.DoesNotRunOnDay;
+        }
+        if (!noInFlightChangeOfService(incoming, goesToRelationship)) {
+            return ServiceReason.InflightChangeOfService;
+        }
+        if (!operatesOnTime(goesToRelationship.getTimesTramRuns(), elapsedTime)) {
+            return ServiceReason.DoesNotOperateOnTime;
+        }
+        return ServiceReason.IsValid;
     }
 
     public boolean noInFlightChangeOfService(TramRelationship incoming, GoesToRelationship outgoing) {
@@ -96,12 +124,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
             return true; // not a tram service relationship
         }
         GoesToRelationship inComingTram = (GoesToRelationship) incoming;
-        boolean flag = inComingTram.getService().equals(outgoing.getService());
-        if (!flag) {
-            logger.debug(String.format("Filtered out inflight change from service %s to %s",
-                    inComingTram.getService(), outgoing.getService()));
-        }
-        return flag;
+        return inComingTram.getService().equals(outgoing.getService());
     }
 
     public boolean operatesOnTime(int[] times, int currentTime) {
