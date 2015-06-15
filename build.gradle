@@ -11,7 +11,7 @@ def environment = System.getenv("ENV") ?: "Dev"
 version = '1.0'
 
 project.ext {
-    dropwizardVersion = '0.8.0-rc2'
+    dropwizardVersion = '0.8.1'
 }
 
 repositories {
@@ -44,7 +44,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11',
             'org.assertj:assertj-core:1.2.0',
             'org.mockito:mockito-core:1.9.5',
-            'io.dropwizard:dropwizard-testing:0.8.0-rc2',
+            'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
 			'org.easymock:easymock:3.3.1'
 }
 
