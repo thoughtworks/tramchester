@@ -72,6 +72,7 @@
 					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
 					"InstanceType" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "webSize" ]} ,
 					"ImageId" : { "Ref": "ami" },
+					"IamInstanceProfile" : { "Ref": "INSTANCEPROFILE" },
 					"UserData" : { "Fn::Base64" : { "Fn::Join" : ["",
 						[
 							"#include","\n",
