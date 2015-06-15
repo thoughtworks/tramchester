@@ -1,0 +1,57 @@
+{
+   "AWSTemplateFormatVersion": "2010-09-09",
+   "Description" : "IAM template to allow instances to log via cloudwatch logs agent. NOTE The user you run this as will need IAM create permissions",
+   	"Parameters" : {
+			"env" : { "Type": "String" },
+			"vpc" : { "Type": "String" }
+	},
+   	"Resources": {
+      "InstanceRole": {
+         "Type": "AWS::IAM::Role",
+         "Properties": {
+            "AssumeRolePolicyDocument": {
+               "Version" : "2012-10-17",
+               "Statement": [ {
+                  "Effect": "Allow",
+                  "Principal": {
+                     "Service": [ "ec2.amazonaws.com" ]
+                  },
+                  "Action": [ "sts:AssumeRole" ]
+               } ]
+            },
+            "Path":  { "Fn::Join" : ["", [ "/tramchester/", { "Ref": "env"}, "/" ] ] },
+            "Policies": [ {
+               "PolicyName": "loggingPolicy",
+               "PolicyDocument": {
+					"Version": "2012-10-17",
+						  "Statement": [
+						    {
+						      "Effect": "Allow",
+						      "Action": [
+						        "logs:*"
+						      ],
+						      "Resource": [
+						        "arn:aws:logs:*:*:*"
+						      ]
+						    }
+						  ]
+               		}
+               } ]
+            }
+      	},
+		"InstanceProfile": {
+         "Type": "AWS::IAM::InstanceProfile",
+         "Properties": {
+            "Path":  { "Fn::Join" : ["", [ "/tramchester/", { "Ref": "env"}, "/" ] ] },
+            "Roles": [ {
+               "Ref": "InstanceRole"
+            } ]
+         }
+      }
+	},
+	"Outputs" : {
+        "INSTANCEPROFILE" : {
+             "Value" : { "Fn::GetAtt" : [ "InstanceProfile", "Arn" ] }, "Description":"::CFN_TAG"
+        }
+	}
+}
