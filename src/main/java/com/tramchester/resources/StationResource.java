@@ -46,7 +46,7 @@ public class StationResource {
 
     @GET
     @Path("/{lat}/{lon}")
-    public Response list(@PathParam("lat") double lat, @PathParam("lon") double lon) {
+    public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) {
         List<Station> orderedStations = spatialService.reorderNearestStations(lat, lon, stations);
         return Response.ok(orderedStations).build();
 

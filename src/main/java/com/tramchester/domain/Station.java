@@ -5,6 +5,7 @@ public class Station {
     private final String name;
     private final double latitude;
     private final double longitude;
+    private String proximityGroup;
 
     @Override
     public String toString() {
@@ -35,4 +36,11 @@ public class Station {
         return longitude;
     }
 
+    public void setProximityGroup(String proximityGroup) {
+        this.proximityGroup = proximityGroup;
+    }
+
+    public String getProximityGroup() {
+        return proximityGroup;
+    }
 }

@@ -35,7 +35,7 @@ public class SpatialService {
                 String id = node.getProperty(GraphStaticKeys.ID).toString();
                 Station nearestStation = getStation(stations, id);
                 if (nearestStation != null) {
-                    //nearestStation.setProximityGroup("Nearest Stops");
+                    nearestStation.setProximityGroup("Nearest Stops");
                     reorderedStations.add(nearestStation);
                     count++;
                 }
@@ -45,7 +45,7 @@ public class SpatialService {
 
             for (Station station : stations) {
                 if (reorderedStations.contains(station) == false) {
-                    //station.setProximityGroup("All Stops");
+                    station.setProximityGroup("All Stops");
                     reorderedStations.add(station);
                 }
             }
