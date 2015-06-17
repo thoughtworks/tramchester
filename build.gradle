@@ -162,3 +162,14 @@ task tidy(dependsOn: cfnassist) << {
 	}
 }
 
+task whitelist(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+		WhiteList(port: '80', tag:'web')
+	}
+}
+
+task blacklist(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+		BlackList(port: '80', tag:'web')
+	}
+}
