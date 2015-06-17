@@ -44,8 +44,8 @@ unzip $data
 logger Set up amazon cloudwatch logs agent
 wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
 chmod +x ./awslogs-agent-setup.py
-sed -i.orig "s/PREFIX/web_${ENV}_${BUILD}/" $target/cloudwatch_logs_web.conf
-./awslogs-agent-setup.py -n -r eu-west-1 -c $target/cloudwatch_logs_web.conf
+sed -i.orig "s/PREFIX/web_${ENV}_${BUILD}/" config/cloudwatch_logs_web.conf
+./awslogs-agent-setup.py -n -r eu-west-1 -c config/cloudwatch_logs_web.conf
 
 # fix ownership
 chown -R ubuntu .
