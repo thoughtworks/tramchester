@@ -14,7 +14,7 @@
 			"baseUrl":{ "Type": "String", "Default": "https://s3-eu-west-1.amazonaws.com/tramchester2dist" },
 			"bootstrapCloudInit" : { "Type" : "String", "Default": "cloudInit.txt" },
 			"bootstrapWebScript" : { "Type" : "String" , "Default": "setupTramWebServer.sh" },
-			"INSTANCEPROFILE" : { "Type" : "String", "Description" : "::CFN_TAG" }
+			"instanceProfile" : { "Type" : "String", "Description" : "::InstanceProfile" }
 		},
 
 		"Mappings" : {
@@ -26,7 +26,6 @@
 		},
 
 		"Resources" : {
-
 			"webDoneWaitHandle" : {
 				"Type" : "AWS::CloudFormation::WaitConditionHandle",
 				"Properties" : {
@@ -47,7 +46,7 @@
 					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
 					"InstanceType" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "webSize" ]} ,
 					"ImageId" : { "Ref": "ami" },
-					"IamInstanceProfile" : { "Ref": "INSTANCEPROFILE" },
+					"IamInstanceProfile" : { "Ref": "instanceProfile" },
 					"UserData" : { "Fn::Base64" : { "Fn::Join" : ["",
 						[
 							"#include","\n",
@@ -71,7 +70,7 @@
 				"Properties" : {
 					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
 					"InstanceType" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "webSize" ]} ,
-					"IamInstanceProfile" : { "Ref": "INSTANCEPROFILE" },
+					"IamInstanceProfile" : { "Ref": "instanceProfile" },
 					"ImageId" : { "Ref": "ami" },
 					"UserData" : { "Fn::Base64" : { "Fn::Join" : ["",
 						[

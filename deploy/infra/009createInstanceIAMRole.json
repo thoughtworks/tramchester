@@ -50,8 +50,5 @@
       }
 	},
 	"Outputs" : {
-        "INSTANCEPROFILE" : {
-             "Value" : { "Fn::GetAtt" : [ "InstanceProfile", "Arn" ] }, "Description":"::CFN_TAG"
-        }
 	}
 }
