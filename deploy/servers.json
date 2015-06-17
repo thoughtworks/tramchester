@@ -10,7 +10,7 @@
 			"webSubnetA" : { "Type": "String", "Description" : "::webSubnetZoneA" },
 			"webSg" : { "Type": "String" , "Description" : "::sgWeb" },
 			"webServerName" : { "Type" : "String", "Default": "tramchesterWeb" },
-			"ami" : { "Type" : "String", "Default": "ami-f0b11187" },
+			"ami" : { "Type" : "String", "Default": "ami-47a23a30" },
 			"baseUrl":{ "Type": "String", "Default": "https://s3-eu-west-1.amazonaws.com/tramchester2dist" },
 			"bootstrapCloudInit" : { "Type" : "String", "Default": "cloudInit.txt" },
 			"bootstrapWebScript" : { "Type" : "String" , "Default": "setupTramWebServer.sh" },
@@ -34,14 +34,14 @@
 			},
 			"waitForWebServerCallBack" : {
 				"Type" : "AWS::CloudFormation::WaitCondition",
-				"DependsOn" : "TechLabWebServerA",
+				"DependsOn" : "TramWebServerA",
 				"Properties" : {
 					"Handle" : { "Ref" : "webDoneWaitHandle" },
 					"Timeout" : "1200",
 					"Count" : "1"
 				}
 			},
-			"TechLabWebServerA" : {
+			"TramWebServerA" : {
 				"Type" : "AWS::EC2::Instance",
 				"Properties" : {
 					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
@@ -66,13 +66,13 @@
 					]
 				}
 			}, 
-			"TechLabWebServerB" : {
+			"TramWebServerB" : {
 				"Type" : "AWS::EC2::Instance",
 				"Properties" : {
 					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
 					"InstanceType" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "webSize" ]} ,
-					"ImageId" : { "Ref": "ami" },
 					"IamInstanceProfile" : { "Ref": "INSTANCEPROFILE" },
+					"ImageId" : { "Ref": "ami" },
 					"UserData" : { "Fn::Base64" : { "Fn::Join" : ["",
 						[
 							"#include","\n",
