@@ -27,6 +27,7 @@ public class SpatialService {
     public List<Station> reorderNearestStations(Double latitude, Double longitude, List<Station> stations) {
         Transaction tx = graphDatabaseService.beginTx();
         try {
+            stations.sort((s1, s2) -> s1.getName().compareTo(s2.getName()));
             List<Node> nearestStations = getNearestStationsTo(latitude, longitude, 10);
             List<Station> reorderedStations = new ArrayList<>();
             int count = 0;
@@ -39,7 +40,7 @@ public class SpatialService {
                     reorderedStations.add(nearestStation);
                     count++;
                 }
-                if (count > 6)
+                if (count >= 6)
                     break;
             }
 

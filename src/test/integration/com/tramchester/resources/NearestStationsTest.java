@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class NearestStationsTest {
@@ -44,5 +45,9 @@ public class NearestStationsTest {
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
 
         assertTrue(stationGroups.get("Nearest Stops") > 0);
+        assertEquals("Nearest Stops", stations.get(0).getProximityGroup());
+        assertEquals("All Stops", stations.get(6).getProximityGroup());
+        assertEquals("Abraham Moss", stations.get(6).getName());
+        assertEquals("Altrincham Station", stations.get(7).getName());
     }
 }
