@@ -32,7 +32,8 @@
 			}
 		},
 		"Outputs" : {
-			"LoadBalanacerDNS" : { "Value" : { "Fn::GetAtt" : [ "loadBalancer", "DNSName" ] }, "Description":"::CFN_TAG" }
+			"LoadBalanacerDNS" : { "Value" : { "Fn::GetAtt" : [ "loadBalancer", "DNSName" ] }, "Description":"::CFN_TAG" },
+			"LoadBalanacerZoneId" : { "Value" : { "Fn::GetAtt" : [ "loadBalancer", "CanonicalHostedZoneNameID" ] }, "Description":"::CFN_TAG" }
 		}
 
 }

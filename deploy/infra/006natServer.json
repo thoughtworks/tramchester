@@ -4,7 +4,8 @@
 		"Mappings" : {
 			"environMap" : {
 				"Dev" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-4c619229" },
-				"UAT" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-4c619229" }
+				"UAT" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-7857a41d" },
+				"Prod" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-0c081b6e" }
 			}
 		},
 		"Parameters" : {

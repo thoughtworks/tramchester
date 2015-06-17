@@ -157,7 +157,7 @@ task updateLB(dependsOn: cfnassist) << {
 }
 
 task tidy(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, sns: 'true') {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
 		TidyStacks(target: 'deploy/servers.json', typeTag:'web')
 	}
 }
