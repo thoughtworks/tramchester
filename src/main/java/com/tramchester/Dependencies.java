@@ -11,6 +11,7 @@ import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.resources.StationResource;
+import com.tramchester.resources.VersionResource;
 import com.tramchester.services.DateTimeService;
 import com.tramchester.services.SpatialService;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -40,6 +41,7 @@ public class Dependencies {
         picoContainer.addComponent(TramchesterConfig.class, configuration);
 
         picoContainer.addComponent(StationResource.class);
+        picoContainer.addComponent(VersionResource.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(JourneyResponseMapper.class);

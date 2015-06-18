@@ -3,6 +3,7 @@ package com.tramchester;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.resources.StationResource;
+import com.tramchester.resources.VersionResource;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -40,6 +41,7 @@ public class App extends Application<AppConfiguration> {
         dependencies.initialise(configuration);
 
         environment.jersey().register(dependencies.get(StationResource.class));
+        environment.jersey().register(dependencies.get(VersionResource.class));
         environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
     }
 }
