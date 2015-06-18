@@ -2,7 +2,7 @@
 
 techLabApp.factory('mapService', function () {
     var position = null;
-    return  {
+    return {
         drawMap: function (lat, lon, zoomLevel) {
             var options = {
                 elt: document.getElementById('map'),
@@ -43,49 +43,14 @@ techLabApp.factory('mapService', function () {
             });
         },
 
-        drawStops: function (stops) {
-            for (var i = 0; i < stops.length - 2; i++) {
-                var point = new MQA.Poi({lat: stops[i].lat, lng: stops[i].lon});
-                point.setInfoContentHTML(stops[i].name);
-
-                var icon = new MQA.Icon("http://jcruz661.wikispaces.com/file/view/Sphere%202.png/403924452/511x506/Sphere%202.png", 20, 20);
-                point.setIcon(icon);
-                map.addShape(point);
-            }
-        },
-
-        drawTrams: function (trams, shapes) {
-            removeRemoveTrams(shapes);
-            shapes = [];
-
-            for (var i = 0; i < trams.length; i++) {
-                var point = new MQA.Poi({lat: trams[i].lat, lng: trams[i].lon});
-                point.setInfoContentHTML(trams[i].routeId);
-
-                var icon = new MQA.Icon("http://cdn1.iconfinder.com/data/icons/windows8_icons_iconpharm/26/tram.png", 20, 20);
-                point.setIcon(icon);
-                map.addShape(point);
-                shapes.push(point);
-
-//                MQA.withModule('shapes', function () {
-//                    var line = new MQA.LineOverlay();
-//                    line.setShapePoints([trams[i].lastStop.lat, trams[i].lastStop.lon, trams[i].nextStop.lat, trams[i].nextStop.lon]);
-//                    map.addShape(line);
-//                });
-            }
-            return shapes;
-        },
-
 
         showDirection: function (fromPosition, toPosition) {
             MQA.withModule('directions', function () {
                 map.addRoute([
-                    {latLng: {lat: fromPosition.lat, lng: fromPosition.lon}},
-                    {latLng: {lat: toPosition.lat, lng: toPosition.lon}}
-                ],
-
+                        {latLng: {lat: fromPosition.lat, lng: fromPosition.lon}},
+                        {latLng: {lat: toPosition.lat, lng: toPosition.lon}}
+                    ],
                     {ribbonOptions: {draggable: true}, routeType: 'pedestrian'},
-
                     displayNarrative
                 );
             });
@@ -98,15 +63,6 @@ techLabApp.factory('mapService', function () {
         }
 
     };
-
-    function removeRemoveTrams(shapes) {
-        console.log(shapes);
-        if (shapes != null) {
-            for (var i = 0; i < shapes.length; i++) {
-                map.removeShape(shapes[i]);
-            }
-        }
-    }
 
     function displayNarrative(data) {
         if (data.route) {

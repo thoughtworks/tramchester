@@ -24,11 +24,11 @@ techLabApp.controller('RouteDetailsController',
 
         $scope.showJourneyDetails = function (journey) {
             $location.url('/journeyDetails/' + journey.journeyIndex);
-        }
+        };
 
         $scope.goBack = function () {
             $location.url('/routePlanner/');
 
-        }
+        };
     }
 );
