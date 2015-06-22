@@ -14,12 +14,12 @@
             <div ng-show="!journeyPlan.journeys.length" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
-            <div ng-repeat="journey in journeyPlan.journeys | orderBy:journeyIndex" ng-click="showJourneyDetails(journey)">
+            <div ng-repeat="journey in journeyPlan.journeys | orderBy:journeyIndex" ng-click="showJourneyDetails(journey.journeyIndex)">
                 <div class="panel {{journey.stages[0].tramRouteId}}">
                     <div class="panel-heading">{{journey.stages[0].route}} Tram Line</div>
                     <!-- List group -->
                     <div class="list-group">
-                        <a ng-click="showJourneyDetails(journey)" class="list-group-item">
+                        <a ng-click="showJourneyDetails(journey.journeyIndex)" class="list-group-item">
                             <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.stages[0].beginStop.name}}</strong>
                             <span class="glyphicon glyphicon-chevron-right pull-right"></span>
                         </a></div>

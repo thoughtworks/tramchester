@@ -22,8 +22,8 @@ techLabApp.controller('RouteDetailsController',
             }
         }
 
-        $scope.showJourneyDetails = function (journey) {
-            $location.url('/journeyDetails/' + journey.journeyIndex);
+        $scope.showJourneyDetails = function (journeyIndex) {
+            $location.url('/journeyDetails/' + journeyIndex);
         };
 
         $scope.goBack = function () {
