@@ -142,5 +142,11 @@ public class TestGraphWithSimpleRoute {
         public List<Station> getStations() {
             return null;
         }
+
+        @Override
+        public FeedInfo getFeedInfo() {
+            return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", "validFrom",
+                    "validUntil", "version");
+        }
     }
 }

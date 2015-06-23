@@ -32,5 +32,14 @@ public class TransportDataImporterTest {
         Stop stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
         assertThat(stop.getArrivalTime().toString()).isEqualTo("2000-01-01T06:41:00.000Z");
+
+        FeedInfo feedInfo = transportData.getFeedInfo();
+        assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");
+        assertThat(feedInfo.getPublisherUrl()).isEqualTo("http://www.tfgm.com");
+        assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");
+        assertThat(feedInfo.getLang()).isEqualTo("en");
+        assertThat(feedInfo.getVersion()).isEqualTo("20150617");
+        assertThat(feedInfo.validFrom()).isEqualTo("20150618");
+        assertThat(feedInfo.validUntil()).isEqualTo("20150818");
     }
 }

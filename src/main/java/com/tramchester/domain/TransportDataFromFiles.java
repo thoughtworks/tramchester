@@ -13,10 +13,19 @@ public class TransportDataFromFiles implements TransportData {
     private HashMap<String, Station> stations = new HashMap<>();  // station id -> station
     private HashMap<String, Service> services = new HashMap<>();  // service id -> service
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
-
+    private FeedInfo feedInfo = null;
 
     public TransportDataFromFiles(Stream<StopData> stopDataList, Stream<RouteData> routeDataList, Stream<TripData> tripDataList,
-                                  Stream<StopTimeData> stopTimeDataList, Stream<CalendarData> calendarDataList) {
+                                  Stream<StopTimeData> stopTimeDataList, Stream<CalendarData> calendarDataList,
+                                  Stream<FeedInfo> feedInfoData) {
+        Optional<FeedInfo> maybeFeedInfo = feedInfoData.limit(1).findFirst();
+        if (maybeFeedInfo.isPresent()) {
+            feedInfo = maybeFeedInfo.get();
+        } else {
+            logger.warn("Did not find feedinfo");
+
+        }
+
         stopDataList.forEach((stopData) -> {
             if (!stations.keySet().contains(stopData.getId())) {
                 stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getName(),
@@ -117,6 +126,11 @@ public class TransportDataFromFiles implements TransportData {
         ArrayList<Station> stationList = new ArrayList<>();
         stationList.addAll(stations.values());
         return stationList;
+    }
+
+    @Override
+    public FeedInfo getFeedInfo() {
+        return feedInfo;
     }
 
     public Station getStation(String stationId) {

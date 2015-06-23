@@ -82,15 +82,6 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
             reportFilterReasons(currentNode, elapsedTime, servicesFilteredOut, incoming);
         }
 
-        results.forEach(result -> {
-            TramRelationship relationship = relationshipFactory.getRelationship(result);
-            String currentLocation = currentNode.toString();
-            if (relationship.getId().contains(branchState.getDest())) {
-                logger.info("Dest is in relationship list for: " + currentLocation);
-            }
-        });
-
-
         return results;
     }
 
@@ -169,9 +160,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 break;
 
         }
-//        if (!operates) {
-//            logger.info("Service does not run on " + today);
-//        }
+
         return operates;
     }
 

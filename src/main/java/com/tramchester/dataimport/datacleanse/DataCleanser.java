@@ -2,6 +2,7 @@ package com.tramchester.dataimport.datacleanse;
 
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
+import com.tramchester.domain.FeedInfo;
 import com.tramchester.services.DateTimeService;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,9 +42,13 @@ public class DataCleanser {
 
         cleanseCalendar();
 
+        cleanFeedInfo();
+
         FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
         FileUtils.forceDelete(new File(path + "/data.zip"));
     }
+
+
 
     private static void fetchData(String dataUrl) throws IOException {
         String filename = "data.zip";
@@ -163,12 +169,28 @@ public class DataCleanser {
         )));
 
         transportDataWriter.writeFile(content.toString(), "routes");
-        logger.info("**** Start cleansing routes.\n\n");
+        logger.info("**** End cleansing routes.\n\n");
     }
 
     private static String runsOnDay(boolean monday) {
         return monday ? "1" : "0";
     }
 
+    private static void cleanFeedInfo() throws IOException {
+        logger.info("**** Start cleansing feed info.");
+        Stream<FeedInfo> feedInfo = transportDataReader.getFeedInfo();
+        StringBuilder content = new StringBuilder();
 
+        feedInfo.skip(1).forEach(info -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s\n",
+                info.getPublisherName(),
+                info.getPublisherUrl(),
+                info.getTimezone(),
+                info.getLang(),
+                info.validFrom(),
+                info.validUntil(),
+                info.getVersion())));
+        transportDataWriter.writeFile(content.toString(), "feed_info");
+        logger.info("**** End cleansing feed info.");
+
+    }
 }

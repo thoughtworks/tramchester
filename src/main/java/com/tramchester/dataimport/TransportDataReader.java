@@ -3,6 +3,7 @@ package com.tramchester.dataimport;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
+import com.tramchester.domain.FeedInfo;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,5 +34,9 @@ public class TransportDataReader {
 
     public Stream<RouteData> getRoutes() throws IOException {
         return new DataLoader<>(path + "routes", new RouteDataParser()).loadAll();
+    }
+
+    public Stream<FeedInfo> getFeedInfo() throws IOException {
+        return new DataLoader<>(path + "feed_info", new FeedInfoDataParser()).loadAll();
     }
 }

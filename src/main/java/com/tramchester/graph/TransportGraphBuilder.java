@@ -45,6 +45,7 @@ public class TransportGraphBuilder {
     }
 
     public void buildGraph() {
+        logger.info("Building graph from " + transportData.getFeedInfo());
         Transaction tx = graphDatabaseService.beginTx();
         try {
             logger.info("Rebuilding the graph...");
