@@ -1,10 +1,13 @@
 'use strict';
 
 techLabApp.controller('RouteDetailsController',
-    function RouteDetailsController($scope, $routeParams, journeyPlanner, $location, journeyPlanService) {
+    function RouteDetailsController($scope, $routeParams, journeyPlanner, $location, journeyPlanService, transportStops) {
         var start = $location.search().start;
         var end = $location.search().end;
         var departureTime = $location.search().departureTime;
+        transportStops.getClosures().get(function(closure){
+           $scope.closure = closure;
+        });
 
         if (journeyPlanService.getPlan() == null) {
             journeyPlanner.quickestRoute(start, end, departureTime).get(function (journeyPlan) {
@@ -30,5 +33,6 @@ techLabApp.controller('RouteDetailsController',
             $location.url('/routePlanner/');
 
         };
+
     }
 );

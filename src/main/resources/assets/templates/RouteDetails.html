@@ -5,6 +5,14 @@
         <h5 class="navbar-title">Select Route</h5>
     </div>
 </div>
+<div class="panel news ng-class:newsHidden ng-scope" ng-show="closure.closed">
+    <div class="panel-heading news">Important Notice</div>
+    <div class="list-group">
+        <p>
+            {{closure.message}} For more info check the <a href="http://www.metrolink.co.uk/Pages/default.aspx" target="_blank">Metrolink Home page.</a>
+        </p>
+    </div>
+</div>
 <div class="container">
     <div class="row">
         <div ng-show="NoRoutes">

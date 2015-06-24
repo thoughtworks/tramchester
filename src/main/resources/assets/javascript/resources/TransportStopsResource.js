@@ -1,17 +1,21 @@
 'use strict';
 
-techLabApp.factory('transportStops', function($resource){
+techLabApp.factory('transportStops', function ($resource) {
     return {
-        getAll: function(){
+        getAll: function () {
             return $resource('/api/stations', {});
         },
 
-        getNearStops: function(lat, lon){
-            return $resource('/api/stations/'+ lat + '/' + lon, {});
+        getNearStops: function (lat, lon) {
+            return $resource('/api/stations/' + lat + '/' + lon, {});
         },
 
-        getTrams: function(){
+        getTrams: function () {
             return $resource('/api/stations/', {});
+        },
+
+        getClosures: function () {
+            return $resource('/api/stations/closures/', {});
         }
     };
 });

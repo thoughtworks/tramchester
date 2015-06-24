@@ -142,7 +142,7 @@ html {
     color: #191c1f;
 }
 
-.tcr .panel {
+    .tcr .panel {
     -moz-box-shadow: 4px 4px 2px #ccc;
     -webkit-box-shadow: 4px 4px 2px #ccc;
     box-shadow: 4px 4px 2px #ccc;
@@ -160,7 +160,8 @@ html {
     text-shadow: 0px 2px 2px #fff;
     margin-bottom: 10px;
 }
-.trc-change-text{
+
+.trc-change-text {
     font-size: 20px;
     margin-left: 20px;
 }
@@ -338,4 +339,32 @@ input[type="time"], input[type="datetime-local"] {
 /*! City Centre / Generic Grey */
 .cc {
     background-color: #e8e8e3;
+}
+
+.tcr .panel-heading.news {
+    margin-bottom: -16px;
+    color: red;
+    font-weight: bold;
+}
+
+.tcr-navbar.news {
+    margin-bottom: 0;
+}
+
+.tcr .news {
+    border-radius: 0;
+    margin-top: -16px;
+}
+
+.panel.news a {
+    text-decoration: underline;
+}
+
+.news-hidden {
+    display: none;
+}
+
+.list-group p {
+    padding: 10px;
+    padding-left: 15px;
 }

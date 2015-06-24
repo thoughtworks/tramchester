@@ -10,6 +10,8 @@ server:
 rebuildGraph: true
 pullData: false
 graphName: tramchester.db
+closedStations:
+  - St Peter Square
 
 logging:
   level: INFO

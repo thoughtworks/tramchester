@@ -1,7 +1,9 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.StationClosureMessage;
 import com.tramchester.domain.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
 
@@ -19,9 +21,11 @@ import java.util.List;
 public class StationResource {
     private final List<Station> stations;
     private final SpatialService spatialService;
+    private final TramchesterConfig configuration;
 
-    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService) {
+    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService, TramchesterConfig configuration) {
         this.spatialService = spatialService;
+        this.configuration = configuration;
         this.stations = transportData.getStations();
     }
 
@@ -29,6 +33,14 @@ public class StationResource {
     @Timed
     public Response getAll() throws SQLException {
         return Response.ok(stations).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/closures")
+    public Response getClosures() {
+        StationClosureMessage stationClosureMessage = new StationClosureMessage(configuration.getClosedStations());
+        return Response.ok(stationClosureMessage).build();
     }
 
     @GET
