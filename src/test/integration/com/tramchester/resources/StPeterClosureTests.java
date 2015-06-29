@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -21,6 +23,8 @@ import static org.junit.Assert.assertEquals;
 public class StPeterClosureTests extends JourneyPlannerHelper {
     private static Dependencies dependencies;
     private TramServiceDate today;
+    public static final List<String> westStations = Arrays.asList(Stations.Deansgate, Stations.Cornbrook, Stations.Eccles, Stations.MediaCityUK, Stations.Altrincham, Stations.ManAirport, Stations.EastDidsbury);
+    public static final List<String> eastStations = Arrays.asList(Stations.Bury, Stations.Rochdale, Stations.Ashton, Stations.Piccadily, Stations.PiccadilyGardens);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -66,5 +70,25 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
         }
     }
 
+    @Test
+    public void shouldFindWestStationsToWestStations() throws UnknownStationException {
+        for (String start : westStations) {
+            for (String dest : westStations) {
+                if (!dest.equals(start)) {
+                    validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
+                }
+            }
+        }
+    }
 
+    @Test
+    public void shouldFindEastStationsToEastStations() throws UnknownStationException {
+        for (String start : eastStations) {
+            for (String dest : eastStations) {
+                if (!dest.equals(start)) {
+                    validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
+                }
+            }
+        }
+    }
 }
