@@ -11,6 +11,7 @@ tmp
 *.iws
 *.iml
 .idea/
+.env
 bin
 dist
 .gradle/
