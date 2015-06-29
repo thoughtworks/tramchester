@@ -13,6 +13,8 @@ public class GraphStaticKeys {
     public static final String COST = "cost";
     public static final String TIMES = "times";
     public static final String SERVICE_ID = "service_id";
+    public static final String SERVICE_START_DATE = "start_date";
+    public static final String SERVICE_END_DATE = "end_date";
 
     // ID Common across both
     public static final String ID = "id";

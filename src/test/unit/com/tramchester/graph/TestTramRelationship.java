@@ -5,6 +5,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Relationship;
@@ -76,9 +77,9 @@ public class TestTramRelationship extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveGoesToRealtionshipWithCostAndService() {
-        boolean[] days = new boolean[]{true,false,true,false};
-        int[] times = new int[]{10,20,30,40};
+    public void shouldHaveGoesToRelationshipWithCostAndService() {
+        boolean[] days = new boolean[]{true, false, true, false};
+        int[] times = new int[]{10, 20, 30, 40};
 
         EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.GOES_TO);
 
@@ -87,6 +88,8 @@ public class TestTramRelationship extends EasyMockSupport {
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.DAYS)).andReturn(days);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.TIMES)).andReturn(times);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.ROUTE_STATION)).andReturn("dest");
+        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_START_DATE)).andReturn("20151025");
+        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andReturn("20161124");
 
         replayAll();
         GoesToRelationship tramRelationship = (GoesToRelationship) relationshipFactory.getRelationship(relationship);
@@ -95,6 +98,8 @@ public class TestTramRelationship extends EasyMockSupport {
         assertEquals("dest", tramRelationship.getDest());
         assertSame(times, tramRelationship.getTimesTramRuns());
         assertSame(days, tramRelationship.getDaysTramRuns());
+        assertEquals(new DateTime(2015, 10, 25, 0, 0), tramRelationship.getStartDate().getDate());
+        assertEquals(new DateTime(2016, 11, 24, 0, 0), tramRelationship.getEndDate().getDate());
         verifyAll();
     }
 }

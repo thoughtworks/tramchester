@@ -1,5 +1,6 @@
 package com.tramchester.graph.Relationships;
 
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Relationship;
 
@@ -10,6 +11,8 @@ public class GoesToRelationship extends TramCostRelationship {
     private boolean[] daysRunning;
     private int[] timesRunning;
     private String dest;
+    private TramServiceDate startDate;
+    private TramServiceDate endDate;
 
     public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id) {
         super(cost, id);
@@ -25,6 +28,8 @@ public class GoesToRelationship extends TramCostRelationship {
         timesRunning = (int[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
         service = graphRelationship.getProperty(GraphStaticKeys.SERVICE_ID).toString();
         dest = graphRelationship.getProperty(GraphStaticKeys.ROUTE_STATION).toString();
+        startDate = new TramServiceDate(graphRelationship.getProperty(GraphStaticKeys.SERVICE_START_DATE).toString());
+        endDate = new TramServiceDate(graphRelationship.getProperty(GraphStaticKeys.SERVICE_END_DATE).toString());
     }
 
     public boolean[] getDaysTramRuns() {
@@ -65,13 +70,19 @@ public class GoesToRelationship extends TramCostRelationship {
     public String toString() {
         return "GoesToRelationship{" +
                 "service='" + service + '\'' +
-                "dest='" + dest + '\'' +
                 ", daysRunning=" + Arrays.toString(daysRunning) +
                 ", timesRunning=" + Arrays.toString(timesRunning) +
-                ", cost=" + super.getCost() +
-                ", id=" + super.getId() +
+                ", dest='" + dest + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
                 '}';
     }
 
+    public TramServiceDate getStartDate() {
+        return startDate;
+    }
 
+    public TramServiceDate getEndDate() {
+        return endDate;
+    }
 }

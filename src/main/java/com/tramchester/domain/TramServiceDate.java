@@ -18,9 +18,14 @@ public class TramServiceDate {
         return date;
     }
 
-
     public String getStringDate() {
         return date.toString("yyyyMMdd");
     }
 
+    @Override
+    public String toString() {
+        return "TramServiceDate{" +
+                "date=" + date +
+                '}';
+    }
 }

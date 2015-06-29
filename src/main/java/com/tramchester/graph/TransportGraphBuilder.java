@@ -26,8 +26,7 @@ public class TransportGraphBuilder {
     public static final String PICCADILLY = "9400ZZMAPIC";
     public static final String HARBOURCITY = "9400ZZMAHCY";
 
-    public static final List<String> interchanges = Arrays.asList(new String[]{
-            CORNBROOK, ST_PETERS_SQUARE, PIC_GARDENS, TRAF_BAR, ST_WS_ROAD, VICTORIA, PICCADILLY, HARBOURCITY});
+    public static final List<String> interchanges = Arrays.asList(CORNBROOK, ST_PETERS_SQUARE, PIC_GARDENS, TRAF_BAR, ST_WS_ROAD, VICTORIA, PICCADILLY, HARBOURCITY);
 
     public static final int INTERCHANGE_DEPART_COST = 1;
     public static final int INTERCHANGE_BOARD_COST = 1;
@@ -251,8 +250,9 @@ public class TransportGraphBuilder {
             relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
             relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
             relationship.setProperty(GraphStaticKeys.ROUTE_STATION, dest);
+            relationship.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
+            relationship.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
         }
-
     }
 
     private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
