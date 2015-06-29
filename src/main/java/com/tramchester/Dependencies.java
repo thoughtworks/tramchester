@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
+import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.TransportDataFromFiles;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -14,6 +15,7 @@ import com.tramchester.resources.StationResource;
 import com.tramchester.resources.VersionResource;
 import com.tramchester.services.DateTimeService;
 import com.tramchester.services.SpatialService;
+import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.picocontainer.DefaultPicoContainer;
@@ -21,11 +23,9 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.Caching;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class Dependencies {
 
@@ -41,6 +41,7 @@ public class Dependencies {
         logger.info("Creating dependencies");
         picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(StationResource.class);
+        picoContainer.addComponent(ClosedStations.class);
         picoContainer.addComponent(VersionResource.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(RouteCalculator.class);

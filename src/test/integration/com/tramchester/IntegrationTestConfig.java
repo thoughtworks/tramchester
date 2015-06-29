@@ -3,14 +3,15 @@ package com.tramchester;
 import com.tramchester.config.TramchesterConfig;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 public class IntegrationTestConfig extends TramchesterConfig {
 
     public static final String GRAPH_NAME = "int_test_tramchester.db";
     private boolean rebuildNeeded = false;
-    private List<String> closedStations = new ArrayList<>();
+    private List<String> closedStations = asList("St Peters Square");
 
     private boolean graphExists() {
         return new File(GRAPH_NAME).exists();

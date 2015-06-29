@@ -13,10 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class NearestStationsTest {
+public class StationsTest {
     private static Dependencies dependencies;
     private StationResource stationResource;
 
@@ -45,9 +46,22 @@ public class NearestStationsTest {
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
 
         assertTrue(stationGroups.get("Nearest Stops") > 0);
-        assertEquals("Nearest Stops", stations.get(0).getProximityGroup());
         assertEquals("All Stops", stations.get(6).getProximityGroup());
         assertEquals("Abraham Moss", stations.get(6).getName());
         assertEquals("Altrincham Station", stations.get(7).getName());
+
+        assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
+
+    }
+
+    @Test
+    public void shouldNotGetClosedStations() throws Exception {
+        Response result = stationResource.getAll();
+        List<Station> stations = (List<Station>) result.getEntity();
+
+
+        assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
+        assertThat(stations.stream().filter(station -> station.getName().equals("Altrincham Station")).count()).isEqualTo(1);
+
     }
 }

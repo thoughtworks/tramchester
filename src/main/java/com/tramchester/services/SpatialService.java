@@ -2,7 +2,6 @@ package com.tramchester.services;
 
 import com.tramchester.domain.Station;
 import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -45,7 +44,7 @@ public class SpatialService {
             }
 
             for (Station station : stations) {
-                if (reorderedStations.contains(station) == false) {
+                if (!reorderedStations.contains(station)) {
                     station.setProximityGroup("All Stops");
                     reorderedStations.add(station);
                 }

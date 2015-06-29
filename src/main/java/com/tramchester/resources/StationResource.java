@@ -1,7 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.StationClosureMessage;
 import com.tramchester.domain.TransportDataFromFiles;
@@ -15,31 +15,32 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource {
-    private final List<Station> stations;
+    private final List<Station> workingStations;
     private final SpatialService spatialService;
-    private final TramchesterConfig configuration;
+    private final ClosedStations closedStations;
 
-    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService, TramchesterConfig configuration) {
+    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService, ClosedStations closedStations) {
         this.spatialService = spatialService;
-        this.configuration = configuration;
-        this.stations = transportData.getStations();
+        this.closedStations = closedStations;
+        this.workingStations = transportData.getStations().stream().filter(station -> !closedStations.contains(station.getName())).collect(Collectors.toList());
     }
 
     @GET
     @Timed
     public Response getAll() throws SQLException {
-        return Response.ok(stations).build();
+        return Response.ok(workingStations).build();
     }
 
     @GET
     @Timed
     @Path("/closures")
     public Response getClosures() {
-        StationClosureMessage stationClosureMessage = new StationClosureMessage(configuration.getClosedStations());
+        StationClosureMessage stationClosureMessage = new StationClosureMessage(closedStations);
         return Response.ok(stationClosureMessage).build();
     }
 
@@ -47,7 +48,7 @@ public class StationResource {
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
 
-        for (Station station : stations) {
+        for (Station station : workingStations) {
             if (station.getId().equals(id)) {
                 return Response.ok(station).build();
             }
@@ -59,8 +60,7 @@ public class StationResource {
     @GET
     @Path("/{lat}/{lon}")
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        List<Station> orderedStations = spatialService.reorderNearestStations(lat, lon, stations);
+        List<Station> orderedStations = spatialService.reorderNearestStations(lat, lon, workingStations);
         return Response.ok(orderedStations).build();
-
     }
 }
