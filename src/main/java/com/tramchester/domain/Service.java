@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.tramchester.domain.DaysOfWeek.*;
+
 public class Service {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
     private final String routeId;
@@ -16,8 +18,8 @@ public class Service {
     private String serviceId;
     private List<Trip> trips = new ArrayList<>();
     private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
-    private DateTime startDate;
-    private DateTime endDate;
+    private TramServiceDate startDate;
+    private TramServiceDate endDate;
 
     public Service(String serviceId, String routeId) {
         this.serviceId = serviceId;
@@ -37,13 +39,13 @@ public class Service {
     }
 
     public void setDays(boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
-        days.put(DaysOfWeek.Monday, monday);
-        days.put(DaysOfWeek.Tuesday, tuesday);
-        days.put(DaysOfWeek.Wednesday, wednesday);
-        days.put(DaysOfWeek.Thursday, thursday);
-        days.put(DaysOfWeek.Friday, friday);
-        days.put(DaysOfWeek.Saturday, saturday);
-        days.put(DaysOfWeek.Sunday, sunday);
+        days.put(Monday, monday);
+        days.put(Tuesday, tuesday);
+        days.put(Wednesday, wednesday);
+        days.put(Thursday, thursday);
+        days.put(Friday, friday);
+        days.put(Saturday, saturday);
+        days.put(Sunday, sunday);
     }
 
     public HashMap<DaysOfWeek, Boolean> getDays() {
@@ -87,15 +89,25 @@ public class Service {
     }
 
     public void setServiceDateRange(DateTime startDate, DateTime endDate) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.startDate = new TramServiceDate(startDate);
+        this.endDate = new TramServiceDate(endDate);
     }
 
-    public DateTime getStartDate() {
+    public TramServiceDate getStartDate() {
         return startDate;
     }
 
-    public DateTime getEndDate() {
+    public TramServiceDate getEndDate() {
         return endDate;
+    }
+
+    public boolean isRunning() {
+        return days.get(Monday) ||
+                days.get(Tuesday) ||
+                days.get(Wednesday) ||
+                days.get(Thursday) ||
+                days.get(Friday) ||
+                days.get(Saturday) ||
+                days.get(Sunday);
     }
 }

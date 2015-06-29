@@ -72,6 +72,7 @@ public class TransportDataFromFiles implements TransportData {
                             calendar.isSaturday(),
                             calendar.isSunday()
                     );
+                service.setServiceDateRange(calendar.getStartDate(), calendar.getEndDate());
             }
         } );
 

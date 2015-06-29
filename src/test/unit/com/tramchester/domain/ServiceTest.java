@@ -19,8 +19,8 @@ public class ServiceTest {
 
         service.setServiceDateRange(startDate, endDate);
 
-        assertThat(service.getStartDate()).isEqualTo(startDate);
-        assertThat(service.getEndDate()).isEqualTo(endDate);
+        assertThat(service.getStartDate().getDate()).isEqualTo(startDate);
+        assertThat(service.getEndDate().getDate()).isEqualTo(endDate);
     }
 
     @Test
@@ -59,5 +59,23 @@ public class ServiceTest {
         assertThat(service.getServiceId()).isEqualTo("SRV001");
     }
 
+
+    @Test
+    public void shouldCheckIfServiceIsNotRunning() throws Exception {
+        Service service = new Service("", "");
+
+        service.setDays(false, false, false, false, false, false, false);
+
+        assertThat(service.isRunning()).isFalse();
+    }
+
+    @Test
+    public void shouldCheckIfServiceIsRunning() throws Exception {
+        Service service = new Service("", "");
+
+        service.setDays(false, false, true, false, false, false, false);
+
+        assertThat(service.isRunning()).isTrue();
+    }
 
 }

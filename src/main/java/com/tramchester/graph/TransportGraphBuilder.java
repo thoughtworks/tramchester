@@ -61,8 +61,7 @@ public class TransportGraphBuilder {
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
-        }
-        finally {
+        } finally {
             tx.close();
         }
     }
@@ -152,8 +151,7 @@ public class TransportGraphBuilder {
             boardCost = INTERCHANGE_BOARD_COST;
             departType = TransportRelationshipTypes.INTERCHANGE_DEPART;
             departCost = INTERCHANGE_DEPART_COST;
-        } else
-        {
+        } else {
             boardType = TransportRelationshipTypes.BOARD;
             boardCost = BOARDING_COST;
             departType = TransportRelationshipTypes.DEPART;
@@ -195,8 +193,8 @@ public class TransportGraphBuilder {
 
     private boolean alreadyHas(Node startNode, Node endNode, TransportRelationshipTypes relationshipType) {
         Iterable<Relationship> relates = startNode.getRelationships(Direction.OUTGOING, relationshipType);
-        for(Relationship relationship : relates) {
-            if (relationship.getEndNode().getId()==endNode.getId()) {
+        for (Relationship relationship : relates) {
+            if (relationship.getEndNode().getId() == endNode.getId()) {
                 return true;
             }
         }
@@ -212,7 +210,7 @@ public class TransportGraphBuilder {
     }
 
     private void createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
-                                                    Stop stop, int cost, Service service, Route route, String dest) {
+                                            Stop stop, int cost, Service service, Route route, String dest) {
 
         // Confusingly some services can go different routes and hence have different outbound GOES relationships from
         // the same node, so we have to check both start and end nodes for each relationship
@@ -226,10 +224,10 @@ public class TransportGraphBuilder {
 //                    start.getProperty(GraphStaticKeys.ID),end.getProperty(GraphStaticKeys.ID),
 //                    route.getId(), fromMidnight));
             createRelationship(start, end, transportRelationshipType, stop, cost, service, route, dest);
-        } else  {
+        } else {
             // add the time of this stop to the service relationship
             int[] array = (int[]) relationship.getProperty(GraphStaticKeys.TIMES);
-            if (Arrays.binarySearch(array,fromMidnight)<0) {
+            if (Arrays.binarySearch(array, fromMidnight) < 0) {
                 int[] newTimes = Arrays.copyOf(array, array.length + 1);
                 newTimes[array.length] = fromMidnight;
                 // keep times sorted
@@ -240,19 +238,20 @@ public class TransportGraphBuilder {
     }
 
     private void createRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
-                                            Stop stop, int cost, Service service,
-                                            Route route, String dest) {
+                                    Stop stop, int cost, Service service,
+                                    Route route, String dest) {
+        if (service.isRunning()) {
+            Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
 
-        Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
-
-        int[] times = new int[] {stop.getMinutesFromMidnight()};   // initial contents
-        relationship.setProperty(GraphStaticKeys.TIMES, times);
-        relationship.setProperty(GraphStaticKeys.COST, cost);
-        relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
-        relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-        relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
-        relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
-        relationship.setProperty(GraphStaticKeys.ROUTE_STATION, dest);
+            int[] times = new int[]{stop.getMinutesFromMidnight()};   // initial contents
+            relationship.setProperty(GraphStaticKeys.TIMES, times);
+            relationship.setProperty(GraphStaticKeys.COST, cost);
+            relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+            relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
+            relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
+            relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
+            relationship.setProperty(GraphStaticKeys.ROUTE_STATION, dest);
+        }
 
     }
 
@@ -281,7 +280,7 @@ public class TransportGraphBuilder {
                 String existingSvcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
                 if (existingSvcId.equals(serviceId)) {
                     long relationshipDestId = outgoing.getEndNode().getId();
-                    if (relationshipDestId==end.getId()) {
+                    if (relationshipDestId == end.getId()) {
                         return outgoing;
                     }
                 }
