@@ -37,4 +37,12 @@ public class JourneyPlannerHelper {
         assertTrue("unable to find journey " + message, journeys.size() > 0);
         checkDepartsAfterPreviousArrival(message, journeys);
     }
+
+    protected void validateNoJourney(String start, String end, String time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
+        JourneyPlanRepresentation results = planner.createJourneyPlan(start, end, time, dayOfWeek, queryDate);
+        Set<Journey> journeys = results.getJourneys();
+
+        String message = String.format("from %s to %s at %s on %s", start,end,time,dayOfWeek);
+        assertTrue("unable to find journey " + message, journeys.size() == 0);
+    }
 }

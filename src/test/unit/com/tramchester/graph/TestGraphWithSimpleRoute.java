@@ -95,6 +95,11 @@ public class TestGraphWithSimpleRoute {
             serviceA.setDays(true, false, false, false, false, false, false);
             serviceB.setDays(true, false, false, false, false, false, false);
 
+            DateTime startDate = new DateTime(2014, 02, 10, 0, 0);
+            DateTime endDate = new DateTime(2015, 8, 15, 0, 0);
+            serviceA.setServiceDateRange(startDate, endDate);
+            serviceB.setServiceDateRange(startDate, endDate);
+
             // trip: 1 -> 2 -> cornbrook -> 3
             Trip tripA = new Trip("trip1Id", "headSign", serviceAId);
             serviceA.addTrip(tripA);

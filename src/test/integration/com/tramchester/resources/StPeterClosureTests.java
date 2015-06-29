@@ -63,6 +63,24 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldNotFindRouteEastToWest() throws Exception {
+        for (String start : eastStations) {
+            for (String dest : westStations) {
+                validateNoJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
+            }
+        }
+    }
+
+    @Test
+    public void shouldNotFindRouteWestToEast() throws Exception {
+        for (String start : westStations) {
+            for (String dest : eastStations) {
+                validateNoJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
+            }
+        }
+    }
+
+    @Test
     public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() throws UnknownStationException {
         for (int i = 0; i < 60; i++) {
             String time = String.format("08:%02d:00", i);
