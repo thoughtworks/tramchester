@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Stage;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
@@ -46,11 +47,11 @@ public class RouteCalculator {
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, routeFactory, nodeFactory);
     }
 
-    public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek) throws UnknownStationException {
+    public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         Set<Journey> journeys = new HashSet<>();
         try (Transaction tx = db.beginTx()) {
 
-            Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, time, dayOfWeek);
+            Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, time, dayOfWeek, queryDate);
             // todo eliminate duplicate journeys that use different services??
             Stream<WeightedPath> paths = StreamSupport.stream(pathIterator.spliterator(), false);
             paths.limit(2).forEach(path->{
@@ -129,7 +130,7 @@ public class RouteCalculator {
         }
     }
 
-    private Iterable<WeightedPath> findShortestPath(String startId, String endId, int time, DaysOfWeek dayOfWeek) throws UnknownStationException {
+    private Iterable<WeightedPath> findShortestPath(String startId, String endId, int time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         Index<Node> stationsIndex = getStationsIndex();
         Node startNode = getStationByID(startId, stationsIndex);
         Node endNode = getStationByID(endId, stationsIndex);
@@ -137,7 +138,7 @@ public class RouteCalculator {
                 startId, startNode.getProperty(NAME),
                 endId, endNode.getProperty(NAME), dayOfWeek));
 
-        GraphBranchState state = new GraphBranchState(time, dayOfWeek, endId);
+        GraphBranchState state = new GraphBranchState(time, dayOfWeek, endId, queryDate);
         PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
                 new InitialBranchState.State<>(state, state),

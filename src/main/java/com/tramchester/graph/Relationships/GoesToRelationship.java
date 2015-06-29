@@ -14,11 +14,13 @@ public class GoesToRelationship extends TramCostRelationship {
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 
-    public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id) {
+    public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id, TramServiceDate startDate, TramServiceDate endDate) {
         super(cost, id);
         this.service = service;
         this.daysRunning = daysRunning;
         this.timesRunning = timesRunning;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public GoesToRelationship(Relationship graphRelationship) {

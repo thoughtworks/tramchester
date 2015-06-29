@@ -4,8 +4,8 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
-import com.tramchester.graph.Relationships.TramRelationship;
 import com.tramchester.services.DateTimeService;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,7 +46,8 @@ public class RouteCalculatorTest {
     @Test
     public void testJourneyFromAltyToAirport() throws Exception {
         int minutes = dateTimeService.getMinutesFromMidnight("11:43:00");
-        Set<Journey> results = calculator.calculateRoute(Stations.Altrincham, Stations.ManAirport, minutes, DaysOfWeek.Sunday);
+        TramServiceDate today = new TramServiceDate(DateTime.now());
+        Set<Journey> results = calculator.calculateRoute(Stations.Altrincham, Stations.ManAirport, minutes, DaysOfWeek.Sunday, today);
 
         assertEquals(1, results.size());    // results is iterator
         for (Journey result : results) {

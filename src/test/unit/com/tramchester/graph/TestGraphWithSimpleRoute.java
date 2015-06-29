@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.domain.*;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -22,9 +23,10 @@ public class TestGraphWithSimpleRoute {
     public static final String TMP_DB = "tmp.db";
     private static TransportDataForTest transportData;
     private static RouteCalculator calculator;
+    private TramServiceDate queryDate;
 
     @BeforeClass
-    public static void beforeEachTestRuns() throws IOException {
+    public static void onceBeforeAllTestRuns() throws IOException {
         FileUtils.deleteDirectory(new File(TMP_DB));
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
         GraphDatabaseService graphDBService = graphDatabaseFactory.newEmbeddedDatabase(TMP_DB);
@@ -36,33 +38,38 @@ public class TestGraphWithSimpleRoute {
         calculator = new RouteCalculator(graphDBService);
     }
 
+    @Before
+    public void beforeEachTestRuns() {
+        queryDate = new TramServiceDate("20140630");
+    }
+
     @Test
     public void shouldTestSimpleJourneyIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat2Id", 8*60, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat2Id", 8*60, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 8*60, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 8*60, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 9*60, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", TransportGraphBuilder.CORNBROOK, 9*60, DaysOfWeek.Monday, queryDate);
         assertEquals(0, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat3Id", 8*60, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat3Id", 8*60, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat4Id", 8*60, DaysOfWeek.Monday);
+        Set<Journey> journeys = calculator.calculateRoute("stat1Id", "stat4Id", 8*60, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 

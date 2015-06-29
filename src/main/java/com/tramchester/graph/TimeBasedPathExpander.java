@@ -1,11 +1,13 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramRelationship;
+import org.joda.time.DateTime;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
@@ -100,7 +102,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     }
 
     private ServiceReason checkServiceHeuristics(GraphBranchState branchState, TramRelationship incoming, int elapsedTime, GoesToRelationship goesToRelationship) {
-        if (!operatesOnDay(goesToRelationship.getDaysTramRuns(), branchState.getDay())) {
+        if (!operatesOnDayOnWeekday(goesToRelationship.getDaysTramRuns(), branchState.getDay())) {
             return ServiceReason.DoesNotRunOnDay;
         }
         if (!noInFlightChangeOfService(incoming, goesToRelationship)) {
@@ -109,7 +111,23 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         if (!operatesOnTime(goesToRelationship.getTimesTramRuns(), elapsedTime)) {
             return ServiceReason.DoesNotOperateOnTime;
         }
+        if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), branchState.getQueryDate()))
+        {
+            return ServiceReason.DoesNotRunOnQueryDate;
+        }
         return ServiceReason.IsValid;
+    }
+
+    private boolean operatesOnQueryDate(TramServiceDate startDate, TramServiceDate endDate, TramServiceDate queryDate) {
+        // start date and end date are inclusive
+        DateTime date = queryDate.getDate();
+        if  (date.isAfter(startDate.getDate()) && date.isBefore(endDate.getDate())) {
+            return true;
+        }
+        if (date.equals(startDate) || date.equals(endDate)) {
+            return true;
+        }
+        return false;
     }
 
     public boolean noInFlightChangeOfService(TramRelationship incoming, GoesToRelationship outgoing) {
@@ -136,7 +154,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         return false;
     }
 
-    public boolean operatesOnDay(boolean[] days, DaysOfWeek today) {
+    public boolean operatesOnDayOnWeekday(boolean[] days, DaysOfWeek today) {
         boolean operates = false;
         switch (today) {
             case Monday:
