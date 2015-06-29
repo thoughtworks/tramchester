@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,8 @@ public class Service {
     private String serviceId;
     private List<Trip> trips = new ArrayList<>();
     private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
+    private DateTime startDate;
+    private DateTime endDate;
 
     public Service(String serviceId, String routeId) {
         this.serviceId = serviceId;
@@ -61,10 +64,10 @@ public class Service {
         logger.info(String.format("Selected %s of %s trips %s", validTrips.size(), trips.size(), tripIds.toString()));
 
         int limit = maxNumberOfTrips;
-        if (validTrips.size()<maxNumberOfTrips) {
+        if (validTrips.size() < maxNumberOfTrips) {
             limit = validTrips.size();
         }
-        return validTrips.subList(0,limit);
+        return validTrips.subList(0, limit);
     }
 
     @Override
@@ -74,10 +77,25 @@ public class Service {
                 ", serviceId='" + serviceId + '\'' +
                 ", trips=" + trips +
                 ", days=" + days +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
                 '}';
     }
 
     public String getRouteId() {
         return routeId;
+    }
+
+    public void setServiceDateRange(DateTime startDate, DateTime endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public DateTime getStartDate() {
+        return startDate;
+    }
+
+    public DateTime getEndDate() {
+        return endDate;
     }
 }

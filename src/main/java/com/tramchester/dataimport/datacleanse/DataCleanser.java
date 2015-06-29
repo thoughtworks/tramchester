@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -93,8 +92,8 @@ public class DataCleanser {
                         runsOnDay(calendarData.isFriday()),
                         runsOnDay(calendarData.isSaturday()),
                         runsOnDay(calendarData.isSunday()),
-                        calendarData.getStart().toString(TIME_FORMAT),
-                        calendarData.getEnd().toString(TIME_FORMAT))));
+                        calendarData.getStartDate().toString(TIME_FORMAT),
+                        calendarData.getEndDate().toString(TIME_FORMAT))));
 
 
         transportDataWriter.writeFile(content.toString(), "calendar");

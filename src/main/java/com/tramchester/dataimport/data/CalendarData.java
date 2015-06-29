@@ -60,11 +60,11 @@ public class CalendarData {
         return sunday;
     }
 
-    public DateTime getEnd() {
+    public DateTime getEndDate() {
         return end;
     }
 
-    public DateTime getStart() {
+    public DateTime getStartDate() {
         return start;
     }
 

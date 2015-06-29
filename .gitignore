@@ -25,3 +25,5 @@ intelij/
 /package
 /*.db
 *.version
+log/
+diagram.dot
