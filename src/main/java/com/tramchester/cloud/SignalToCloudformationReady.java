@@ -3,7 +3,7 @@ package com.tramchester.cloud;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
@@ -31,15 +31,15 @@ public class SignalToCloudformationReady {
             return;
         }
 
-        logger.info("Attempt to send POST to cloud formation to signal code ready " + url);
+        logger.info("Attempt to send PUT to cloud formation to signal code ready " + url);
         HttpClient httpClient = HttpClients.createDefault();
-        HttpPost post =new HttpPost(url);
-        BasicHttpEntity entity = new BasicHttpEntity();
-        String content = createContent();
-        entity.setContent(new ByteArrayInputStream( content.getBytes() ));
-        post.setEntity(entity);
+        HttpPut put =new HttpPut(url);
+        put.setEntity(createEntity());
+
+        put.setHeader("Content-Type", ""); // aws docs say empty content header is required
+
         try {
-            HttpResponse response = httpClient.execute(post);
+            HttpResponse response = httpClient.execute(put);
             StatusLine statusLine = response.getStatusLine();
             if (statusLine.getStatusCode()!= HttpServletResponse.SC_OK) {
                 logger.error("Unexpected status for cloud formation callback " + statusLine.toString());
@@ -49,6 +49,14 @@ public class SignalToCloudformationReady {
         } catch (IOException e) {
             logger.error("Erroring sending cloud formation callback to " + url,e);
         }
+    }
+
+    private BasicHttpEntity createEntity() {
+        BasicHttpEntity entity = new BasicHttpEntity();
+        String content = createContent();
+        logger.info("Sending data " + content);
+        entity.setContent(new ByteArrayInputStream(content.getBytes()));
+        return entity;
     }
 
     private String createContent() {

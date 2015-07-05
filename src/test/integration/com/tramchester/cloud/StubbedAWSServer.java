@@ -1,7 +1,7 @@
 package com.tramchester.cloud;
 
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -19,6 +19,7 @@ public class StubbedAWSServer  {
     private String postedData;
     private Server server;
     private Handler handler;
+    private String contentHeader;
 
     public StubbedAWSServer() {
         handler = new Handler();
@@ -39,7 +40,7 @@ public class StubbedAWSServer  {
         return calledUrl;
     }
 
-    public String getPostedData() {
+    public String getPutData() {
         return postedData;
     }
 
@@ -51,16 +52,21 @@ public class StubbedAWSServer  {
         server.destroy();
     }
 
+    public String getContentHeader() {
+        return contentHeader;
+    }
+
     private class Handler extends AbstractHandler{
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             calledUrl = request.getRequestURL().toString();
+            contentHeader = request.getHeader("Content-Type");
             if (request.getMethod().equals(HttpGet.METHOD_NAME)) {
                 response.setContentType("text/html;charset=utf-8");
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(metadata);
                 baseRequest.setHandled(true);
-            } else if (request.getMethod().equals(HttpPost.METHOD_NAME)) {
+            } else if (request.getMethod().equals(HttpPut.METHOD_NAME)) {
                 response.setStatus(HttpServletResponse.SC_OK);
                 BufferedReader reader = request.getReader();
                 StringBuffer incoming = new StringBuffer();

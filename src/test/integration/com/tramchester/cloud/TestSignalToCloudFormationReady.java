@@ -21,9 +21,11 @@ public class TestSignalToCloudFormationReady {
         signaller.send();
         stubbedServer.stopServer();
 
-        String sentData = stubbedServer.getPostedData();
+        String sentData = stubbedServer.getPutData();
         assertThat(sentData).contains("\"Status\": \"SUCCESS\"");
         assertThat(sentData).contains("\"Reason\": \"Web Server started\"");
+
+        assertThat(stubbedServer.getContentHeader()).isNull(); // aws requires this header is empty or not set
     }
 
     @Test
@@ -37,7 +39,7 @@ public class TestSignalToCloudFormationReady {
         signaller.send();
         stubbedServer.stopServer();
 
-        String sentData = stubbedServer.getPostedData();
+        String sentData = stubbedServer.getPutData();
         assertThat(sentData).isNull();
     }
 
@@ -52,7 +54,7 @@ public class TestSignalToCloudFormationReady {
         signaller.send();
         stubbedServer.stopServer();
 
-        String sentData = stubbedServer.getPostedData();
+        String sentData = stubbedServer.getPutData();
         assertThat(sentData).isNull();
 
     }
