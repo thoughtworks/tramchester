@@ -1,15 +1,8 @@
 package com.tramchester.cloud;
 
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -28,14 +21,14 @@ public class TestFetchInstanceMetadata {
 
     @Test
     public void shouldFetchInstanceMetadata() throws Exception {
-
-        SimplestServer server = new SimplestServer();
+        StubbedAWSServer server = new StubbedAWSServer();
         server.run("someSimpleMetaData");
 
         String data = fetcher.getUserData();
+        server.stopServer();
+
         assertThat(data).isEqualTo("someSimpleMetaData");
-        assertThat(server.calledUrl).isEqualTo("http://localhost:8080/latest/user-data");
-        server.stop();
+        assertThat(server.getCalledUrl()).isEqualTo("http://localhost:8080/latest/user-data");
     }
 
     @Test
@@ -45,26 +38,4 @@ public class TestFetchInstanceMetadata {
         assertThat(result).isEmpty();
     }
 
-    public class SimplestServer extends AbstractHandler {
-        private String metadata;
-        private String calledUrl;
-
-        public void run(String metadata) throws Exception
-        {
-            this.metadata = metadata;
-            Server server = new Server(8080);
-            server.setHandler(this);
-            server.start();
-        }
-
-
-        @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-            calledUrl = request.getRequestURL().toString();
-            response.setContentType("text/html;charset=utf-8");
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(metadata);
-            baseRequest.setHandled(true);
-        }
-    }
 }
