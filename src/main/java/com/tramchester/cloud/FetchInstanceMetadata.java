@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class FetchInstanceMetadata {
+import static java.lang.String.format;
+
+public class FetchInstanceMetadata implements FetchMetadata {
     private static final Logger logger = LoggerFactory.getLogger(FetchInstanceMetadata.class);
     private static final java.lang.String USER_DATA_PATH = "/latest/user-data";
 
@@ -24,8 +26,14 @@ public class FetchInstanceMetadata {
         this.instanceDataURL = instanceDataRootURL;
     }
 
-    public String getUserData() throws MalformedURLException {
-        return getDataFrom(new URL(instanceDataURL, USER_DATA_PATH));
+    public String getUserData() {
+        try {
+            URL url = new URL(instanceDataURL, USER_DATA_PATH);
+            return getDataFrom(url);
+        } catch (MalformedURLException e) {
+            logger.warn(format("Unable to fetch instance metadata from %s and %s", instanceDataURL, USER_DATA_PATH),e);
+            return "";
+        }
     }
 
     private String getDataFrom(URL url) {
@@ -37,9 +45,10 @@ public class FetchInstanceMetadata {
             HttpResponse result = httpClient.execute(httpGet);
             HttpEntity entity = result.getEntity();
             entity.writeTo(stream);
+            return new String(stream.toByteArray());
         } catch (IOException e) {
             logger.warn("Unable to get instance user data, likely not running in cloud", e);
+            return "";
         }
-        return new String(stream.toByteArray());
     }
 }

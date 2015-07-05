@@ -3,22 +3,31 @@ package com.tramchester.cloud;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestFetchInstanceMetadata {
 
+    private URL url;
+    private FetchInstanceMetadata fetcher;
+
+    @Before
+    public void beforeEachTestRuns() throws MalformedURLException {
+        url = new URL("http://localhost:8080/");
+        fetcher = new FetchInstanceMetadata(url);
+    }
+
     @Test
     public void shouldFetchInstanceMetadata() throws Exception {
-        URL url = new URL("http://localhost:8080/");
-        FetchInstanceMetadata fetcher = new FetchInstanceMetadata(url);
 
         SimplestServer server = new SimplestServer();
         server.run("someSimpleMetaData");
@@ -27,7 +36,13 @@ public class TestFetchInstanceMetadata {
         assertThat(data).isEqualTo("someSimpleMetaData");
         assertThat(server.calledUrl).isEqualTo("http://localhost:8080/latest/user-data");
         server.stop();
+    }
 
+    @Test
+    public void shouldReturnEmptyIfNoMetaDataAvailable() {
+        String result = fetcher.getUserData();
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
     }
 
     public class SimplestServer extends AbstractHandler {
