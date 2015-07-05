@@ -31,6 +31,7 @@ public class SignalToCloudformationReady {
             return;
         }
 
+        logger.info("Attempt to send POST to cloud formation to signal code ready " + url);
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost post =new HttpPost(url);
         BasicHttpEntity entity = new BasicHttpEntity();
@@ -42,10 +43,11 @@ public class SignalToCloudformationReady {
             StatusLine statusLine = response.getStatusLine();
             if (statusLine.getStatusCode()!= HttpServletResponse.SC_OK) {
                 logger.error("Unexpected status for cloud formation callback " + statusLine.toString());
+            } else {
+                logger.info("cloud formation POST made OK");
             }
         } catch (IOException e) {
             logger.error("Erroring sending cloud formation callback to " + url,e);
-
         }
     }
 

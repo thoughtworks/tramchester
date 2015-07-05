@@ -1,8 +1,10 @@
 package com.tramchester.cloud;
 
+import com.tramchester.config.TramchesterConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
@@ -21,9 +23,8 @@ public class FetchInstanceMetadata implements FetchMetadata {
 
     private URL instanceDataURL;
 
-    public FetchInstanceMetadata(URL instanceDataRootURL) {
-
-        this.instanceDataURL = instanceDataRootURL;
+    public FetchInstanceMetadata(TramchesterConfig tramchesterConfig) throws MalformedURLException {
+        this.instanceDataURL = new URL(tramchesterConfig.getInstanceDataBaseURL());
     }
 
     public String getUserData() {
@@ -40,6 +41,10 @@ public class FetchInstanceMetadata implements FetchMetadata {
         logger.info("Attempt to get instance user data from " + url.toString());
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url.toString());
+        RequestConfig config = RequestConfig.custom()
+                .setSocketTimeout(5000)
+                .setConnectTimeout(5000).build();
+        httpGet.setConfig(config);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
             HttpResponse result = httpClient.execute(httpGet);

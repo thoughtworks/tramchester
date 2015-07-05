@@ -54,17 +54,5 @@ chown -R ubuntu .
 logger Start tramchester server
 sudo -E -u ubuntu bash ./$target/bin/tramchester server config/local.yml &
 
-# Get Cloud Formation call back URL from user data
-callbackUrl=`ec2metadata --user-data | grep WAITURL | cut -d = -f 2-`
-
-logger Web Server Cloud Formation callback URL: $callbackUrl
-
-uuid=`uuid -F SIV`
-
-logger callback UniqueId $uuid
-
-# signal Cloud Formation that data import has finished
-curl -X PUT -H 'Content-Type:' --data-binary '{"Status": "SUCCESS", "Reason": "Web Server started", "UniqueId": "$uuid", "Data": "$BUILD"}' $callbackUrl || logger Web Server callback failed
-
 logger Started Web server for $BUILD and $ENV
 logger Finish Web bootstrap script

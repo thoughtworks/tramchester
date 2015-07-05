@@ -41,5 +41,10 @@ public class IntegrationTestConfig extends TramchesterConfig {
     public List<String> getClosedStations() {
         return closedStations;
     }
+
+    @Override
+    public String getInstanceDataBaseURL() {
+        return "http://localhost:8080";
+    }
 }
 

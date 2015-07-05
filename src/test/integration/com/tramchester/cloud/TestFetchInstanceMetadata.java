@@ -1,22 +1,20 @@
 package com.tramchester.cloud;
 
+import com.tramchester.IntegrationTestConfig;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestFetchInstanceMetadata {
 
-    private URL url;
     private FetchInstanceMetadata fetcher;
 
     @Before
     public void beforeEachTestRuns() throws MalformedURLException {
-        url = new URL("http://localhost:8080/");
-        fetcher = new FetchInstanceMetadata(url);
+        fetcher = new FetchInstanceMetadata(new IntegrationTestConfig());
     }
 
     @Test

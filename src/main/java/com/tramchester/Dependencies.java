@@ -1,6 +1,9 @@
 package com.tramchester;
 
 
+import com.tramchester.cloud.ConfigFromInstanceUserData;
+import com.tramchester.cloud.FetchInstanceMetadata;
+import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
@@ -53,8 +56,15 @@ public class Dependencies {
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);
         picoContainer.addComponent(DateTimeService.class);
+        picoContainer.addComponent(ConfigFromInstanceUserData.class);
+        picoContainer.addComponent(FetchInstanceMetadata.class);
+        picoContainer.addComponent(SignalToCloudformationReady.class);
 
         rebuildGraph(configuration);
+
+        logger.info("Prepare to signal cloud formation if running in cloud");
+        SignalToCloudformationReady signaller = picoContainer.getComponent(SignalToCloudformationReady.class);
+        signaller.send();
     }
 
     private void rebuildGraph(TramchesterConfig configuration) throws IOException {
@@ -66,16 +76,17 @@ public class Dependencies {
             try {
                 FileUtils.deleteDirectory(new File(graphName));
             } catch (IOException e) {
-                logger.error("Error deleting the graph!");
+                logger.error("Error deleting the graph!",e);
                 throw e;
             }
             picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
             picoContainer.getComponent(TransportGraphBuilder.class).buildGraph();
             logger.info("Graph rebuild is finished for " + graphName);
         } else {
-            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
             logger.info("Not rebuilding graph " + graphName);
+            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
         }
+
     }
 
     public <T> T get(Class<T> klass) {

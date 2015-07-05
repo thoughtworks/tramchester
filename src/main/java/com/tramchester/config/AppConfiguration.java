@@ -2,7 +2,6 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +21,13 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("closedStations")
     private List<String> closedStations;
 
+    @JsonProperty("instanceDataUrl")
+    private String instanceDataUrl;
+
+    public String getInstanceDataBaseURL() {
+        return instanceDataUrl;
+    }
+
     public boolean isRebuildGraph() {
         return rebuildGraph;
     }
@@ -35,4 +41,6 @@ public class AppConfiguration extends TramchesterConfig {
     public List<String> getClosedStations() {
         return closedStations == null ? new ArrayList<>() : closedStations;
     }
+
+
 }

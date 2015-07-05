@@ -12,14 +12,15 @@ pullData: false
 graphName: tramchester.db
 closedStations:
   - St Peters Square
+instanceDataUrl: http://169.254.169.254
 
 logging:
   level: INFO
   loggers:
     root: INFO
-    com.tramchester: DEBUG
-    org.eclipse.jetty.servlet: DEBUG
-    io.dropwizard.jersey.jackson: DEBUG
+    com.tramchester: INFO
+    org.eclipse.jetty.servlet: INFO
+    io.dropwizard.jersey.jackson: INFO
 
   appenders:
     - type: console
@@ -28,7 +29,7 @@ logging:
       port: 514
     - type: file
       currentLogFilename: log/tramchester.log
-      threshold: ALL
+      threshold: INFO
       archive: true
       archivedLogFilenamePattern: log/tramchester-%d.log
       archivedFileCount: 5
