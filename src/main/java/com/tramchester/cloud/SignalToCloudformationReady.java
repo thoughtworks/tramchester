@@ -1,16 +1,16 @@
 package com.tramchester.cloud;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -51,12 +51,10 @@ public class SignalToCloudformationReady {
         }
     }
 
-    private BasicHttpEntity createEntity() {
-        BasicHttpEntity entity = new BasicHttpEntity();
+    private HttpEntity createEntity() {
         String content = createContent();
         logger.info("Sending data " + content);
-        entity.setContent(new ByteArrayInputStream(content.getBytes()));
-        return entity;
+        return new ByteArrayEntity(content.getBytes());
     }
 
     private String createContent() {

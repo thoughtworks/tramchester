@@ -89,11 +89,6 @@
 						{ "Key" : "CFN_ASSIST_TYPE", "Value": "web" }
 					]
 				}
-			}, 
-			"dataDoneWaitHandle" : {
-				"Type" : "AWS::CloudFormation::WaitConditionHandle",
-				"Properties" : {
-				}
 			}
 		},
 		"Outputs" : {
