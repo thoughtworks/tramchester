@@ -17,7 +17,7 @@ public class TransportGraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 
     public static final String CORNBROOK = "9400ZZMACRN";
-    public static final String ST_PETERS_SQUARE = "9400ZZMASTP";
+    // public static final String ST_PETERS_SQUARE = "9400ZZMASTP"; // closed until August 2016
     public static final String PIC_GARDENS = "9400ZZMAPGD";
     public static final String TRAF_BAR = "9400ZZMATRA";
     public static final String ST_WS_ROAD = "9400ZZMASTW";
@@ -26,7 +26,14 @@ public class TransportGraphBuilder {
     public static final String PICCADILLY = "9400ZZMAPIC";
     public static final String HARBOURCITY = "9400ZZMAHCY";
 
-    public static final List<String> interchanges = Arrays.asList(CORNBROOK, ST_PETERS_SQUARE, PIC_GARDENS, TRAF_BAR, ST_WS_ROAD, VICTORIA, PICCADILLY, HARBOURCITY);
+    public static final List<String> interchanges = Arrays.asList(CORNBROOK,
+            // ST_PETERS_SQUARE, closed until 2016
+            PIC_GARDENS,
+            TRAF_BAR,
+            ST_WS_ROAD,
+            VICTORIA,
+            PICCADILLY,
+            HARBOURCITY);
 
     public static final int INTERCHANGE_DEPART_COST = 1;
     public static final int INTERCHANGE_BOARD_COST = 1;

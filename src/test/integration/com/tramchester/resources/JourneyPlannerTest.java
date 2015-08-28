@@ -17,7 +17,6 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("Ignored because of St Peter Square closure")
 public class JourneyPlannerTest extends  JourneyPlannerHelper {
     private static Dependencies dependencies;
     private TramServiceDate today;

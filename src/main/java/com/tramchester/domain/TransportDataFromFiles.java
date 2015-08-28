@@ -144,6 +144,9 @@ public class TransportDataFromFiles implements TransportData {
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
         List<ServiceTime> serviceTimes = new ArrayList<>();
         Service service = services.get(serviceId);
+        if (service==null) {
+            logger.error("Unable to find service " + serviceId);
+        }
 
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,
                 maxNumberOfTrips);

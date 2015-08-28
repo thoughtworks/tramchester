@@ -4,12 +4,10 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
+import com.tramchester.graph.Relationships.TramRelationship;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.*;
 
@@ -17,8 +15,13 @@ import static org.junit.Assert.*;
 
 public class RouteCalculatorTest {
 
-    public static final String ASH_TO_ECCLES_SVC = "MET:MET4:O:";
+    //public static final String ASH_TO_ECCLES_SVC = "MET:MET4:O:"; // not while st peters square closed
+    public static final String ASH_TO_MANCHESTER = "MET:MET3:O:";
+
     public static final int MINUTES_FROM_MIDNIGHT_8AM = 8 * 60;
+    public static final String SVC_PIC_TO_ECCLES_MON_TO_FRI = "Serv001257";
+    public static final String SVC_ASH_TO_ROCH_MON_FRIDAY = "Serv001229";
+    public static final String SVC_ASH_TO_PICC_MON_TO_FIR = "Serv001180";
     private static Dependencies dependencies;
 
     private RouteCalculator calculator;
@@ -62,17 +65,18 @@ public class RouteCalculatorTest {
         }
     }
 
-//    @Test
-//    public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
-//        List<TramRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark);
-//        assertEquals(2, boarding.size());
-//        assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
-//        assertTrue(boarding.get(1).isBoarding());
-//    }
+    @Test
+    public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
+        List<TramRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark);
+        assertEquals(2, boarding.size());
+        assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
+        assertTrue(boarding.get(1).isBoarding());
+    }
 
     @Test
+    @Ignore("no direct services during st peters square closure")
     public void shouldGetCorrectNumberOfTripsVeloToMediaCityDirectSaturdayService() {
-        String svcId = "Serv000069";
+        String svcId = "tbc";
 
         int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
         int numTrips = 10;
@@ -83,7 +87,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldTestNumberOfTripsFromVeloToPiccadilyMondayMorning() {
-        String svcId = "Serv000059";
+        String svcId = SVC_ASH_TO_ROCH_MON_FRIDAY;
 
         int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
         int numTrips = 10;
@@ -94,8 +98,9 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    @Ignore("no direct services during st peters square closure")
     public void shouldTestNumberOfTripsFromVeloToHarbourCityMondayMorning() {
-        String svcId = "Serv000059";
+        String svcId = "tbc";
 
         int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
         int numTrips = 10;
@@ -106,7 +111,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldTestNumberOfTripsFromHarbourCityToMediaCityMondayMorning() {
-        String svcId = "Serv000067";
+        String svcId = SVC_PIC_TO_ECCLES_MON_TO_FRI;
 
         int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
         int numTrips = 10;
@@ -117,7 +122,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldGetCorrectNumberOfTripsVeloToPiccadilyWeekdayService() {
-        String svcId = "Serv000059";  // velo to piccadily on weekday
+        String svcId = SVC_ASH_TO_PICC_MON_TO_FIR;  // velo to piccadily on weekday
 
         int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
         int numTrips = 10;
@@ -128,7 +133,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldGetCorrectNumberOfTripsPiccadilyToMediaCityWeekdayService() {
-        String svcId = "Serv000067";  // piccadily to mediacity
+        String svcId = SVC_PIC_TO_ECCLES_MON_TO_FRI;
 
         int minutesFromMidnight = MINUTES_FROM_MIDNIGHT_8AM;
         int numTrips = 10;
@@ -149,16 +154,16 @@ public class RouteCalculatorTest {
             }
         }
 
-        List<Service> veloToMediaCity = new LinkedList<>();
+        List<Service> veloToPiccadily = new LinkedList<>();
 
         for(Service svc : mondayServices) {
             if (transportData.getTimes(svc.getServiceId(),
-                    Stations.VeloPark, Stations.MediaCityUK, MINUTES_FROM_MIDNIGHT_8AM, 10).size()>0) {
-                veloToMediaCity.add(svc);
+                    Stations.VeloPark, Stations.Piccadily, MINUTES_FROM_MIDNIGHT_8AM, 10).size()>0) {
+                veloToPiccadily.add(svc);
             }
         }
 
-        assertTrue(veloToMediaCity.size()>0);
+        assertTrue(veloToPiccadily.size()>0);
     }
 
     @Test
@@ -170,7 +175,7 @@ public class RouteCalculatorTest {
         trips.forEach(trip -> serviceIds.add(trip.getServiceId()));
         // filter by day and then direction/route
         serviceIds.removeIf(serviceId -> !transportData.getService(serviceId).getDays().get(DaysOfWeek.Monday));
-        serviceIds.removeIf(serviceId -> !transportData.getService(serviceId).getRouteId().equals(ASH_TO_ECCLES_SVC));
+        serviceIds.removeIf(serviceId -> !transportData.getService(serviceId).getRouteId().equals(ASH_TO_MANCHESTER));
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID
         trips.removeIf(trip -> !serviceIds.contains(trip.getServiceId()));
@@ -186,7 +191,7 @@ public class RouteCalculatorTest {
             return !((mins>=MINUTES_FROM_MIDNIGHT_8AM) && (mins-MINUTES_FROM_MIDNIGHT_8AM<=15));
         });
 
-        assertEquals(2, stoppingAtVelopark.size());
+        assertEquals(3, stoppingAtVelopark.size());
         assertNotEquals(trips.size(), stoppingAtVelopark.size());
     }
 
