@@ -4,8 +4,8 @@
 		"Parameters" : {
 			"env" : { "Type" : "String" },
 			"vpc" : { "Type" : "String" },
-			"zoneA" : { "Type" : "String" , "Default" : "eu-west-1a" },
-			"zoneB" : { "Type" : "String" , "Default" : "eu-west-1b" }
+			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" },
+			"zoneB" : { "Type" : "String" , "Description" : "::CFN_ZONE_B" }
 		},
 		"Resources" : {
 			"webSubnetZoneA" : {

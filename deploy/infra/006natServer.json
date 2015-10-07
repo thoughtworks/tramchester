@@ -13,7 +13,7 @@
 			"vpc" : { "Type" : "String" },
 			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" },
 			"sgNat" : { "Type" : "String" , "Description" : "::sgNat" },
-			"zoneA" : { "Type" : "String" , "Default" : "eu-west-1a" }
+			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" }
 		},
 		"Resources" : {
 			"natInstance": {
