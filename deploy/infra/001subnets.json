@@ -24,7 +24,7 @@
 					"VpcId" : { "Ref" : "vpc" }
 				}
 			},
-			"lbSubnet" : {
+			"lbSubnetA" : {
 				"Type" : "AWS::EC2::Subnet",
 				"Properties" : {
 					"AvailabilityZone" : { "Ref" : "zoneA" },
@@ -32,6 +32,14 @@
 					"VpcId" : { "Ref" : "vpc" }
 				}
 			},
+            "lbSubnetB" : {
+              "Type" : "AWS::EC2::Subnet",
+              "Properties" : {
+                "AvailabilityZone" : { "Ref" : "zoneB" },
+                "CidrBlock" : "10.0.212.0/24",
+                "VpcId" : { "Ref" : "vpc" }
+              }
+            },
 			"natSubnet" : {
 				"Type" : "AWS::EC2::Subnet",
 				"Properties" : {

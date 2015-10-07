@@ -4,14 +4,16 @@
 		"Parameters" : {
 			"env" : { "Type" : "String" },
 			"vpc" : { "Type" : "String" },
-			"lbSubnet" : { "Type" : "String", "Description" : "::lbSubnet" },
-			"sgLoadBalance" : { "Type" : "String", "Description" : "::sgLoadBalance" }
+			"lbSubnetA" : { "Type" : "String", "Description" : "::lbSubnetA" },
+		    "lbSubnetB" : { "Type" : "String", "Description" : "::lbSubnetB" },
+
+		  "sgLoadBalance" : { "Type" : "String", "Description" : "::sgLoadBalance" }
 		},
 		"Resources" : {
 			"loadBalancer": {
 				"Type": "AWS::ElasticLoadBalancing::LoadBalancer",
 				"Properties": {
-					"Subnets": [ { "Ref" : "lbSubnet" } ],
+					"Subnets": [ { "Ref" : "lbSubnetA" }, { "Ref" : "lbSubnetB" } ],
 					"SecurityGroups" : [ { "Ref" : "sgLoadBalance" } ],
 					"HealthCheck": {
 						"HealthyThreshold": "2",

@@ -1,96 +1,311 @@
 {
-	"AWSTemplateFormatVersion" : "2010-09-09",
-
-		"Description" : "Create servers for an environment/vpc",
-
-		"Parameters" : {
-			"env" : { "Type": "String" },
-			"vpc" : { "Type": "String" },
-			"build":{ "Type":"String" },
-			"webSubnetA" : { "Type": "String", "Description" : "::webSubnetZoneA" },
-			"webSg" : { "Type": "String" , "Description" : "::sgWeb" },
-			"webServerName" : { "Type" : "String", "Default": "tramchesterWeb" },
-			"ami" : { "Type" : "String", "Default": "ami-47a23a30" },
-			"baseUrl":{ "Type": "String", "Default": "https://s3-eu-west-1.amazonaws.com/tramchester2dist" },
-			"bootstrapCloudInit" : { "Type" : "String", "Default": "cloudInit.txt" },
-			"bootstrapWebScript" : { "Type" : "String" , "Default": "setupTramWebServer.sh" },
-			"instanceProfile" : { "Type" : "String", "Description" : "::InstanceProfile" }
-		},
-
-		"Mappings" : {
-			"environMap" : {
-				"Dev" : { "keyName" : "tramchester2", "webSize" : "t2.micro" }, 
-				"UAT" : { "keyName" : "tramchester2", "webSize" : "t2.micro" }, 
-				"Prod" : { "keyName" : "tramchester2", "webSize" : "t2.micro" }
-			}
-		},
-
-		"Resources" : {
-			"webDoneWaitHandle" : {
-				"Type" : "AWS::CloudFormation::WaitConditionHandle",
-				"Properties" : {
-				}
-			},
-			"waitForWebServerCallBack" : {
-				"Type" : "AWS::CloudFormation::WaitCondition",
-				"DependsOn" : "TramWebServerA",
-				"Properties" : {
-					"Handle" : { "Ref" : "webDoneWaitHandle" },
-					"Timeout" : "1200",
-					"Count" : "1"
-				}
-			},
-			"TramWebServerA" : {
-				"Type" : "AWS::EC2::Instance",
-				"Properties" : {
-					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
-					"InstanceType" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "webSize" ]} ,
-					"ImageId" : { "Ref": "ami" },
-					"IamInstanceProfile" : { "Ref": "instanceProfile" },
-					"UserData" : { "Fn::Base64" : { "Fn::Join" : ["",
-						[
-							"#include","\n",
-							{ "Ref": "baseUrl" }, "/", { "Ref": "build"}, "/", { "Ref" : "bootstrapCloudInit" },"\n",
-							{ "Ref": "baseUrl" }, "/", { "Ref": "build"}, "/", { "Ref" : "bootstrapWebScript" },"\n",
-							"# WAITURL=", { "Ref": "webDoneWaitHandle" }, "\n",
-							"# ENV=", { "Ref": "env" }, "\n",
-							"# ARTIFACTSURL=", { "Ref": "baseUrl" }, "\n",
-							"# BUILD=", { "Ref": "build" }, "\n"
-							] ] } },
-					"SubnetId" : { "Ref": "webSubnetA" },
-					"SecurityGroupIds" : [ { "Ref": "webSg" } ] ,
-					"Tags": [
-						{ "Key" : "Name", "Value": { "Fn::Join" : ["", [ { "Ref": "webServerName" } , "A" ] ] }	},
-						{ "Key" : "CFN_ASSIST_TYPE", "Value": "web" }
-					]
-				}
-			}, 
-			"TramWebServerB" : {
-				"Type" : "AWS::EC2::Instance",
-				"Properties" : {
-					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
-					"InstanceType" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "webSize" ]} ,
-					"IamInstanceProfile" : { "Ref": "instanceProfile" },
-					"ImageId" : { "Ref": "ami" },
-					"UserData" : { "Fn::Base64" : { "Fn::Join" : ["",
-						[
-							"#include","\n",
-							{ "Ref": "baseUrl" }, "/", { "Ref": "build"}, "/", { "Ref" : "bootstrapCloudInit" },"\n",
-							{ "Ref": "baseUrl" }, "/", { "Ref": "build"}, "/", { "Ref" : "bootstrapWebScript" },"\n",
-							"# WAITURL=", { "Ref": "webDoneWaitHandle" }, "\n",
-							"# ENV=", { "Ref": "env" }, "\n",
-							"# ARTIFACTSURL=", { "Ref": "baseUrl" }, "\n",
-							"# BUILD=", { "Ref": "build" }, "\n"
-							] ] } },
-					"SubnetId" : { "Ref": "webSubnetA" },
-					"SecurityGroupIds" : [ { "Ref": "webSg" } ] ,
-					"Tags": [
-						{ "Key" : "Name", "Value": { "Fn::Join" : ["", [ { "Ref": "webServerName" } , "B" ] ] } },
-						{ "Key" : "CFN_ASSIST_TYPE", "Value": "web" }
-					]
-				}
-			}
-		},
-		"Outputs" : {
-		}
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Create servers for an environment/vpc",
+  "Parameters": {
+    "env": {
+      "Type": "String"
+    },
+    "vpc": {
+      "Type": "String"
+    },
+    "build": {
+      "Type": "String"
+    },
+    "webSubnetA": {
+      "Type": "String",
+      "Description": "::webSubnetZoneA"
+    },
+    "webSubnetB": {
+      "Type": "String",
+      "Description": "::webSubnetZoneB"
+    },
+    "webSg": {
+      "Type": "String",
+      "Description": "::sgWeb"
+    },
+    "webServerName": {
+      "Type": "String",
+      "Default": "tramchesterWeb"
+    },
+    "ami": {
+      "Type": "String",
+      "Default": "ami-47a23a30"
+    },
+    "baseUrl": {
+      "Type": "String",
+      "Default": "https://s3-eu-west-1.amazonaws.com/tramchester2dist"
+    },
+    "bootstrapCloudInit": {
+      "Type": "String",
+      "Default": "cloudInit.txt"
+    },
+    "bootstrapWebScript": {
+      "Type": "String",
+      "Default": "setupTramWebServer.sh"
+    },
+    "instanceProfile": {
+      "Type": "String",
+      "Description": "::InstanceProfile"
+    }
+  },
+  "Mappings": {
+    "environMap": {
+      "Dev": {
+        "keyName": "tramchester2",
+        "webSize": "t2.micro"
+      },
+      "UAT": {
+        "keyName": "tramchester2",
+        "webSize": "t2.micro"
+      },
+      "Prod": {
+        "keyName": "tramchester2",
+        "webSize": "t2.micro"
+      }
+    }
+  },
+  "Resources": {
+    "webDoneWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle",
+      "Properties": {
+      }
+    },
+    "waitForWebServerCallBack": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "TramWebServerA",
+      "Properties": {
+        "Handle": {
+          "Ref": "webDoneWaitHandle"
+        },
+        "Timeout": "1200",
+        "Count": "1"
+      }
+    },
+    "TramWebServerA": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {
+          "Fn::FindInMap": [
+            "environMap",
+            {
+              "Ref": "env"
+            },
+            "keyName"
+          ]
+        },
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "environMap",
+            {
+              "Ref": "env"
+            },
+            "webSize"
+          ]
+        },
+        "ImageId": {
+          "Ref": "ami"
+        },
+        "IamInstanceProfile": {
+          "Ref": "instanceProfile"
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#include",
+                "\n",
+                {
+                  "Ref": "baseUrl"
+                },
+                "/",
+                {
+                  "Ref": "build"
+                },
+                "/",
+                {
+                  "Ref": "bootstrapCloudInit"
+                },
+                "\n",
+                {
+                  "Ref": "baseUrl"
+                },
+                "/",
+                {
+                  "Ref": "build"
+                },
+                "/",
+                {
+                  "Ref": "bootstrapWebScript"
+                },
+                "\n",
+                "# WAITURL=",
+                {
+                  "Ref": "webDoneWaitHandle"
+                },
+                "\n",
+                "# ENV=",
+                {
+                  "Ref": "env"
+                },
+                "\n",
+                "# ARTIFACTSURL=",
+                {
+                  "Ref": "baseUrl"
+                },
+                "\n",
+                "# BUILD=",
+                {
+                  "Ref": "build"
+                },
+                "\n"
+              ]
+            ]
+          }
+        },
+        "SubnetId": {
+          "Ref": "webSubnetA"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "webSg"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Ref": "webServerName"
+                  },
+                  "A"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "CFN_ASSIST_TYPE",
+            "Value": "web"
+          }
+        ]
+      }
+    },
+    "TramWebServerB": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {
+          "Fn::FindInMap": [
+            "environMap",
+            {
+              "Ref": "env"
+            },
+            "keyName"
+          ]
+        },
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "environMap",
+            {
+              "Ref": "env"
+            },
+            "webSize"
+          ]
+        },
+        "IamInstanceProfile": {
+          "Ref": "instanceProfile"
+        },
+        "ImageId": {
+          "Ref": "ami"
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#include",
+                "\n",
+                {
+                  "Ref": "baseUrl"
+                },
+                "/",
+                {
+                  "Ref": "build"
+                },
+                "/",
+                {
+                  "Ref": "bootstrapCloudInit"
+                },
+                "\n",
+                {
+                  "Ref": "baseUrl"
+                },
+                "/",
+                {
+                  "Ref": "build"
+                },
+                "/",
+                {
+                  "Ref": "bootstrapWebScript"
+                },
+                "\n",
+                "# WAITURL=",
+                {
+                  "Ref": "webDoneWaitHandle"
+                },
+                "\n",
+                "# ENV=",
+                {
+                  "Ref": "env"
+                },
+                "\n",
+                "# ARTIFACTSURL=",
+                {
+                  "Ref": "baseUrl"
+                },
+                "\n",
+                "# BUILD=",
+                {
+                  "Ref": "build"
+                },
+                "\n"
+              ]
+            ]
+          }
+        },
+        "SubnetId": {
+          "Ref": "webSubnetB"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "webSg"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Ref": "webServerName"
+                  },
+                  "B"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "CFN_ASSIST_TYPE",
+            "Value": "web"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+  }
 }

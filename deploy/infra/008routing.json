@@ -6,7 +6,8 @@
 			"vpc" : { "Type" : "String" },
 			"webSubnetZoneA" : { "Type" : "String" , "Description" : "::webSubnetZoneA" },
 			"webSubnetZoneB" : { "Type" : "String" , "Description" : "::webSubnetZoneB" },
-			"lbSubnet" : { "Type" : "String" , "Description" : "::lbSubnet" },
+			"lbSubnetA" : { "Type" : "String" , "Description" : "::lbSubnetA" },
+		  	"lbSubnetB" : { "Type" : "String" , "Description" : "::lbSubnetB" },
 			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" },
 			"natInstance" : { "Type" : "String" , "Description" : "::natInstance" },
 			"internetGateway" : { "Type" : "String" , "Description" : "::internetGateway" }
@@ -50,12 +51,19 @@
 					"DestinationCidrBlock" : "0.0.0.0/0", "GatewayId" : { "Ref" : "internetGateway" }
 				}
 			},
-			"lbRouteTableAssociation" : {
+			"lbRouteTableAssociationA" : {
 				"Type" : "AWS::EC2::SubnetRouteTableAssociation",
 				"Properties" : {
-					"SubnetId" : { "Ref" : "lbSubnet" },
+					"SubnetId" : { "Ref" : "lbSubnetA" },
 					"RouteTableId" : { "Ref" : "lbRouteTable" }
 				}
+			},
+			"lbRouteTableAssociationB" : {
+			  "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			  "Properties" : {
+				"SubnetId" : { "Ref" : "lbSubnetB" },
+				"RouteTableId" : { "Ref" : "lbRouteTable" }
+			  }
 			},
 			"natRouteTable" : { 
 				"Type" : "AWS::EC2::RouteTable",
