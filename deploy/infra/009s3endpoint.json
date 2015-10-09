@@ -1,0 +1,51 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "set up S3 endpoint for the VPC",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"webRouteTable" : { "Type" : "String" , "Description" : "::webRouteTable" },
+			"natRouteTable" : { "Type" : "String" , "Description" : "::natRouteTable" },
+		    "bucketName" : { "Type": "String", "Default": "tramchester2dist" }
+		},
+		"Resources" : {
+		  "S3Endpoint" : {
+			"Type" : "AWS::EC2::VPCEndpoint",
+			"Properties" : {
+			  "PolicyDocument" : {
+				"Version":"2012-10-17",
+				"Statement":[{
+				  "Effect":"Allow",
+				  "Principal": "*",
+				  "Action":["s3:GetObject"],
+				  "Resource":[ { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "bucketName" }, "/*"] ] }  ]
+				},
+				{
+					"Effect":"Allow",
+					"Principal": "*",
+					"Action":["s3:*"],
+					"Resource":[ "arn:aws:s3:::cloudformation-waitcondition-ap-northeast-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-ap-southeast-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-ap-southeast-2/*",
+						"arn:aws:s3:::cloudformation-waitcondition-cn-north-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-eu-central-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-eu-west-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-sa-east-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-us-east-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-us-gov-west-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-us-west-1/*",
+						"arn:aws:s3:::cloudformation-waitcondition-us-west-2/*"
+						]
+				}
+				]
+			  },
+			  "RouteTableIds" : [ {"Ref" : "webRouteTable"}, {"Ref" : "natRouteTable"} ],
+			  "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".s3" ] ] },
+			  "VpcId" : {"Ref" : "vpc"}
+			}
+		  }
+		},
+		"Outputs" : {
+		  "bucketName" : { "Value" : { "Ref" : "bucketName" } , "Description":"::CFN_TAG" }
+		}
+}
