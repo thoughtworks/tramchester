@@ -4,12 +4,13 @@ public class RouteData {
     private String id;
     private String code;
     private String name;
+    private String agency;
 
-    public RouteData(String id, String code, String name) {
-
+    public RouteData(String id, String code, String name, String agency) {
         this.id = id;
         this.code = code;
         this.name = name;
+        this.agency = agency;
     }
 
     private RouteData() {
@@ -25,5 +26,9 @@ public class RouteData {
 
     public String getName() {
         return name;
+    }
+
+    public String getAgency() {
+        return agency;
     }
 }
