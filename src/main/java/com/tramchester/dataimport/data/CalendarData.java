@@ -14,7 +14,8 @@ public class CalendarData {
     private final DateTime start;
     private final DateTime end;
 
-    public CalendarData(String serviceId, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday, DateTime start, DateTime end) {
+    public CalendarData(String serviceId, boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
+                        boolean friday, boolean saturday, boolean sunday, DateTime start, DateTime end) {
 
         this.serviceId = serviceId;
         this.monday = monday;

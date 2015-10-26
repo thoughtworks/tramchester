@@ -12,7 +12,8 @@ public class StopTimeData {
     private String dropOffType;
     private int minutesFromMidnight;
 
-    public StopTimeData(String tripId, DateTime arrivalTime, DateTime departureTime, String stopId, String stopSequence, String pickupType, String dropOffType, int minutesFromMidnight) {
+    public StopTimeData(String tripId, DateTime arrivalTime, DateTime departureTime, String stopId,
+                        String stopSequence, String pickupType, String dropOffType, int minutesFromMidnight) {
 
         this.tripId = tripId;
         this.arrivalTime = arrivalTime;

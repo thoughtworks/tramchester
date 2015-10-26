@@ -39,7 +39,8 @@ public class Dependencies {
     public void initialise(TramchesterConfig configuration) throws Exception {
         if (configuration.isPullData()) {
             logger.info("Pulling and cleansing data");
-            new DataCleanser().main(null);
+            // TODO REFACTOR TO INJECT DEPENDENCIES AND STOP CALLING MAIN
+            DataCleanser.main(null);
         }
         logger.info("Creating dependencies");
         picoContainer.addComponent(TramchesterConfig.class, configuration);

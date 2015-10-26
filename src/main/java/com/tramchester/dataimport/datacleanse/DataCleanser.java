@@ -1,47 +1,59 @@
 package com.tramchester.dataimport.datacleanse;
 
+import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.services.DateTimeService;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class DataCleanser {
     private static final String path = "data/tram/";
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
-    private static final TransportDataReader transportDataReader = new TransportDataReader(path + "gtdf-out/");
-    private static final TransportDataWriter transportDataWriter = new TransportDataWriter(path);
     public static final String TIME_FORMAT = "YYYMMdd";
     public static final String METROLINK = "MET";
     public static final String METROLINK_STOP_PREFIX = "9400";
 
+    private TransportDataReader transportDataReader; //= new TransportDataReader(path + "gtdf-out/");
+    private TransportDataWriter transportDataWriter; //= new TransportDataWriter(path);
+    private FetchDataFromUrl fetcher;
+
     public static void main(String[] args) throws Exception {
-        fetchData("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+        TransportDataReader reader = new TransportDataReader(path + "gtdf-out/");
+        TransportDataWriter writer = new TransportDataWriter(path);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(path);
+
+        DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writer);
+        dataCleanser.run("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+    }
+
+    public DataCleanser(FetchDataFromUrl fetcher, TransportDataReader reader, TransportDataWriter writer) {
+        this.fetcher = fetcher;
+        this.transportDataReader = reader;
+        this.transportDataWriter = writer;
+    }
+
+    private void run(String dataUrl) throws IOException {
+        fetcher.fetchData(dataUrl);
 
         cleanseRoutes();
 
         cleanseStops();
 
-        cleanseTrips();
+        Set<String> svcIds = cleanseTrips();
 
         cleanseStoptimes();
 
-        cleanseCalendar();
+        cleanseCalendar(svcIds);
 
         cleanFeedInfo();
 
@@ -49,35 +61,10 @@ public class DataCleanser {
         FileUtils.forceDelete(new File(path + "/data.zip"));
     }
 
-    private static void fetchData(String dataUrl) throws IOException {
-        String filename = "data.zip";
-        pullDataFromURL(filename, new URL(dataUrl));
-        unzipData(filename);
-    }
-
-    private static void unzipData(String filename) {
-        logger.info("Unziping data...");
-        try {
-            ZipFile zipFile = new ZipFile(path + filename);
-            zipFile.extractAll(path);
-        } catch (ZipException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void pullDataFromURL(String filename, URL website) throws IOException {
-        logger.info("Downloading data from " + website);
-
-        FileUtils.forceMkdir(new File(path));
-        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        FileOutputStream fos = new FileOutputStream(path + filename);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-    }
-
-    private static void cleanseCalendar() throws IOException {
+    public void cleanseCalendar(Set<String> services) throws IOException {
         logger.info("**** Start cleansing calendar.");
 
-        Set<String> services = getUniqueServices();
+        //Set<String> services = getUniqueServices();
 
         Stream<CalendarData> calendar = transportDataReader.getCalendar();
 
@@ -95,16 +82,15 @@ public class DataCleanser {
                         calendarData.getStartDate().toString(TIME_FORMAT),
                         calendarData.getEndDate().toString(TIME_FORMAT))));
 
-
         transportDataWriter.writeFile(content.toString(), "calendar");
         logger.info("**** End cleansing calendar.\n\n");
     }
 
-    private static Set<String> getUniqueServices() throws IOException {
-        return new TransportDataReader(path).getTrips().map(TripData::getServiceId).collect(Collectors.toSet());
-    }
+//    private Set<String> getUniqueServices() throws IOException {
+//        return new TransportDataReader(path).getTrips().map(TripData::getServiceId).collect(Collectors.toSet());
+//    }
 
-    private static void cleanseStoptimes() throws IOException {
+    public void cleanseStoptimes() throws IOException {
         logger.info("**** Start cleansing stop times.");
 
         Stream<StopTimeData> stopTimes = transportDataReader.getStopTimes();
@@ -126,21 +112,26 @@ public class DataCleanser {
 
     }
 
-    private static void cleanseTrips() throws IOException {
+    public Set<String> cleanseTrips() throws IOException {
         logger.info("**** Start cleansing trips.");
+        Set<String> uniqueSvcIds = new HashSet<>();
         Stream<TripData> trips = transportDataReader.getTrips();
 
         StringBuilder content = new StringBuilder();
-        trips.filter(trip -> trip.getRouteId().startsWith(METROLINK)).forEach(trip -> content.append(String.format("%s,%s,%s,%s\n",
-                trip.getRouteId(),
-                trip.getServiceId(),
-                trip.getTripId(),
-                trip.getTripHeadsign())));
+        trips.filter(trip -> trip.getRouteId().startsWith(METROLINK)).forEach(trip -> {
+            content.append(String.format("%s,%s,%s,%s\n",
+                    trip.getRouteId(),
+                    trip.getServiceId(),
+                    trip.getTripId(),
+                    trip.getTripHeadsign()));
+            uniqueSvcIds.add(trip.getServiceId());
+        });
         transportDataWriter.writeFile(content.toString(), "trips");
         logger.info("**** End cleansing trips.\n\n");
+        return uniqueSvcIds;
     }
 
-    private static void cleanseStops() throws IOException {
+    public void cleanseStops() throws IOException {
         logger.info("**** Start cleansing stops.");
         Stream<StopData> stops = transportDataReader.getStops();
         StringBuilder content = new StringBuilder();
@@ -156,7 +147,7 @@ public class DataCleanser {
         logger.info("**** End cleansing stops.\n\n");
     }
 
-    private static void cleanseRoutes() throws IOException {
+    public void cleanseRoutes() throws IOException {
         logger.info("**** Start cleansing routes.");
         Stream<RouteData> routes = transportDataReader.getRoutes();
         StringBuilder content = new StringBuilder();
@@ -172,11 +163,11 @@ public class DataCleanser {
         logger.info("**** End cleansing routes.\n\n");
     }
 
-    private static String runsOnDay(boolean monday) {
-        return monday ? "1" : "0";
+    private String runsOnDay(boolean day) {
+        return day ? "1" : "0";
     }
 
-    private static void cleanFeedInfo() throws IOException {
+    public void cleanFeedInfo() throws IOException {
         logger.info("**** Start cleansing feed info.");
         Stream<FeedInfo> feedInfo = transportDataReader.getFeedInfo();
         StringBuilder content = new StringBuilder();
