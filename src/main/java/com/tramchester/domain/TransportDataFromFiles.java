@@ -165,7 +165,11 @@ public class TransportDataFromFiles implements TransportData {
     }
 
     public Service getService(String svcId) {
-        return services.get(svcId);
+        Service result = services.get(svcId);
+        if (result==null) {
+            logger.error("Unable to find service with id: " + svcId);
+        }
+        return result;
     }
 
     public Collection<Service> getServices() {

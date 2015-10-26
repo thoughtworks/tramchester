@@ -212,11 +212,13 @@ public class GraphBuilderTest {
         List<GoesToRelationship> svcsFromVelopark = new LinkedList<>();
         outbounds.forEach(out -> {
             if (out instanceof GoesToRelationship) svcsFromVelopark.add((GoesToRelationship) out);
-
         });
         // filter by day and then direction/route
+        assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !svc.getDaysTramRuns()[0]); // monday
+        assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !transportData.getService(svc.getService()).getRouteId().equals(ASH_TO_MANCHESTER));
+        assertTrue(!svcsFromVelopark.isEmpty());
 
         assertEquals(5, svcsFromVelopark.size());
 

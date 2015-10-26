@@ -48,7 +48,7 @@ public class StationsTest {
         assertTrue(stationGroups.get("Nearest Stops") > 0);
         assertEquals("All Stops", stations.get(6).getProximityGroup());
         assertEquals("Abraham Moss", stations.get(6).getName());
-        assertEquals("Altrincham Station", stations.get(7).getName());
+        assertEquals("Altrincham", stations.get(7).getName());
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
 
@@ -61,7 +61,7 @@ public class StationsTest {
 
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
-        assertThat(stations.stream().filter(station -> station.getName().equals("Altrincham Station")).count()).isEqualTo(1);
+        assertThat(stations.stream().filter(station -> station.getName().equals("Altrincham")).count()).isEqualTo(1);
 
     }
 }

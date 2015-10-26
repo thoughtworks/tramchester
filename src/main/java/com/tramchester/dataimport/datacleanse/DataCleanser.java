@@ -27,6 +27,8 @@ public class DataCleanser {
     private static final TransportDataReader transportDataReader = new TransportDataReader(path + "gtdf-out/");
     private static final TransportDataWriter transportDataWriter = new TransportDataWriter(path);
     public static final String TIME_FORMAT = "YYYMMdd";
+    public static final String METROLINK = "MET";
+    public static final String METROLINK_STOP_PREFIX = "9400";
 
     public static void main(String[] args) throws Exception {
         fetchData("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
@@ -46,8 +48,6 @@ public class DataCleanser {
         FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
         FileUtils.forceDelete(new File(path + "/data.zip"));
     }
-
-
 
     private static void fetchData(String dataUrl) throws IOException {
         String filename = "data.zip";
@@ -111,7 +111,7 @@ public class DataCleanser {
 
         StringBuilder content = new StringBuilder();
 
-        stopTimes.filter(stopTime -> stopTime.getStopId().startsWith("9400Z"))
+        stopTimes.filter(stopTime -> stopTime.getStopId().startsWith(METROLINK_STOP_PREFIX))
                 .forEach(stopTime -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s\n",
                         stopTime.getTripId(),
                         DateTimeService.formatTime(stopTime.getArrivalTime()),
@@ -131,7 +131,7 @@ public class DataCleanser {
         Stream<TripData> trips = transportDataReader.getTrips();
 
         StringBuilder content = new StringBuilder();
-        trips.filter(trip -> trip.getRouteId().startsWith("MET")).forEach(trip -> content.append(String.format("%s,%s,%s,%s\n",
+        trips.filter(trip -> trip.getRouteId().startsWith(METROLINK)).forEach(trip -> content.append(String.format("%s,%s,%s,%s\n",
                 trip.getRouteId(),
                 trip.getServiceId(),
                 trip.getTripId(),
@@ -145,7 +145,7 @@ public class DataCleanser {
         Stream<StopData> stops = transportDataReader.getStops();
         StringBuilder content = new StringBuilder();
 
-        stops.filter(stop -> stop.getId().startsWith("9400")).forEach(stop -> content.append(String.format("%s,%s,%s,%s,%s\n",
+        stops.filter(stop -> stop.getId().startsWith(METROLINK_STOP_PREFIX)).forEach(stop -> content.append(String.format("%s,%s,%s,%s,%s\n",
                 stop.getId(),
                 stop.getCode(),
                 stop.getName(),
@@ -161,8 +161,9 @@ public class DataCleanser {
         Stream<RouteData> routes = transportDataReader.getRoutes();
         StringBuilder content = new StringBuilder();
 
-        routes.filter(route -> route.getId().startsWith("MET")).forEach(route -> content.append(String.format("%s,MET,%s,%s,0\n",
+        routes.filter(route -> route.getAgency().equals(METROLINK)).forEach(route -> content.append(String.format("%s,%s,%s,%s,0\n",
                 route.getId(),
+                route.getAgency(),
                 route.getCode(),
                 route.getName()
         )));

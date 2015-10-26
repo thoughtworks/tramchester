@@ -16,5 +16,7 @@ public class RouteDataParserTest {
         assertThat(result.getId()).isEqualTo("MET:MET4:O:");
         assertThat(result.getCode()).isEqualTo("MET4");
         assertThat(result.getName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
+        assertThat(result.getAgency()).isEqualTo("MET");
     }
+
 }
