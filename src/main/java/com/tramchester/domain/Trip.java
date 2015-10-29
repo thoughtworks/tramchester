@@ -3,8 +3,10 @@ package com.tramchester.domain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Trip {
     private static final Logger logger = LoggerFactory.getLogger(Trip.class);
@@ -12,7 +14,7 @@ public class Trip {
 
     private String tripId;
     private String headSign;
-    private List<Stop> stops = new ArrayList<>();
+    private Map<String, Stop> stops = new LinkedHashMap<>();
 
     public Trip(String tripId, String headSign, String serviceId) {
         this.tripId = tripId;
@@ -25,27 +27,24 @@ public class Trip {
     }
 
     public List<Stop> getStops() {
-        return stops;
+        List<Stop> results = new LinkedList<>();
+        results.addAll(stops.values());
+        return results;
     }
 
     public void addStop(Stop stop) {
-        stops.add(stop);
+        Station station = stop.getStation();
+        if (station==null) {
+            logger.warn("Stop is missing station");
+        } else {
+            stops.put(station.getId(), stop);
+        }
     }
-
-//    public boolean isAfter(int minutesFromMidnight, String originStation) {
-//        for (Stop stop : stops) {
-//            String stopStationId = stop.getStation().getId();
-//            if (stopStationId.equals(originStation) && stop.getMinutesFromMidnight() > minutesFromMidnight) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
         boolean seenFirst = false;
         boolean seenSecond = false;
-        for (Stop stop : stops) {
+        for (Stop stop : stops.values()) {
             if (stop.getMinutesFromMidnight() > minutesFromMidnight) {
                 String stopStationId = stop.getStation().getId();
                 if (firstStationId.equals(stopStationId)) {
@@ -62,10 +61,8 @@ public class Trip {
     }
 
     public Stop getStop(String stationId) {
-        for (Stop stop : stops) {
-            if (stop.getStation().getId().equals(stationId)) {
-                return stop;
-            }
+        if (stops.containsKey(stationId)) {
+            return stops.get(stationId);
         }
         logger.error(String.format("Could not find a stop in trip %s for station %s", tripId, stationId));
         return null;

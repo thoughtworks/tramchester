@@ -11,8 +11,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.traversal.BranchState;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,8 +45,8 @@ public class CreateDotDiagramTest {
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
         try (Transaction tx = graphService.beginTx()) {
 
-            Index<Node> stationsIndex = graphService.index().forNodes(GraphStaticKeys.Station.IndexName);
-            Node startNode = stationsIndex.get(ID, Stations.VeloPark).getSingle();
+            Node startNode = graphService.findNode(DynamicLabel.label(TransportGraphBuilder.STATION),
+                    "id", Stations.VeloPark);
             List<Node> seen = new LinkedList<>();
 
             StringBuilder builder = new StringBuilder();

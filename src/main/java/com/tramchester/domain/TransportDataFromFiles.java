@@ -17,7 +17,7 @@ public class TransportDataFromFiles implements TransportData {
 
     public TransportDataFromFiles(Stream<StopData> stopDataList, Stream<RouteData> routeDataList, Stream<TripData> tripDataList,
                                   Stream<StopTimeData> stopTimeDataList, Stream<CalendarData> calendarDataList,
-                                  Stream<FeedInfo> feedInfoData) {
+                                  Stream<FeedInfo> feedInfoData)  {
         Optional<FeedInfo> maybeFeedInfo = feedInfoData.limit(1).findFirst();
         if (maybeFeedInfo.isPresent()) {
             feedInfo = maybeFeedInfo.get();
@@ -27,9 +27,12 @@ public class TransportDataFromFiles implements TransportData {
         }
 
         stopDataList.forEach((stopData) -> {
-            if (!stations.keySet().contains(stopData.getId())) {
-                stations.put(stopData.getId(), new Station(stopData.getId(), stopData.getName(),
-                        stopData.getLatitude(), stopData.getLongitude()));
+            String stopId = stopData.getId();
+            if (!stations.keySet().contains(stopId)) {
+                Station station = new Station(stopId, stopData.getName(),
+                        stopData.getLatitude(), stopData.getLongitude());
+                logger.info("Add station with id " + stopId);
+                stations.put(stopId, station);
             }
         } );
 
@@ -51,9 +54,13 @@ public class TransportDataFromFiles implements TransportData {
         stopTimeDataList.forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
 
+            String stopId = stopTimeData.getStopId();
+            if (!stations.containsKey(stopId)) {
+                logger.error("Cannot find station for Id " + stopId);
+            }
             Stop stop = new Stop(stopTimeData.getArrivalTime(),
                     stopTimeData.getDepartureTime(),
-                    stations.get(stopTimeData.getStopId()),
+                    stations.get(stopId),
                     stopTimeData.getMinutesFromMidnight());
 
             trip.addStop(stop);
@@ -108,18 +115,7 @@ public class TransportDataFromFiles implements TransportData {
         return routes.get(routeId);
     }
 
-    private StopType getStopType(StopTimeData stopTimeData) {
-        if (stopTimeData.getPickupType().equals("0") && stopTimeData.getDropOffType().equals("1")) {
-            return StopType.START;
-        } else if (stopTimeData.getPickupType() == "1" && stopTimeData.getDropOffType() == "0") {
-            return StopType.END;
-        }
-        return StopType.MIDDLE;
-
-    }
-
     private Trip getTrip(String tripId) {
-
         return trips.get(tripId);
     }
 
@@ -143,10 +139,7 @@ public class TransportDataFromFiles implements TransportData {
         logger.info(String.format("Get times for service %s from %s to %s at minutes past %s",
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
         List<ServiceTime> serviceTimes = new ArrayList<>();
-        Service service = services.get(serviceId);
-        if (service==null) {
-            logger.error("Unable to find service " + serviceId);
-        }
+        Service service = this.getService(serviceId);
 
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,
                 maxNumberOfTrips);
@@ -165,11 +158,11 @@ public class TransportDataFromFiles implements TransportData {
     }
 
     public Service getService(String svcId) {
-        Service result = services.get(svcId);
-        if (result==null) {
+        if (!services.containsKey(svcId)) {
             logger.error("Unable to find service with id: " + svcId);
+            throw new NoSuchElementException("Unable to find service " + svcId);
         }
-        return result;
+        return services.get(svcId);
     }
 
     public Collection<Service> getServices() {

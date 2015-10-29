@@ -13,7 +13,6 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,25 +22,19 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.GraphStaticKeys.COST;
-import static com.tramchester.graph.GraphStaticKeys.Station;
-import static com.tramchester.graph.GraphStaticKeys.ID;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 
-public class RouteCalculator {
+public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
     public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
     public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
 
-    private final GraphDatabaseService db;
     private NodeFactory nodeFactory;
-
-    private Index<Node> trams = null;
-    private Index<Node> routeStations = null;
     private PathExpander pathExpander;
 
     public RouteCalculator(GraphDatabaseService db) {
-        this.db = db;
+        super(db);
         nodeFactory = new NodeFactory();
         RelationshipFactory routeFactory = new RelationshipFactory();
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, routeFactory, nodeFactory);
@@ -49,7 +42,7 @@ public class RouteCalculator {
 
     public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         Set<Journey> journeys = new HashSet<>();
-        try (Transaction tx = db.beginTx()) {
+        try (Transaction tx = graphDatabaseService.beginTx()) {
 
             Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, time, dayOfWeek, queryDate);
             // todo eliminate duplicate journeys that use different services??
@@ -111,29 +104,27 @@ public class RouteCalculator {
     }
 
     public TramNode getStation(String id) throws UnknownStationException {
-        try (Transaction tx = db.beginTx()) {
-            Index<Node> stationsIndex = getStationsIndex();
+        try (Transaction tx = graphDatabaseService.beginTx()) {
             NodeFactory factory = new NodeFactory();
-            Node node = getStationByID(id, stationsIndex);
+            Node node =  super.getStationNode(id);
             tx.success();
             return factory.getNode(node);
         }
     }
 
     public TramNode getRouteStation(String id) throws UnknownStationException {
-        try (Transaction tx = db.beginTx()) {
-            Index<Node> stationsIndex = getRouteStationsIndex();
+        try (Transaction tx = graphDatabaseService.beginTx()) {
             NodeFactory factory = new NodeFactory();
-            Node node = getStationByID(id, stationsIndex);
+            Node node = getRouteStationNode(id);
             tx.success();
             return factory.getNode(node);
         }
     }
 
     private Iterable<WeightedPath> findShortestPath(String startId, String endId, int time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
-        Index<Node> stationsIndex = getStationsIndex();
-        Node startNode = getStationByID(startId, stationsIndex);
-        Node endNode = getStationByID(endId, stationsIndex);
+        //Index<Node> stationsIndex = getStationsIndex();
+        Node startNode = getStationNode(startId);
+        Node endNode = getStationNode(endId);
         logger.info(String.format("Finding shortest path for %s (%s) --> %s (%s) on %s",
                 startId, startNode.getProperty(NAME),
                 endId, endNode.getProperty(NAME), dayOfWeek));
@@ -147,61 +138,37 @@ public class RouteCalculator {
         return pathFinder.findAllPaths(startNode, endNode);
     }
 
-    private Node getStationByID(String stationId, Index<Node> index) throws UnknownStationException {
-        Node node = index.get(ID, stationId).getSingle();
-        if (node==null) {
-            logger.error("Unable to find station for ID " + stationId);
-            throw new UnknownStationException(stationId);
-        }
-        return node;
-    }
-
-    private Index<Node> getStationsIndex() {
-        if (trams == null) {
-            trams = db.index().forNodes(Station.IndexName);
-        }
-        return trams;
-    }
-
-    private Index<Node> getRouteStationsIndex() {
-        if (routeStations == null) {
-            routeStations = db.index().forNodes(GraphStaticKeys.RouteStation.IndexName);
-        }
-        return routeStations;
-    }
-
     public List<TramRelationship> getOutboundStationRelationships(String stationId) throws UnknownStationException {
-        try (Transaction tx = db.beginTx()) {
-            List<TramRelationship> relationships = getTramRelationships(stationId, Direction.OUTGOING,
-                    getStationsIndex());
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            Node node = getStationNode(stationId);
+            List<TramRelationship> relationships = getTramRelationships(node, Direction.OUTGOING);
             tx.success();
             return relationships;
         }
     }
 
     public List<TramRelationship> getOutboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
-        try (Transaction tx = db.beginTx()) {
-            List<TramRelationship> relationships = getTramRelationships(routeStationId, Direction.OUTGOING,
-                    getRouteStationsIndex());
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            Node node = getRouteStationNode(routeStationId);
+            List<TramRelationship> relationships = getTramRelationships(node, Direction.OUTGOING);
             tx.success();
             return relationships;
         }
     }
 
     public List<TramRelationship> getInboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
-        try (Transaction tx = db.beginTx()) {
-            List<TramRelationship> relationships = getTramRelationships(routeStationId, Direction.INCOMING,
-                    getRouteStationsIndex());
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            Node node = getRouteStationNode(routeStationId);
+            List<TramRelationship> relationships = getTramRelationships(node, Direction.INCOMING);
             tx.success();
             return relationships;
         }
     }
 
-    private List<TramRelationship> getTramRelationships(String routeStationId, Direction direction, Index<Node> index) throws UnknownStationException {
+    private List<TramRelationship> getTramRelationships(Node startNode, Direction direction) throws UnknownStationException {
         RelationshipFactory relationshipFactory = new RelationshipFactory();
 
         List<TramRelationship> relationships = new LinkedList<>();
-        Node startNode = getStationByID(routeStationId, index);
         for (Relationship relate : startNode.getRelationships(direction)) {
             relationships.add(relationshipFactory.getRelationship(relate));
         }

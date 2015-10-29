@@ -119,8 +119,9 @@ public class TestDataCleanser extends EasyMockSupport {
         svcIds.add("svcIDB");
         svcIds.add("svcIDC");
 
-        DateTime start = DateTime.now();
-        DateTime end = DateTime.now();
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(("yyyyMMdd"));
+        DateTime start = DateTime.parse("20151025", dateFormatter);
+        DateTime end = DateTime.parse("20151026", dateFormatter);
         CalendarData dayA = new CalendarData("svcIDA", false, false, false, false, false, false, false, start, end);
         CalendarData dayB = new CalendarData("svcIDB", true, true, true, true, true, true, true, start, end);
         CalendarData dayC = new CalendarData("svcIDC", false, true, false, false, false, false, false, start, end);
@@ -128,7 +129,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         Stream<CalendarData> calendar = Stream.of(dayA, dayB, dayC, dayD);
         EasyMock.expect(reader.getCalendar()).andReturn(calendar);
-        writer.writeFile("svcIDB,1,1,1,1,1,1,1,20151026,20151026\nsvcIDC,0,1,0,0,0,0,0,20151026,20151026\n",
+        writer.writeFile("svcIDB,1,1,1,1,1,1,1,20151025,20151026\nsvcIDC,0,1,0,0,0,0,0,20151025,20151026\n",
                 "calendar");
         EasyMock.expectLastCall();
 

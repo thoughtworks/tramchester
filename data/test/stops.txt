@@ -1,8 +1,176 @@
-9400ZZMAABM1,mantpmaw,"Cheetham Hill, Abraham Moss (Manchester Metrolink)",53.51046,-2.23550,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAABM1
-9400ZZMAABM2,mantpmda,"Cheetham Hill, Abraham Moss (Manchester Metrolink)",53.51091,-2.23611,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAABM2
-9400ZZMAAIR1,mantwjmp,"Manchester Airport, Manchester Airport (Manchester Metrolink)",53.36537,-2.27247,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAIR1
-9400ZZMAALT1,mantpmjm,"Altrincham, Altrincham Station (Manchester Metrolink)",53.38745,-2.34741,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAALT1
-9400ZZMAAMO1,mantwdpw,"Ashton Moss, Ashton Moss (Manchester Metrolink)",53.48373,-2.12194,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAMO1
-9400ZZMAAMO2,mantwdta,"Ashton Moss, Ashton Moss (Manchester Metrolink)",53.48350,-2.12203,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAAMO2
-9400ZZMAANC1,mantpjmd,"Salford Quays, Anchorage (Manchester Metrolink)",53.47426,-2.28608,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAANC1
-9400ZZMAANC2,mantpjmg,"Salford Quays, Anchorage (Manchester Metrolink)",53.47429,-2.28594,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAANC2
+9400ZZMAABM,mantpmaw,Abraham Moss,53.51046,-2.2355
+9400ZZMAABM,mantpmda,Abraham Moss,53.51091,-2.23611
+9400ZZMAAIR,mantwjmp,Manchester Airport,53.36537,-2.27247
+9400ZZMAALT,mantpmjm,Altrincham,53.38745,-2.34741
+9400ZZMAAMO,mantwdpw,Ashton Moss,53.48373,-2.12194
+9400ZZMAAMO,mantwdta,Ashton Moss,53.4835,-2.12203
+9400ZZMAANC,mantpjmd,Anchorage,53.47426,-2.28608
+9400ZZMAANC,mantpjmg,Anchorage,53.47429,-2.28594
+9400ZZMAAUD,mantwdpj,Audenshaw,53.47822,-2.13096
+9400ZZMAAUD,mantwdpm,Audenshaw,53.47821,-2.13124
+9400ZZMAAUL,mantwdtp,Ashton-Under-Lyne,53.49036,-2.09798
+9400ZZMAAUL,mantwdtw,Ashton-Under-Lyne,53.49031,-2.09811
+9400ZZMAAWT,mantwdtg,Ashton West,53.4903,-2.10974
+9400ZZMAAWT,mantwdtj,Ashton West,53.49017,-2.10992
+9400ZZMABAG,mantwgwm,Baguley,53.39676,-2.29255
+9400ZZMABAG,mantwgwp,Baguley,53.39684,-2.29279
+9400ZZMABAR,mantwgpj,Barlow Moor Road,53.43278,-2.26935
+9400ZZMABAR,mantwgpm,Barlow Moor Road,53.43286,-2.26939
+9400ZZMABKS,mantpmgt,Brooklands,53.41727,-2.32579
+9400ZZMABKS,mantpmgp,Brooklands,53.41715,-2.32611
+9400ZZMABLL,mantwjaw,Benchill,53.38709,-2.25613
+9400ZZMABLL,mantwjda,Benchill,53.38708,-2.25629
+9400ZZMABNR,mantwdat,Burton Road,53.4291,-2.24064
+9400ZZMABNR,mantwdaw,Burton Road,53.42915,-2.2405
+9400ZZMABOB,mantpjwd,Besses o'th'barn,53.54207,-2.28616
+9400ZZMABOB,mantpjwg,Besses o'th'barn,53.54207,-2.28608
+9400ZZMABOW,mantpmad,Bowker Vale,53.52484,-2.24991
+9400ZZMABOW,mantpmag,Bowker Vale,53.52492,-2.24985
+9400ZZMABUR,mantpjtg,Bury,53.59084,-2.29726
+9400ZZMABUR,mantpjtj,Bury,53.59084,-2.29711
+9400ZZMABWY,mantpjpa,Broadway,53.47479,-2.29506
+9400ZZMABWY,mantpjpd,Broadway,53.47483,-2.29488
+9400ZZMACEM,mantwada,Cemetery Road,53.47993,-2.15502
+9400ZZMACEM,mantwadg,Cemetery Road,53.47984,-2.15502
+9400ZZMACHO,mantpgtd,Chorlton,53.44264,-2.27335
+9400ZZMACHO,mantpjdm,Chorlton,53.44281,-2.27366
+9400ZZMACLN,mantpwpg,Clayton Hall,53.48281,-2.18256
+9400ZZMACLN,mantpwpj,Clayton Hall,53.48276,-2.18208
+9400ZZMACRN,mantpgwg,Cornbrook,53.46997,-2.26768
+9400ZZMACRN,mantpjda,Cornbrook,53.47002,-2.26744
+9400ZZMACRU,mantpmap,Crumpsall,53.51727,-2.24114
+9400ZZMACRU,mantpmat,Crumpsall,53.51729,-2.24094
+9400ZZMACSS,mantwjdj,Crossacres,53.3833,-2.25621
+9400ZZMACSS,mantwjdm,Crossacres,53.38336,-2.25632
+9400ZZMACTP,mantpmtd,Central Park,53.50163,-2.19917
+9400ZZMACTP,mantpmtg,Central Park,53.50155,-2.19915
+9400ZZMADER,mantpwag,Derker,53.54992,-2.10171
+9400ZZMADER,mantpwaj,Derker,53.5498,-2.10154
+9400ZZMADID,mantwdgw,Didsbury Village,53.41671,-2.22862
+9400ZZMADID,mantwdja,Didsbury Village,53.41671,-2.22841
+9400ZZMADNE,mantpmga,Dane Road,53.43024,-2.31153
+9400ZZMADNE,mantpmgd,Dane Road,53.43019,-2.31137
+9400ZZMADRO,mantwadm,Droylsden,53.47953,-2.14518
+9400ZZMADRO,mantwadp,Droylsden,53.47943,-2.14448
+9400ZZMAECC,mantpjtd,Eccles,53.48308,-2.33454
+9400ZZMAECS,mantpwmj,Etihad Campus,53.48537,-2.20221
+9400ZZMAECS,mantpwmp,Etihad Campus,53.48537,-2.20063
+9400ZZMAEDY,mantwdjm,East Didsbury,53.4121,-2.21739
+9400ZZMAEDY,mantwdjg,East Didsbury,53.41202,-2.21713
+9400ZZMAELN,mantpwpt,Edge Lane,53.48088,-2.16512
+9400ZZMAELN,mantpwpw,Edge Lane,53.48085,-2.1654
+9400ZZMAEXC,mantpjgp,Exchange Quay,53.4677,-2.28242
+9400ZZMAEXC,mantpjgt,Exchange Quay,53.46768,-2.28228
+9400ZZMAFIR,mantpgtm,Firswood Station,53.45129,-2.27773
+9400ZZMAFIR,mantpjdj,Firswood Station,53.4513,-2.27769
+9400ZZMAFRE,mantptag,Freehold,53.53739,-2.13871
+9400ZZMAFRE,mantptaj,Freehold,53.53804,-2.13718
+9400ZZMAFWH,mantpmtw,Failsworth,53.51071,-2.1629
+9400ZZMAFWH,mantpmwa,Failsworth,53.51072,-2.16266
+9400ZZMAGMX,mantpgwj,Deansgate-Castlefield,53.47481,-2.25149
+9400ZZMAGMX,mantpjaw,Deansgate-Castlefield,53.47469,-2.25021
+9400ZZMAHCY,mantpjmp,Harbour City,53.47402,-2.29174
+9400ZZMAHCY,mantpjmj,Harbour City,53.47431,-2.28954
+9400ZZMAHEA,mantpjwp,Heaton Park,53.53037,-2.26699
+9400ZZMAHEA,mantpjwt,Heaton Park,53.5305,-2.26692
+9400ZZMAHOL,mantpmwg,Hollinwood,53.51998,-2.14744
+9400ZZMAHOL,mantpmwj,Hollinwood,53.51962,-2.14729
+9400ZZMAHTN,mantpwma,Holt Town,53.48321,-2.21228
+9400ZZMAHTN,mantpwmd,Holt Town,53.48325,-2.21202
+9400ZZMAKNY,mantwadw,Kingsway Business Park,53.61095,-2.12321
+9400ZZMAKNY,mantwaga,Kingsway Business Park,53.61124,-2.12423
+9400ZZMALDY,mantpjpw,Ladywell,53.48394,-2.32688
+9400ZZMALDY,mantpjta,Ladywell,53.48403,-2.32689
+9400ZZMALWY,mantpjpg,Langworthy,53.48051,-2.29563
+9400ZZMALWY,mantpjpj,Langworthy,53.48067,-2.29631
+9400ZZMAMCU,mantpjmw,MediaCityUK,53.47215,-2.29733
+9400ZZMAMFT,mantwjam,Martinscroft,53.39183,-2.27966
+9400ZZMAMFT,mantwjap,Martinscroft,53.39192,-2.27999
+9400ZZMAMIL,mantpwdm,Milnrow,53.60799,-2.11199
+9400ZZMAMIL,mantpwdp,Milnrow,53.60802,-2.11179
+9400ZZMAMKT,mantpjam,Market Street,53.48194,-2.23883
+9400ZZMAMKT,mantpgwp,Market Street,53.48189,-2.23883
+9400ZZMAMON,mantpmpw,Monsall,53.50113,-2.21061
+9400ZZMAMON,mantpmta,Monsall,53.50105,-2.21061
+9400ZZMAMRD,mantwgwd,Moor Road,53.40333,-2.29509
+9400ZZMAMRD,mantwgwg,Moor Road,53.40342,-2.2953
+9400ZZMANAV,mantpmjg,Navigation Road,53.39591,-2.34331
+9400ZZMANBD,mantpwdw,Newbold,53.61341,-2.13566
+9400ZZMANBD,mantpwga,Newbold,53.61337,-2.13534
+9400ZZMANEW,mantpmtj,Newton Heath & Moston,53.50419,-2.18366
+9400ZZMANHY,mantpwda,Newhey,53.60083,-2.09497
+9400ZZMANHY,mantpwdg,Newhey,53.60095,-2.09496
+9400ZZMANIS,mantpwjp,New Islington,53.48116,-2.21976
+9400ZZMANIS,mantpwjt,New Islington,53.48098,-2.21982
+9400ZZMANMR,mantwgtg,Northern Moor,53.41456,-2.28804
+9400ZZMANMR,mantwgtj,Northern Moor,53.41452,-2.28832
+9400ZZMAOKS,mantwgdw,Oldham King Street,53.53958,-2.11703
+9400ZZMAOKS,mantwgja,Oldham King Street,53.53953,-2.11718
+9400ZZMAOLD,mantpmdm,Old Trafford,53.45636,-2.28496
+9400ZZMAOLD,mantpmdp,Old Trafford,53.45628,-2.28466
+9400ZZMAOMC,mantwgjg,Oldham Central,53.54029,-2.11232
+9400ZZMAOMC,mantwgjm,Oldham Central,53.54025,-2.11223
+9400ZZMAOMP,mantptap,Oldham Mumps,53.54248,-2.10321
+9400ZZMAOMP,mantpwgp,Oldham Mumps,53.54236,-2.1035
+9400ZZMAPGD,mantpjgd,Piccadilly Gardens,53.4803,-2.23705
+9400ZZMAPGD,mantpjga,Piccadilly Gardens,53.48026,-2.23704
+9400ZZMAPIC,mantpjdw,Piccadilly,53.47732,-2.23121
+9400ZZMAPIC,mantpjdt,Piccadilly,53.47709,-2.23122
+9400ZZMAPLL,mantwjgt,Peel Hall,53.37375,-2.25038
+9400ZZMAPLL,mantwjgw,Peel Hall,53.3737,-2.25052
+9400ZZMAPOM,mantpjgm,Pomona,53.46523,-2.27791
+9400ZZMAPOM,mantpjgj,Pomona,53.4652,-2.27791
+9400ZZMAPWC,mantpjwj,Prestwich,53.53327,-2.28198
+9400ZZMAPWC,mantpjwm,Prestwich,53.53336,-2.28183
+9400ZZMAQRD,mantwgad,Queens Road,53.50172,-2.22673
+9400ZZMAQRD,mantwgag,Queens Road,53.50163,-2.22656
+9400ZZMARAD,mantpjtm,Radcliffe,53.56237,-2.32112
+9400ZZMARAD,mantpjtp,Radcliffe,53.56241,-2.32094
+9400ZZMARIN,mantwdwm,Rochdale Interchange,53.61737,-2.15508
+9400ZZMARIN,mantwdwp,Rochdale Interchange,53.61726,-2.15557
+9400ZZMARND,mantwjad,Roundthorn,53.39268,-2.28908
+9400ZZMARND,mantwjag,Roundthorn,53.39266,-2.28929
+9400ZZMARRS,mantpwgj,Rochdale Railway Station,53.61103,-2.15449
+9400ZZMARRS,mantpwgm,Rochdale Railway Station,53.61099,-2.1544
+9400ZZMARWD,mantwjgd,Robinswood Road,53.37681,-2.26
+9400ZZMARWD,mantwjgj,Robinswood Road,53.37614,-2.25744
+9400ZZMASCH,mantpmwp,South Chadderton,53.52647,-2.14537
+9400ZZMASCH,mantpmwt,South Chadderton,53.52646,-2.1452
+9400ZZMASDW,mantwjmd,Shadowmoss,53.36757,-2.2524
+9400ZZMASDW,mantwjmg,Shadowmoss,53.36759,-2.25264
+9400ZZMASFD,mantpmdw,Stretford,53.4461,-2.30361
+9400ZZMASFD,mantpmdt,Stretford,53.44615,-2.3038
+9400ZZMASHA,mantpwap,Shaw and Crompton,53.57631,-2.08963
+9400ZZMASHA,mantpwat,Shaw and Crompton,53.57638,-2.08951
+9400ZZMASHU,mantpgwt,Shudehill,53.48525,-2.23918
+9400ZZMASHU,mantpjaj,Shudehill,53.48531,-2.23907
+9400ZZMASLE,mantpmgm,Sale,53.42412,-2.31909
+9400ZZMASLE,mantpmgj,Sale,53.42418,-2.31925
+9400ZZMASQY,mantpjgw,Salford Quays,53.47031,-2.28408
+9400ZZMASQY,mantpjma,Salford Quays,53.4703,-2.28393
+9400ZZMASTW,mantpgta,St Werburgh's Road,53.43872,-2.26547
+9400ZZMASTW,mantpjdp,St Werburgh's Road,53.43876,-2.26546
+9400ZZMASWP,mantwgpw,Sale Water Park,53.42814,-2.29112
+9400ZZMASWP,mantwgta,Sale Water Park,53.42832,-2.29063
+9400ZZMATIM,mantpmja,Timperley,53.40422,-2.33834
+9400ZZMATIM,mantpmgw,Timperley,53.40427,-2.33849
+9400ZZMATRA,mantpgwd,Trafford Bar,53.46189,-2.27711
+9400ZZMATRA,mantpjdg,Trafford Bar,53.46181,-2.27702
+9400ZZMAVIC,mantpjad,Victoria,53.48782,-2.2418
+9400ZZMAVIC,mantpjag,Victoria,53.48778,-2.24175
+9400ZZMAVPK,mantpwmw,Velopark,53.48225,-2.1933
+9400ZZMAVPK,mantpwpa,Velopark,53.48219,-2.19311
+9400ZZMAWFD,mantpjtw,Whitefield,53.5512,-2.29535
+9400ZZMAWFD,mantpjwa,Whitefield,53.55128,-2.29527
+9400ZZMAWIT,mantwdag,Withington,53.4327,-2.24928
+9400ZZMAWIT,mantwdam,Withington,53.43283,-2.24937
+9400ZZMAWPK,mantwgtp,Wythenshawe Park,53.40763,-2.2956
+9400ZZMAWPK,mantwgtw,Wythenshawe Park,53.40771,-2.29565
+9400ZZMAWST,mantpjpm,Weaste,53.4824,-2.30773
+9400ZZMAWST,mantpjpt,Weaste,53.48248,-2.30768
+9400ZZMAWTD,mantwdgd,West Didsbury,53.42455,-2.23625
+9400ZZMAWTD,mantwdgt,West Didsbury,53.42458,-2.23602
+9400ZZMAWWD,mantwgdm,Westwood,53.54237,-2.12597
+9400ZZMAWWD,mantwgdp,Westwood,53.5423,-2.12587
+9400ZZMAWYT,mantwjdw,Wythenshawe Town Centre,53.38002,-2.26371
+9400ZZMAWYT,mantwjdt,Wythenshawe Town Centre,53.38003,-2.26381

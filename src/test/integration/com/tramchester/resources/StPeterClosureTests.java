@@ -7,10 +7,7 @@ import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.UnknownStationException;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.fail;
 
@@ -36,6 +33,7 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
     }
 
     @Test
+    @Ignore("St peters square has been deleted from the list of metrolink statiosn")
     public void shouldNotFindRouteToStPetersSquare() throws Exception {
         try {
             planner.createJourneyPlan(Stations.Altrincham, Stations.StPetersSquare, "11:43:00",

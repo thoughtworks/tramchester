@@ -2,9 +2,12 @@ package com.tramchester.graph;
 
 
 import com.tramchester.domain.*;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class TransportGraphBuilder {
+public class TransportGraphBuilder extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 
     public static final String CORNBROOK = "9400ZZMACRN";
@@ -39,19 +42,22 @@ public class TransportGraphBuilder {
     public static final int INTERCHANGE_BOARD_COST = 1;
     public static final int BOARDING_COST = 2;
     public static final int DEPARTS_COST = 2;
+    public static final String ROUTE_STATION = "RouteStation";
+    public static final String STATION = "Station";
 
-    private GraphDatabaseService graphDatabaseService;
     private TransportData transportData;
-    private Index<Node> routeStations = null;
-    private Index<Node> trams = null;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData) {
-        this.graphDatabaseService = graphDatabaseService;
+        super(graphDatabaseService);
         this.transportData = transportData;
     }
 
     public void buildGraph() {
         logger.info("Building graph from " + transportData.getFeedInfo());
+        DateTime start = DateTime.now();
+
+        createIndexs();
+
         Transaction tx = graphDatabaseService.beginTx();
         try {
             logger.info("Rebuilding the graph...");
@@ -63,12 +69,27 @@ public class TransportGraphBuilder {
                 }
             }
             tx.success();
-            logger.info("Graph rebuild finished");
+            Seconds duration = Seconds.secondsBetween(start, DateTime.now());
+            logger.info("Graph rebuild finished, took " + duration.getSeconds());
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
         } finally {
             tx.close();
+        }
+    }
+
+    private void createIndexs() {
+        try ( Transaction tx = graphDatabaseService.beginTx() )
+        {
+            Schema schema = graphDatabaseService.schema();
+            schema.indexFor(DynamicLabel.label(ROUTE_STATION))
+                    .on(GraphStaticKeys.ID)
+                    .create();
+            schema.indexFor(DynamicLabel.label(STATION))
+                    .on(GraphStaticKeys.ID)
+                    .create();
+            tx.success();
         }
     }
 
@@ -101,46 +122,28 @@ public class TransportGraphBuilder {
 
     private Node getOrCreateStation(Station station) {
 
-        Index<Node> stationsIndex = getStationsIndex();
-        Node node = getStationNode(station, stationsIndex);
+        Node node = getStationNode(station.getId());
 
         if (node == null) {
             logger.info("Creating station node: " + station);
             node = graphDatabaseService.createNode();
+            node.addLabel(DynamicLabel.label(STATION));
+
             node.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
 
             node.setProperty(GraphStaticKeys.ID, station.getId());
             node.setProperty(GraphStaticKeys.Station.NAME, station.getName());
             node.setProperty(GraphStaticKeys.Station.LAT, station.getLatitude());
             node.setProperty(GraphStaticKeys.Station.LONG, station.getLongitude());
-            stationsIndex.add(node, GraphStaticKeys.ID, station.getId());
 
             getSpatialIndex().add(node, station.getId(), station.getName());
         }
         return node;
     }
 
-    private Node getStationNode(Station station, Index<Node> stationsIndex) {
-        return stationsIndex.get(GraphStaticKeys.ID, station.getId()).getSingle();
-    }
-
-    private Index<Node> getStationsIndex() {
-        if (trams == null) {
-            trams = graphDatabaseService.index().forNodes(GraphStaticKeys.Station.IndexName);
-        }
-        return trams;
-    }
-
-    private Index<Node> getRouteStationsIndex() {
-        if (routeStations == null) {
-            routeStations = graphDatabaseService.index().forNodes(GraphStaticKeys.RouteStation.IndexName);
-        }
-        return routeStations;
-    }
-
     private Node getOrCreateRouteStation(Station station, Route route) {
         String routeStationId = createRouteStationId(station, route);
-        Node routeStation = getRouteStation(routeStationId);
+        Node routeStation = getRouteStationNode(routeStationId);
 
         if (routeStation == null) {
             routeStation = createRouteStation(station, route, routeStationId);
@@ -181,19 +184,15 @@ public class TransportGraphBuilder {
         return routeStation;
     }
 
-    private Node getRouteStation(String routeStationId) {
-        return getRouteStationsIndex().get(GraphStaticKeys.ID, routeStationId).getSingle();
-    }
-
     private Node createRouteStation(Station station, Route route, String routeStationId) {
         logger.info("Creating route station node: " + station.getId() + " " + route.getId());
         Node routeStation = graphDatabaseService.createNode();
+        routeStation.addLabel(DynamicLabel.label(ROUTE_STATION));
         routeStation.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_ID, route.getId());
         routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
-        getRouteStationsIndex().add(routeStation, GraphStaticKeys.ID, routeStationId);
         return routeStation;
     }
 
@@ -280,6 +279,7 @@ public class TransportGraphBuilder {
 
     private Relationship getRelationship(Service service, Node startNode, Node end) {
         String serviceId = service.getServiceId();
+        long endId = end.getId();
 
         Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING);
         for (Relationship outgoing : existing) {
@@ -287,7 +287,7 @@ public class TransportGraphBuilder {
                 String existingSvcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
                 if (existingSvcId.equals(serviceId)) {
                     long relationshipDestId = outgoing.getEndNode().getId();
-                    if (relationshipDestId == end.getId()) {
+                    if (relationshipDestId == endId) {
                         return outgoing;
                     }
                 }
