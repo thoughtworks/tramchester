@@ -98,7 +98,7 @@ task zipData(type: Zip) {
 task cfnassist << {
     antBuild.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
         classpath {
-            fileset(dir: 'lib/cfnassist-1.0.118/lib/', includes: '*.jar')
+            fileset(dir: 'lib/cfnassist-1.0.121/lib/', includes: '*.jar')
         }
     }
 }
