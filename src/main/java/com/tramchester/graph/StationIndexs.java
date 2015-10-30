@@ -15,7 +15,6 @@ public class StationIndexs {
     }
 
     protected Node getRouteStationNode(String routeStationId) {
-        logger.info("Find station with id: " + routeStationId);
         Node node = graphDatabaseService.findNode(DynamicLabel.label(TransportGraphBuilder.ROUTE_STATION), GraphStaticKeys.ID, routeStationId);
         if (node==null) {
             logger.warn("Could not find graph node for route station: " + routeStationId);
@@ -24,7 +23,6 @@ public class StationIndexs {
     }
 
     protected Node getStationNode(String stationId) {
-        logger.info("Find station with id: " + stationId);
         Node node = graphDatabaseService.findNode(DynamicLabel.label(TransportGraphBuilder.STATION), GraphStaticKeys.ID, stationId);
         if (node==null) {
             logger.warn("Could not find graph node for station: " + stationId);
