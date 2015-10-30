@@ -24,22 +24,22 @@ public class DataCleanser {
     public static final String METROLINK_STOP_PREFIX = "9400";
 
     private TransportDataReader transportDataReader; //= new TransportDataReader(path + "gtdf-out/");
-    private TransportDataWriter transportDataWriter; //= new TransportDataWriter(path);
+    private TransportDataWriterFactory transportDataWriterFactory; //= new TransportDataWriterFactory(path);
     private FetchDataFromUrl fetcher;
 
     public static void main(String[] args) throws Exception {
         TransportDataReader reader = new TransportDataReader(path + "gtdf-out/");
-        TransportDataWriter writer = new TransportDataWriter(path);
+        TransportDataWriterFactory writer = new TransportDataWriterFactory(path);
         FetchDataFromUrl fetcher = new FetchDataFromUrl(path);
 
         DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writer);
         dataCleanser.run("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
     }
 
-    public DataCleanser(FetchDataFromUrl fetcher, TransportDataReader reader, TransportDataWriter writer) {
+    public DataCleanser(FetchDataFromUrl fetcher, TransportDataReader reader, TransportDataWriterFactory factory) {
         this.fetcher = fetcher;
         this.transportDataReader = reader;
-        this.transportDataWriter = writer;
+        this.transportDataWriterFactory = factory;
     }
 
     private void run(String dataUrl) throws IOException {
@@ -64,13 +64,11 @@ public class DataCleanser {
     public void cleanseCalendar(Set<String> services) throws IOException {
         logger.info("**** Start cleansing calendar.");
 
-        //Set<String> services = getUniqueServices();
-
         Stream<CalendarData> calendar = transportDataReader.getCalendar();
 
-        StringBuilder content = new StringBuilder();
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("calendar");
         calendar.filter(calendarData -> services.contains(calendarData.getServiceId()) && calendarData.runsAtLeastADay())
-                .forEach(calendarData -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+                .forEach(calendarData -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                         calendarData.getServiceId(),
                         runsOnDay(calendarData.isMonday()),
                         runsOnDay(calendarData.isTuesday()),
@@ -82,23 +80,19 @@ public class DataCleanser {
                         calendarData.getStartDate().toString(TIME_FORMAT),
                         calendarData.getEndDate().toString(TIME_FORMAT))));
 
-        transportDataWriter.writeFile(content.toString(), "calendar");
+        writer.close();
+        //transportDataWriterFactory.writeFile(content.toString(), "calendar");
         logger.info("**** End cleansing calendar.\n\n");
     }
-
-//    private Set<String> getUniqueServices() throws IOException {
-//        return new TransportDataReader(path).getTrips().map(TripData::getServiceId).collect(Collectors.toSet());
-//    }
 
     public void cleanseStoptimes() throws IOException {
         logger.info("**** Start cleansing stop times.");
 
         Stream<StopTimeData> stopTimes = transportDataReader.getStopTimes();
-
-        StringBuilder content = new StringBuilder();
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("stop_times");
 
         stopTimes.filter(stopTime -> stopTime.getStopId().startsWith(METROLINK_STOP_PREFIX))
-                .forEach(stopTime -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s\n",
+                .forEach(stopTime -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
                         stopTime.getTripId(),
                         DateTimeService.formatTime(stopTime.getArrivalTime()),
                         DateTimeService.formatTime(stopTime.getDepartureTime()),
@@ -107,7 +101,7 @@ public class DataCleanser {
                         stopTime.getPickupType(),
                         stopTime.getDropOffType())));
 
-        transportDataWriter.writeFile(content.toString(), "stop_times");
+        writer.close();
         logger.info("**** End cleansing stop times.\n");
 
     }
@@ -117,16 +111,17 @@ public class DataCleanser {
         Set<String> uniqueSvcIds = new HashSet<>();
         Stream<TripData> trips = transportDataReader.getTrips();
 
-        StringBuilder content = new StringBuilder();
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("trips");
+
         trips.filter(trip -> trip.getRouteId().startsWith(METROLINK)).forEach(trip -> {
-            content.append(String.format("%s,%s,%s,%s\n",
+            writer.writeLine(String.format("%s,%s,%s,%s",
                     trip.getRouteId(),
                     trip.getServiceId(),
                     trip.getTripId(),
                     trip.getTripHeadsign()));
             uniqueSvcIds.add(trip.getServiceId());
         });
-        transportDataWriter.writeFile(content.toString(), "trips");
+        writer.close();
         logger.info("**** End cleansing trips.\n\n");
         return uniqueSvcIds;
     }
@@ -134,32 +129,35 @@ public class DataCleanser {
     public void cleanseStops() throws IOException {
         logger.info("**** Start cleansing stops.");
         Stream<StopData> stops = transportDataReader.getStops();
-        StringBuilder content = new StringBuilder();
 
-        stops.filter(stop -> stop.getId().startsWith(METROLINK_STOP_PREFIX)).forEach(stop -> content.append(String.format("%s,%s,%s,%s,%s\n",
-                stop.getId(),
-                stop.getCode(),
-                stop.getName(),
-                stop.getLatitude(),
-                stop.getLongitude())));
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("stops");
 
-        transportDataWriter.writeFile(content.toString(), "stops");
+        stops.filter(stop -> stop.getId().startsWith(METROLINK_STOP_PREFIX)).forEach(stop ->
+                writer.writeLine(String.format("%s,%s,%s,%s,%s",
+                        stop.getId(),
+                        stop.getCode(),
+                        stop.getName(),
+                        stop.getLatitude(),
+                        stop.getLongitude())));
+
+        writer.close();
         logger.info("**** End cleansing stops.\n\n");
     }
 
     public void cleanseRoutes() throws IOException {
         logger.info("**** Start cleansing routes.");
         Stream<RouteData> routes = transportDataReader.getRoutes();
-        StringBuilder content = new StringBuilder();
 
-        routes.filter(route -> route.getAgency().equals(METROLINK)).forEach(route -> content.append(String.format("%s,%s,%s,%s,0\n",
-                route.getId(),
-                route.getAgency(),
-                route.getCode(),
-                route.getName()
-        )));
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("routes");
 
-        transportDataWriter.writeFile(content.toString(), "routes");
+        routes.filter(route -> route.getAgency().equals(METROLINK)).forEach(route ->
+                writer.writeLine(String.format("%s,%s,%s,%s,0",
+                        route.getId(),
+                        route.getAgency(),
+                        route.getCode(),
+                        route.getName()
+                )));
+        writer.close();
         logger.info("**** End cleansing routes.\n\n");
     }
 
@@ -170,9 +168,10 @@ public class DataCleanser {
     public void cleanFeedInfo() throws IOException {
         logger.info("**** Start cleansing feed info.");
         Stream<FeedInfo> feedInfo = transportDataReader.getFeedInfo();
-        StringBuilder content = new StringBuilder();
 
-        feedInfo.skip(1).forEach(info -> content.append(String.format("%s,%s,%s,%s,%s,%s,%s\n",
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("feed_info");
+
+        feedInfo.skip(1).forEach(info -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
                 info.getPublisherName(),
                 info.getPublisherUrl(),
                 info.getTimezone(),
@@ -180,7 +179,7 @@ public class DataCleanser {
                 info.validFrom(),
                 info.validUntil(),
                 info.getVersion())));
-        transportDataWriter.writeFile(content.toString(), "feed_info");
+        writer.close();
         logger.info("**** End cleansing feed info.");
 
     }

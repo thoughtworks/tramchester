@@ -12,6 +12,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,13 +28,15 @@ public class TestDataCleanser extends EasyMockSupport {
     private TransportDataWriter writer;
     private DataCleanser cleanser;
     private DateTimeFormatter formatter;
+    private TransportDataWriterFactory factory;
 
     @Before
     public void beforeEachTestRuns() {
         fetcher = createMock(FetchDataFromUrl.class);
         reader = createMock(TransportDataReader.class);
         writer = createMock(TransportDataWriter.class);
-        cleanser = new DataCleanser(fetcher, reader, writer);
+        factory = createMock(TransportDataWriterFactory.class);
+        cleanser = new DataCleanser(fetcher, reader, factory);
         formatter = DateTimeFormat.forPattern("HH:mm:ss");
     }
 
@@ -45,8 +48,7 @@ public class TestDataCleanser extends EasyMockSupport {
         Stream<RouteData> routes = Stream.of(routeA, routeB);
 
         EasyMock.expect(reader.getRoutes()).andReturn(routes);
-        writer.writeFile("R1,MET,CODE1,AtoB,0\n", "routes");
-        EasyMock.expectLastCall();
+        validateWriter("routes", "R1,MET,CODE1,AtoB,0");
 
         replayAll();
         cleanser.cleanseRoutes();
@@ -61,8 +63,7 @@ public class TestDataCleanser extends EasyMockSupport {
         Stream<StopData> stops = Stream.of(stopA, stopB);
 
         EasyMock.expect(reader.getStops()).andReturn(stops);
-        writer.writeFile("9400IdB,codeB,nameB,0.33,0.44\n", "stops");
-        EasyMock.expectLastCall();
+        validateWriter("stops", "9400IdB,codeB,nameB,0.33,0.44");
 
         replayAll();
         cleanser.cleanseStops();
@@ -71,14 +72,12 @@ public class TestDataCleanser extends EasyMockSupport {
 
     @Test
     public void shouldCleanseTrips() throws IOException {
-
         TripData tripA = new TripData("GMBrouteIdA", "svcIdA", "tripIdA","headsignA");
         TripData tripB = new TripData("METrouteIdB", "svcIdB", "tripIdB","headsignB");
         Stream<TripData> trips = Stream.of(tripA, tripB);
 
         EasyMock.expect(reader.getTrips()).andReturn(trips);
-        writer.writeFile("METrouteIdB,svcIdB,tripIdB,headsignB\n", "trips");
-        EasyMock.expectLastCall();
+        validateWriter("trips", "METrouteIdB,svcIdB,tripIdB,headsignB");
 
         replayAll();
         Set<String> svcIds = cleanser.cleanseTrips();
@@ -101,11 +100,10 @@ public class TestDataCleanser extends EasyMockSupport {
                 "stopSeqB", "pickupB", "dropB", 42);
 
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeA, stopTimeB);
+
         EasyMock.expect(reader.getStopTimes()).andReturn(stopTimes);
-        String expected = String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB\n",
-                arrivalTime.toString("HH:mm:ss"), departureTime.toString("HH:mm:ss"));
-        writer.writeFile(expected, "stop_times");
-        EasyMock.expectLastCall();
+        validateWriter("stop_times", String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB",
+                arrivalTime.toString("HH:mm:ss"), departureTime.toString("HH:mm:ss")));
 
         replayAll();
         cleanser.cleanseStoptimes();
@@ -129,9 +127,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         Stream<CalendarData> calendar = Stream.of(dayA, dayB, dayC, dayD);
         EasyMock.expect(reader.getCalendar()).andReturn(calendar);
-        writer.writeFile("svcIDB,1,1,1,1,1,1,1,20151025,20151026\nsvcIDC,0,1,0,0,0,0,0,20151025,20151026\n",
-                "calendar");
-        EasyMock.expectLastCall();
+        validateWriter("calendar", "svcIDB,1,1,1,1,1,1,1,20151025,20151026", "svcIDC,0,1,0,0,0,0,0,20151025,20151026");
 
         replayAll();
         cleanser.cleanseCalendar(svcIds);
@@ -146,11 +142,21 @@ public class TestDataCleanser extends EasyMockSupport {
 
         Stream<FeedInfo> feedInfo = Stream.of(lineA, lineB);
         EasyMock.expect(reader.getFeedInfo()).andReturn(feedInfo);
-        writer.writeFile("pubB,urlB,tzB,landB,fromB,toB,versionB\n", "feed_info");
+        validateWriter("feed_info",  "pubB,urlB,tzB,landB,fromB,toB,versionB");
         EasyMock.expectLastCall();
 
         replayAll();
         cleanser.cleanFeedInfo();
         verifyAll();
+    }
+
+    private void validateWriter(String filename, String... lines) throws FileNotFoundException {
+        EasyMock.expect(factory.getWriter(filename)).andReturn(writer);
+        for (String line : lines) {
+            writer.writeLine(line);
+            EasyMock.expectLastCall();
+        }
+        writer.close();
+        EasyMock.expectLastCall();
     }
 }

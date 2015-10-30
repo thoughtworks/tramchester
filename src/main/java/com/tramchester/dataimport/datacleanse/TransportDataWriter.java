@@ -1,6 +1,5 @@
 package com.tramchester.dataimport.datacleanse;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,17 +7,20 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 public class TransportDataWriter {
-    private String path;
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataWriterFactory.class);
 
-    public TransportDataWriter(String path) {
-        this.path = path;
+    private final PrintWriter out;
+
+    public TransportDataWriter(String path, String filename) throws FileNotFoundException {
+        logger.info("Create writer for " + path + "/" + filename);
+        out = new PrintWriter(path + filename + ".txt");
     }
 
-    public void writeFile(String content, String filename) throws FileNotFoundException {
-        logger.info("Writing " + filename + " file...");
-        PrintWriter out = new PrintWriter(path + filename + ".txt");
-        out.print(content);
+    public void writeLine(String line) {
+        out.println(line);
+    }
+
+    public void close() {
         out.close();
     }
 }
