@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class TransportGraphBuilder extends StationIndexs {
@@ -46,11 +47,16 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final String STATION = "Station";
 
     private Index<Node> spatialIndex;
+    private Map<String,TransportRelationshipTypes> boardings;
+    private Map<String,TransportRelationshipTypes> departs;
+
     private TransportData transportData;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData) {
         super(graphDatabaseService, false);
         this.transportData = transportData;
+        boardings = new HashMap<>();
+        departs = new HashMap<>();
     }
 
     public void buildGraph() {
@@ -166,21 +172,41 @@ public class TransportGraphBuilder extends StationIndexs {
             departCost = DEPARTS_COST;
         }
 
-        // station -> routeStation
-        if (!alreadyHas(stationNode, routeStation, boardType)) {
+        // boarding: station -> routeStation
+        //if (!alreadyHas(stationNode, routeStation, boardType)) {
+        if (!hasBoarding(station.getId(), routeStationId, boardType)) {
             Relationship interchangeRelationshipTo = stationNode.createRelationshipTo(routeStation, boardType);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, boardCost);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, routeStationId);
+            boardings.put(station.getId()+routeStationId, boardType);
         }
 
-        // route station -> station
-        if (!alreadyHas(routeStation, stationNode, departType)) {
+        // leave: route station -> station
+        //if (!alreadyHas(routeStation, stationNode, departType)) {
+        if (!hasDeparting(routeStationId, station.getId(), departType)) {
             Relationship departRelationship = routeStation.createRelationshipTo(stationNode, departType);
             departRelationship.setProperty(GraphStaticKeys.COST, departCost);
             departRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
+            departs.put(routeStationId+station.getId(), departType);
         }
 
         return routeStation;
+    }
+
+    private boolean hasDeparting(String routeStationId, String stationId, TransportRelationshipTypes departType) {
+        String key = routeStationId + stationId;
+        if (departs.containsKey(key)) {
+            return departs.get(key).equals(departType);
+        }
+        return false;
+    }
+
+    private boolean hasBoarding(String stationId, String routeStationId, TransportRelationshipTypes boardType) {
+        String key = stationId + routeStationId;
+        if (boardings.containsKey(key)) {
+            return boardings.get(key).equals(boardType);
+        }
+        return false;
     }
 
     private Node createRouteStation(Station station, Route route, String routeStationId) {
