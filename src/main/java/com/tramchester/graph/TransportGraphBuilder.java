@@ -160,7 +160,7 @@ public class TransportGraphBuilder extends StationIndexs {
         TransportRelationshipTypes departType;
         int boardCost;
         int departCost;
-        if (preferedInterchange(stationNode)) {
+        if (interchanges.contains(station.getId())) {
             boardType = TransportRelationshipTypes.INTERCHANGE_BOARD;
             boardCost = INTERCHANGE_BOARD_COST;
             departType = TransportRelationshipTypes.INTERCHANGE_DEPART;
@@ -173,7 +173,6 @@ public class TransportGraphBuilder extends StationIndexs {
         }
 
         // boarding: station -> routeStation
-        //if (!alreadyHas(stationNode, routeStation, boardType)) {
         if (!hasBoarding(station.getId(), routeStationId, boardType)) {
             Relationship interchangeRelationshipTo = stationNode.createRelationshipTo(routeStation, boardType);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, boardCost);
@@ -182,7 +181,6 @@ public class TransportGraphBuilder extends StationIndexs {
         }
 
         // leave: route station -> station
-        //if (!alreadyHas(routeStation, stationNode, departType)) {
         if (!hasDeparting(routeStationId, station.getId(), departType)) {
             Relationship departRelationship = routeStation.createRelationshipTo(stationNode, departType);
             departRelationship.setProperty(GraphStaticKeys.COST, departCost);
@@ -218,16 +216,6 @@ public class TransportGraphBuilder extends StationIndexs {
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_ID, route.getId());
         routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
         return routeStation;
-    }
-
-    private boolean alreadyHas(Node startNode, Node endNode, TransportRelationshipTypes relationshipType) {
-        Iterable<Relationship> relates = startNode.getRelationships(Direction.OUTGOING, relationshipType);
-        for (Relationship relationship : relates) {
-            if (relationship.getEndNode().getId() == endNode.getId()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private String createRouteStationId(Station station, Route route) {
@@ -303,15 +291,13 @@ public class TransportGraphBuilder extends StationIndexs {
 
         Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.GOES_TO);
         for (Relationship outgoing : existing) {
-            //if (outgoing.hasProperty(GraphStaticKeys.SERVICE_ID)) {
-                String existingSvcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
-                if (existingSvcId.equals(serviceId)) {
-                    long relationshipDestId = outgoing.getEndNode().getId();
-                    if (relationshipDestId == endId) {
-                        return outgoing;
-                    }
+            String existingSvcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+            if (existingSvcId.equals(serviceId)) {
+                long relationshipDestId = outgoing.getEndNode().getId();
+                if (relationshipDestId == endId) {
+                    return outgoing;
                 }
-            //}
+            }
         }
         return null;
     }
