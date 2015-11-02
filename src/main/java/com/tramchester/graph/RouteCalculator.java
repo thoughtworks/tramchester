@@ -34,7 +34,7 @@ public class RouteCalculator extends StationIndexs {
     private PathExpander pathExpander;
 
     public RouteCalculator(GraphDatabaseService db) {
-        super(db);
+        super(db, true);
         nodeFactory = new NodeFactory();
         RelationshipFactory routeFactory = new RelationshipFactory();
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, routeFactory, nodeFactory);
@@ -77,6 +77,7 @@ public class RouteCalculator extends StationIndexs {
             int cost = tramRelationship.getCost();
             totalCost += cost;
 
+            // todo refactor out first and subsequent stage handling
             if (tramRelationship.isBoarding()) {
                 // station -> route station
                 RouteStationNode routeStationNode = (RouteStationNode) endNode;
@@ -122,7 +123,6 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Iterable<WeightedPath> findShortestPath(String startId, String endId, int time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
-        //Index<Node> stationsIndex = getStationsIndex();
         Node startNode = getStationNode(startId);
         Node endNode = getStationNode(endId);
         logger.info(String.format("Finding shortest path for %s (%s) --> %s (%s) on %s",

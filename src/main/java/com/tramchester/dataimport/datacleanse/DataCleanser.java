@@ -17,23 +17,26 @@ import java.util.stream.Stream;
 
 
 public class DataCleanser {
-    private static final String path = "data/tram/";
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
     public static final String TIME_FORMAT = "YYYMMdd";
     public static final String METROLINK = "MET";
     public static final String METROLINK_STOP_PREFIX = "9400";
 
-    private TransportDataReader transportDataReader; //= new TransportDataReader(path + "gtdf-out/");
-    private TransportDataWriterFactory transportDataWriterFactory; //= new TransportDataWriterFactory(path);
+    private TransportDataReader transportDataReader;
+    private TransportDataWriterFactory transportDataWriterFactory;
     private FetchDataFromUrl fetcher;
 
     public static void main(String[] args) throws Exception {
+        String path = "data/tram/";
         TransportDataReader reader = new TransportDataReader(path + "gtdf-out/");
         TransportDataWriterFactory writer = new TransportDataWriterFactory(path);
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(path);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(path, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
 
         DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writer);
-        dataCleanser.run("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+        dataCleanser.run();
+
+        FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
+        FileUtils.forceDelete(new File(path + "/data.zip"));
     }
 
     public DataCleanser(FetchDataFromUrl fetcher, TransportDataReader reader, TransportDataWriterFactory factory) {
@@ -42,8 +45,8 @@ public class DataCleanser {
         this.transportDataWriterFactory = factory;
     }
 
-    private void run(String dataUrl) throws IOException {
-        fetcher.fetchData(dataUrl);
+    private void run() throws IOException {
+        fetcher.fetchData();
 
         cleanseRoutes();
 
@@ -57,8 +60,6 @@ public class DataCleanser {
 
         cleanFeedInfo();
 
-        FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
-        FileUtils.forceDelete(new File(path + "/data.zip"));
     }
 
     public void cleanseCalendar(Set<String> services) throws IOException {
@@ -81,7 +82,6 @@ public class DataCleanser {
                         calendarData.getEndDate().toString(TIME_FORMAT))));
 
         writer.close();
-        //transportDataWriterFactory.writeFile(content.toString(), "calendar");
         logger.info("**** End cleansing calendar.\n\n");
     }
 

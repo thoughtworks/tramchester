@@ -12,38 +12,46 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static java.lang.String.format;
 
 public class FetchDataFromUrl {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
     private String path;
+    private String dataUrl;
 
-    public FetchDataFromUrl(String path) {
+    public FetchDataFromUrl(String path, String dataUrl) {
         this.path = path;
+        this.dataUrl = dataUrl;
     }
 
-    public void fetchData(String dataUrl) throws IOException {
+    public void fetchData() throws IOException {
         String filename = "data.zip";
-        pullDataFromURL(filename, new URL(dataUrl));
-        unzipData(filename);
+        Path zipFile = pullDataFromURL(filename, new URL(dataUrl));
+        unzipData(zipFile);
     }
 
-    private void unzipData(String filename) {
-        logger.info("Unziping data...");
+    private void unzipData(Path filename) {
+        logger.info("Unziping data from " + filename);
         try {
-            ZipFile zipFile = new ZipFile(path + filename);
+            ZipFile zipFile = new ZipFile(filename.toFile());
             zipFile.extractAll(path);
         } catch (ZipException e) {
             e.printStackTrace();
         }
     }
 
-    private void pullDataFromURL(String filename, URL website) throws IOException {
-        logger.info("Downloading data from " + website);
+    private Path pullDataFromURL(String targetFile, URL website) throws IOException {
+        Path destination = Paths.get(path, targetFile);
+        logger.info(format("Downloading data from %s to %s", website, destination));
 
         FileUtils.forceMkdir(new File(path));
         ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        FileOutputStream fos = new FileOutputStream(path + filename);
+        FileOutputStream fos = new FileOutputStream(destination.toFile());
         fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         logger.info("Finished download");
+        return destination;
     }
 }

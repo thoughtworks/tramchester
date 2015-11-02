@@ -45,10 +45,11 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final String ROUTE_STATION = "RouteStation";
     public static final String STATION = "Station";
 
+    private Index<Node> spatialIndex;
     private TransportData transportData;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData) {
-        super(graphDatabaseService);
+        super(graphDatabaseService, false);
         this.transportData = transportData;
     }
 
@@ -93,6 +94,14 @@ public class TransportGraphBuilder extends StationIndexs {
         }
     }
 
+    private Index<Node> getSpatialIndex() {
+        if (spatialIndex == null) {
+            spatialIndex = graphDatabaseService.index().forNodes("spatial_index",
+                    SpatialIndexProvider.SIMPLE_POINT_CONFIG);
+        }
+        return spatialIndex;
+    }
+
     private void AddRouteServiceTrip(Route route, Service service, Trip trip) {
         List<Stop> stops = trip.getStops();
         for (int i = 0; i < stops.size() - 1; i++) {
@@ -110,33 +119,23 @@ public class TransportGraphBuilder extends StationIndexs {
         }
     }
 
-    Index<Node> spatialIndex = null;
-
-    private Index<Node> getSpatialIndex() {
-        if (spatialIndex == null) {
-            spatialIndex = graphDatabaseService.index().forNodes("spatial_index",
-                    SpatialIndexProvider.SIMPLE_POINT_CONFIG);
-        }
-        return spatialIndex;
-    }
-
     private Node getOrCreateStation(Station station) {
 
-        Node node = getStationNode(station.getId());
+        String id = station.getId();
+        String stationName = station.getName();
+        Node node = getStationNode(id);
 
         if (node == null) {
             logger.info("Creating station node: " + station);
-            node = graphDatabaseService.createNode();
-            node.addLabel(DynamicLabel.label(STATION));
+            node = graphDatabaseService.createNode(DynamicLabel.label(STATION));
 
             node.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
-
-            node.setProperty(GraphStaticKeys.ID, station.getId());
-            node.setProperty(GraphStaticKeys.Station.NAME, station.getName());
+            node.setProperty(GraphStaticKeys.ID, id);
+            node.setProperty(GraphStaticKeys.Station.NAME, stationName);
             node.setProperty(GraphStaticKeys.Station.LAT, station.getLatitude());
             node.setProperty(GraphStaticKeys.Station.LONG, station.getLongitude());
 
-            getSpatialIndex().add(node, station.getId(), station.getName());
+            getSpatialIndex().add(node, id, stationName);
         }
         return node;
     }
@@ -186,8 +185,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
     private Node createRouteStation(Station station, Route route, String routeStationId) {
         logger.info("Creating route station node: " + station.getId() + " " + route.getId());
-        Node routeStation = graphDatabaseService.createNode();
-        routeStation.addLabel(DynamicLabel.label(ROUTE_STATION));
+        Node routeStation = graphDatabaseService.createNode(DynamicLabel.label(ROUTE_STATION));
         routeStation.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
@@ -224,10 +222,6 @@ public class TransportGraphBuilder extends StationIndexs {
         Relationship relationship = getRelationship(service, start, end);
 
         if (relationship == null) {
-//            logger.info(String.format("create relationship svc %s from %s to %s route %s time %s",
-//                    service.getServiceId(),
-//                    start.getProperty(GraphStaticKeys.ID),end.getProperty(GraphStaticKeys.ID),
-//                    route.getId(), fromMidnight));
             createRelationship(start, end, transportRelationshipType, stop, cost, service, route, dest);
         } else {
             // add the time of this stop to the service relationship
