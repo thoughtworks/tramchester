@@ -301,9 +301,9 @@ public class TransportGraphBuilder extends StationIndexs {
         String serviceId = service.getServiceId();
         long endId = end.getId();
 
-        Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING);
+        Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.GOES_TO);
         for (Relationship outgoing : existing) {
-            if (outgoing.hasProperty(GraphStaticKeys.SERVICE_ID)) {
+            //if (outgoing.hasProperty(GraphStaticKeys.SERVICE_ID)) {
                 String existingSvcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
                 if (existingSvcId.equals(serviceId)) {
                     long relationshipDestId = outgoing.getEndNode().getId();
@@ -311,7 +311,7 @@ public class TransportGraphBuilder extends StationIndexs {
                         return outgoing;
                     }
                 }
-            }
+            //}
         }
         return null;
     }
