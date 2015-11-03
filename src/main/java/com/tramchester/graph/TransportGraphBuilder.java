@@ -4,17 +4,14 @@ package com.tramchester.graph;
 import com.tramchester.domain.*;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
-import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 
 public class TransportGraphBuilder extends StationIndexs {
@@ -46,9 +43,10 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final String ROUTE_STATION = "RouteStation";
     public static final String STATION = "Station";
 
-    private Index<Node> spatialIndex;
     private Map<String,TransportRelationshipTypes> boardings;
     private Map<String,TransportRelationshipTypes> departs;
+    private Map<Long, String> relationToSvcId;
+    private Map<Long, int[]> timesForRelationship;
 
     private TransportData transportData;
 
@@ -57,6 +55,8 @@ public class TransportGraphBuilder extends StationIndexs {
         this.transportData = transportData;
         boardings = new HashMap<>();
         departs = new HashMap<>();
+        relationToSvcId = new HashMap<>();
+        timesForRelationship = new HashMap<>();
     }
 
     public void buildGraph() {
@@ -98,14 +98,6 @@ public class TransportGraphBuilder extends StationIndexs {
                     .create();
             tx.success();
         }
-    }
-
-    private Index<Node> getSpatialIndex() {
-        if (spatialIndex == null) {
-            spatialIndex = graphDatabaseService.index().forNodes("spatial_index",
-                    SpatialIndexProvider.SIMPLE_POINT_CONFIG);
-        }
-        return spatialIndex;
     }
 
     private void AddRouteServiceTrip(Route route, Service service, Trip trip) {
@@ -222,10 +214,6 @@ public class TransportGraphBuilder extends StationIndexs {
         return station.getId() + route.getId();
     }
 
-    public static boolean preferedInterchange(Node stationNode) {
-        return interchanges.contains(stationNode.getProperty(GraphStaticKeys.ID));
-    }
-
     private void createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
                                             Stop stop, int cost, Service service, Route route, String dest) {
 
@@ -239,12 +227,14 @@ public class TransportGraphBuilder extends StationIndexs {
             createRelationship(start, end, transportRelationshipType, stop, cost, service, route, dest);
         } else {
             // add the time of this stop to the service relationship
-            int[] array = (int[]) relationship.getProperty(GraphStaticKeys.TIMES);
+            //int[] array = (int[]) relationship.getProperty(GraphStaticKeys.TIMES);
+            int[] array = timesForRelationship.get(relationship.getId());
             if (Arrays.binarySearch(array, fromMidnight) < 0) {
                 int[] newTimes = Arrays.copyOf(array, array.length + 1);
                 newTimes[array.length] = fromMidnight;
                 // keep times sorted
                 Arrays.sort(newTimes);
+                timesForRelationship.put(relationship.getId(), newTimes);
                 relationship.setProperty(GraphStaticKeys.TIMES, newTimes);
             }
         }
@@ -257,6 +247,7 @@ public class TransportGraphBuilder extends StationIndexs {
             Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
 
             int[] times = new int[]{stop.getMinutesFromMidnight()};   // initial contents
+            timesForRelationship.put(relationship.getId(), times);
             relationship.setProperty(GraphStaticKeys.TIMES, times);
             relationship.setProperty(GraphStaticKeys.COST, cost);
             relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
@@ -289,16 +280,29 @@ public class TransportGraphBuilder extends StationIndexs {
         String serviceId = service.getServiceId();
         long endId = end.getId();
 
-        Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.GOES_TO);
-        for (Relationship outgoing : existing) {
-            String existingSvcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
-            if (existingSvcId.equals(serviceId)) {
-                long relationshipDestId = outgoing.getEndNode().getId();
-                if (relationshipDestId == endId) {
-                    return outgoing;
-                }
-            }
+        Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING,
+                TransportRelationshipTypes.GOES_TO);
+        Stream<Relationship> existingStream = StreamSupport.stream(existing.spliterator(), false);
+        Optional<Relationship> match = existingStream
+                .filter(out -> out.getEndNode().getId() == endId)
+                .filter(out -> getSvcIdForRelationship(out).equals(serviceId))
+                .limit(1)
+                .findAny();
+
+        if (match.isPresent()) {
+            return match.get();
         }
+        
         return null;
+    }
+
+    private String getSvcIdForRelationship(Relationship outgoing) {
+        long id = outgoing.getId();
+        if (relationToSvcId.containsKey(id)) {
+            return relationToSvcId.get(id);
+        }
+        String svcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+        relationToSvcId.put(id, svcId);
+        return svcId;
     }
 }

@@ -1,8 +1,10 @@
 package com.tramchester.graph;
 
+import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.index.Index;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
@@ -12,7 +14,7 @@ public class StationIndexs {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StationIndexs.class);
     private Map<String,Node> routeStationNodeCache;
     private Map<String,Node> stationNodeCache;
-
+    private Index<Node> spatialIndex;
 
     protected GraphDatabaseService graphDatabaseService;
     private boolean warnIfMissing;
@@ -49,5 +51,13 @@ public class StationIndexs {
             logger.warn("Could not find graph node for station: " + stationId);
         }
         return node;
+    }
+
+    protected Index<Node> getSpatialIndex() {
+        if (spatialIndex == null) {
+            spatialIndex = graphDatabaseService.index().forNodes("spatial_index",
+                    SpatialIndexProvider.SIMPLE_POINT_CONFIG);
+        }
+        return spatialIndex;
     }
 }
