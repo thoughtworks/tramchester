@@ -3,12 +3,14 @@ package com.tramchester.resources;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.domain.Station;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,9 +57,20 @@ public class StationsTest {
     }
 
     @Test
+    public void shouldCheckPerformanceOfGettingNearest() {
+        DateTime start = DateTime.now();
+        for (int i=0; i<10000; i++) {
+            stationResource.getNearest(53.4804263d, -2.2392436d);
+        }
+        DateTime finished = DateTime.now();
+
+        System.out.println("Initialisation took: " + finished.minus(start.getMillis()).getMillis());
+    }
+
+    @Test
     public void shouldNotGetClosedStations() throws Exception {
         Response result = stationResource.getAll();
-        List<Station> stations = (List<Station>) result.getEntity();
+        Collection<Station> stations = (Collection<Station>) result.getEntity();
 
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);

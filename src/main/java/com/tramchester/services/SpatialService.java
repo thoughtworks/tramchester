@@ -13,10 +13,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class SpatialService extends StationIndexs {
     public static final int NUMBER_OF_NEAREST = 6;
-    public static final double DISTANCE_IN_KM = 100.0;
+    public static final double DISTANCE_IN_KM = 30;
     private GraphDatabaseService graphDatabaseService;
 
     public SpatialService(GraphDatabaseService graphDatabaseService) {
@@ -25,31 +27,29 @@ public class SpatialService extends StationIndexs {
     }
 
     // TODO address performance issue leading to slow load of station list on client
-    public List<Station> reorderNearestStations(Double latitude, Double longitude, List<Station> stations) {
+    public List<Station> reorderNearestStations(Double latitude, Double longitude, Map<String, Station> stations) {
         Transaction tx = graphDatabaseService.beginTx();
         try {
-            stations.sort((s1, s2) -> s1.getName().compareTo(s2.getName()));
-            List<Node> nearestStations = getNearestStationsTo(latitude, longitude, 10);
+            List<Station> sorted = stations.values().stream()
+                    .sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
+
+            //stations.sort((s1, s2) -> s1.getName().compareTo(s2.getName()));
+            List<Node> nearestStations = getNearestStationsTo(latitude, longitude, NUMBER_OF_NEAREST);
             List<Station> reorderedStations = new ArrayList<>();
-            int count = 0;
 
             for (Node node : nearestStations) {
                 String id = node.getProperty(GraphStaticKeys.ID).toString();
-                Station nearestStation = getStation(stations, id);
+                Station nearestStation = stations.get(id);
                 if (nearestStation != null) {
                     nearestStation.setProximityGroup("Nearest Stops");
                     reorderedStations.add(nearestStation);
-                    count++;
+                    sorted.remove(nearestStation);
                 }
-                if (count >= NUMBER_OF_NEAREST)
-                    break;
             }
 
-            for (Station station : stations) {
-                if (!reorderedStations.contains(station)) {
+            for (Station station : sorted) {
                     station.setProximityGroup("All Stops");
                     reorderedStations.add(station);
-                }
             }
             tx.success();
             return reorderedStations;
@@ -70,15 +70,11 @@ public class SpatialService extends StationIndexs {
         Map<String, Object> params = new HashMap<>();
         params.put(LayerNodeIndex.POINT_PARAMETER, new Double[]{latitude, longitude});
         params.put(LayerNodeIndex.DISTANCE_IN_KM_PARAMETER, DISTANCE_IN_KM);
-        IndexHits<Node> query = getSpatialIndex().query(LayerNodeIndex.WITHIN_DISTANCE_QUERY, params);
-        List<Node> nearestNodes = new ArrayList<>();
-        int addedCount = 0;
 
-        while (query.hasNext() && addedCount < count) {
-            nearestNodes.add(query.next());
-            addedCount++;
-        }
-        return nearestNodes;
+        IndexHits<Node> query = getSpatialIndex().query(LayerNodeIndex.WITHIN_DISTANCE_QUERY, params);
+
+        return StreamSupport.stream(query.spliterator(),false).limit(count).collect(Collectors.toList());
+
     }
 
 }

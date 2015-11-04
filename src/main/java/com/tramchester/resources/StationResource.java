@@ -15,25 +15,28 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource {
-    private final List<Station> workingStations;
+    private final Map<String,Station> workingStations;
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService, ClosedStations closedStations) {
         this.spatialService = spatialService;
         this.closedStations = closedStations;
-        this.workingStations = transportData.getStations().stream().filter(station -> !closedStations.contains(station.getName())).collect(Collectors.toList());
+        this.workingStations = transportData.getStations().stream()
+                .filter(station -> !closedStations.contains(station.getName()))
+                .collect(Collectors.<Station, String, Station>toMap(s -> s.getId(), s->s));
     }
 
     @GET
     @Timed
     public Response getAll() throws SQLException {
-        return Response.ok(workingStations).build();
+        return Response.ok(workingStations.values()).build();
     }
 
     @GET
@@ -48,11 +51,14 @@ public class StationResource {
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
 
-        for (Station station : workingStations) {
-            if (station.getId().equals(id)) {
-                return Response.ok(station).build();
-            }
+        if (workingStations.containsKey(id)) {
+            return Response.ok(workingStations.get(id)).build();
         }
+//        for (Station station : workingStations) {
+//            if (station.getId().equals(id)) {
+//                return Response.ok(station).build();
+//            }
+//        }
 
         return Response.status(Response.Status.NOT_FOUND).build();
     }
