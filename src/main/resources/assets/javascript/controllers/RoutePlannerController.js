@@ -12,6 +12,8 @@ techLabApp.controller('RoutePlannerController',
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(getNearStops, function () {
                 getAllStops();
+            }, {
+                maximumAge: 600000
             });
         } else {
             getAllStops();
