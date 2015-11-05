@@ -16,7 +16,8 @@
 			"nameMap" : {
 				"Dev" : { "host" : "alpha"  }, 
 				"UAT" : { "host" : "beta" }, 
-				"Prod" : { "host" : "www" }
+				"Prod" : { "host" : "www" },
+				"ProdBlue" : { "host" : "blue" }
 			}
 		},
 

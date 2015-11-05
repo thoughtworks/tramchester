@@ -1,5 +1,7 @@
 {
-	"AWSTemplateFormatVersion":"2010-09-09", "Description":"Create servers for an environment/vpc", "Parameters":{
+	"AWSTemplateFormatVersion":"2010-09-09",
+		"Description":"NOTE: Make sure vpc ID is added to S3 permissions on the Bucket itself",
+	"Parameters":{
 	"env":{
 		"Type":"String"
 	}, "vpc":{
@@ -24,13 +26,10 @@
 	"instanceProfile":{"Type":"String", "Description":"::InstanceProfile"}
 }, "Mappings":{
 	"environMap":{
-		"Dev":{
-			"keyName":"tramchester2", "webSize":"t2.micro"
-		}, "UAT":{
-			"keyName":"tramchester2", "webSize":"t2.micro"
-		}, "Prod":{
-			"keyName":"tramchester2", "webSize":"t2.micro"
-		}
+		"Dev":{ "keyName":"tramchester2", "webSize":"t2.micro" }, 
+		"UAT":{ "keyName":"tramchester2", "webSize":"t2.micro" }, 
+		"Prod":{ "keyName":"tramchester2", "webSize":"t2.micro" },
+		"ProdBlue":{ "keyName":"tramchester2", "webSize":"t2.micro" }
 	}
 }, "Resources":{
 	"webDoneWaitHandle":{
@@ -119,12 +118,15 @@
 				"Fn::Base64":{
 					"Fn::Join":[
 						"", [
-							"#include", "\n", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", {"Ref":"build"}, "/",
-							{"Ref":"bootstrapCloudInit"}, "\n", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/",
-							{"Ref":"build"}, "/", {"Ref":"bootstrapWebScript"}, "\n", "# WAITURL=",
-							{"Ref":"webDoneWaitHandle"}, "\n", "# ENV=", {"Ref":"env"}, "\n", "# ARTIFACTSURL=",
-							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", "\n", "# BUILD=", {"Ref":"build"}, "\n"
-						]
+							"#include", "\n",
+							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", {"Ref":"build"}, "/",
+							{"Ref":"bootstrapCloudInit"}, "\n",
+							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/", {"Ref":"build"}, "/",
+							{"Ref":"bootstrapWebScript"}, "\n",
+							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
+							"# ENV=", {"Ref":"env"}, "\n",
+							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "\n",
+							"# BUILD=", {"Ref":"build"}, "\n" ]
 					]
 				}
 			}, "SubnetId":{
