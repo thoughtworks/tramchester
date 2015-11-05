@@ -12,7 +12,9 @@
                 <fieldset>
                     <div class="form-group">
                         <label for="fromStop">From</label>
-                        <select ng-model="fromStop" required
+                        <select id="fromStop"
+                                ng-model="fromStop"
+                                required
                                 ng-options="stop.id as stop.name group by stop.proximityGroup for stop in stops"
                                 ng-show="stops.length"
                                 class="form-control input-lg">
@@ -25,7 +27,9 @@
                     </div>
                     <div class="form-group">
                         <label for="toStop">To</label>
-                        <select ng-model="toStop" required
+                        <select id="toStop"
+                                ng-model="toStop"
+                                required
                                 ng-options="stop.id as stop.name for stop in stops | orderBy:'name'"
                                 ng-show="stops.length"
                                 class="form-control input-lg">
@@ -38,7 +42,11 @@
                     </div>
                     <div class="form-group">
                         <label for="hour">Departure Time</label>
-                        <input type="time" class="form-control input-lg" placeholder="Choose departure time"
+                        <input id="hour"
+                               type="time"
+                               class="form-control input-lg"
+                               placeholder="Choose departure time"
+                               required
                                ng-model="departureTime">
                     </div>
                     <button type="submit" class="btn btn-default btn-lg btn-block"
