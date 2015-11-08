@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 
@@ -20,7 +19,6 @@ public class DataCleanser {
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
     public static final String TIME_FORMAT = "YYYMMdd";
     public static final String METROLINK = "MET";
-    public static final String METROLINK_STOP_PREFIX = "9400";
 
     private TransportDataReader transportDataReader;
     private TransportDataWriterFactory transportDataWriterFactory;
@@ -33,7 +31,7 @@ public class DataCleanser {
         FetchDataFromUrl fetcher = new FetchDataFromUrl(path, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
 
         DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writer);
-        dataCleanser.run();
+        dataCleanser.run(Arrays.asList(METROLINK));
 
         FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
         FileUtils.forceDelete(new File(path + "/data.zip"));
@@ -45,18 +43,18 @@ public class DataCleanser {
         this.transportDataWriterFactory = factory;
     }
 
-    private void run() throws IOException {
+    private void run(List<String> agencies) throws IOException {
         fetcher.fetchData();
 
-        cleanseRoutes();
+        List<String> routeCodes = cleanseRoutes(agencies);
 
-        cleanseStops();
+        ServicesAndTrips servicesAndTrips = cleanseTrips(routeCodes);
 
-        Set<String> svcIds = cleanseTrips();
+        Set<String> stopIds = cleanseStoptimes(servicesAndTrips.getTripIds());
 
-        cleanseStoptimes();
+        cleanseStops(stopIds);
 
-        cleanseCalendar(svcIds);
+        cleanseCalendar(servicesAndTrips.getServiceIds());
 
         cleanFeedInfo();
 
@@ -85,54 +83,60 @@ public class DataCleanser {
         logger.info("**** End cleansing calendar.\n\n");
     }
 
-    public void cleanseStoptimes() throws IOException {
+    public Set<String> cleanseStoptimes(List<String> tripIds) throws IOException {
         logger.info("**** Start cleansing stop times.");
+        Set<String> stopIds = new HashSet<>();
 
         Stream<StopTimeData> stopTimes = transportDataReader.getStopTimes();
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stop_times");
 
-        stopTimes.filter(stopTime -> stopTime.getStopId().startsWith(METROLINK_STOP_PREFIX))
-                .forEach(stopTime -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
-                        stopTime.getTripId(),
-                        DateTimeService.formatTime(stopTime.getArrivalTime()),
-                        DateTimeService.formatTime(stopTime.getDepartureTime()),
-                        stopTime.getStopId(),
-                        stopTime.getStopSequence(),
-                        stopTime.getPickupType(),
-                        stopTime.getDropOffType())));
+        stopTimes.filter(stopTime -> tripIds.contains(stopTime.getTripId()))
+                .forEach(stopTime -> {
+                    writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
+                            stopTime.getTripId(),
+                            DateTimeService.formatTime(stopTime.getArrivalTime()),
+                            DateTimeService.formatTime(stopTime.getDepartureTime()),
+                            stopTime.getStopId(),
+                            stopTime.getStopSequence(),
+                            stopTime.getPickupType(),
+                            stopTime.getDropOffType()));
+                    stopIds.add(stopTime.getStopId());
+                });
 
         writer.close();
         logger.info("**** End cleansing stop times.\n");
-
+        return stopIds;
     }
 
-    public Set<String> cleanseTrips() throws IOException {
+    public ServicesAndTrips cleanseTrips(List<String> routeCodes) throws IOException {
         logger.info("**** Start cleansing trips.");
         Set<String> uniqueSvcIds = new HashSet<>();
+        List<String> tripIds = new LinkedList<>();
         Stream<TripData> trips = transportDataReader.getTrips();
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("trips");
 
-        trips.filter(trip -> trip.getRouteId().startsWith(METROLINK)).forEach(trip -> {
+        trips.filter(trip -> routeCodes.contains(trip.getRouteId())).forEach(trip -> {
             writer.writeLine(String.format("%s,%s,%s,%s",
                     trip.getRouteId(),
                     trip.getServiceId(),
                     trip.getTripId(),
                     trip.getTripHeadsign()));
+            tripIds.add(trip.getTripId());
             uniqueSvcIds.add(trip.getServiceId());
         });
         writer.close();
         logger.info("**** End cleansing trips.\n\n");
-        return uniqueSvcIds;
+        return new ServicesAndTrips(uniqueSvcIds, tripIds);
     }
 
-    public void cleanseStops() throws IOException {
+    public void cleanseStops(Set<String> stopIds) throws IOException {
         logger.info("**** Start cleansing stops.");
         Stream<StopData> stops = transportDataReader.getStops();
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stops");
 
-        stops.filter(stop -> stop.getId().startsWith(METROLINK_STOP_PREFIX)).forEach(stop ->
+        stops.filter(stop -> stopIds.contains(stop.getId())).forEach(stop ->
                 writer.writeLine(String.format("%s,%s,%s,%s,%s",
                         stop.getId(),
                         stop.getCode(),
@@ -144,21 +148,27 @@ public class DataCleanser {
         logger.info("**** End cleansing stops.\n\n");
     }
 
-    public void cleanseRoutes() throws IOException {
+    public List<String> cleanseRoutes(List<String> agencyCodes) throws IOException {
         logger.info("**** Start cleansing routes.");
+        List<String> routeCodes = new LinkedList<>();
         Stream<RouteData> routes = transportDataReader.getRoutes();
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("routes");
 
-        routes.filter(route -> route.getAgency().equals(METROLINK)).forEach(route ->
-                writer.writeLine(String.format("%s,%s,%s,%s,0",
-                        route.getId(),
-                        route.getAgency(),
-                        route.getCode(),
-                        route.getName()
-                )));
+        routes.filter(route -> agencyCodes.contains(route.getAgency())).forEach(route ->
+        {
+            String id = route.getId();
+            writer.writeLine(String.format("%s,%s,%s,%s,0",
+                    id,
+                    route.getAgency(),
+                    route.getCode(),
+                    route.getName()));
+            routeCodes.add(id);
+            logger.info("Added route " + id);
+        });
         writer.close();
         logger.info("**** End cleansing routes.\n\n");
+        return routeCodes;
     }
 
     private String runsOnDay(boolean day) {

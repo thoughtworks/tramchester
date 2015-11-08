@@ -11,8 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -28,7 +26,7 @@ public class DataLoader<T> {
 
     public Stream<T> loadAll() throws IOException {
         logger.info("Loading data from " + fileName + ".txt file.");
-        Reader reader = null;
+        Reader reader;
         try {
             reader = new FileReader(String.format("%s.txt", fileName));
 

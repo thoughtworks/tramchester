@@ -14,7 +14,9 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -51,8 +53,11 @@ public class TestDataCleanser extends EasyMockSupport {
         validateWriter("routes", "R1,MET,CODE1,AtoB,0");
 
         replayAll();
-        cleanser.cleanseRoutes();
+        List<String> routeCodes = cleanser.cleanseRoutes(Arrays.asList("MET"));
         verifyAll();
+
+        assertEquals(1, routeCodes.size());
+        assertEquals("R1", routeCodes.get(0));
     }
 
     @Test
@@ -65,8 +70,11 @@ public class TestDataCleanser extends EasyMockSupport {
         EasyMock.expect(reader.getStops()).andReturn(stops);
         validateWriter("stops", "9400IdB,codeB,nameB,0.33,0.44");
 
+        Set<String> stopIds = new HashSet<>();
+        stopIds.add("9400IdB");
+
         replayAll();
-        cleanser.cleanseStops();
+        cleanser.cleanseStops(stopIds);
         verifyAll();
     }
 
@@ -74,17 +82,23 @@ public class TestDataCleanser extends EasyMockSupport {
     public void shouldCleanseTrips() throws IOException {
         TripData tripA = new TripData("GMBrouteIdA", "svcIdA", "tripIdA","headsignA");
         TripData tripB = new TripData("METrouteIdB", "svcIdB", "tripIdB","headsignB");
-        Stream<TripData> trips = Stream.of(tripA, tripB);
+        TripData tripC = new TripData("METrouteIdB", "svcIdB", "tripIdC","headsignC");
+        Stream<TripData> trips = Stream.of(tripA, tripB, tripC);
 
         EasyMock.expect(reader.getTrips()).andReturn(trips);
-        validateWriter("trips", "METrouteIdB,svcIdB,tripIdB,headsignB");
+        validateWriter("trips", "METrouteIdB,svcIdB,tripIdB,headsignB", "METrouteIdB,svcIdB,tripIdC,headsignC");
 
         replayAll();
-        Set<String> svcIds = cleanser.cleanseTrips();
+        ServicesAndTrips servicesAndTrips = cleanser.cleanseTrips(Arrays.asList("METrouteIdB"));
         verifyAll();
 
-        assertEquals(1, svcIds.size());
-        assertTrue(svcIds.contains("svcIdB"));
+        Set<String> serviceIds = servicesAndTrips.getServiceIds();
+        assertEquals(1, serviceIds.size());
+        assertTrue(serviceIds.contains("svcIdB"));
+        List<String> tripIds = servicesAndTrips.getTripIds();
+        assertEquals(2, tripIds.size());
+        assertTrue(tripIds.contains("tripIdB"));
+        assertTrue(tripIds.contains("tripIdC"));
     }
 
     @Test
@@ -106,8 +120,11 @@ public class TestDataCleanser extends EasyMockSupport {
                 arrivalTime.toString("HH:mm:ss"), departureTime.toString("HH:mm:ss")));
 
         replayAll();
-        cleanser.cleanseStoptimes();
+        List<String> trips = Arrays.asList("tripIdB");
+        Set<String> stopIds = cleanser.cleanseStoptimes(trips);
         verifyAll();
+        assertEquals(1, stopIds.size());
+        assertTrue(stopIds.contains("9400stopIdB"));
     }
 
     @Test

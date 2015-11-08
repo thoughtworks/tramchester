@@ -7,9 +7,6 @@ public class StopData {
     private double latitude;
     private double longitude;
 
-    private StopData() {
-    }
-
     public StopData(String id, String code, String name, double latitude, double longitude) {
         this.id = id;
         this.code = code;
