@@ -27,10 +27,23 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         this.dataUrl = dataUrl;
     }
 
+    // used during build to download latest tram data from tfgm site
+    public static void main(String[] args) throws Exception {
+        if (args.length!=3) {
+            throw new Exception("Expected 2 arguments, path and url");
+        }
+        String theUrl = args[0];
+        String thePath = args[1];
+        String theFile = args[2];
+        logger.info(format("Loading %s to path %s file %s", theUrl, thePath, theFile));
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(thePath, theUrl);
+        fetcher.pullDataFromURL(theFile);
+    }
+
     @Override
     public void fetchData() throws IOException {
         String filename = "data.zip";
-        Path zipFile = pullDataFromURL(filename, new URL(dataUrl));
+        Path zipFile = pullDataFromURL(filename);
         unzipData(zipFile);
     }
 
@@ -44,8 +57,9 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         }
     }
 
-    private Path pullDataFromURL(String targetFile, URL website) throws IOException {
+    private Path pullDataFromURL(String targetFile) throws IOException {
         Path destination = Paths.get(path, targetFile);
+        URL website = new URL(dataUrl);
         logger.info(format("Downloading data from %s to %s", website, destination));
 
         FileUtils.forceMkdir(new File(path));

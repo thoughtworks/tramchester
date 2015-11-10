@@ -72,6 +72,7 @@ clean {
 }
 
 run {
+    println System.getenv('DATAURL');
     args 'server', 'config/local.yml'
 }
 
@@ -84,15 +85,16 @@ sourceSets {
 }
 
 task pullData(type:JavaExec) {
-	main = 'com.tramchester.dataimport.datacleanse.DataCleanser'
+	main = 'com.tramchester.dataimport.FetchDataFromUrl'
 	classpath = sourceSets.main.runtimeClasspath
+    args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
 }
 
-task zipData(type: Zip) {
-    from 'data/tram'
-	into 'data/tram'
-	baseName = 'tramData'
-	destinationDir = file(new File('data'))
+task uploadData(dependsOn: ['cfnassist', 'pullData']) << {
+    antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
+        Artifact(name: 'data', value: 'data/tramData-1.0.zip')
+        S3Create()
+    }
 }
 
 task cfnassist << {
@@ -122,12 +124,6 @@ task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  << {
 	}
 }
 
-task uploadData(dependsOn: ['cfnassist', 'pullData', 'zipData']) << {
-    antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
-		Artifact(name: 'data', value: 'data/tramData-1.0.zip')
-		S3Create()
-	}
-}
 
 task uploadSupportFiles(dependsOn: 'cfnassist')  << {
     antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {

@@ -24,8 +24,9 @@ logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $ENV
 # fetch and install the package
 distUrl=$ARTIFACTSURL/$BUILD/tramchester-1.0.zip
 dist=`basename $distUrl`
-dataUrl=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
-data=`basename $dataUrl`
+# set up overrides for server config so data is pulled at start up
+export DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
+export TRAM_PULLDATA=true
 
 target=tramchester-1.0
 
@@ -36,9 +37,6 @@ cd server
 logger Attempt to fetch files from $distUrl
 wget $distUrl -O $dist
 unzip $dist
-logger Attempt to fetch data files from $dataUrl
-wget $dataUrl -O $data
-unzip $data
 
 # cloudwatch logs agent setup
 logger Set up amazon cloudwatch logs agent

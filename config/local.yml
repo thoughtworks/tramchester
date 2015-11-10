@@ -8,12 +8,12 @@ server:
     port: 8080
 
 rebuildGraph: true
-pullData: false
+pullData: ${TRAM_PULLDATA:- false}
 graphName: tramchester.db
 closedStations:
   - St Peters Square
 instanceDataUrl: http://169.254.169.254
-tramDataUrl: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
+tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 
 logging:
   level: INFO
