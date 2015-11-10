@@ -44,7 +44,7 @@ public class Dependencies {
         if (configuration.isPullData()) {
             logger.info("Pulling and cleansing data");
 
-            FetchDataFromUrl fetcher = new FetchDataFromUrl(PATH, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+            FetchDataFromUrl fetcher = new FetchDataFromUrl(PATH, configuration.getTramDataUrl());
             TransportDataReader reader = new TransportDataReader(PATH + "gtdf-out/");
             TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(PATH);
 

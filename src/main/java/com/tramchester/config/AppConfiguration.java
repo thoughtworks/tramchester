@@ -24,8 +24,16 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("instanceDataUrl")
     private String instanceDataUrl;
 
+    @JsonProperty("tramDataUrl")
+    private String tramDataUrl;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
+    }
+
+    @Override
+    public String getTramDataUrl() {
+        return tramDataUrl;
     }
 
     public boolean isRebuildGraph() {

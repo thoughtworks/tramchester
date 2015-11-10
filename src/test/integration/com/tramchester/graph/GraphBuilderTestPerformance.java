@@ -68,5 +68,10 @@ public class GraphBuilderTestPerformance {
         public String getInstanceDataBaseURL() {
             return "http://localhost:8080";
         }
+
+        @Override
+        public String getTramDataUrl() {
+            return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
+        }
     }
 }

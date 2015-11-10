@@ -13,6 +13,7 @@ graphName: tramchester.db
 closedStations:
   - St Peters Square
 instanceDataUrl: http://169.254.169.254
+tramDataUrl: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
 
 logging:
   level: INFO

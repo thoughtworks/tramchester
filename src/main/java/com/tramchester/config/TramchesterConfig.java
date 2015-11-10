@@ -10,5 +10,6 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract String getGraphName();
     public abstract List<String> getClosedStations();
     public abstract String getInstanceDataBaseURL();
+    public abstract String getTramDataUrl();
 
 }
