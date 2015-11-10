@@ -6,8 +6,8 @@ import com.tramchester.domain.Stage;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
-import org.joda.time.DateTime;
 
+import java.time.LocalTime;
 import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
@@ -18,7 +18,7 @@ public class JourneyPlannerHelper {
 
     protected void checkDepartsAfterPreviousArrival(String message, Set<Journey> journeys) {
         for(Journey journey: journeys) {
-            DateTime previousArrive = null;
+            LocalTime previousArrive = null;
             for(Stage stage : journey.getStages()) {
                 if (previousArrive!=null) {
                     String prefix  = String.format("Check arrive at %s and leave at %s " , previousArrive, stage.getFirstDepartureTime());

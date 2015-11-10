@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 
 import static java.lang.String.format;
 
-public class FetchDataFromUrl {
+public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
     private String path;
     private String dataUrl;
@@ -27,6 +27,7 @@ public class FetchDataFromUrl {
         this.dataUrl = dataUrl;
     }
 
+    @Override
     public void fetchData() throws IOException {
         String filename = "data.zip";
         Path zipFile = pullDataFromURL(filename, new URL(dataUrl));

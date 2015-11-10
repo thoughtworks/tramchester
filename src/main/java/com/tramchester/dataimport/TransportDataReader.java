@@ -6,7 +6,7 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 public class TransportDataReader {
@@ -16,27 +16,31 @@ public class TransportDataReader {
         this.path = path;
     }
 
+    private String formPath(String filename) {
+        return Paths.get(path, filename).toAbsolutePath().toString();
+    }
+
     public Stream<CalendarData> getCalendar() throws IOException {
-        return new DataLoader<>(path + "calendar", new CalendarDataParser()).loadAll();
+        return new DataLoader<>(formPath("calendar"), new CalendarDataParser()).loadAll();
     }
 
     public Stream<StopTimeData> getStopTimes() throws IOException {
-        return new DataLoader<>(path + "stop_times", new StopTimeDataParser()).loadAll();
+        return new DataLoader<>(formPath("stop_times"), new StopTimeDataParser()).loadAll();
     }
 
     public Stream<TripData> getTrips() throws IOException {
-        return new DataLoader<>(path + "trips", new TripDataParser()).loadAll();
+        return new DataLoader<>(formPath("trips"), new TripDataParser()).loadAll();
     }
 
     public Stream<StopData> getStops() throws IOException {
-        return new DataLoader<>(path + "stops", new StopDataParser()).loadAll();
+        return new DataLoader<>(formPath("stops"), new StopDataParser()).loadAll();
     }
 
     public Stream<RouteData> getRoutes() throws IOException {
-        return new DataLoader<>(path + "routes", new RouteDataParser()).loadAll();
+        return new DataLoader<>(formPath("routes"), new RouteDataParser()).loadAll();
     }
 
     public Stream<FeedInfo> getFeedInfo() throws IOException {
-        return new DataLoader<>(path + "feed_info", new FeedInfoDataParser()).loadAll();
+        return new DataLoader<>(formPath("feed_info"), new FeedInfoDataParser()).loadAll();
     }
 }

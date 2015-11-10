@@ -2,7 +2,8 @@ package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.StopTimeData;
-import org.joda.time.DateTime;
+
+import java.time.LocalTime;
 
 import static java.lang.Character.isDigit;
 
@@ -10,14 +11,16 @@ import static java.lang.Character.isDigit;
 public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
     public StopTimeData parseEntry(String... data) {
         String tripId = data[0];
-        DateTime arrivalTime = new DateTime();
+        LocalTime arrivalTime = null;
+        LocalTime departureTime = null;
+
         if (data[1].contains(":")) {
             arrivalTime = getDateTime(data[1]);
         }
-        DateTime departureTime = new DateTime();
         if (data[2].contains(":")) {
             departureTime = getDateTime(data[2]);
         }
+
         int minutesFromMidnight = 0;
         if (data[1].contains(":")) {
             minutesFromMidnight = getMinutes(data[1]);
@@ -47,14 +50,20 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         return (hour * 60) + minute;
     }
 
-    private DateTime getDateTime(String time) {
+    private LocalTime getDateTime(String time) {
         String[] split = time.split(":");
 
         String hour = split[0];
         if (hour.equals("24") || hour.equals("25")) {
             hour = "00";
         }
-        return new DateTime(2000, 1, 1, Integer.parseInt(hour), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+        String minutes = split[1];
+        if (split.length==3) {
+            return LocalTime.of(Integer.parseInt(hour), Integer.parseInt(minutes), Integer.parseInt(split[2]));
+        } else {
+            return LocalTime.of(Integer.parseInt(hour), Integer.parseInt(minutes));
+        }
+        //return new DateTime(2000, 1, 1, Integer.parseInt(hour), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
 
     }
 }

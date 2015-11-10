@@ -1,49 +1,49 @@
 package com.tramchester.dataimport.datacleanse;
 
-import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.TransportDataFetcher;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.services.DateTimeService;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 
 public class DataCleanser {
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
     public static final String TIME_FORMAT = "YYYMMdd";
-    public static final String METROLINK = "MET";
 
     private TransportDataReader transportDataReader;
     private TransportDataWriterFactory transportDataWriterFactory;
-    private FetchDataFromUrl fetcher;
+    private TransportDataFetcher fetcher;
 
-    public static void main(String[] args) throws Exception {
-        String path = "data/tram/";
-        TransportDataReader reader = new TransportDataReader(path + "gtdf-out/");
-        TransportDataWriterFactory writer = new TransportDataWriterFactory(path);
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(path, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+//    public static void main(String[] args) throws Exception {
+//        String path = "data/tram/";
+//        TransportDataReader reader = new TransportDataReader(path + "gtdf-out/");
+//        TransportDataWriterFactory writer = new TransportDataWriterFactory(path);
+//        FetchDataFromUrl fetcher = new FetchDataFromUrl(path, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+//
+//        DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writer);
+//        dataCleanser.run(Arrays.asList(Dependencies.METROLINK));
+//
+//        FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
+//        FileUtils.forceDelete(new File(path + "/data.zip"));
+//    }
 
-        DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writer);
-        dataCleanser.run(Arrays.asList(METROLINK));
-
-        FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
-        FileUtils.forceDelete(new File(path + "/data.zip"));
-    }
-
-    public DataCleanser(FetchDataFromUrl fetcher, TransportDataReader reader, TransportDataWriterFactory factory) {
+    public DataCleanser(TransportDataFetcher fetcher, TransportDataReader reader, TransportDataWriterFactory factory) {
         this.fetcher = fetcher;
         this.transportDataReader = reader;
         this.transportDataWriterFactory = factory;
     }
 
-    private void run(List<String> agencies) throws IOException {
+    public void run(List<String> agencies) throws IOException {
         fetcher.fetchData();
 
         List<String> routeCodes = cleanseRoutes(agencies);

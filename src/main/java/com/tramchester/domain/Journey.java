@@ -3,8 +3,8 @@ package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.mappers.TimeJsonSerializer;
-import org.joda.time.DateTime;
 
+import java.time.LocalTime;
 import java.util.List;
 
 public class Journey {
@@ -30,18 +30,18 @@ public class Journey {
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
-    public DateTime getFirstDepartureTime() {
+    public LocalTime getFirstDepartureTime() {
         if (stages.size() == 0) {
-            return new DateTime(0);
+            return LocalTime.MIDNIGHT;
         }
         List<ServiceTime> serviceTimes = stages.get(0).getServiceTimes();
         return serviceTimes.get(0).getDepartureTime();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
-    public DateTime getExpectedArrivalTime() {
+    public LocalTime getExpectedArrivalTime() {
         if (stages.size() == 0) {
-            return new DateTime(0);
+            return LocalTime.MIDNIGHT;
         }
         return stages.get(stages.size() - 1).getExpectedArrivalTime();
     }

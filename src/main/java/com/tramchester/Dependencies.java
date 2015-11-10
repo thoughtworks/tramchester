@@ -5,9 +5,11 @@ import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.FetchInstanceMetadata;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
+import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.TransportDataFromFiles;
 import com.tramchester.graph.RouteCalculator;
@@ -29,18 +31,26 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Dependencies {
 
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
     private static String PATH = "data/tram/";
+    public static final String METROLINK = "MET";
 
     public void initialise(TramchesterConfig configuration) throws Exception {
         if (configuration.isPullData()) {
             logger.info("Pulling and cleansing data");
-            // TODO REFACTOR TO INJECT DEPENDENCIES AND STOP CALLING MAIN
-            DataCleanser.main(null);
+
+            FetchDataFromUrl fetcher = new FetchDataFromUrl(PATH, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+            TransportDataReader reader = new TransportDataReader(PATH + "gtdf-out/");
+            TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(PATH);
+
+            DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writerFactory);
+            dataCleanser.run(Arrays.asList(METROLINK));
+            logger.info("Data cleansing finished");
         }
         logger.info("Creating dependencies");
         picoContainer.addComponent(TramchesterConfig.class, configuration);

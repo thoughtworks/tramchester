@@ -2,18 +2,18 @@ package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.mappers.TimeJsonSerializer;
-import org.joda.time.DateTime;
 
+import java.time.LocalTime;
 import java.util.List;
 
 public class Stage {
+    public static final int SECONDS_IN_DAY = 24*60*60;
     private String firstStation;
     private String route;
     private String routeId;
     private String lastStation;
     private String serviceId;
     private List<ServiceTime> serviceTimes;
-    private int duration;
 
     public Stage(String firstStation, String route, String routeId) {
         this.firstStation = firstStation;
@@ -41,6 +41,8 @@ public class Stage {
         return routeId;
     }
 
+    // used from javascript on front-end
+    // TODO use the full route ID on front end
     public String getTramRouteId() {
         return routeId.substring(4, 8);
     }
@@ -62,8 +64,8 @@ public class Stage {
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
-    public DateTime getExpectedArrivalTime() {
-        DateTime firstArrivalTime = DateTime.now();
+    public LocalTime getExpectedArrivalTime() {
+        LocalTime firstArrivalTime = LocalTime.now();
         if (serviceTimes.size() > 0) {
             firstArrivalTime = serviceTimes.get(0).getArrivalTime();
         }
@@ -71,8 +73,8 @@ public class Stage {
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
-    public DateTime getFirstDepartureTime() {
-        DateTime firstDepartureTime = DateTime.now();
+    public LocalTime getFirstDepartureTime() {
+        LocalTime firstDepartureTime = LocalTime.now();
         if (serviceTimes.size() > 0) {
             firstDepartureTime = serviceTimes.get(0).getDepartureTime();
         }
@@ -81,7 +83,20 @@ public class Stage {
 
     public int getDuration() {
         if (serviceTimes.size() > 0) {
-            return serviceTimes.get(0).getArrivalTime().getMinuteOfDay() - serviceTimes.get(0).getDepartureTime().getMinuteOfDay();
+            ServiceTime serviceTime = serviceTimes.get(0);
+            LocalTime arrivalTime = serviceTime.getArrivalTime();
+            LocalTime departureTime = serviceTime.getDepartureTime();
+            int depSecs = departureTime.toSecondOfDay();
+
+            int seconds;
+            if (arrivalTime.isBefore(departureTime)) { // crosses midnight
+                int secsBeforeMid = SECONDS_IN_DAY - depSecs;
+                int secsAfterMid = arrivalTime.toSecondOfDay();
+                seconds = secsBeforeMid + secsAfterMid;
+            } else {
+                seconds = arrivalTime.toSecondOfDay() - depSecs;
+            }
+            return seconds / 60;
         }
         return 0;
     }

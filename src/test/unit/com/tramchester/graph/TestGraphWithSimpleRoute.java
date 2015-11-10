@@ -11,6 +11,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -130,11 +131,11 @@ public class TestGraphWithSimpleRoute {
 
         }
 
-        private DateTime createTime(int hourOfDay, int minuteOfHour) {
-            return new DateTime().withTime(hourOfDay, minuteOfHour, 00, 00);
+        private LocalTime createTime(int hourOfDay, int minuteOfHour) {
+            return LocalTime.of(hourOfDay,minuteOfHour,00);
         }
 
-        private Stop createStop(Station startStation, DateTime arrivalTime, DateTime departureTime,
+        private Stop createStop(Station startStation, LocalTime arrivalTime, LocalTime departureTime,
                                 int minutesFromMidnight) {
            return new Stop(arrivalTime, departureTime, startStation, minutesFromMidnight);
 

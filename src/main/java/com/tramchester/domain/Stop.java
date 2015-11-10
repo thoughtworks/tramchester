@@ -2,17 +2,18 @@ package com.tramchester.domain;
 
 
 import com.tramchester.services.DateTimeService;
-import org.joda.time.DateTime;
+
+import java.time.LocalTime;
 
 public class Stop {
-    private final DateTime arrivalTime;
-    private final DateTime departureTime;
+    private final LocalTime arrivalTime;
+    private final LocalTime departureTime;
     private final Station station;
     //private final String stopSequence;
     //private final StopType stopType;
     private int minutesFromMidnight;
 
-    public Stop(DateTime arrivalTime, DateTime departureTime, Station station, int minutesFromMidnight) {
+    public Stop(LocalTime arrivalTime, LocalTime departureTime, Station station, int minutesFromMidnight) {
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.station = station;
@@ -21,11 +22,11 @@ public class Stop {
         this.minutesFromMidnight = minutesFromMidnight;
     }
 
-    public DateTime getArrivalTime() {
+    public LocalTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public DateTime getDepartureTime() {
+    public LocalTime getDepartureTime() {
         return departureTime;
     }
 

@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -103,9 +104,9 @@ public class TestDataCleanser extends EasyMockSupport {
 
     @Test
     public void shouldCleanseStopTimes() throws IOException {
-        DateTime now = DateTime.now();
-        DateTime arrivalTime = DateTime.parse("11:10:09", formatter);
-        DateTime departureTime = DateTime.parse("12:09:29", formatter);
+        LocalTime now = LocalTime.now();
+        LocalTime arrivalTime = LocalTime.parse("11:10:09");    //, formatter);
+        LocalTime departureTime = LocalTime.parse("12:09:29");  //, formatter);
 
         StopTimeData stopTimeA = new StopTimeData("tripIdA", now.minusHours(1), now.plusHours(1), "1200stopIdA",
                 "stopSeqA", "pickupA", "dropA", 18);
@@ -117,7 +118,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(reader.getStopTimes()).andReturn(stopTimes);
         validateWriter("stop_times", String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB",
-                arrivalTime.toString("HH:mm:ss"), departureTime.toString("HH:mm:ss")));
+                arrivalTime.toString(), departureTime.toString()));
 
         replayAll();
         List<String> trips = Arrays.asList("tripIdB");

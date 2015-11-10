@@ -4,6 +4,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.time.LocalTime;
+
 public class DateTimeService {
     public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm:ss");
 
@@ -20,7 +22,7 @@ public class DateTimeService {
     }
 
 
-    public static String formatTime(DateTime time){
-        return time.toString(formatter);
+    public static String formatTime(LocalTime time){
+        return time.toString();
     }
 }

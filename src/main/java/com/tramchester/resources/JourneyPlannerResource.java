@@ -37,12 +37,13 @@ public class JourneyPlannerResource {
     }
 
     @GET
-    public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId, @QueryParam("departureTime") String departureTime) throws Exception {
+    public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId, @QueryParam("departureTime") String departureTime) throws UnknownStationException {
         DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
         // today expose this as a parameter
         TramServiceDate queryDate = new TramServiceDate(DateTime.now());
         JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, departureTime, dayOfWeek, queryDate);
-        return Response.ok(planRepresentation).build();
+        Response response = Response.ok(planRepresentation).build();
+        return response;
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {

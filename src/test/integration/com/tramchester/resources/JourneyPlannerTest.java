@@ -11,6 +11,7 @@ import com.tramchester.representations.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
 import org.junit.*;
 
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
@@ -136,6 +137,12 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     @Test
     public void shouldFindRouteVeloToPomona() throws UnknownStationException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, "08:00:00", DaysOfWeek.Monday, today);
+    }
+
+    @Test
+    public void shouldInvokeQuickestRouteDirectly() throws UnknownStationException {
+        Response result = planner.quickestRoute(Stations.Altrincham, Stations.Piccadily, "23:00:00");
+        assertEquals(200, result.getStatus());
     }
 
     @Test
