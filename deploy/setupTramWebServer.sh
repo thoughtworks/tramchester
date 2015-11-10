@@ -25,7 +25,7 @@ logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $ENV
 distUrl=$ARTIFACTSURL/$BUILD/tramchester-1.0.zip
 dist=`basename $distUrl`
 # set up overrides for server config so data is pulled at start up
-export DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
+export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
 export TRAM_PULLDATA=true
 
 target=tramchester-1.0
