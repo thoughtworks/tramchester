@@ -28,3 +28,5 @@ intelij/
 *.version
 log/
 diagram.dot
+testData/gtdf-out/
+testData/output/

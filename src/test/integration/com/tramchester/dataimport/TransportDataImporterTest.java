@@ -31,7 +31,7 @@ public class TransportDataImporterTest {
 
         Stop stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
-        assertThat(stop.getArrivalTime().toString()).isEqualTo("2000-01-01T06:41:00.000Z");
+        assertThat(stop.getArrivalTime().toString()).isEqualTo("06:41");
 
         FeedInfo feedInfo = transportData.getFeedInfo();
         assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");

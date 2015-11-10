@@ -1,13 +1,12 @@
 package com.tramchester.dataimport.datacleanse;
 
-import java.util.List;
 import java.util.Set;
 
 public class ServicesAndTrips {
     private Set<String> serviceIds;
-    private List<String> tripIds;
+    private Set<String> tripIds;
 
-    public ServicesAndTrips(Set<String> serviceIds, List<String> tripIds) {
+    public ServicesAndTrips(Set<String> serviceIds, Set<String> tripIds) {
 
         this.serviceIds = serviceIds;
         this.tripIds = tripIds;
@@ -17,7 +16,7 @@ public class ServicesAndTrips {
         return serviceIds;
     }
 
-    public List<String> getTripIds() {
+    public Set<String> getTripIds() {
         return tripIds;
     }
 }

@@ -75,8 +75,8 @@ public class DataLoaderTest {
         assertThat(stopTime.getDropOffType()).isEqualTo("1");
         assertThat(stopTime.getMinutesFromMidnight()).isEqualTo(401);
         assertThat(stopTime.getStopSequence()).isEqualTo("0001");
-        assertThat(stopTime.getArrivalTime().toString()).isEqualTo("2000-01-01T06:41:00.000Z");
-        assertThat(stopTime.getDepartureTime().toString()).isEqualTo("2000-01-01T06:41:00.000Z");
+        assertThat(stopTime.getArrivalTime().toString()).isEqualTo("06:41");
+        assertThat(stopTime.getDepartureTime().toString()).isEqualTo("06:41");
     }
 
     @Test

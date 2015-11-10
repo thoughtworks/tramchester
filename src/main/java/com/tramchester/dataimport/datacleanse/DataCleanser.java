@@ -83,7 +83,7 @@ public class DataCleanser {
         logger.info("**** End cleansing calendar.\n\n");
     }
 
-    public Set<String> cleanseStoptimes(List<String> tripIds) throws IOException {
+    public Set<String> cleanseStoptimes(Set<String> tripIds) throws IOException {
         logger.info("**** Start cleansing stop times.");
         Set<String> stopIds = new HashSet<>();
 
@@ -111,7 +111,7 @@ public class DataCleanser {
     public ServicesAndTrips cleanseTrips(List<String> routeCodes) throws IOException {
         logger.info("**** Start cleansing trips.");
         Set<String> uniqueSvcIds = new HashSet<>();
-        List<String> tripIds = new LinkedList<>();
+        Set<String> tripIds = new HashSet<>();
         Stream<TripData> trips = transportDataReader.getTrips();
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("trips");

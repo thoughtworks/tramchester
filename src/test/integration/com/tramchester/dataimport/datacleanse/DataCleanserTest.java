@@ -7,6 +7,7 @@ import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,10 +19,16 @@ import java.util.Arrays;
 public class DataCleanserTest implements TransportDataFetcher {
 
     private static String path = "testData";
+    public static final String INPUT = path + "/gtdf-out/";
+    public static final String OUTPUT = path + "/output/";
 
     @BeforeClass
     public static void beforeAllTestRuns() throws IOException {
         tidyFiles();
+        File outputDir = new File(OUTPUT);
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
     }
 
     @AfterClass
@@ -30,18 +37,23 @@ public class DataCleanserTest implements TransportDataFetcher {
     }
 
     private static void tidyFiles() throws IOException {
-        FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
-
+        FileUtils.deleteDirectory(new File(INPUT));
+        File directory = new File(OUTPUT);
+        if (directory.exists()) {
+            FileUtils.cleanDirectory(directory);
+        }
     }
 
     @Test
-    public void shouldCleanserData() throws IOException {
+    @Ignore("Primarily for performance testing")
+    public void shouldCleanseData() throws IOException {
         TransportDataFetcher fetcher = this;
-        TransportDataReader reader = new TransportDataReader(path+ "/gtdf-out/");
-        TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(path+"/output");
+        TransportDataReader reader = new TransportDataReader(INPUT);
+        TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
         DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writeFactory);
 
-        dataCleanser.run(Arrays.asList("MET"));
+        dataCleanser.run(Arrays.asList("MET", "GMS"));
+
     }
 
     @Override

@@ -96,7 +96,7 @@ public class TestDataCleanser extends EasyMockSupport {
         Set<String> serviceIds = servicesAndTrips.getServiceIds();
         assertEquals(1, serviceIds.size());
         assertTrue(serviceIds.contains("svcIdB"));
-        List<String> tripIds = servicesAndTrips.getTripIds();
+        Set<String> tripIds = servicesAndTrips.getTripIds();
         assertEquals(2, tripIds.size());
         assertTrue(tripIds.contains("tripIdB"));
         assertTrue(tripIds.contains("tripIdC"));
@@ -121,7 +121,8 @@ public class TestDataCleanser extends EasyMockSupport {
                 arrivalTime.toString(), departureTime.toString()));
 
         replayAll();
-        List<String> trips = Arrays.asList("tripIdB");
+        Set<String> trips = new HashSet<>();
+        trips.add("tripIdB");
         Set<String> stopIds = cleanser.cleanseStoptimes(trips);
         verifyAll();
         assertEquals(1, stopIds.size());
