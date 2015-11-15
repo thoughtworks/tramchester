@@ -6,14 +6,16 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class TimeJsonSerializer extends JsonSerializer<LocalTime> {
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
     @Override
-    public void serialize(LocalTime value, JsonGenerator gen,
+    public void serialize(LocalTime time, JsonGenerator gen,
                           SerializerProvider arg2)
             throws IOException {
 
-        gen.writeString(value.toString());
+        gen.writeString(time.format(formatter));
     }
 }

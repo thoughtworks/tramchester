@@ -24,19 +24,6 @@ public class DataCleanser {
     private TransportDataWriterFactory transportDataWriterFactory;
     private TransportDataFetcher fetcher;
 
-//    public static void main(String[] args) throws Exception {
-//        String path = "data/tram/";
-//        TransportDataReader reader = new TransportDataReader(path + "gtdf-out/");
-//        TransportDataWriterFactory writer = new TransportDataWriterFactory(path);
-//        FetchDataFromUrl fetcher = new FetchDataFromUrl(path, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
-//
-//        DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writer);
-//        dataCleanser.run(Arrays.asList(Dependencies.METROLINK));
-//
-//        FileUtils.deleteDirectory(new File(path + "/gtdf-out/"));
-//        FileUtils.forceDelete(new File(path + "/data.zip"));
-//    }
-
     public DataCleanser(TransportDataFetcher fetcher, TransportDataReader reader, TransportDataWriterFactory factory) {
         this.fetcher = fetcher;
         this.transportDataReader = reader;

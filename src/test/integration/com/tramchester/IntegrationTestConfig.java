@@ -3,6 +3,7 @@ package com.tramchester;
 import com.tramchester.config.TramchesterConfig;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -40,6 +41,11 @@ public class IntegrationTestConfig extends TramchesterConfig {
     @Override
     public List<String> getClosedStations() {
         return closedStations;
+    }
+
+    @Override
+    public List<String> getAgencies() {
+        return Arrays.asList("MET");
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -62,6 +63,11 @@ public class GraphBuilderTestPerformance {
         @Override
         public List<String> getClosedStations() {
             return asList("St Peters Square");
+        }
+
+        @Override
+        public List<String> getAgencies() {
+            return Arrays.asList("MET");
         }
 
         @Override

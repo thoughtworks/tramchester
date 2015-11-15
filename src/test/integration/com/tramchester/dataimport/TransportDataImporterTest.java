@@ -19,9 +19,9 @@ public class TransportDataImporterTest {
 
         Route route = transportData.getRoute("MET:MET1:I:");
         assertThat(route.getName()).isEqualTo("Abraham Moss - Bury");
-        assertThat(route.getServices()).hasSize(20);
+        assertThat(route.getServices()).hasSize(1); // 20 trips all for same svc
 
-        Service service = route.getServices().get(0);
+        Service service = route.getServices().stream().findFirst().get();
         assertThat(service.getServiceId()).isEqualTo("Serv000001");
         assertThat(service.getTrips()).hasSize(20);
 

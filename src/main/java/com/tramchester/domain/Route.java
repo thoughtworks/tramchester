@@ -1,13 +1,13 @@
 package com.tramchester.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Route {
     private String id;
     private String code;
     private String name;
-    private List<Service> services = new ArrayList<>();
+    private Set<Service> services = new HashSet<>();
 
     public Route(String id, String code, String name) {
         this.id = id;
@@ -30,7 +30,7 @@ public class Route {
         return name;
     }
 
-    public List<Service> getServices() {
+    public Set<Service> getServices() {
         return services;
     }
 

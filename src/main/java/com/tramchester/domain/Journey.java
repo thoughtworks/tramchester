@@ -43,7 +43,8 @@ public class Journey {
         if (stages.size() == 0) {
             return LocalTime.MIDNIGHT;
         }
-        return stages.get(stages.size() - 1).getExpectedArrivalTime();
+        int index = stages.size() - 1;
+        return stages.get(index).getExpectedArrivalTime();
     }
 
     public int getJourneyIndex() {

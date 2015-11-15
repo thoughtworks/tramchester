@@ -12,6 +12,8 @@ pullData: ${TRAM_PULLDATA:- false}
 graphName: tramchester.db
 closedStations:
   - St Peters Square
+agencies:
+  - MET
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 

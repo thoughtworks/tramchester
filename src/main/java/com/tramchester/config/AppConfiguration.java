@@ -27,6 +27,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("tramDataUrl")
     private String tramDataUrl;
 
+    @JsonProperty("agencies")
+    private List<String> agencies;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -48,6 +51,11 @@ public class AppConfiguration extends TramchesterConfig {
 
     public List<String> getClosedStations() {
         return closedStations == null ? new ArrayList<>() : closedStations;
+    }
+
+    @Override
+    public List<String> getAgencies() {
+        return agencies;
     }
 
 
