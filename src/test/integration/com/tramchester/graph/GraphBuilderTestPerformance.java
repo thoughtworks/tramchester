@@ -1,17 +1,18 @@
 package com.tramchester.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.TestConfig;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
-
-import static java.util.Arrays.asList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GraphBuilderTestPerformance {
 
@@ -33,7 +34,7 @@ public class GraphBuilderTestPerformance {
     }
 
     @Test
-    public void shouldTestTimeToRebuildGraph() throws Exception {
+    public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
         DateTime start = DateTime.now();
 
         dependencies.initialise(new PerformanceTestConfig());
@@ -44,20 +45,15 @@ public class GraphBuilderTestPerformance {
     }
 
 
-    private static class PerformanceTestConfig extends TramchesterConfig {
+    private static class PerformanceTestConfig extends TestConfig {
         @Override
         public boolean isRebuildGraph() {
             return true;
         }
 
         @Override
-        public boolean isPullData() {
-            return false;
-        }
-
-        @Override
         public boolean isFilterData() {
-            return false;
+            return true;
         }
 
         @Override
@@ -66,23 +62,19 @@ public class GraphBuilderTestPerformance {
         }
 
         @Override
-        public List<String> getClosedStations() {
-            return asList("St Peters Square");
+        public Set<String> getAgencies() {
+            return new HashSet(Arrays.asList("MET", "GMS"));
         }
 
         @Override
-        public List<String> getAgencies() {
-            return Arrays.asList("MET");
+        public Path getInputDataPath() {
+            return Paths.get("data/tram");
         }
 
         @Override
-        public String getInstanceDataBaseURL() {
-            return "http://localhost:8080";
+        public Path getOutputDataPath() {
+            return Paths.get("data/all");
         }
 
-        @Override
-        public String getTramDataUrl() {
-            return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
-        }
     }
 }

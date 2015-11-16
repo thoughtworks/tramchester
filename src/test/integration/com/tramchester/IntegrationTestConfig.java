@@ -1,17 +1,20 @@
 package com.tramchester;
 
-import com.tramchester.config.TramchesterConfig;
-
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import static java.util.Arrays.asList;
-
-public class IntegrationTestConfig extends TramchesterConfig {
+public class IntegrationTestConfig extends TestConfig {
 
     public static final String GRAPH_NAME = "int_test_tramchester.db";
-    private List<String> closedStations = asList("St Peters Square");
+    private Set<String> agencies;
+
+    public IntegrationTestConfig() {
+        this.agencies = new HashSet<>(Arrays.asList("MET"));
+    }
 
     private boolean graphExists() {
         return new File(GRAPH_NAME).exists();
@@ -20,12 +23,6 @@ public class IntegrationTestConfig extends TramchesterConfig {
     @Override
     public boolean isRebuildGraph() {
          return !graphExists();
-    }
-
-    @Override
-    public boolean isPullData() {
-        File file = new File("testData/data.zip");
-        return !file.exists();
     }
 
     @Override
@@ -39,23 +36,19 @@ public class IntegrationTestConfig extends TramchesterConfig {
     }
 
     @Override
-    public List<String> getClosedStations() {
-        return closedStations;
+    public Set<String> getAgencies() {
+        return agencies;
     }
 
     @Override
-    public List<String> getAgencies() {
-        return Arrays.asList("MET");
+    public Path getInputDataPath() {
+        return Paths.get("data/tram");
     }
 
     @Override
-    public String getInstanceDataBaseURL() {
-        return "http://localhost:8080";
+    public Path getOutputDataPath() {
+        return Paths.get("data/tram");
     }
 
-    @Override
-    public String getTramDataUrl() {
-        return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
-    }
 }
 

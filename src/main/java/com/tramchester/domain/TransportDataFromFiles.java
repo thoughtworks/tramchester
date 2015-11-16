@@ -32,7 +32,7 @@ public class TransportDataFromFiles implements TransportData {
             if (!stations.keySet().contains(stationId)) {
                 Station station = new Station(stopId, stopData.getName(),
                         stopData.getLatitude(), stopData.getLongitude());
-                logger.info("Add station with id " + stationId);
+                //logger.info("Add station with id " + stationId);
                 stations.put(stationId, station);
             }
         } );
@@ -146,8 +146,8 @@ public class TransportDataFromFiles implements TransportData {
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,
                 maxNumberOfTrips);
         for (Trip trip : tripsAfter) {
-            Stop firstStop = trip.getStop(firstStationId);
-            Stop lastStop = trip.getStop(lastStationId);
+            Stop firstStop = trip.getStop(firstStationId, true);
+            Stop lastStop = trip.getStop(lastStationId, true);
             int fromMidnight = firstStop.getMinutesFromMidnight();
 
             ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(),
@@ -171,10 +171,10 @@ public class TransportDataFromFiles implements TransportData {
         return services.values();
     }
 
-    public List<Trip> getTripsFor(String stationId) {
-        List<Trip> callingTrips = new LinkedList<>();
+    public Set<Trip> getTripsFor(String stationId) {
+        Set<Trip> callingTrips = new HashSet<>();
         trips.values().forEach(trip -> {
-            if (trip.getStop(stationId)!=null) {
+            if (trip.getStop(stationId,false)!=null) {
                 callingTrips.add(trip);
             }
         });

@@ -49,7 +49,7 @@ public class Trip {
                 String stopStationId = stop.getStation().getId();
                 if (firstStationId.equals(stopStationId)) {
                     seenFirst = true;
-                } else if (lastStationId.equals(stopStationId)) {
+                } else if (seenFirst && lastStationId.equals(stopStationId)) {
                     seenSecond = true;
                 }
             }
@@ -60,11 +60,13 @@ public class Trip {
         return false;
     }
 
-    public Stop getStop(String stationId) {
+    public Stop getStop(String stationId, boolean isError) {
         if (stops.containsKey(stationId)) {
             return stops.get(stationId);
         }
-        logger.error(String.format("Could not find a stop in trip %s for station %s", tripId, stationId));
+        if (isError) {
+            logger.error(String.format("Could not find a stop in trip %s for station %s", tripId, stationId));
+        }
         return null;
     }
 

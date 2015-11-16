@@ -6,9 +6,7 @@ import com.tramchester.dataimport.data.StopData;
 public class StopDataParser implements CSVEntryParser<StopData> {
     public StopData parseEntry(String... data) {
         String id = data[0];
-//        if (isDigit(id.toCharArray()[id.length() - 1])) {
-//            id = id.substring(0, data[0].length() - 1);
-//        }
+
         String code = data[1];
         String name = data[2];
         if (name.contains(",")) {

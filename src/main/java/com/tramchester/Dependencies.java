@@ -31,26 +31,30 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class Dependencies {
 
+    public static final String TFGM_UNZIP_DIR = "gtdf-out";
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
-    private static String PATH = "data/tram/";
 
     public void initialise(TramchesterConfig configuration) throws Exception {
+        Path inputPath = configuration.getInputDataPath();
         if (configuration.isPullData()) {
             logger.info("Pulling and cleansing data");
 
-            FetchDataFromUrl fetcher = new FetchDataFromUrl(PATH, configuration.getTramDataUrl());
+            FetchDataFromUrl fetcher = new FetchDataFromUrl(inputPath, configuration.getTramDataUrl());
             fetcher.fetchData();
         }
+        Path outputPath = configuration.getOutputDataPath();
         if (configuration.isFilterData() || configuration.isPullData()) {
-            TransportDataReader reader = new TransportDataReader(PATH + "gtdf-out/");
-            TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(PATH);
+            Path inputDir = inputPath.resolve(TFGM_UNZIP_DIR);
+            TransportDataReader reader = new TransportDataReader(inputDir);
+            TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(outputPath);
 
             DataCleanser dataCleanser = new DataCleanser(reader, writerFactory);
-            dataCleanser.run(configuration.getAgencies());
+            dataCleanser.run(configuration);
             logger.info("Data cleansing finished");
         }
         logger.info("Creating dependencies");
@@ -62,7 +66,7 @@ public class Dependencies {
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(JourneyResponseMapper.class);
 
-        TransportDataReader dataReader = new TransportDataReader(PATH);
+        TransportDataReader dataReader = new TransportDataReader(outputPath);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
         picoContainer.addComponent(TransportGraphBuilder.class);

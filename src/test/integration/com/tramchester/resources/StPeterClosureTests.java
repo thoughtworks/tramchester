@@ -33,7 +33,7 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("St peters square has been deleted from the list of metrolink statiosn")
+    @Ignore("St peters square has been deleted from the list of metrolink stations by tfgm")
     public void shouldNotFindRouteToStPetersSquare() throws Exception {
         try {
             planner.createJourneyPlan(Stations.Altrincham, Stations.StPetersSquare, "11:43:00",

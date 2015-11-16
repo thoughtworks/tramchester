@@ -3,6 +3,8 @@ package com.tramchester.dataimport;
 import com.tramchester.domain.*;
 import org.junit.Test;
 
+import java.nio.file.Paths;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TransportDataImporterTest {
@@ -10,7 +12,7 @@ public class TransportDataImporterTest {
 
     @Test
     public void shouldLoadTransportData() {
-        TransportDataReader transportDataReader = new TransportDataReader(PATH);
+        TransportDataReader transportDataReader = new TransportDataReader(Paths.get(PATH));
         TransportDataImporter transportDataImporter = new TransportDataImporter(transportDataReader);
 
         TransportData transportData = transportDataImporter.load();

@@ -145,7 +145,7 @@ public class GraphBuilderTest {
         List<Trip> notInGraph = new LinkedList<>();
         int[] timesTramRuns = svcFromVelopark.getTimesTramRuns();
         callingTrips.forEach(trip -> {
-            int min = trip.getStop(Stations.VeloPark).getMinutesFromMidnight();
+            int min = trip.getStop(Stations.VeloPark,false).getMinutesFromMidnight();
             if (Arrays.binarySearch(timesTramRuns, min)<0) {
                 notInGraph.add(trip);
             }

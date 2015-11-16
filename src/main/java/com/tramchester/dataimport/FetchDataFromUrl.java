@@ -6,7 +6,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -19,10 +18,10 @@ import static java.lang.String.format;
 
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
-    private String path;
+    private Path path;
     private String dataUrl;
 
-    public FetchDataFromUrl(String path, String dataUrl) {
+    public FetchDataFromUrl(Path path, String dataUrl) {
         this.path = path;
         this.dataUrl = dataUrl;
     }
@@ -33,7 +32,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             throw new Exception("Expected 2 arguments, path and url");
         }
         String theUrl = args[0];
-        String thePath = args[1];
+        Path thePath = Paths.get(args[1]);
         String theFile = args[2];
         logger.info(format("Loading %s to path %s file %s", theUrl, thePath, theFile));
         FetchDataFromUrl fetcher = new FetchDataFromUrl(thePath, theUrl);
@@ -51,18 +50,18 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         logger.info("Unziping data from " + filename);
         try {
             ZipFile zipFile = new ZipFile(filename.toFile());
-            zipFile.extractAll(path);
+            zipFile.extractAll(path.toAbsolutePath().toString());
         } catch (ZipException e) {
             e.printStackTrace();
         }
     }
 
     private Path pullDataFromURL(String targetFile) throws IOException {
-        Path destination = Paths.get(path, targetFile);
+        Path destination = path.resolve(targetFile);
         URL website = new URL(dataUrl);
         logger.info(format("Downloading data from %s to %s", website, destination));
 
-        FileUtils.forceMkdir(new File(path));
+        FileUtils.forceMkdir(path.toFile());
         ReadableByteChannel rbc = Channels.newChannel(website.openStream());
         FileOutputStream fos = new FileOutputStream(destination.toFile());
         fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);

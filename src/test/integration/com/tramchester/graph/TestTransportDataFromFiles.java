@@ -52,9 +52,10 @@ public class TestTransportDataFromFiles {
     }
 
     @Test
-    public void shouldGetRoutes() {
+    public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
-        assertEquals(12, results.size());
+        long tramRoutes = results.stream().filter(route -> route.getAgency().equals(Route.METROLINK)).count();
+        assertEquals(12, tramRoutes);
     }
 
     @Test
@@ -109,7 +110,7 @@ public class TestTransportDataFromFiles {
     }
 
     @Test
-    public void shouldHaveAllEndOfLineStations() {
+    public void shouldHaveAllEndOfLineTramStations() {
         List<Station> allStations = transportData.getStations();
 
         List<String> endsOfTheLines = Arrays.asList(Stations.EndOfTheLine);
@@ -123,12 +124,22 @@ public class TestTransportDataFromFiles {
     }
 
     @Test
-    public void shouldFindTripsForStation() {
-        List<Trip> altyTrips = transportData.getTripsFor(Stations.Altrincham);
-        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham, Stations.Piccadily, MINUTES_FROM_MIDNIGHT_8AM));
+    public void shouldFindTripsForTramStation() {
+        Set<Trip> altyTrips = transportData.getTripsFor(Stations.Altrincham);
+        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham, Stations.Piccadily,
+                MINUTES_FROM_MIDNIGHT_8AM));
 
         assertFalse(altyTrips.isEmpty());
-        assertEquals(13, altyTrips.get(0).getStops().size());
+        Trip trip = altyTrips.stream().findFirst().get();
+
+        int count = 0;
+        for (Stop stop : trip.getStops()) {
+            count++;
+            if (stop.getStation().getId().equals(Stations.Piccadily)) {
+                break;
+            }
+        }
+        assertEquals(13, count); // this number will change when st peters square re-opens
     }
 
     @Test
@@ -158,10 +169,13 @@ public class TestTransportDataFromFiles {
     @Test
     public void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
         Collection<Route> allRoutes = transportData.getRoutes();
-        Set<Service> allSvcs = new HashSet<>();
-        allRoutes.forEach(route -> allSvcs.addAll(route.getServices()));
+        List<Integer> svcSizes = new LinkedList<>();
+        //allRoutes.removeIf(route -> !route.getAgency().equals(Route.METROLINK));
+        allRoutes.forEach(route -> svcSizes.add(route.getServices().size()));
 
-        assertEquals(allSvcs.size(), transportData.getServices().size());
+        int allSvcs = svcSizes.stream().reduce(0, (total,current) -> total+current);
+
+        assertEquals(allSvcs, transportData.getServices().size());
 
         List<Station> allsStations = transportData.getStations();
 
@@ -171,12 +185,12 @@ public class TestTransportDataFromFiles {
         Set<String> tripServicesId = new HashSet<>();
         allTrips.forEach(trip -> tripServicesId.add(trip.getServiceId()));
 
-        assertEquals(allSvcs.size(), tripServicesId.size());
+        assertEquals(allSvcs, tripServicesId.size());
     }
 
     @Test
     public void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
-        List<Trip> trips = transportData.getTripsFor(Stations.VeloPark);
+        Set<Trip> trips = transportData.getTripsFor(Stations.VeloPark);
 
         Collection<Service> allServices = transportData.getServices();
 
@@ -192,7 +206,7 @@ public class TestTransportDataFromFiles {
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<Stop> stoppingAtVelopark = trips.stream()
                 .filter(trip -> mondayAshToManServices.contains(trip.getServiceId()))
-                .map(trip -> trip.getStop(Stations.VeloPark))
+                .map(trip -> trip.getStop(Stations.VeloPark,false))
                 .collect(Collectors.toList());
 
         assertEquals(trips.size(), stoppingAtVelopark.size());

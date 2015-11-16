@@ -1,6 +1,5 @@
 package com.tramchester.dataimport.datacleanse;
 
-import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
@@ -12,7 +11,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -26,21 +24,17 @@ import static org.junit.Assert.assertTrue;
 
 public class TestDataCleanser extends EasyMockSupport {
 
-    private FetchDataFromUrl fetcher;
     private TransportDataReader reader;
     private TransportDataWriter writer;
     private DataCleanser cleanser;
-    private DateTimeFormatter formatter;
     private TransportDataWriterFactory factory;
 
     @Before
     public void beforeEachTestRuns() {
-        fetcher = createMock(FetchDataFromUrl.class);
         reader = createMock(TransportDataReader.class);
         writer = createMock(TransportDataWriter.class);
         factory = createMock(TransportDataWriterFactory.class);
         cleanser = new DataCleanser(reader, factory);
-        formatter = DateTimeFormat.forPattern("HH:mm:ss");
     }
 
     @Test
@@ -54,7 +48,7 @@ public class TestDataCleanser extends EasyMockSupport {
         validateWriter("routes", "R1,MET,CODE1,AtoB,0");
 
         replayAll();
-        List<String> routeCodes = cleanser.cleanseRoutes(Arrays.asList("MET"));
+        List<String> routeCodes = cleanser.cleanseRoutes(new HashSet<>(Arrays.asList("MET")));
         verifyAll();
 
         assertEquals(1, routeCodes.size());
@@ -169,7 +163,7 @@ public class TestDataCleanser extends EasyMockSupport {
         verifyAll();
     }
 
-    private void validateWriter(String filename, String... lines) throws FileNotFoundException {
+    private void validateWriter(String filename, String... lines) throws IOException {
         EasyMock.expect(factory.getWriter(filename)).andReturn(writer);
         for (String line : lines) {
             writer.writeLine(line);

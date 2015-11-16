@@ -1,5 +1,7 @@
 package com.tramchester.dataimport.datacleanse;
 
+import com.tramchester.Dependencies;
+import com.tramchester.IntegrationTestConfig;
 import com.tramchester.dataimport.TransportDataFetcher;
 import com.tramchester.dataimport.TransportDataReader;
 import net.lingala.zip4j.core.ZipFile;
@@ -14,18 +16,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class DataCleanserTest implements TransportDataFetcher {
 
     private static String path = "testData";
-    public static final String INPUT = path + "/gtdf-out/";
-    public static final String OUTPUT = path + "/output/";
+    public static final Path INPUT = Paths.get(path, Dependencies.TFGM_UNZIP_DIR);
+    public static final Path OUTPUT = Paths.get(path, "output");
 
     @BeforeClass
     public static void beforeAllTestRuns() throws IOException {
         tidyFiles();
-        File outputDir = new File(OUTPUT);
+        File outputDir = OUTPUT.toFile();
         if (!outputDir.exists()) {
             outputDir.mkdirs();
         }
@@ -37,8 +38,8 @@ public class DataCleanserTest implements TransportDataFetcher {
     }
 
     private static void tidyFiles() throws IOException {
-        FileUtils.deleteDirectory(new File(INPUT));
-        File directory = new File(OUTPUT);
+        FileUtils.deleteDirectory(INPUT.toFile());
+        File directory = OUTPUT.toFile();
         if (directory.exists()) {
             FileUtils.cleanDirectory(directory);
         }
@@ -52,7 +53,7 @@ public class DataCleanserTest implements TransportDataFetcher {
         TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
         DataCleanser dataCleanser = new DataCleanser(reader, writeFactory);
 
-        dataCleanser.run(Arrays.asList("MET", "GMS"));
+        dataCleanser.run(new IntegrationTestConfig());
 
     }
 

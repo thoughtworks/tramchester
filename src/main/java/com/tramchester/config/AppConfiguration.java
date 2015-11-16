@@ -3,8 +3,11 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -33,6 +36,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("filterData")
     private boolean filterData;
 
+    @JsonProperty("dataPath")
+    private Path dataPath;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -40,6 +46,16 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getTramDataUrl() {
         return tramDataUrl;
+    }
+
+    @Override
+    public Path getInputDataPath() {
+        return dataPath;
+    }
+
+    @Override
+    public Path getOutputDataPath() {
+        return dataPath;
     }
 
     public boolean isRebuildGraph() {
@@ -62,9 +78,8 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public List<String> getAgencies() {
-        return agencies;
+    public Set<String> getAgencies() {
+        return new HashSet<>(agencies);
     }
-
 
 }

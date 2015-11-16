@@ -6,18 +6,18 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class TransportDataReader {
-    private final String path;
+    private final Path path;
 
-    public TransportDataReader(String path) {
+    public TransportDataReader(Path path) {
         this.path = path;
     }
 
     private String formPath(String filename) {
-        return Paths.get(path, filename).toAbsolutePath().toString();
+        return path.resolve(filename).toAbsolutePath().toString();
     }
 
     public Stream<CalendarData> getCalendar() throws IOException {

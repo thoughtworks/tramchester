@@ -25,9 +25,6 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         }
 
         String stopId = data[3];
-//        if (isDigit(stopId.toCharArray()[data[3].length() - 1])) {
-//            stopId = stopId.substring(0, data[3].length() - 1);
-//        }
 
         String stopSequence = data[4];
         String pickupType = data[5];

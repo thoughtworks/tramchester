@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.datacleanse;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
@@ -27,9 +28,9 @@ public class DataCleanser {
         this.transportDataWriterFactory = factory;
     }
 
-    public void run(List<String> agencies) throws IOException {
+    public void run(TramchesterConfig configuration) throws IOException {
 
-        List<String> routeCodes = cleanseRoutes(agencies);
+        List<String> routeCodes = cleanseRoutes(configuration.getAgencies());
 
         ServicesAndTrips servicesAndTrips = cleanseTrips(routeCodes);
 
@@ -131,7 +132,7 @@ public class DataCleanser {
         logger.info("**** End cleansing stops.\n\n");
     }
 
-    public List<String> cleanseRoutes(List<String> agencyCodes) throws IOException {
+    public List<String> cleanseRoutes(Set<String> agencyCodes) throws IOException {
         logger.info("**** Start cleansing routes.");
         List<String> routeCodes = new LinkedList<>();
         Stream<RouteData> routes = transportDataReader.getRoutes();
