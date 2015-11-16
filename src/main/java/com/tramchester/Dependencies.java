@@ -31,25 +31,26 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Dependencies {
 
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
     private static String PATH = "data/tram/";
-    public static final String METROLINK = "MET";
 
     public void initialise(TramchesterConfig configuration) throws Exception {
         if (configuration.isPullData()) {
             logger.info("Pulling and cleansing data");
 
             FetchDataFromUrl fetcher = new FetchDataFromUrl(PATH, configuration.getTramDataUrl());
+            fetcher.fetchData();
+        }
+        if (configuration.isFilterData() || configuration.isPullData()) {
             TransportDataReader reader = new TransportDataReader(PATH + "gtdf-out/");
             TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(PATH);
 
-            DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writerFactory);
-            dataCleanser.run(Arrays.asList(METROLINK));
+            DataCleanser dataCleanser = new DataCleanser(reader, writerFactory);
+            dataCleanser.run(configuration.getAgencies());
             logger.info("Data cleansing finished");
         }
         logger.info("Creating dependencies");

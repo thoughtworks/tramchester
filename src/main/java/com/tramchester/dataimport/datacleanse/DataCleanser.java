@@ -1,6 +1,5 @@
 package com.tramchester.dataimport.datacleanse;
 
-import com.tramchester.dataimport.TransportDataFetcher;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
@@ -22,16 +21,13 @@ public class DataCleanser {
 
     private TransportDataReader transportDataReader;
     private TransportDataWriterFactory transportDataWriterFactory;
-    private TransportDataFetcher fetcher;
 
-    public DataCleanser(TransportDataFetcher fetcher, TransportDataReader reader, TransportDataWriterFactory factory) {
-        this.fetcher = fetcher;
+    public DataCleanser(TransportDataReader reader, TransportDataWriterFactory factory) {
         this.transportDataReader = reader;
         this.transportDataWriterFactory = factory;
     }
 
     public void run(List<String> agencies) throws IOException {
-        fetcher.fetchData();
 
         List<String> routeCodes = cleanseRoutes(agencies);
 

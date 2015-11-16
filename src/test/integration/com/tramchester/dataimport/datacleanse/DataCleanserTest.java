@@ -47,10 +47,10 @@ public class DataCleanserTest implements TransportDataFetcher {
     @Test
     @Ignore("Primarily for performance testing")
     public void shouldCleanseData() throws IOException {
-        TransportDataFetcher fetcher = this;
+        fetchData();
         TransportDataReader reader = new TransportDataReader(INPUT);
         TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
-        DataCleanser dataCleanser = new DataCleanser(fetcher, reader, writeFactory);
+        DataCleanser dataCleanser = new DataCleanser(reader, writeFactory);
 
         dataCleanser.run(Arrays.asList("MET", "GMS"));
 

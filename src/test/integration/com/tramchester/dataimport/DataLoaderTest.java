@@ -12,6 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataLoaderTest {
 
+    // the test data files currently manually maintained, copy over from data/tram as needed
+
     @Test
     public void shouldLoadRouteData() throws Exception {
         DataLoader<RouteData> dataLoader = new DataLoader<>("data/test/routes", new RouteDataParser());
@@ -57,7 +59,7 @@ public class DataLoaderTest {
         assertThat(stopData).hasSize(176);
         StopData theStop = stopData.get(0);
         assertThat(theStop.getCode()).isEqualTo("mantpmaw");
-        assertThat(theStop.getId()).isEqualTo("9400ZZMAABM");
+        assertThat(theStop.getId()).isEqualTo("9400ZZMAABM1");
         assertThat(theStop.getName()).isEqualTo("Abraham Moss");
         assertThat(theStop.getLatitude()).isEqualTo(53.51046);
         assertThat(theStop.getLongitude()).isEqualTo(-2.23550);
@@ -70,7 +72,7 @@ public class DataLoaderTest {
 
         assertThat(stopTimeData).hasSize(20);
         StopTimeData stopTime = stopTimeData.get(0);
-        assertThat(stopTime.getStopId()).isEqualTo("9400ZZMAABM");
+        assertThat(stopTime.getStopId()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTime.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTime.getDropOffType()).isEqualTo("1");
         assertThat(stopTime.getMinutesFromMidnight()).isEqualTo(401);

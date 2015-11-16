@@ -56,6 +56,11 @@ public class GraphBuilderTestPerformance {
         }
 
         @Override
+        public boolean isFilterData() {
+            return false;
+        }
+
+        @Override
         public String getGraphName() {
             return "perf_test_tramchester.db";
         }

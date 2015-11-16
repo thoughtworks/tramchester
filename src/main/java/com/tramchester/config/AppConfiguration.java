@@ -30,6 +30,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("agencies")
     private List<String> agencies;
 
+    @JsonProperty("filterData")
+    private boolean filterData;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -45,6 +48,11 @@ public class AppConfiguration extends TramchesterConfig {
 
     public boolean isPullData() {
         return pullData;
+    }
+
+    @Override
+    public boolean isFilterData() {
+        return filterData;
     }
 
     public String getGraphName() { return graphName; }

@@ -39,7 +39,7 @@ public class TestDataCleanser extends EasyMockSupport {
         reader = createMock(TransportDataReader.class);
         writer = createMock(TransportDataWriter.class);
         factory = createMock(TransportDataWriterFactory.class);
-        cleanser = new DataCleanser(fetcher, reader, factory);
+        cleanser = new DataCleanser(reader, factory);
         formatter = DateTimeFormat.forPattern("HH:mm:ss");
     }
 

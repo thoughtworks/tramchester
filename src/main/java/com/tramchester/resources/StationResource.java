@@ -54,11 +54,6 @@ public class StationResource {
         if (workingStations.containsKey(id)) {
             return Response.ok(workingStations.get(id)).build();
         }
-//        for (Station station : workingStations) {
-//            if (station.getId().equals(id)) {
-//                return Response.ok(station).build();
-//            }
-//        }
 
         return Response.status(Response.Status.NOT_FOUND).build();
     }

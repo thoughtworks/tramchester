@@ -5,11 +5,13 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
-import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -52,8 +54,8 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
 
     @Test
     public void shouldFindInterchangesToInterchanges() throws UnknownStationException {
-        for (String start : TransportGraphBuilder.interchanges) {
-            for (String dest : TransportGraphBuilder.interchanges) {
+        for (String start : Interchanges.stations()) {
+            for (String dest : Interchanges.stations()) {
                 if (!dest.equals(start)) {
                     validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
                 }
@@ -64,7 +66,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     @Test
     public void shouldFindEndOfLinesToInterchanges() throws UnknownStationException {
         for (String start : Stations.EndOfTheLine) {
-            for (String dest : TransportGraphBuilder.interchanges) {
+            for (String dest : Interchanges.stations()) {
                 if (!dest.equals(start)) {
                     validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
                 }
@@ -74,7 +76,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
 
     @Test
     public void shouldFindInterchangesToEndOfLines() throws UnknownStationException {
-        for (String start : TransportGraphBuilder.interchanges ) {
+        for (String start : Interchanges.stations() ) {
             for (String dest : Stations.EndOfTheLine) {
                 if (!dest.equals(start)) {
                     validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
@@ -119,7 +121,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteVeloInterchanges() throws UnknownStationException {
-        for (String dest : TransportGraphBuilder.interchanges) {
+        for (String dest : Interchanges.stations()) {
             validateAtLeastOneJourney(Stations.VeloPark, dest, "08:00:00", DaysOfWeek.Monday, today);
         }
     }

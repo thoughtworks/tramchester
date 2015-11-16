@@ -17,25 +17,6 @@ import java.util.stream.StreamSupport;
 public class TransportGraphBuilder extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 
-    public static final String CORNBROOK = "9400ZZMACRN";
-    // public static final String ST_PETERS_SQUARE = "9400ZZMASTP"; // closed until August 2016
-    public static final String PIC_GARDENS = "9400ZZMAPGD";
-    public static final String TRAF_BAR = "9400ZZMATRA";
-    public static final String ST_WS_ROAD = "9400ZZMASTW";
-    public static final String VICTORIA = "9400ZZMAVIC";
-    // not an official interchanges but several services terminate/branch here
-    public static final String PICCADILLY = "9400ZZMAPIC";
-    public static final String HARBOURCITY = "9400ZZMAHCY";
-
-    public static final List<String> interchanges = Arrays.asList(CORNBROOK,
-            // ST_PETERS_SQUARE, closed until 2016
-            PIC_GARDENS,
-            TRAF_BAR,
-            ST_WS_ROAD,
-            VICTORIA,
-            PICCADILLY,
-            HARBOURCITY);
-
     public static final int INTERCHANGE_DEPART_COST = 1;
     public static final int INTERCHANGE_BOARD_COST = 1;
     public static final int BOARDING_COST = 2;
@@ -152,7 +133,7 @@ public class TransportGraphBuilder extends StationIndexs {
         TransportRelationshipTypes departType;
         int boardCost;
         int departCost;
-        if (interchanges.contains(station.getId())) {
+        if (Interchanges.has(station)) {
             boardType = TransportRelationshipTypes.INTERCHANGE_BOARD;
             boardCost = INTERCHANGE_BOARD_COST;
             departType = TransportRelationshipTypes.INTERCHANGE_DEPART;
@@ -165,19 +146,20 @@ public class TransportGraphBuilder extends StationIndexs {
         }
 
         // boarding: station -> routeStation
-        if (!hasBoarding(station.getId(), routeStationId, boardType)) {
+        String stationId = station.getId();
+        if (!hasBoarding(stationId, routeStationId, boardType)) {
             Relationship interchangeRelationshipTo = stationNode.createRelationshipTo(routeStation, boardType);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, boardCost);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, routeStationId);
-            boardings.put(station.getId()+routeStationId, boardType);
+            boardings.put(stationId+routeStationId, boardType);
         }
 
         // leave: route station -> station
-        if (!hasDeparting(routeStationId, station.getId(), departType)) {
+        if (!hasDeparting(routeStationId, stationId, departType)) {
             Relationship departRelationship = routeStation.createRelationshipTo(stationNode, departType);
             departRelationship.setProperty(GraphStaticKeys.COST, departCost);
             departRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
-            departs.put(routeStationId+station.getId(), departType);
+            departs.put(routeStationId+stationId, departType);
         }
 
         return routeStation;

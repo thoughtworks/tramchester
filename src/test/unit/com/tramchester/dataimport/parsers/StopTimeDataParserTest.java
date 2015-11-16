@@ -16,7 +16,7 @@ public class StopTimeDataParserTest {
         assertThat(stopTimeData.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTimeData.getArrivalTime().toString()).isEqualTo("06:41:10");
         assertThat(stopTimeData.getDepartureTime().toString()).isEqualTo("06:42:30");
-        assertThat(stopTimeData.getStopId().toString()).isEqualTo("9400ZZMAABM");
+        assertThat(stopTimeData.getStopId().toString()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTimeData.getStopSequence()).isEqualTo("0001");
     }
 }

@@ -5,8 +5,6 @@ import com.tramchester.dataimport.data.StopTimeData;
 
 import java.time.LocalTime;
 
-import static java.lang.Character.isDigit;
-
 
 public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
     public StopTimeData parseEntry(String... data) {
@@ -27,9 +25,9 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         }
 
         String stopId = data[3];
-        if (isDigit(stopId.toCharArray()[data[3].length() - 1])) {
-            stopId = stopId.substring(0, data[3].length() - 1);
-        }
+//        if (isDigit(stopId.toCharArray()[data[3].length() - 1])) {
+//            stopId = stopId.substring(0, data[3].length() - 1);
+//        }
 
         String stopSequence = data[4];
         String pickupType = data[5];

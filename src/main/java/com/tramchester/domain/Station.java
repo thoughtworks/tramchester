@@ -1,6 +1,8 @@
 package com.tramchester.domain;
 
 public class Station {
+    public static String METROLINK_PREFIX = "9400ZZ";
+
     private final String id;
     private final String name;
     private final double latitude;
@@ -21,7 +23,7 @@ public class Station {
     }
 
     public String getId() {
-        return id;
+        return formId(id);
     }
 
     public String getName() {
@@ -42,5 +44,14 @@ public class Station {
 
     public String getProximityGroup() {
         return proximityGroup;
+    }
+
+    public static String formId(String rawId) {
+        if (rawId.startsWith(METROLINK_PREFIX)) {
+            // metrolink station ids include platform as final digit, remove to give id of station itself
+            int index = rawId.length()-1;
+            return rawId.substring(0,index);
+        }
+        return rawId;
     }
 }

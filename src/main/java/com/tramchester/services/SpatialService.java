@@ -26,14 +26,12 @@ public class SpatialService extends StationIndexs {
         this.graphDatabaseService = graphDatabaseService;
     }
 
-    // TODO address performance issue leading to slow load of station list on client
     public List<Station> reorderNearestStations(Double latitude, Double longitude, Map<String, Station> stations) {
         Transaction tx = graphDatabaseService.beginTx();
         try {
             List<Station> sorted = stations.values().stream()
                     .sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
 
-            //stations.sort((s1, s2) -> s1.getName().compareTo(s2.getName()));
             List<Node> nearestStations = getNearestStationsTo(latitude, longitude, NUMBER_OF_NEAREST);
             List<Station> reorderedStations = new ArrayList<>();
 
@@ -58,13 +56,13 @@ public class SpatialService extends StationIndexs {
         }
     }
 
-    private Station getStation(List<Station> stations, String id) {
-        for (Station station : stations) {
-            if (station.getId().equals(id))
-                return station;
-        }
-        return null;
-    }
+//    private Station getStation(List<Station> stations, String id) {
+//        for (Station station : stations) {
+//            if (station.getId().equals(id))
+//                return station;
+//        }
+//        return null;
+//    }
 
     private List<Node> getNearestStationsTo(double latitude, double longitude, int count) {
         Map<String, Object> params = new HashMap<>();

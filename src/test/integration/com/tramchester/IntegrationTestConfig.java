@@ -11,7 +11,6 @@ import static java.util.Arrays.asList;
 public class IntegrationTestConfig extends TramchesterConfig {
 
     public static final String GRAPH_NAME = "int_test_tramchester.db";
-    private boolean rebuildNeeded = false;
     private List<String> closedStations = asList("St Peters Square");
 
     private boolean graphExists() {
@@ -20,17 +19,18 @@ public class IntegrationTestConfig extends TramchesterConfig {
 
     @Override
     public boolean isRebuildGraph() {
-        return rebuildNeeded;
+         return !graphExists();
     }
 
     @Override
     public boolean isPullData() {
-        if (graphExists()) {
-            rebuildNeeded = false;
-            return false;
-        }
-        rebuildNeeded = true;
-        return true;
+        File file = new File("testData/data.zip");
+        return !file.exists();
+    }
+
+    @Override
+    public boolean isFilterData() {
+        return !graphExists();
     }
 
     @Override

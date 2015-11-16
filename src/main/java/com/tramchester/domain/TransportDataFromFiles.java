@@ -28,16 +28,17 @@ public class TransportDataFromFiles implements TransportData {
 
         stopDataList.forEach((stopData) -> {
             String stopId = stopData.getId();
-            if (!stations.keySet().contains(stopId)) {
+            String stationId = Station.formId(stopId);
+            if (!stations.keySet().contains(stationId)) {
                 Station station = new Station(stopId, stopData.getName(),
                         stopData.getLatitude(), stopData.getLongitude());
-                logger.info("Add station with id " + stopId);
-                stations.put(stopId, station);
+                logger.info("Add station with id " + stationId);
+                stations.put(stationId, station);
             }
         } );
 
         routeDataList.forEach((routeData) -> {
-            Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName());
+            Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName(), routeData.getAgency());
             routes.put(route.getId(), route);
         } );
 
@@ -55,12 +56,13 @@ public class TransportDataFromFiles implements TransportData {
             Trip trip = getTrip(stopTimeData.getTripId());
 
             String stopId = stopTimeData.getStopId();
-            if (!stations.containsKey(stopId)) {
-                logger.error("Cannot find station for Id " + stopId);
+            String stationId = Station.formId(stopId);
+            if (!stations.containsKey(stationId)) {
+                logger.error("Cannot find station for Id " + stationId);
             }
             Stop stop = new Stop(stopTimeData.getArrivalTime(),
                     stopTimeData.getDepartureTime(),
-                    stations.get(stopId),
+                    stations.get(stationId),
                     stopTimeData.getMinutesFromMidnight());
 
             trip.addStop(stop);
