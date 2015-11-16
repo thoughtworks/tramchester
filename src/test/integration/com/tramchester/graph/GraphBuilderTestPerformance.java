@@ -46,6 +46,8 @@ public class GraphBuilderTestPerformance {
 
 
     private static class PerformanceTestConfig extends TestConfig {
+        private Path outputPath = Paths.get("data/all");
+
         @Override
         public boolean isRebuildGraph() {
             return true;
@@ -53,7 +55,7 @@ public class GraphBuilderTestPerformance {
 
         @Override
         public boolean isFilterData() {
-            return true;
+            return !outputPath.resolve("feed_info.txt").toFile().exists() ;
         }
 
         @Override
@@ -73,7 +75,7 @@ public class GraphBuilderTestPerformance {
 
         @Override
         public Path getOutputDataPath() {
-            return Paths.get("data/all");
+            return outputPath;
         }
 
     }

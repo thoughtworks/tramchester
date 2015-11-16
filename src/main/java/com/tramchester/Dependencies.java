@@ -42,7 +42,7 @@ public class Dependencies {
     public void initialise(TramchesterConfig configuration) throws Exception {
         Path inputPath = configuration.getInputDataPath();
         if (configuration.isPullData()) {
-            logger.info("Pulling and cleansing data");
+            logger.info("Pulling data");
 
             FetchDataFromUrl fetcher = new FetchDataFromUrl(inputPath, configuration.getTramDataUrl());
             fetcher.fetchData();

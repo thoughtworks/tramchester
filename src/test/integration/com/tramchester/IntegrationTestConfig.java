@@ -11,6 +11,7 @@ public class IntegrationTestConfig extends TestConfig {
 
     public static final String GRAPH_NAME = "int_test_tramchester.db";
     private Set<String> agencies;
+    private Path path = Paths.get("data/tram");
 
     public IntegrationTestConfig() {
         this.agencies = new HashSet<>(Arrays.asList("MET"));
@@ -27,7 +28,7 @@ public class IntegrationTestConfig extends TestConfig {
 
     @Override
     public boolean isFilterData() {
-        return !graphExists();
+        return !path.resolve("feed_info.txt").toFile().exists() ;
     }
 
     @Override
@@ -42,12 +43,12 @@ public class IntegrationTestConfig extends TestConfig {
 
     @Override
     public Path getInputDataPath() {
-        return Paths.get("data/tram");
+        return path;
     }
 
     @Override
     public Path getOutputDataPath() {
-        return Paths.get("data/tram");
+        return path;
     }
 
 }

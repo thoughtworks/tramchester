@@ -3,8 +3,6 @@ package com.tramchester;
 import com.tramchester.config.TramchesterConfig;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -15,7 +13,7 @@ public abstract class TestConfig extends TramchesterConfig {
 
     @Override
     public boolean isPullData() {
-        File file = new File("testData/data.zip");
+        File file = new File("data/tram/data.zip");
         return !file.exists();
     }
 
