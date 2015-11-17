@@ -3,10 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +31,7 @@ public class GraphBuilderTestPerformance {
     }
 
     @Test
+    @Ignore("For performance testing")
     public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
         DateTime start = DateTime.now();
 
@@ -43,7 +41,6 @@ public class GraphBuilderTestPerformance {
 
         System.out.println("Initialisation took: " + finished.minus(start.getMillis()).getMillis());
     }
-
 
     private static class PerformanceTestConfig extends TestConfig {
         private Path outputPath = Paths.get("data/all");

@@ -16,7 +16,7 @@ bin
 dist
 .gradle/
 build/
-data/tram/
+data/
 
 TEST-*.xml
 database/scripts/
@@ -28,5 +28,6 @@ intelij/
 *.version
 log/
 diagram.dot
+diagram.dot.*
 testData/gtdf-out/
 testData/output/
