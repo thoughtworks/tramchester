@@ -72,8 +72,19 @@ clean {
 }
 
 run {
-    println System.getenv('DATAURL');
     args 'server', 'config/local.yml'
+}
+
+task pullData(type:JavaExec) {
+    main = 'com.tramchester.dataimport.FetchDataFromUrl'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
+}
+
+task buses(type:JavaExec) {
+    main = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    args 'server', 'config/buses.yml'
 }
 
 sourceSets {
@@ -84,11 +95,6 @@ sourceSets {
     }
 }
 
-task pullData(type:JavaExec) {
-	main = 'com.tramchester.dataimport.FetchDataFromUrl'
-	classpath = sourceSets.main.runtimeClasspath
-    args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
-}
 
 task uploadData(dependsOn: ['cfnassist', 'pullData']) << {
     antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
@@ -123,7 +129,6 @@ task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  << {
 		S3Create()
 	}
 }
-
 
 task uploadSupportFiles(dependsOn: 'cfnassist')  << {
     antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {

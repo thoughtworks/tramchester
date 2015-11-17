@@ -10,14 +10,15 @@ server:
 rebuildGraph: true
 pullData: ${TRAM_PULLDATA:- false}
 filterData: true
-graphName: tramchester.db
+graphName: buses.db
 closedStations:
   - St Peters Square
 agencies:
   - MET
+  - GMS
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
-dataPath: data/tram
+dataPath: data/bus
 
 logging:
   level: INFO
