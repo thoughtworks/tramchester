@@ -8,7 +8,7 @@ public class InterchangeDepartsRelationship extends TramCostRelationship {
     }
 
     @Override
-    public boolean isGoesTo() {
+    public boolean isTramGoesTo() {
         return false;
     }
 

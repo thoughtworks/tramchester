@@ -102,7 +102,7 @@ public class Dependencies {
             logger.info("Not rebuilding graph " + graphName);
             picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
         }
-
+        logger.info("graph db ready for " + graphName);
     }
 
     public <T> T get(Class<T> klass) {

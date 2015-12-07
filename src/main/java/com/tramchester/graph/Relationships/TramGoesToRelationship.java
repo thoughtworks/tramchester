@@ -6,7 +6,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.Arrays;
 
-public class GoesToRelationship extends TramCostRelationship {
+public class TramGoesToRelationship extends TramCostRelationship {
     private String service;
     private boolean[] daysRunning;
     private int[] timesRunning;
@@ -14,7 +14,8 @@ public class GoesToRelationship extends TramCostRelationship {
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 
-    public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id, TramServiceDate startDate, TramServiceDate endDate) {
+    public TramGoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id,
+                                  TramServiceDate startDate, TramServiceDate endDate) {
         super(cost, id);
         this.service = service;
         this.daysRunning = daysRunning;
@@ -23,7 +24,7 @@ public class GoesToRelationship extends TramCostRelationship {
         this.endDate = endDate;
     }
 
-    public GoesToRelationship(Relationship graphRelationship) {
+    public TramGoesToRelationship(Relationship graphRelationship) {
         super(graphRelationship);
 
         daysRunning = (boolean[]) graphRelationship.getProperty(GraphStaticKeys.DAYS);
@@ -43,7 +44,7 @@ public class GoesToRelationship extends TramCostRelationship {
     }
 
     @Override
-    public boolean isGoesTo() {
+    public boolean isTramGoesTo() {
         return true;
     }
 
@@ -70,7 +71,7 @@ public class GoesToRelationship extends TramCostRelationship {
 
     @Override
     public String toString() {
-        return "GoesToRelationship{" +
+        return "TramGoesToRelationship{" +
                 "service='" + service + '\'' +
                 ", daysRunning=" + Arrays.toString(daysRunning) +
                 ", timesRunning=" + Arrays.toString(timesRunning) +

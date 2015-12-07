@@ -1,11 +1,10 @@
 package com.tramchester.graph.Relationships;
 
 public interface  TramRelationship {
-    public boolean isGoesTo();
-    public boolean isBoarding();
-    public boolean isDepartTram();
-    public boolean isInterchange();
+    boolean isTramGoesTo();
+    boolean isBoarding();
+    boolean isDepartTram();
+    boolean isInterchange();
     int getCost();
     String getId();
-
 }

@@ -7,15 +7,16 @@ server:
     type: http
     port: 8080
 
-rebuildGraph: true
 pullData: ${TRAM_PULLDATA:- false}
-filterData: true
+filterData: ${TRAM_FILTER:- true}
+rebuildGraph: ${TRAM_GRAPH:- true}
 graphName: buses.db
 closedStations:
   - St Peters Square
 agencies:
   - MET
   - GMS
+  - GMN
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 dataPath: data/bus

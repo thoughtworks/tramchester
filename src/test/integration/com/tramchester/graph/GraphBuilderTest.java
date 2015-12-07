@@ -11,7 +11,7 @@ import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.BoardRelationship;
 import com.tramchester.graph.Relationships.DepartRelationship;
-import com.tramchester.graph.Relationships.GoesToRelationship;
+import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.junit.*;
 
@@ -55,10 +55,10 @@ public class GraphBuilderTest {
                 Stations.MediaCityUK + MAN_TO_ECCLES);
 
         List<BoardRelationship> boards = new LinkedList<>();
-        List<GoesToRelationship> svcsToMediaCity = new LinkedList<>();
+        List<TramGoesToRelationship> svcsToMediaCity = new LinkedList<>();
         inbounds.forEach(in -> {
             if (in instanceof BoardRelationship) boards.add((BoardRelationship) in);
-            if (in instanceof GoesToRelationship) svcsToMediaCity.add((GoesToRelationship) in);
+            if (in instanceof TramGoesToRelationship) svcsToMediaCity.add((TramGoesToRelationship) in);
         });
 
         assertEquals(1, boards.size());
@@ -113,10 +113,10 @@ public class GraphBuilderTest {
                 calculator.getOutboundRouteStationRelationships(Stations.VeloPark + ASH_TO_MANCHESTER);
         // check on departs relationship & services
         List<TramRelationship> departs = new LinkedList<>();
-        List<GoesToRelationship> svcsFromVelopark = new LinkedList<>();
+        List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
         outbounds.forEach(out -> {
             if (out instanceof DepartRelationship) departs.add(out);
-            if (out instanceof GoesToRelationship) svcsFromVelopark.add((GoesToRelationship) out);
+            if (out instanceof TramGoesToRelationship) svcsFromVelopark.add((TramGoesToRelationship) out);
         });
 
         assertEquals(1, departs.size()); // one way to get off the tram
@@ -125,8 +125,8 @@ public class GraphBuilderTest {
         // check particular svc is present, we want one that calls at mediacity, currently: 63,65,66,67 or 69
         checkNumberOfServices(svcId, outbounds, 1);
 
-        GoesToRelationship svcFromVelopark = null;
-        for(GoesToRelationship svc : svcsFromVelopark) {
+        TramGoesToRelationship svcFromVelopark = null;
+        for(TramGoesToRelationship svc : svcsFromVelopark) {
             if (svc.getService().equals(svcId)) {
                 svcFromVelopark  = svc;
             }
@@ -178,13 +178,13 @@ public class GraphBuilderTest {
 
     private void reportServices(List<TramRelationship> outbounds) {
         outbounds.forEach(outbound -> {
-            if (outbound.isGoesTo()) {
-                GoesToRelationship goesToRelationship = (GoesToRelationship) outbound;
-                int[] runsAt = goesToRelationship.getTimesTramRuns();
+            if (outbound.isTramGoesTo()) {
+                TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outbound;
+                int[] runsAt = tramGoesToRelationship.getTimesTramRuns();
                 assertTrue(runsAt.length >0 );
-                System.out.print(String.format("%s (%s): ", goesToRelationship.getService(), goesToRelationship.getDest()));
+                System.out.print(String.format("%s (%s): ", tramGoesToRelationship.getService(), tramGoesToRelationship.getDest()));
                 display(runsAt);
-                boolean[] days = goesToRelationship.getDaysTramRuns();
+                boolean[] days = tramGoesToRelationship.getDaysTramRuns();
                 System.out.println();
                 display(days);
                 System.out.println();
@@ -209,9 +209,9 @@ public class GraphBuilderTest {
 
         List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark + ASH_TO_MANCHESTER);
 
-        List<GoesToRelationship> svcsFromVelopark = new LinkedList<>();
+        List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
         outbounds.forEach(out -> {
-            if (out instanceof GoesToRelationship) svcsFromVelopark.add((GoesToRelationship) out);
+            if (out instanceof TramGoesToRelationship) svcsFromVelopark.add((TramGoesToRelationship) out);
         });
         // filter by day and then direction/route
         assertTrue(!svcsFromVelopark.isEmpty());
@@ -235,8 +235,8 @@ public class GraphBuilderTest {
 
     private void checkNumberOfServices(final String svcId, List<TramRelationship> outbounds, int num) {
         outbounds.removeIf(svc -> {
-            if (!(svc instanceof GoesToRelationship)) return true;
-            return !((GoesToRelationship)svc).getService().equals(svcId);
+            if (!(svc instanceof TramGoesToRelationship)) return true;
+            return !((TramGoesToRelationship)svc).getService().equals(svcId);
         });
         assertEquals(num, outbounds.size());
     }

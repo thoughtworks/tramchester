@@ -78,7 +78,7 @@ public class CreateDotDiagramTest {
             Node endNode = relationship.getEndNode();
             String endNodeId = endNode.getProperty(ID).toString();
 
-            if (tramRelat.isGoesTo()) {
+            if (tramRelat.isTramGoesTo()) {
                 if (!services.contains(endNodeId)) {
                     services.add(endNodeId);
                 }

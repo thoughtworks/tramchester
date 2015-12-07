@@ -92,7 +92,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
             int duration = nextStop.getMinutesFromMidnight() - currentStop.getMinutesFromMidnight();
             if (runsAtLeastADay(service.getDays())) {
-                createOrUpdateRelationship(from, to, TransportRelationshipTypes.GOES_TO, currentStop,
+                createOrUpdateRelationship(from, to, TransportRelationshipTypes.TRAM_GOES_TO, currentStop,
                         duration, service, route, nextStop.getStation().getName());
             }
         }
@@ -263,7 +263,7 @@ public class TransportGraphBuilder extends StationIndexs {
         long endId = end.getId();
 
         Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING,
-                TransportRelationshipTypes.GOES_TO);
+                TransportRelationshipTypes.TRAM_GOES_TO);
         Stream<Relationship> existingStream = StreamSupport.stream(existing.spliterator(), false);
         Optional<Relationship> match = existingStream
                 .filter(out -> out.getEndNode().getId() == endId)

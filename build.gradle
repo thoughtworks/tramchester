@@ -95,7 +95,6 @@ sourceSets {
     }
 }
 
-
 task uploadData(dependsOn: ['cfnassist', 'pullData']) << {
     antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
         Artifact(name: 'data', value: 'data/tramData-1.0.zip')
@@ -168,20 +167,6 @@ task whitelist(dependsOn: cfnassist) << {
     antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
 		WhiteList(port: '80', tag:'web')
 	}
-}
-
-task wwwToBlue(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'ProdBlue') {
-        Templates(target: 'deploy/createAliasForWWW.json')
-        Param(name:'target', value: 'blue')
-    }
-}
-
-task wwwToGreen(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'ProdGreen') {
-        Templates(target: 'deploy/createAliasForWWW.json')
-        Param(name:'target', value: 'green')
-    }
 }
 
 task blacklist(dependsOn: cfnassist) << {

@@ -31,7 +31,7 @@ public class GraphBuilderTestPerformance {
     }
 
     @Test
-    @Ignore("For performance testing")
+    //@Ignore("For performance testing")
     public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
         DateTime start = DateTime.now();
 
@@ -62,7 +62,7 @@ public class GraphBuilderTestPerformance {
 
         @Override
         public Set<String> getAgencies() {
-            return new HashSet(Arrays.asList("MET", "GMS"));
+            return new HashSet(Arrays.asList("MET", "GMS", "GMN"));
         }
 
         @Override

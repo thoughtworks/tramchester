@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.Relationships.GoesToRelationship;
+import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.easymock.EasyMock;
@@ -81,7 +81,7 @@ public class TestTramRelationship extends EasyMockSupport {
         boolean[] days = new boolean[]{true, false, true, false};
         int[] times = new int[]{10, 20, 30, 40};
 
-        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.GOES_TO);
+        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.TRAM_GOES_TO);
 
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(42);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("service99");
@@ -92,7 +92,7 @@ public class TestTramRelationship extends EasyMockSupport {
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andReturn("20161124");
 
         replayAll();
-        GoesToRelationship tramRelationship = (GoesToRelationship) relationshipFactory.getRelationship(relationship);
+        TramGoesToRelationship tramRelationship = (TramGoesToRelationship) relationshipFactory.getRelationship(relationship);
         assertEquals(42, tramRelationship.getCost());
         assertEquals("service99", tramRelationship.getService());
         assertEquals("dest", tramRelationship.getDest());

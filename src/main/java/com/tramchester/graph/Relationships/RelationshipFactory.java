@@ -6,8 +6,8 @@ import org.neo4j.graphdb.Relationship;
 public class RelationshipFactory {
     public TramRelationship getRelationship(Relationship graphRelationship) {
         String relationshipType = graphRelationship.getType().name();
-        if (relationshipType.equals(TransportRelationshipTypes.GOES_TO.toString())) {
-            return new GoesToRelationship(graphRelationship);
+        if (relationshipType.equals(TransportRelationshipTypes.TRAM_GOES_TO.toString())) {
+            return new TramGoesToRelationship(graphRelationship);
         } else if (relationshipType.equals(TransportRelationshipTypes.DEPART.toString())) {
             return new DepartRelationship(graphRelationship);
         }  else if (relationshipType.equals(TransportRelationshipTypes.BOARD.toString())) {

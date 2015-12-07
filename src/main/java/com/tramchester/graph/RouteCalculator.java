@@ -8,7 +8,7 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
-import com.tramchester.graph.Relationships.GoesToRelationship;
+import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.neo4j.graphalgo.*;
@@ -92,12 +92,12 @@ public class RouteCalculator extends StationIndexs {
                 logger.info(String.format("depart tram: at:'%s' to: '%s' '%s' ", startNodeId, stationName, endNodeId));
                 currentStage.setLastStation(endNodeId);
                 stages.add(currentStage);
-            } else if (tramRelationship.isGoesTo()) {
+            } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
-                GoesToRelationship goesToRelationship = (GoesToRelationship) tramRelationship;
-                currentStage.setServiceId(goesToRelationship.getService());
+                TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;
+                currentStage.setServiceId(tramGoesToRelationship.getService());
                 logger.debug(String.format("Add step, goes from %s to %s on %s", startNodeId,
-                    endNodeId, goesToRelationship.getService()));
+                    endNodeId, tramGoesToRelationship.getService()));
             }
         }
         logger.info(String.format("Number of stages: %s Total cost:%s ",stages.size(), totalCost));
