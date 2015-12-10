@@ -4,10 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTestConfig;
 import com.tramchester.domain.Station;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -57,6 +54,7 @@ public class StationsTest {
     }
 
     @Test
+    @Ignore("For performande testing")
     public void shouldCheckPerformanceOfGettingNearest() {
         DateTime start = DateTime.now();
         for (int i=0; i<10000; i++) {
@@ -71,7 +69,6 @@ public class StationsTest {
     public void shouldNotGetClosedStations() throws Exception {
         Response result = stationResource.getAll();
         Collection<Station> stations = (Collection<Station>) result.getEntity();
-
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
         assertThat(stations.stream().filter(station -> station.getName().equals("Altrincham")).count()).isEqualTo(1);

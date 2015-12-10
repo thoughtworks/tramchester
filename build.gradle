@@ -68,7 +68,10 @@ jar {
 task stage(dependsOn: ['clean', 'installApp'])
 
 clean {
-	delete "int_test_tramchester.db"
+	delete 'int_test_tramchester.db' , 'data/tram/data.zip'
+    delete fileTree('data/tram') {
+        include '*.txt'
+    }
 }
 
 run {

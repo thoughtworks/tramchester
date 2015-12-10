@@ -46,7 +46,8 @@ public class JourneyPlannerResource {
         return response;
     }
 
-    public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
+    public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String departureTime,
+                                                       DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
         logger.info(String.format("start: %s end: %s departure time: %s (%s) on %s",
                 startId, endId, departureTime, minutesFromMidnight, dayOfWeek));

@@ -62,7 +62,7 @@ public class GraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        assertEquals(4, svcsToMediaCity.size());
+        assertEquals(14, svcsToMediaCity.size());
     }
 
     @Ignore("No services currently branch")
@@ -75,7 +75,7 @@ public class GraphBuilderTest {
     }
 
     @Test
-      public void shouldHaveHarbourCityStation() throws UnknownStationException {
+    public void shouldHaveHarbourCityStation() throws UnknownStationException {
 
         TramNode tramNode = calculator.getStation(Stations.HarbourCity);
 
@@ -220,7 +220,7 @@ public class GraphBuilderTest {
         svcsFromVelopark.removeIf(svc -> !transportData.getService(svc.getService()).getRouteId().equals(ASH_TO_MANCHESTER));
         assertTrue(!svcsFromVelopark.isEmpty());
 
-        assertEquals(5, svcsFromVelopark.size());
+        assertEquals(13, svcsFromVelopark.size());
 
         svcsFromVelopark.removeIf(svc -> {
             for (int mins : svc.getTimesTramRuns()) {

@@ -45,9 +45,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindEndOfLinesToEndOfLines() throws UnknownStationException {
         for (String start : Stations.EndOfTheLine) {
             for (String dest : Stations.EndOfTheLine) {
-                if (!dest.equals(start)) {
-                    validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
-                }
+                checkRouteForAllDays(start, dest, "10:00:00");
             }
         }
     }
@@ -56,9 +54,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindInterchangesToInterchanges() throws UnknownStationException {
         for (String start : Interchanges.stations()) {
             for (String dest : Interchanges.stations()) {
-                if (!dest.equals(start)) {
-                    validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
-                }
+                checkRouteForAllDays(start, dest, "09:00:00");
             }
         }
     }
@@ -67,9 +63,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindEndOfLinesToInterchanges() throws UnknownStationException {
         for (String start : Stations.EndOfTheLine) {
             for (String dest : Interchanges.stations()) {
-                if (!dest.equals(start)) {
-                    validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
-                }
+                checkRouteForAllDays(start, dest, "09:00:00");
             }
         }
     }
@@ -78,11 +72,14 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindInterchangesToEndOfLines() throws UnknownStationException {
         for (String start : Interchanges.stations() ) {
             for (String dest : Stations.EndOfTheLine) {
-                if (!dest.equals(start)) {
-                    validateAtLeastOneJourney(start, dest, "08:00:00", DaysOfWeek.Monday, today);
-                }
+                checkRouteForAllDays(start,dest, "10:00:00");
             }
         }
+    }
+
+    @Test
+    public void shouldReproduceIssueWithMissingRoutes() throws UnknownStationException {
+        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, "10:00:00", DaysOfWeek.Saturday, today);
     }
 
     @Test
@@ -159,6 +156,14 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
                     JourneyPlanRepresentation results = planner.createJourneyPlan(startCode, endCode, "12:00:00", DaysOfWeek.Monday, today);
                     assertTrue(results.getJourneys().size() > 0);
                 }
+            }
+        }
+    }
+
+    private void checkRouteForAllDays(String start, String dest, String time) throws UnknownStationException {
+        if (!dest.equals(start)) {
+            for(DaysOfWeek day : DaysOfWeek.values()) {
+                validateAtLeastOneJourney(start, dest, time, day, today);
             }
         }
     }

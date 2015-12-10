@@ -40,7 +40,8 @@ public class RouteCalculator extends StationIndexs {
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, routeFactory, nodeFactory);
     }
 
-    public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
+    public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek,
+                                       TramServiceDate queryDate) throws UnknownStationException {
         Set<Journey> journeys = new HashSet<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
@@ -96,8 +97,8 @@ public class RouteCalculator extends StationIndexs {
                 // routeStation -> routeStation
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;
                 currentStage.setServiceId(tramGoesToRelationship.getService());
-                logger.debug(String.format("Add step, goes from %s to %s on %s", startNodeId,
-                    endNodeId, tramGoesToRelationship.getService()));
+//                logger.debug(String.format("Add step, goes from %s to %s on %s", startNodeId,
+//                    endNodeId, tramGoesToRelationship.getService()));
             }
         }
         logger.info(String.format("Number of stages: %s Total cost:%s ",stages.size(), totalCost));
@@ -122,7 +123,8 @@ public class RouteCalculator extends StationIndexs {
         }
     }
 
-    private Iterable<WeightedPath> findShortestPath(String startId, String endId, int time, DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
+    private Iterable<WeightedPath> findShortestPath(String startId, String endId, int time, DaysOfWeek dayOfWeek,
+                                                    TramServiceDate queryDate) throws UnknownStationException {
         Node startNode = getStationNode(startId);
         Node endNode = getStationNode(endId);
         logger.info(String.format("Finding shortest path for %s (%s) --> %s (%s) on %s",

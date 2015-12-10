@@ -89,12 +89,12 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         if (servicesFilteredOut.size()==0) {
             return;
         }
-        logger.debug(format("Time:%s Filtered:%s services for node:%s inbound:%s",
+        logger.info(format("Time:%s Filtered:%s services for node:%s inbound:%s",
                 elapsedTime, servicesFilteredOut.size(), currentNode, incoming));
-        servicesFilteredOut.forEach((service, reason) -> {
-            logger.debug(format("time:%s service:%s dest:%s reason:%s",
-                    elapsedTime, service.getService(), service.getDest(), reason));
-        });
+        StringBuilder output = new StringBuilder();
+        servicesFilteredOut.forEach((service, reason) -> output.append(format("(service:%s dest:%s reason:%s) ",
+                service.getService(), service.getDest(), reason)));
+        logger.debug(output.toString());
     }
 
     private ServiceReason checkServiceHeuristics(GraphBranchState branchState, TramRelationship incoming, int elapsedTime, TramGoesToRelationship tramGoesToRelationship) {

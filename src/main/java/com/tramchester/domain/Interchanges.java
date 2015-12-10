@@ -14,20 +14,21 @@ public class Interchanges {
     public static final String ST_WS_ROAD = "9400ZZMASTW";
     public static final String VICTORIA = "9400ZZMAVIC";
     public static final String DEANSGATE = "9400ZZMAGMX";
-    // not an official interchanges but several services terminate/branch here
     public static final String PICCADILLY = "9400ZZMAPIC";
     public static final String HARBOURCITY = "9400ZZMAHCY";
+    public static final String SHAW_AND_CROMPTON = "9400ZZMASHA";
 
-
-    private static final Set<String> interchanges = new HashSet<>(Arrays.asList(CORNBROOK,
+    private static final Set<String> interchanges = new HashSet<>(Arrays.asList(
+            CORNBROOK,
             // ST_PETERS_SQUARE, closed until 2016
             PIC_GARDENS,
             TRAF_BAR,
             ST_WS_ROAD,
             VICTORIA,
-            PICCADILLY,
-            HARBOURCITY,
-            DEANSGATE));
+            PICCADILLY, // not official interchange, but some routes terminate here
+            HARBOURCITY, // not official, but eccles services and branch here to media city
+            DEANSGATE,
+            SHAW_AND_CROMPTON));
 
     public static boolean has(Station station) {
         // TODO changes for Buses

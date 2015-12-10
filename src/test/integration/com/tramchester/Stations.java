@@ -23,7 +23,10 @@ public class Stations {
     public static String Broadway = "9400ZZMABWY";
     public static String PiccadilyGardens = "9400ZZMAPGD";
     public static String StPetersSquare = "9400ZZMASTP";
+    public static String ExchangeSquare = "9400ZZMAEXS";
+    public static String Victoria = "9400ZZMAVIC";
 
-    public static String[] EndOfTheLine = new String[]{Altrincham, ManAirport, Eccles, EastDidsbury, Ashton, Rochdale, Bury};
+    public static String[] EndOfTheLine = new String[]{Altrincham, ManAirport, Eccles, EastDidsbury, Ashton, Rochdale,
+            Bury, ExchangeSquare};
 
 }
