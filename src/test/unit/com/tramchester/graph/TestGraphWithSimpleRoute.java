@@ -1,6 +1,8 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -36,7 +38,9 @@ public class TestGraphWithSimpleRoute {
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData);
         builder.buildGraph();
 
-        calculator = new RouteCalculator(graphDBService);
+        NodeFactory nodeFactory = new NodeFactory();
+        RelationshipFactory relationshipFactory = new RelationshipFactory();
+        calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory);
     }
 
     @Before

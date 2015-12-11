@@ -26,6 +26,7 @@ public class TestTramRelationship extends EasyMockSupport {
 
     @Test
     public void shouldHaveBoradingRelationship() {
+        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.BOARD);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(45);
 
@@ -38,6 +39,7 @@ public class TestTramRelationship extends EasyMockSupport {
 
     @Test
     public void shouldHaveDepartRelationship() {
+        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.DEPART);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(43);
 
@@ -50,6 +52,7 @@ public class TestTramRelationship extends EasyMockSupport {
 
     @Test
     public void shouldHaveInterchangeBoardRelationship() {
+        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.INTERCHANGE_BOARD);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(44);
 
@@ -64,6 +67,7 @@ public class TestTramRelationship extends EasyMockSupport {
 
     @Test
     public void shouldHaveInterchangeDepartsRelationship() {
+        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.INTERCHANGE_DEPART);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(55);
 
@@ -81,6 +85,7 @@ public class TestTramRelationship extends EasyMockSupport {
         boolean[] days = new boolean[]{true, false, true, false};
         int[] times = new int[]{10, 20, 30, 40};
 
+        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.TRAM_GOES_TO);
 
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(42);

@@ -68,7 +68,7 @@ jar {
 task stage(dependsOn: ['clean', 'installApp'])
 
 clean {
-	delete 'int_test_tramchester.db' , 'data/tram/data.zip'
+    delete 'int_test_tramchester.db' , 'data/tram/data.zip'
     delete fileTree('data/tram') {
         include '*.txt'
     }
@@ -98,11 +98,11 @@ sourceSets {
     }
 }
 
-test {
-    onOutput { descriptor, event ->
-        logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message)
-    }
-}
+//test {
+//    onOutput { descriptor, event ->
+//        logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message)
+//    }
+//}
 
 task uploadData(dependsOn: ['cfnassist', 'pullData']) << {
     antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {

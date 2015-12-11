@@ -12,8 +12,6 @@ public class Route {
     private String agency;
     private Set<Service> services = new HashSet<>();
 
-
-
     public Route(String id, String code, String name, String agency) {
         this.id = id;
         this.code = code;
@@ -46,5 +44,21 @@ public class Route {
 
     public String getAgency() {
         return agency;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Route route = (Route) o;
+
+        return !(id != null ? !id.equals(route.id) : route.id != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

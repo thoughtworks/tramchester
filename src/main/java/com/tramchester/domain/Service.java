@@ -5,9 +5,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.tramchester.domain.DaysOfWeek.*;
 
@@ -16,7 +14,24 @@ public class Service {
     private final String routeId;
 
     private String serviceId;
-    private List<Trip> trips = new ArrayList<>();
+    private Set<Trip> trips = new LinkedHashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Service service = (Service) o;
+
+        return !(serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return serviceId != null ? serviceId.hashCode() : 0;
+    }
+
     private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
     private TramServiceDate startDate;
     private TramServiceDate endDate;
@@ -30,7 +45,7 @@ public class Service {
         return serviceId;
     }
 
-    public List<Trip> getTrips() {
+    public Set<Trip> getTrips() {
         return trips;
     }
 

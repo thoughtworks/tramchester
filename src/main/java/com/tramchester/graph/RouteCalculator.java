@@ -8,8 +8,8 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
-import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
@@ -33,11 +33,10 @@ public class RouteCalculator extends StationIndexs {
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
 
-    public RouteCalculator(GraphDatabaseService db) {
+    public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory) {
         super(db, true);
-        nodeFactory = new NodeFactory();
-        RelationshipFactory routeFactory = new RelationshipFactory();
-        pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, routeFactory, nodeFactory);
+        this.nodeFactory = nodeFactory;
+        pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);
     }
 
     public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek,

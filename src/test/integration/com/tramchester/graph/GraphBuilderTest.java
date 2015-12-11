@@ -18,6 +18,7 @@ import org.junit.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -136,7 +137,7 @@ public class GraphBuilderTest {
         Service rawService = transportData.getService(svcId);
 
         // number of times tram runs should match up with number of trips from velopark
-        List<Trip> trips = rawService.getTrips();
+        Set<Trip> trips = rawService.getTrips();
         List<Trip> callingTrips = new LinkedList<>();
         trips.forEach(trip -> trip.getStops().forEach(stop -> {
             if (stop.getStation().getId().equals(Stations.VeloPark)) callingTrips.add(trip);

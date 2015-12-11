@@ -35,7 +35,6 @@ public class Stop {
         return minutesFromMidnight;
     }
 
-
     @Override
     public String toString() {
         return "Stop{" +

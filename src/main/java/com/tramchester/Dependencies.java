@@ -12,6 +12,8 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.TransportDataFromFiles;
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.mappers.JourneyResponseMapper;
@@ -58,11 +60,14 @@ public class Dependencies {
             logger.info("Data cleansing finished");
         }
         logger.info("Creating dependencies");
+        // caching on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(ClosedStations.class);
         picoContainer.addComponent(VersionResource.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
+        picoContainer.addComponent(NodeFactory.class);
+        picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(JourneyResponseMapper.class);
 

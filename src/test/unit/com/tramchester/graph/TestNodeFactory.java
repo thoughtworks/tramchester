@@ -25,6 +25,7 @@ public class TestNodeFactory extends EasyMockSupport {
 
     @Test
     public void shouldGetNodeOfCorrectTypeStation() {
+        EasyMock.expect(node.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.STATION);
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn("stationName");
@@ -38,6 +39,7 @@ public class TestNodeFactory extends EasyMockSupport {
 
     @Test
     public void shouldGetNodeOfCorrectTypeRouteStation() {
+        EasyMock.expect(node.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.ROUTE_STATION);
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME)).andReturn("routeName");

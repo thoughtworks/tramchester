@@ -8,10 +8,8 @@ import com.tramchester.domain.*;
 import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.Timeout;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -23,6 +21,9 @@ import static org.junit.Assert.assertTrue;
 public class JourneyPlannerTest extends  JourneyPlannerHelper {
     private static Dependencies dependencies;
     private TramServiceDate today;
+
+    @Rule
+    public Timeout globalTimeout = Timeout.seconds(10*60);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -167,6 +168,4 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
             }
         }
     }
-
-
 }

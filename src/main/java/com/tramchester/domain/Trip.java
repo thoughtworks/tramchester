@@ -11,10 +11,25 @@ import java.util.Map;
 public class Trip {
     private static final Logger logger = LoggerFactory.getLogger(Trip.class);
     private final String serviceId;
-
     private String tripId;
     private String headSign;
     private Map<String, Stop> stops = new LinkedHashMap<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Trip trip = (Trip) o;
+
+        return !(tripId != null ? !tripId.equals(trip.tripId) : trip.tripId != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return tripId != null ? tripId.hashCode() : 0;
+    }
 
     public Trip(String tripId, String headSign, String serviceId) {
         this.tripId = tripId;

@@ -27,7 +27,7 @@ public class TransportDataImporterTest {
         assertThat(service.getServiceId()).isEqualTo("Serv000001");
         assertThat(service.getTrips()).hasSize(20);
 
-        Trip trip = service.getTrips().get(0);
+        Trip trip = service.getTrips().stream().findFirst().get();
         assertThat(trip.getTripId()).isEqualTo("Trip000001");
         assertThat(trip.getStops()).hasSize(9);
 
