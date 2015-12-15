@@ -62,7 +62,6 @@ public class TestTramRelationship extends EasyMockSupport {
     }
 
     private void setRelationshipExpectation(TransportRelationshipTypes relationshipType, int cost) {
-        //EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
         EasyMock.expect(relationship.getType()).andReturn(relationshipType);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(cost);
     }

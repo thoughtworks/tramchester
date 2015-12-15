@@ -7,7 +7,7 @@ import org.neo4j.graphdb.Relationship;
 public abstract class TramCostRelationship implements TramRelationship {
     private int cost = -1;
     private String id = null;
-    private Relationship graphRelationship;
+    protected Relationship graphRelationship;
 
     public TramCostRelationship(int cost, String id) {
         this.cost = cost;
