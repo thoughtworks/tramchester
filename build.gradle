@@ -69,7 +69,7 @@ task stage(dependsOn: ['clean', 'installApp'])
 
 test {
     // t2.micro has 1gb
-    //maxHeapSize = "1g"
+    maxHeapSize = "2g"
 }
 
 
@@ -103,12 +103,6 @@ sourceSets {
         }
     }
 }
-
-//test {
-//    onOutput { descriptor, event ->
-//        logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message)
-//    }
-//}
 
 task uploadData(dependsOn: ['cfnassist', 'pullData']) << {
     antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
