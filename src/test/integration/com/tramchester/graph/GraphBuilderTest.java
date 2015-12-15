@@ -14,6 +14,8 @@ import com.tramchester.graph.Relationships.DepartRelationship;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.junit.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -31,6 +33,8 @@ public class GraphBuilderTest {
     //public static final String ASH_TO_ECCLES_SVC = "MET:MET4:O:"; // not while st peters square is close
     public static final String ASH_TO_MANCHESTER = "MET:MET3:O:";
     public static final String MAN_TO_ECCLES = "MET:MET4:O:";
+    private GraphDatabaseService service;
+    private Transaction transaction;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -42,6 +46,13 @@ public class GraphBuilderTest {
     public void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
         transportData = dependencies.get(TransportDataFromFiles.class);
+        service = dependencies.get(GraphDatabaseService.class);
+        transaction = service.beginTx();
+    }
+
+    @After
+    public void afterEachTestRuns() {
+        transaction.close();
     }
 
     @AfterClass
