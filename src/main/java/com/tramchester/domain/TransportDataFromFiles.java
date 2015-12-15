@@ -15,44 +15,45 @@ public class TransportDataFromFiles implements TransportData {
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
     private FeedInfo feedInfo = null;
 
-    public TransportDataFromFiles(Stream<StopData> stopDataList, Stream<RouteData> routeDataList, Stream<TripData> tripDataList,
-                                  Stream<StopTimeData> stopTimeDataList, Stream<CalendarData> calendarDataList,
-                                  Stream<FeedInfo> feedInfoData)  {
-        Optional<FeedInfo> maybeFeedInfo = feedInfoData.limit(1).findFirst();
+    public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
+                                  Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
+                                  Stream<FeedInfo> feedInfo)  {
+        logger.info("Loading tram data from files");
+        Optional<FeedInfo> maybeFeedInfo = feedInfo.limit(1).findFirst();
         if (maybeFeedInfo.isPresent()) {
-            feedInfo = maybeFeedInfo.get();
+            this.feedInfo = maybeFeedInfo.get();
         } else {
             logger.warn("Did not find feedinfo");
 
         }
 
-        stopDataList.forEach((stopData) -> {
-            String stopId = stopData.getId();
+        stops.forEach((stop) -> {
+            String stopId = stop.getId();
             String stationId = Station.formId(stopId);
             if (!stations.keySet().contains(stationId)) {
-                Station station = new Station(stopId, stopData.getName(),
-                        stopData.getLatitude(), stopData.getLongitude());
+                Station station = new Station(stopId, stop.getName(),
+                        stop.getLatitude(), stop.getLongitude());
                 //logger.info("Add station with id " + stationId);
                 stations.put(stationId, station);
             }
-        } );
+        });
 
-        routeDataList.forEach((routeData) -> {
+        routes.forEach((routeData) -> {
             Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName(), routeData.getAgency());
-            routes.put(route.getId(), route);
-        } );
+            this.routes.put(route.getId(), route);
+        });
 
-        tripDataList.forEach((tripData) -> {
+        trips.forEach((tripData) -> {
             Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), tripData.getServiceId());
             Service service = getOrInsertService(tripData.getServiceId(), tripData.getRouteId());
-            Route route = routes.get(tripData.getRouteId());
+            Route route = this.routes.get(tripData.getRouteId());
             if (route != null) {
                 service.addTrip(trip);
                 route.addService(service);
             }
         });
 
-        stopTimeDataList.forEach((stopTimeData) -> {
+        stopTimes.forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
 
             String stopId = stopTimeData.getStopId();
@@ -68,28 +69,29 @@ public class TransportDataFromFiles implements TransportData {
             trip.addStop(stop);
         });
 
-        calendarDataList.forEach((calendar) -> {
+        calendars.forEach((calendar) -> {
             Service service = services.get(calendar.getServiceId());
 
             if (service != null) {
-                    service.setDays(
-                            calendar.isMonday(),
-                            calendar.isTuesday(),
-                            calendar.isWednesday(),
-                            calendar.isThursday(),
-                            calendar.isFriday(),
-                            calendar.isSaturday(),
-                            calendar.isSunday()
-                    );
+                service.setDays(
+                        calendar.isMonday(),
+                        calendar.isTuesday(),
+                        calendar.isWednesday(),
+                        calendar.isThursday(),
+                        calendar.isFriday(),
+                        calendar.isSaturday(),
+                        calendar.isSunday()
+                );
                 service.setServiceDateRange(calendar.getStartDate(), calendar.getEndDate());
             }
-        } );
+        });
 
         // update svcs where calendar data is missing
         services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
             logger.warn(String.format("Service %s is missing calendar information", svc.getServiceId()));
             svc.setDays(false, false, false, false, false, false, false);
         });
+        logger.info("Data load is complete");
 
     }
 

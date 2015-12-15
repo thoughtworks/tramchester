@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ public class Service {
         return routeId;
     }
 
-    public void setServiceDateRange(DateTime startDate, DateTime endDate) {
+    public void setServiceDateRange(LocalDate startDate, LocalDate endDate) {
         this.startDate = new TramServiceDate(startDate);
         this.endDate = new TramServiceDate(endDate);
     }

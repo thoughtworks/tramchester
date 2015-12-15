@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.data;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 public class CalendarData {
     private final String serviceId;
@@ -11,11 +12,11 @@ public class CalendarData {
     private final boolean friday;
     private final boolean saturday;
     private final boolean sunday;
-    private final DateTime start;
-    private final DateTime end;
+    private final LocalDate start;
+    private final LocalDate end;
 
     public CalendarData(String serviceId, boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
-                        boolean friday, boolean saturday, boolean sunday, DateTime start, DateTime end) {
+                        boolean friday, boolean saturday, boolean sunday, LocalDate start, LocalDate end) {
 
         this.serviceId = serviceId;
         this.monday = monday;
@@ -61,11 +62,11 @@ public class CalendarData {
         return sunday;
     }
 
-    public DateTime getEndDate() {
+    public LocalDate getEndDate() {
         return end;
     }
 
-    public DateTime getStartDate() {
+    public LocalDate getStartDate() {
         return start;
     }
 

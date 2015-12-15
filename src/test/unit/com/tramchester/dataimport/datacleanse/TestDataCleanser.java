@@ -6,6 +6,7 @@ import com.tramchester.domain.FeedInfo;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
@@ -131,8 +132,8 @@ public class TestDataCleanser extends EasyMockSupport {
         svcIds.add("svcIDC");
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(("yyyyMMdd"));
-        DateTime start = DateTime.parse("20151025", dateFormatter);
-        DateTime end = DateTime.parse("20151026", dateFormatter);
+        LocalDate start = LocalDate.parse("20151025", dateFormatter);
+        LocalDate end = LocalDate.parse("20151026", dateFormatter);
         CalendarData dayA = new CalendarData("svcIDA", false, false, false, false, false, false, false, start, end);
         CalendarData dayB = new CalendarData("svcIDB", true, true, true, true, true, true, true, start, end);
         CalendarData dayC = new CalendarData("svcIDC", false, true, false, false, false, false, false, start, end);

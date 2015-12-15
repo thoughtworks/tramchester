@@ -6,6 +6,7 @@ import com.tramchester.graph.Relationships.TramRelationship;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Relationship;
@@ -26,9 +27,7 @@ public class TestTramRelationship extends EasyMockSupport {
 
     @Test
     public void shouldHaveBoradingRelationship() {
-        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
-        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.BOARD);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(45);
+        setRelationshipExpectation(TransportRelationshipTypes.BOARD, 45);
 
         replayAll();
         TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
@@ -39,9 +38,7 @@ public class TestTramRelationship extends EasyMockSupport {
 
     @Test
     public void shouldHaveDepartRelationship() {
-        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
-        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.DEPART);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(43);
+        setRelationshipExpectation(TransportRelationshipTypes.DEPART, 43);
 
         replayAll();
         TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
@@ -52,9 +49,8 @@ public class TestTramRelationship extends EasyMockSupport {
 
     @Test
     public void shouldHaveInterchangeBoardRelationship() {
-        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
-        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.INTERCHANGE_BOARD);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(44);
+
+        setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_BOARD, 44);
 
         replayAll();
         TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
@@ -65,11 +61,15 @@ public class TestTramRelationship extends EasyMockSupport {
         verifyAll();
     }
 
+    private void setRelationshipExpectation(TransportRelationshipTypes relationshipType, int cost) {
+        //EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
+        EasyMock.expect(relationship.getType()).andReturn(relationshipType);
+        EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(cost);
+    }
+
     @Test
     public void shouldHaveInterchangeDepartsRelationship() {
-        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
-        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.INTERCHANGE_DEPART);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(55);
+        setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_DEPART, 55);
 
         replayAll();
         TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
@@ -85,10 +85,7 @@ public class TestTramRelationship extends EasyMockSupport {
         boolean[] days = new boolean[]{true, false, true, false};
         int[] times = new int[]{10, 20, 30, 40};
 
-        EasyMock.expect(relationship.getId()).andReturn(Long.valueOf(4242));
-        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.TRAM_GOES_TO);
-
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andReturn(42);
+        setRelationshipExpectation(TransportRelationshipTypes.TRAM_GOES_TO, 42);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("service99");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.DAYS)).andReturn(days);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.TIMES)).andReturn(times);
@@ -103,8 +100,8 @@ public class TestTramRelationship extends EasyMockSupport {
         assertEquals("dest", tramRelationship.getDest());
         assertSame(times, tramRelationship.getTimesTramRuns());
         assertSame(days, tramRelationship.getDaysTramRuns());
-        assertEquals(new DateTime(2015, 10, 25, 0, 0), tramRelationship.getStartDate().getDate());
-        assertEquals(new DateTime(2016, 11, 24, 0, 0), tramRelationship.getEndDate().getDate());
+        assertEquals(new LocalDate(2015, 10, 25), tramRelationship.getStartDate().getDate());
+        assertEquals(new LocalDate(2016, 11, 24), tramRelationship.getEndDate().getDate());
         verifyAll();
     }
 }

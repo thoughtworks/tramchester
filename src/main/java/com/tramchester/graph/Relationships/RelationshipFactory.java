@@ -3,22 +3,19 @@ package com.tramchester.graph.Relationships;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class RelationshipFactory {
-    Map<Long, TramRelationship> theCache;
+//    Map<Long, TramRelationship> theCache;
 
-    public RelationshipFactory() {
-        theCache = new HashMap<>();
-    }
+//    public RelationshipFactory() {
+//        theCache = new HashMap<>();
+//    }
 
     public TramRelationship getRelationship(Relationship graphRelationship) {
-        long id = graphRelationship.getId();
+//        long id = graphRelationship.getId();
 
-        if (theCache.containsKey(id)) {
-            return theCache.get(id);
-        }
+//        if (theCache.containsKey(id)) {
+//            return theCache.get(id);
+//        }
         TramRelationship result;
         String relationshipType = graphRelationship.getType().name();
         if (relationshipType.equals(TransportRelationshipTypes.TRAM_GOES_TO.toString())) {
@@ -34,7 +31,7 @@ public class RelationshipFactory {
         } else {
             throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
         }
-        theCache.put(id,result);
+//        theCache.put(id,result);
         return result;
     }
 }

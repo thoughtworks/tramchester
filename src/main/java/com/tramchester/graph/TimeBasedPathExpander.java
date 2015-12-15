@@ -8,6 +8,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
@@ -122,7 +123,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
 
     private boolean operatesOnQueryDate(TramServiceDate startDate, TramServiceDate endDate, TramServiceDate queryDate) {
         // start date and end date are inclusive
-        DateTime date = queryDate.getDate();
+        LocalDate date = queryDate.getDate();
         if  (date.isAfter(startDate.getDate()) && date.isBefore(endDate.getDate())) {
             return true;
         }

@@ -8,6 +8,7 @@ import com.tramchester.domain.*;
 import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.Timeout;
 
@@ -33,7 +34,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
-        today = new TramServiceDate(DateTime.now());
+        today = new TramServiceDate(LocalDate.now());
         planner = dependencies.get(JourneyPlannerResource.class);
     }
 

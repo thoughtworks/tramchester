@@ -67,6 +67,12 @@ jar {
 
 task stage(dependsOn: ['clean', 'installApp'])
 
+test {
+    // t2.micro has 1gb
+    //maxHeapSize = "1g"
+}
+
+
 clean {
     delete 'int_test_tramchester.db' , 'data/tram/data.zip'
     delete fileTree('data/tram') {

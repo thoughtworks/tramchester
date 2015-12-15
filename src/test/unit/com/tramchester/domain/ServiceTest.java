@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -14,8 +15,8 @@ public class ServiceTest {
 
         Service service = new Service("", "");
 
-        DateTime startDate = new DateTime(2014, 10, 5, 0, 0);
-        DateTime endDate = new DateTime(2014, 12, 25, 0, 0);
+        LocalDate startDate = new LocalDate(2014, 10, 5);
+        LocalDate endDate = new LocalDate(2014, 12, 25);
 
         service.setServiceDateRange(startDate, endDate);
 

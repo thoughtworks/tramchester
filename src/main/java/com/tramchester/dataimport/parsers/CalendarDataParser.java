@@ -3,6 +3,7 @@ package com.tramchester.dataimport.parsers;
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.CalendarData;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
@@ -16,13 +17,19 @@ public class CalendarDataParser implements CSVEntryParser<CalendarData> {
         boolean friday = data[5].equals("1");
         boolean saturday = data[6].equals("1");
         boolean sunday = data[7].equals("1");
-        DateTime start = new DateTime();
+        LocalDate start = new LocalDate();
         if (isNumeric(data[8])) {
-            start = new DateTime(Integer.parseInt(data[8].substring(0, 4)), Integer.parseInt(data[8].substring(4, 6)), Integer.parseInt(data[8].substring(6, 8)), 0, 0, 0);
+            int year = Integer.parseInt(data[8].substring(0, 4));
+            int monthOfYear = Integer.parseInt(data[8].substring(4, 6));
+            int dayOfMonth = Integer.parseInt(data[8].substring(6, 8));
+            start = new LocalDate(year, monthOfYear, dayOfMonth);
         }
-        DateTime end = new DateTime();
+        LocalDate end = new LocalDate();
         if (isNumeric(data[9])) {
-            end = new DateTime(Integer.parseInt(data[9].substring(0, 4)), Integer.parseInt(data[9].substring(4, 6)), Integer.parseInt(data[9].substring(6, 8)), 0, 0, 0);
+            int year = Integer.parseInt(data[9].substring(0, 4));
+            int monthOfYear = Integer.parseInt(data[9].substring(4, 6));
+            int dayOfMonth = Integer.parseInt(data[9].substring(6, 8));
+            end = new LocalDate(year, monthOfYear, dayOfMonth);
         }
         return new CalendarData(serviceId, monday, tuesday, wednesday, thursday, friday, saturday, sunday, start, end);
     }

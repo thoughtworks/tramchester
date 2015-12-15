@@ -9,6 +9,7 @@ import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.representations.JourneyPlanRepresentation;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class JourneyPlannerResource {
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId, @QueryParam("departureTime") String departureTime) throws UnknownStationException {
         DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
         // today expose this as a parameter
-        TramServiceDate queryDate = new TramServiceDate(DateTime.now());
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
         JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, departureTime, dayOfWeek, queryDate);
         Response response = Response.ok(planRepresentation).build();
         return response;

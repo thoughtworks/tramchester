@@ -117,7 +117,7 @@ public class Dependencies {
     public void close() {
         GraphDatabaseService graphService = picoContainer.getComponent(GraphDatabaseService.class);
         if (graphService==null) {
-                logger.error("Unable to obtain GraphDatabaseService");
+                logger.error("Unable to obtain GraphDatabaseService for shutdown");
         } else {
             if (graphService.isAvailable(1)) {
                 logger.info("Shutting down graphDB");

@@ -6,11 +6,12 @@ import com.tramchester.Stations;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.UnknownStationException;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.*;
 
 import static org.junit.Assert.fail;
 
+@Ignore
 public class StPeterClosureTests extends JourneyPlannerHelper {
     private static Dependencies dependencies;
     private TramServiceDate today;
@@ -23,7 +24,7 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
-        today = new TramServiceDate(DateTime.now());
+        today = new TramServiceDate(LocalDate.now());
         planner = dependencies.get(JourneyPlannerResource.class);
     }
 

@@ -5,6 +5,7 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -100,8 +101,8 @@ public class TestGraphWithSimpleRoute {
             serviceA.setDays(true, false, false, false, false, false, false);
             serviceB.setDays(true, false, false, false, false, false, false);
 
-            DateTime startDate = new DateTime(2014, 02, 10, 0, 0);
-            DateTime endDate = new DateTime(2015, 8, 15, 0, 0);
+            LocalDate startDate = new LocalDate(2014, 02, 10);
+            LocalDate endDate = new LocalDate(2015, 8, 15);
             serviceA.setServiceDateRange(startDate, endDate);
             serviceB.setServiceDateRange(startDate, endDate);
 
