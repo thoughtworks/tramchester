@@ -23,21 +23,22 @@
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
             <div ng-repeat="journey in journeyPlan.journeys | orderBy:journeyIndex" ng-click="showJourneyDetails(journey.journeyIndex)">
-                <div class="panel {{journey.stages[0].tramRouteId}}">
-                    <div class="panel-heading">{{journey.stages[0].route}} {{journey.stages[0].mode}} Line</div>
+                <div class="panel {{journey.stages[0].tramRouteId}}" id="journeyPanel{{journey.journeyIndex}}">
+                    <div class="panel-heading" id="journeyHeading{{journey.journeyIndex}}">{{journey.stages[0].route}} {{journey.stages[0].mode}} Line</div>
                     <!-- List group -->
                     <div class="list-group">
-                        <a ng-click="showJourneyDetails(journey.journeyIndex)" class="list-group-item">
+                        <a ng-click="showJourneyDetails(journey.journeyIndex)" class="list-group-item" id="journeyBegin{{journey.journeyIndex}}">
                             <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.stages[0].beginStop.name}}</strong>
                             <span class="glyphicon glyphicon-chevron-right pull-right"></span>
                         </a></div>
-                    <ul class="list-group">
-                        <li class="list-group-item"><span class="glyphicon glyphicon-random pull-right"></span>
+                    <ul class="list-group" id="journeySummary{{journey.journeyIndex}}">
+                        <li class="list-group-item">
+                            <span class="glyphicon glyphicon-random pull-right"></span>
                             {{journey.summary}}
                         </li>
                     </ul>
                     <ul class="list-group">
-                        <li class="list-group-item">
+                        <li class="list-group-item" id="journeyEnd{{journey.journeyIndex}}">
                             <strong>{{journey.expectedArrivalTime}}</strong> Arrive at <strong>{{journey.stages[journey.stages.length
                             - 1].endStop.name}}</strong>
                     </ul>

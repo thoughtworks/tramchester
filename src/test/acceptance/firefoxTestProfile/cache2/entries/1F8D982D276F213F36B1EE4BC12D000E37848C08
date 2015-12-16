@@ -1,0 +1,579 @@
+<style type="text/css">
+#snippetContainer div.snippet img.icon {
+  margin: -0.75em 1em 0 0;
+  float: left;
+}
+
+    .snippet {
+       position: relative;
+   }
+
+   .snippet .icon {
+       position: absolute;
+       right: 400px;
+       top: 5px;
+       height: 50px;
+   }
+
+   .snippet p {
+       display: table-cell;
+       height: 40px;
+       padding-left: 80px;
+       vertical-align: middle;
+       width: 400px;
+   }
+ 
+ </style><script type="text/javascript">
+//<![CDATA[
+  // Generated on 2015-12-16 17:20:20.679813
+  // Included snippets:
+  //  - 5440
+  //  - 5484
+  //  - 5140
+  var ABOUTHOME_SNIPPETS = JSON.parse('[{\u0022code\u0022: \u0022\u003Cdiv data\u002Dsnippet\u002Did\u003D\u005C\u00225440\u005C\u0022 data\u002Dweight\u003D\u005C\u002233\u005C\u0022 data\u002Dcampaign\u003D\u005C\u0022smarton\u005C\u0022 class\u003D\u005C\u0022snippet\u002Dmetadata\u005C\u0022\u003E\u003Cstyle\u003E\u005Cn#snippetContainer div.snippet {\u005Cn   margin: 10px 5px\u003B\u005Cn}\u005Cn\u005Cn#snippetContainer div.snippet img.icon {\u005Cn    margin: 5px\u003B\u005Cn    float: none\u003B\u005Cn}\u005Cn\u005Cn.snippet p {\u005Cn    display: inline\u002Dblock\u003B\u005Cn    padding\u002Dleft: 0\u003B\u005Cn    width: auto\u003B\u005Cn    max\u002Dwidth: 380px\u003B\u005Cn    height: auto\u003B\u005Cn    vertical\u002Dalign: inherit\u003B\u005Cn}\u005Cn\u005Cn.snippet .icon {\u005Cn    position: relative\u003B\u005Cn    right: 0\u003B\u005Cn    top: 0\u003B\u005Cn    display: inline\u002Dblock\u003B\u005Cn    height: auto\u003B\u005Cn    max\u002Dheight: 64px\u003B\u005Cn    vertical\u002Dalign: top\u003B\u005Cn}\u005Cn\u005Cn\u005Cn\u005Cn\u005Cn\u003C/style\u003E\u005Cn  \u003Cdiv class\u003D\u005C\u0022snippet\u005C\u0022 id\u003D\u005C\u0022simple\u002Dsnippet\u005C\u0022\u003E\u005Cn    \u005Cn          \u003Ca href\u003D\u005C\u0022https://www.mozilla.org/teach/smarton/security/?utm_source\u003Ddesktop\u002Dsnippet\u0026amp\u003Butm_medium\u003Dsnippet\u0026amp\u003Butm_content\u003Dsmarton\u0026amp\u003Butm_term\u003D5440\u0026amp\u003Butm_campaign\u003Dsmarton\u005C\u0022\u003E\u005Cn              \u003Cimg class\u003D\u005C\u0022icon\u005C\u0022 src\u003D\u005C\u0022data:image/svg+xml\u003Bbase64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNjQgNjQiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDY0IDY0IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8Zz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNNTYuNiwyNy41YzAtMC43LDAtMS4zLTAuMS0yYy0wLjEtMC41LTAuNS0wLjktMS0wLjhjLTAuNSwwLjEtMC45LDAuNS0wLjgsMWMwLjEsMC42LDAuMSwxLjIsMC4xLDEuOWwwLDAgICAgYzAsMCwwLjIsNC4yLTAuOCw5LjdjLTAuMSwwLjUsMC4yLDEsMC44LDEuMWMwLjEsMCwwLjEsMCwwLjIsMGMwLjQsMCwwLjgtMC4zLDAuOS0wLjhDNTYuOCwzMiw1Ni43LDI3LjgsNTYuNiwyNy41eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0xMi4zLDE3YzAuNSwwLjMsMSwwLjEsMS4zLTAuM2wwLjEtMC4xQzE3LjYsOS45LDI0LjYsNS45LDMyLjQsNS44YzkuNC0wLjEsMTcuOSw1LjcsMjEsMTQuNiAgICBjMC4xLDAuNCwwLjUsMC42LDAuOSwwLjZjMC4xLDAsMC4yLDAsMC4zLTAuMWMwLjUtMC4yLDAuNy0wLjcsMC42LTEuMmMtMy40LTkuNi0xMi42LTE2LTIyLjgtMTUuOGMtOC41LDAuMS0xNi4xLDQuNS0yMC4zLDExLjcgICAgTDEyLDE1LjdDMTEuNywxNi4yLDExLjksMTYuOCwxMi4zLDE3eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik05LjgsMjguOEM5LjgsMjguOCw5LjgsMjguOCw5LjgsMjguOGMwLjUsMCwxLTAuNCwwLjktMWMwLTMsMC41LTUuOSwxLjctOC43YzAuMi0wLjUsMC0xLTAuNS0xLjIgICAgYy0wLjUtMC4yLTEsMC0xLjIsMC41Yy0xLjIsMy0xLjgsNi4xLTEuOCw5LjRDOC44LDI4LjQsOS4zLDI4LjgsOS44LDI4Ljh6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTMyLjcsMzIuNEMzMi43LDMyLjQsMzIuNywzMi40LDMyLjcsMzIuNGMwLjUsMCwxLTAuNCwxLTAuOWMwLTAuMSwwLTIuNSwwLTMuNmMwLTAuNS0wLjQtMC45LTEtMC45ICAgIGMtMC41LDAtMC45LDAuNC0wLjksMWMwLDEuMSwwLDMuNiwwLDMuNkMzMS44LDMyLDMyLjIsMzIuNCwzMi43LDMyLjR6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTIzLjcsNTEuOWMtMC40LTAuNC0xLTAuNC0xLjMsMGMtMC42LDAuNi0zLjcsMy42LTUuMyw0LjdjLTAuNCwwLjMtMC41LDAuOS0wLjIsMS4zICAgIGMwLjIsMC4zLDAuNSwwLjQsMC44LDAuNGMwLjIsMCwwLjQtMC4xLDAuNi0wLjJjMS44LTEuMyw1LjEtNC41LDUuNS00LjlDMjQuMSw1Mi44LDI0LjEsNTIuMiwyMy43LDUxLjl6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTE5LjYsNTJjLTAuMy0wLjQtMC45LTAuNC0xLjMtMC4xYy0xLDAuOS0yLjQsMS45LTMuNCwyLjZjLTAuNCwwLjMtMC42LDAuOS0wLjMsMS4zICAgIGMwLjIsMC4zLDAuNSwwLjQsMC44LDAuNGMwLjIsMCwwLjMsMCwwLjUtMC4xYzEuMS0wLjcsMi42LTEuOCwzLjctMi43QzE5LjksNTMsMjAsNTIuNCwxOS42LDUyeiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0zNS42LDMyLjRDMzUuNiwzMi40LDM1LjYsMzIuNCwzNS42LDMyLjRjMC41LDAsMS0wLjQsMS0wLjljMC0xLDAuMS0yLjEsMC0zLjFsMC0wLjYgICAgYzAtMi4xLTEuNy0zLjgtMy44LTMuOGMwLDAsMCwwLTAuMSwwYy0yLjEsMC0zLjgsMS44LTMuOCwzLjljMCwwLDAsMi41LDAsMy41YzAsMC41LDAuNCwxLDAuOSwxYzAuNSwwLDEtMC40LDEtMC45ICAgIGMwLTEsMC0zLjQsMC0zLjVjMC0xLjEsMC44LTIsMS45LTJjMC41LDAsMSwwLjIsMS40LDAuNWMwLjMsMC4zLDAuNSwwLjcsMC42LDEuMWwwLDAuM2MwLDEsMCwyLjQsMCwzLjUgICAgQzM0LjYsMzEuOSwzNSwzMi4zLDM1LjYsMzIuNHoiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMjcuOSw1My4xYzAuMy0wLjQsMC4zLTEtMC4xLTEuM2MtMC40LTAuMy0xLTAuMy0xLjMsMC4xYy0yLjQsMi44LTQuOSw1LjItNi44LDYuNSAgICBjLTAuNCwwLjMtMC41LDAuOS0wLjMsMS4zYzAuMiwwLjMsMC41LDAuNCwwLjgsMC40YzAuMiwwLDAuNC0wLjEsMC41LTAuMkMyMy41LDU4LDI2LjcsNTQuNSwyNy45LDUzLjF6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTE5LjMsNDguNWMtMC40LTAuNC0xLTAuNC0xLjMsMGMtMS4yLDEuMi0zLjYsMi44LTUuMSwzLjZjLTAuNSwwLjMtMC42LDAuOC0wLjQsMS4zICAgIGMwLjIsMC4zLDAuNSwwLjUsMC44LDAuNWMwLjIsMCwwLjMsMCwwLjUtMC4xYzEuNy0xLDQuMi0yLjYsNS42LTMuOUMxOS43LDQ5LjUsMTkuNyw0OC45LDE5LjMsNDguNXoiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMjguNCwyNS43YzAuMy0wLjQsMC4xLTEtMC4zLTEuM2MtMC40LTAuMy0xLTAuMS0xLjMsMC4zYy0wLjcsMS4yLTAuOCwzLjItMC44LDMuNGMwLDEsMCwzLjIsMCwzLjMgICAgYzAsMC41LDAuNCwwLjksMC45LDAuOWMwLDAsMCwwLDAsMGMwLjUsMCwwLjktMC40LDAuOS0xYzAsMCwwLTIuMywwLTMuM0MyNy45LDI3LjcsMjgsMjYuNCwyOC40LDI1Ljd6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTM4LjQsMzIuM0MzOC40LDMyLjMsMzguNCwzMi4zLDM4LjQsMzIuM2MwLjUsMCwxLTAuNCwxLTAuOWMwLTAuOSwwLjEtMS45LDAuMS0yLjlsMCwwbDAtMC44ICAgIGMwLTEuOC0wLjctMy41LTItNC43Yy0xLjMtMS4yLTMtMS45LTQuOC0xLjljLTEuNSwwLTIuOCwwLjUtNCwxLjRjLTAuNCwwLjMtMC41LDAuOS0wLjIsMS4zYzAuMywwLjQsMC45LDAuNSwxLjMsMC4yICAgIGMwLjgtMC42LDEuOC0xLDIuOS0xYzEuMywwLDIuNSwwLjUsMy40LDEuNGMwLjksMC44LDEuNCwxLjksMS40LDMuMWwwLDAuM2MwLDEuMiwwLDIuNSwwLDMuNkMzNy41LDMxLjksMzcuOSwzMi4zLDM4LjQsMzIuM3oiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMjYuNSw1Ny41YzAuMiwwLjIsMC40LDAuMywwLjYsMC4zYzAuMywwLDAuNS0wLjEsMC43LTAuM2MxLjQtMS40LDIuNi0yLjksMy42LTQuNGMwLjMtMC40LDAuMi0xLTAuMi0xLjMgICAgYy0wLjQtMC4zLTEtMC4yLTEuMywwLjJjLTAuOSwxLjQtMi4xLDIuOC0zLjQsNC4yQzI2LjEsNTYuNSwyNi4xLDU3LjEsMjYuNSw1Ny41eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0yNS42LDU4LjRjLTAuNC0wLjQtMC45LTAuNC0xLjMtMC4xYy0wLjYsMC41LTEuMiwxLTEuOCwxLjVjLTAuNCwwLjMtMC41LDAuOS0wLjIsMS4zICAgIGMwLjIsMC4yLDAuNSwwLjQsMC43LDAuNGMwLjIsMCwwLjQtMC4xLDAuNi0wLjJjMC42LTAuNSwxLjItMSwxLjktMS42QzI1LjksNTkuMywyNiw1OC43LDI1LjYsNTguNHoiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMzQuOSw1M2MwLjMtMC41LDAuMS0xLTAuNC0xLjNjLTAuNS0wLjMtMS0wLjEtMS4zLDAuNGMtMS4zLDIuMy0zLjksNS44LTcuNSw4LjcgICAgYy0wLjQsMC4zLTAuNSwwLjktMC4xLDEuM2MwLjIsMC4yLDAuNSwwLjMsMC43LDAuM2MwLjIsMCwwLjQtMC4xLDAuNi0wLjJDMzEuNyw1OC40LDM0LjIsNTQuMiwzNC45LDUzeiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0xOS41LDQxLjRjMC4zLTAuNCwwLjEtMS0wLjMtMS4zYy0wLjQtMC4zLTEtMC4xLTEuMywwLjNjLTEuNCwyLjMtNC4zLDQuOC03LjksNi41ICAgIGMtMC41LDAuMi0wLjcsMC44LTAuNCwxLjNjMC4yLDAuMywwLjUsMC41LDAuOCwwLjVjMC4xLDAsMC4zLDAsMC40LTAuMUMxNC43LDQ2LjcsMTcuOSw0NCwxOS41LDQxLjR6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTQyLjUsMjAuMWMtMi40LTMuMS02LTQuOC05LjktNC43Yy02LjksMC4xLTEyLjQsNS44LTEyLjMsMTIuNmwwLDAuOWwwLDBjMCwwLjksMCwyLjEsMCwyLjMgICAgYzAsMCwwLDAsMCwwLjFsMCwwLjZsMSwwLjVsMC41LTAuM2MwLjMtMC4yLDAuNC0wLjUsMC40LTAuOGwwLDBjMCwwLDAsMCwwLTAuMWMwLTAuMSwwLTAuMiwwLTAuM2MwLTAuMiwwLTAuNiwwLTAuOSAgICBjMC0wLjYsMC0xLjUsMC0ybDAtMC4zYzAuMS01LjcsNC43LTEwLjMsMTAuNC0xMC40YzMuMywwLDYuNCwxLjQsOC40LDRjMC4zLDAuNCwwLjksMC41LDEuMywwLjJDNDIuNywyMS4xLDQyLjgsMjAuNSw0Mi41LDIwLjF6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTQ0LjEsMzIuM0M0NC4xLDMyLjMsNDQuMSwzMi4zLDQ0LjEsMzIuM2MwLjYsMCwxLTAuNCwxLTAuOWMwLjEtMS41LDAuMS0zLjcsMC4xLTMuOGMwLTEuNi0wLjQtMy4yLTEtNC43ICAgIGMtMC4yLTAuNS0wLjgtMC43LTEuMi0wLjVjLTAuNSwwLjItMC43LDAuOC0wLjUsMS4yYzAuNSwxLjMsMC44LDIuNiwwLjgsNGMwLDAsMCwyLjMtMC4xLDMuN0M0My4yLDMxLjgsNDMuNiwzMi4zLDQ0LjEsMzIuM3oiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMzguMiw1MS43Yy0wLjUtMC4yLTEtMC4xLTEuMywwLjRjLTEuNCwyLjctNSw3LjMtNy40LDkuMmMtMC40LDAuMy0wLjUsMC45LTAuMiwxLjMgICAgYzAuMiwwLjIsMC41LDAuNCwwLjgsMC40YzAuMiwwLDAuNC0wLjEsMC42LTAuMmMyLjctMi4xLDYuNC02LjksOC05LjhDMzguOCw1Mi41LDM4LjcsNTIsMzguMiw1MS43eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0zOC45LDU2LjVjLTAuNC0wLjMtMS0wLjItMS4zLDAuMmMtMS4yLDEuNy0yLjUsMy41LTMuNyw0LjZjLTAuNCwwLjQtMC40LDAuOS0wLjEsMS4zICAgIGMwLjIsMC4yLDAuNCwwLjMsMC43LDAuM2MwLjIsMCwwLjUtMC4xLDAuNi0wLjJjMS40LTEuMywyLjgtMy4yLDQtNC45QzM5LjQsNTcuNCwzOS4zLDU2LjgsMzguOSw1Ni41eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0zOS4zLDU1LjhjMC4yLDAuMSwwLjMsMC4xLDAuNSwwLjFjMC4zLDAsMC42LTAuMiwwLjgtMC41YzAuNi0wLjksMS0xLjgsMS40LTIuNGMwLjMtMC41LDAuMS0xLTAuNC0xLjMgICAgYy0wLjUtMC4zLTEtMC4xLTEuMywwLjRjLTAuNCwwLjctMC44LDEuNS0xLjQsMi40QzM4LjcsNTQuOSwzOC45LDU1LjUsMzkuMyw1NS44eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik00Ny4xLDUyLjljLTAuNS0wLjItMSwwLTEuMiwwLjVjLTAuMSwwLjItMC4zLDAuNi0wLjYsMS4xYy0wLjMsMC41LTAuMSwxLDAuNCwxLjMgICAgYzAuMSwwLjEsMC4zLDAuMSwwLjUsMC4xYzAuMywwLDAuNy0wLjIsMC44LTAuNWMwLjItMC40LDAuNS0wLjksMC42LTEuMkM0Ny44LDUzLjcsNDcuNiw1My4xLDQ3LjEsNTIuOXoiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNNDYuMywzOGMwLjEsMCwwLjEsMCwwLjIsMGMwLjQsMCwwLjgtMC4zLDAuOS0wLjhjMC43LTMuNSwwLjctOCwwLjctOS41bDAtMC42bDAsMCAgICBDNDcuNywxOSw0MSwxMi41LDMyLjcsMTIuNWMtMC4xLDAtMC4yLDAtMC4yLDBjLTQuMSwwLjEtNy45LDEuNy0xMC43LDQuNmMtMi44LDIuOS00LjQsNi43LTQuMywxMC44bDAsMC41YzAsMC41LDAuNCwxLDAuOSwxICAgIGMwLDAsMCwwLDAsMGMwLjUsMCwwLjktMC40LDAuOS0wLjlsMC0wLjVsMCwwYy0wLjEtMy42LDEuMy02LjksMy44LTkuNWMyLjUtMi41LDUuOC0zLjksOS40LTRjMC4xLDAsMC4xLDAsMC4yLDAgICAgYzcuMywwLDEzLjMsNS45LDEzLjQsMTMuMmwwLDAuMmMwLDEuNCwwLDUuOC0wLjYsOS4xQzQ1LjQsMzcuNCw0NS44LDM3LjksNDYuMywzOHoiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMTkuNSwzMS4zYzAtMC41LTAuNC0xLTAuOS0xYy0wLjUsMC0xLDAuNC0xLDAuOUMxNy40LDM4LjEsMTQuNSw0MSw5LDQ0LjFjLTAuNSwwLjMtMC42LDAuOC0wLjQsMS4zICAgIGMwLjIsMC4zLDAuNSwwLjUsMC44LDAuNWMwLjIsMCwwLjMsMCwwLjUtMC4xQzE1LjgsNDIuNCwxOS4zLDM5LDE5LjUsMzEuM3oiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNOS40LDQyLjdjMS4xLTAuNiwyLjEtMS4yLDIuOS0xLjljMC40LTAuMywwLjQtMC45LDAuMS0xLjNDMTIsMzkuMSwxMS40LDM5LDExLDM5LjMgICAgQzEwLjMsNDAsOS40LDQwLjUsOC41LDQxYy0wLjUsMC4yLTAuNiwwLjgtMC40LDEuM2MwLjIsMC4zLDAuNSwwLjUsMC44LDAuNUM5LjEsNDIuOCw5LjIsNDIuOCw5LjQsNDIuN3oiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMTYuMiwyMy4yYy0wLjUtMC4xLTEsMC4yLTEuMSwwLjdjLTAuMywxLjMtMC41LDIuNy0wLjUsNC4xYzAsMC4zLDAsMC43LDAsMS4xYzAuMSwyLjEsMC4zLDUuNS0xLjksOC42ICAgIGMtMC4zLDAuNC0wLjIsMSwwLjIsMS4zYzAuMiwwLjEsMC40LDAuMiwwLjYsMC4yYzAuMywwLDAuNi0wLjEsMC44LTAuNGMyLjctMy42LDIuNC03LjYsMi4zLTkuOGMwLTAuNCwwLTAuNywwLTEgICAgYzAtMS4yLDAuMi0yLjQsMC40LTMuNkMxNywyMy44LDE2LjcsMjMuMywxNi4yLDIzLjJ6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTQ2LjUsNDYuNGMwLjEsMC4xLDAuMywwLjEsMC40LDAuMWMwLjQsMCwwLjctMC4yLDAuOS0wLjVjMy4zLTcuMSwzLjItMTcuOSwzLjItMTguNCAgICBjLTAuMS0xMC04LjQtMTgtMTguNC0xNy45Yy03LDAuMS0xMy40LDQuNC0xNi4zLDExYy0wLjIsMC41LDAsMSwwLjUsMS4yYzAuNSwwLjIsMSwwLDEuMi0wLjVjMi42LTUuOSw4LjQtOS44LDE0LjYtOS45ICAgIGM5LTAuMSwxNi40LDcuMSwxNi41LDE2YzAsMC4xLDAuMSwxMC44LTMsMTcuNkM0NS44LDQ1LjYsNDYsNDYuMiw0Ni41LDQ2LjR6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTQ1LjEsNTEuMWMtMC41LTAuMi0xLTAuMS0xLjMsMC40Yy0wLjksMS44LTIuOSw1LjctNS4zLDguNWMtMC4zLDAuNC0wLjMsMSwwLjEsMS4zICAgIGMwLjIsMC4yLDAuNCwwLjIsMC42LDAuMmMwLjMsMCwwLjUtMC4xLDAuNy0wLjNjMi41LTMsNC41LTYuOSw1LjUtOC44QzQ1LjcsNTEuOSw0NS41LDUxLjMsNDUuMSw1MS4xeiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik01Myw0NmMtMC41LTAuMi0xLDAuMS0xLjIsMC42Yy0wLjYsMS44LTEuNSw0LjItMi43LDYuNmMtMC4yLDAuNS0wLjEsMSwwLjQsMS4zYzAuMSwwLjEsMC4zLDAuMSwwLjQsMC4xICAgIGMwLjMsMCwwLjctMC4yLDAuOC0wLjVjMS4zLTIuNSwyLjItNSwyLjktNi45QzUzLjcsNDYuNyw1My41LDQ2LjIsNTMsNDZ6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTQ4LjcsNDljLTAuNS0wLjItMSwwLjEtMS4yLDAuNmMtMC4xLDAuMi0wLjIsMC42LTAuNiwxLjNjLTAuMiwwLjUsMCwxLDAuNCwxLjNjMC4xLDAuMSwwLjMsMC4xLDAuNCwwLjEgICAgYzAuMywwLDAuNy0wLjIsMC44LTAuNWMwLjMtMC43LDAuNS0xLjIsMC43LTEuNUM0OS41LDQ5LjcsNDkuMiw0OS4yLDQ4LjcsNDl6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTguNywzOS4xYzAuMiwwLDAuMywwLDAuNS0wLjFjNC44LTMsNC42LTcuMiw0LjUtMTBjMC0wLjMsMC0wLjYsMC0wLjljLTAuMS00LjksMS43LTkuNyw1LjMtMTMuNCAgICBjMy42LTMuOCw4LjQtNS45LDEzLjYtNmMyLjQsMCw0LjgsMC40LDcsMS4yYzAuNSwwLjIsMS0wLjEsMS4yLTAuNmMwLjItMC41LTAuMS0xLTAuNi0xLjJjLTIuNS0wLjktNS0xLjQtNy43LTEuMyAgICBjLTUuNiwwLjEtMTAuOSwyLjQtMTQuOSw2LjZjLTMuOSw0LjEtNiw5LjMtNS44LDE0LjhjMCwwLjMsMCwwLjYsMCwxYzAuMSwyLjYsMC4zLDUuOS0zLjYsOC4yYy0wLjQsMC4zLTAuNiwwLjktMC4zLDEuMyAgICBDOC4xLDM5LDguNCwzOS4xLDguNywzOS4xeiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik00OS4xLDQ4LjNjMC4xLDAuMSwwLjIsMC4xLDAuNCwwLjFjMC40LDAsMC43LTAuMiwwLjktMC42YzQtOS4yLDMuNS0xOS42LDMuNS0yMC4zICAgIEM1My43LDIwLDQ5LjUsMTMsNDIuOCw5LjRjLTAuNS0wLjMtMS0wLjEtMS4zLDAuNGMtMC4zLDAuNS0wLjEsMSwwLjQsMS4zYzYsMy4zLDkuOSw5LjYsMTAsMTYuNWwwLDBjMCwwLjEsMC41LDEwLjUtMy4zLDE5LjQgICAgQzQ4LjQsNDcuNSw0OC42LDQ4LjEsNDkuMSw0OC4zeiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik04LjgsMzUuNGMxLjMtMC45LDEuOS0yLjQsMS45LTQuNmMwLTAuNS0wLjQtMC45LTEtMC45Yy0wLjUsMC0wLjksMC40LTAuOSwxYzAsMS41LTAuMywyLjUtMS4xLDMgICAgYy0wLjQsMC4zLTAuNSwwLjktMC4yLDEuM2MwLjIsMC4zLDAuNSwwLjQsMC44LDAuNEM4LjUsMzUuNiw4LjcsMzUuNSw4LjgsMzUuNHoiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMTMuNCw0OS41Yy0wLjMtMC41LTAuOC0wLjYtMS4zLTAuNGMtMC4zLDAuMi0wLjYsMC4zLTAuOCwwLjRjLTAuNSwwLjItMC42LDAuOC0wLjQsMS4zICAgIGMwLjIsMC4zLDAuNSwwLjUsMC44LDAuNWMwLjEsMCwwLjMsMCwwLjQtMC4xYzAuMy0wLjIsMC42LTAuMywwLjktMC41QzEzLjUsNTAuNSwxMy43LDUwLDEzLjQsNDkuNXoiLz4KCQk8cGF0aCBmaWxsPSIjMjY5NkQzIiBkPSJNMTgsNDQuOGMtMS4xLDEuMS0yLjQsMi4xLTMuNywzYy0wLjQsMC4zLTAuNSwwLjktMC4zLDEuM2MwLjIsMC4zLDAuNSwwLjQsMC44LDAuNGMwLjIsMCwwLjQtMC4xLDAuNS0wLjIgICAgYzEuNC0xLDIuOC0yLjEsNC0zLjJjMC40LTAuNCwwLjQtMSwwLTEuM0MxOSw0NC40LDE4LjQsNDQuNCwxOCw0NC44eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik01NC41LDM5LjVjLTAuNS0wLjEtMSwwLjItMS4xLDAuOGMtMC4zLDEuNS0wLjgsMy40LTAuOCwzLjRjLTAuMSwwLjUsMC4xLDEsMC42LDEuMmMwLjEsMCwwLjIsMCwwLjMsMCAgICBjMC40LDAsMC44LTAuMywwLjktMC43YzAtMC4xLDAuNi0yLDAuOS0zLjZDNTUuNCw0MC4xLDU1LDM5LjYsNTQuNSwzOS41eiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik01Mi4xLDEyLjFDNTIuMSwxMi4xLDUyLjEsMTIuMSw1Mi4xLDEyLjFjMC4zLDAuNCwwLjYsMC44LDAuOSwxLjJjMC4yLDAuMywwLjUsMC40LDAuOCwwLjQgICAgYzAuMiwwLDAuNC0wLjEsMC42LTAuMmMwLjQtMC4zLDAuNS0wLjksMC4yLTEuM2MtMC4zLTAuNC0wLjYtMC44LTEtMS4yYzAsMCwwLDAsMCwwYzAsMCwwLDAsMCwwYzAsMCwwLDAsMCwwICAgIGMtMC4zLTAuNC0wLjktMC41LTEuMy0wLjFDNTEuOCwxMS4xLDUxLjcsMTEuNyw1Mi4xLDEyLjFDNTIuMSwxMi4xLDUyLjEsMTIuMSw1Mi4xLDEyLjF6Ii8+CgkJPHBhdGggZmlsbD0iIzI2OTZEMyIgZD0iTTQ2LjksNy4zYzEuMiwwLjgsMi4zLDEuNywzLjMsMi44YzAuMiwwLjIsMC40LDAuMywwLjcsMC4zYzAuMiwwLDAuNS0wLjEsMC43LTAuM2MwLjQtMC40LDAuNC0xLDAtMS4zICAgIGMtMS4xLTEuMS0yLjMtMi4xLTMuNi0zYy0wLjQtMC4zLTEtMC4yLTEuMywwLjJDNDYuNCw2LjQsNDYuNSw3LDQ2LjksNy4zeiIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0xNy44LDcuNWMwLjIsMCwwLjQtMC4xLDAuNS0wLjJjNC4xLTIuOSw4LjgtNC40LDE0LTQuNWM0LjEtMC4xLDguMywwLjksMTEuOSwyLjljMC41LDAuMiwxLDAuMSwxLjMtMC40ICAgIGMwLjItMC41LDAuMS0xLTAuNC0xLjNDNDEuMiwyLDM2LjgsMC45LDMyLjMsMWMtNS42LDAuMS0xMC43LDEuNy0xNS4xLDQuOGMtMC40LDAuMy0wLjUsMC45LTAuMiwxLjNDMTcuMiw3LjQsMTcuNSw3LjUsMTcuOCw3LjV6ICAgICIvPgoJCTxwYXRoIGZpbGw9IiMyNjk2RDMiIGQ9Ik0xNC41LDEwLjRjMC4yLDAsMC41LTAuMSwwLjctMC4zYzAuNC0wLjQsMC43LTAuNywxLjEtMS4xYzAuNC0wLjMsMC40LTAuOSwwLjEtMS4zICAgIGMtMC4zLTAuNC0wLjktMC40LTEuMy0wLjFjLTAuNCwwLjQtMC44LDAuNy0xLjIsMS4xYy0wLjQsMC40LTAuNCwxLDAsMS4zQzE0LjEsMTAuMywxNC4zLDEwLjQsMTQuNSwxMC40eiIvPgoJPC9nPgoJPHJlY3QgeD0iMCIgeT0iMCIgZmlsbD0ibm9uZSIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0Ii8+CjwvZz4KPC9zdmc+\u005C\u0022 /\u003E\u005Cn          \u003C/a\u003E\u005Cn    \u005Cn    \u003Cp\u003ECybersecurity is actually quite simple. It just means protecting yourself and your information online. \u003Ca href\u003D\u005C\u0022https://www.mozilla.org/teach/smarton/security/?utm_source\u003Ddesktop\u002Dsnippet\u0026amp\u003Butm_medium\u003Dsnippet\u0026amp\u003Butm_content\u003Dsmarton\u0026amp\u003Butm_term\u003D5440\u0026amp\u003Butm_campaign\u003Dsmarton\u005C\u0022\u003EGet Smart On Cybersecurity\u003C/a\u003E.\u003C/p\u003E\u005Cn\u005Cn    \u005Cn      \u003C/div\u003E\u005Cn\u003Cscript type\u003D\u005C\u0022text/javascript\u005C\u0022\u003E\u005Cn //\u003C![CDATA[\u005Cn (function() {\u005Cn     var snippet \u003D document.getElementById(\u0027simple\u002Dsnippet\u0027)\u003B\u005Cn     snippet.addEventListener(\u0027show_snippet\u0027, function () {\u005Cn         var overlay \u003D document.getElementById(\u0027block\u002Dsnippet\u002Doverlay\u0027)\u003B\u005Cn         var xbutton \u003D document.getElementById(\u0027xbutton\u0027)\u003B\u005Cn\u005Cn         \u005Cn              })\u003B\u005Cn })()\u003B\u005Cn //]]\u003E\u005Cn\u003C/script\u003E\u003C/div\u003E\u0022, \u0022campaign\u0022: \u0022smarton\u0022, \u0022weight\u0022: 33, \u0022countries\u0022: [], \u0022exclude_from_search_engines\u0022: [], \u0022id\u0022: 5440}, {\u0022code\u0022: \u0022\u003Cdiv data\u002Dsnippet\u002Did\u003D\u005C\u00225484\u005C\u0022 data\u002Dweight\u003D\u005C\u0022300\u005C\u0022 data\u002Dcampaign\u003D\u005C\u0022EOY\u005C\u0022 class\u003D\u005C\u0022snippet\u002Dmetadata\u005C\u0022\u003E\u003Cdiv class\u003D\u005C\u0022snippet\u005C\u0022 id\u003D\u005C\u0022mofo\u002Deoy\u002Dfundraiser\u002D5484\u005C\u0022\u003E\u005Cn  \u003Cstyle type\u003D\u005C\u0022text/css\u005C\u0022\u003E\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 {\u005Cn        position: relative\u003B\u005Cn        margin: 0 auto 20px\u003B\u005Cn        font\u002Dfamily: \u005C\u0022Open Sans\u005C\u0022, \u005C\u0022Helvetica Neue\u005C\u0022, \u005C\u0022Helvetica\u005C\u0022, \u005C\u0022Arial\u005C\u0022, sans\u002Dserif\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 button::\u002Dmoz\u002Dfocus\u002Dinner {\u005Cn        border: 0\u003B\u005Cn        padding: 0\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 p {\u005Cn        font\u002Dsize: 14px\u003B\u005Cn        line\u002Dheight: 21px\u003B\u005Cn        margin: 0 20px 20px 5px\u003B\u005Cn        display: block\u003B\u005Cn        height: auto\u003B\u005Cn        padding: 0\u003B\u005Cn        width: auto\u003B\u005Cn        color: inherit\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 em {\u005Cn        transition: background 800ms linear\u003B\u005Cn        font\u002Dstyle: normal\u003B\u005Cn        box\u002Ddecoration\u002Dbreak: clone\u003B\u005Cn        margin: 0px \u002D5px\u003B\u005Cn        padding: 2px 5px\u003B\u005Cn        font\u002Dweight: bold\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 em.active {\u005Cn        background: rgba(243, 248, 1, 0.4)\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .button {\u005Cn        margin: 0 8px 0 0\u003B\u005Cn        width: 60px\u003B\u005Cn        height: 38px\u003B\u005Cn        text\u002Dalign: center\u003B\u005Cn        padding: 7px 0 9px\u003B\u005Cn        text\u002Ddecoration: none\u003B\u005Cn        word\u002Dspacing: \u002D1px\u003B\u005Cn        color: rgb(255, 255, 255)\u003B\u005Cn        font\u002Dfamily: \u005C\u0022Open Sans\u005C\u0022, \u005C\u0022Helvetica Neue\u005C\u0022, \u005C\u0022Helvetica\u005C\u0022, \u005C\u0022Arial\u005C\u0022, sans\u002Dserif\u003B\u005Cn        font\u002Dsize: 20px\u003B\u005Cn        line\u002Dheight: 1\u003B\u005Cn        text\u002Dshadow: 0 1px 0 rgba(135, 136, 136, 0.53)\u003B\u005Cn        background\u002Dcolor: #A7AAB3\u003B\u005Cn        box\u002Dsizing: border\u002Dbox\u003B\u005Cn        background\u002Dimage: linear\u002Dgradient(transparent, rgba(0, 0, 0, 0.2))\u003B\u005Cn        float: left\u003B\u005Cn        border: 1px solid rgba(151, 152, 152, 0.9)\u003B\u005Cn        border\u002Dradius: 2px\u003B\u005Cn        box\u002Dshadow: 0px 1px 0px rgba(255, 255, 255, 0.2) inset, 0px 0px 0px 1px rgba(255, 255, 255, 0.1) inset, 0px 1px 0px rgba(23, 51, 78, 0.03), 0px 0px 4px rgba(0, 57, 102, 0.2)\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .button:hover {\u005Cn        cursor: pointer\u003B\u005Cn        background\u002Dcolor: #B3B6BF\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .button.button\u002Dred {\u005Cn        border: 1px solid rgba(230, 69, 61, 0.5)\u003B\u005Cn        background\u002Dcolor: #F65E6C\u003B\u005Cn        margin: 0\u003B\u005Cn      }\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .button.button\u002Dred:hover {\u005Cn        background\u002Dcolor: #FF7B87\u003B\u005Cn      }\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .button\u002Dwide {\u005Cn        width: 158px\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .monthly\u002Dcheckbox\u002Dcontainer {\u005Cn        overflow: hidden\u003B\u005Cn        margin: 11px 0 0\u003B\u005Cn        font\u002Dsize: 12px\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .monthly\u002Dcheckbox {\u005Cn        float: left\u003B\u005Cn        margin: 2px 5px 0 0\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .monthly\u002Dcheckbox\u002Dlabel {\u005Cn        float: left\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .button.button\u002Dselected {\u005Cn        background\u002Dcolor: #49AFFD\u003B\u005Cn        border: 1px solid rgba(75, 172, 238, 0.9)\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .background\u002Dcontainer {\u005Cn        background: #EAEAEA\u003B\u005Cn        padding: 18px 20px 11px\u003B\u005Cn        border\u002Dradius: 4px\u003B\u005Cn        position: relative\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .donation\u002Damounts {\u005Cn        overflow: hidden\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .donate\u002Dbutton.background\u002Danimate1 {\u005Cn        animation: 1s ease 1s alternate none 2 running background\u002Dcolor\u002Dfirst\u002D5484, 1s ease 3s alternate none infinite running background\u002Dcolor\u002Dinfinite\u002D5484\u003B\u005Cn        background\u002Dcolor: #960900\u003B\u005Cn        border\u002Dcolor: rgba(230, 69, 61, 0.1)\u003B\u005Cn        box\u002Dshadow: 0px 1px 0px rgba(255, 255, 255, 0.3) inset\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .donate\u002Dbutton.background\u002Danimate2 {\u005Cn        animation: 1s ease 1s alternate none infinite running background\u002Dcolor\u002Dfirst\u002D5484\u003B\u005Cn        background\u002Dcolor: #960900\u003B\u005Cn        border\u002Dcolor: rgba(230, 69, 61, 0.1)\u003B\u005Cn        box\u002Dshadow: 0px 1px 0px rgba(255, 255, 255, 0.3) inset\u003B\u005Cn      }\u005Cn\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484 .image\u002Dcontainer {\u005Cn        right: 100%\u003B\u005Cn        bottom: 0\u003B\u005Cn        margin\u002Dright: \u002D12px\u003B\u005Cn        position: absolute\u003B\u005Cn      }\u005Cn\u005Cn      @keyframes background\u002Dcolor\u002Dfirst\u002D5484 {\u005Cn        0% {\u005Cn          background\u002Dcolor: #960900\u003B\u005Cn          border\u002Dcolor: rgba(230, 69, 61, 0.1)\u003B\u005Cn          box\u002Dshadow: 0px 1px 0px rgba(255, 255, 255, 0.3) inset\u003B\u005Cn        }\u005Cn        100% {\u005Cn          background\u002Dcolor: #FF0000\u003B\u005Cn          border\u002Dcolor: rgba(230, 69, 61, 0.5)\u003B\u005Cn          box\u002Dshadow: 0px 1px 0px rgba(255, 255, 255, 0.65) inset\u003B\u005Cn        }\u005Cn      }\u005Cn\u005Cn      @keyframes background\u002Dcolor\u002Dinfinite\u002D5484 {\u005Cn        0% {\u005Cn          background\u002Dcolor: #960900\u003B\u005Cn        }\u005Cn        100% {\u005Cn          background\u002Dcolor: #C10000\u003B\u005Cn        }\u005Cn      }\u005Cn\u005Cn      body.background\u002D5484 {\u005Cn        background: inherit\u003B\u005Cn      }\u005Cn\u005Cn      body.background\u002D5484 #launcher {\u005Cn        background\u002Dcolor: #EAEAEA\u003B\u005Cn      }\u005Cn\u005Cn\u005Cn          #xbutton\u002D5484 {\u005Cn         cursor: pointer\u003B\u005Cn         border: none\u003B\u005Cn         position: absolute\u003B\u005Cn         right: 0\u003B\u005Cn         top: 0\u003B\u005Cn         z\u002Dindex: 10\u003B\u005Cn         opacity: 0\u003B\u005Cn         height: 20px\u003B\u005Cn         width: 20px\u003B\u005Cn         background\u002Dcolor: rgba(0,0,0,0)\u003B\u005Cn         background\u002Dimage: url(\u005C\u0022data:image/png\u003Bbase64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAeFBMVEUAAAAAAAAAAAABAQEAAAAAAAAAAAAAAAAAAAAAAADDw8OQkJAAAAAAAAAAAAAAAAD9/f38/Pz6+vr5+fnt7e3i4uLd3d3Z2dmgoKBdXV0mJibv7++amprNzc2amprv7+////9zc3OwsLD29vaPj4+xsbHCwsLBwcHrzmRyAAAAIHRSTlMABAg9HhEMNxkir38xLCkV/Pr39OHTzceOYUrliLuJ5ik+KlgAAAGhSURBVEjHnZbrdoIwDIAXWii3UuV+0wV0+v5vOEBH2ajg8v3y6PlO2pgm+TAAYD0B+HgDsBxbuXzCVbZj7VgAju16USjYhAgjz7WdrVjgKC5FHfh5kxwOSZP7QS0kVw68PJLNJQuKIy44FgGT3LbAHMKNWJviirRlkWsKNIQIqwyNZFU4BFobnihjfEFcCm92tMF83MBnfxwYjBNuchocWN6cCx938AVf5MBywxJ3KUPX0seKqnhfiavIhvlYLMM3yNjP0UDJFmcuN/zF7aI/t1I9lCFIqo1r1y+Nr+6qnXQI87iJDJZGNzra6JZOIG2Y0iWK+bt7N9JrY+Q+/1yIKWmOVy9qt3862lgGPdaeM2U4QDQ52tAEY55BhT4aHS1r/FDBeJUcTY7JwHy8jMVZgybHZGDD+KQkuHbMBiZP5YBrx2zggaCQDka5PiHJhL9yq2B6c8FslmVvKsud4u8Nxb/3xPr1E9t9yP3qIf+vXZylAkJTIrQ+QoMltHHCsCCMJMLgo49XPcTPpiF+1kOcsCrsLSSfeiGhrj305Yqwwn0Dwi/I5rQKpwMAAAAASUVORK5CYII\u003D\u005C\u0022)\u003B\u005Cn         background\u002Drepeat: no\u002Drepeat\u003B\u005Cn         background\u002Dsize: 20px 20px\u003B\u005Cn      }\u005Cn      #xbutton\u002D5484:hover {\u005Cn         background\u002Dimage: url(\u005C\u0022data:image/png\u003Bbase64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAe1BMVEUAAAAAAAAAAAAAAAABAQEAAAAAAAAAAAAAAAABAQEAAACQkJAAAADDw8P9/f38/Pz6+vr5+fni4uLZ2dmgoKCampomJibv7+/d3d3ExMRcXFzt7e3t7e3Nzc0AAABeXl7c3Nzv7+/////DOzLdkYz78/LlqaXPYlveko1iPwM8AAAAInRSTlMACwceOhcRBCo+NH8ir/z69/TTx46ISuXNsGHh4LskYszmffUm0QAAAbBJREFUSMelluuSgjAMRrdtegW84/22AXXf/wlXcNzAGEC755fjeCYfmDb5YrBWihpp7dcbWCmM1qpGa3PX3vh96kIAfwdCcOmAJYVWDpZJdl5NR6Pp6pwlS3BKC9lVQhjlfDIfY4PxPPFOGWE7SjjI9/jCPgfHFpJGhe0MWWbboIx8NVJYTLCDyQLSp0PGETLsIYPj06EaB+zl0K5jhYINDrAB1XhvQocFDrIIWlAst50MK5OtM5JizfANZn/RpHY5fX+5YovrhT7nTj/KCOX3ZNyKsmn8FDdydl6JOpdxSdMoKoeMoukkztg6F8wpRlFRklFBUedQJxPpstG7JTm10S46XqaCcjEOGe1kVocMWYdkIgvaVo+yRs7hDFxXDyMUrJBzOANXoMRd8VNkHTKIqX8oI2QdMohRjBIVLOLxI15yxF/Z1zAl3zC9bVlybTnQ/CXT/ENHrGSO2OMg7zoPcvlykCOui88upXsR+9nVd3JGRlywEdd4xLCIGEnRg4/G66lrvJ6q8coPcZ/vuCHuaYjHrQr8QrKuF5Lv9YYWkqG1Bx5rD9Da87/lKmKF+wUdVNNtsJwP7gAAAABJRU5ErkJggg\u003D\u003D\u005C\u0022)\u003B\u005Cn      }\u005Cn      #xbutton\u002D5484:active {\u005Cn         background\u002Dimage: url(\u005C\u0022data:image/png\u003Bbase64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAe1BMVEUAAAAAAAAAAAAAAAABAQEAAAABAQEAAAAAAAAAAAD9/f3Dw8MAAAAAAACRkZH6+vr5+fnv7+/i4uLd3d3Z2dmgoKBdXV0mJiYAAAAAAACPj4/t7e3t7e2ampoAAACamprOzs7MzMyYmJj///8QEBB5eXnw8PCWlpZAQEB2Ec74AAAAI3RSTlMABgseOio+GRA0+68iEn/39OXTzceOYUoWFX/h4Igjiby5hsu+k6AAAAGoSURBVEjHnZbpYoIwEISbZEMIl8oNam27eLz/E9YY22DdgmR+efAxGxJ2540SY/wmxog/ycvDVombVBvOY4ynKpFaQ3AVaC0TlXI2CXRCQtPHxWYdRetNEWcNSNFZiHYQMsjKCEeKyiyQwjiRhJKw3+GTdl8gFcWwUOg6R1J5rUXInokEqhX+o1UFiWXGxDvEOKEY3i0z9vjESX08+jAurMe0j+CO4UpXOKtKK/5rksp6NY+sapmyHxMBOb6gHAS/m3Ry734/nfFB55P7vJcdu5sEO0dchuOYOA4Xx2wDwe8r6cfEYBhHDGMms6thCkpXxmB0dISRK7UEZRCeNNHotpYhvhhFTWIqC01dBEMQiL0Mr3W1OkaCIQmMdcvMUgqkGIrAwiyGC9ggxVAEbkBwsytrJBiSwHVgkQgJhiQw8kG8CvNYvsdD9thKc2Cy1w9MJkOPY+l3+Fkqs4WvmNmZ7YIXeVm7OMiOLWxKxsSj9Xk0WI827jEsPEaSx+DzHq9uiAeHLTHED4Eb4lRU6P9Ghd5GhelAkhGBZDb2gI09QMQer3DlEeG+AWkO2NrlPO+kAAAAAElFTkSuQmCC\u005C\u0022)\u003B\u005Cn      }\u005Cn      #mofo\u002Deoy\u002Dfundraiser\u002D5484:hover #xbutton\u002D5484 {\u005Cn         opacity: 1\u003B\u005Cn      }\u005Cn      #xbutton\u002D5484 + #block\u002Dsnippet\u002Doverlay\u002D5484 {\u005Cn        opacity: 0\u003B\u005Cn        transition: opacity 100ms linear\u003B\u005Cn      }\u005Cn      #xbutton\u002D5484:hover + #block\u002Dsnippet\u002Doverlay\u002D5484 {\u005Cn        opacity: 0.03\u003B\u005Cn        background\u002Dcolor: #000000\u003B\u005Cn        box\u002Dshadow: 0pt 0pt 0pt white\u003B\u005Cn        border: solid 0pt white\u003B\u005Cn        position: absolute\u003B\u005Cn        border\u002Dradius: 4px\u003B\u005Cn        top: 0\u003B\u005Cn        left: 0\u003B\u005Cn        height: 100%\u003B\u005Cn        width: 100%\u003B\u005Cn      }\u005Cn    \u005Cn  \u003C/style\u003E\u005Cn\u005Cn  \u003Cp\u003EThink protecting the Web is important work? So does Mozilla, and we focus on that every day. Every donation helps us stay true to our non\u002Dprofit mission. \u003Cem\u003EIf everyone reading this chipped in $3, we would be supported for another year. Donate now.\u003C/em\u003E\u003C/p\u003E\u005Cn\u005Cn  \u003Cdiv class\u003D\u005C\u0022background\u002Dcontainer\u005C\u0022\u003E\u005Cn\u005Cn        \u003Cdiv class\u003D\u005C\u0022donation\u002Damounts\u005C\u0022\u003E\u005Cn      \u003Cbutton class\u003D\u005C\u0022button donation\u002Damount donation\u002Damount\u002Dfirst\u005C\u0022 data\u002Damount\u003D\u005C\u002220\u005C\u0022\u003E\u003C/button\u003E\u005Cn      \u003Cbutton class\u003D\u005C\u0022button donation\u002Damount donation\u002Damount\u002Dsecond\u005C\u0022 data\u002Damount\u003D\u005C\u002210\u005C\u0022\u003E\u003C/button\u003E\u005Cn      \u003Cbutton class\u003D\u005C\u0022button donation\u002Damount donation\u002Damount\u002Dthird\u005C\u0022 data\u002Damount\u003D\u005C\u00225\u005C\u0022\u003E\u003C/button\u003E\u005Cn      \u003Cbutton class\u003D\u005C\u0022button donation\u002Damount donation\u002Damount\u002Dfourth\u005C\u0022 data\u002Damount\u003D\u005C\u00223\u005C\u0022\u003E\u003C/button\u003E\u005Cn\u005Cn      \u003Ca class\u003D\u005C\u0022button button\u002Dred button\u002Dwide donate\u002Dbutton  \u005C\u0022 href\u003D\u005C\u0022https://donate.mozilla.org/en\u002DUS/?utm_source\u003Ddesktop\u002Dsnippet\u0026amp\u003Butm_medium\u003Dsnippet\u0026amp\u003Butm_content\u003D5484F\u0026amp\u003Butm_term\u003D5484\u0026amp\u003Butm_campaign\u003DEOY15\u005C\u0022\u003E\u005Cn        Donate Now\u005Cn      \u003C/a\u003E\u005Cn    \u003C/div\u003E\u005Cn    \u003Cdiv class\u003D\u005C\u0022monthly\u002Dcheckbox\u002Dcontainer\u005C\u0022\u003E\u005Cn      \u003Cinput id\u003D\u005C\u0022monthly\u002Dcheckbox\u005C\u0022 class\u003D\u005C\u0022monthly\u002Dcheckbox\u005C\u0022 type\u003D\u005C\u0022checkbox\u005C\u0022/\u003E\u005Cn      \u003Clabel for\u003D\u005C\u0022monthly\u002Dcheckbox\u005C\u0022 class\u003D\u005C\u0022monthly\u002Dcheckbox\u002Dlabel\u005C\u0022\u003E\u005Cn        Make my donation monthly\u005Cn      \u003C/label\u003E\u005Cn    \u003C/div\u003E\u005Cn  \u003C/div\u003E\u005Cn\u005Cn      \u003Cbutton title\u003D\u005C\u0022Remove\u005C\u0022 class\u003D\u005C\u0022block\u002Dsnippet\u002Dbutton\u005C\u0022 id\u003D\u005C\u0022xbutton\u002D5484\u005C\u0022\u003E\u003C/button\u003E\u005Cn    \u003Cdiv id\u003D\u005C\u0022block\u002Dsnippet\u002Doverlay\u002D5484\u005C\u0022\u003E\u003C/div\u003E\u005Cn  \u005Cn\u005Cn  \u003Cscript type\u003D\u005C\u0022text/javascript\u005C\u0022\u003E\u005Cn      //\u003C![CDATA[\u005Cn      (function() {\u005Cn          var snippet \u003D document.getElementById(\u0027mofo\u002Deoy\u002Dfundraiser\u002D5484\u0027)\u003B\u005Cn          snippet.addEventListener(\u0027show_snippet\u0027, function() {\u005Cn              (function () {\u005Cn                document.querySelector(\u005C\u0022body\u005C\u0022).classList.add(\u005C\u0022background\u002D5484\u005C\u0022)\u003B\u005Cn                var btnDonate \u003D snippet.querySelector(\u0027.donate\u002Dbutton\u0027)\u003B\u005Cn                var donationURL \u003D btnDonate.attributes[\u0027href\u0027].value\u003B\u005Cn                var currencyCode \u003D \u0027usd\u0027\u003B\u005Cn                var extraParams \u003D \u0027snippet_name\u003D5484\u0027\u003B\u005Cn                if (donationURL.indexOf(\u0027?\u0027) \u003E\u003D 0) {\u005Cn                    donationURL +\u003D \u0027\u0026\u0027 + extraParams\u003B\u005Cn                } else {\u005Cn                    donationURL +\u003D \u0027?\u0027 + extraParams\u003B\u005Cn                }\u005Cn\u005Cn                // Element cache :\u005Cn\u005Cn                var btnAmounts \u003D snippet.querySelectorAll(\u0027.donation\u002Damount\u0027)\u003B\u005Cn                var btnSelected\u003B\u005Cn                var amount\u003B\u005Cn                var presets \u003D \u002720,10,5,3\u0027\u003B\u005Cn                var numberFormat \u003D new Intl.NumberFormat(\u0027en\u002DUS\u0027, {\u005Cn                  style:\u0027currency\u0027,\u005Cn                  currency:\u0027usd\u0027,\u005Cn                  minimumFractionDigits: 0\u005Cn                })\u003B\u005Cn                document.querySelector(\u0027.donation\u002Damount\u002Dfirst\u0027).textContent \u003D numberFormat.format(\u002720\u0027)\u003B\u005Cn                document.querySelector(\u0027.donation\u002Damount\u002Dsecond\u0027).textContent \u003D numberFormat.format(\u002710\u0027)\u003B\u005Cn                document.querySelector(\u0027.donation\u002Damount\u002Dthird\u0027).textContent \u003D numberFormat.format(\u00275\u0027)\u003B\u005Cn                document.querySelector(\u0027.donation\u002Damount\u002Dfourth\u0027).textContent \u003D numberFormat.format(\u00273\u0027)\u003B\u005Cn                var elHighlighted \u003D snippet.querySelector(\u0027em\u0027)\u003B\u005Cn                var monthlyCheckbox \u003D document.querySelector(\u0027#monthly\u002Dcheckbox\u0027)\u003B\u005Cn                var frequency \u003D \u005C\u0022\u005C\u0022\u003B\u005Cn\u005Cn                function updateFrequency() {\u005Cn                  frequency \u003D \u005C\u0022single\u005C\u0022\u003B\u005Cn                  if (monthlyCheckbox.checked) {\u005Cn                    frequency \u003D \u0027monthly\u0027\u003B\u005Cn                  }\u005Cn                  updateLink()\u003B\u005Cn                }\u005Cn                updateFrequency()\u003B\u005Cn\u005Cn                // View functions\u005Cn\u005Cn                function selectAmount(element) {\u005Cn                  if (!element) {\u005Cn                    return\u003B\u005Cn                  }\u005Cn                  element.classList.add(\u0027button\u002Dselected\u0027)\u003B\u005Cn                  if (btnSelected) {\u005Cn                    btnSelected.classList.remove(\u0027button\u002Dselected\u0027)\u003B\u005Cn                  }\u005Cn                  btnSelected \u003D element\u003B\u005Cn                  amount \u003D element.attributes[\u0027data\u002Damount\u0027].value\u003B\u005Cn                  updateLink()\u003B\u005Cn                }\u005Cn\u005Cn                var selected \u003D \u005C\u0022donation\u002Damount\u002Dsecond\u005C\u0022\u003B\u005Cn                selectAmount(snippet.querySelector(\u005C\u0022.\u005C\u0022 + selected))\u003B\u005Cn\u005Cn                function updateLink() {\u005Cn                  btnDonate.attributes[\u0027href\u0027].value \u003D donationURL + \u0027\u0026amount\u003D\u0027 + amount + \u005C\u0022\u0026frequency\u003D\u005C\u0022 + frequency + \u005C\u0022\u0026currency\u003D\u005C\u0022 + currencyCode + \u0027\u0026presets\u003D\u0027 + presets\u003B\u005Cn                }\u005Cn                updateLink()\u003B\u005Cn\u005Cn                // Event binding :\u005Cn\u005Cn                for(var i\u003D0\u003B i\u003CbtnAmounts.length\u003B i++) {\u005Cn                  btnAmounts[i].addEventListener(\u0027click\u0027, function (event) {\u005Cn                    if (!event.target.classList.contains(\u0027button\u002Dselected\u0027)) {\u005Cn                      selectAmount(event.target)\u003B\u005Cn                    }\u005Cn                  })\u003B\u005Cn                }\u005Cn                monthlyCheckbox.addEventListener(\u0027change\u0027, updateFrequency)\u003B\u005Cn\u005Cn                btnDonate.addEventListener(\u0027click\u0027, function (event) {\u005Cn                  btnDonate.blur()\u003B\u005Cn                })\u003B\u005Cn\u005Cn                // Fade in highlight on text\u005Cn                setTimeout(function() {\u005Cn                  if (elHighlighted) {\u005Cn                    elHighlighted.classList.add(\u0027active\u0027)\u003B\u005Cn                  }\u005Cn                }, 1000)\u003B\u005Cn\u005Cn              })()\u003B\u005Cn\u005Cn          }, false)\u003B\u005Cn      })()\u003B\u005Cn      //]]\u003E\u005Cn  \u003C/script\u003E\u005Cn\u003C/div\u003E\u003C/div\u003E\u0022, \u0022campaign\u0022: \u0022EOY\u0022, \u0022weight\u0022: 300, \u0022countries\u0022: [], \u0022exclude_from_search_engines\u0022: [], \u0022id\u0022: 5484}, {\u0022code\u0022: \u0022\u003Cdiv data\u002Dsnippet\u002Did\u003D\u005C\u00225140\u005C\u0022 data\u002Dweight\u003D\u005C\u0022100\u005C\u0022 data\u002Dcampaign\u003D\u005C\u0022desktop\u005C\u0022 class\u003D\u005C\u0022snippet\u002Dmetadata\u005C\u0022\u003E\u003Cdiv class\u003D\u005C\u0022snippet\u005C\u0022\u003E\u005Cn  \u003Ca href\u003D\u005C\u0022https://addons.mozilla.org/firefox/collections/mozmj/skies/?utm_source\u003Ddesktop\u002Dsnippet\u0026amp\u003Butm_medium\u003Dsnippet\u0026amp\u003Butm_content\u003DAdd\u002Dons\u0026amp\u003Butm_term\u003D5140\u0026amp\u003Butm_campaign\u003Ddesktop\u005C\u0022\u003E\u003Cimg class\u003D\u005C\u0022icon\u005C\u0022 src\u003D\u005C\u0022data:image/png\u003Bbase64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplNzg5Yzg2Ni01MWJjLTRlODQtYmE4My05ZGUxYTViNWI0YTkiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MTZCMkEyQ0U5N0I1MTFFNTgzMzU5QURCQkVEMTE4MDMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QzhGRTlENDY5N0FEMTFFNTgzMzU5QURCQkVEMTE4MDMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDphZGViZGE4YS0zZTYzLTRmOGUtODlmNS1jMzAxODI5MzgwMDgiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ZTc4OWM4NjYtNTFiYy00ZTg0LWJhODMtOWRlMWE1YjViNGE5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\u005C\u0022 /\u003E\u003C/a\u003E\u005Cn  \u003Cp\u003EForecast: cloudy with a chance of smiles. \u003Ca href\u003D\u005C\u0022https://addons.mozilla.org/firefox/collections/mozmj/skies/?utm_source\u003Ddesktop\u002Dsnippet\u0026amp\u003Butm_medium\u003Dsnippet\u0026amp\u003Butm_content\u003DAdd\u002Dons\u0026amp\u003Butm_term\u003D5140\u0026amp\u003Butm_campaign\u003Ddesktop\u005C\u0022\u003EBrighten your browser with a new theme\u003C/a\u003E.\u003C/p\u003E\u005Cn\u003C/div\u003E\u003C/div\u003E\u0022, \u0022campaign\u0022: \u0022desktop\u0022, \u0022weight\u0022: 100, \u0022countries\u0022: [], \u0022exclude_from_search_engines\u0022: [], \u0022id\u0022: 5140}]');
+//]]>
+</script>
+<script type="text/javascript">
+//<![CDATA[
+/*!
+  * $script.js Async loader & dependency manager
+  * https://github.com/ded/script.js
+  * (c) Dustin Diaz, Jacob Thornton 2011
+  * License: MIT
+  */
+(function(a,b,c){typeof c["module"]!="undefined"&&c.module.exports?c.module.exports=b():typeof c["define"]!="undefined"&&c["define"]=="function"&&c.define.amd?define(a,b):c[a]=b()})("$script",function(){function p(a,b){for(var c=0,d=a.length;c<d;++c)if(!b(a[c]))return j;return 1}function q(a,b){p(a,function(a){return!b(a)})}function r(a,b,i){function o(a){return a.call?a():d[a]}function t(){if(!--n){d[m]=1,l&&l();for(var a in f)p(a.split("|"),o)&&!q(f[a],o)&&(f[a]=[])}}a=a[k]?a:[a];var j=b&&b.call,l=j?b:i,m=j?a.join(""):b,n=a.length;return setTimeout(function(){q(a,function(a){if(h[a])return m&&(e[m]=1),h[a]==2&&t();h[a]=1,m&&(e[m]=1),s(!c.test(a)&&g?g+a+".js":a,t)})},0),r}function s(c,d){var e=a.createElement("script"),f=j;e.onload=e.onerror=e[o]=function(){if(e[m]&&!/^c|loade/.test(e[m])||f)return;e.onload=e[o]=null,f=1,h[c]=2,d()},e.async=1,e.src=c,b.insertBefore(e,b.firstChild)}var a=document,b=a.getElementsByTagName("head")[0],c=/^https?:\/\//,d={},e={},f={},g,h={},i="string",j=!1,k="push",l="DOMContentLoaded",m="readyState",n="addEventListener",o="onreadystatechange";return!a[m]&&a[n]&&(a[n](l,function t(){a.removeEventListener(l,t,j),a[m]="complete"},j),a[m]="loading"),r.get=s,r.order=function(a,b,c){(function d(e){e=a.shift(),a.length?r(e,d):r(e,b,c)})()},r.path=function(a){g=a},r.ready=function(a,b,c){a=a[k]?a:[a];var e=[];return!q(a,function(a){d[a]||e[k](a)})&&p(a,function(a){return d[a]})?b():!function(a){f[a]=f[a]||[],f[a][k](b),c&&c(e)}(a.join("|")),r},r},this);
+
+
+'use strict';
+var SNIPPET_METRICS_SAMPLE_RATE = 0.1;
+var SNIPPET_METRICS_URL = 'https://snippets-stats.mozilla.org/foo.html';
+var ABOUTHOME_SHOWN_SNIPPET = null;
+var USER_COUNTRY = null;
+
+// Start MozUITour
+// Copy from https://hg.mozilla.org/mozilla-central/file/tip/browser/components/uitour/UITour-lib.js
+if (typeof Mozilla == 'undefined') {
+    var Mozilla = {};
+}
+
+if (typeof Mozilla.UITour == 'undefined') {
+    Mozilla.UITour = {};
+}
+
+function _sendEvent(action, data) {
+    var event = new CustomEvent('mozUITour', {
+        bubbles: true,
+        detail: {
+            action: action,
+            data: data || {}
+        }
+    });
+
+    document.dispatchEvent(event);
+}
+
+function _generateCallbackID() {
+    return Math.random().toString(36).replace(/[^a-z]+/g, '');
+}
+
+function _waitForCallback(callback) {
+    var id = _generateCallbackID();
+
+    function listener(event) {
+        if (typeof event.detail != 'object')
+            return;
+        if (event.detail.callbackID != id)
+            return;
+
+        document.removeEventListener('mozUITourResponse', listener);
+        callback(event.detail.data);
+    }
+    document.addEventListener('mozUITourResponse', listener);
+
+    return id;
+}
+
+Mozilla.UITour.showHighlight = function(target, effect) {
+    _sendEvent('showHighlight', {
+        target: target,
+        effect: effect
+    });
+};
+
+Mozilla.UITour.hideHighlight = function() {
+    _sendEvent('hideHighlight');
+};
+
+Mozilla.UITour.showMenu = function(name, callback) {
+    var showCallbackID;
+    if (callback)
+        showCallbackID = _waitForCallback(callback);
+
+    _sendEvent('showMenu', {
+        name: name,
+        showCallbackID: showCallbackID,
+    });
+};
+
+Mozilla.UITour.hideMenu = function(name) {
+    _sendEvent('hideMenu', {
+        name: name
+    });
+};
+
+Mozilla.UITour.getConfiguration = function(configName, callback) {
+    _sendEvent('getConfiguration', {
+        callbackID: _waitForCallback(callback),
+        configuration: configName,
+    });
+};
+
+Mozilla.UITour.setConfiguration = function(configName, configValue) {
+    _sendEvent('setConfiguration', {
+        configuration: configName,
+        value: configValue,
+    });
+};
+// End MozUITour
+
+
+(function(showDefaultSnippets) {
+    'use strict';
+
+    var GEO_URL = 'https://geo.mozilla.org/country.js';
+    var GEO_CACHE_DURATION = 1000 * 60 * 60 * 24 * 30; // 30 days
+
+    // showDefaultSnippets polyfill, available in about:home v4
+    if (typeof showDefaultSnippets !== 'function') {
+        showDefaultSnippets = function() {
+            localStorage.snippets = '';
+            showSnippets();
+        };
+    }
+
+    // gSnippetsMap polyfill, available in Firefox 22 and above.
+    var gSnippetsMap = null;
+    if (supportsLocalStorage()) {
+        // localStorage is available, so we wrap it with gSnippetsMap.
+        gSnippetsMap = {
+            set: function(key, value) {
+                localStorage[key] = value;
+            },
+            get: function(key) {
+                return localStorage[key];
+            }
+        };
+        window.gSnippetsMap = gSnippetsMap;
+    } else {
+        // localStorage isn't available, use gSnippetsMap (backed by IndexedDB).
+        gSnippetsMap = window.gSnippetsMap;
+    }
+
+
+    var show_snippet = null;
+    if (ABOUTHOME_SNIPPETS.length > 0) {
+        show_snippet = chooseSnippet(ABOUTHOME_SNIPPETS);
+    }
+
+    if (show_snippet) {
+        ABOUTHOME_SHOWN_SNIPPET = show_snippet;
+
+        // Inject the snippet onto the page.
+        var snippetContainer = document.createElement('div');
+        snippetContainer.innerHTML = show_snippet.code;
+        document.getElementById('snippets').appendChild(snippetContainer);
+        activateScriptTags(snippetContainer);
+
+        try {
+            activateSnippetsButtonClick(show_snippet);
+        } catch (err) {
+            // Do nothing, most likely a newer version of Firefox w/o
+            // activateSnippetsButtonClick
+        }
+
+        // By the time show_snippet event reaches #snippets the snippet
+        // will have finished initializing and altering the DOM. It's the
+        // time to modifyLinks() and addSnippetBlockLinks().
+        var snippets = document.getElementById('snippets');
+        snippets.addEventListener('show_snippet', function(event) {
+            var topSection = document.getElementById('topSection');
+            // Add sample rate and snippet ID to currently displayed links.
+            var parameters = ('sample_rate=' + SNIPPET_METRICS_SAMPLE_RATE + '&snippet_name=' +
+                              ABOUTHOME_SHOWN_SNIPPET.id);
+            modifyLinks(topSection.querySelectorAll('a'), parameters);
+            addSnippetBlockLinks(topSection.querySelectorAll('.block-snippet-button'));
+            sendImpression();
+        });
+
+        // Trigger show_snippet event
+        var evt = document.createEvent('Event');
+        evt.initEvent('show_snippet', true, true);
+        snippetContainer.querySelector('.snippet').dispatchEvent(evt);
+    } else {
+        showDefaultSnippets();
+    }
+
+    // Update FxAccount Status
+    updateFxAccountStatus();
+
+    // Update Selected Search Engine
+    updateSelectedSearchEngine();
+
+    // Fetch user country if we don't have it.
+    if (!haveUserCountry()) {
+        downloadUserCountry();
+    }
+
+        // Choose which snippet to display to the user based on various factors,
+    // such as which country they are in.
+    function chooseSnippet(snippets) {
+        USER_COUNTRY = getUserCountry();
+        if (USER_COUNTRY) {
+            snippets = snippets.filter(
+                function(snippet) {
+                    var countries = snippet.countries;
+                    if (countries.length && countries.indexOf(USER_COUNTRY) === -1) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
+        }
+        else {
+            // If we don't have the user's country, remove all geolocated snippets.
+            // Bug 1140476
+            snippets = snippets.filter(
+                function(snippet) {
+                    return snippet.countries.length === 0;
+                }
+            )
+        }
+
+        // FxAccount is already setup skip snippets that link to
+        // about:accounts
+        if (isFxAccountSetup()) {
+            snippets = snippets.filter(
+                function(snippet) {
+                    return !hasAboutAccountsLink(snippet);
+                }
+            );
+        }
+
+        // Exclude snippets from search providers.
+        var searchProvider = gSnippetsMap.get('selectedSearchEngine');
+        if (searchProvider) {
+            snippets = snippets.filter(
+                function(snippet) {
+                    var excludeFromSearchEngines = snippet.exclude_from_search_engines;
+                    if (excludeFromSearchEngines.length && excludeFromSearchEngines.indexOf(searchProvider) !== -1) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
+        }
+
+        // Exclude snippets in block list.
+        var blockList = getBlockList();
+        snippets = snippets.filter(
+            function (snippet) {
+                if (blockList.indexOf(snippet.id) === -1) {
+                    return true;
+                }
+                return false;
+            }
+        );
+
+        // Choose a random snippet from the snippets list.
+        if (snippets && snippets.length) {
+            var sum = 0;
+            var number_of_snippets = snippets.length;
+            for (var k = 0; k < number_of_snippets; k++) {
+                sum += snippets[k].weight;
+                snippets[k].weight = sum;
+            }
+            var random_number = Math.random() * sum;
+            for (var k = 0; k < number_of_snippets; k++) {
+                if (random_number < snippets[k].weight) {
+                    return snippets[k];
+                }
+            }
+        } else {
+            return null;
+        }
+    }
+    
+    // Check whether snippet links to about:accounts.
+    function hasAboutAccountsLink(snippet) {
+        return snippet.code.indexOf('href="about:accounts"') !== -1;
+    }
+
+    function isFxAccountSetup() {
+        var fxaccount = gSnippetsMap.get('fxaccount');
+        if (fxaccount !== undefined) {
+            return fxaccount;
+        }
+        // If fxaccount === undefined pretend that sync is already
+        // setup, to avoid showing about:accounts snippets to browsers
+        // that do not support mozUITour signal or have accounts
+        // already setup.
+        return true;
+    }
+
+    function updateFxAccountStatus() {
+        var callback = function(result) {
+            gSnippetsMap.set('fxaccount', result.setup);
+        }
+        var event = new CustomEvent(
+            'mozUITour', {
+                bubbles: true,
+                detail: {
+                    action:'getConfiguration',
+                    data: {
+                        configuration: 'sync',
+                        callbackID: _waitForCallback(callback)
+                    }
+                }
+            }
+        );
+        document.dispatchEvent(event);
+    }
+
+    function updateSelectedSearchEngine() {
+        var callback = function(result) {
+            gSnippetsMap.set('selectedSearchEngine', result.searchEngineIdentifier);
+        }
+        var event = new CustomEvent(
+            'mozUITour', {
+                bubbles: true,
+                detail: {
+                    action:'getConfiguration',
+                    data: {
+                        configuration: 'selectedSearchEngine',
+                        callbackID: _waitForCallback(callback)
+                    }
+                }
+            }
+        );
+        document.dispatchEvent(event);
+    }
+
+    // Check whether we have the user's country stored and if it is still valid.
+    function haveUserCountry() {
+        // Check if there's an existing country code to use.
+        if (gSnippetsMap.get('geoCountry')) {
+            // Make sure we have a valid lastUpdated date.
+            var lastUpdated = Date.parse(gSnippetsMap.get('geoLastUpdated'));
+            if (lastUpdated) {
+                // Make sure that it is past the lastUpdated date.
+                var now = new Date();
+                if (now < lastUpdated + GEO_CACHE_DURATION) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function getUserCountry() {
+        if (haveUserCountry()) {
+            return gSnippetsMap.get('geoCountry').toLowerCase();
+        } else {
+            return null;
+        }
+    }
+
+    // Download the user's country using the geolocation service.
+    function downloadUserCountry() {
+        $script(GEO_URL, 'geo');
+        $script.ready('geo', function() {
+            try {
+                gSnippetsMap.set('geoCountry', geoip_country_code());
+                gSnippetsMap.set('geoLastUpdated', new Date());
+            } catch (e) {
+                // Most likely failed to load JS file. Continue on without us,
+                // we'll try again next time.
+            }
+        });
+    }
+
+    // Notifies stats server that the given snippet ID
+    // was shown. No personally-identifiable information
+    // is sent.
+    function sendImpression() {
+        sendMetric('impression');
+    }
+
+    // Modifies the given links to include the specified GET parameters.
+    function modifyLinks(links, parameters) {
+        for (var k = 0, len = links.length; k < len; k++) {
+            var link = links[k];
+            var delimeter = (link.href.indexOf('?') !== -1 ? '&' : '?');
+
+            // Pull the fragment off of the link
+            var fragment_position = link.href.indexOf('#');
+            if (fragment_position === -1) {
+                fragment_position = link.href.length;
+            }
+
+            var href = link.href.substring(0, fragment_position);
+            var fragment = link.href.substring(fragment_position);
+
+            link.href = href + delimeter + parameters + fragment;
+        }
+    }
+
+    // Add links to buttons that block snippets.
+    function addSnippetBlockLinks(elements) {
+        var snippet_id = ABOUTHOME_SHOWN_SNIPPET.id;
+        var blockSnippet = function (event) {
+            event.preventDefault();
+            addToBlockList(snippet_id);
+            sendMetric('snippet-blocked', function() { window.location.reload(); })
+        };
+
+        for (var k = 0; k < elements.length; k++) {
+            var button = elements[k];
+            button.addEventListener('click', blockSnippet);
+        }
+    }
+
+    // Check for localStorage support. Copied from Modernizr.
+    function supportsLocalStorage() {
+        var s = 'snippets-test';
+        try {
+            localStorage.setItem(s, s);
+            localStorage.removeItem(s);
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
+    // Scripts injected by innerHTML are inactive, so we have to relocate them
+    // through DOM manipulation to activate their contents.
+    // (Adapted from http://mxr.mozilla.org/mozilla-central/source/browser/base/content/abouthome/aboutHome.js)
+    function activateScriptTags(element) {
+       Array.forEach(element.getElementsByTagName('script'), function(elt) {
+           var relocatedScript = document.createElement('script');
+           relocatedScript.type = 'text/javascript;version=1.8';
+           relocatedScript.text = elt.text;
+           elt.parentNode.replaceChild(relocatedScript, elt);
+       });
+    }
+
+    // Listen for clicks on links, send metrics and handle
+    // about:account custom links.
+    var topSection = document.getElementById('topSection');
+    topSection.addEventListener('click', function(event) {
+        var target = event.target;
+        while (target.tagName && target.tagName.toLowerCase() !== 'a') {
+            // Do not track clicks outside topSection.
+            if (target.id === 'topSection') {
+                return;
+            }
+            target = target.parentNode;
+        }
+
+        // Count snippet clicks.
+        if (target.dataset.eventCounted !== 'true') {
+            target.dataset.eventCounted = 'true';
+            // Fetch custom metric or default to 'click'
+            var metric = target.dataset.metric || 'click';
+            // If user is not opening a new tab, preventDefault action.
+            if (target.href && (event.button === 0 && !(event.metaKey || event.ctrlKey))) {
+                event.preventDefault();
+                var callback = function() {
+                    target.click();
+                }
+            }
+            sendMetric(metric, callback);
+        }
+
+        // Handle about:accounts clicks.
+        if (target.href && target.href.indexOf('about:accounts') === 0) {
+            var snippet_id = ABOUTHOME_SHOWN_SNIPPET.id;
+            var metric = snippet_id + '-about-accounts-click';
+            var fire_event = function() {
+                var event = new CustomEvent(
+                    'mozUITour',
+                    { bubbles: true, detail: { action:'showFirefoxAccounts', data: {}}}
+                );
+                document.dispatchEvent(event);
+            };
+            sendMetric(metric, fire_event);
+        }
+    }, false);
+
+
+})(window.showDefaultSnippets);
+
+// Send impressions and other interactions to the service
+// If no parameter is entered, quit function
+function sendMetric(metric, callback) {
+              if ((Math.random() > SNIPPET_METRICS_SAMPLE_RATE) || (!metric)) {
+          if (callback) {
+              callback();
+          }
+          return;
+      }
+
+      var locale = 'en-GB';
+      var userCountry = USER_COUNTRY || '';
+      var campaign = ABOUTHOME_SHOWN_SNIPPET.campaign;
+      var snippet_id = ABOUTHOME_SHOWN_SNIPPET.id;
+
+      var url = (SNIPPET_METRICS_URL + '?snippet_name=' + snippet_id +
+                 '&locale=' + locale + '&country=' + userCountry +
+                 '&metric=' + metric + '&campaign=' + campaign);
+      var request = new XMLHttpRequest();
+      request.open('GET', url);
+      if (callback) {
+          request.addEventListener('loadend', callback, false);
+      }
+      request.send();
+      return request;
+    }
+
+function popFromBlockList(snippetID) {
+    var blockList = getBlockList();
+    var item = blockList.pop(snippetID);
+    gSnippetsMap.set('blockList', blockList);
+    return item;
+}
+
+function addToBlockList(snippetID) {
+    var blockList = getBlockList();
+    snippetID = parseInt(snippetID, 10);
+    if (blockList.indexOf(snippetID) === -1) {
+        blockList = [snippetID].concat(blockList);
+        gSnippetsMap.set('blockList', blockList);
+    }
+}
+
+function getBlockList() {
+    if (gSnippetsMap.get('blockList') === undefined) {
+        gSnippetsMap.set('blockList', []);
+    }
+    return gSnippetsMap.get('blockList');
+}
+//]]>
+</script>¼¿ïc      VqÙPVqÙP;ë>V™*T   fa,:https://snippets.cdn.mozilla.net/media/bundles/bundle_bf12a46bfb95a37b771df66e66e3e4f49ffb9ded.html security-info FnhllAKWRHGAlo+ESXykKAAAAAAAAAAAwAAAAAAAAEaphjojH6pBabDSgSnsfLHeAAQAAgAAAAAAAAAAAAAAAAAAAAAB4vFIJp5wRkeyPxAQ9RJGKPqbqVvKO0mKuIl8ec8o/uhmCjImkVxP+7sgiYWmMt8F+O2DZM7ZTG6GukivU8OT5gAAAAAAAAUoMIIFJDCCBAygAwIBAgIQBvKITxcFmVFgpBnShsOHcTANBgkqhkiG9w0BAQsFADBNMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMScwJQYDVQQDEx5EaWdpQ2VydCBTSEEyIFNlY3VyZSBTZXJ2ZXIgQ0EwHhcNMTUwMzEyMDAwMDAwWhcNMTcwMzE2MTIwMDAwWjBsMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxHDAaBgNVBAoTE01vemlsbGEgQ29ycG9yYXRpb24xGjAYBgNVBAMMESouY2RuLm1vemlsbGEubmV0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArd1PwIc1JUz3R98ls44sNn/ms5F/GIPiN8wn3vxx+cQTztQGqO4a2+0GyX1RD88e3KlASHe/Mb2HwM2AqmvtUM75NnSLy2Fa/9P0fCuLyqQPQSZdSGrKW9jJL4Zod/YlhHvf/pcLSZo3fRvDLRUE9TYbuy6oNjeoCYXMtjjFpYl5DyzYyL9NKBEfAL2p4a9nqvuN17joKMnrmt5JR3A0g4hLzOXc7o6OnYwfaPgF9db/nna74ROj0lYQHQkP/jBlydiCo0i8Ju8dkS0K1vdg/hio+zmJTU5epUgR5UQygYiiBxyov3kk9ALX5Xlu5OscKhcR/Vu8uslwBy0RKEeGXQIDAQABo4IB3zCCAdswHwYDVR0jBBgwFoAUD4BhHIIxYdUvKOeNRji0LOHG2eIwHQYDVR0OBBYEFEwziXLlFOUjs2Aq/Pa8SoP0+48iMC0GA1UdEQQmMCSCESouY2RuLm1vemlsbGEubmV0gg9jZG4ubW96aWxsYS5uZXQwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjBrBgNVHR8EZDBiMC+gLaArhilodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vc3NjYS1zaGEyLWczLmNybDAvoC2gK4YpaHR0cDovL2NybDQuZGlnaWNlcnQuY29tL3NzY2Etc2hhMi1nMy5jcmwwQgYDVR0gBDswOTA3BglghkgBhv1sAQEwKjAoBggrBgEFBQcCARYcaHR0cHM6Ly93d3cuZGlnaWNlcnQuY29tL0NQUzB8BggrBgEFBQcBAQRwMG4wJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBGBggrBgEFBQcwAoY6aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0U0hBMlNlY3VyZVNlcnZlckNBLmNydDAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBCwUAA4IBAQCWySmCzgXCq5Xt5aNaytCwERbSQIWLzDv8f8AERKCGZGuuB7yJN53YHk0ef5Df0z13jg5zSch9jwNFQZlQC/GDvubla/3gXq8OfLT8GFc/T6pIoXHHUIFsEfA19S627WsiSNcgCYYJpOq/mhaIsWpVUMjOmC4EwDbDvc9bDzoyvR6R8do+G1E1sCMadJ/YS4ONapb5jBsV0Jstrsxmv6bxEHnBAVqFc4CGngmoYvJNVX5aZU9Ois1WIzpZFicECk1gGeNJfVmpPMwqPScaRh4yY2/fEpzY9M9BAgMgU7Bpx4ZFKZY0Feytk5yMqAswc0QeWVJjkSAx2w3dMgIPKQ+BwC8AAwAAAAABAQAA request-method GET response-head HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+Content-Length: 62866
+Server: Apache
+X-Backend-Server: snippets8.webapp.phx1.mozilla.com
+Cache-Control: max-age=2592000
+Date: Wed, 16 Dec 2015 17:20:20 GMT
+Expires: Fri, 15 Jan 2016 17:20:20 GMT
+Accept-Ranges: bytes
+Access-Control-Allow-Origin: *
+Etag: W/"527071eeda74c"
+Last-Modified: Wed, 16 Dec 2015 17:20:20 GMT
+X-Cache-Info: cached
+Age: 15354
+X-Cache: Hit from cloudfront
+Via: 1.1 4301cae4279742217ac2404c33644d60.cloudfront.net (CloudFront)
+X-Amz-Cf-Id: wBwh42_n40UI6EpUlHAP8N2PhK7yDdirQ6rPWao__9iLwKUanqYemQ==
+ uncompressed-len 0   õ’
