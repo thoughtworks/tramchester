@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Stage {
     public static final int SECONDS_IN_DAY = 24*60*60;
+    private final String mode;
     private String firstStation;
     private String route;
     private String routeId;
@@ -15,10 +16,11 @@ public class Stage {
     private String serviceId;
     private List<ServiceTime> serviceTimes;
 
-    public Stage(String firstStation, String route, String routeId) {
+    public Stage(String firstStation, String route, String routeId, String mode) {
         this.firstStation = firstStation;
         this.route = route;
         this.routeId = routeId;
+        this.mode = mode;
     }
 
     public void setLastStation(String lastStation) {
@@ -111,5 +113,9 @@ public class Stage {
                 ", serviceId='" + serviceId + '\'' +
                 ", serviceTimes=" + serviceTimes +
                 '}';
+    }
+
+    public String getMode() {
+        return mode;
     }
 }

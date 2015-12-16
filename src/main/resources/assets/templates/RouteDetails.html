@@ -24,7 +24,7 @@
             </div>
             <div ng-repeat="journey in journeyPlan.journeys | orderBy:journeyIndex" ng-click="showJourneyDetails(journey.journeyIndex)">
                 <div class="panel {{journey.stages[0].tramRouteId}}">
-                    <div class="panel-heading">{{journey.stages[0].route}} Tram Line</div>
+                    <div class="panel-heading">{{journey.stages[0].route}} {{journey.stages[0].mode}} Line</div>
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showJourneyDetails(journey.journeyIndex)" class="list-group-item">

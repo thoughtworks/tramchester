@@ -19,7 +19,7 @@
             <div ng-repeat="stage in journey.stages ">
 
                 <div class="panel {{stage.tramRouteId}}">
-                    <div class="panel-heading">{{stage.route}} Tram Line</div>
+                    <div class="panel-heading">{{stage.route}} {{stage.mode}} Line</div>
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showMap(stage)" class="list-group-item">
@@ -31,7 +31,7 @@
                     <ul class="list-group">
                         <li class="list-group-item">
                             <strong>{{stage.serviceTimes[serviceTimeIndex].departureTime}}</strong> Catch
-                            {{stage.serviceTimes[0].headSign}} Tram
+                            {{stage.serviceTimes[0].headSign}} {{stage.mode}}
                         </li>
                         <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>
                             Duration <strong>{{stage.duration}} min</strong></li>
@@ -44,7 +44,7 @@
 
                 <div ng-if="!$last" class="tcr-change" >
                     <span class="glyphicon glyphicon-random"></span>
-                    <span class="trc-change-text">Change Tram</span>
+                    <span class="trc-change-text">Change {{stage.mode}}</span>
                 </div>
 
             </div>

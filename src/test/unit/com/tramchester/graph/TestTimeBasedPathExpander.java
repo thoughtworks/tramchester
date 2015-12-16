@@ -66,6 +66,11 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         public String getId() {
             return "ID";
         }
+
+        @Override
+        public String getMode() {
+            return "Tram";
+        }
     };
     private int goesToACost;
     private int goesToBCost;

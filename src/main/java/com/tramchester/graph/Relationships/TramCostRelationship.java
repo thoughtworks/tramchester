@@ -36,4 +36,9 @@ public abstract class TramCostRelationship implements TramRelationship {
         return id;
     }
 
+    @Override
+    public String getMode() {
+        return "Tram";
+    }
+
 }

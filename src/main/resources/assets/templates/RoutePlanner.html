@@ -18,7 +18,7 @@
                                 ng-options="stop.id as stop.name group by stop.proximityGroup for stop in stops"
                                 ng-show="stops.length"
                                 class="form-control input-lg">
-                            <option value="">- Please select tram stop -</option>
+                            <option value="">- Please select stop -</option>
                         </select>
 
                         <div class="form-control input-lg" ng-hide="stops.length">
@@ -33,7 +33,7 @@
                                 ng-options="stop.id as stop.name for stop in stops | orderBy:'name'"
                                 ng-show="stops.length"
                                 class="form-control input-lg">
-                            <option value="">- Please select tram stop -</option>
+                            <option value="">- Please select stop -</option>
                         </select>
 
                         <div class="form-control input-lg" ng-hide="stops.length">

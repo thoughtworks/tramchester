@@ -7,4 +7,5 @@ public interface  TramRelationship {
     boolean isInterchange();
     int getCost();
     String getId();
+    String getMode();
 }

@@ -7,19 +7,22 @@ techLabApp.controller('JourneyDetailsController',
         $scope.disableNextTram = false;
         $scope.disablePreviousTram = true;
         $scope.showChangeIndicator = false;
-        console.log($scope.journey);
 
         $scope.showMap = function (stage) {
             if ($scope.journey.stages.indexOf(stage) == 0) {
-                $location.url('/map?lat=' + stage.beginStop.latitude + "&lon=" + stage.beginStop.longitude + "&name=" + stage.beginStop.name + "&direction=1");
+                $location.url('/map?lat=' + stage.beginStop.latitude + "&lon=" + stage.beginStop.longitude
+                    + "&name=" + stage.beginStop.name + "&direction=1");
             } else {
-                $location.url('/map?lat=' + stage.beginStop.latitude + "&lon=" + stage.beginStop.longitude + "&name=" + stage.beginStop.name + "&direction=0");
+                $location.url('/map?lat=' + stage.beginStop.latitude + "&lon=" + stage.beginStop.longitude
+                    + "&name=" + stage.beginStop.name + "&direction=0");
             }
         };
 
         $scope.goBack = function (journey) {
             if (journey != null) {
-                $location.url('/routeDetails?start=' + journeyPlanService.getStart() + '&end=' + journeyPlanService.getEnd() + '&departureTime=' + journeyPlanService.getDepartureTime());
+                $location.url('/routeDetails?start=' + journeyPlanService.getStart()
+                    + '&end=' + journeyPlanService.getEnd()
+                    + '&departureTime=' + journeyPlanService.getDepartureTime());
             } else {
                 $location.url('/routePlanner');
             }

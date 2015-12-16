@@ -1,27 +1,16 @@
 'use strict';
 
-
-
 var techLabApp = angular.module('techLabApp', ['ngResource','ngRoute']).
     config(function ($routeProvider, $locationProvider) {
-        $routeProvider.when('/routePlanner', {
-            templateUrl: 'templates/RoutePlanner.html',
-            controller: 'RoutePlannerController'
-        }).
-            when('/advancedRoutePlanner', {
-                templateUrl: 'templates/AdvancedRoutePlanner.html',
-                controller: 'AdvancedRoutePlannerController'
-            }).
-            when('/routeDetails', {templateUrl: 'templates/RouteDetails.html', controller: 'RouteDetailsController'}).
+        $routeProvider.
             when('/', {templateUrl: 'templates/splash.html'}).
+            when('/routePlanner', { templateUrl: 'templates/RoutePlanner.html', controller: 'RoutePlannerController'}).
+            when('/routeDetails', {templateUrl: 'templates/RouteDetails.html', controller: 'RouteDetailsController'}).
             when('/disclaimer', {templateUrl: 'templates/Disclaimer.html'}).
             when('/map', {templateUrl: 'templates/map.html', controller: 'MapController'}).
             when('/about', {templateUrl: 'templates/about.html', controller: 'AboutController'}).
-            when('/journeyDetails/:journeyIndex', {
-                templateUrl: 'templates/JourneyDetails.html',
-                controller: 'JourneyDetailsController'
-            })//.
-        //otherwise({redirectTo: '/'});
+            when('/journeyDetails/:journeyIndex', { templateUrl: 'templates/JourneyDetails.html',
+                controller: 'JourneyDetailsController' })
     }).directive('ngModel', function( $filter ) {
         return {
             require: '?ngModel',
@@ -30,7 +19,7 @@ var techLabApp = angular.module('techLabApp', ['ngResource','ngRoute']).
                     return;
                 if( attr.type !== 'time' )
                     return;
-
+                // work around time display issue on some devices/browsers
                 ngModel.$formatters.unshift(function(value) {
                     return value.replace(/:00\.000$/, '')
                 });
