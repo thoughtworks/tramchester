@@ -278,47 +278,62 @@ input[type="time"], input[type="datetime-local"] {
 
 /*! METROLINK COLOURS */
 
-/*! Altrincham - Bury*/
-.MET2 .panel-heading {
-    background-color: #00ac4f;
-    color: #ffffff;
-}
-
-/*! Altrincham - Piccadilly */
-.MET3 .panel-heading {
-    background-color: #f0ca43;
-    color: #191c1f;
-}
-
-/*! Bury - Droylsden */
+/* (D) */
+/* Piccadilly - Bury */
 .MET1 .panel-heading {
-    background-color: #60b0db;
+    background-color: #128cdb;
     color: #191c1f;
 }
 
-/*! East Didsbury - Rochdale Railway Station */
-.MET5 .panel-heading {
-    background-color: #7b437e;
+/* (A) and (B) */
+/* Altrincham - Manchester - Etihad Campus */
+.MET2 .panel-heading {
+    background-color: #ee8006;
     color: #ffffff;
 }
 
-/*! Eccles - Ashton-under-Lyne */
+/* (G) */
+/* Rochdale - Manchester - Ashton */
+.MET3 .panel-heading {
+    background-color: #8b3485;
+    color: #ffffff;
+}
+
+/* (E) */
+/* Eccles - Manchester */
 .MET4 .panel-heading {
-    background-color: #ce799f;
+    background-color: #ea70a8;
     color: #191c1f;
 }
 
-/*! Manchester Airport - Cornbrook */
+/* (C) */
+/* Bury - Manchester - East Didsbury */
+.MET5 .panel-heading {
+    background-color: #12902f;
+    color: #ffffff;
+}
+
+/* (F) */
+/* Cornbrook - Manchester Airport */
 .MET6 .panel-heading {
-    background-color: #1a569a;
+    background-color: #07457d;
+    color: #ffffff;
+}
+
+/* (H) */
+/* Shaw - Oldham - Manchester */
+.MET7 .panel-heading {
+    background-color: #84b918;
     color: #ffffff;
 }
 
 /*! MediaCityUK - Cornbrook */
+/*
 .m-c .panel-heading {
     background-color: #a57036;
     color: #ffffff;
 }
+*/
 
 /*! Tram stop */
 .stop .panel-heading {
