@@ -1,6 +1,8 @@
 'use strict';
 
-var techLabApp = angular.module('techLabApp', ['ngResource']).
+
+
+var techLabApp = angular.module('techLabApp', ['ngResource','ngRoute']).
     config(function ($routeProvider, $locationProvider) {
         $routeProvider.when('/routePlanner', {
             templateUrl: 'templates/RoutePlanner.html',
@@ -20,4 +22,18 @@ var techLabApp = angular.module('techLabApp', ['ngResource']).
                 controller: 'JourneyDetailsController'
             })//.
         //otherwise({redirectTo: '/'});
+    }).directive('ngModel', function( $filter ) {
+        return {
+            require: '?ngModel',
+            link: function(scope, elem, attr, ngModel) {
+                if( !ngModel )
+                    return;
+                if( attr.type !== 'time' )
+                    return;
+
+                ngModel.$formatters.unshift(function(value) {
+                    return value.replace(/:00\.000$/, '')
+                });
+            }
+        }
     });
