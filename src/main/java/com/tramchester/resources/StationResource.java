@@ -50,11 +50,9 @@ public class StationResource {
     @GET
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
-
         if (workingStations.containsKey(id)) {
             return Response.ok(workingStations.get(id)).build();
         }
-
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 

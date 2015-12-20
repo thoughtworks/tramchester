@@ -32,6 +32,7 @@ public class RouteCalculator extends StationIndexs {
 
     // TODO Use INT
     public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
+    public static final int MAX_NUM_GRAPH_PATHS = 2;
 
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
@@ -50,8 +51,8 @@ public class RouteCalculator extends StationIndexs {
             Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, queryTime, dayOfWeek, queryDate);
             // todo eliminate duplicate journeys that use different services??
             Stream<WeightedPath> paths = StreamSupport.stream(pathIterator.spliterator(), false);
-            paths.limit(2).forEach(path->{
-                logger.info("Map journey of length " + path.length());
+            paths.limit(MAX_NUM_GRAPH_PATHS).forEach(path->{
+                logger.info("Map graph path of length " + path.length());
                 Journey journey = mapJourney(path);
                 journey.setJourneyIndex(journeys.size());
                 journeys.add(journey);

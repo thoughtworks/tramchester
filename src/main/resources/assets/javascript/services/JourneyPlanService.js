@@ -33,7 +33,12 @@ techLabApp.factory('journeyPlanService', function () {
 
         getJourney: function (journeyIndex) {
             if (journeyPlanCache != null) {
-                return journeyPlanCache.journeys[journeyIndex];
+                for (var i = 0; i < journeyPlanCache.journeys.length; i++) {
+                    var journey = journeyPlanCache.journeys[i];
+                    if (journey.journeyIndex==journeyIndex) {
+                        return journey;
+                    }
+                }
             }
         },
 
@@ -54,11 +59,11 @@ techLabApp.factory('journeyPlanService', function () {
     }
 
     function journeyPlanFormatter(journeyPlan) {
-
         for (var i = 0; i < journeyPlan.journeys.length; i++) {
-            for (var j = 0; j < journeyPlan.journeys[i].stages.length; j++) {
-                journeyPlan.journeys[i].stages[j].beginStop = getStop(journeyPlan.stations, journeyPlan.journeys[i].stages[j].firstStation);
-                journeyPlan.journeys[i].stages[j].endStop = getStop(journeyPlan.stations, journeyPlan.journeys[i].stages[j].lastStation);
+            var journey = journeyPlan.journeys[i];
+            for (var stageIndex = 0; stageIndex < journey.stages.length; stageIndex++) {
+                journey.stages[stageIndex].beginStop = getStop(journeyPlan.stations, journey.stages[stageIndex].firstStation);
+                journey.stages[stageIndex].endStop = getStop(journeyPlan.stations, journey.stages[stageIndex].lastStation);
             }
         }
         return journeyPlan;

@@ -31,7 +31,6 @@ techLabApp.controller('RouteDetailsController',
 
         $scope.goBack = function () {
             $location.url('/routePlanner/');
-
         };
 
     }

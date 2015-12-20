@@ -55,7 +55,6 @@ public class Journey {
         this.journeyIndex = journeyIndex;
     }
 
-
     @Override
     public String toString() {
         return "Journey{" +
