@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.DaysOfWeek.*;
 
@@ -72,14 +73,14 @@ public class Service {
                                     int maxNumberOfTrips) {
         logger.info(String.format("Find service '%s' trips from '%s' to '%s' after '%s'",
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
-        ArrayList<Trip> validTrips = new ArrayList<>();
+        Map<Integer,Trip> validTrips = new TreeMap<>();
         StringBuilder tripIds = new StringBuilder();
-        for (Trip trip : trips) {
-            if (trip.travelsBetween(firstStationId, lastStationId, minutesFromMidnight)) {
-                tripIds.append(trip.getTripId() + " ");
-                validTrips.add(trip);
-            }
-        }
+        trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, minutesFromMidnight)).forEach(trip -> {
+            tripIds.append(trip.getTripId() + " ");
+            Stop firstStop = trip.getStop(firstStationId, true);
+            int minutes = firstStop.getDepartureMinFromMidnight();
+            validTrips.put(minutes, trip);
+        });
 
         logger.info(String.format("Selected %s of %s trips %s", validTrips.size(), trips.size(), tripIds.toString()));
 
@@ -87,7 +88,7 @@ public class Service {
         if (validTrips.size() < maxNumberOfTrips) {
             limit = validTrips.size();
         }
-        return validTrips.subList(0, limit);
+        return validTrips.values().stream().limit(limit).collect(Collectors.toList());
     }
 
     @Override

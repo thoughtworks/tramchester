@@ -53,6 +53,21 @@ public class TestJourneyResponseMapper {
     }
 
     @Test
+    public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
+        Stage vicToRoch = new Stage(Stations.Victoria, "route text", "route id", "tram");
+        vicToRoch.setServiceId("Serv002271");
+        vicToRoch.setLastStation(Stations.Rochdale);
+        stages.add(vicToRoch);
+        journeys.add(new Journey(stages));
+        JourneyPlanRepresentation result = mapper.map(journeys, 930, 5);
+
+        Journey journey = result.getJourneys().stream().findFirst().get();
+        Stage stage = journey.getStages().get(0);
+        // for this service trips later in the list actually depart earlier, so this would fail
+        assertTrue(stage.getFirstDepartureTime().isBefore(LocalTime.of(16,00)));
+    }
+
+    @Test
     public void shouldMapSimpleJourney() throws TramchesterException {
         Stage altToCorn = new Stage(Stations.Altrincham, "route text", "route id", "tram");
         altToCorn.setServiceId("Serv002201");
