@@ -68,8 +68,10 @@ public class Service {
         return days;
     }
 
-    public List<Trip> getTripsAfter(String firstStationId, String lastStationId, int minutesFromMidnight, int maxNumberOfTrips) {
-        logger.info(String.format("Find service %s trips from %s to %s after %s", serviceId, firstStationId, lastStationId, minutesFromMidnight));
+    public List<Trip> getTripsAfter(String firstStationId, String lastStationId, int minutesFromMidnight,
+                                    int maxNumberOfTrips) {
+        logger.info(String.format("Find service '%s' trips from '%s' to '%s' after '%s'",
+                serviceId, firstStationId, lastStationId, minutesFromMidnight));
         ArrayList<Trip> validTrips = new ArrayList<>();
         StringBuilder tripIds = new StringBuilder();
         for (Trip trip : trips) {

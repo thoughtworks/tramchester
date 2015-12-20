@@ -22,6 +22,7 @@ public class TestTransportDataFromFiles {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
+    private final String svcDeansgateToVic = "Serv003979";
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -61,7 +62,7 @@ public class TestTransportDataFromFiles {
     @Test
     public void shouldThrowOnMissingSvc() {
         try {
-            transportData.getService("doesnotExist");
+            transportData.getServiceById("doesnotExist");
             fail("Should have thrown");
         } catch (NoSuchElementException expected) {
             // no-op expected
@@ -93,7 +94,7 @@ public class TestTransportDataFromFiles {
         String callingService = callingServices.get(0);
 
         // check can now get service
-        Service velopark8AMSvc = transportData.getService(callingService);
+        Service velopark8AMSvc = transportData.getServiceById(callingService);
 
         assertEquals(ASH_TO_MANCHESTER, velopark8AMSvc.getRouteId());
 
@@ -101,6 +102,20 @@ public class TestTransportDataFromFiles {
         List<ServiceTime> tripsByTime = transportData.getTimes(velopark8AMSvc.getServiceId(),
                 Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM, 10);
         assertFalse(tripsByTime.isEmpty());
+    }
+
+    @Test
+    public void shouldGetTripsAfter() {
+        Service svc = transportData.getServiceById(svcDeansgateToVic);
+        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate, Stations.Victoria, 1421, 10);
+        assertFalse(trips.isEmpty());
+    }
+
+    @Test
+    public void shouldGetTripCrossingMidnight() {
+        Service svc = transportData.getServiceById("Serv002262");
+        List<Trip> trips = svc.getTripsAfter(Stations.Victoria, Stations.ShawAndCrompton, (23 * 60) + 44, 10);
+        assertFalse(trips.isEmpty());
     }
 
     @Test
@@ -213,7 +228,7 @@ public class TestTransportDataFromFiles {
 
         // finally check there are trams stopping within 15 mins of 8AM on Monday
         stoppingAtVelopark.removeIf(stop -> {
-            int mins = stop.getMinutesFromMidnight();
+            int mins = stop.getArriveMinsFromMidnight();
             return !((mins>=MINUTES_FROM_MIDNIGHT_8AM) && (mins-MINUTES_FROM_MIDNIGHT_8AM<=15));
         });
 

@@ -17,10 +17,9 @@ import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -33,6 +32,7 @@ public class GraphBuilderTest {
     //public static final String ASH_TO_ECCLES_SVC = "MET:MET4:O:"; // not while st peters square is close
     public static final String ASH_TO_MANCHESTER = "MET:MET3:O:";
     public static final String MAN_TO_ECCLES = "MET:MET4:O:";
+    private static final String EAST_DIDS_TO_BURY = "MET:MET5:O:";
     private GraphDatabaseService service;
     private Transaction transaction;
 
@@ -115,6 +115,39 @@ public class GraphBuilderTest {
         assertEquals(MAN_TO_ECCLES, routeStationNode.getRouteId());
     }
 
+    @Test
+    public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws UnknownStationException {
+        List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
+                Stations.Deansgate + EAST_DIDS_TO_BURY);
+        List deansAndNext = Arrays.asList(Stations.Deansgate, Stations.MarketStreet);
+
+        outbounds.stream().filter(out->out.isTramGoesTo()).forEach(out -> {
+                    TramGoesToRelationship goesTo = (TramGoesToRelationship) out;
+                    String svcId = goesTo.getService();
+                    Service svc = transportData.getServiceById(svcId);
+                    Set<Trip> trips = svc.getTrips();
+                    List<Trip> tripsThatCall = trips.stream().filter(trip -> trip.getStops().stream().
+                            map(stop -> stop.getStation().getId()).
+                                collect(Collectors.toList()).
+                                containsAll(deansAndNext)).
+                            collect(Collectors.toList());
+                    int[] timesTramRuns = goesTo.getTimesTramRuns();
+                    // number of outbounds from should match calling trip from the data
+                    assertEquals(svcId, tripsThatCall.size(), timesTramRuns.length);
+
+                    List<Integer> times = tripsThatCall.stream().
+                            map(trip -> trip.getStop(Stations.Deansgate, true).
+                                    getDepartureMinFromMidnight()).
+                            collect(Collectors.toList());
+                    assertEquals(svcId, times.size(), timesTramRuns.length);
+
+                    for (int timesTramRun : timesTramRuns) {
+                        assertTrue(svcId + " " + timesTramRun, times.contains(timesTramRun));
+                    }
+
+                });
+    }
+
     // this test is data specific and could fail if change to routes happen
     @Ignore("No service direct from velo to media city during st peters square closure")
     @Test
@@ -145,7 +178,7 @@ public class GraphBuilderTest {
         }
         assertNotNull(svcFromVelopark);
 
-        Service rawService = transportData.getService(svcId);
+        Service rawService = transportData.getServiceById(svcId);
 
         // number of times tram runs should match up with number of trips from velopark
         Set<Trip> trips = rawService.getTrips();
@@ -157,7 +190,7 @@ public class GraphBuilderTest {
         List<Trip> notInGraph = new LinkedList<>();
         int[] timesTramRuns = svcFromVelopark.getTimesTramRuns();
         callingTrips.forEach(trip -> {
-            int min = trip.getStop(Stations.VeloPark,false).getMinutesFromMidnight();
+            int min = trip.getStop(Stations.VeloPark,false).getDepartureMinFromMidnight();
             if (Arrays.binarySearch(timesTramRuns, min)<0) {
                 notInGraph.add(trip);
             }
@@ -229,7 +262,7 @@ public class GraphBuilderTest {
         assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !svc.getDaysTramRuns()[0]); // monday
         assertTrue(!svcsFromVelopark.isEmpty());
-        svcsFromVelopark.removeIf(svc -> !transportData.getService(svc.getService()).getRouteId().equals(ASH_TO_MANCHESTER));
+        svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(svc.getService()).getRouteId().equals(ASH_TO_MANCHESTER));
         assertTrue(!svcsFromVelopark.isEmpty());
 
         assertEquals(13, svcsFromVelopark.size());

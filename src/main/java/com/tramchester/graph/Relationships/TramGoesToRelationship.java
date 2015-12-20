@@ -4,7 +4,9 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class TramGoesToRelationship extends TramCostRelationship {
     private String service;
@@ -15,13 +17,14 @@ public class TramGoesToRelationship extends TramCostRelationship {
     private TramServiceDate endDate;
 
     public TramGoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id,
-                                  TramServiceDate startDate, TramServiceDate endDate) {
+                                  TramServiceDate startDate, TramServiceDate endDate, String dest) {
         super(cost, id);
         this.service = service;
         this.daysRunning = daysRunning;
         this.timesRunning = timesRunning;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.dest = dest;
     }
 
     public TramGoesToRelationship(Relationship graphRelationship) {
@@ -93,13 +96,12 @@ public class TramGoesToRelationship extends TramCostRelationship {
     @Override
     public String toString() {
         return "TramGoesToRelationship{" +
-                "service='" + service + '\'' +
-                ", daysRunning=" + Arrays.toString(daysRunning) +
-                ", timesRunning=" + Arrays.toString(timesRunning) +
-                ", dest='" + dest + '\'' +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
+                "service='" + getService() + '\'' +
+                ", dest='" + getDest() + '\'' +
+                ", startDate=" + getStartDate() +
+                ", endDate=" + getEndDate() +
                 '}';
     }
+
 
 }

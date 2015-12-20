@@ -10,11 +10,9 @@ public class StopTimeData {
     private String stopSequence;
     private String pickupType;
     private String dropOffType;
-    private int minutesFromMidnight;
 
     public StopTimeData(String tripId, LocalTime arrivalTime, LocalTime departureTime, String stopId,
-                        String stopSequence, String pickupType, String dropOffType, int minutesFromMidnight) {
-
+                        String stopSequence, String pickupType, String dropOffType) {
         this.tripId = tripId;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
@@ -22,7 +20,6 @@ public class StopTimeData {
         this.stopSequence = stopSequence;
         this.pickupType = pickupType;
         this.dropOffType = dropOffType;
-        this.minutesFromMidnight = minutesFromMidnight;
     }
 
     private StopTimeData() {
@@ -56,7 +53,4 @@ public class StopTimeData {
         return dropOffType;
     }
 
-    public int getMinutesFromMidnight() {
-        return minutesFromMidnight;
-    }
 }

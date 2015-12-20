@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 public class JourneyResponseMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyResponseMapper.class);
 
@@ -18,38 +20,48 @@ public class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    public JourneyPlanRepresentation map(Set<Journey> journeys, int minutesFromMidnight, int maxNumberOfTrips) {
+    public JourneyPlanRepresentation map(Set<Journey> journeys, int minutesFromMidnight, int maxNumberOfTrips) throws TramchesterException {
         Set<Station> stations = getStations(journeys);
-        return new JourneyPlanRepresentation(decorateJourneys(journeys, stations, minutesFromMidnight, maxNumberOfTrips), stations);
+        Set<Journey> decoratedJourneys = decorateJourneys(journeys, stations, minutesFromMidnight, maxNumberOfTrips);
+        return new JourneyPlanRepresentation(decoratedJourneys, stations);
     }
 
     private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations,
-                                          int originMinutesFromMidnight, int maxNumberOfTrips) {
+                                          int originMinutesFromMidnight, int maxNumberOfTrips) throws TramchesterException {
         logger.info("Decorating the discovered journeys " + journeys.size());
         for (Journey journey : journeys) {
             int journeyClock = originMinutesFromMidnight;
 
             journey.setSummary(getJourneySummary(journey, stations));
             logger.info("Add services times for " + journey.toString());
-            for (Stage stage : journey.getStages()) {
-                logger.info(String.format("ServiceId: %s Journey clock is now %s ", stage.getServiceId(), journeyClock));
-
-                List<ServiceTime> times = transportData.getTimes(stage.getServiceId(),
-                        stage.getFirstStation(), stage.getLastStation(), journeyClock, maxNumberOfTrips);
-                stage.setServiceTimes(times);
-                if (times.size() > 0) {
-                    int departsAtMinutes = findEarliestDepartureTime(times);
-                    int duration = stage.getDuration();
-                    journeyClock = departsAtMinutes + duration;
-                    logger.info(String.format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
-                            duration, departsAtMinutes, journeyClock));
-                } else {
-                    logger.error("Cannot complete journey, no times for stage available");
-                    break;
-                }
-            }
+            decorateJourneysUsingStage(journey, maxNumberOfTrips, journeyClock);
         }
         return journeys;
+    }
+
+    private void decorateJourneysUsingStage(Journey journey, int maxNumberOfTrips, int journeyClock) throws TramchesterException {
+        for (Stage stage : journey.getStages()) {
+            String serviceId = stage.getServiceId();
+            logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, journeyClock));
+
+            String firstStation = stage.getFirstStation();
+            String lastStation = stage.getLastStation();
+            List<ServiceTime> times = transportData.getTimes(serviceId,
+                    firstStation, lastStation, journeyClock, maxNumberOfTrips);
+            if (!times.isEmpty()) {
+                stage.setServiceTimes(times);
+                int departsAtMinutes = findEarliestDepartureTime(times);
+                int duration = stage.getDuration();
+                journeyClock = departsAtMinutes + duration;
+                logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
+                        duration, departsAtMinutes, journeyClock));
+            } else {
+                String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
+                        stage, serviceId, journeyClock);
+                logger.error(message);
+                throw new TramchesterException(message);
+            }
+        }
     }
 
     private int findEarliestDepartureTime(List<ServiceTime> times) {
@@ -86,7 +98,7 @@ public class JourneyResponseMapper {
                 break;
             }
         }
-        return String.format("Change at %s", station.getName());
+        return format("Change at %s", station.getName());
     }
 
 }

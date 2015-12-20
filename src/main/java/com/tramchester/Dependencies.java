@@ -41,7 +41,7 @@ public class Dependencies {
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
-    public void initialise(TramchesterConfig configuration) throws Exception {
+    public void initialise(TramchesterConfig configuration) throws IOException {
         Path inputPath = configuration.getInputDataPath();
         if (configuration.isPullData()) {
             logger.info("Pulling data");

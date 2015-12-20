@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static java.lang.String.format;
+
 
 public class TransportGraphBuilder extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
@@ -20,7 +22,7 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final int INTERCHANGE_DEPART_COST = 1;
     public static final int INTERCHANGE_BOARD_COST = 1;
     public static final int BOARDING_COST = 2;
-    public static final int DEPARTS_COST = 2;
+    public static final int DEPARTS_COST = 1;
     public static final String ROUTE_STATION = "RouteStation";
     public static final String STATION = "Station";
 
@@ -90,10 +92,9 @@ public class TransportGraphBuilder extends StationIndexs {
             Node from = getOrCreateRouteStation(currentStop.getStation(), route);
             Node to = getOrCreateRouteStation(nextStop.getStation(), route);
 
-            int duration = nextStop.getMinutesFromMidnight() - currentStop.getMinutesFromMidnight();
             if (runsAtLeastADay(service.getDays())) {
                 createOrUpdateRelationship(from, to, TransportRelationshipTypes.TRAM_GOES_TO, currentStop,
-                        duration, service, route, nextStop.getStation().getName());
+                        nextStop, service, route);
             }
         }
     }
@@ -197,16 +198,22 @@ public class TransportGraphBuilder extends StationIndexs {
     }
 
     private void createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
-                                            Stop stop, int cost, Service service, Route route, String dest) {
+                                            Stop beginStop, Stop endStop, Service service, Route route) {
 
         // Confusingly some services can go different routes and hence have different outbound GOES relationships from
         // the same node, so we have to check both start and end nodes for each relationship
 
-        int fromMidnight = stop.getMinutesFromMidnight();
+        int fromMidnight = beginStop.getDepartureMinFromMidnight();
         Relationship relationship = getRelationship(service, start, end);
 
+        String dest = endStop.getStation().getName();
+
         if (relationship == null) {
-            createRelationship(start, end, transportRelationshipType, stop, cost, service, route, dest);
+            int cost = endStop.getArriveMinsFromMidnight()-beginStop.getDepartureMinFromMidnight();
+            logger.debug(format("Add trip from: '%s' to: '%s' at: '%s' cost: '%s' service: '%s' route: '%s'",
+                    beginStop.getStation(), endStop.getStation(), fromMidnight, cost,
+                    service.getServiceId(), route.getId()));
+            createRelationship(start, end, transportRelationshipType, beginStop, cost, service, route, dest);
         } else {
             // add the time of this stop to the service relationship
             //int[] array = (int[]) relationship.getProperty(GraphStaticKeys.TIMES);
@@ -223,12 +230,12 @@ public class TransportGraphBuilder extends StationIndexs {
     }
 
     private void createRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
-                                    Stop stop, int cost, Service service,
+                                    Stop begin, int cost, Service service,
                                     Route route, String dest) {
         if (service.isRunning()) {
             Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
 
-            int[] times = new int[]{stop.getMinutesFromMidnight()};   // initial contents
+            int[] times = new int[]{begin.getDepartureMinFromMidnight()};   // initial contents
             timesForRelationship.put(relationship.getId(), times);
             relationship.setProperty(GraphStaticKeys.TIMES, times);
             relationship.setProperty(GraphStaticKeys.COST, cost);

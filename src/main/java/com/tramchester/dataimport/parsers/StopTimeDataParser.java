@@ -12,17 +12,18 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         LocalTime arrivalTime = null;
         LocalTime departureTime = null;
 
-        if (data[1].contains(":")) {
-            arrivalTime = getDateTime(data[1]);
+        String fieldOne = data[1];
+        if (fieldOne.contains(":")) {
+            arrivalTime = getDateTime(fieldOne);
         }
         if (data[2].contains(":")) {
             departureTime = getDateTime(data[2]);
         }
 
-        int minutesFromMidnight = 0;
-        if (data[1].contains(":")) {
-            minutesFromMidnight = getMinutes(data[1]);
-        }
+//        int minutesFromMidnight = 0;
+//        if (fieldOne.contains(":")) {
+//            minutesFromMidnight = getMinutes(fieldOne);
+//        }
 
         String stopId = data[3];
 
@@ -30,20 +31,9 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         String pickupType = data[5];
         String dropOffType = data[6];
 
-        return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType, minutesFromMidnight);
+        return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
     }
 
-    private int getMinutes(String time) {
-        String[] split = time.split(":");
-        int hour = Integer.parseInt(split[0]);
-        int minute = Integer.parseInt(split[1]);
-        if(hour == 0){
-            hour = 24;
-        } else if(hour == 1){
-            hour = 25;
-        }
-        return (hour * 60) + minute;
-    }
 
     private LocalTime getDateTime(String time) {
         String[] split = time.split(":");

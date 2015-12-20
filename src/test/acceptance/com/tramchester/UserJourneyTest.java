@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class UserJourneyTest {
 
     private static final String URL = "http://localhost:8080";
-    private static App app;
+//    private static App app;
 
     @BeforeClass
     public static void beforeAnyTestsRun() throws Exception {

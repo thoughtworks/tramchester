@@ -104,10 +104,10 @@ public class TestDataCleanser extends EasyMockSupport {
         LocalTime departureTime = LocalTime.parse("12:09:29");  //, formatter);
 
         StopTimeData stopTimeA = new StopTimeData("tripIdA", now.minusHours(1), now.plusHours(1), "1200stopIdA",
-                "stopSeqA", "pickupA", "dropA", 18);
+                "stopSeqA", "pickupA", "dropA");
 
         StopTimeData stopTimeB = new StopTimeData("tripIdB", arrivalTime, departureTime, "9400stopIdB",
-                "stopSeqB", "pickupB", "dropB", 42);
+                "stopSeqB", "pickupB", "dropB");
 
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeA, stopTimeB);
 

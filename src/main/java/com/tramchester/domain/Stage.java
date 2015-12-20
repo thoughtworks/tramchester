@@ -80,11 +80,12 @@ public class Stage {
         if (serviceTimes.size() > 0) {
             firstDepartureTime = serviceTimes.get(0).getDepartureTime();
         }
+        // TODO only ever reach here in error?
         return firstDepartureTime;
     }
 
     public int getDuration() {
-        if (serviceTimes.size() > 0) {
+        if (!serviceTimes.isEmpty()) {
             ServiceTime serviceTime = serviceTimes.get(0);
             LocalTime arrivalTime = serviceTime.getArrivalTime();
             LocalTime departureTime = serviceTime.getDepartureTime();

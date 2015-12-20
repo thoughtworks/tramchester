@@ -23,11 +23,14 @@ import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
+import static java.lang.String.format;
 
 public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
     public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
+
+    // TODO Use INT
     public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
 
     private NodeFactory nodeFactory;
@@ -39,12 +42,12 @@ public class RouteCalculator extends StationIndexs {
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);
     }
 
-    public Set<Journey> calculateRoute(String startStationId, String endStationId, int time, DaysOfWeek dayOfWeek,
+    public Set<Journey> calculateRoute(String startStationId, String endStationId, int queryTime, DaysOfWeek dayOfWeek,
                                        TramServiceDate queryDate) throws UnknownStationException {
         Set<Journey> journeys = new HashSet<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
-            Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, time, dayOfWeek, queryDate);
+            Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, queryTime, dayOfWeek, queryDate);
             // todo eliminate duplicate journeys that use different services??
             Stream<WeightedPath> paths = StreamSupport.stream(pathIterator.spliterator(), false);
             paths.limit(2).forEach(path->{
@@ -63,10 +66,11 @@ public class RouteCalculator extends StationIndexs {
         Stage currentStage = null;
 
         Iterable<Relationship> relationships = path.relationships();
+        RelationshipFactory relationshipFactory = new RelationshipFactory();
 
         int totalCost = 0;
         for (Relationship graphRelationship : relationships) {
-            TramRelationship tramRelationship = new RelationshipFactory().getRelationship(graphRelationship);
+            TramRelationship tramRelationship = relationshipFactory.getRelationship(graphRelationship);
 
             TramNode startNode = nodeFactory.getNode(graphRelationship.getStartNode());
             String startNodeId = startNode.getId();
@@ -83,24 +87,23 @@ public class RouteCalculator extends StationIndexs {
                 RouteStationNode routeStationNode = (RouteStationNode) endNode;
                 String routeName = routeStationNode.getRouteName();
                 String routeId = routeStationNode.getRouteId();
-                logger.info(String.format("board tram: at:'%s' from '%s'", endNode, startNode));
+                logger.info(format("board tram: at:'%s' from '%s'", endNode, startNode));
                 currentStage = new Stage(startNodeId, routeName, routeId, tramRelationship.getMode());
-            } else if (tramRelationship.isDepartTram()) {
-                // route station -> station
-                StationNode stationNode = (StationNode) endNode;
-                String stationName = stationNode.getName();
-                logger.info(String.format("depart tram: at:'%s' to: '%s' '%s' ", startNodeId, stationName, endNodeId));
-                currentStage.setLastStation(endNodeId);
-                stages.add(currentStage);
             } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;
                 currentStage.setServiceId(tramGoesToRelationship.getService());
-//                logger.debug(String.format("Add step, goes from %s to %s on %s", startNodeId,
-//                    endNodeId, tramGoesToRelationship.getService()));
+            } else if (tramRelationship.isDepartTram()) {
+                // route station -> station
+                StationNode stationNode = (StationNode) endNode;
+                String stationName = stationNode.getName();
+                logger.info(format("depart tram: at:'%s' to: '%s' '%s' ", startNodeId, stationName, endNodeId));
+                currentStage.setLastStation(endNodeId);
+                logger.info(format("Added stage: '%s'",currentStage));
+                stages.add(currentStage);
             }
         }
-        logger.info(String.format("Number of stages: %s Total cost:%s ",stages.size(), totalCost));
+        logger.info(format("Number of stages: %s Total cost:%s ",stages.size(), totalCost));
         return new Journey(stages);
     }
 
@@ -122,15 +125,15 @@ public class RouteCalculator extends StationIndexs {
         }
     }
 
-    private Iterable<WeightedPath> findShortestPath(String startId, String endId, int time, DaysOfWeek dayOfWeek,
+    private Iterable<WeightedPath> findShortestPath(String startId, String endId, int queryTime, DaysOfWeek dayOfWeek,
                                                     TramServiceDate queryDate) throws UnknownStationException {
         Node startNode = getStationNode(startId);
         Node endNode = getStationNode(endId);
-        logger.info(String.format("Finding shortest path for %s (%s) --> %s (%s) on %s",
+        logger.info(format("Finding shortest path for %s (%s) --> %s (%s) on %s",
                 startId, startNode.getProperty(NAME),
                 endId, endNode.getProperty(NAME), dayOfWeek));
 
-        GraphBranchState state = new GraphBranchState(time, dayOfWeek, endId, queryDate);
+        GraphBranchState state = new GraphBranchState(dayOfWeek, endId, queryDate, queryTime);
         PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
                 new InitialBranchState.State<>(state, state),

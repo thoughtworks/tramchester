@@ -25,8 +25,9 @@ public class Stations {
     public static String StPetersSquare = "9400ZZMASTP";
     public static String ExchangeSquare = "9400ZZMAEXS";
     public static String Victoria = "9400ZZMAVIC";
+    public static String ShawAndCrompton = "9400ZZMASHA";
+    public static String MarketStreet = "9400ZZMAMKT";
 
     public static String[] EndOfTheLine = new String[]{Altrincham, ManAirport, Eccles, EastDidsbury, Ashton, Rochdale,
             Bury, ExchangeSquare};
-
 }

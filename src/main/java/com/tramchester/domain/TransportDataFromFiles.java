@@ -61,10 +61,9 @@ public class TransportDataFromFiles implements TransportData {
             if (!stations.containsKey(stationId)) {
                 logger.error("Cannot find station for Id " + stationId);
             }
-            Stop stop = new Stop(stopTimeData.getArrivalTime(),
-                    stopTimeData.getDepartureTime(),
-                    stations.get(stationId),
-                    stopTimeData.getMinutesFromMidnight());
+            Stop stop = new Stop(stations.get(stationId), stopTimeData.getArrivalTime(),
+                    stopTimeData.getDepartureTime()
+            );
 
             trip.addStop(stop);
         });
@@ -143,25 +142,25 @@ public class TransportDataFromFiles implements TransportData {
         logger.info(String.format("Get times for service %s from %s to %s at minutes past %s",
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
         List<ServiceTime> serviceTimes = new ArrayList<>();
-        Service service = this.getService(serviceId);
+        Service service = getServiceById(serviceId);
 
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,
                 maxNumberOfTrips);
         for (Trip trip : tripsAfter) {
             Stop firstStop = trip.getStop(firstStationId, true);
             Stop lastStop = trip.getStop(lastStationId, true);
-            int fromMidnight = firstStop.getMinutesFromMidnight();
+            int fromMidnight = firstStop.getDepartureMinFromMidnight();
 
             ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(),
                     lastStop.getArrivalTime(), serviceId, trip.getHeadSign(), fromMidnight);
 
-            logger.info(String.format("Add service time: %s ", serviceTime));
+            logger.info(String.format("Add trip '%s' service time: %s ", trip, serviceTime));
             serviceTimes.add(serviceTime);
         }
         return serviceTimes;
     }
 
-    public Service getService(String svcId) {
+    public Service getServiceById(String svcId) {
         if (!services.containsKey(svcId)) {
             logger.error("Unable to find service with id: " + svcId);
             throw new NoSuchElementException("Unable to find service " + svcId);

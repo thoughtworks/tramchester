@@ -1,22 +1,19 @@
 package com.tramchester.domain;
 
 
-import com.tramchester.services.DateTimeService;
-
 import java.time.LocalTime;
+
+import static java.lang.String.format;
 
 public class Stop {
     private final LocalTime arrivalTime;
     private final LocalTime departureTime;
     private final Station station;
 
-    private int minutesFromMidnight;
-
-    public Stop(LocalTime arrivalTime, LocalTime departureTime, Station station, int minutesFromMidnight) {
+    public Stop(Station station, LocalTime arrivalTime, LocalTime departureTime) {
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.station = station;
-        this.minutesFromMidnight = minutesFromMidnight;
     }
 
     public LocalTime getArrivalTime() {
@@ -27,21 +24,34 @@ public class Stop {
         return departureTime;
     }
 
+    private int getMinutes(LocalTime time) {
+        int hour = time.getHour();
+        int minute = time.getMinute();
+        if(hour == 0){
+            hour = 24;
+        } else if(hour == 1){
+            hour = 25;
+        }
+        return (hour * 60) + minute;
+    }
+
     public Station getStation() {
         return station;
     }
 
-    public int getMinutesFromMidnight() {
-        return minutesFromMidnight;
-    }
 
     @Override
     public String toString() {
-        return "Stop{" +
-                "arrivalTime=" + DateTimeService.formatTime(arrivalTime) +
-                ", departureTime=" + DateTimeService.formatTime(departureTime) +
-                ", station=" + station +
-                ", minutesFromMidnight=" + minutesFromMidnight +
-                '}';
+        return format("Stop arrivalTime=%s (%s) departureTime=%s (%s) station=%s",
+                arrivalTime, getArriveMinsFromMidnight(),
+                departureTime, getDepartureMinFromMidnight(), station);
+    }
+
+    public int getDepartureMinFromMidnight() {
+        return getMinutes(departureTime);
+    }
+
+    public int getArriveMinsFromMidnight() {
+        return getMinutes(arrivalTime);
     }
 }

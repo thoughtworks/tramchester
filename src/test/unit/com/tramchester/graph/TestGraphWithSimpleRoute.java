@@ -4,7 +4,6 @@ import com.tramchester.domain.*;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,9 +24,16 @@ import static junit.framework.TestCase.assertEquals;
 public class TestGraphWithSimpleRoute {
 
     public static final String TMP_DB = "tmp.db";
+    public static final String FIRST_STATION = "9400ZZ_FIRST";
+    public static final String SECOND_STATION = "9400ZZ_SECOND";
+    public static final String LAST_STATION = "9400ZZ_LAST";
+    public static final String INTERCHANGE = Interchanges.CORNBROOK;
+    public static final String STATION_FOUR = "9400ZZ_FOUR";
+    public static final String PLATFORM = "2";
     private static TransportDataForTest transportData;
     private static RouteCalculator calculator;
     private TramServiceDate queryDate;
+    private int queryTime;
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
@@ -47,35 +53,36 @@ public class TestGraphWithSimpleRoute {
     @Before
     public void beforeEachTestRuns() {
         queryDate = new TramServiceDate("20140630");
+        queryTime = (8 * 60)-3;
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("9400ZZMAABM", "9400ZZMAALT", 8*60, DaysOfWeek.Monday, queryDate);
+        Set<Journey> journeys = calculator.calculateRoute(FIRST_STATION, SECOND_STATION, queryTime, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("9400ZZMAABM", Interchanges.CORNBROOK, 8*60, DaysOfWeek.Monday, queryDate);
+        Set<Journey> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, queryTime, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("9400ZZMAABM", Interchanges.CORNBROOK, 9*60, DaysOfWeek.Monday, queryDate);
+        Set<Journey> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, 9*60, DaysOfWeek.Monday, queryDate);
         assertEquals(0, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("9400ZZMAABM", "9400ZZMAANC", 8*60, DaysOfWeek.Monday, queryDate);
+        Set<Journey> journeys = calculator.calculateRoute(FIRST_STATION, LAST_STATION, queryTime, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws UnknownStationException {
-        Set<Journey> journeys = calculator.calculateRoute("9400ZZMAABM", "9400ZZMABNR", 8*60, DaysOfWeek.Monday, queryDate);
+        Set<Journey> journeys = calculator.calculateRoute(FIRST_STATION, STATION_FOUR, queryTime, DaysOfWeek.Monday, queryDate);
         assertEquals(1, journeys.size());
     }
 
@@ -102,48 +109,47 @@ public class TestGraphWithSimpleRoute {
             serviceB.setDays(true, false, false, false, false, false, false);
 
             LocalDate startDate = new LocalDate(2014, 02, 10);
-            LocalDate endDate = new LocalDate(2015, 8, 15);
+            LocalDate endDate = new LocalDate(2020, 8, 15);
             serviceA.setServiceDateRange(startDate, endDate);
             serviceB.setServiceDateRange(startDate, endDate);
 
-            // trip: 1 -> 2 -> cornbrook -> 3
+            // 8*60=480
+
+            // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
             Trip tripA = new Trip("trip1Id", "headSign", serviceAId);
+
+            double latitude = 180.00;
+            double longitude = 270.0;
+            Station first = new Station(FIRST_STATION+PLATFORM, "startStation", latitude, longitude);
+            tripA.addStop(createStop(first, createTime(8, 0), createTime(8, 0)));
+
+            Station second = new Station(SECOND_STATION+PLATFORM, "secondStation", latitude, longitude);
+            tripA.addStop(createStop(second, createTime(8, 11), createTime(8, 11)));
+
+            Station interchangeStation = new Station(INTERCHANGE+PLATFORM, "cornbrook", latitude, longitude);
+            tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 20)));
+
+            Station last = new Station(LAST_STATION+PLATFORM, "endStation", latitude, longitude);
+            tripA.addStop(createStop(last, createTime(8, 40), createTime(8, 40)));
+            // service
             serviceA.addTrip(tripA);
-            int startTime = 8*60; // 8am
 
-            Station station = new Station("9400ZZMAABM2", "startStation", 180.00, 270.0);
-            tripA.addStop(createStop(station, createTime(8, 0), createTime(8, 3), startTime+3));
-
-            station = new Station("9400ZZMAALT1", "secondStation", 180.00, 270.0);
-            tripA.addStop(createStop(station, createTime(8, 6), createTime(8, 7), startTime + 6));
-
-            Station interchangeStation = new Station(Interchanges.CORNBROOK+"1", "cornbrook", 180.00, 270.00);
-            tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 21), startTime + 20));
-
-            station = new Station("9400ZZMAANC2", "endStation", 180.00, 270.00);
-            tripA.addStop(createStop(station, createTime(8, 40), createTime(00, 41),
-                    RouteCalculator.MAX_WAIT_TIME_MINS + startTime));
-
-            // cornbrook -> 4
+            // tripB: INTERCHANGE -> STATION_FOUR
             Trip tripB = new Trip("trip2Id", "headSign", serviceBId);
+            tripB.addStop(createStop(interchangeStation, createTime(8,26), createTime(8,26)));
+
+            Station four = new Station(STATION_FOUR+PLATFORM, "stat4Station", 170.00, 160.00);
+            tripB.addStop(createStop(four, createTime(8,36), createTime(8,36)));
+            // service
             serviceB.addTrip(tripB);
-            tripB.addStop(createStop(interchangeStation, createTime(8,26), createTime(8,27),
-                    startTime+RouteCalculator.MAX_WAIT_TIME_MINS+2));
-
-            station = new Station("9400ZZMABNR2", "stat4Station", 170.00, 160.00);
-            tripB.addStop(createStop(station, createTime(8,35), createTime(8,36),
-                    startTime + RouteCalculator.MAX_WAIT_TIME_MINS+10));
-
         }
 
         private LocalTime createTime(int hourOfDay, int minuteOfHour) {
             return LocalTime.of(hourOfDay,minuteOfHour,00);
         }
 
-        private Stop createStop(Station startStation, LocalTime arrivalTime, LocalTime departureTime,
-                                int minutesFromMidnight) {
-           return new Stop(arrivalTime, departureTime, startStation, minutesFromMidnight);
-
+        private Stop createStop(Station startStation, LocalTime arrivalTime, LocalTime departureTime) {
+           return new Stop(startStation, arrivalTime, departureTime);
         }
 
         @Override

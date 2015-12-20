@@ -13,7 +13,7 @@ public class Trip {
     private final String serviceId;
     private String tripId;
     private String headSign;
-    private Map<String, Stop> stops = new LinkedHashMap<>();
+    private Map<String, Stop> stops = new LinkedHashMap<>(); // stationId -> Stop
 
     @Override
     public boolean equals(Object o) {
@@ -57,22 +57,32 @@ public class Trip {
     }
 
     public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
-        boolean seenFirst = false;
-        boolean seenSecond = false;
-        for (Stop stop : stops.values()) {
-            if (stop.getMinutesFromMidnight() > minutesFromMidnight) {
-                String stopStationId = stop.getStation().getId();
-                if (firstStationId.equals(stopStationId)) {
-                    seenFirst = true;
-                } else if (seenFirst && lastStationId.equals(stopStationId)) {
-                    seenSecond = true;
-                }
-            }
-            if (seenFirst && seenSecond) {
-                return true;
-            }
+        if (!(stops.containsKey(firstStationId) && (stops.containsKey(lastStationId)))) {
+            return false;
         }
-        return false;
+        Stop firstStop = stops.get(firstStationId);
+        Stop secondStop = stops.get(lastStationId);
+        if (secondStop.getArriveMinsFromMidnight()>firstStop.getDepartureMinFromMidnight()) {
+            return firstStop.getDepartureMinFromMidnight() > minutesFromMidnight;
+        }
+       return false;
+
+//        boolean seenFirst = false;
+//        boolean seenSecond = false;
+//        for (Stop stop : stops.values()) {
+//            if (stop.getMinutesFromMidnight() > minutesFromMidnight) {
+//                String stopStationId = stop.getStation().getId();
+//                if (firstStationId.equals(stopStationId)) {
+//                    seenFirst = true;
+//                } else if (seenFirst && lastStationId.equals(stopStationId)) {
+//                    seenSecond = true;
+//                }
+//            }
+//            if (seenFirst && seenSecond) {
+//                return true;
+//            }
+//        }
+//        return false;
     }
 
     public Stop getStop(String stationId, boolean isError) {

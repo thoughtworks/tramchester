@@ -3,6 +3,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramchesterException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.*;
@@ -35,43 +36,6 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
     private boolean[] days = new boolean[] {};
     private RelationshipFactory relationshipFactory;
     private NodeFactory nodeFactory;
-
-    TramRelationship departsRelationship = new TramRelationship() {
-        @Override
-        public boolean isTramGoesTo() {
-            return false;
-        }
-
-        @Override
-        public boolean isBoarding() {
-            return false;
-        }
-
-        @Override
-        public boolean isDepartTram() {
-            return true;
-        }
-
-        @Override
-        public boolean isInterchange() {
-            return false;
-        }
-
-        @Override
-        public int getCost() {
-            return 2;
-        }
-
-        @Override
-        public String getId() {
-            return "ID";
-        }
-
-        @Override
-        public String getMode() {
-            return "Tram";
-        }
-    };
     private int goesToACost;
     private int goesToBCost;
     private TramServiceDate startDate;
@@ -114,47 +78,94 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHandleTimesWith30MinWait() {
+    public void shouldHandleTimesWith30MinWait() throws TramchesterException {
         TimeBasedPathExpander expander = new TimeBasedPathExpander(
                 CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
 
-        assertFalse(expander.operatesOnTime(times, () -> 400));
-        assertFalse(expander.operatesOnTime(times, () -> 550));
-        assertTrue(expander.operatesOnTime(times, () -> 580));
-        assertTrue(expander.operatesOnTime(times, () -> 600));
-        assertFalse(expander.operatesOnTime(times, () -> 620));
-        assertFalse(expander.operatesOnTime(times, () -> 630));
-        assertFalse(expander.operatesOnTime(times, () -> 650));
-        assertTrue(expander.operatesOnTime(times, () -> 680));
-        assertFalse(expander.operatesOnTime(times, () -> 1001));
+        ProvidesElapsedTime providerA = createNoMatchProvider(400);
+        ProvidesElapsedTime providerB = createNoMatchProvider(550);
+        ProvidesElapsedTime providerC = createMatchProvider(580, 600-TransportGraphBuilder.BOARDING_COST);
+        ProvidesElapsedTime providerD = createMatchProvider(600, 600-TransportGraphBuilder.BOARDING_COST);
+        ProvidesElapsedTime providerE = createNoMatchProvider(620);
+        ProvidesElapsedTime providerF = createNoMatchProvider(630);
+        ProvidesElapsedTime providerG = createNoMatchProvider(650);
+        ProvidesElapsedTime providerH = createMatchProvider(680, 700-TransportGraphBuilder.BOARDING_COST);
+        ProvidesElapsedTime providerI = createNoMatchProvider(1001);
+
+        replayAll();
+        assertFalse(expander.operatesOnTime(times, providerA));
+        assertFalse(expander.operatesOnTime(times, providerB));
+        assertTrue(expander.operatesOnTime(times, providerC));
+        assertTrue(expander.operatesOnTime(times, providerD));
+        assertFalse(expander.operatesOnTime(times, providerE));
+        assertFalse(expander.operatesOnTime(times, providerF));
+        assertFalse(expander.operatesOnTime(times, providerG));
+        assertTrue(expander.operatesOnTime(times, providerH));
+        assertFalse(expander.operatesOnTime(times, providerI));
+        verifyAll();
+    }
+
+    private ProvidesElapsedTime createMatchProvider(int queryTime, int journeyStart) throws TramchesterException {
+        ProvidesElapsedTime provider = createMock(ProvidesElapsedTime.class);
+        EasyMock.expect(provider.getElapsedTime()).andStubReturn(queryTime);
+        EasyMock.expect(provider.startNotSet()).andReturn(true);
+        provider.setJourneyStart(journeyStart);
+        EasyMock.expectLastCall();
+
+        return provider;
+    }
+
+    private ProvidesElapsedTime createNoMatchProvider(int queryTime) throws TramchesterException {
+        ProvidesElapsedTime provider = createMock(ProvidesElapsedTime.class);
+        EasyMock.expect(provider.getElapsedTime()).andReturn(queryTime);
+        return provider;
     }
 
     @Test
-    public void shouldHandleTimesWith15MinWait() {
+    public void shouldHandleTimesWith15MinWait() throws TramchesterException {
         TimeBasedPathExpander expander = new TimeBasedPathExpander(
                 CommonEvaluators.doubleCostEvaluator(COST), 15, relationshipFactory, nodeFactory);
 
-        assertFalse(expander.operatesOnTime(times,() -> 400));
-        assertFalse(expander.operatesOnTime(times, () ->550));
-        assertFalse(expander.operatesOnTime(times, () ->580));
-        assertTrue(expander.operatesOnTime(times, () ->600));
-        assertFalse(expander.operatesOnTime(times, () ->620));
-        assertFalse(expander.operatesOnTime(times, () ->630));
-        assertFalse(expander.operatesOnTime(times, () ->650));
-        assertFalse(expander.operatesOnTime(times, () ->680));
-        assertTrue(expander.operatesOnTime(times, () ->590));
-        assertFalse(expander.operatesOnTime(times, () ->1001));
+        ProvidesElapsedTime providerA = createNoMatchProvider(400);
+        ProvidesElapsedTime providerB = createNoMatchProvider(550);
+        ProvidesElapsedTime providerC = createNoMatchProvider(580);
+        ProvidesElapsedTime providerD = createMatchProvider(600, 600-TransportGraphBuilder.BOARDING_COST);
+        ProvidesElapsedTime providerE = createNoMatchProvider(620);
+        ProvidesElapsedTime providerF = createNoMatchProvider(630);
+        ProvidesElapsedTime providerG = createNoMatchProvider(650);
+        ProvidesElapsedTime providerH = createNoMatchProvider(680);
+        ProvidesElapsedTime providerI = createMatchProvider(590, 600-TransportGraphBuilder.BOARDING_COST);
+        ProvidesElapsedTime providerJ = createNoMatchProvider(1001);
+
+        replayAll();
+        assertFalse(expander.operatesOnTime(times, providerA));
+        assertFalse(expander.operatesOnTime(times, providerB));
+        assertFalse(expander.operatesOnTime(times, providerC));
+        assertTrue(expander.operatesOnTime(times, providerD));
+        assertFalse(expander.operatesOnTime(times, providerE));
+        assertFalse(expander.operatesOnTime(times, providerF));
+        assertFalse(expander.operatesOnTime(times, providerG));
+        assertFalse(expander.operatesOnTime(times, providerH));
+        assertTrue(expander.operatesOnTime(times, providerI));
+        assertFalse(expander.operatesOnTime(times, providerJ));
+        verifyAll();
     }
 
     @Test
-    public void shouldHandleTimesOneTime() {
+    public void shouldHandleTimesOneTime() throws TramchesterException {
         TimeBasedPathExpander expander = new TimeBasedPathExpander(
                 CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
 
         int[] time = new int[] { 450 };
-        assertFalse(expander.operatesOnTime(time, () ->400));
-        assertTrue(expander.operatesOnTime(time, () ->420));
-        assertFalse(expander.operatesOnTime(time, () ->451));
+        ProvidesElapsedTime providerA = createNoMatchProvider(400);
+        ProvidesElapsedTime providerB = createMatchProvider(420, 450-TransportGraphBuilder.BOARDING_COST);
+        ProvidesElapsedTime providerC = createNoMatchProvider(451);
+
+        replayAll();
+        assertFalse(expander.operatesOnTime(time, providerA));
+        assertTrue(expander.operatesOnTime(time, providerB));
+        assertFalse(expander.operatesOnTime(time, providerC));
+        verifyAll();
     }
 
     @Test
@@ -165,8 +176,8 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         TramRelationship board = new BoardRelationship(boards);
         TramRelationship depart = new DepartRelationship(departs);
         TramRelationship change = new InterchangeDepartsRelationship(interchangeBoards);
-        TramGoesToRelationship outA = new TramGoesToRelationship("0042", 10, days, times, "id1", startDate, endDate);
-        TramGoesToRelationship outB = new TramGoesToRelationship("0048", 5, days, times, "id2", startDate, endDate);
+        TramGoesToRelationship outA = new TramGoesToRelationship("0042", 10, days, times, "id1", startDate, endDate, "destA");
+        TramGoesToRelationship outB = new TramGoesToRelationship("0048", 5, days, times, "id2", startDate, endDate, "destB");
         TimeBasedPathExpander expander = new TimeBasedPathExpander(
                 CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
 
@@ -216,7 +227,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
 
         EasyMock.expect(path.length()).andReturn(0);
 
-        GraphBranchState state = new GraphBranchState(580, DaysOfWeek.Monday, "destId", validDate);
+        GraphBranchState state = new GraphBranchState(DaysOfWeek.Monday, "destId", validDate, 580);
         BranchState<GraphBranchState> branchState = createGraphBranchState(state);
 
         replayAll();
@@ -327,7 +338,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         assertEquals(1, results);
     }
 
-    private int countExpandedRelationships(int maxWait, int journeyStartTime, DaysOfWeek day,
+    private int countExpandedRelationships(int maxWait, int queriedTime, DaysOfWeek day,
                                            String inboundServiceId, String outboundServiceId, int[] outgoingTimes,
                                            Relationship incomingTram, TramServiceDate queryDate, boolean pathExpands) {
         RelationshipFactory mockRelationshipFactory = createMock(RelationshipFactory.class);
@@ -344,7 +355,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         createInboundExpectations(mockRelationshipFactory, path, inboundServiceId, incomingTram, pathExpands);
         createOutgoingExpectations(mockRelationshipFactory, goesToACost, outboundServiceId, outgoingTimes, goesToA);
 
-        GraphBranchState state = new GraphBranchState(journeyStartTime, day, "destId", queryDate);
+        GraphBranchState state = new GraphBranchState(day, "destId", queryDate, queriedTime);
         BranchState<GraphBranchState> branchState = createGraphBranchState(state);
 
         replayAll();
@@ -358,7 +369,8 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
                                            String incomingService, Relationship incomingTram, boolean pathExpands) {
         EasyMock.expect(path.length()).andStubReturn(1);
         EasyMock.expect(path.lastRelationship()).andReturn(incomingTram);
-        TramRelationship gotoRelationship = new TramGoesToRelationship(incomingService, goesToBCost, days, times, "id", startDate, endDate);
+        TramRelationship gotoRelationship = new TramGoesToRelationship(incomingService, goesToBCost, days, times,
+                "id", startDate, endDate, "destFrom");
         EasyMock.expect(mockRelationshipFactory.getRelationship(incomingTram)).andStubReturn(gotoRelationship);
         // neo gets current cost by adding up steps so far
         if (pathExpands) {
@@ -373,7 +385,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         EasyMock.expect(mockRelationshipFactory.getRelationship(departs)).andStubReturn(departsRelationship);
         boolean[] expectedDays = new boolean[] { true, false, false, false, false, false, false };
         TramGoesToRelationship outgoingRelationship = new TramGoesToRelationship(service, outgoingStageCost,
-                expectedDays, outgoingTimes, "id", startDate, endDate);
+                expectedDays, outgoingTimes, "id", startDate, endDate, "destTo");
         EasyMock.expect(mockRelationshipFactory.getRelationship(outgoingTram)).andStubReturn(outgoingRelationship);
     }
 
@@ -416,5 +428,42 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
                 }
             };
     }
+
+    TramRelationship departsRelationship = new TramRelationship() {
+        @Override
+        public boolean isTramGoesTo() {
+            return false;
+        }
+
+        @Override
+        public boolean isBoarding() {
+            return false;
+        }
+
+        @Override
+        public boolean isDepartTram() {
+            return true;
+        }
+
+        @Override
+        public boolean isInterchange() {
+            return false;
+        }
+
+        @Override
+        public int getCost() {
+            return 2;
+        }
+
+        @Override
+        public String getId() {
+            return "ID";
+        }
+
+        @Override
+        public String getMode() {
+            return "Tram";
+        }
+    };
 
 }

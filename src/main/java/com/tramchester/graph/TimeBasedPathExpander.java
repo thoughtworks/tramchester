@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramchesterException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -9,7 +10,6 @@ import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.joda.time.LocalDate;
 import org.neo4j.graphalgo.CostEvaluator;
-import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
@@ -41,7 +41,6 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
 
     @Override
     public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> state) {
-        GraphBranchState branchState = state.getState();
 
         Node endNode = path.endNode();
         TramNode currentNode = nodeFactory.getNode(endNode);
@@ -53,10 +52,8 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         }
 
         TramRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
-
         Set<Relationship> results = new HashSet<>();
 
-        //int elapsedTime = getElapsedTime(path, branchState);
         List<ServiceReason> servicesFilteredOut = new LinkedList<>();
         int servicesOutbound = 0;
 
@@ -66,8 +63,13 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 // filter route station -> route station relationships
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outgoing;
                 servicesOutbound++;
-                ServiceReason serviceReason = checkServiceHeuristics(branchState, incoming,
-                        tramGoesToRelationship, path);
+                ServiceReason serviceReason = null;
+                try {
+                    serviceReason = checkServiceHeuristics(state, incoming,
+                            tramGoesToRelationship, path);
+                } catch (TramchesterException e) {
+                    logger.error("Unable to check service heuristics",e);
+                }
                 if (serviceReason==ServiceReason.IsValid) {
                     results.add(graphRelationship);
                 } else {
@@ -100,22 +102,23 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         logger.debug(output.toString());
     }
 
-    private ServiceReason checkServiceHeuristics(GraphBranchState branchState, TramRelationship incoming,
-                                                 TramGoesToRelationship tramGoesToRelationship, Path path) {
-        if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(), branchState.getDay())) {
-            return ServiceReason.DoesNotRunOnDay;
+    private ServiceReason checkServiceHeuristics(BranchState<GraphBranchState> branchState, TramRelationship incoming,
+                                                 TramGoesToRelationship tramGoesToRelationship, Path path) throws TramchesterException {
+        if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(),  branchState.getState().getDay())) {
+            return new ServiceReason.DoesNotRunOnDay(branchState.getState().getDay());
         }
         if (!noInFlightChangeOfService(incoming, tramGoesToRelationship)) {
             return ServiceReason.InflightChangeOfService;
         }
-        if (!operatesOnQueryDate(tramGoesToRelationship.getStartDate(), tramGoesToRelationship.getEndDate(), branchState.getQueryDate()))
+        if (!operatesOnQueryDate(tramGoesToRelationship.getStartDate(), tramGoesToRelationship.getEndDate(),
+                branchState.getState().getQueryDate()))
         {
             return ServiceReason.DoesNotRunOnQueryDate;
         }
         // do this last, it is expensive
         ProvidesElapsedTime elapsedTimeProvider = new ProvidesElapsedTime(path, branchState, costEvaluator);
         if (!operatesOnTime(tramGoesToRelationship.getTimesTramRuns(), elapsedTimeProvider)) {
-            return ServiceReason.DoesNotOperateOnTime;
+            return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
         }
         return ServiceReason.IsValid;
     }
@@ -140,7 +143,10 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         return inComingTram.getService().equals(outgoing.getService());
     }
 
-    public boolean operatesOnTime(int[] times, ElapsedTime provider) {
+    public boolean operatesOnTime(int[] times, ElapsedTime provider) throws TramchesterException {
+        if (times.length==0) {
+            logger.warn("No times provided");
+        }
         int elapsedTime = provider.getElapsedTime();
         // the times array is sorted in ascending order
         for (int nextTram : times) {
@@ -150,6 +156,12 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
 
             if (nextTram>=elapsedTime) { // check next tram not in the past
                 if ((nextTram-elapsedTime) <= maxWaitMinutes) {
+                    if (provider.startNotSet()) {
+                        int realJounrneyStartTime = nextTram-TransportGraphBuilder.BOARDING_COST;
+                        logger.info(format("Setting start time for journey to %s",
+                                realJounrneyStartTime));
+                        provider.setJourneyStart(realJounrneyStartTime);
+                    }
                     return true;  // within max wait time
                 }
             }
