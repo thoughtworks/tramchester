@@ -10,7 +10,7 @@
         <div class="col-12 col-sm-12 col-lg-" ng-hide='!journey.stages.length'>
             <button class="btn btn-default btn-sm pull-left" ng-click="previousTram()"
                     ng-disabled="disablePreviousTram"><span class="glyphicon glyphicon-chevron-left"></span></button>
-            <button class="btn btn-default btn-sm pull-right" ng-click="nextTram()" ng-disabled="disableNextTram"><span
+            <button class="btn btn-default btn-sm pull-right" ng-click="nextTram(journey)" ng-disabled="disableNextTram"><span
                     class="glyphicon glyphicon-chevron-right"></span></button>
             <h4 class="heading">{{journey.stages[0].serviceTimes[serviceTimeIndex].departureTime}}
                 from

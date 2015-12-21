@@ -31,6 +31,11 @@ techLabApp.factory('journeyPlanService', function () {
             return startCache;
         },
 
+        getNumberOfServiceTimes: function(journeyIndex) {
+            var journey = journeyPlanCache.journeys[journeyIndex];
+            return journey.stages[0].serviceTimes.length;
+        },
+
         getJourney: function (journeyIndex) {
             if (journeyPlanCache != null) {
                 for (var i = 0; i < journeyPlanCache.journeys.length; i++) {

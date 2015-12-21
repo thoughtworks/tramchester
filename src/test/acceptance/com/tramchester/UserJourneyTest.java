@@ -2,7 +2,6 @@ package com.tramchester;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -12,7 +11,6 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 
 import java.io.File;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -33,7 +31,6 @@ public class UserJourneyTest {
 
     }
 
-    @Ignore("Work in progress")
     @Test
     public void shouldCheckUserJourney() throws InterruptedException {
         File profileDir = new File("src/test/acceptance/firefoxTestProfile/");
