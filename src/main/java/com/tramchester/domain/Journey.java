@@ -12,6 +12,7 @@ public class Journey {
     private List<Stage> stages;
     private String summary;
     private int journeyIndex;
+    private int numberOfTimes;
 
     public Journey(List<Stage> stages) {
         this.stages = stages;
@@ -62,5 +63,13 @@ public class Journey {
                 ", summary='" + summary + '\'' +
                 ", journeyIndex=" + journeyIndex +
                 '}';
+    }
+
+    public int getNumberOfTimes() {
+        return numberOfTimes;
+    }
+
+    public void setNumberOfTimes(int numberOfTimes) {
+        this.numberOfTimes = numberOfTimes;
     }
 }

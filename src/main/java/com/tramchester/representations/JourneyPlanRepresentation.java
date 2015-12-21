@@ -8,6 +8,7 @@ import java.util.Set;
 public class JourneyPlanRepresentation {
     private final Set<Journey> journeys;
     private final Set<Station> stations;
+    private int numberOfServiceTimes;
 
     public JourneyPlanRepresentation(Set<Journey> journeys, Set<Station> stations) {
         this.journeys = journeys;
@@ -21,4 +22,6 @@ public class JourneyPlanRepresentation {
     public Set<Station> getStations() {
         return stations;
     }
+
+
 }

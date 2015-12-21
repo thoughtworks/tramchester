@@ -97,12 +97,12 @@ public class TestJourneyResponseMapper {
     public void shouldMapTwoStageJourney() throws TramchesterException {
         Stage altToDeansgate = new Stage(Stations.Altrincham, "route text", "route id", "tram");
         altToDeansgate.setLastStation(Stations.Deansgate);
-
         altToDeansgate.setServiceId("Serv002192");
+
         Stage deansgateToVic = new Stage(Stations.Deansgate, "route2 text", "route2 id", "tram");
         deansgateToVic.setLastStation(Stations.Victoria);
-
         deansgateToVic.setServiceId("Serv003979");
+
         stages.add(altToDeansgate);
         stages.add(deansgateToVic);
         journeys.add(new Journey(stages));
@@ -118,5 +118,27 @@ public class TestJourneyResponseMapper {
 
         List<ServiceTime> serviceTimes = stage2.getServiceTimes();
         assertEquals(1, serviceTimes.size());
+    }
+
+    @Test
+    public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
+        Stage picToCorn = new Stage(Stations.PiccadilyGardens, "routeText", "routeId", "tram");
+        picToCorn.setLastStation(Stations.Cornbrook);
+        picToCorn.setServiceId("Serv002327");
+        // yields 3 trips
+
+        Stage cornToAir = new Stage(Stations.Cornbrook, "routeText", "routeId", "tram");
+        cornToAir.setLastStation(Stations.ManAirport);
+        cornToAir.setServiceId("Serv004826");
+        // yields 1 trip
+
+        stages.add(picToCorn);
+        stages.add(cornToAir);
+        journeys.add(new Journey(stages));
+
+        JourneyPlanRepresentation result = mapper.map(journeys, (23*60)+10, 3);
+
+        Journey journey = result.getJourneys().stream().findFirst().get();
+        assertEquals(1, journey.getNumberOfTimes());
     }
 }

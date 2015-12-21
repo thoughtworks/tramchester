@@ -39,29 +39,34 @@ public class JourneyResponseMapper {
         return journeys;
     }
 
-    private void decorateJourneysUsingStage(Journey journey, int maxNumberOfTrips, int journeyClock) throws TramchesterException {
+    private void decorateJourneysUsingStage(Journey journey, int maxNumOfSvcTimes, int journeyClock) throws TramchesterException {
+        int minNumberOfTimes = Integer.MAX_VALUE;
         for (Stage stage : journey.getStages()) {
             String serviceId = stage.getServiceId();
             logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, journeyClock));
 
             String firstStation = stage.getFirstStation();
             String lastStation = stage.getLastStation();
-            List<ServiceTime> times = transportData.getTimes(serviceId,
-                    firstStation, lastStation, journeyClock, maxNumberOfTrips);
-            if (!times.isEmpty()) {
-                stage.setServiceTimes(times);
-                int departsAtMinutes = findEarliestDepartureTime(times);
-                int duration = stage.getDuration();
-                journeyClock = departsAtMinutes + duration;
-                logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
-                        duration, departsAtMinutes, journeyClock));
-            } else {
+            List<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, journeyClock, maxNumOfSvcTimes);
+            if (times.isEmpty()) {
                 String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                         stage, serviceId, journeyClock);
                 logger.error(message);
                 throw new TramchesterException(message);
             }
+
+            if (times.size()<minNumberOfTimes) {
+                minNumberOfTimes = times.size();
+            }
+            logger.info(format("Found %s times for service id %s", times.size(), serviceId));
+            stage.setServiceTimes(times);
+            int departsAtMinutes = findEarliestDepartureTime(times);
+            int duration = stage.getDuration();
+            journeyClock = departsAtMinutes + duration;
+            logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
+                    duration, departsAtMinutes, journeyClock));
         }
+        journey.setNumberOfTimes(minNumberOfTimes);
     }
 
     private int findEarliestDepartureTime(List<ServiceTime> times) {

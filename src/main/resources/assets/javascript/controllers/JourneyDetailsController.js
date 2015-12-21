@@ -29,8 +29,7 @@ techLabApp.controller('JourneyDetailsController',
         };
 
         $scope.nextTram = function (journey) {
-            var numberOfServiceTimes = journeyPlanService.getNumberOfServiceTimes(journey.journeyIndex);
-            if ($scope.serviceTimeIndex < numberOfServiceTimes-1) {
+            if ($scope.serviceTimeIndex < journey.numberOfTimes-1) {
                 $scope.serviceTimeIndex++;
                 $scope.disablePreviousTram = false;
             } else {

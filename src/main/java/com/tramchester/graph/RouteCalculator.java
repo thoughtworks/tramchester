@@ -53,7 +53,8 @@ public class RouteCalculator extends StationIndexs {
             Stream<WeightedPath> paths = StreamSupport.stream(pathIterator.spliterator(), false);
             paths.limit(MAX_NUM_GRAPH_PATHS).forEach(path->{
                 logger.info("Map graph path of length " + path.length());
-                Journey journey = mapJourney(path);
+                List<Stage> stages = mapStages(path);
+                Journey journey = new Journey(stages);
                 journey.setJourneyIndex(journeys.size());
                 journeys.add(journey);
                 });
@@ -62,7 +63,7 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    private Journey mapJourney(WeightedPath path) {
+    private List<Stage> mapStages(WeightedPath path) {
         List<Stage> stages = new ArrayList<>();
         Stage currentStage = null;
 
@@ -105,7 +106,7 @@ public class RouteCalculator extends StationIndexs {
             }
         }
         logger.info(format("Number of stages: %s Total cost:%s ",stages.size(), totalCost));
-        return new Journey(stages);
+        return stages;
     }
 
     public TramNode getStation(String id) throws UnknownStationException {

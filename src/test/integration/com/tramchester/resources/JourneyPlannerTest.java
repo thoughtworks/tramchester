@@ -154,6 +154,17 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
+        JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.PiccadilyGardens, Stations.ManAirport,
+                "23:10:00", DaysOfWeek.Monday, today);
+        Journey journey = results.getJourneys().stream().findFirst().get();
+
+        assertEquals("number of times for stage one", 3, journey.getStages().get(0).getServiceTimes().size());
+        assertEquals("number of times for stage two", 1, journey.getStages().get(1).getServiceTimes().size());
+        assertEquals("available times", 1, journey.getNumberOfTimes());
+    }
+
+    @Test
     public void shouldInvokeQuickestRouteDirectly() throws TramchesterException {
         Response result = planner.quickestRoute(Stations.Altrincham, Stations.Piccadily, "23:00:00");
         assertEquals(200, result.getStatus());
