@@ -2,6 +2,7 @@ package com.tramchester;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -31,6 +32,7 @@ public class UserJourneyTest {
 
     }
 
+    @Ignore("work in progress")
     @Test
     public void shouldCheckUserJourney() throws InterruptedException {
         File profileDir = new File("src/test/acceptance/firefoxTestProfile/");

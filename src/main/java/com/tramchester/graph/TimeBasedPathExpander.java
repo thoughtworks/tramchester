@@ -126,10 +126,12 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private boolean operatesOnQueryDate(TramServiceDate startDate, TramServiceDate endDate, TramServiceDate queryDate) {
         // start date and end date are inclusive
         LocalDate date = queryDate.getDate();
-        if  (date.isAfter(startDate.getDate()) && date.isBefore(endDate.getDate())) {
+        LocalDate startingDate = startDate.getDate();
+        LocalDate endingDate = endDate.getDate();
+        if  (date.isAfter(startingDate) && date.isBefore(endingDate)) {
             return true;
         }
-        if (date.equals(startDate) || date.equals(endDate)) {
+        if (date.equals(startingDate) || date.equals(endingDate)) {
             return true;
         }
         return false;
