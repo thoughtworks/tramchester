@@ -56,7 +56,7 @@ public class TramDataLoaderTest {
         DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops", new StopDataParser());
         List<StopData> stopData = dataLoader.loadAll().collect(Collectors.toList());
 
-        assertThat(stopData).hasSize(176);
+        assertThat(stopData).hasSize(178);
         StopData theStop = stopData.get(0);
         assertThat(theStop.getCode()).isEqualTo("mantpmaw");
         assertThat(theStop.getId()).isEqualTo("9400ZZMAABM1");

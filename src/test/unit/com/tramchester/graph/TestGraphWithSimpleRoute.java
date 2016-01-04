@@ -120,16 +120,16 @@ public class TestGraphWithSimpleRoute {
 
             double latitude = 180.00;
             double longitude = 270.0;
-            Station first = new Station(FIRST_STATION+PLATFORM, "startStation", latitude, longitude);
+            Station first = new Station(FIRST_STATION+PLATFORM, "area", "startStation", latitude, longitude, true);
             tripA.addStop(createStop(first, createTime(8, 0), createTime(8, 0)));
 
-            Station second = new Station(SECOND_STATION+PLATFORM, "secondStation", latitude, longitude);
+            Station second = new Station(SECOND_STATION+PLATFORM, "area", "secondStation", latitude, longitude, true);
             tripA.addStop(createStop(second, createTime(8, 11), createTime(8, 11)));
 
-            Station interchangeStation = new Station(INTERCHANGE+PLATFORM, "cornbrook", latitude, longitude);
+            Station interchangeStation = new Station(INTERCHANGE+PLATFORM, "area", "cornbrook", latitude, longitude, true);
             tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 20)));
 
-            Station last = new Station(LAST_STATION+PLATFORM, "endStation", latitude, longitude);
+            Station last = new Station(LAST_STATION+PLATFORM, "area", "endStation", latitude, longitude, true);
             tripA.addStop(createStop(last, createTime(8, 40), createTime(8, 40)));
             // service
             serviceA.addTrip(tripA);
@@ -138,7 +138,7 @@ public class TestGraphWithSimpleRoute {
             Trip tripB = new Trip("trip2Id", "headSign", serviceBId);
             tripB.addStop(createStop(interchangeStation, createTime(8,26), createTime(8,26)));
 
-            Station four = new Station(STATION_FOUR+PLATFORM, "stat4Station", 170.00, 160.00);
+            Station four = new Station(STATION_FOUR+PLATFORM, "area", "stat4Station", 170.00, 160.00, true);
             tripB.addStop(createStop(four, createTime(8,36), createTime(8,36)));
             // service
             serviceB.addTrip(tripB);

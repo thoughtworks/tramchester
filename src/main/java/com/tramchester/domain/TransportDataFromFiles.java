@@ -31,8 +31,8 @@ public class TransportDataFromFiles implements TransportData {
             String stopId = stop.getId();
             String stationId = Station.formId(stopId);
             if (!stations.keySet().contains(stationId)) {
-                Station station = new Station(stopId, stop.getName(),
-                        stop.getLatitude(), stop.getLongitude());
+                Station station = new Station(stopId, stop.getArea(), stop.getName(),
+                        stop.getLatitude(), stop.getLongitude(), stop.isTram());
                 //logger.info("Add station with id " + stationId);
                 stations.put(stationId, station);
             }

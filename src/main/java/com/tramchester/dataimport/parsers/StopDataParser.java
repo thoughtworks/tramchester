@@ -10,23 +10,21 @@ public class StopDataParser implements CSVEntryParser<StopData> {
     public StopData parseEntry(String... data) {
         String id = data[0];
         String code = data[1];
-        int latIndex = 3;
-        int longIndex = 4;
-        String name;
-        if (data.length==7) {
-            // todo becomes redundant
-            name = String.format("\"%s,%s\"", data[2], data[3]);
-            latIndex++;
-            longIndex++;
-        } else {
-            name = data[2];
-        }
+        String name = data[2];
+
         String[] nameParts = name.split(",");
         String area;
         String stopName;
-        if (nameParts.length==2) {
+        if (nameParts.length>=2) {
             area = nameParts[0].trim().replace("\"","");
-            stopName = nameParts[1].trim().replace("\"","");
+            StringBuilder builder = new StringBuilder();
+            for(int index = 1; index<nameParts.length; index++) {
+                if (index>1) {
+                    builder.append(",");
+                }
+                builder.append(nameParts[index]);
+            }
+            stopName = builder.toString().trim().replace("\"","");
         } else {
             area = "";
             stopName = nameParts[0].trim().replace("\"","");
@@ -36,21 +34,15 @@ public class StopDataParser implements CSVEntryParser<StopData> {
             stopName = stopName.replace(tramStation,"");
             isTram = true;
         }
-//        if (stopName.contains(tramStation)) {
-//            if (name.contains(",")) {
-//                name = name.split(",")[1].replace(tramStation, "");
-//            }
-//        }
-//        name = name.replace("\"", "").trim();
 
         double latitude = 0;
-        String latStr = data[latIndex];
+        String latStr = data[3];
         if (latStr.contains(".")) {
             latitude = Double.parseDouble(latStr);
         }
 
         double longitude = 0;
-        String longStr = data[longIndex];
+        String longStr = data[4];
         if (longStr.contains(".")) {
             longitude = Double.parseDouble(longStr);
         }

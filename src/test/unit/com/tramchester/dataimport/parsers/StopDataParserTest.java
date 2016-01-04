@@ -34,23 +34,18 @@ public class StopDataParserTest {
     }
 
     @Test
-    public void shouldParseBusStopWithStreetAndTownUnquoted()
-    {
-        String[] stop = new String[] {"1800EB05551","mantdwgj",
-                "Rusholme"," Anson Road/St. Anselm Hall (Stop B)"
-                ,"53.45412","-2.21209",
-                "http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800EB05551"};
-
+    public void shouldParseTramStopMultipleCommas() throws Exception {
+        String[] stop = new String[] {"800NEH0341","missing","\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\"",
+                "53.53509","-2.19333",
+                "http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341" };
         StopData stopData = stopDataParser.parseEntry(stop);
 
-        assertThat(stopData.getId()).isEqualTo("1800EB05551");
-        assertThat(stopData.getCode()).isEqualTo("mantdwgj");
-        assertThat(stopData.getName()).isEqualTo("Anson Road/St. Anselm Hall (Stop B)");
-        assertThat(stopData.getArea()).isEqualTo("Rusholme");
-        assertThat(stopData.getLatitude()).isEqualTo(53.45412);
-        assertThat(stopData.getLongitude()).isEqualTo(-2.21209);
+        assertThat(stopData.getId()).isEqualTo("800NEH0341");
+        assertThat(stopData.getCode()).isEqualTo("missing");
+        assertThat(stopData.getArea()).isEqualTo("Alkrington Garden Village");
+        assertThat(stopData.getName()).isEqualTo("nr School Evesham Road (E bnd, Hail and ride)");
+        assertThat(stopData.getLatitude()).isEqualTo(53.53509);
+        assertThat(stopData.getLongitude()).isEqualTo(-2.19333);
         assertThat(stopData.isTram()).isEqualTo(false);
-
     }
-
 }

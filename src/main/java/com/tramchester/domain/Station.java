@@ -7,6 +7,7 @@ public class Station {
     private final String name;
     private final double latitude;
     private final double longitude;
+    private boolean isTram;
     private String proximityGroup;
 
     @Override
@@ -14,12 +15,16 @@ public class Station {
         return String.format("Station: [id:%s name:%s]",id, name);
     }
 
-    public Station(String id, String name, double latitude, double longitude) {
-
+    public Station(String id, String area, String stopName, double latitude, double longitude, boolean isTram) {
         this.id = id;
-        this.name = name;
+        if (isTram) {
+            this.name = stopName;
+        } else {
+            this.name = String.format("%s,%s", area, stopName);
+        }
         this.latitude = latitude;
         this.longitude = longitude;
+        this.isTram = isTram;
     }
 
     public String getId() {
@@ -53,5 +58,9 @@ public class Station {
             return rawId.substring(0,index);
         }
         return rawId;
+    }
+
+    public boolean isTram() {
+        return isTram;
     }
 }
