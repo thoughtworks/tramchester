@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DataLoaderTest {
+public class TramDataLoaderTest {
 
     // the test data files currently manually maintained, copy over from data/tram as needed
 

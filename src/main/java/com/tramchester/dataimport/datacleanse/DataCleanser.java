@@ -3,6 +3,7 @@ package com.tramchester.dataimport.datacleanse;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
+import com.tramchester.dataimport.parsers.StopDataParser;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.services.DateTimeService;
 import org.slf4j.Logger;
@@ -120,13 +121,15 @@ public class DataCleanser {
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stops");
 
-        stops.filter(stop -> stopIds.contains(stop.getId())).forEach(stop ->
-                writer.writeLine(String.format("%s,%s,%s,%s,%s",
-                        stop.getId(),
-                        stop.getCode(),
-                        stop.getName(),
-                        stop.getLatitude(),
-                        stop.getLongitude())));
+        stops.filter(stop -> stopIds.contains(stop.getId())).forEach(stop -> {
+            String tramPrefix = stop.isTram() ? StopDataParser.tramStation : "";
+            writer.writeLine(String.format("%s,%s,\"%s,%s%s\",%s,%s",
+                    stop.getId(),
+                    stop.getCode(),
+                    stop.getArea(), stop.getName(), tramPrefix,
+                    stop.getLatitude(),
+                    stop.getLongitude()));
+        });
 
         writer.close();
         logger.info("**** End cleansing stops.\n\n");

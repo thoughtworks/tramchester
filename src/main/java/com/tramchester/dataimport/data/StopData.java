@@ -3,16 +3,21 @@ package com.tramchester.dataimport.data;
 public class StopData {
     private String id;
     private String code;
+    private String area;
     private String name;
     private double latitude;
     private double longitude;
+    private boolean isTram;
 
-    public StopData(String id, String code, String name, double latitude, double longitude) {
+    public StopData(String id, String code, String area, String name, double latitude, double longitude,
+                    boolean isTram) {
         this.id = id;
         this.code = code;
+        this.area = area;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.isTram = isTram;
     }
 
     public String getId() {
@@ -33,5 +38,13 @@ public class StopData {
 
     public double getLongitude() {
         return longitude;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public boolean isTram() {
+        return isTram;
     }
 }

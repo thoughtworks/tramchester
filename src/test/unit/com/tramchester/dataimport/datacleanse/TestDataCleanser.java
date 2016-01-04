@@ -57,17 +57,35 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCleanseStops() throws IOException {
+    public void shouldCleanseStopsMet() throws IOException {
 
-        StopData stopA = new StopData("1122IdA", "codeA", "nameA", 0.11, 0.22);
-        StopData stopB = new StopData("9400IdB", "codeB", "nameB", 0.33, 0.44);
+        StopData stopA = new StopData("1122IdA", "codeA", "areaA", "nameA", 0.11, 0.22, true);
+        StopData stopB = new StopData("9400IdB", "codeB", "areaB", "nameB", 0.33, 0.44, true);
         Stream<StopData> stops = Stream.of(stopA, stopB);
 
         EasyMock.expect(reader.getStops()).andReturn(stops);
-        validateWriter("stops", "9400IdB,codeB,nameB,0.33,0.44");
+        validateWriter("stops", "9400IdB,codeB,\"areaB,nameB (Manchester Metrolink)\",0.33,0.44");
 
         Set<String> stopIds = new HashSet<>();
         stopIds.add("9400IdB");
+
+        replayAll();
+        cleanser.cleanseStops(stopIds);
+        verifyAll();
+    }
+
+    @Test
+    public void shouldCleanseStopMultiPart() throws IOException {
+        StopData stopA = new StopData("1800EB05551", "mantdwgj", "Rusholme", "Anson Road/St. Anselm Hall (Stop B)",
+                53.45412,-2.21209, false);
+        Stream<StopData> stops = Stream.of(stopA);
+
+        EasyMock.expect(reader.getStops()).andReturn(stops);
+        validateWriter("stops",
+                "1800EB05551,mantdwgj,\"Rusholme,Anson Road/St. Anselm Hall (Stop B)\",53.45412,-2.21209");
+
+        Set<String> stopIds = new HashSet<>();
+        stopIds.add("1800EB05551");
 
         replayAll();
         cleanser.cleanseStops(stopIds);

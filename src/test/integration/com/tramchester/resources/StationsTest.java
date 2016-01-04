@@ -1,7 +1,7 @@
 package com.tramchester.resources;
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.domain.Station;
 import org.joda.time.DateTime;
 import org.junit.*;
@@ -23,7 +23,7 @@ public class StationsTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTestConfig());
+        dependencies.initialise(new IntegrationTramTestConfig());
     }
 
     @Before
@@ -50,7 +50,6 @@ public class StationsTest {
         assertEquals("Altrincham", stations.get(7).getName());
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
-
     }
 
     @Test
@@ -72,6 +71,5 @@ public class StationsTest {
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
         assertThat(stations.stream().filter(station -> station.getName().equals("Altrincham")).count()).isEqualTo(1);
-
     }
 }

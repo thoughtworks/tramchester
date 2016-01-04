@@ -1,7 +1,7 @@
 package com.tramchester.resources;
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
@@ -19,7 +19,7 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTestConfig());
+        dependencies.initialise(new IntegrationTramTestConfig());
     }
 
     @Before

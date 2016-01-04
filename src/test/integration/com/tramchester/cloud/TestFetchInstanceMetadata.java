@@ -1,6 +1,6 @@
 package com.tramchester.cloud;
 
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ public class TestFetchInstanceMetadata {
 
     @Before
     public void beforeEachTestRuns() throws MalformedURLException {
-        fetcher = new FetchInstanceMetadata(new IntegrationTestConfig());
+        fetcher = new FetchInstanceMetadata(new IntegrationTramTestConfig());
     }
 
     @Test

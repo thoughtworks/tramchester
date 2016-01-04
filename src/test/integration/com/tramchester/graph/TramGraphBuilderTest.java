@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.TransportDataFromFiles;
@@ -18,12 +18,11 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-public class GraphBuilderTest {
+public class TramGraphBuilderTest {
     private static final int MINUTES_FROM_MIDNIGHT_8AM = 8 * 60;
     private static Dependencies dependencies;
 
@@ -39,7 +38,7 @@ public class GraphBuilderTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTestConfig());
+        dependencies.initialise(new IntegrationTramTestConfig());
     }
 
     @Before

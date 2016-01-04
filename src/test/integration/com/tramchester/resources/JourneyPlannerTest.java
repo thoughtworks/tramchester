@@ -2,12 +2,10 @@ package com.tramchester.resources;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
-import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.Timeout;
@@ -30,7 +28,7 @@ public class JourneyPlannerTest extends  JourneyPlannerHelper {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTestConfig());
+        dependencies.initialise(new IntegrationTramTestConfig());
     }
 
     @Before

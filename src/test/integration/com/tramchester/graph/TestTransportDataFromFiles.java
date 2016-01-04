@@ -2,7 +2,7 @@ package com.tramchester.graph;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import org.junit.AfterClass;
@@ -27,7 +27,7 @@ public class TestTransportDataFromFiles {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTestConfig());
+        dependencies.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterClass

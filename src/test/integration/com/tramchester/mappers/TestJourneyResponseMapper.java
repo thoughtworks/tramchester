@@ -2,7 +2,7 @@ package com.tramchester.mappers;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.ServiceTime;
@@ -36,7 +36,7 @@ public class TestJourneyResponseMapper {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTestConfig());
+        dependencies.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterClass

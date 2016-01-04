@@ -1,7 +1,8 @@
 package com.tramchester.dataimport.datacleanse;
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTestConfig;
+import com.tramchester.IntegrationBusTestConfig;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.dataimport.TransportDataFetcher;
 import com.tramchester.dataimport.TransportDataReader;
 import net.lingala.zip4j.core.ZipFile;
@@ -47,14 +48,23 @@ public class DataCleanserTest implements TransportDataFetcher {
 
     @Test
     @Ignore("Primarily for performance testing")
-    public void shouldCleanseData() throws IOException {
+    public void shouldCleanseTramData() throws IOException {
+        DataCleanser dataCleanser = getDataCleanser();
+        dataCleanser.run(new IntegrationTramTestConfig());
+    }
+
+    @Test
+    @Ignore("Primarily for performance testing")
+    public void shouldCleanseBusData() throws IOException {
+        DataCleanser dataCleanser = getDataCleanser();
+        dataCleanser.run(new IntegrationBusTestConfig());
+    }
+
+    private DataCleanser getDataCleanser() throws IOException {
         fetchData();
         TransportDataReader reader = new TransportDataReader(INPUT);
         TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
-        DataCleanser dataCleanser = new DataCleanser(reader, writeFactory);
-
-        dataCleanser.run(new IntegrationTestConfig());
-
+        return new DataCleanser(reader, writeFactory);
     }
 
     @Override

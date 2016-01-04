@@ -7,14 +7,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class IntegrationTestConfig extends TestConfig {
+public class IntegrationBusTestConfig extends TestConfig {
 
-    public static final String GRAPH_NAME = "int_test_tramchester.db";
+    public static final String GRAPH_NAME = "int_test_bus_tramchester.db";
     private Set<String> agencies;
-    private Path path = Paths.get("data/tram");
+    private Path path = Paths.get("data/bus");
 
-    public IntegrationTestConfig() {
-        this.agencies = new HashSet<>(Arrays.asList("MET"));
+    public IntegrationBusTestConfig() {
+        this.agencies = new HashSet<>(Arrays.asList("MET","GMS","GMN"));
     }
 
     private boolean graphExists() {
@@ -23,7 +23,7 @@ public class IntegrationTestConfig extends TestConfig {
 
     @Override
     public boolean isRebuildGraph() {
-         return !graphExists();
+        return !graphExists();
     }
 
     @Override
@@ -52,4 +52,3 @@ public class IntegrationTestConfig extends TestConfig {
     }
 
 }
-
