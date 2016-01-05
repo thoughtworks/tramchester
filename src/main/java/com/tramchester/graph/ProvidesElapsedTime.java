@@ -3,6 +3,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.TramchesterException;
 import org.neo4j.graphalgo.CostEvaluator;
+import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -37,12 +38,7 @@ public class ProvidesElapsedTime implements ElapsedTime {
 
     private int getDuration() {
         if (duration<0) {
-            duration = 0;
-            for ( Relationship relationship : path.relationships() )
-            {
-                duration += costEvaluator.getCost( relationship, Direction.OUTGOING );
-            }
-            //duration = (int)new WeightedPathImpl(costEvaluator, path).weight();
+            duration = (int)new WeightedPathImpl(costEvaluator, path).weight();
         }
         return duration;
     }

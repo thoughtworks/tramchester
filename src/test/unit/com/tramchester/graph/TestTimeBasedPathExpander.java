@@ -227,7 +227,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
 
         EasyMock.expect(path.length()).andReturn(0);
 
-        GraphBranchState state = new GraphBranchState(DaysOfWeek.Monday, "destId", validDate, 580);
+        GraphBranchState state = new GraphBranchState(DaysOfWeek.Monday, validDate, 580);
         BranchState<GraphBranchState> branchState = createGraphBranchState(state);
 
         replayAll();
@@ -355,7 +355,7 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         createInboundExpectations(mockRelationshipFactory, path, inboundServiceId, incomingTram, pathExpands);
         createOutgoingExpectations(mockRelationshipFactory, goesToACost, outboundServiceId, outgoingTimes, goesToA);
 
-        GraphBranchState state = new GraphBranchState(day, "destId", queryDate, queriedTime);
+        GraphBranchState state = new GraphBranchState(day, queryDate, queriedTime);
         BranchState<GraphBranchState> branchState = createGraphBranchState(state);
 
         replayAll();
@@ -449,6 +449,9 @@ public class TestTimeBasedPathExpander extends EasyMockSupport {
         public boolean isInterchange() {
             return false;
         }
+
+        @Override
+        public boolean isWalk() {return false;}
 
         @Override
         public int getCost() {

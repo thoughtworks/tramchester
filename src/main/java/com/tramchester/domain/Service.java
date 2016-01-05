@@ -73,22 +73,22 @@ public class Service {
                                     int maxNumberOfTrips) {
         logger.info(String.format("Find service '%s' trips from '%s' to '%s' after '%s'",
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
-        Map<Integer,Trip> validTrips = new TreeMap<>();
+        Map<Integer,Trip> sortedValidTrips = new TreeMap<>();
         StringBuilder tripIds = new StringBuilder();
-        trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, minutesFromMidnight)).forEach(trip -> {
-            tripIds.append(trip.getTripId() + " ");
-            Stop firstStop = trip.getStop(firstStationId, true);
-            int minutes = firstStop.getDepartureMinFromMidnight();
-            validTrips.put(minutes, trip);
+        trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, minutesFromMidnight))
+                .forEach(trip -> {
+                    tripIds.append(trip.getTripId() + " ");
+                    int minutes = trip.earliestDepartFor(firstStationId, lastStationId, minutesFromMidnight);
+                    sortedValidTrips.put(minutes, trip);
         });
 
-        logger.info(String.format("Selected %s of %s trips %s", validTrips.size(), trips.size(), tripIds.toString()));
+        logger.info(String.format("Selected %s of %s trips %s", sortedValidTrips.size(), trips.size(), tripIds.toString()));
 
         int limit = maxNumberOfTrips;
-        if (validTrips.size() < maxNumberOfTrips) {
-            limit = validTrips.size();
+        if (sortedValidTrips.size() < maxNumberOfTrips) {
+            limit = sortedValidTrips.size();
         }
-        return validTrips.values().stream().limit(limit).collect(Collectors.toList());
+        return sortedValidTrips.values().stream().limit(limit).collect(Collectors.toList());
     }
 
     @Override

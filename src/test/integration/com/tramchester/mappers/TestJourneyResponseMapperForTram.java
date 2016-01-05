@@ -24,12 +24,12 @@ import java.util.Set;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TestJourneyResponseMapper {
+public class TestJourneyResponseMapperForTram {
+    private LocalTime sevenAM = LocalTime.of(7, 0);
+    private LocalTime eightAM = LocalTime.of(8, 0);
 
     private static Dependencies dependencies;
     private JourneyResponseMapper mapper;
-    private LocalTime sevenAM = LocalTime.of(7, 0);
-    private LocalTime eightAM = LocalTime.of(8, 0);
     private Set<Journey> journeys;
     private List<Stage> stages;
 
@@ -141,4 +141,5 @@ public class TestJourneyResponseMapper {
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(1, journey.getNumberOfTimes());
     }
+
 }

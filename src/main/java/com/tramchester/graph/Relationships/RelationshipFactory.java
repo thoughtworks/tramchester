@@ -19,7 +19,10 @@ public class RelationshipFactory {
             result = new InterchangeDepartsRelationship(graphRelationship);
         } else if (relationshipType.equals(TransportRelationshipTypes.INTERCHANGE_BOARD.toString())) {
             result = new InterchangeBoardsRelationship(graphRelationship);
-        } else {
+        } else if (relationshipType.endsWith(TransportRelationshipTypes.WALKS_TO.toString())) {
+            result = new WalksToRelationship();
+        }
+        else {
             throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
         }
         return result;

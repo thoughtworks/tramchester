@@ -22,6 +22,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.GraphStaticKeys.COST;
+import static com.tramchester.graph.GraphStaticKeys.QUERY;
+import static com.tramchester.graph.GraphStaticKeys.STATION_TYPE;
 import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 import static java.lang.String.format;
 
@@ -46,21 +48,59 @@ public class RouteCalculator extends StationIndexs {
     public Set<Journey> calculateRoute(String startStationId, String endStationId, int queryTime, DaysOfWeek dayOfWeek,
                                        TramServiceDate queryDate) throws UnknownStationException {
         Set<Journey> journeys = new HashSet<>();
-        try (Transaction tx = graphDatabaseService.beginTx()) {
 
-            Iterable<WeightedPath> pathIterator = findShortestPath(startStationId, endStationId, queryTime, dayOfWeek, queryDate);
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            Node startNode = getStationNode(startStationId);
+            Node endNode = getStationNode(endStationId);
+
+            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, dayOfWeek, queryDate);
             // todo eliminate duplicate journeys that use different services??
-            Stream<WeightedPath> paths = StreamSupport.stream(pathIterator.spliterator(), false);
-            paths.limit(MAX_NUM_GRAPH_PATHS).forEach(path->{
-                logger.info("Map graph path of length " + path.length());
-                List<Stage> stages = mapStages(path);
-                Journey journey = new Journey(stages);
-                journey.setJourneyIndex(journeys.size());
-                journeys.add(journey);
-                });
+
+            mapStreamToJourneySet(journeys, paths, MAX_NUM_GRAPH_PATHS);
             tx.success();
         }
         return journeys;
+    }
+
+    public Set<Journey> calculateRoute(List<Node> starts, List<Node> ends, int minutesFromMidnight,
+                                       DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
+        Set<Journey> journeys = new HashSet<>();
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
+            startNode.setProperty(NAME, "BEGIN");
+            startNode.setProperty(STATION_TYPE, QUERY);
+            starts.forEach(start -> startNode.
+                    createRelationshipTo(start, TransportRelationshipTypes.WALKS_TO).
+                    setProperty(COST,0));
+
+            Node endNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
+            endNode.setProperty(NAME, "END");
+            endNode.setProperty(STATION_TYPE, QUERY);
+            ends.forEach(end -> end.
+                    createRelationshipTo(endNode, TransportRelationshipTypes.WALKS_TO).
+                    setProperty(COST,0));
+
+            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, dayOfWeek, queryDate);
+
+            int limit = MAX_NUM_GRAPH_PATHS * starts.size();
+            mapStreamToJourneySet(journeys, paths, limit);
+
+            startNode.delete();
+            endNode.delete();
+
+            tx.close();
+        }
+        return journeys;
+    }
+
+    private void mapStreamToJourneySet(Set<Journey> journeys, Stream<WeightedPath> paths, int limit) {
+        paths.limit(limit).forEach(path->{
+            logger.info("Map graph path of length " + path.length());
+            List<Stage> stages = mapStages(path);
+            Journey journey = new Journey(stages);
+            journey.setJourneyIndex(journeys.size());
+            journeys.add(journey);
+        });
     }
 
     private List<Stage> mapStages(WeightedPath path) {
@@ -127,21 +167,20 @@ public class RouteCalculator extends StationIndexs {
         }
     }
 
-    private Iterable<WeightedPath> findShortestPath(String startId, String endId, int queryTime, DaysOfWeek dayOfWeek,
-                                                    TramServiceDate queryDate) throws UnknownStationException {
-        Node startNode = getStationNode(startId);
-        Node endNode = getStationNode(endId);
-        logger.info(format("Finding shortest path for %s (%s) --> %s (%s) on %s",
-                startId, startNode.getProperty(NAME),
-                endId, endNode.getProperty(NAME), dayOfWeek));
+    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, DaysOfWeek dayOfWeek,
+                                                    TramServiceDate queryDate) {
+        logger.info(format("Finding shortest path for %s --> %s on %s",
+                startNode.getProperty(NAME),
+                endNode.getProperty(NAME), dayOfWeek));
 
-        GraphBranchState state = new GraphBranchState(dayOfWeek, endId, queryDate, queryTime);
+        GraphBranchState state = new GraphBranchState(dayOfWeek, queryDate, queryTime);
         PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
                 new InitialBranchState.State<>(state, state),
                 COST_EVALUATOR);
 
-        return pathFinder.findAllPaths(startNode, endNode);
+        Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
+        return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
     public List<TramRelationship> getOutboundStationRelationships(String stationId) throws UnknownStationException {
@@ -180,5 +219,6 @@ public class RouteCalculator extends StationIndexs {
         }
         return relationships;
     }
+
 
 }

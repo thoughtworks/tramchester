@@ -1,7 +1,6 @@
 package com.tramchester.resources;
 
 import com.tramchester.domain.*;
-import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
 
 import java.time.LocalTime;

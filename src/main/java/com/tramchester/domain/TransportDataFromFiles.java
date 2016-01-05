@@ -146,16 +146,10 @@ public class TransportDataFromFiles implements TransportData {
 
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,
                 maxNumberOfTrips);
+
         for (Trip trip : tripsAfter) {
-            Stop firstStop = trip.getStop(firstStationId, true);
-            Stop lastStop = trip.getStop(lastStationId, true);
-            int fromMidnight = firstStop.getDepartureMinFromMidnight();
-
-            ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(),
-                    lastStop.getArrivalTime(), serviceId, trip.getHeadSign(), fromMidnight);
-
-            logger.info(String.format("Add trip '%s' service time: %s ", trip, serviceTime));
-            serviceTimes.add(serviceTime);
+            List<ServiceTime> times = trip.getServiceTimes(firstStationId, lastStationId, minutesFromMidnight);
+            serviceTimes.addAll(times);
         }
         return serviceTimes;
     }
@@ -175,7 +169,7 @@ public class TransportDataFromFiles implements TransportData {
     public Set<Trip> getTripsFor(String stationId) {
         Set<Trip> callingTrips = new HashSet<>();
         trips.values().forEach(trip -> {
-            if (trip.getStop(stationId,false)!=null) {
+            if (trip.callsAt(stationId)) {
                 callingTrips.add(trip);
             }
         });

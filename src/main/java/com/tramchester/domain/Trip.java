@@ -3,17 +3,23 @@ package com.tramchester.domain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import static java.lang.String.format;
 
 public class Trip {
     private static final Logger logger = LoggerFactory.getLogger(Trip.class);
     private final String serviceId;
     private String tripId;
     private String headSign;
-    private Map<String, Stop> stops = new LinkedHashMap<>(); // stationId -> Stop
+    private Stops stops = new Stops(); // stationId -> Stop
+
+    public Trip(String tripId, String headSign, String serviceId) {
+        this.tripId = tripId;
+        this.headSign = headSign;
+        this.serviceId = serviceId;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -23,7 +29,6 @@ public class Trip {
         Trip trip = (Trip) o;
 
         return !(tripId != null ? !tripId.equals(trip.tripId) : trip.tripId != null);
-
     }
 
     @Override
@@ -31,68 +36,20 @@ public class Trip {
         return tripId != null ? tripId.hashCode() : 0;
     }
 
-    public Trip(String tripId, String headSign, String serviceId) {
-        this.tripId = tripId;
-        this.headSign = headSign;
-        this.serviceId = serviceId;
-    }
-
     public String getTripId() {
         return tripId;
     }
 
-    public List<Stop> getStops() {
-        List<Stop> results = new LinkedList<>();
-        results.addAll(stops.values());
-        return results;
+    public Stops getStops() {
+        return stops;
     }
 
     public void addStop(Stop stop) {
-        Station station = stop.getStation();
-        if (station==null) {
-            logger.warn("Stop is missing station");
-        } else {
-            stops.put(station.getId(), stop);
-        }
+       stops.add(stop);
     }
 
     public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
-        if (!(stops.containsKey(firstStationId) && (stops.containsKey(lastStationId)))) {
-            return false;
-        }
-        Stop firstStop = stops.get(firstStationId);
-        Stop secondStop = stops.get(lastStationId);
-        if (secondStop.getArriveMinsFromMidnight()>firstStop.getDepartureMinFromMidnight()) {
-            return firstStop.getDepartureMinFromMidnight() > minutesFromMidnight;
-        }
-       return false;
-
-//        boolean seenFirst = false;
-//        boolean seenSecond = false;
-//        for (Stop stop : stops.values()) {
-//            if (stop.getMinutesFromMidnight() > minutesFromMidnight) {
-//                String stopStationId = stop.getStation().getId();
-//                if (firstStationId.equals(stopStationId)) {
-//                    seenFirst = true;
-//                } else if (seenFirst && lastStationId.equals(stopStationId)) {
-//                    seenSecond = true;
-//                }
-//            }
-//            if (seenFirst && seenSecond) {
-//                return true;
-//            }
-//        }
-//        return false;
-    }
-
-    public Stop getStop(String stationId, boolean isError) {
-        if (stops.containsKey(stationId)) {
-            return stops.get(stationId);
-        }
-        if (isError) {
-            logger.error(String.format("Could not find a stop in trip %s for station %s", tripId, stationId));
-        }
-        return null;
+        return stops.travelsBetween(firstStationId, lastStationId, minutesFromMidnight);
     }
 
     public String getHeadSign() {
@@ -112,4 +69,49 @@ public class Trip {
     public String getServiceId() {
         return serviceId;
     }
+
+    public List<ServiceTime> getServiceTimes(String firstStationId, String lastStationId, int minsFromMid) {
+        logger.info(format("Find service times between %s and %s at %s", firstStationId,lastStationId,minsFromMid));
+        List<ServiceTime> serviceTimes = new LinkedList<>();
+        for(Integer[] pair : stops.getPairs(firstStationId, lastStationId)) {
+            Stop firstStop = stops.get(pair[0]);
+            Stop secondStop = stops.get(pair[1]);
+            int fromMidnight = firstStop.getDepartureMinFromMidnight();
+            if (secondStop.getArriveMinsFromMidnight() > fromMidnight) {
+                if (fromMidnight > minsFromMid) {
+                    serviceTimes.add(new ServiceTime(firstStop.getDepartureTime(),
+                            secondStop.getArrivalTime(), serviceId, headSign, fromMidnight));
+                }
+            }
+        }
+        return serviceTimes;
+    }
+
+    public boolean callsAt(String stationId) {
+        return stops.callsAt(stationId);
+    }
+
+    public List<Stop> getStopsFor(String stationId) {
+        return stops.getStopsFor(stationId);
+    }
+
+    public int earliestDepartFor(String firstStationId, String lastStationId, int minutesFromMidnight) {
+        logger.info(format("Find first earliest depart time between %s and %s at %s for trip %s",
+                firstStationId,lastStationId,minutesFromMidnight, tripId));
+        int earliest = Integer.MAX_VALUE;
+        for(Integer[] pair : stops.getPairs(firstStationId, lastStationId)) {
+            Stop firstStop = stops.get(pair[0]);
+            Stop secondStop = stops.get(pair[1]);
+            int firstDepart = firstStop.getDepartureMinFromMidnight();
+            if (secondStop.getArriveMinsFromMidnight() > firstDepart) {
+                if (firstDepart > minutesFromMidnight) {
+                    if (firstDepart < earliest) {
+                        earliest = firstDepart;
+                    }
+                }
+            }
+        }
+        return earliest;
+    }
+
 }

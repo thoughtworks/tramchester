@@ -5,6 +5,7 @@ public interface  TramRelationship {
     boolean isBoarding();
     boolean isDepartTram();
     boolean isInterchange();
+    boolean isWalk();
     int getCost();
     String getId();
     String getMode();

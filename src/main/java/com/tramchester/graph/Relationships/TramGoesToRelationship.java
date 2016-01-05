@@ -94,6 +94,11 @@ public class TramGoesToRelationship extends TramCostRelationship {
     }
 
     @Override
+    public boolean isWalk() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "TramGoesToRelationship{" +
                 "service='" + getService() + '\'' +

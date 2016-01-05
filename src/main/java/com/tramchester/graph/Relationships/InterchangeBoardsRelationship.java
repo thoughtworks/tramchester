@@ -28,6 +28,11 @@ public class InterchangeBoardsRelationship extends TramCostRelationship {
     }
 
     @Override
+    public boolean isWalk() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "InterchangeBoardsRelationship{cost:"+ super.getCost() +", id:" + super.getId() + "}";
     }

@@ -32,6 +32,7 @@ public class TestTramRelationship extends EasyMockSupport {
         replayAll();
         TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
         assertTrue(tramRelationship.isBoarding());
+        assertFalse(tramRelationship.isWalk());
         assertEquals(45, tramRelationship.getCost());
         verifyAll();
     }
@@ -43,6 +44,7 @@ public class TestTramRelationship extends EasyMockSupport {
         replayAll();
         TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
         assertTrue(tramRelationship.isDepartTram());
+        assertFalse(tramRelationship.isWalk());
         assertEquals(43, tramRelationship.getCost());
         verifyAll();
     }
@@ -57,8 +59,23 @@ public class TestTramRelationship extends EasyMockSupport {
         assertTrue(tramRelationship.isInterchange());
         assertTrue(tramRelationship.isBoarding());
         assertFalse(tramRelationship.isDepartTram());
+        assertFalse(tramRelationship.isWalk());
         assertEquals(44, tramRelationship.getCost());
         verifyAll();
+    }
+
+    @Test
+    public void shouldHaveWalkToRelationship() {
+        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.WALKS_TO);
+
+        replayAll();
+        TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
+        assertFalse(tramRelationship.isInterchange());
+        assertFalse(tramRelationship.isBoarding());
+        assertFalse(tramRelationship.isDepartTram());
+        assertTrue(tramRelationship.isWalk());
+        verifyAll();
+
     }
 
     private void setRelationshipExpectation(TransportRelationshipTypes relationshipType, int cost) {
@@ -76,6 +93,7 @@ public class TestTramRelationship extends EasyMockSupport {
         assertFalse(tramRelationship.isBoarding());
         assertTrue(tramRelationship.isDepartTram());
         assertEquals(55, tramRelationship.getCost());
+        assertFalse(tramRelationship.isWalk());
         verifyAll();
     }
 

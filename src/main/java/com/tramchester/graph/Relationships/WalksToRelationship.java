@@ -1,13 +1,6 @@
 package com.tramchester.graph.Relationships;
 
-import org.neo4j.graphdb.Relationship;
-
-public class BoardRelationship extends TramCostRelationship {
-
-    public BoardRelationship(Relationship graphRelationship) {
-        super(graphRelationship);
-    }
-
+public class WalksToRelationship implements TramRelationship {
     @Override
     public boolean isTramGoesTo() {
         return false;
@@ -15,7 +8,7 @@ public class BoardRelationship extends TramCostRelationship {
 
     @Override
     public boolean isBoarding() {
-        return true;
+        return false;
     }
 
     @Override
@@ -30,11 +23,21 @@ public class BoardRelationship extends TramCostRelationship {
 
     @Override
     public boolean isWalk() {
-        return false;
+        return true;
     }
 
     @Override
-    public String toString() {
-        return "BoardRelationship{cost:"+ super.getCost() +", id:" + super.getId() + "}";
+    public int getCost() {
+        return 0;
+    }
+
+    @Override
+    public String getId() {
+        return "noId";
+    }
+
+    @Override
+    public String getMode() {
+        return "walk";
     }
 }

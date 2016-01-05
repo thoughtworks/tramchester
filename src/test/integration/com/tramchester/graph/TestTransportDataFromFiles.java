@@ -185,7 +185,7 @@ public class TestTransportDataFromFiles {
     public void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
         Collection<Route> allRoutes = transportData.getRoutes();
         List<Integer> svcSizes = new LinkedList<>();
-        //allRoutes.removeIf(route -> !route.getAgency().equals(Route.METROLINK));
+
         allRoutes.forEach(route -> svcSizes.add(route.getServices().size()));
 
         int allSvcs = svcSizes.stream().reduce(0, (total,current) -> total+current);
@@ -221,7 +221,8 @@ public class TestTransportDataFromFiles {
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<Stop> stoppingAtVelopark = trips.stream()
                 .filter(trip -> mondayAshToManServices.contains(trip.getServiceId()))
-                .map(trip -> trip.getStop(Stations.VeloPark,false))
+                .map(trip -> trip.getStopsFor(Stations.VeloPark))
+                .flatMap(stops -> stops.stream())
                 .collect(Collectors.toList());
 
         assertEquals(trips.size(), stoppingAtVelopark.size());

@@ -33,6 +33,19 @@ public class TestNodeFactory extends EasyMockSupport {
         TramNode tramNode = factory.getNode(node);
         assertTrue(tramNode.isStation());
         assertFalse(tramNode.isRouteStation());
+        assertFalse(tramNode.isQuery());
+        verifyAll();
+    }
+
+    @Test
+    public void shouldGetNodeOfCorrectTypeQuery() {
+        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.QUERY);
+
+        replayAll();
+        TramNode tramNode = factory.getNode(node);
+        assertFalse(tramNode.isStation());
+        assertFalse(tramNode.isRouteStation());
+        assertTrue(tramNode.isQuery());
         verifyAll();
     }
 
@@ -47,6 +60,7 @@ public class TestNodeFactory extends EasyMockSupport {
         TramNode tramNode = factory.getNode(node);
         assertFalse(tramNode.isStation());
         assertTrue(tramNode.isRouteStation());
+        assertFalse(tramNode.isQuery());
         verifyAll();
     }
 }

@@ -28,6 +28,11 @@ public class DepartRelationship extends TramCostRelationship {
     }
 
     @Override
+    public boolean isWalk() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "DepartRelationship{cost:"+ super.getCost() +", id:" + super.getId() + "}";
     }

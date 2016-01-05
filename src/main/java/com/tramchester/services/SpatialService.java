@@ -56,15 +56,7 @@ public class SpatialService extends StationIndexs {
         }
     }
 
-//    private Station getStation(List<Station> stations, String id) {
-//        for (Station station : stations) {
-//            if (station.getId().equals(id))
-//                return station;
-//        }
-//        return null;
-//    }
-
-    private List<Node> getNearestStationsTo(double latitude, double longitude, int count) {
+    public List<Node> getNearestStationsTo(double latitude, double longitude, int count) {
         Map<String, Object> params = new HashMap<>();
         params.put(LayerNodeIndex.POINT_PARAMETER, new Double[]{latitude, longitude});
         params.put(LayerNodeIndex.DISTANCE_IN_KM_PARAMETER, DISTANCE_IN_KM);

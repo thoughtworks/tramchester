@@ -15,11 +15,11 @@ public class GraphBranchStateTest {
         DaysOfWeek day = DaysOfWeek.Friday;
         String dest = "destination";
         TramServiceDate queryDate = new TramServiceDate("20150630");
-        GraphBranchState branchState = new GraphBranchState(day, dest, queryDate, queriedTime);
+        GraphBranchState branchState = new GraphBranchState(day, queryDate, queriedTime);
 
         assertThat(branchState.getQueriedTime()).isEqualTo(queriedTime);
         assertThat(branchState.getDay()).isEqualTo(day);
-        assertThat(branchState.getDest()).isEqualTo(dest);
+        //assertThat(branchState.getDest()).isEqualTo(dest);
         assertThat(branchState.getQueryDate()).isEqualTo(queryDate);
 
         assertFalse(branchState.hasStartTime());

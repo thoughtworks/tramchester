@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.Stops;
 import com.tramchester.domain.TransportDataFromFiles;
 import com.tramchester.domain.Trip;
 import com.tramchester.graph.Nodes.RouteStationNode;
@@ -135,8 +136,9 @@ public class TramGraphBuilderTest {
                     assertEquals(svcId, tripsThatCall.size(), timesTramRuns.length);
 
                     List<Integer> times = tripsThatCall.stream().
-                            map(trip -> trip.getStop(Stations.Deansgate, true).
-                                    getDepartureMinFromMidnight()).
+                            map(trip -> trip.getStopsFor(Stations.Deansgate)).
+                            flatMap(stops -> stops.stream()).
+                            map(stop -> stop.getDepartureMinFromMidnight()).
                             collect(Collectors.toList());
                     assertEquals(svcId, times.size(), timesTramRuns.length);
 
@@ -189,10 +191,11 @@ public class TramGraphBuilderTest {
         List<Trip> notInGraph = new LinkedList<>();
         int[] timesTramRuns = svcFromVelopark.getTimesTramRuns();
         callingTrips.forEach(trip -> {
-            int min = trip.getStop(Stations.VeloPark,false).getDepartureMinFromMidnight();
-            if (Arrays.binarySearch(timesTramRuns, min)<0) {
-                notInGraph.add(trip);
-            }
+            trip.getStopsFor(Stations.VeloPark).forEach(stop -> {
+                        if (Arrays.binarySearch(timesTramRuns, stop.getDepartureMinFromMidnight()) < 0) {
+                            notInGraph.add(trip);
+                        }
+                    });
         });
         assertEquals(0, notInGraph.size());
 

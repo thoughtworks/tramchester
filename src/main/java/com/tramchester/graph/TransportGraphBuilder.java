@@ -84,7 +84,7 @@ public class TransportGraphBuilder extends StationIndexs {
     }
 
     private void AddRouteServiceTrip(Route route, Service service, Trip trip) {
-        List<Stop> stops = trip.getStops();
+       Stops stops = trip.getStops();
         for (int i = 0; i < stops.size() - 1; i++) {
             Stop currentStop = stops.get(i);
             Stop nextStop = stops.get(i + 1);
