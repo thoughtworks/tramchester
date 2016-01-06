@@ -153,7 +153,7 @@ public class TestJourneyResponseMapperForTram {
         JourneyPlanRepresentation result = mapper.map(journeys, (23*60), 3);
 
         Journey journey = result.getJourneys().stream().findFirst().get();
-        assertEquals(1, journey.getNumberOfTimes());
+        assertEquals(2, journey.getNumberOfTimes());
     }
 
     private String findServiceId(String firstId, String secondId, int queryTime) throws UnknownStationException {

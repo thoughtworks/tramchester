@@ -18,6 +18,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.resources.JourneyPlannerResource;
+import com.tramchester.resources.RouteCodeToClassMapper;
 import com.tramchester.resources.StationResource;
 import com.tramchester.resources.VersionResource;
 import com.tramchester.services.DateTimeService;
@@ -70,6 +71,7 @@ public class Dependencies {
         picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(JourneyResponseMapper.class);
+        picoContainer.addComponent(RouteCodeToClassMapper.class);
 
         TransportDataReader dataReader = new TransportDataReader(outputPath);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);

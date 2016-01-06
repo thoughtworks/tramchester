@@ -11,6 +11,7 @@ import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.InitialBranchState;
@@ -38,10 +39,13 @@ public class RouteCalculator extends StationIndexs {
 
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
+    private RouteCodeToClassMapper routeCodeToClassMapper;
 
-    public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory) {
+    public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
+                           RouteCodeToClassMapper routeCodeToClassMapper) {
         super(db, true);
         this.nodeFactory = nodeFactory;
+        this.routeCodeToClassMapper = routeCodeToClassMapper;
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);
     }
 
@@ -130,7 +134,9 @@ public class RouteCalculator extends StationIndexs {
                 String routeName = routeStationNode.getRouteName();
                 String routeId = routeStationNode.getRouteId();
                 logger.info(format("board tram: at:'%s' from '%s'", endNode, startNode));
-                String tramRouteClass = routeId.substring(4, 8); // todo move into helper
+
+                String tramRouteClass = routeCodeToClassMapper.map(routeId);
+
                 currentStage = new Stage(startNodeId, routeName, tramRelationship.getMode(), tramRouteClass);
             } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
