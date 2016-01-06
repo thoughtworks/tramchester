@@ -130,7 +130,8 @@ public class RouteCalculator extends StationIndexs {
                 String routeName = routeStationNode.getRouteName();
                 String routeId = routeStationNode.getRouteId();
                 logger.info(format("board tram: at:'%s' from '%s'", endNode, startNode));
-                currentStage = new Stage(startNodeId, routeName, routeId, tramRelationship.getMode());
+                String tramRouteClass = routeId.substring(4, 8); // todo move into helper
+                currentStage = new Stage(startNodeId, routeName, tramRelationship.getMode(), tramRouteClass);
             } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;

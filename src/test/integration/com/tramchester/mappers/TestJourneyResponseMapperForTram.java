@@ -59,7 +59,7 @@ public class TestJourneyResponseMapperForTram {
     @Test
     public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
         String svcId = findServiceId(Stations.Victoria, Stations.Rochdale, 930);
-        Stage vicToRoch = new Stage(Stations.Victoria, "route text", "route id", "tram");
+        Stage vicToRoch = new Stage(Stations.Victoria, "route text", "tram", "cssClass");
         vicToRoch.setServiceId(svcId);
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
@@ -76,7 +76,7 @@ public class TestJourneyResponseMapperForTram {
     public void shouldMapSimpleJourney() throws TramchesterException {
         String svcId = findServiceId(Stations.Altrincham, Stations.Cornbrook, 7*60);
 
-        Stage altToCorn = new Stage(Stations.Altrincham, "route text", "route id", "tram");
+        Stage altToCorn = new Stage(Stations.Altrincham, "route text", "tram", "cssClass");
         altToCorn.setServiceId(svcId);
         altToCorn.setLastStation(Stations.Cornbrook);
 
@@ -104,13 +104,13 @@ public class TestJourneyResponseMapperForTram {
     public void shouldMapTwoStageJourney() throws TramchesterException {
         String svcId = findServiceId(Stations.Altrincham, Stations.Deansgate, 22 * 60);
 
-        Stage altToDeansgate = new Stage(Stations.Altrincham, "route text", "route id", "tram");
+        Stage altToDeansgate = new Stage(Stations.Altrincham, "route text", "tram", "cssClass");
         altToDeansgate.setLastStation(Stations.Deansgate);
         altToDeansgate.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Deansgate, Stations.Victoria, 22 * 60);
 
-        Stage deansgateToVic = new Stage(Stations.Deansgate, "route2 text", "route2 id", "tram");
+        Stage deansgateToVic = new Stage(Stations.Deansgate, "route2 text", "tram", "cssClass");
         deansgateToVic.setLastStation(Stations.Victoria);
         deansgateToVic.setServiceId(svcId);
 
@@ -135,13 +135,13 @@ public class TestJourneyResponseMapperForTram {
     public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
         String svcId = findServiceId(Stations.PiccadilyGardens, Stations.Cornbrook, 23 * 60);
 
-        Stage picToCorn = new Stage(Stations.PiccadilyGardens, "routeText", "routeId", "tram");
+        Stage picToCorn = new Stage(Stations.PiccadilyGardens, "routeText", "tram", "cssClass");
         picToCorn.setLastStation(Stations.Cornbrook);
         // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
         picToCorn.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Cornbrook, Stations.ManAirport, 23 * 60);
-        Stage cornToAir = new Stage(Stations.Cornbrook, "routeText", "routeId", "tram");
+        Stage cornToAir = new Stage(Stations.Cornbrook, "routeText", "tram", "cssClass");
         cornToAir.setLastStation(Stations.ManAirport);
         // user test TramJourneyPlannerTest.shouldFindRouteCornbrookToManAirport
         cornToAir.setServiceId(svcId);

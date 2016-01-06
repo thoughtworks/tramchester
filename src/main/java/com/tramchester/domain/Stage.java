@@ -11,16 +11,18 @@ public class Stage {
     private final String mode;
     private String firstStation;
     private String route;
-    private String routeId;
+    //private String routeId;
     private String lastStation;
     private String serviceId;
     private List<ServiceTime> serviceTimes;
+    private String tramRouteId;
 
-    public Stage(String firstStation, String route, String routeId, String mode) {
+    public Stage(String firstStation, String routeName, String mode, String tramRouteId) {
         this.firstStation = firstStation;
-        this.route = route;
-        this.routeId = routeId;
+        this.route = routeName;
+        //this.routeId = routeId;
         this.mode = mode;
+        this.tramRouteId = tramRouteId;
     }
 
     public void setLastStation(String lastStation) {
@@ -39,14 +41,14 @@ public class Stage {
         return lastStation;
     }
 
-    public String getRouteId() {
-        return routeId;
-    }
+//    public String getRouteId() {
+//        return routeId;
+//    }
 
     // used from javascript on front-end
     // TODO use the full route ID on front end
     public String getTramRouteId() {
-        return routeId.substring(4, 8);
+        return tramRouteId;
     }
 
     public void setServiceId(String serviceId) {
@@ -109,7 +111,7 @@ public class Stage {
         return "Stage{" +
                 "firstStation='" + firstStation + '\'' +
                 ", route='" + route + '\'' +
-                ", routeId='" + routeId + '\'' +
+                ", tramRouteId='" + tramRouteId + '\'' +
                 ", lastStation='" + lastStation + '\'' +
                 ", serviceId='" + serviceId + '\'' +
                 ", serviceTimes=" + serviceTimes +

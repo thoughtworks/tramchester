@@ -2,7 +2,6 @@ package com.tramchester.mappers;
 
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
-import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Stage;
 import com.tramchester.domain.TramchesterException;
@@ -49,7 +48,7 @@ public class TestJourneyResponseMapperForBus {
         String stockportBusStation = "1800STBS001";
         String stockportBridgefieldStreet = "1800SG15811";
 
-        Stage busStage = new Stage(stockportBusStation, "route text", "route id", "tram");
+        Stage busStage = new Stage(stockportBusStation, "route text", "tram", "cssClass");
         busStage.setServiceId("Serv001653");
         busStage.setLastStation(stockportBridgefieldStreet);
 
