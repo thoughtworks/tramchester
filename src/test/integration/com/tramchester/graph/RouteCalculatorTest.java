@@ -59,7 +59,7 @@ public class RouteCalculatorTest {
     @Test
     public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
         List<TramRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark);
-        assertEquals(2, boarding.size());
+        assertEquals(2*3, boarding.size()); // 2 platforms * 3 routes
         assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
         assertTrue(boarding.get(1).isBoarding());
     }

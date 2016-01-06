@@ -98,6 +98,26 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, "23:44:00", DaysOfWeek.Monday, today);
+    }
+
+    @Test
+    public void shouldFindRoutePiccadilyGardensToCornbrook() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.PiccadilyGardens, Stations.Cornbrook, "23:00:00", DaysOfWeek.Monday, today);
+    }
+
+    @Test
+    public void shouldFindRouteCornbrookToManAirport() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, "23:20:00", DaysOfWeek.Monday, today);
+    }
+
+    @Test
+    public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, "23:41:00", DaysOfWeek.Monday, today);
+    }
+
+    @Test
     public void shouldFindRouteVeloToHoltTownAt8AM() throws TramchesterException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, "08:00:00", DaysOfWeek.Monday, today);
     }
@@ -141,14 +161,14 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
 
     @Test
     public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
-        TramServiceDate serviceDate = new TramServiceDate(new LocalDate(2015, 12, 17));
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.Victoria, "23:00:00", DaysOfWeek.Wednesday, serviceDate);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.Victoria, "23:00:00", DaysOfWeek.Wednesday,
+                today);
     }
 
     @Test
     public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
-        TramServiceDate serviceDate = new TramServiceDate(new LocalDate(2015, 12, 17));
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, "22:45:00", DaysOfWeek.Wednesday, serviceDate);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, "22:45:00", DaysOfWeek.Wednesday,
+                today);
     }
 
     @Test

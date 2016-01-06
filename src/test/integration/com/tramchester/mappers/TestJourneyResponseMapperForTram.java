@@ -4,11 +4,11 @@ package com.tramchester.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.ServiceTime;
-import com.tramchester.domain.Stage;
-import com.tramchester.domain.TramchesterException;
+import com.tramchester.domain.*;
+import com.tramchester.graph.RouteCalculator;
+import com.tramchester.graph.UnknownStationException;
 import com.tramchester.representations.JourneyPlanRepresentation;
+import org.joda.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,6 +32,8 @@ public class TestJourneyResponseMapperForTram {
     private JourneyResponseMapper mapper;
     private Set<Journey> journeys;
     private List<Stage> stages;
+    private RouteCalculator routeCalculator;
+    private TramServiceDate today;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -48,14 +50,17 @@ public class TestJourneyResponseMapperForTram {
     @Before
     public void beforeEachTestRuns() {
         mapper = dependencies.get(JourneyResponseMapper.class);
+        routeCalculator = dependencies.get(RouteCalculator.class);
+        today = new TramServiceDate(LocalDate.now());
         journeys = new HashSet<>();
         stages = new LinkedList<>();
     }
 
     @Test
     public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
+        String svcId = findServiceId(Stations.Victoria, Stations.Rochdale, 930);
         Stage vicToRoch = new Stage(Stations.Victoria, "route text", "route id", "tram");
-        vicToRoch.setServiceId("Serv002271");
+        vicToRoch.setServiceId(svcId);
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
         journeys.add(new Journey(stages));
@@ -69,8 +74,10 @@ public class TestJourneyResponseMapperForTram {
 
     @Test
     public void shouldMapSimpleJourney() throws TramchesterException {
+        String svcId = findServiceId(Stations.Altrincham, Stations.Cornbrook, 7*60);
+
         Stage altToCorn = new Stage(Stations.Altrincham, "route text", "route id", "tram");
-        altToCorn.setServiceId("Serv002201");
+        altToCorn.setServiceId(svcId);
         altToCorn.setLastStation(Stations.Cornbrook);
 
         stages.add(altToCorn);
@@ -95,13 +102,17 @@ public class TestJourneyResponseMapperForTram {
 
     @Test
     public void shouldMapTwoStageJourney() throws TramchesterException {
+        String svcId = findServiceId(Stations.Altrincham, Stations.Deansgate, 22 * 60);
+
         Stage altToDeansgate = new Stage(Stations.Altrincham, "route text", "route id", "tram");
         altToDeansgate.setLastStation(Stations.Deansgate);
-        altToDeansgate.setServiceId("Serv002192");
+        altToDeansgate.setServiceId(svcId);
+
+        svcId = findServiceId(Stations.Deansgate, Stations.Victoria, 22 * 60);
 
         Stage deansgateToVic = new Stage(Stations.Deansgate, "route2 text", "route2 id", "tram");
         deansgateToVic.setLastStation(Stations.Victoria);
-        deansgateToVic.setServiceId("Serv003979");
+        deansgateToVic.setServiceId(svcId);
 
         stages.add(altToDeansgate);
         stages.add(deansgateToVic);
@@ -122,24 +133,32 @@ public class TestJourneyResponseMapperForTram {
 
     @Test
     public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
+        String svcId = findServiceId(Stations.PiccadilyGardens, Stations.Cornbrook, 23 * 60);
+
         Stage picToCorn = new Stage(Stations.PiccadilyGardens, "routeText", "routeId", "tram");
         picToCorn.setLastStation(Stations.Cornbrook);
-        picToCorn.setServiceId("Serv002327");
-        // yields 3 trips
+        // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
+        picToCorn.setServiceId(svcId);
 
+        svcId = findServiceId(Stations.Cornbrook, Stations.ManAirport, 23 * 60);
         Stage cornToAir = new Stage(Stations.Cornbrook, "routeText", "routeId", "tram");
         cornToAir.setLastStation(Stations.ManAirport);
-        cornToAir.setServiceId("Serv004826");
-        // yields 1 trip
+        // user test TramJourneyPlannerTest.shouldFindRouteCornbrookToManAirport
+        cornToAir.setServiceId(svcId);
 
         stages.add(picToCorn);
         stages.add(cornToAir);
         journeys.add(new Journey(stages));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, (23*60)+10, 3);
+        JourneyPlanRepresentation result = mapper.map(journeys, (23*60), 3);
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(1, journey.getNumberOfTimes());
+    }
+
+    private String findServiceId(String firstId, String secondId, int queryTime) throws UnknownStationException {
+        Set<Journey> found = routeCalculator.calculateRoute(firstId, secondId, queryTime, DaysOfWeek.Monday, today);
+        return found.stream().findFirst().get().getStages().get(0).getServiceId();
     }
 
 }

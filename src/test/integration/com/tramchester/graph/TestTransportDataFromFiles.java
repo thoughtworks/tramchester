@@ -22,7 +22,8 @@ public class TestTransportDataFromFiles {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
-    private final String svcDeansgateToVic = "Serv003979";
+    // use TramJourneyPlannerTest.
+    private final String svcDeansgateToVic = "Serv001724";
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -56,7 +57,7 @@ public class TestTransportDataFromFiles {
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals(Route.METROLINK)).count();
-        assertEquals(14, tramRoutes);
+        assertEquals(34, tramRoutes); // both old format and new form routes present
     }
 
     @Test
@@ -106,14 +107,16 @@ public class TestTransportDataFromFiles {
 
     @Test
     public void shouldGetTripsAfter() {
+        // use TramJourneyPlannerTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
-        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate, Stations.Victoria, 1421, 10);
+        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate, Stations.Victoria, (23 * 60) +41 , 10);
         assertFalse(trips.isEmpty());
     }
 
     @Test
     public void shouldGetTripCrossingMidnight() {
-        Service svc = transportData.getServiceById("Serv002262");
+        // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
+        Service svc = transportData.getServiceById("Serv001110");
         List<Trip> trips = svc.getTripsAfter(Stations.Victoria, Stations.ShawAndCrompton, (23 * 60) + 44, 10);
         assertFalse(trips.isEmpty());
     }
