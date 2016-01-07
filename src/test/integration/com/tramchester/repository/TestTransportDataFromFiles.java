@@ -1,11 +1,11 @@
-package com.tramchester.dataimport;
+package com.tramchester.repository;
 
 
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.domain.presentation.ServiceTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -1,4 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
+
+import com.tramchester.domain.ClosedStations;
 
 public class StationClosureMessage {
     private ClosedStations closedStations;

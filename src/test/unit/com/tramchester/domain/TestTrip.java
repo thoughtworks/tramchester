@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.presentation.ServiceTime;
 import org.junit.Test;
 
 import java.time.LocalTime;

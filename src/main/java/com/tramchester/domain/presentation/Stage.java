@@ -1,7 +1,6 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.ServiceTime;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;

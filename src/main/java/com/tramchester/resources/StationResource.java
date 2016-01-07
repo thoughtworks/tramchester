@@ -3,7 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.StationClosureMessage;
+import com.tramchester.domain.presentation.StationClosureMessage;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
 

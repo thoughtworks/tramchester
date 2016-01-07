@@ -1,5 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
 
+import com.tramchester.domain.ClosedStations;
+import com.tramchester.domain.presentation.StationClosureMessage;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;

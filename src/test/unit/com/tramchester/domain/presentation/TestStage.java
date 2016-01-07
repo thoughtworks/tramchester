@@ -1,7 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
 
 
-import com.tramchester.domain.presentation.Stage;
 import org.junit.Test;
 
 import java.time.LocalTime;

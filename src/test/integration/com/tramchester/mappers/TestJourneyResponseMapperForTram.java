@@ -7,6 +7,7 @@ import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.Stage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.domain.exceptions.UnknownStationException;

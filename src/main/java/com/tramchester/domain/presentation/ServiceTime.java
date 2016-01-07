@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.mappers.TimeJsonSerializer;
