@@ -106,13 +106,14 @@ public class JourneyResponseMapperForTramTest {
 
     @Test
     public void shouldMapTwoStageJourney() throws TramchesterException {
-        String svcId = findServiceId(Stations.Altrincham, Stations.Deansgate, 22 * 60);
+        int pm10 = 22 * 60;
+        String svcId = findServiceId(Stations.Altrincham, Stations.Deansgate, pm10);
 
         Stage altToDeansgate = new Stage(Stations.Altrincham, "route text", "tram", "cssClass");
         altToDeansgate.setLastStation(Stations.Deansgate);
         altToDeansgate.setServiceId(svcId);
 
-        svcId = findServiceId(Stations.Deansgate, Stations.Victoria, 22 * 60);
+        svcId = findServiceId(Stations.Deansgate, Stations.Victoria, pm10);
 
         Stage deansgateToVic = new Stage(Stations.Deansgate, "route2 text", "tram", "cssClass");
         deansgateToVic.setLastStation(Stations.Victoria);
@@ -122,7 +123,7 @@ public class JourneyResponseMapperForTramTest {
         stages.add(deansgateToVic);
         journeys.add(new Journey(stages));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, (22*60), 1);
+        JourneyPlanRepresentation result = mapper.map(journeys, pm10, 1);
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(2, journey.getStages().size());
@@ -137,14 +138,15 @@ public class JourneyResponseMapperForTramTest {
 
     @Test
     public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
-        String svcId = findServiceId(Stations.PiccadilyGardens, Stations.Cornbrook, 23 * 60);
+        int pm23 = 23 * 60;
+        String svcId = findServiceId(Stations.PiccadilyGardens, Stations.Cornbrook, pm23);
 
         Stage picToCorn = new Stage(Stations.PiccadilyGardens, "routeText", "tram", "cssClass");
         picToCorn.setLastStation(Stations.Cornbrook);
         // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
         picToCorn.setServiceId(svcId);
 
-        svcId = findServiceId(Stations.Cornbrook, Stations.ManAirport, 23 * 60);
+        svcId = findServiceId(Stations.Cornbrook, Stations.ManAirport, pm23);
         Stage cornToAir = new Stage(Stations.Cornbrook, "routeText", "tram", "cssClass");
         cornToAir.setLastStation(Stations.ManAirport);
         // user test TramJourneyPlannerTest.shouldFindRouteCornbrookToManAirport
@@ -154,7 +156,7 @@ public class JourneyResponseMapperForTramTest {
         stages.add(cornToAir);
         journeys.add(new Journey(stages));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, (23*60), 3);
+        JourneyPlanRepresentation result = mapper.map(journeys, pm23, 3);
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertTrue(journey.getNumberOfTimes()>0);

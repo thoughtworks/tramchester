@@ -46,10 +46,20 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     }
 
     @Test
-    public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
+    public void shouldFindEndOfLinesToEndOfLinesToday() throws TramchesterException {
         for (String start : Stations.EndOfTheLine) {
             for (String dest : Stations.EndOfTheLine) {
-                checkRouteForAllDays(start, dest, "10:00:00");
+                checkRouteForAllDays(start, dest, "10:00:00", today);
+            }
+        }
+    }
+
+    @Test
+    public void shouldFindEndOfLinesToEndOfLinesFuture() throws TramchesterException {
+        for (String start : Stations.EndOfTheLine) {
+            for (String dest : Stations.EndOfTheLine) {
+                TramServiceDate twoWeeksHence = new TramServiceDate(LocalDate.now().plusWeeks(2));
+                checkRouteForAllDays(start, dest, "10:00:00", twoWeeksHence);
             }
         }
     }
@@ -58,7 +68,7 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {
         for (String start : Interchanges.stations()) {
             for (String dest : Interchanges.stations()) {
-                checkRouteForAllDays(start, dest, "09:00:00");
+                checkRouteForAllDays(start, dest, "09:00:00", today);
             }
         }
     }
@@ -67,7 +77,7 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
         for (String start : Stations.EndOfTheLine) {
             for (String dest : Interchanges.stations()) {
-                checkRouteForAllDays(start, dest, "09:00:00");
+                checkRouteForAllDays(start, dest, "09:00:00", today);
             }
         }
     }
@@ -76,7 +86,7 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
         for (String start : Interchanges.stations() ) {
             for (String dest : Stations.EndOfTheLine) {
-                checkRouteForAllDays(start,dest, "10:00:00");
+                checkRouteForAllDays(start,dest, "10:00:00", today);
             }
         }
     }
@@ -207,10 +217,10 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
         }
     }
 
-    private void checkRouteForAllDays(String start, String dest, String time) throws TramchesterException {
+    private void checkRouteForAllDays(String start, String dest, String time, TramServiceDate queryDate) throws TramchesterException {
         if (!dest.equals(start)) {
             for(DaysOfWeek day : DaysOfWeek.values()) {
-                validateAtLeastOneJourney(start, dest, time, day, today);
+                validateAtLeastOneJourney(start, dest, time, day, queryDate);
             }
         }
     }
