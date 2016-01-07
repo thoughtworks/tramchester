@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.exceptions;
 
 
 public class TramchesterException extends Exception {

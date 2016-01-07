@@ -1,8 +1,9 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Stage;
+import com.tramchester.domain.exceptions.UnknownStationException;
+import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.Stage;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;

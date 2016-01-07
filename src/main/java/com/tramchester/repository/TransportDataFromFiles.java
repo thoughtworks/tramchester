@@ -1,6 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.repository;
 
 import com.tramchester.dataimport.data.*;
+import com.tramchester.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

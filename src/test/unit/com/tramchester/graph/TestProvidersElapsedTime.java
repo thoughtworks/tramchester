@@ -3,7 +3,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramchesterException;
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.LocalDate;

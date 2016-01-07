@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.TramchesterException;
+import com.tramchester.domain.exceptions.TramchesterException;
 
 public interface ElapsedTime {
     int getElapsedTime() throws TramchesterException;

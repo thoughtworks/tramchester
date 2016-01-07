@@ -5,7 +5,7 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.graph.UnknownStationException;
+import com.tramchester.domain.exceptions.UnknownStationException;
 import org.joda.time.LocalDate;
 import org.junit.*;
 

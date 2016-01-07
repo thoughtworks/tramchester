@@ -1,7 +1,10 @@
 package com.tramchester.resources;
 
 import com.tramchester.domain.*;
-import com.tramchester.representations.JourneyPlanRepresentation;
+import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.Stage;
 
 import java.time.LocalTime;
 import java.util.Set;

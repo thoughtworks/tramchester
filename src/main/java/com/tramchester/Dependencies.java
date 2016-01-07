@@ -11,7 +11,7 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;

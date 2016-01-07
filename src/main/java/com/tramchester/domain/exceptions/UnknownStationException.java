@@ -1,6 +1,4 @@
-package com.tramchester.graph;
-
-import com.tramchester.domain.TramchesterException;
+package com.tramchester.domain.exceptions;
 
 public class UnknownStationException extends TramchesterException {
 

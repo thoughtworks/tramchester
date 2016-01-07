@@ -13,7 +13,7 @@ public class Trip {
     private final String serviceId;
     private String tripId;
     private String headSign;
-    private Stops stops = new Stops(); // stationId -> Stop
+    private Stops stops = new Stops();
 
     public Trip(String tripId, String headSign, String serviceId) {
         this.tripId = tripId;
@@ -50,10 +50,6 @@ public class Trip {
 
     public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
         return stops.travelsBetween(firstStationId, lastStationId, minutesFromMidnight);
-    }
-
-    public String getHeadSign() {
-        return headSign;
     }
 
     @Override

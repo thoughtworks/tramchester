@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.StationClosureMessage;
-import com.tramchester.domain.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
 
 import javax.ws.rs.GET;

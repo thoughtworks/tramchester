@@ -2,12 +2,11 @@ package com.tramchester.dataimport;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public class TransportDataImporter {

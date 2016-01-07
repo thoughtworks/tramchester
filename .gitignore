@@ -10,6 +10,8 @@ tmp
 *.ipr
 *.iws
 *.iml
+*.jps
+*.jps.analysis
 .idea/
 .env
 bin

@@ -7,9 +7,6 @@ public class StationClosureMessage {
         this.closedStations = closedStations;
     }
 
-    public StationClosureMessage() {
-    }
-
     public boolean isClosed() {
         return closedStations != null && closedStations.isNotEmpty();
     }

@@ -1,12 +1,10 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.TramchesterException;
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
-import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

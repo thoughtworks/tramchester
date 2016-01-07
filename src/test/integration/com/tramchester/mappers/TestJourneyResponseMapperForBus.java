@@ -2,10 +2,10 @@ package com.tramchester.mappers;
 
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Stage;
-import com.tramchester.domain.TramchesterException;
-import com.tramchester.representations.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.Stage;
+import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import org.junit.*;
 
 import java.io.IOException;

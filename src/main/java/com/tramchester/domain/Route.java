@@ -19,9 +19,6 @@ public class Route {
         this.agency = agency;
     }
 
-    private Route() {
-    }
-
     public String getId() {
         return id;
     }
@@ -54,7 +51,6 @@ public class Route {
         Route route = (Route) o;
 
         return !(id != null ? !id.equals(route.id) : route.id != null);
-
     }
 
     @Override

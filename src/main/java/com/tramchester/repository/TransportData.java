@@ -1,4 +1,8 @@
-package com.tramchester.domain;
+package com.tramchester.repository;
+
+import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Station;
 
 import java.util.Collection;
 import java.util.List;

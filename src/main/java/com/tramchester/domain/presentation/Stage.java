@@ -1,6 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.ServiceTime;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
@@ -11,7 +12,6 @@ public class Stage {
     private final String mode;
     private String firstStation;
     private String route;
-    //private String routeId;
     private String lastStation;
     private String serviceId;
     private List<ServiceTime> serviceTimes;
@@ -20,7 +20,6 @@ public class Stage {
     public Stage(String firstStation, String routeName, String mode, String tramRouteId) {
         this.firstStation = firstStation;
         this.route = routeName;
-        //this.routeId = routeId;
         this.mode = mode;
         this.tramRouteId = tramRouteId;
     }
@@ -40,10 +39,6 @@ public class Stage {
     public String getLastStation() {
         return lastStation;
     }
-
-//    public String getRouteId() {
-//        return routeId;
-//    }
 
     // used from javascript on front-end
     // TODO use the full route ID on front end

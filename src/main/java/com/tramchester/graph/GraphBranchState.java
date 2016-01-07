@@ -2,7 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramchesterException;
+import com.tramchester.domain.exceptions.TramchesterException;
 
 public class GraphBranchState {
     private final int queryTime;

@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.domain.*;
+import com.tramchester.repository.TransportData;
 import org.junit.Test;
 
 import java.nio.file.Paths;

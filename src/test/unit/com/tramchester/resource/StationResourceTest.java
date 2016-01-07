@@ -1,7 +1,7 @@
 package com.tramchester.resource;
 
 import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.resources.StationResource;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.testing.junit.ResourceTestRule;

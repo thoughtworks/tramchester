@@ -35,18 +35,6 @@ public class ServiceTime {
         return serviceId;
     }
 
-//    public String getHeadSign() {
-//        return headSign;
-//    }
-//
-//    public int getDuration(){
-//        if (this.departureTime.isAfter(this.arrivalTime)){
-//            return Minutes.minutesBetween(this.departureTime, this.arrivalTime.plusDays(1)).getMinutes();
-//        }
-//
-//        return Minutes.minutesBetween(departureTime, arrivalTime).getMinutes();
-//    }
-
     public int getFromMidnight() {
         return fromMidnight;
     }

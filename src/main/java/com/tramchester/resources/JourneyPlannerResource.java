@@ -1,12 +1,12 @@
 package com.tramchester.resources;
 
 import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.Journey;
+import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramchesterException;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.mappers.JourneyResponseMapper;
-import com.tramchester.representations.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalDate;
 import org.neo4j.graphdb.Node;

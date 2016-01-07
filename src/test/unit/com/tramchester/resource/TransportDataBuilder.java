@@ -3,7 +3,7 @@ package com.tramchester.resource;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFiles;
 
 import java.util.stream.Stream;
 

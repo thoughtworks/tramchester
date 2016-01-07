@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.repository.TransportData;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import org.neo4j.graphdb.*;

@@ -1,6 +1,5 @@
-package com.tramchester.representations;
+package com.tramchester.domain.presentation;
 
-import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
 
 import java.util.Set;
@@ -8,7 +7,6 @@ import java.util.Set;
 public class JourneyPlanRepresentation {
     private final Set<Journey> journeys;
     private final Set<Station> stations;
-    private int numberOfServiceTimes;
 
     public JourneyPlanRepresentation(Set<Journey> journeys, Set<Station> stations) {
         this.journeys = journeys;
