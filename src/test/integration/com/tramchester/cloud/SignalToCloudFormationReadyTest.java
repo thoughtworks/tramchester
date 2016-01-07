@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class TestSignalToCloudFormationReady {
+public class SignalToCloudFormationReadyTest {
 
     // examplePostData = "{\"Status\": \"SUCCESS\", \"Reason\": \"Web Server started\", \"UniqueId\": \"UNIQUEID\", \"Data\": \"887\"}";
 

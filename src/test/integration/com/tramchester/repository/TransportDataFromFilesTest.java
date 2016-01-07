@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-public class TestTransportDataFromFiles {
+public class TransportDataFromFilesTest {
     public static final String ASH_TO_MANCHESTER = "MET:MET3:O:";
     public static final int MINUTES_FROM_MIDNIGHT_8AM = 8 * 60;
 

@@ -28,7 +28,7 @@ import java.util.Set;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TestJourneyResponseMapperForTram {
+public class JourneyResponseMapperForTramTest {
     private LocalTime sevenAM = LocalTime.of(7, 0);
     private LocalTime eightAM = LocalTime.of(8, 0);
 

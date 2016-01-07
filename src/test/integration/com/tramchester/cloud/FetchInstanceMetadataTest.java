@@ -8,7 +8,7 @@ import java.net.MalformedURLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestFetchInstanceMetadata {
+public class FetchInstanceMetadataTest {
 
     private FetchInstanceMetadata fetcher;
 

@@ -16,7 +16,7 @@ import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class TestJourneyResponseMapperForBus {
+public class JourneyResponseMapperForBusTest {
 
     private static Dependencies dependencies;
     private JourneyResponseMapper mapper;

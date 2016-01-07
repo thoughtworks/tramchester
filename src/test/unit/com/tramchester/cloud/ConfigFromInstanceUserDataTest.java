@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class TestConfigFromInstanceUserData implements FetchMetadata {
+public class ConfigFromInstanceUserDataTest implements FetchMetadata {
 
     private String exampleMetaData = "#include\n" +
             "https://s3-eu-west-1.amazonaws.com/tramchester2dist/97/cloudInit.txt\n" +

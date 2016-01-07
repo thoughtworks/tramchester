@@ -25,7 +25,7 @@ import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class TestGraphWithSimpleRoute {
+public class GraphWithSimpleRouteTest {
 
     public static final String TMP_DB = "tmp.db";
     public static final String FIRST_STATION = "9400ZZ_FIRST";

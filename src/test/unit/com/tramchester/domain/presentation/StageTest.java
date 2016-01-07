@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class TestStage {
+public class StageTest {
 
     @Test
     public void shouldGetDurationCorrectly() {

@@ -12,7 +12,7 @@ import org.neo4j.graphdb.Node;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TestNodeFactory extends EasyMockSupport {
+public class NodeFactoryTest extends EasyMockSupport {
 
     private Node node;
     private NodeFactory factory;

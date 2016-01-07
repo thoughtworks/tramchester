@@ -18,7 +18,7 @@ import java.util.LinkedList;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestProvidersElapsedTime  extends EasyMockSupport {
+public class ProvidersElapsedTimeTest extends EasyMockSupport {
 
     public static final int QUERY_TIME = 11 * 60;
     public static final int START_TIME = QUERY_TIME+5;

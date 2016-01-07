@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class TestStops {
+public class StopsTest {
 
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";

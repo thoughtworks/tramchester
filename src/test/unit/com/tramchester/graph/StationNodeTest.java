@@ -9,7 +9,7 @@ import org.neo4j.graphdb.Node;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestStationNode extends EasyMockSupport {
+public class StationNodeTest extends EasyMockSupport {
 
     private Node node;
 

@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class TestRouteStationNode extends EasyMockSupport {
+public class RouteStationNodeTest extends EasyMockSupport {
     private Node node;
 
     @Before

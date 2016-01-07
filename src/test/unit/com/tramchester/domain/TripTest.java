@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestTrip {
+public class TripTest {
 
     @Test
     public void shouldModelCircularTripsCorrectly() {

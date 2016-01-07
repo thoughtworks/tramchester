@@ -14,7 +14,7 @@ import org.neo4j.graphdb.Relationship;
 import static org.junit.Assert.*;
 
 
-public class TestTramRelationship extends EasyMockSupport {
+public class TramRelationshipTest extends EasyMockSupport {
 
     private Relationship relationship;
     private RelationshipFactory relationshipFactory;

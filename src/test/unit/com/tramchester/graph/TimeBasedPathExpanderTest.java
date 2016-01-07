@@ -23,7 +23,7 @@ import java.util.Set;
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static org.junit.Assert.*;
 
-public class TestTimeBasedPathExpander extends EasyMockSupport {
+public class TimeBasedPathExpanderTest extends EasyMockSupport {
 
     public static final int MAX_WAIT_MINUTES = 30;
     private int[] times = new int[] { 600, 700, 800, 900, 1000 };
