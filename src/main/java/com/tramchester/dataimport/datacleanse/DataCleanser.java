@@ -42,7 +42,6 @@ public class DataCleanser {
         cleanseCalendar(servicesAndTrips.getServiceIds());
 
         cleanFeedInfo();
-
     }
 
     public void cleanseCalendar(Set<String> services) throws IOException {
@@ -136,7 +135,7 @@ public class DataCleanser {
     }
 
     public List<String> cleanseRoutes(Set<String> agencyCodes) throws IOException {
-        logger.info("**** Start cleansing routes.");
+        logger.info("**** Start cleansing routes");
         List<String> routeCodes = new LinkedList<>();
         Stream<RouteData> routes = transportDataReader.getRoutes();
 

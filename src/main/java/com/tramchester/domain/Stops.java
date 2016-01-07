@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class Stops  implements Iterable<Stop> {
     private static final Logger logger = LoggerFactory.getLogger(Stops.class);
 
@@ -48,35 +50,40 @@ public class Stops  implements Iterable<Stop> {
 
     public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
         if (!(stations.containsKey(firstStationId) && stations.containsKey(lastStationId))) {
+            logger.warn(format("No stops for %s to %s", firstStationId, lastStationId));
             return false;
         }
-        List<Integer[]> pairs = getPairs(firstStationId, lastStationId);
-
-        // now see if any of the candidate journeys from stop to stop operate at the right time
-        for(Integer[] pair : pairs) {
-            Stop firstStop = stops.get(pair[0]);
-            Stop secondStop = stops.get(pair[1]);
-            if (secondStop.getArriveMinsFromMidnight()> firstStop.getDepartureMinFromMidnight()) {
-                if (firstStop.getDepartureMinFromMidnight()>minutesFromMidnight) {
-                    return true;
-                }
-            }
-        }
-        return false;
-
+        List<Integer[]> pairs = getPairs(firstStationId, lastStationId, minutesFromMidnight);
+        return !pairs.isEmpty();
     }
 
-    public List<Integer[]> getPairs(String firstStationId, String lastStationId) {
+    public List<Stop[]> getBeginEndStopsFor(String firstStationId, String lastStationId, int minsFromMidnight) {
+        List<Stop[]> results = new LinkedList<>();
+        List<Integer[]> pairs = getPairs(firstStationId, lastStationId, minsFromMidnight);
+        for(Integer[] pair : pairs) {
+            results.add(new Stop[]{ get(pair[0]), get(pair[1])});
+        }
+        return results;
+    }
+
+    private List<Integer[]> getPairs(String firstStationId, String lastStationId, int minsFromMidnight) {
         // assemble possible pairs representing journeys from stop to stop
         List<Integer[]> pairs = new LinkedList<>();
         List<Integer> firstStationStops = stations.get(firstStationId);
         List<Integer> lastStationStops = stations.get(lastStationId);
         firstStationStops.forEach(firstStationStop -> lastStationStops.forEach(lastStationStop -> {
             if (lastStationStop>firstStationStop) {
-                pairs.add(new Integer[] {firstStationStop,lastStationStop});
+                if (checkTiming(stops.get(firstStationStop), stops.get(lastStationStop), minsFromMidnight)) {
+                    pairs.add(new Integer[] {firstStationStop,lastStationStop});
+                }
             }
         }));
         return pairs;
+    }
+
+    private boolean checkTiming(Stop firstStop, Stop secondStop, int minsFromMidnight) {
+        return (secondStop.getArriveMinsFromMidnight()>=firstStop.getDepartureMinFromMidnight())
+                && (firstStop.getDepartureMinFromMidnight()>minsFromMidnight);
     }
 
     public int size() {

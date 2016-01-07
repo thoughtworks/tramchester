@@ -1,7 +1,6 @@
 package com.tramchester.domain;
 
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ public class Service {
         Service service = (Service) o;
 
         return !(serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null);
-
     }
 
     @Override

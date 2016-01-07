@@ -28,7 +28,7 @@ import java.util.Set;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JourneyResponseMapperForTramTest {
+public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
     private LocalTime sevenAM = LocalTime.of(7, 0);
     private LocalTime eightAM = LocalTime.of(8, 0);
 
@@ -36,8 +36,6 @@ public class JourneyResponseMapperForTramTest {
     private JourneyResponseMapper mapper;
     private Set<Journey> journeys;
     private List<Stage> stages;
-    private RouteCalculator routeCalculator;
-    private TramServiceDate today;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -55,7 +53,6 @@ public class JourneyResponseMapperForTramTest {
     public void beforeEachTestRuns() {
         mapper = dependencies.get(JourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
-        today = new TramServiceDate(LocalDate.now());
         journeys = new HashSet<>();
         stages = new LinkedList<>();
     }
@@ -160,11 +157,6 @@ public class JourneyResponseMapperForTramTest {
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertTrue(journey.getNumberOfTimes()>0);
-    }
-
-    private String findServiceId(String firstId, String secondId, int queryTime) throws UnknownStationException {
-        Set<Journey> found = routeCalculator.calculateRoute(firstId, secondId, queryTime, DaysOfWeek.Monday, today);
-        return found.stream().findFirst().get().getStages().get(0).getServiceId();
     }
 
 }

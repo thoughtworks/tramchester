@@ -71,12 +71,21 @@ task stage(dependsOn: ['clean', 'installApp'])
 test {
     // t2.micro has 1gb
     maxHeapSize = "2g"
+    useJUnit {
+        excludeCategories 'com.tramchester.BusTest'
+    }
 }
 
-
 clean {
-    delete 'int_test_tramchester.db' , 'data/tram/data.zip'
+    delete 'int_test_tramchester.db' , 'data/tram/data.zip', 'data/bus/data.zip', 'int_test_bus_tramchester.db',
+            'perf_test_tramchester'
     delete fileTree('data/tram') {
+        include '*.txt'
+    }
+    delete fileTree('data/bus') {
+        include '*.txt'
+    }
+    delete fileTree('data/all') {
         include '*.txt'
     }
 }

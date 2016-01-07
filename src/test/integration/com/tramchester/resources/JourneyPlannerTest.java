@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 
+import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.DaysOfWeek;
@@ -9,6 +10,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.services.SpatialService;
 import org.joda.time.LocalDate;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -46,7 +48,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("work in progress")
+    @Category({BusTest.class})
     public void spikeMultipleToMultiple() throws TramchesterException {
         List<Node> nearEastDids;
         List<Node> nearPiccGardens;

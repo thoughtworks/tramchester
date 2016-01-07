@@ -10,26 +10,30 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class StopsTest {
-
+    private int am10Minutes;
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";
     private final String stationIdC = "statC";
     private Station stationA;
     private Station stationB;
     private Station stationC;
+    private Station stationD;
     private Stop stopA;
     private Stop stopB;
     private Stop stopC;
-    private int am10Minutes;
+    private Stop busStopD;
 
     @Before
     public void beforeEachTestRuns() {
         stationA = new Station(stationIdA, "areaA", "nameA", -1,1, false);
         stationB = new Station(stationIdB, "areaB", "nameB", -2,2, false);
         stationC = new Station(stationIdC, "areaC", "nameC", -3,3, false);
+        stationD = new Station("statD", "areaC", "nameC", -3,3, false);
+
         stopA = new Stop(stationA, LocalTime.of(10, 00), LocalTime.of(10, 01));
         stopB = new Stop(stationB, LocalTime.of(10, 02), LocalTime.of(10, 03));
         stopC = new Stop(stationC, LocalTime.of(10, 10), LocalTime.of(10, 10));
+        busStopD = new Stop(stationD, LocalTime.of(10,10), LocalTime.of(10,11));
         am10Minutes = 10 * 60;
     }
 
@@ -60,7 +64,18 @@ public class StopsTest {
         assertTrue(stops.travelsBetween(stationIdB, stationIdC, am10Minutes));
         assertFalse(stops.travelsBetween(stationIdC, stationIdA, am10Minutes));
         assertFalse(stops.travelsBetween(stationIdA, stationIdA, am10Minutes));
+    }
 
+    @Test
+    public void shouldCopeWithSameDepartArriveTimeForAdjacentStops() {
+        // this can happen for buses
+        Stops stops = new Stops();
+
+        stops.add(stopA);
+        stops.add(stopB);
+        stops.add(stopC);
+        stops.add(busStopD);
+        assertTrue(stops.travelsBetween(stationIdC, stationD.getId(), am10Minutes+9));
     }
 
     @Test

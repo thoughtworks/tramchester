@@ -20,13 +20,12 @@ public class TransportDataFromFiles implements TransportData {
     public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
                                   Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
                                   Stream<FeedInfo> feedInfo)  {
-        logger.info("Loading tram data from files");
+        logger.info("Loading transport data from files");
         Optional<FeedInfo> maybeFeedInfo = feedInfo.limit(1).findFirst();
         if (maybeFeedInfo.isPresent()) {
             this.feedInfo = maybeFeedInfo.get();
         } else {
             logger.warn("Did not find feedinfo");
-
         }
 
         stops.forEach((stop) -> {
@@ -35,7 +34,6 @@ public class TransportDataFromFiles implements TransportData {
             if (!stations.keySet().contains(stationId)) {
                 Station station = new Station(stopId, stop.getArea(), stop.getName(),
                         stop.getLatitude(), stop.getLongitude(), stop.isTram());
-                //logger.info("Add station with id " + stationId);
                 stations.put(stationId, station);
             }
         });

@@ -1,12 +1,15 @@
 package com.tramchester.mappers;
 
+import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.Stage;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.graph.RouteCalculator;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -16,7 +19,7 @@ import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class JourneyResponseMapperForBusTest {
+public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     private static Dependencies dependencies;
     private JourneyResponseMapper mapper;
@@ -38,26 +41,31 @@ public class JourneyResponseMapperForBusTest {
     @Before
     public void beforeEachTestRuns() {
         mapper = dependencies.get(JourneyResponseMapper.class);
+        routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
     }
 
     @Test
-    @Ignore("work in progress")
+    @Category({BusTest.class})
     public void shouldMapStockportCircularJourneyReproduceIssue() throws TramchesterException {
+
         String stockportBusStation = "1800STBS001";
         String stockportBridgefieldStreet = "1800SG15811";
 
+        int minutesFromMidnight = 571;
+        //String svcId = findServiceId(stockportBusStation, stockportBridgefieldStreet, minutesFromMidnight);
+        String svcId = "Serv002953"; // use above when timetable changes to find new svc id
+
         Stage busStage = new Stage(stockportBusStation, "route text", "tram", "cssClass");
-        busStage.setServiceId("Serv001653");
+        busStage.setServiceId(svcId);
         busStage.setLastStation(stockportBridgefieldStreet);
 
         stages.add(busStage);
         journeys.add(new Journey(stages));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, 571, 1);
+        JourneyPlanRepresentation result = mapper.map(journeys, minutesFromMidnight, 1);
 
         assertEquals(1,result.getJourneys().size());
-
     }
 }
