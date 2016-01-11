@@ -12,8 +12,9 @@ public class Stage {
     private final RawStage rawStage;
     private List<ServiceTime> serviceTimes;
 
-    public Stage(RawStage rawStage) {
+    public Stage(RawStage rawStage, List<ServiceTime> serviceTimes) {
         this.rawStage = rawStage;
+        this.serviceTimes = serviceTimes;
     }
 
     public String getFirstStation() {
@@ -41,51 +42,46 @@ public class Stage {
         return rawStage.getServiceId();
     }
 
-    public void setServiceTimes(List<ServiceTime> times) {
-        this.serviceTimes = times;
-    }
-
     public List<ServiceTime> getServiceTimes() {
         return serviceTimes;
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
-        LocalTime firstArrivalTime = LocalTime.now();
-        if (serviceTimes.size() > 0) {
-            firstArrivalTime = serviceTimes.get(0).getArrivalTime();
-        }
-        return firstArrivalTime;
+        return serviceTimes.get(0).getArrivalTime();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
-        LocalTime firstDepartureTime = LocalTime.now();
-        if (serviceTimes.size() > 0) {
-            firstDepartureTime = serviceTimes.get(0).getDepartureTime();
-        }
-        // TODO only ever reach here in error?
-        return firstDepartureTime;
+       return serviceTimes.get(0).getDepartureTime();
     }
 
     public int getDuration() {
-        if (!serviceTimes.isEmpty()) {
-            ServiceTime serviceTime = serviceTimes.get(0);
-            LocalTime arrivalTime = serviceTime.getArrivalTime();
-            LocalTime departureTime = serviceTime.getDepartureTime();
-            int depSecs = departureTime.toSecondOfDay();
+        // likely this only works for Tram when duration between stops does not vary by time of day
+        ServiceTime serviceTime = serviceTimes.get(0);
+        LocalTime arrivalTime = serviceTime.getArrivalTime();
+        LocalTime departureTime = serviceTime.getDepartureTime();
+        int depSecs = departureTime.toSecondOfDay();
 
-            int seconds;
-            if (arrivalTime.isBefore(departureTime)) { // crosses midnight
-                int secsBeforeMid = SECONDS_IN_DAY - depSecs;
-                int secsAfterMid = arrivalTime.toSecondOfDay();
-                seconds = secsBeforeMid + secsAfterMid;
-            } else {
-                seconds = arrivalTime.toSecondOfDay() - depSecs;
-            }
-            return seconds / 60;
+        int seconds;
+        if (arrivalTime.isBefore(departureTime)) { // crosses midnight
+            int secsBeforeMid = SECONDS_IN_DAY - depSecs;
+            int secsAfterMid = arrivalTime.toSecondOfDay();
+            seconds = secsBeforeMid + secsAfterMid;
+        } else {
+            seconds = arrivalTime.toSecondOfDay() - depSecs;
         }
-        return 0;
+        return seconds / 60;
+    }
+
+    public int findEarliestDepartureTime() {
+        int earliest = Integer.MAX_VALUE;
+        for (ServiceTime time : serviceTimes) {
+            if (time.getFromMidnight() < earliest) {
+                earliest = time.getFromMidnight();
+            }
+        }
+        return earliest;
     }
 
     @Override
@@ -95,4 +91,5 @@ public class Stage {
                 ", serviceTimes=" + serviceTimes +
                 '}';
     }
+
 }

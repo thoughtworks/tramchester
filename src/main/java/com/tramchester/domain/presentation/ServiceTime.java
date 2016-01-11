@@ -7,16 +7,16 @@ import com.tramchester.services.DateTimeService;
 import java.time.LocalTime;
 
 public class ServiceTime {
-    private final LocalTime departureTime;
-    private final LocalTime arrivalTime;
+    private final LocalTime leaveBegin;
+    private final LocalTime arrivesEnd;
     private final String serviceId;
     private final String headSign;
     private final int fromMidnight;
     private final String tripId;
 
-    public ServiceTime(LocalTime departureTime, LocalTime arrivalTime, String serviceId, String headSign, int fromMidnight, String tripId) {
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
+    public ServiceTime(LocalTime leaveBegin, LocalTime arrivesEnd, String serviceId, String headSign, int fromMidnight, String tripId) {
+        this.leaveBegin = leaveBegin;
+        this.arrivesEnd = arrivesEnd;
         this.serviceId = serviceId;
         this.headSign = headSign;
         this.fromMidnight = fromMidnight;
@@ -25,12 +25,12 @@ public class ServiceTime {
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getDepartureTime() {
-        return departureTime;
+        return leaveBegin;
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getArrivalTime() {
-        return arrivalTime;
+        return arrivesEnd;
     }
 
     public String getServiceId() {
@@ -44,8 +44,8 @@ public class ServiceTime {
     @Override
     public String toString() {
         return "ServiceTime{" +
-                "departureTime=" + DateTimeService.formatTime(departureTime) +
-                ", arrivalTime=" + DateTimeService.formatTime(arrivalTime) +
+                "(leaves start) departureTime=" + DateTimeService.formatTime(leaveBegin) +
+                ",(arrives end) arrivalTime=" + DateTimeService.formatTime(arrivesEnd) +
                 ", serviceId='" + serviceId + '\'' +
                 ", tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +

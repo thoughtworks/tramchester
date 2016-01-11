@@ -85,10 +85,9 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
                 minNumberOfTimes = times.size();
             }
             logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-            Stage stage = new Stage(rawStage);
-            stage.setServiceTimes(times);
+            Stage stage = new Stage(rawStage,times);
             stages.add(stage);
-            int departsAtMinutes = findEarliestDepartureTime(times);
+            int departsAtMinutes = stage.findEarliestDepartureTime();
             int duration = stage.getDuration();
             journeyClock = departsAtMinutes + duration;
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
@@ -97,16 +96,6 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
         Journey journey = new Journey(stages);
         journey.setNumberOfTimes(minNumberOfTimes);
         return journey;
-    }
-
-    private int findEarliestDepartureTime(List<ServiceTime> times) {
-        int earliest = Integer.MAX_VALUE;
-        for (ServiceTime time : times) {
-            if (time.getFromMidnight() < earliest) {
-                earliest = time.getFromMidnight();
-            }
-        }
-        return earliest;
     }
 
     private List<Station> getStations(Set<RawJourney> journeys) {
