@@ -90,8 +90,8 @@ public class TransportGraphBuilder extends StationIndexs {
             Stop currentStop = stops.get(i);
             Stop nextStop = stops.get(i + 1);
 
-            Node from = getOrCreateRouteStation(currentStop.getStation(), route);
-            Node to = getOrCreateRouteStation(nextStop.getStation(), route);
+            Node from = getOrCreateRouteStation(currentStop.getStation(), route, service);
+            Node to = getOrCreateRouteStation(nextStop.getStation(), route, service);
 
             if (runsAtLeastADay(service.getDays())) {
                 createOrUpdateRelationship(from, to, TransportRelationshipTypes.TRAM_GOES_TO, currentStop,
@@ -107,7 +107,7 @@ public class TransportGraphBuilder extends StationIndexs {
         Node node = getStationNode(id);
 
         if (node == null) {
-            logger.info("Creating station node: " + station);
+            logger.info(format("Creating station node: %s ",station));
             node = graphDatabaseService.createNode(DynamicLabel.label(STATION));
 
             node.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
@@ -121,12 +121,12 @@ public class TransportGraphBuilder extends StationIndexs {
         return node;
     }
 
-    private Node getOrCreateRouteStation(Station station, Route route) {
+    private Node getOrCreateRouteStation(Station station, Route route, Service service) {
         String routeStationId = createRouteStationId(station, route);
         Node routeStation = getRouteStationNode(routeStationId);
 
         if (routeStation == null) {
-            routeStation = createRouteStation(station, route, routeStationId);
+            routeStation = createRouteStation(station, route, routeStationId, service);
         }
 
         Node stationNode = getOrCreateStation(station);
@@ -183,8 +183,9 @@ public class TransportGraphBuilder extends StationIndexs {
         return false;
     }
 
-    private Node createRouteStation(Station station, Route route, String routeStationId) {
-        logger.info("Creating route station node: " + station.getId() + " " + route.getId());
+    private Node createRouteStation(Station station, Route route, String routeStationId, Service service) {
+        logger.info(format("Creating route station %s route %s service %s", station.getId(),route.getId(),
+                service.getServiceId()));
         Node routeStation = graphDatabaseService.createNode(DynamicLabel.label(ROUTE_STATION));
         routeStation.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);

@@ -69,8 +69,6 @@ public class Service {
 
     public List<Trip> getTripsAfter(String firstStationId, String lastStationId, int minutesFromMidnight,
                                     int maxNumberOfTrips) {
-        logger.info(String.format("Find service '%s' trips from '%s' to '%s' after '%s'",
-                serviceId, firstStationId, lastStationId, minutesFromMidnight));
         Map<Integer,Trip> sortedValidTrips = new TreeMap<>();
         StringBuilder tripIds = new StringBuilder();
         trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, minutesFromMidnight))
@@ -80,7 +78,8 @@ public class Service {
                     sortedValidTrips.put(minutes, trip);
         });
 
-        logger.info(String.format("Selected %s of %s trips %s", sortedValidTrips.size(), trips.size(), tripIds.toString()));
+        logger.info(String.format("Service %s selected %s of %s trips %s", serviceId, sortedValidTrips.size(),
+                trips.size(), tripIds.toString()));
 
         int limit = maxNumberOfTrips;
         if (sortedValidTrips.size() < maxNumberOfTrips) {

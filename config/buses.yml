@@ -22,10 +22,10 @@ tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.
 dataPath: data/bus
 
 logging:
-  level: INFO
+  level: DEBUG
   loggers:
-    root: INFO
-    com.tramchester: INFO
+    root: DEBUG
+    com.tramchester: DEBUG
     org.eclipse.jetty.servlet: INFO
     io.dropwizard.jersey.jackson: INFO
 

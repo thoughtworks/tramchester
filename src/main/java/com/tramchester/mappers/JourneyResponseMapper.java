@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -26,19 +27,22 @@ public class JourneyResponseMapper {
     }
 
     public JourneyPlanRepresentation map(Set<Journey> journeys, int minutesFromMidnight, int maxNumberOfTrips) throws TramchesterException {
-        Set<Station> stations = getStations(journeys);
+        List<Station> stations = getStations(journeys);
+        logger.info(format("Mapping journey from %s to %s at %s with max trips %s",
+                stations.get(0), stations.get(stations.size()-1),
+                minutesFromMidnight, maxNumberOfTrips));
         Set<Journey> decoratedJourneys = decorateJourneys(journeys, stations, minutesFromMidnight, maxNumberOfTrips);
         return new JourneyPlanRepresentation(decoratedJourneys, stations);
     }
 
-    private Set<Journey> decorateJourneys(Set<Journey> journeys, Set<Station> stations,
+    private Set<Journey> decorateJourneys(Set<Journey> journeys, List<Station> stations,
                                           int originMinutesFromMidnight, int maxNumberOfTrips) throws TramchesterException {
         logger.info("Decorating the discovered journeys " + journeys.size());
         for (Journey journey : journeys) {
+            logger.info("Decorating journey " + journey);
             int journeyClock = originMinutesFromMidnight;
 
             journey.setSummary(getJourneySummary(journey, stations));
-            logger.info("Add services times for " + journey.toString());
             decorateJourneysUsingStage(journey, maxNumberOfTrips, journeyClock);
         }
         return journeys;
@@ -84,8 +88,8 @@ public class JourneyResponseMapper {
         return earliest;
     }
 
-    private Set<Station> getStations(Set<Journey> journeys) {
-        Set<Station> stations = new HashSet<>();
+    private List<Station> getStations(Set<Journey> journeys) {
+        List<Station> stations = new LinkedList<>();
         for (Journey journey : journeys) {
             List<Stage> stages = journey.getStages();
             for (Stage stage : stages) {
@@ -96,7 +100,7 @@ public class JourneyResponseMapper {
         return stations;
     }
 
-    private String getJourneySummary(Journey journey, Set<Station> stations) {
+    private String getJourneySummary(Journey journey, List<Station> stations) {
         if (journey.getStages().size() < 2) {
             return "Direct";
         }

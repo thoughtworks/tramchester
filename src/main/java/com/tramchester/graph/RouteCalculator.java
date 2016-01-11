@@ -52,7 +52,7 @@ public class RouteCalculator extends StationIndexs {
 
     public Set<Journey> calculateRoute(String startStationId, String endStationId, int queryTime, DaysOfWeek dayOfWeek,
                                        TramServiceDate queryDate) throws UnknownStationException {
-        Set<Journey> journeys = new HashSet<>();
+        Set<Journey> journeys = new LinkedHashSet<>(); // order matters
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = getStationNode(startStationId);
@@ -61,7 +61,7 @@ public class RouteCalculator extends StationIndexs {
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, dayOfWeek, queryDate);
             // todo eliminate duplicate journeys that use different services??
 
-            mapStreamToJourneySet(journeys, paths, MAX_NUM_GRAPH_PATHS);
+            mapStreamToJourneySet(journeys, paths, MAX_NUM_GRAPH_PATHS, queryTime);
             tx.success();
         }
         return journeys;
@@ -69,7 +69,7 @@ public class RouteCalculator extends StationIndexs {
 
     public Set<Journey> calculateRoute(List<Node> starts, List<Node> ends, int minutesFromMidnight,
                                        DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
-        Set<Journey> journeys = new HashSet<>();
+        Set<Journey> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
             startNode.setProperty(NAME, "BEGIN");
@@ -88,7 +88,7 @@ public class RouteCalculator extends StationIndexs {
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, dayOfWeek, queryDate);
 
             int limit = MAX_NUM_GRAPH_PATHS * starts.size();
-            mapStreamToJourneySet(journeys, paths, limit);
+            mapStreamToJourneySet(journeys, paths, limit, minutesFromMidnight);
 
             startNode.delete();
             endNode.delete();
@@ -98,22 +98,25 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    private void mapStreamToJourneySet(Set<Journey> journeys, Stream<WeightedPath> paths, int limit) {
+    private void mapStreamToJourneySet(Set<Journey> journeys, Stream<WeightedPath> paths,
+                                       int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path->{
             logger.info("Map graph path of length " + path.length());
-            List<Stage> stages = mapStages(path);
+            List<Stage> stages = mapStages(path, minsPathMidnight);
             Journey journey = new Journey(stages);
             journey.setJourneyIndex(journeys.size());
             journeys.add(journey);
         });
     }
 
-    private List<Stage> mapStages(WeightedPath path) {
+    private List<Stage> mapStages(WeightedPath path, int minsPastMidnight) {
         List<Stage> stages = new ArrayList<>();
         Stage currentStage = null;
 
         Iterable<Relationship> relationships = path.relationships();
         RelationshipFactory relationshipFactory = new RelationshipFactory();
+
+        logger.info("Mapping path to stages, weight is " + path.weight());
 
         int totalCost = 0;
         for (Relationship graphRelationship : relationships) {
@@ -129,12 +132,13 @@ public class RouteCalculator extends StationIndexs {
             totalCost += cost;
 
             // todo refactor out first and subsequent stage handling
+            int elapsedTime = minsPastMidnight + totalCost;
             if (tramRelationship.isBoarding()) {
                 // station -> route station
                 RouteStationNode routeStationNode = (RouteStationNode) endNode;
                 String routeName = routeStationNode.getRouteName();
                 String routeId = routeStationNode.getRouteId();
-                logger.info(format("board tram: at:'%s' from '%s'", endNode, startNode));
+                logger.info(format("Board tram: at:'%s' from '%s' at %s", endNode, startNode, elapsedTime));
 
                 String tramRouteClass = routeCodeToClassMapper.map(routeId);
 
@@ -142,18 +146,25 @@ public class RouteCalculator extends StationIndexs {
             } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;
-                currentStage.setServiceId(tramGoesToRelationship.getService());
+                String serviceId = tramGoesToRelationship.getService();
+                logger.info(format("Add goes to %s, service %s, elapsed %s", tramGoesToRelationship.getDest(),
+                        serviceId, elapsedTime));
+                currentStage.setServiceId(serviceId);
             } else if (tramRelationship.isDepartTram()) {
                 // route station -> station
                 StationNode stationNode = (StationNode) endNode;
                 String stationName = stationNode.getName();
-                logger.info(format("depart tram: at:'%s' to: '%s' '%s' ", startNodeId, stationName, endNodeId));
+                logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", startNodeId, stationName, endNodeId,
+                        elapsedTime));
                 currentStage.setLastStation(endNodeId);
-                logger.info(format("Added stage: '%s'",currentStage));
+                logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
                 stages.add(currentStage);
+            } else if (tramRelationship.isWalk()) {
+                logger.info("Skip adding walk of cost " + cost);
             }
         }
-        logger.info(format("Number of stages: %s Total cost:%s ",stages.size(), totalCost));
+        logger.info(format("Number of stages: %s Total cost:%s Finish: %s",stages.size(), totalCost,
+                totalCost+minsPastMidnight));
         return stages;
     }
 

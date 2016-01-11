@@ -21,12 +21,14 @@ public class ServiceReason {
     }
     static class InflightChangeOfService extends ServiceReason
     {
+        public String toString() { return "InflightChangeOfService"; }
     }
     static class IsValid extends ServiceReason
     {
     }
     static class DoesNotRunOnQueryDate extends ServiceReason
     {
+        public String toString() { return "DoesNotRunOnQueryDate"; }
     }
     static class DoesNotOperateOnTime extends ServiceReason
     {

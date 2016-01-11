@@ -50,7 +50,7 @@ public class Stops  implements Iterable<Stop> {
 
     public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
         if (!(stations.containsKey(firstStationId) && stations.containsKey(lastStationId))) {
-            logger.warn(format("No stops for %s to %s", firstStationId, lastStationId));
+            logger.warn(format("No stops for %s to %s as one or more station missing", firstStationId, lastStationId));
             return false;
         }
         List<Integer[]> pairs = getPairs(firstStationId, lastStationId, minutesFromMidnight);
@@ -84,6 +84,7 @@ public class Stops  implements Iterable<Stop> {
     private boolean checkTiming(Stop firstStop, Stop secondStop, int minsFromMidnight) {
         return (secondStop.getArriveMinsFromMidnight()>=firstStop.getDepartureMinFromMidnight())
                 && (firstStop.getDepartureMinFromMidnight()>minsFromMidnight);
+        // does this need to be >= for buses??
     }
 
     public int size() {

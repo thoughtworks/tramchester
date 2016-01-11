@@ -61,4 +61,10 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         planner.createJourneyPlan(nearEastDids, nearPiccGardens, "09:00:00", DaysOfWeek.Monday, today);
     }
 
+    @Test
+    @Category({BusTest.class})
+    public void reproduceIssueWithRoute() throws TramchesterException {
+        planner.createJourneyPlan("1800SB34231", "1800SB01681", "09:00:00", DaysOfWeek.Monday, today);
+    }
+
 }

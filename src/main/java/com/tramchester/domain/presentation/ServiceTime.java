@@ -12,13 +12,15 @@ public class ServiceTime {
     private final String serviceId;
     private final String headSign;
     private final int fromMidnight;
+    private final String tripId;
 
-    public ServiceTime(LocalTime departureTime, LocalTime arrivalTime, String serviceId, String headSign, int fromMidnight) {
+    public ServiceTime(LocalTime departureTime, LocalTime arrivalTime, String serviceId, String headSign, int fromMidnight, String tripId) {
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
         this.serviceId = serviceId;
         this.headSign = headSign;
         this.fromMidnight = fromMidnight;
+        this.tripId = tripId;
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -45,6 +47,7 @@ public class ServiceTime {
                 "departureTime=" + DateTimeService.formatTime(departureTime) +
                 ", arrivalTime=" + DateTimeService.formatTime(arrivalTime) +
                 ", serviceId='" + serviceId + '\'' +
+                ", tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +
                 ", fromMidnight=" + fromMidnight +
                 '}';

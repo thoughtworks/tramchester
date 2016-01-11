@@ -58,8 +58,8 @@ public class Journey {
 
     @Override
     public String toString() {
-        return "Journey{" +
-                "stages=" + stages +
+        return  "Journey{" +
+                "stages= [" +stages.size() +"] "+ stages +
                 ", summary='" + summary + '\'' +
                 ", journeyIndex=" + journeyIndex +
                 '}';
