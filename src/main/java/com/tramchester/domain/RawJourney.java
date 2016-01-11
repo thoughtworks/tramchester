@@ -1,20 +1,18 @@
 package com.tramchester.domain;
 
-import com.tramchester.domain.presentation.Stage;
-
 import java.util.Iterator;
 import java.util.List;
 
-public class RawJourney implements Iterable<Stage> {
-    private List<Stage> stages;
+public class RawJourney implements Iterable<RawStage> {
+    private List<RawStage> stages;
     private int index;
 
-    public RawJourney(List<Stage> stages, int index) {
+    public RawJourney(List<RawStage> stages, int index) {
         this.stages = stages;
         this.index = index;
     }
     
-    public Iterator<Stage> iterator() {
+    public Iterator<RawStage> iterator() {
         return stages.iterator();
     }
 
@@ -23,7 +21,7 @@ public class RawJourney implements Iterable<Stage> {
     }
 
     @Deprecated
-    public List<Stage> getStages() {
+    public List<RawStage> getStages() {
         return stages;
     }
 

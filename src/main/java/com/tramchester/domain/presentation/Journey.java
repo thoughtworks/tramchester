@@ -22,7 +22,7 @@ public class Journey {
 
     public Journey(RawJourney rawJourney) {
         stages = new LinkedList<>();
-        rawJourney.forEach(stage -> stages.add(stage));
+        rawJourney.forEach(rawStage -> stages.add(new Stage(rawStage)));
         this.journeyIndex = rawJourney.getIndex();
     }
 

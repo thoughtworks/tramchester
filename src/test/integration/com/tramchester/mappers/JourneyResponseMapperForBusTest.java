@@ -4,6 +4,7 @@ import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.RawStage;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.Stage;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -25,7 +26,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private static Dependencies dependencies;
     private TramJourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
-    private List<Stage> stages;
+    private List<RawStage> stages;
 
     private String stockportBusStation = "1800STBS001";
     private String stockportBridgefieldStreet = "1800SG15811";
@@ -63,7 +64,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     private JourneyPlanRepresentation getJourneyPlanRepresentation(String begin, String end, String svcId, int minutesFromMidnight) throws TramchesterException {
 
-        Stage busStage = new Stage(begin, "route text", "tram", "cssClass");
+        RawStage busStage = new RawStage(begin, "route text", "tram", "cssClass");
         busStage.setServiceId(svcId);
         busStage.setLastStation(end);
 

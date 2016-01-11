@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.RawStage;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
@@ -16,6 +17,8 @@ public class Stage {
     private List<ServiceTime> serviceTimes;
     private String tramRouteId;
 
+    // use RawStage
+    @Deprecated
     public Stage(String firstStation, String routeName, String mode, String tramRouteId) {
         this.firstStation = firstStation;
         this.route = routeName;
@@ -23,8 +26,14 @@ public class Stage {
         this.tramRouteId = tramRouteId;
     }
 
-    public void setLastStation(String lastStation) {
-        this.lastStation = lastStation;
+    public Stage(RawStage rawStage) {
+        this.firstStation = rawStage.getFirstStation();
+        this.route = rawStage.getRouteName();
+        this.mode = rawStage.getMode();
+        this.tramRouteId = rawStage.getRouteId();
+        this.lastStation = rawStage.getLastStation();
+        this.firstStation = rawStage.getFirstStation();
+        this.serviceId = rawStage.getServiceId();
     }
 
     public String getFirstStation() {
@@ -45,9 +54,9 @@ public class Stage {
         return tramRouteId;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
+//    public void setServiceId(String serviceId) {
+//        this.serviceId = serviceId;
+//    }
 
     public String getServiceId() {
         return serviceId;

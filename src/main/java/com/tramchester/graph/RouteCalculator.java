@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.RawStage;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.Stage;
@@ -103,7 +104,7 @@ public class RouteCalculator extends StationIndexs {
                                        int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path->{
             logger.info("Map graph path of length " + path.length());
-            List<Stage> stages = mapStages(path, minsPathMidnight);
+            List<RawStage> stages = mapStages(path, minsPathMidnight);
             int index = journeys.size();
             RawJourney journey = new RawJourney(stages, index);
             //journey.setJourneyIndex(index);
@@ -111,9 +112,9 @@ public class RouteCalculator extends StationIndexs {
         });
     }
 
-    private List<Stage> mapStages(WeightedPath path, int minsPastMidnight) {
-        List<Stage> stages = new ArrayList<>();
-        Stage currentStage = null;
+    private List<RawStage> mapStages(WeightedPath path, int minsPastMidnight) {
+        List<RawStage> stages = new ArrayList<>();
+        RawStage currentStage = null;
 
         Iterable<Relationship> relationships = path.relationships();
         RelationshipFactory relationshipFactory = new RelationshipFactory();
@@ -144,7 +145,7 @@ public class RouteCalculator extends StationIndexs {
 
                 String tramRouteClass = routeCodeToClassMapper.map(routeId);
 
-                currentStage = new Stage(startNodeId, routeName, tramRelationship.getMode(), tramRouteClass);
+                currentStage = new RawStage(startNodeId, routeName, tramRelationship.getMode(), tramRouteClass);
             } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;
