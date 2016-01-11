@@ -46,4 +46,16 @@ public class RawStage {
     public String getLastStation() {
         return lastStation;
     }
+
+    @Override
+    public String toString() {
+        return "RawStage{" +
+                "firstStation='" + firstStation + '\'' +
+                ", mode='" + mode + '\'' +
+                ", routeName='" + routeName + '\'' +
+                ", routeId='" + routeId + '\'' +
+                ", serviceId='" + serviceId + '\'' +
+                ", lastStation='" + lastStation + '\'' +
+                '}';
+    }
 }

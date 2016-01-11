@@ -9,57 +9,36 @@ import java.util.List;
 
 public class Stage {
     public static final int SECONDS_IN_DAY = 24*60*60;
-    private final String mode;
-    private String firstStation;
-    private String route;
-    private String lastStation;
-    private String serviceId;
+    private final RawStage rawStage;
     private List<ServiceTime> serviceTimes;
-    private String tramRouteId;
-
-    // use RawStage
-    @Deprecated
-    public Stage(String firstStation, String routeName, String mode, String tramRouteId) {
-        this.firstStation = firstStation;
-        this.route = routeName;
-        this.mode = mode;
-        this.tramRouteId = tramRouteId;
-    }
 
     public Stage(RawStage rawStage) {
-        this.firstStation = rawStage.getFirstStation();
-        this.route = rawStage.getRouteName();
-        this.mode = rawStage.getMode();
-        this.tramRouteId = rawStage.getRouteId();
-        this.lastStation = rawStage.getLastStation();
-        this.firstStation = rawStage.getFirstStation();
-        this.serviceId = rawStage.getServiceId();
+        this.rawStage = rawStage;
     }
 
     public String getFirstStation() {
-        return firstStation;
+        return rawStage.getFirstStation();
     }
 
     public String getRoute() {
-        return route;
+        return rawStage.getRouteName();
     }
 
     public String getLastStation() {
-        return lastStation;
+        return rawStage.getLastStation();
     }
 
     // used from javascript on front-end
-    // TODO use the full route ID on front end
     public String getTramRouteId() {
-        return tramRouteId;
+        return rawStage.getRouteId();
     }
 
-//    public void setServiceId(String serviceId) {
-//        this.serviceId = serviceId;
-//    }
+    public String getMode() {
+        return rawStage.getMode();
+    }
 
     public String getServiceId() {
-        return serviceId;
+        return rawStage.getServiceId();
     }
 
     public void setServiceTimes(List<ServiceTime> times) {
@@ -112,16 +91,8 @@ public class Stage {
     @Override
     public String toString() {
         return "Stage{" +
-                "firstStation='" + firstStation + '\'' +
-                ", route='" + route + '\'' +
-                ", tramRouteId='" + tramRouteId + '\'' +
-                ", lastStation='" + lastStation + '\'' +
-                ", serviceId='" + serviceId + '\'' +
+                "rawStage=" + rawStage +
                 ", serviceTimes=" + serviceTimes +
                 '}';
-    }
-
-    public String getMode() {
-        return mode;
     }
 }

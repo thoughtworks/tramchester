@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
 
+import com.tramchester.domain.RawStage;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -14,7 +15,7 @@ public class StageTest {
 
     @Test
     public void shouldGetDurationCorrectly() {
-        Stage stage = new Stage("firstStation", "route", "Tram", "cssClass");
+        Stage stage = new Stage(new RawStage("firstStation", "route", "Tram", "cssClass"));
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(8, 00), LocalTime.of(9, 15), "svcId", "headsign", 30, tripId);
         stage.setServiceTimes(Arrays.asList(serviceTime));
 
@@ -23,7 +24,7 @@ public class StageTest {
 
     @Test
     public void shouldGetDurationCorrectlyWhenAfterMidnight() {
-        Stage stage = new Stage("firstStation", "route", "Tram", "cssClass");
+        Stage stage = new Stage(new RawStage("firstStation", "route", "Tram", "cssClass"));
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", 30, tripId);
         stage.setServiceTimes(Arrays.asList(serviceTime));
 
@@ -32,13 +33,13 @@ public class StageTest {
 
     @Test
     public void shouldGetRouteCode() {
-        Stage stage = new Stage("firstStation", "route", "Tram", "cssClass");
+        Stage stage = new Stage(new RawStage("firstStation", "route", "Tram", "cssClass"));
         assertEquals("cssClass", stage.getTramRouteId());
     }
 
     @Test
     public void shouldGetMode() {
-        Stage stage = new Stage("firstStation", "route", "Tram", "cssClass");
+        Stage stage = new Stage(new RawStage("firstStation", "route", "Tram", "cssClass"));
         assertEquals("Tram", stage.getMode());
     }
 }

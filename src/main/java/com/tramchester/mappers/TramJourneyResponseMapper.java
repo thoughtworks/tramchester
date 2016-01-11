@@ -65,18 +65,18 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
     }
 
     private Journey decorateJourneysUsingStage(RawJourney rawJourney, int maxNumOfSvcTimes, int journeyClock) {
-        Journey journey = new Journey(rawJourney);
         int minNumberOfTimes = Integer.MAX_VALUE;
-        for (Stage stage : journey.getStages()) {
-            String serviceId = stage.getServiceId();
+        List<Stage> stages = new LinkedList<>();
+        for (RawStage rawStage : rawJourney.getStages()) {
+            String serviceId = rawStage.getServiceId();
             logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, journeyClock));
 
-            String firstStation = stage.getFirstStation();
-            String lastStation = stage.getLastStation();
+            String firstStation = rawStage.getFirstStation();
+            String lastStation = rawStage.getLastStation();
             List<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, journeyClock, maxNumOfSvcTimes);
             if (times.isEmpty()) {
                 String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
-                        stage, serviceId, journeyClock);
+                        rawStage, serviceId, journeyClock);
                 logger.error(message);
                 return null;
             }
@@ -85,13 +85,16 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
                 minNumberOfTimes = times.size();
             }
             logger.info(format("Found %s times for service id %s", times.size(), serviceId));
+            Stage stage = new Stage(rawStage);
             stage.setServiceTimes(times);
+            stages.add(stage);
             int departsAtMinutes = findEarliestDepartureTime(times);
             int duration = stage.getDuration();
             journeyClock = departsAtMinutes + duration;
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
                     duration, departsAtMinutes, journeyClock));
         }
+        Journey journey = new Journey(stages);
         journey.setNumberOfTimes(minNumberOfTimes);
         return journey;
     }

@@ -20,11 +20,11 @@ public class Journey {
         this.stages = stages;
     }
 
-    public Journey(RawJourney rawJourney) {
-        stages = new LinkedList<>();
-        rawJourney.forEach(rawStage -> stages.add(new Stage(rawStage)));
-        this.journeyIndex = rawJourney.getIndex();
-    }
+//    public Journey(RawJourney rawJourney) {
+//        stages = new LinkedList<>();
+//        rawJourney.forEach(rawStage -> stages.add(new Stage(rawStage)));
+//        this.journeyIndex = rawJourney.getIndex();
+//    }
 
     public List<Stage> getStages() {
         return stages;
