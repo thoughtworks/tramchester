@@ -2,9 +2,11 @@ package com.tramchester.domain.presentation;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.RawJourney;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Journey {
@@ -16,6 +18,12 @@ public class Journey {
 
     public Journey(List<Stage> stages) {
         this.stages = stages;
+    }
+
+    public Journey(RawJourney rawJourney) {
+        stages = new LinkedList<>();
+        rawJourney.forEach(stage -> stages.add(stage));
+        this.journeyIndex = rawJourney.getIndex();
     }
 
     public List<Stage> getStages() {

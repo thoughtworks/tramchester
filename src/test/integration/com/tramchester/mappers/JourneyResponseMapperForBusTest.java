@@ -3,6 +3,7 @@ package com.tramchester.mappers;
 import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
+import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.Stage;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -22,8 +23,8 @@ import static junit.framework.TestCase.assertEquals;
 public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     private static Dependencies dependencies;
-    private JourneyResponseMapper mapper;
-    private Set<Journey> journeys;
+    private TramJourneyResponseMapper mapper;
+    private Set<RawJourney> journeys;
     private List<Stage> stages;
 
     private String stockportBusStation = "1800STBS001";
@@ -42,7 +43,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     @Before
     public void beforeEachTestRuns() {
-        mapper = dependencies.get(JourneyResponseMapper.class);
+        mapper = dependencies.get(TramJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
@@ -67,7 +68,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         busStage.setLastStation(end);
 
         stages.add(busStage);
-        journeys.add(new Journey(stages));
+        journeys.add(new RawJourney(stages,1));
 
         return mapper.map(journeys, minutesFromMidnight, 1);
     }

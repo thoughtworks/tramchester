@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.Stage;
@@ -50,9 +51,9 @@ public class RouteCalculator extends StationIndexs {
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);
     }
 
-    public Set<Journey> calculateRoute(String startStationId, String endStationId, int queryTime, DaysOfWeek dayOfWeek,
+    public Set<RawJourney> calculateRoute(String startStationId, String endStationId, int queryTime, DaysOfWeek dayOfWeek,
                                        TramServiceDate queryDate) throws UnknownStationException {
-        Set<Journey> journeys = new LinkedHashSet<>(); // order matters
+        Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = getStationNode(startStationId);
@@ -67,9 +68,9 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    public Set<Journey> calculateRoute(List<Node> starts, List<Node> ends, int minutesFromMidnight,
-                                       DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
-        Set<Journey> journeys = new LinkedHashSet<>(); // order matters
+    public Set<RawJourney> calculateRoute(List<Node> starts, List<Node> ends, int minutesFromMidnight,
+                                          DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
+        Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
             startNode.setProperty(NAME, "BEGIN");
@@ -98,13 +99,14 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    private void mapStreamToJourneySet(Set<Journey> journeys, Stream<WeightedPath> paths,
+    private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
                                        int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path->{
             logger.info("Map graph path of length " + path.length());
             List<Stage> stages = mapStages(path, minsPathMidnight);
-            Journey journey = new Journey(stages);
-            journey.setJourneyIndex(journeys.size());
+            int index = journeys.size();
+            RawJourney journey = new RawJourney(stages, index);
+            //journey.setJourneyIndex(index);
             journeys.add(journey);
         });
     }

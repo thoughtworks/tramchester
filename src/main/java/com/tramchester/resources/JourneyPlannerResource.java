@@ -1,11 +1,13 @@
 package com.tramchester.resources;
 
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.mappers.JourneyResponseMapper;
+import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalDate;
@@ -32,7 +34,8 @@ public class JourneyPlannerResource {
     // user for the journey mapper
     private int maxNumberOfTrips = 5;
 
-    public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService, JourneyResponseMapper journeyResponseMapper) {
+    public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
+                                  JourneyResponseMapper journeyResponseMapper) {
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
         this.journeyResponseMapper = journeyResponseMapper;
@@ -55,7 +58,7 @@ public class JourneyPlannerResource {
         logger.info(String.format("start: %s end: %s query time: %s (%s) on %s",
                 startId, endId, queryTime, minutesFromMidnight, dayOfWeek));
 
-        Set<Journey> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
+        Set<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
         logger.info("number of journeys: " + journeys.size());
         return journeyResponseMapper.map(journeys, minutesFromMidnight, maxNumberOfTrips);
     }
@@ -64,7 +67,7 @@ public class JourneyPlannerResource {
                                                        DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws TramchesterException {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(queryTime);
 
-        Set<Journey> journeys = routeCalculator.calculateRoute(starts, ends, minutesFromMidnight, dayOfWeek, queryDate);
+        Set<RawJourney> journeys = routeCalculator.calculateRoute(starts, ends, minutesFromMidnight, dayOfWeek, queryDate);
         logger.info("number of journeys: " + journeys.size());
         return journeyResponseMapper.map(journeys, minutesFromMidnight, maxNumberOfTrips);
     }

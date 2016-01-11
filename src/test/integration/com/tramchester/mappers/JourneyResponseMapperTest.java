@@ -1,6 +1,7 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.domain.presentation.Journey;
@@ -14,7 +15,7 @@ public class JourneyResponseMapperTest {
     protected TramServiceDate today = new TramServiceDate(LocalDate.now());
 
     protected String findServiceId(String firstId, String secondId, int queryTime) throws UnknownStationException {
-        Set<Journey> found = routeCalculator.calculateRoute(firstId, secondId, queryTime, DaysOfWeek.Monday, today);
-        return found.stream().findFirst().get().getStages().get(0).getServiceId();
+        Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTime, DaysOfWeek.Monday, today);
+        return found.stream().findFirst().get().getFirstServiceId();
     }
 }

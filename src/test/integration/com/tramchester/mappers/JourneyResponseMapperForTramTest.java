@@ -4,15 +4,13 @@ package com.tramchester.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.*;
+import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.Stage;
 import com.tramchester.graph.RouteCalculator;
-import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
-import org.joda.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,8 +31,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     private LocalTime eightAM = LocalTime.of(8, 0);
 
     private static Dependencies dependencies;
-    private JourneyResponseMapper mapper;
-    private Set<Journey> journeys;
+    private TramJourneyResponseMapper mapper;
+    private Set<RawJourney> journeys;
     private List<Stage> stages;
 
     @BeforeClass
@@ -51,7 +49,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Before
     public void beforeEachTestRuns() {
-        mapper = dependencies.get(JourneyResponseMapper.class);
+        mapper = dependencies.get(TramJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
@@ -64,7 +62,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         vicToRoch.setServiceId(svcId);
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
-        journeys.add(new Journey(stages));
+        journeys.add(new RawJourney(stages,1));
         JourneyPlanRepresentation result = mapper.map(journeys, 930, 5);
 
         Journey journey = result.getJourneys().stream().findFirst().get();
@@ -82,7 +80,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         altToCorn.setLastStation(Stations.Cornbrook);
 
         stages.add(altToCorn);
-        journeys.add(new Journey(stages));
+        journeys.add(new RawJourney(stages,1));
         JourneyPlanRepresentation result = mapper.map(journeys, 7*60, 1);
 
         assertEquals(1,result.getJourneys().size());
@@ -118,7 +116,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(altToDeansgate);
         stages.add(deansgateToVic);
-        journeys.add(new Journey(stages));
+        journeys.add(new RawJourney(stages,1));
 
         JourneyPlanRepresentation result = mapper.map(journeys, pm10, 1);
         assertEquals(1,result.getJourneys().size());
@@ -151,7 +149,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(picToCorn);
         stages.add(cornToAir);
-        journeys.add(new Journey(stages));
+        journeys.add(new RawJourney(stages,1));
 
         JourneyPlanRepresentation result = mapper.map(journeys, pm23, 3);
 
