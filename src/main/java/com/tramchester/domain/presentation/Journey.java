@@ -16,16 +16,12 @@ public class Journey {
     private int journeyIndex;
     private int numberOfTimes;
 
-    public Journey(List<Stage> stages) {
+    public Journey(List<Stage> stages, int journeyIndex) {
+        this.journeyIndex = journeyIndex;
         this.stages = stages;
     }
 
-//    public Journey(RawJourney rawJourney) {
-//        stages = new LinkedList<>();
-//        rawJourney.forEach(rawStage -> stages.add(new Stage(rawStage)));
-//        this.journeyIndex = rawJourney.getIndex();
-//    }
-
+    // used front end
     public List<Stage> getStages() {
         return stages;
     }
@@ -56,12 +52,9 @@ public class Journey {
         return stages.get(index).getExpectedArrivalTime();
     }
 
+    // used front end
     public int getJourneyIndex() {
         return journeyIndex;
-    }
-
-    public void setJourneyIndex(int journeyIndex) {
-        this.journeyIndex = journeyIndex;
     }
 
     @Override
@@ -73,6 +66,7 @@ public class Journey {
                 '}';
     }
 
+    // used front end
     public int getNumberOfTimes() {
         return numberOfTimes;
     }

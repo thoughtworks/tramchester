@@ -43,7 +43,7 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
             logger.info("Decorating journey " + rawJourney);
             int journeyClock = originMinutesFromMidnight;
 
-            Journey journey = decorateJourneysUsingStage(rawJourney, maxNumberOfTrips, journeyClock);
+            Journey journey = createJourney(rawJourney, maxNumberOfTrips, journeyClock);
             if (journey!=null) {
                 journey.setSummary(getJourneySummary(journey, stations));
                 journeys.add(journey);
@@ -56,7 +56,7 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
 //            int journeyClock = originMinutesFromMidnight;
 //
 //            journey.setSummary(getJourneySummary(journey, stations));
-//            decorateJourneysUsingStage(journey, maxNumberOfTrips, journeyClock);
+//            createJourney(journey, maxNumberOfTrips, journeyClock);
 //        }
         if (rawJourneys.size()!=journeys.size()) {
             throw new TramchesterException(format("Only mapped %s out of %s journeys", journeys.size(), rawJourneys.size()));
@@ -64,7 +64,7 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
         return journeys;
     }
 
-    private Journey decorateJourneysUsingStage(RawJourney rawJourney, int maxNumOfSvcTimes, int journeyClock) {
+    private Journey createJourney(RawJourney rawJourney, int maxNumOfSvcTimes, int journeyClock) {
         int minNumberOfTimes = Integer.MAX_VALUE;
         List<Stage> stages = new LinkedList<>();
         for (RawStage rawStage : rawJourney.getStages()) {
@@ -93,7 +93,10 @@ public class TramJourneyResponseMapper implements JourneyResponseMapper {
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
                     duration, departsAtMinutes, journeyClock));
         }
-        Journey journey = new Journey(stages);
+        Journey journey = new Journey(stages, rawJourney.getIndex());
+        // we need to the least number of times we found for any one stage
+        // This likely needs to change, people may want to choose an early depart as it may allow more time for a
+        // connection or might (in the case of the buses) result in an early
         journey.setNumberOfTimes(minNumberOfTimes);
         return journey;
     }
