@@ -15,9 +15,9 @@ public class GraphQuery {
     private RelationshipFactory relationshipFactory;
     private GraphDatabaseService graphDatabaseService;
 
-    public GraphQuery(GraphDatabaseService graphDatabaseService) {
+    public GraphQuery(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory) {
         this.graphDatabaseService = graphDatabaseService;
-        relationshipFactory = new RelationshipFactory();
+        this.relationshipFactory = relationshipFactory;
     }
 
     public Node getStationNode(String stationId) {

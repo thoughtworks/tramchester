@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.UnknownStationException;
-import com.tramchester.domain.presentation.Journey;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;
@@ -45,12 +44,13 @@ public class GraphWithSimpleRouteTest {
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
         GraphDatabaseService graphDBService = graphDatabaseFactory.newEmbeddedDatabase(TMP_DB);
 
+        RelationshipFactory relationshipFactory = new RelationshipFactory();
+
         transportData = new TransportDataForTest();
-        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData);
+        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory);
         builder.buildGraph();
 
         NodeFactory nodeFactory = new NodeFactory();
-        RelationshipFactory relationshipFactory = new RelationshipFactory();
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory, new RouteCodeToClassMapper());
     }
 

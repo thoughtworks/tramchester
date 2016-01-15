@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
@@ -34,8 +35,9 @@ public class TransportGraphBuilder extends StationIndexs {
 
     private TransportData transportData;
 
-    public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData) {
-        super(graphDatabaseService, false);
+    public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
+                                 RelationshipFactory relationshipFactory) {
+        super(graphDatabaseService, relationshipFactory, false);
         this.transportData = transportData;
         boardings = new HashMap<>();
         departs = new HashMap<>();

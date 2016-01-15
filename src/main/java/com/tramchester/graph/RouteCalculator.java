@@ -44,7 +44,7 @@ public class RouteCalculator extends StationIndexs {
 
     public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
                            RouteCodeToClassMapper routeCodeToClassMapper) {
-        super(db, true);
+        super(db, relationshipFactory, true);
         this.nodeFactory = nodeFactory;
         this.routeCodeToClassMapper = routeCodeToClassMapper;
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);
@@ -169,15 +169,13 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public TramNode getStation(String id) throws UnknownStationException {
-        NodeFactory factory = new NodeFactory();
         Node node =  getStationNode(id);
-        return factory.getNode(node);
+        return nodeFactory.getNode(node);
     }
 
     public TramNode getRouteStation(String id) throws UnknownStationException {
-        NodeFactory factory = new NodeFactory();
         Node node = getRouteStationNode(id);
-        return factory.getNode(node);
+        return nodeFactory.getNode(node);
     }
 
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, DaysOfWeek dayOfWeek,

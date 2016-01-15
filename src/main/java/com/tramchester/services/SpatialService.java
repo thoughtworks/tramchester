@@ -2,6 +2,7 @@ package com.tramchester.services;
 
 import com.tramchester.domain.Station;
 import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
 import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -21,8 +22,8 @@ public class SpatialService extends StationIndexs {
     public static final double DISTANCE_IN_KM = 30;
     private GraphDatabaseService graphDatabaseService;
 
-    public SpatialService(GraphDatabaseService graphDatabaseService) {
-        super(graphDatabaseService, false);
+    public SpatialService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory) {
+        super(graphDatabaseService, relationshipFactory, false);
         this.graphDatabaseService = graphDatabaseService;
     }
 

@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.Index;
@@ -18,9 +19,9 @@ public class StationIndexs {
     protected GraphQuery graphQuery;
     private boolean warnIfMissing;
 
-    public StationIndexs(GraphDatabaseService graphDatabaseService, boolean warnIfMissing) {
+    public StationIndexs(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory, boolean warnIfMissing) {
         this.graphDatabaseService = graphDatabaseService;
-        graphQuery = new GraphQuery(graphDatabaseService);
+        graphQuery = new GraphQuery(graphDatabaseService, relationshipFactory);
         this.warnIfMissing = warnIfMissing;
         routeStationNodeCache = new HashMap<>();
         stationNodeCache = new HashMap<>();
