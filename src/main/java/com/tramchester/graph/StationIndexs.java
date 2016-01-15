@@ -1,7 +1,5 @@
 package com.tramchester.graph;
 
-import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.Index;
@@ -17,10 +15,12 @@ public class StationIndexs {
     private Index<Node> spatialIndex;
 
     protected GraphDatabaseService graphDatabaseService;
+    protected GraphQuery graphQuery;
     private boolean warnIfMissing;
 
     public StationIndexs(GraphDatabaseService graphDatabaseService, boolean warnIfMissing) {
         this.graphDatabaseService = graphDatabaseService;
+        graphQuery = new GraphQuery(graphDatabaseService);
         this.warnIfMissing = warnIfMissing;
         routeStationNodeCache = new HashMap<>();
         stationNodeCache = new HashMap<>();
@@ -30,7 +30,7 @@ public class StationIndexs {
         if (routeStationNodeCache.containsKey(routeStationId)) {
             return routeStationNodeCache.get(routeStationId);
         }
-        Node node = graphDatabaseService.findNode(DynamicLabel.label(TransportGraphBuilder.ROUTE_STATION), GraphStaticKeys.ID, routeStationId);
+        Node node = graphQuery.getRouteStationNode(routeStationId);
         if (node!=null) {
             routeStationNodeCache.put(routeStationId, node);
         } else if (warnIfMissing) {
@@ -43,7 +43,7 @@ public class StationIndexs {
         if (stationNodeCache.containsKey(stationId)) {
             return stationNodeCache.get(stationId);
         }
-        Node node = graphDatabaseService.findNode(DynamicLabel.label(TransportGraphBuilder.STATION), GraphStaticKeys.ID, stationId);
+        Node node = graphQuery.getStationNode(stationId);
         if (node!=null) {
             stationNodeCache.put(stationId, node);
         }
@@ -55,8 +55,7 @@ public class StationIndexs {
 
     protected Index<Node> getSpatialIndex() {
         if (spatialIndex == null) {
-            spatialIndex = graphDatabaseService.index().forNodes("spatial_index",
-                    SpatialIndexProvider.SIMPLE_POINT_CONFIG);
+            spatialIndex = graphQuery.getSpatialIndex();
         }
         return spatialIndex;
     }

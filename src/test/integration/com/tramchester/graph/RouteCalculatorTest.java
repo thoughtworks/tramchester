@@ -11,6 +11,7 @@ import com.tramchester.graph.Relationships.TramRelationship;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalDate;
 import org.junit.*;
+import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.util.*;
 
@@ -66,6 +67,5 @@ public class RouteCalculatorTest {
         assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
         assertTrue(boarding.get(1).isBoarding());
     }
-
 
 }

@@ -4,8 +4,6 @@ import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
 import com.tramchester.domain.exceptions.UnknownStationException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.Stage;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;
@@ -107,7 +105,6 @@ public class RouteCalculator extends StationIndexs {
             List<RawStage> stages = mapStages(path, minsPathMidnight);
             int index = journeys.size();
             RawJourney journey = new RawJourney(stages, index);
-            //journey.setJourneyIndex(index);
             journeys.add(journey);
         });
     }
@@ -172,21 +169,15 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public TramNode getStation(String id) throws UnknownStationException {
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            NodeFactory factory = new NodeFactory();
-            Node node =  super.getStationNode(id);
-            tx.success();
-            return factory.getNode(node);
-        }
+        NodeFactory factory = new NodeFactory();
+        Node node =  getStationNode(id);
+        return factory.getNode(node);
     }
 
     public TramNode getRouteStation(String id) throws UnknownStationException {
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            NodeFactory factory = new NodeFactory();
-            Node node = getRouteStationNode(id);
-            tx.success();
-            return factory.getNode(node);
-        }
+        NodeFactory factory = new NodeFactory();
+        Node node = getRouteStationNode(id);
+        return factory.getNode(node);
     }
 
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, DaysOfWeek dayOfWeek,
@@ -205,42 +196,17 @@ public class RouteCalculator extends StationIndexs {
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
-    public List<TramRelationship> getOutboundStationRelationships(String stationId) throws UnknownStationException {
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            Node node = getStationNode(stationId);
-            List<TramRelationship> relationships = getTramRelationships(node, Direction.OUTGOING);
-            tx.success();
-            return relationships;
-        }
+    public List<TramRelationship> getOutboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
+        return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
     }
 
-    public List<TramRelationship> getOutboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            Node node = getRouteStationNode(routeStationId);
-            List<TramRelationship> relationships = getTramRelationships(node, Direction.OUTGOING);
-            tx.success();
-            return relationships;
-        }
-    }
 
     public List<TramRelationship> getInboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            Node node = getRouteStationNode(routeStationId);
-            List<TramRelationship> relationships = getTramRelationships(node, Direction.INCOMING);
-            tx.success();
-            return relationships;
-        }
+        return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
     }
 
-    private List<TramRelationship> getTramRelationships(Node startNode, Direction direction) throws UnknownStationException {
-        RelationshipFactory relationshipFactory = new RelationshipFactory();
-
-        List<TramRelationship> relationships = new LinkedList<>();
-        for (Relationship relate : startNode.getRelationships(direction)) {
-            relationships.add(relationshipFactory.getRelationship(relate));
-        }
-        return relationships;
+    public List<TramRelationship> getOutboundStationRelationships(String stationId) throws UnknownStationException {
+        return graphQuery.getStationRelationships(stationId, Direction.OUTGOING);
     }
-
 
 }
