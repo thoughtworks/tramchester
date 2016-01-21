@@ -8,6 +8,7 @@ import com.tramchester.mappers.TimeJsonSerializer;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
 
 public class Journey {
 
@@ -30,6 +31,7 @@ public class Journey {
         this.summary = summary;
     }
 
+    // used front end
     public String getSummary() {
         return summary;
     }
@@ -39,8 +41,8 @@ public class Journey {
         if (stages.size() == 0) {
             return LocalTime.MIDNIGHT;
         }
-        List<ServiceTime> serviceTimes = stages.get(0).getServiceTimes();
-        return serviceTimes.get(0).getDepartureTime();
+        SortedSet<ServiceTime> serviceTimes = stages.get(0).getServiceTimes();
+        return serviceTimes.first().getDepartureTime();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)

@@ -5,10 +5,10 @@ import java.time.LocalTime;
 
 import static java.lang.String.format;
 
-public class Stop {
+public class Stop extends TimeAsMinutes {
+    private final Station station;
     private final LocalTime arrivalTime;
     private final LocalTime departureTime;
-    private final Station station;
 
     public Stop(Station station, LocalTime arrivalTime, LocalTime departureTime) {
         this.arrivalTime = arrivalTime;
@@ -24,27 +24,17 @@ public class Stop {
         return departureTime;
     }
 
-    private int getMinutes(LocalTime time) {
-        int hour = time.getHour();
-        int minute = time.getMinute();
-        if(hour == 0){
-            hour = 24;
-        } else if(hour == 1){
-            hour = 25;
-        }
-        return (hour * 60) + minute;
-    }
-
     public Station getStation() {
         return station;
     }
 
-
     @Override
     public String toString() {
-        return format("Stop arrivalTime=%s (%s) departureTime=%s (%s) station=%s",
-                arrivalTime, getArriveMinsFromMidnight(),
-                departureTime, getDepartureMinFromMidnight(), station);
+        return "Stop{" +
+                "station=" + station +
+                ", arrivalTime=" + arrivalTime +
+                ", departureTime=" + departureTime +
+                '}';
     }
 
     public int getDepartureMinFromMidnight() {

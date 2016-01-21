@@ -53,20 +53,20 @@ public class Stops  implements Iterable<Stop> {
             logger.warn(format("No stops for %s to %s as one or more station missing", firstStationId, lastStationId));
             return false;
         }
-        List<Integer[]> pairs = getPairs(firstStationId, lastStationId, minutesFromMidnight);
+        List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, minutesFromMidnight);
         return !pairs.isEmpty();
     }
 
-    public List<Stop[]> getBeginEndStopsFor(String firstStationId, String lastStationId, int minsFromMidnight) {
-        List<Stop[]> results = new LinkedList<>();
-        List<Integer[]> pairs = getPairs(firstStationId, lastStationId, minsFromMidnight);
+    public List<BeginEnd> getBeginEndStopsFor(String firstStationId, String lastStationId, int minsFromMidnight) {
+        List<BeginEnd> results = new LinkedList<>();
+        List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, minsFromMidnight);
         for(Integer[] pair : pairs) {
-            results.add(new Stop[]{ get(pair[0]), get(pair[1])});
+            results.add(new BeginEnd(get(pair[0]), get(pair[1])));
         }
         return results;
     }
 
-    private List<Integer[]> getPairs(String firstStationId, String lastStationId, int minsFromMidnight) {
+    private List<Integer[]> getPairsForTime(String firstStationId, String lastStationId, int minsFromMidnight) {
         // assemble possible pairs representing journeys from stop to stop
         List<Integer[]> pairs = new LinkedList<>();
         List<Integer> firstStationStops = stations.get(firstStationId);

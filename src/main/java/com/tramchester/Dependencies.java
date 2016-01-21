@@ -11,6 +11,7 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
+import com.tramchester.mappers.GenericJourneyResponseMapper;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -70,7 +71,11 @@ public class Dependencies {
         picoContainer.addComponent(NodeFactory.class);
         picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(RouteCalculator.class);
-        picoContainer.addComponent(TramJourneyResponseMapper.class);
+        if (configuration.useGenericMapper()) {
+            picoContainer.addComponent(GenericJourneyResponseMapper.class);
+        } else {
+            picoContainer.addComponent(TramJourneyResponseMapper.class);
+        }
         picoContainer.addComponent(RouteCodeToClassMapper.class);
 
         TransportDataReader dataReader = new TransportDataReader(outputPath);

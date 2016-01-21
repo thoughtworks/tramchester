@@ -5,26 +5,30 @@ public class RawStage {
     private final String mode;
     private final String routeName;
     private final String routeId;
+    private int elapsedTime;
     private String serviceId;
     private String lastStation;
 
-    public RawStage(String firstStation, String routeName, String mode, String tramRouteId) {
+    public RawStage(String firstStation, String routeName, String mode, String tramRouteDisplayClass, int elapsedTime) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
-        this.routeId = tramRouteId;
+        this.routeId = tramRouteDisplayClass;
+        this.elapsedTime = elapsedTime;
     }
 
     public String getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(String serviceId) {
+    public RawStage setServiceId(String serviceId) {
         this.serviceId = serviceId;
+        return this;
     }
 
-    public void setLastStation(String lastStation) {
+    public RawStage setLastStation(String lastStation) {
         this.lastStation = lastStation;
+        return this;
     }
 
     public String getFirstStation() {
@@ -57,5 +61,9 @@ public class RawStage {
                 ", serviceId='" + serviceId + '\'' +
                 ", lastStation='" + lastStation + '\'' +
                 '}';
+    }
+
+    public int getElapsedTime() {
+        return elapsedTime;
     }
 }

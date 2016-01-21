@@ -5,8 +5,6 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.Stage;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
@@ -24,7 +22,7 @@ import static junit.framework.TestCase.assertEquals;
 public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     private static Dependencies dependencies;
-    private TramJourneyResponseMapper mapper;
+    private JourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
     private List<RawStage> stages;
 
@@ -44,7 +42,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     @Before
     public void beforeEachTestRuns() {
-        mapper = dependencies.get(TramJourneyResponseMapper.class);
+        mapper = dependencies.get(GenericJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
@@ -64,7 +62,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     private JourneyPlanRepresentation getJourneyPlanRepresentation(String begin, String end, String svcId, int minutesFromMidnight) throws TramchesterException {
 
-        RawStage busStage = new RawStage(begin, "route text", "tram", "cssClass");
+        int elapsedTime = 8*60;
+        RawStage busStage = new RawStage(begin, "route text", "tram", "cssClass", elapsedTime);
         busStage.setServiceId(svcId);
         busStage.setLastStation(end);
 

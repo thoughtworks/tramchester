@@ -18,6 +18,7 @@ public class JourneyPlanRepresentation {
         return journeys;
     }
 
+    // TODO is this even used in the .js front end?
     public List<Station> getStations() {
         return stations;
     }

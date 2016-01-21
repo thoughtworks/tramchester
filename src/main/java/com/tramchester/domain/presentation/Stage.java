@@ -6,13 +6,14 @@ import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.SortedSet;
 
 public class Stage {
     public static final int SECONDS_IN_DAY = 24*60*60;
     private final RawStage rawStage;
-    private List<ServiceTime> serviceTimes;
+    private SortedSet<ServiceTime> serviceTimes;
 
-    public Stage(RawStage rawStage, List<ServiceTime> serviceTimes) {
+    public Stage(RawStage rawStage, SortedSet<ServiceTime> serviceTimes) {
         this.rawStage = rawStage;
         this.serviceTimes = serviceTimes;
     }
@@ -42,23 +43,25 @@ public class Stage {
         return rawStage.getServiceId();
     }
 
-    public List<ServiceTime> getServiceTimes() {
+    public SortedSet<ServiceTime> getServiceTimes() {
         return serviceTimes;
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
-        return serviceTimes.get(0).getArrivalTime();
+        return serviceTimes.first().getArrivalTime();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
-       return serviceTimes.get(0).getDepartureTime();
+       return serviceTimes.first().getDepartureTime();
     }
 
+    // this is wrong, duration varies, need to extract from servicetime instead
+    @Deprecated
     public int getDuration() {
         // likely this only works for Tram when duration between stops does not vary by time of day
-        ServiceTime serviceTime = serviceTimes.get(0);
+        ServiceTime serviceTime = serviceTimes.first();
         LocalTime arrivalTime = serviceTime.getArrivalTime();
         LocalTime departureTime = serviceTime.getDepartureTime();
         int depSecs = departureTime.toSecondOfDay();
@@ -77,8 +80,8 @@ public class Stage {
     public int findEarliestDepartureTime() {
         int earliest = Integer.MAX_VALUE;
         for (ServiceTime time : serviceTimes) {
-            if (time.getFromMidnight() < earliest) {
-                earliest = time.getFromMidnight();
+            if (time.getFromMidnightLeaves() < earliest) {
+                earliest = time.getFromMidnightLeaves();
             }
         }
         return earliest;
@@ -92,4 +95,15 @@ public class Stage {
                 '}';
     }
 
+    @Deprecated
+    public int findDepartureTimeForEarliestArrival() {
+        int depart = Integer.MAX_VALUE;
+        int earlierArrive = Integer.MAX_VALUE;
+        for (ServiceTime time : serviceTimes) {
+            if (time.getFromMidnightArrives() < earlierArrive) {
+                depart = time.getFromMidnightLeaves();
+            }
+        }
+        return depart;
+    }
 }

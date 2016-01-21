@@ -19,4 +19,5 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract Path getInputDataPath();
     public abstract Path getOutputDataPath();
 
+    public abstract boolean useGenericMapper();
 }

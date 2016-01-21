@@ -70,14 +70,12 @@ public class Trip {
     public List<ServiceTime> getServiceTimes(String firstStationId, String lastStationId, int minsFromMid) {
         //logger.info(format("Find service times between %s and %s at %s", firstStationId,lastStationId,minsFromMid));
         List<ServiceTime> serviceTimes = new LinkedList<>();
-        for(Stop[] pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, minsFromMid)) {
-            Stop firstStop = pair[0];
-            Stop secondStop = pair[1];
-
-            int actualDepartTime = firstStop.getDepartureMinFromMidnight();
+        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, minsFromMid)) {
+            Stop firstStop = pair.begin();
+            Stop secondStop = pair.end();
 
             ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(), secondStop.getArrivalTime(),
-                    serviceId, headSign, actualDepartTime, tripId);
+                    serviceId, headSign, tripId);
             logger.info("Added " + serviceTime);
             serviceTimes.add(serviceTime);
         }
@@ -93,11 +91,9 @@ public class Trip {
     }
 
     public int earliestDepartFor(String firstStationId, String lastStationId, int minutesFromMidnight) {
-//        logger.info(format("Find first earliest depart time between %s and %s at %s for trip %s",
-//                firstStationId,lastStationId,minutesFromMidnight, tripId));
         int earliest = Integer.MAX_VALUE;
-        for(Stop[] pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, minutesFromMidnight)) {
-            int firstDepart = pair[0].getDepartureMinFromMidnight();
+        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, minutesFromMidnight)) {
+            int firstDepart = pair.begin().getDepartureMinFromMidnight();
             if (firstDepart < earliest) {
                 earliest = firstDepart;
             }

@@ -34,7 +34,7 @@ public class TripTest {
         assertEquals(LocalTime.of(10, 01), time.getDepartureTime());
         assertEquals(LocalTime.of(10, 05), time.getArrivalTime());
         assertEquals("svcId", time.getServiceId());
-        assertEquals(am10Minutes+1, time.getFromMidnight());
+        assertEquals(am10Minutes+1, time.getFromMidnightLeaves());
 
         // services times
         times = trip.getServiceTimes("statB", "statA", am10Minutes);
@@ -43,7 +43,7 @@ public class TripTest {
         assertEquals(LocalTime.of(10, 06), time.getDepartureTime());
         assertEquals(LocalTime.of(10, 10), time.getArrivalTime());
         assertEquals("svcId", time.getServiceId());
-        assertEquals(am10Minutes+6, time.getFromMidnight());
+        assertEquals(am10Minutes+6, time.getFromMidnightLeaves());
 
         // earliest departs
         assertEquals(am10Minutes+1, trip.earliestDepartFor("statA","statB", am10Minutes));

@@ -1,9 +1,8 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.RawStage;
 import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.Stage;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -12,20 +11,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 
 import static java.lang.String.format;
 
-public class TramJourneyResponseMapper extends JourneyResponseMapper {
-    private static final Logger logger = LoggerFactory.getLogger(TramJourneyResponseMapper.class);
+public class GenericJourneyResponseMapper extends JourneyResponseMapper {
+    private static final Logger logger = LoggerFactory.getLogger(GenericJourneyResponseMapper.class);
 
-    public TramJourneyResponseMapper(TransportDataFromFiles transportData) {
+    public GenericJourneyResponseMapper(TransportDataFromFiles transportData) {
         super(transportData);
     }
 
-    protected Journey createJourney(RawJourney rawJourney, int maxNumOfSvcTimes, int journeyClock) {
+    @Override
+    protected Journey createJourney(RawJourney rawJourney, int maxNumOfServiceTimes, int journeyClock) {
         int minNumberOfTimes = Integer.MAX_VALUE;
+
         List<Stage> stages = new LinkedList<>();
         for (RawStage rawStage : rawJourney.getStages()) {
             String serviceId = rawStage.getServiceId();
@@ -33,8 +33,10 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
 
             String firstStation = rawStage.getFirstStation();
             String lastStation = rawStage.getLastStation();
-            SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, journeyClock,
-                    maxNumOfSvcTimes);
+            int elapsedTime = rawStage.getElapsedTime();
+            SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, elapsedTime,
+                    maxNumOfServiceTimes);
+
             if (times.isEmpty()) {
                 String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                         rawStage, serviceId, journeyClock);
@@ -48,19 +50,15 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
             logger.info(format("Found %s times for service id %s", times.size(), serviceId));
             Stage stage = new Stage(rawStage,times);
             stages.add(stage);
-            int departsAtMinutes = stage.findEarliestDepartureTime();
+            int departsAtMinutes = stage.findDepartureTimeForEarliestArrival();
             int duration = stage.getDuration();
             journeyClock = departsAtMinutes + duration;
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
                     duration, departsAtMinutes, journeyClock));
         }
         Journey journey = new Journey(stages, rawJourney.getIndex());
-        // we need to the least number of times we found for any one stage
-        // This likely needs to change, people may want to choose an early depart as it may allow more time for a
-        // connection or might (in the case of the buses) result in an early
         journey.setNumberOfTimes(minNumberOfTimes);
         return journey;
     }
-
 
 }

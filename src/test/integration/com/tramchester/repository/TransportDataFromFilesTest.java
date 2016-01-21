@@ -101,7 +101,7 @@ public class TransportDataFromFilesTest {
         assertEquals(ASH_TO_MANCHESTER, velopark8AMSvc.getRouteId());
 
         // now check can get trips using times instead
-        List<ServiceTime> tripsByTime = transportData.getTimes(velopark8AMSvc.getServiceId(),
+        SortedSet<ServiceTime> tripsByTime = transportData.getTimes(velopark8AMSvc.getServiceId(),
                 Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM, 10);
         assertFalse(tripsByTime.isEmpty());
     }

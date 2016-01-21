@@ -137,11 +137,11 @@ public class TransportDataFromFiles implements TransportData {
         return stations.get(stationId);
     }
 
-    public List<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId,
+    public SortedSet<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId,
                                       int minutesFromMidnight, int maxNumberOfTrips) {
         logger.info(String.format("Get times for service %s from %s to %s at minutes past %s",
                 serviceId, firstStationId, lastStationId, minutesFromMidnight));
-        List<ServiceTime> serviceTimes = new ArrayList<>();
+        SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         Service service = getServiceById(serviceId);
 
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,

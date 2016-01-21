@@ -20,7 +20,14 @@ public class RawJourney implements Iterable<RawStage> {
         return index;
     }
 
-    @Deprecated
+    @Override
+    public String toString() {
+        return "RawJourney{" +
+                "stages=" + stages +
+                ", index=" + index +
+                '}';
+    }
+
     public List<RawStage> getStages() {
         return stages;
     }

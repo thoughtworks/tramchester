@@ -39,6 +39,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("dataPath")
     private Path dataPath;
 
+    @JsonProperty("genericMapper")
+    private boolean genericMapper;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -56,6 +59,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Path getOutputDataPath() {
         return dataPath;
+    }
+
+    @Override
+    public boolean useGenericMapper() {
+        return genericMapper;
     }
 
     public boolean isRebuildGraph() {

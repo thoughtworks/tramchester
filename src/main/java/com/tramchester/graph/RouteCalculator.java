@@ -142,7 +142,8 @@ public class RouteCalculator extends StationIndexs {
 
                 String tramRouteClass = routeCodeToClassMapper.map(routeId);
 
-                currentStage = new RawStage(startNodeId, routeName, tramRelationship.getMode(), tramRouteClass);
+                currentStage = new RawStage(startNodeId, routeName, tramRelationship.getMode(), tramRouteClass
+                    ,elapsedTime);
             } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;

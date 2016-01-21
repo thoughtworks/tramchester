@@ -55,6 +55,11 @@ public class GraphBuilderTestPerformance {
         }
 
         @Override
+        public boolean useGenericMapper() {
+            return true;
+        }
+
+        @Override
         public Path getDataFolder() {
             return Paths.get("data/all");
         }
