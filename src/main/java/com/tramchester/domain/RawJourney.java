@@ -5,26 +5,19 @@ import java.util.List;
 
 public class RawJourney implements Iterable<RawStage> {
     private List<RawStage> stages;
-    private int index;
 
-    public RawJourney(List<RawStage> stages, int index) {
+    public RawJourney(List<RawStage> stages) {
         this.stages = stages;
-        this.index = index;
     }
     
     public Iterator<RawStage> iterator() {
         return stages.iterator();
     }
 
-    public int getIndex() {
-        return index;
-    }
-
     @Override
     public String toString() {
         return "RawJourney{" +
                 "stages=" + stages +
-                ", index=" + index +
                 '}';
     }
 

@@ -54,7 +54,7 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
                     duration, departsAtMinutes, timeWindow));
         }
-        Journey journey = new Journey(stages, rawJourney.getIndex());
+        Journey journey = new Journey(stages);
         // we need to the least number of times we found for any one stage
         // This likely needs to change, people may want to choose an early depart as it may allow more time for a
         // connection or might (in the case of the buses) result in an early

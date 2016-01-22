@@ -69,7 +69,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         busStage.setLastStation(end);
 
         stages.add(busStage);
-        journeys.add(new RawJourney(stages,1));
+        journeys.add(new RawJourney(stages));
 
         return mapper.map(journeys, new TimeWindow(minutesFromMidnight, 30));
     }

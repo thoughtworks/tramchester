@@ -14,11 +14,9 @@ public class Journey implements Comparable<Journey> {
 
     private List<Stage> stages;
     private String summary;
-    private int journeyIndex;
     private int numberOfTimes;
 
-    public Journey(List<Stage> stages, int journeyIndex) {
-        this.journeyIndex = journeyIndex;
+    public Journey(List<Stage> stages) {
         this.stages = stages;
     }
 
@@ -62,17 +60,11 @@ public class Journey implements Comparable<Journey> {
         return stages.get(0);
     }
 
-    // used front end
-    public int getJourneyIndex() {
-        return journeyIndex;
-    }
-
     @Override
     public String toString() {
         return  "Journey{" +
                 "stages= [" +stages.size() +"] "+ stages +
                 ", summary='" + summary + '\'' +
-                ", journeyIndex=" + journeyIndex +
                 '}';
     }
 

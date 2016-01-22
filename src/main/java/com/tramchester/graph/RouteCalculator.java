@@ -103,8 +103,7 @@ public class RouteCalculator extends StationIndexs {
         paths.limit(limit).forEach(path->{
             logger.info("Map graph path of length " + path.length());
             List<RawStage> stages = mapStages(path, minsPathMidnight);
-            int index = journeys.size();
-            RawJourney journey = new RawJourney(stages, index);
+            RawJourney journey = new RawJourney(stages);
             journeys.add(journey);
         });
     }

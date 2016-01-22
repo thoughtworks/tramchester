@@ -62,7 +62,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         vicToRoch.setServiceId(svcId);
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
-        journeys.add(new RawJourney(stages,1));
+        journeys.add(new RawJourney(stages));
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(930, 30));
 
         Journey journey = result.getJourneys().stream().findFirst().get();
@@ -81,7 +81,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         altToCorn.setLastStation(Stations.Cornbrook);
 
         stages.add(altToCorn);
-        journeys.add(new RawJourney(stages,1));
+        journeys.add(new RawJourney(stages));
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(7*60, 30));
 
         assertEquals(1,result.getJourneys().size());
@@ -118,7 +118,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(altToDeansgate);
         stages.add(deansgateToVic);
-        journeys.add(new RawJourney(stages,1));
+        journeys.add(new RawJourney(stages));
 
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm10, 30));
         assertEquals(1,result.getJourneys().size());
@@ -152,7 +152,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(picToCorn);
         stages.add(cornToAir);
-        journeys.add(new RawJourney(stages,1));
+        journeys.add(new RawJourney(stages));
 
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm23, 30));
 

@@ -57,7 +57,7 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
 //            logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
 //                    duration, departsAtMinutes, newTimeWindow));
         }
-        Journey journey = new Journey(stages, rawJourney.getIndex());
+        Journey journey = new Journey(stages);
         journey.setNumberOfTimes(minNumberOfTimes);
         return journey;
     }

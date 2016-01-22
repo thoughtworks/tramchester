@@ -14,8 +14,8 @@ import static org.junit.Assert.assertEquals;
 
 public class JourneyTest {
 
-    Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)), 0);
-    Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)), 0);
+    Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)));
+    Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)));
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {

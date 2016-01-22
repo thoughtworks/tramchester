@@ -143,7 +143,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         stages.add(rawStage1);
         stages.add(rawStage2);
 
-        RawJourney rawJourney = new RawJourney(stages, 0);
+        RawJourney rawJourney = new RawJourney(stages);
         rawJourneys.add(rawJourney);
     }
 
