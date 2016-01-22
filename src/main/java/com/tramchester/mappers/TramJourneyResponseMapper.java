@@ -24,20 +24,20 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         super(transportData);
     }
 
-    protected Journey createJourney(RawJourney rawJourney, int maxNumOfSvcTimes, int journeyClock) {
+    protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
+                                    //int maxNumOfSvcTimes, int journeyClock) {
         int minNumberOfTimes = Integer.MAX_VALUE;
         List<Stage> stages = new LinkedList<>();
         for (RawStage rawStage : rawJourney.getStages()) {
             String serviceId = rawStage.getServiceId();
-            logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, journeyClock));
+            logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
 
             String firstStation = rawStage.getFirstStation();
             String lastStation = rawStage.getLastStation();
-            SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, journeyClock,
-                    maxNumOfSvcTimes);
+            SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, timeWindow);
             if (times.isEmpty()) {
                 String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
-                        rawStage, serviceId, journeyClock);
+                        rawStage, serviceId, timeWindow);
                 logger.error(message);
                 return null;
             }
@@ -50,9 +50,9 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
             stages.add(stage);
             int departsAtMinutes = stage.findEarliestDepartureTime();
             int duration = stage.getDuration();
-            journeyClock = departsAtMinutes + duration;
+            timeWindow = timeWindow.next(departsAtMinutes + duration);
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
-                    duration, departsAtMinutes, journeyClock));
+                    duration, departsAtMinutes, timeWindow));
         }
         Journey journey = new Journey(stages, rawJourney.getIndex());
         // we need to the least number of times we found for any one stage

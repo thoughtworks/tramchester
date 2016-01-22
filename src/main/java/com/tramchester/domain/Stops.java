@@ -48,32 +48,33 @@ public class Stops  implements Iterable<Stop> {
         stations.get(stationId).add(index);
     }
 
-    public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
+    public boolean travelsBetween(String firstStationId, String lastStationId, TimeWindow window) {
         if (!(stations.containsKey(firstStationId) && stations.containsKey(lastStationId))) {
             logger.warn(format("No stops for %s to %s as one or more station missing", firstStationId, lastStationId));
             return false;
         }
-        List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, minutesFromMidnight);
+        List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, window);
         return !pairs.isEmpty();
     }
 
-    public List<BeginEnd> getBeginEndStopsFor(String firstStationId, String lastStationId, int minsFromMidnight) {
+    public List<BeginEnd> getBeginEndStopsFor(String firstStationId, String lastStationId,
+                                              TimeWindow window) {
         List<BeginEnd> results = new LinkedList<>();
-        List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, minsFromMidnight);
+        List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, window);
         for(Integer[] pair : pairs) {
             results.add(new BeginEnd(get(pair[0]), get(pair[1])));
         }
         return results;
     }
 
-    private List<Integer[]> getPairsForTime(String firstStationId, String lastStationId, int minsFromMidnight) {
+    private List<Integer[]> getPairsForTime(String firstStationId, String lastStationId, TimeWindow timeWindow) {
         // assemble possible pairs representing journeys from stop to stop
         List<Integer[]> pairs = new LinkedList<>();
         List<Integer> firstStationStops = stations.get(firstStationId);
         List<Integer> lastStationStops = stations.get(lastStationId);
         firstStationStops.forEach(firstStationStop -> lastStationStops.forEach(lastStationStop -> {
             if (lastStationStop>firstStationStop) {
-                if (checkTiming(stops.get(firstStationStop), stops.get(lastStationStop), minsFromMidnight)) {
+                if (checkTiming(stops.get(firstStationStop), stops.get(lastStationStop), timeWindow)) {
                     pairs.add(new Integer[] {firstStationStop,lastStationStop});
                 }
             }
@@ -81,9 +82,10 @@ public class Stops  implements Iterable<Stop> {
         return pairs;
     }
 
-    private boolean checkTiming(Stop firstStop, Stop secondStop, int minsFromMidnight) {
+    private boolean checkTiming(Stop firstStop, Stop secondStop, TimeWindow timeWindow) {
         return (secondStop.getArriveMinsFromMidnight()>=firstStop.getDepartureMinFromMidnight())
-                && (firstStop.getDepartureMinFromMidnight()>minsFromMidnight);
+                && (firstStop.getDepartureMinFromMidnight() > timeWindow.minsFromMidnight())
+                && ((firstStop.getDepartureMinFromMidnight()-timeWindow.minsFromMidnight()) <= timeWindow.withinMins());
         // does this need to be >= for buses??
     }
 

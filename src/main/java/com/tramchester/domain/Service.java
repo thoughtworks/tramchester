@@ -67,25 +67,20 @@ public class Service {
         return days;
     }
 
-    public List<Trip> getTripsAfter(String firstStationId, String lastStationId, int minutesFromMidnight,
-                                    int maxNumberOfTrips) {
+    public List<Trip> getTripsAfter(String firstStationId, String lastStationId, TimeWindow timeWindow) {
         Map<Integer,Trip> sortedValidTrips = new TreeMap<>();
         StringBuilder tripIds = new StringBuilder();
-        trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, minutesFromMidnight))
+        trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow))
                 .forEach(trip -> {
                     tripIds.append(trip.getTripId() + " ");
-                    int minutes = trip.earliestDepartFor(firstStationId, lastStationId, minutesFromMidnight);
+                    int minutes = trip.earliestDepartFor(firstStationId, lastStationId, timeWindow);
                     sortedValidTrips.put(minutes, trip);
         });
 
         logger.info(String.format("Service %s selected %s of %s trips %s", serviceId, sortedValidTrips.size(),
                 trips.size(), tripIds.toString()));
 
-        int limit = maxNumberOfTrips;
-        if (sortedValidTrips.size() < maxNumberOfTrips) {
-            limit = sortedValidTrips.size();
-        }
-        return sortedValidTrips.values().stream().limit(limit).collect(Collectors.toList());
+        return sortedValidTrips.values().stream().collect(Collectors.toList());
     }
 
     @Override

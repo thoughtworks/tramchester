@@ -3,6 +3,7 @@ package com.tramchester.mappers;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
@@ -63,11 +64,11 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
         timesLeg2.add(new ServiceTime(LocalTime.of(8,11), LocalTime.of(8,20), "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", "stationA", "stationB", AM8+2, 5)).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getTimes("svcId", "stationB", "stationC", AM8+9, 5)).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getTimes("svcId", "stationA", "stationB", new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getTimes("svcId", "stationB", "stationC", new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
 
         replayAll();
-        JourneyPlanRepresentation result = mapper.map(rawJourneys, AM8, 5);
+        JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
         List<Station> stations = result.getStations();
@@ -107,11 +108,11 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         timesLeg2.add(new ServiceTime(LocalTime.of(8,7), LocalTime.of(8,16), "svcId", "headSign", "tripIdA"));
         timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", "stationA", "stationB", AM8+2, 5)).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getTimes("svcId", "stationB", "stationC", AM8+7, 5)).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getTimes("svcId", "stationA", "stationB", new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getTimes("svcId", "stationB", "stationC", new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
 
         replayAll();
-        JourneyPlanRepresentation result = mapper.map(rawJourneys, AM8, 5);
+        JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
         List<Station> stations = result.getStations();

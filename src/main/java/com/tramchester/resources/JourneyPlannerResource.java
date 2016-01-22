@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
@@ -31,8 +32,9 @@ public class JourneyPlannerResource {
     private RouteCalculator routeCalculator;
     private DateTimeService dateTimeService;
     private JourneyResponseMapper journeyResponseMapper;
+    private int timeWindow = 45; // TODO into config
     // user for the journey mapper
-    private int maxNumberOfTrips = 5;
+    //private int maxNumberOfTrips = 5;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
                                   JourneyResponseMapper journeyResponseMapper) {
@@ -60,7 +62,7 @@ public class JourneyPlannerResource {
 
         Set<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, minutesFromMidnight, maxNumberOfTrips);
+        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, timeWindow));
     }
 
     public JourneyPlanRepresentation createJourneyPlan(List<Node> starts, List<Node> ends, String queryTime,
@@ -69,6 +71,6 @@ public class JourneyPlannerResource {
 
         Set<RawJourney> journeys = routeCalculator.calculateRoute(starts, ends, minutesFromMidnight, dayOfWeek, queryDate);
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, minutesFromMidnight, maxNumberOfTrips);
+        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, timeWindow));
     }
 }

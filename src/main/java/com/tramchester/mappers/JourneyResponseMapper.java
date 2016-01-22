@@ -2,6 +2,7 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
@@ -9,10 +10,7 @@ import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -24,36 +22,38 @@ public abstract class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    protected abstract Journey createJourney(RawJourney rawJourney, int maxNumberOfTrips, int journeyClock);
+    protected abstract Journey createJourney(RawJourney rawJourney, TimeWindow window);
 
-    public JourneyPlanRepresentation map(Set<RawJourney> journeys, int minutesFromMidnight, int maxNumberOfTrips) throws TramchesterException {
+    public JourneyPlanRepresentation map(Set<RawJourney> journeys, TimeWindow window) throws TramchesterException {
         List<Station> stations = getStations(journeys);
         if (!stations.isEmpty()) {
-            logger.info(format("Mapping journey from %s to %s at %s with max trips %s",
+            logger.info(format("Mapping journey from %s to %s with %s",
                     stations.get(0), stations.get(stations.size() - 1),
-                    minutesFromMidnight, maxNumberOfTrips));
+                    window));
         }
-        Set<Journey> decoratedJourneys = decorateJourneys(journeys, stations, minutesFromMidnight, maxNumberOfTrips);
+        SortedSet<Journey> decoratedJourneys = decorateJourneys(journeys, stations, window);
         return new JourneyPlanRepresentation(decoratedJourneys, stations);
     }
 
-    protected Set<Journey> decorateJourneys(Set<RawJourney> rawJourneys, List<Station> stations, int originMinutesFromMidnight, int maxNumberOfTrips) throws TramchesterException {
+    protected SortedSet<Journey> decorateJourneys(Set<RawJourney> rawJourneys, List<Station> stations, TimeWindow window)
+            throws TramchesterException {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
-        Set<Journey> journeys = new HashSet<>();
+        SortedSet<Journey> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
-            int journeyClock = originMinutesFromMidnight;
 
-            Journey journey = createJourney(rawJourney, maxNumberOfTrips, journeyClock);
+            Journey journey = createJourney(rawJourney, window);
             if (journey!=null) {
                 journey.setSummary(getJourneySummary(journey, stations));
                 journeys.add(journey);
+                logger.info("Added journey " +journey);
             } else {
                 logger.warn(format("Unable to map %s to journey", rawJourney));
             }
         });
         if (rawJourneys.size()!=journeys.size()) {
-            throw new TramchesterException(format("Only mapped %s out of %s journeys", journeys.size(), rawJourneys.size()));
+            logger.warn(format("Only mapped %s out of %s journeys", journeys.size(), rawJourneys.size()));
+            //throw new TramchesterException(format("Only mapped %s out of %s journeys", journeys.size(), rawJourneys.size()));
         }
         return journeys;
     }

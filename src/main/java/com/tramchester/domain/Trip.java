@@ -4,8 +4,9 @@ import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.lang.String.format;
 
@@ -49,8 +50,8 @@ public class Trip {
        stops.add(stop);
     }
 
-    public boolean travelsBetween(String firstStationId, String lastStationId, int minutesFromMidnight) {
-        return stops.travelsBetween(firstStationId, lastStationId, minutesFromMidnight);
+    public boolean travelsBetween(String firstStationId, String lastStationId, TimeWindow window) {
+        return stops.travelsBetween(firstStationId, lastStationId, window);
     }
 
     @Override
@@ -67,14 +68,10 @@ public class Trip {
         return serviceId;
     }
 
-    public List<ServiceTime> getServiceTimes(String firstStationId, String lastStationId, int minsFromMid) {
-        //logger.info(format("Find service times between %s and %s at %s", firstStationId,lastStationId,minsFromMid));
-        List<ServiceTime> serviceTimes = new LinkedList<>();
-        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, minsFromMid)) {
-            Stop firstStop = pair.begin();
-            Stop secondStop = pair.end();
-
-            ServiceTime serviceTime = new ServiceTime(firstStop.getDepartureTime(), secondStop.getArrivalTime(),
+    public SortedSet<ServiceTime> getServiceTimes(String firstStationId, String lastStationId, TimeWindow window) {
+        SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
+        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, window)) {
+            ServiceTime serviceTime = new ServiceTime(pair.begin().getDepartureTime(), pair.end().getArrivalTime(),
                     serviceId, headSign, tripId);
             logger.info("Added " + serviceTime);
             serviceTimes.add(serviceTime);
@@ -90,17 +87,18 @@ public class Trip {
         return stops.getStopsFor(stationId);
     }
 
-    public int earliestDepartFor(String firstStationId, String lastStationId, int minutesFromMidnight) {
+    public int earliestDepartFor(String firstStationId, String lastStationId, TimeWindow window) {
         int earliest = Integer.MAX_VALUE;
-        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, minutesFromMidnight)) {
+
+        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, window)) {
             int firstDepart = pair.begin().getDepartureMinFromMidnight();
             if (firstDepart < earliest) {
                 earliest = firstDepart;
             }
         }
         if (earliest==Integer.MAX_VALUE) {
-            logger.warn(format("Unable to find earlier time between %s and %s at %s", firstStationId,lastStationId,
-                    minutesFromMidnight));
+            logger.warn(format("Unable to find earlier time between %s and %s with %s", firstStationId,lastStationId,
+                    window));
         }
         return earliest;
     }

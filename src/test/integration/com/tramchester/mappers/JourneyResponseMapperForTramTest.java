@@ -6,6 +6,7 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
@@ -62,7 +63,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
         journeys.add(new RawJourney(stages,1));
-        JourneyPlanRepresentation result = mapper.map(journeys, 930, 5);
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(930, 30));
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         Stage stage = journey.getStages().get(0);
@@ -81,7 +82,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(altToCorn);
         journeys.add(new RawJourney(stages,1));
-        JourneyPlanRepresentation result = mapper.map(journeys, 7*60, 1);
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(7*60, 30));
 
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
@@ -96,7 +97,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
 
         SortedSet<ServiceTime> serviceTimes = stage.getServiceTimes();
-        assertEquals(1, serviceTimes.size());
+        assertEquals(2, serviceTimes.size());
     }
 
     @Test
@@ -119,7 +120,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(deansgateToVic);
         journeys.add(new RawJourney(stages,1));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, pm10, 1);
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm10, 30));
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(2, journey.getStages().size());
@@ -129,7 +130,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(Stations.Victoria,stage2.getLastStation());
 
         SortedSet<ServiceTime> serviceTimes = stage2.getServiceTimes();
-        assertEquals(1, serviceTimes.size());
+        assertEquals(2, serviceTimes.size());
     }
 
     @Test
@@ -153,7 +154,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(cornToAir);
         journeys.add(new RawJourney(stages,1));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, pm23, 3);
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm23, 30));
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertTrue(journey.getNumberOfTimes()>0);

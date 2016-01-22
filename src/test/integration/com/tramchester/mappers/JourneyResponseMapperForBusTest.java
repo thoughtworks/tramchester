@@ -5,6 +5,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
@@ -70,6 +71,6 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         stages.add(busStage);
         journeys.add(new RawJourney(stages,1));
 
-        return mapper.map(journeys, minutesFromMidnight, 1);
+        return mapper.map(journeys, new TimeWindow(minutesFromMidnight, 30));
     }
 }

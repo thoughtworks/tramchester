@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
     public static final String ASH_TO_MANCHESTER = "MET:MET3:O:";
-    public static final int MINUTES_FROM_MIDNIGHT_8AM = 8 * 60;
+    public static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(8 * 60, 30);
 
     private static Dependencies dependencies;
 
@@ -102,7 +102,7 @@ public class TransportDataFromFilesTest {
 
         // now check can get trips using times instead
         SortedSet<ServiceTime> tripsByTime = transportData.getTimes(velopark8AMSvc.getServiceId(),
-                Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM, 10);
+                Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM);
         assertFalse(tripsByTime.isEmpty());
     }
 
@@ -110,7 +110,7 @@ public class TransportDataFromFilesTest {
     public void shouldGetTripsAfter() {
         // use TramJourneyPlannerTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
-        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate, Stations.Victoria, (23 * 60) +41 , 10);
+        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate, Stations.Victoria, new TimeWindow((23 * 60) +41,30));
         assertFalse(trips.isEmpty());
     }
 
@@ -118,7 +118,8 @@ public class TransportDataFromFilesTest {
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById("Serv001110");
-        List<Trip> trips = svc.getTripsAfter(Stations.Victoria, Stations.ShawAndCrompton, (23 * 60) + 44, 10);
+        List<Trip> trips = svc.getTripsAfter(Stations.Victoria, Stations.ShawAndCrompton,
+                new TimeWindow(((23 * 60) + 44), 30));
         assertFalse(trips.isEmpty());
     }
 
@@ -177,7 +178,7 @@ public class TransportDataFromFilesTest {
 
         for(Service svc : mondayServices) {
             if (transportData.getTimes(svc.getServiceId(),
-                    Stations.VeloPark, Stations.Piccadily, MINUTES_FROM_MIDNIGHT_8AM, 10).size()>0) {
+                    Stations.VeloPark, Stations.Piccadily, MINUTES_FROM_MIDNIGHT_8AM).size()>0) {
                 veloToPiccadily.add(svc);
             }
         }
@@ -234,7 +235,8 @@ public class TransportDataFromFilesTest {
         // finally check there are trams stopping within 15 mins of 8AM on Monday
         stoppingAtVelopark.removeIf(stop -> {
             int mins = stop.getArriveMinsFromMidnight();
-            return !((mins>=MINUTES_FROM_MIDNIGHT_8AM) && (mins-MINUTES_FROM_MIDNIGHT_8AM<=15));
+            int expected = MINUTES_FROM_MIDNIGHT_8AM.minsFromMidnight();
+            return !((mins>=expected) && (mins-expected<=15));
         });
 
         assertTrue(stoppingAtVelopark.size()>=1); // at least 1

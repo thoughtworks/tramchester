@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 
-public class Journey {
+public class Journey implements Comparable<Journey> {
 
     private List<Stage> stages;
     private String summary;
@@ -41,7 +41,7 @@ public class Journey {
         if (stages.size() == 0) {
             return LocalTime.MIDNIGHT;
         }
-        SortedSet<ServiceTime> serviceTimes = stages.get(0).getServiceTimes();
+        SortedSet<ServiceTime> serviceTimes = getFirstStage().getServiceTimes();
         return serviceTimes.first().getDepartureTime();
     }
 
@@ -50,8 +50,16 @@ public class Journey {
         if (stages.size() == 0) {
             return LocalTime.MIDNIGHT;
         }
+        return getLastStage().getExpectedArrivalTime();
+    }
+
+    private Stage getLastStage() {
         int index = stages.size() - 1;
-        return stages.get(index).getExpectedArrivalTime();
+        return stages.get(index);
+    }
+
+    private Stage getFirstStage() {
+        return stages.get(0);
     }
 
     // used front end
@@ -76,4 +84,25 @@ public class Journey {
     public void setNumberOfTimes(int numberOfTimes) {
         this.numberOfTimes = numberOfTimes;
     }
+
+    @Override
+    public int compareTo(Journey other) {
+        // arrival first
+        int compare = getExpectedArrivalTime().compareTo(other.getExpectedArrivalTime());
+        // then departure time
+        if (compare==0) {
+            compare = getFirstDepartureTime().compareTo(other.getFirstDepartureTime());
+        }
+        // then number of stages
+        if (compare==0) {
+            // if arrival times match, put journeys with fewer stages first
+            if (this.stages.size()<other.stages.size()) {
+                compare = -1;
+            } else if (other.stages.size()>stages.size()) {
+                compare = 1;
+            }
+        }
+        return compare;
+    }
+
 }

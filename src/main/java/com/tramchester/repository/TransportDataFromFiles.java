@@ -138,17 +138,16 @@ public class TransportDataFromFiles implements TransportData {
     }
 
     public SortedSet<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId,
-                                      int minutesFromMidnight, int maxNumberOfTrips) {
-        logger.info(String.format("Get times for service %s from %s to %s at minutes past %s",
-                serviceId, firstStationId, lastStationId, minutesFromMidnight));
+                                      TimeWindow window) {
+        logger.info(String.format("Get times for service %s from %s to %s with %s",
+                serviceId, firstStationId, lastStationId, window));
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         Service service = getServiceById(serviceId);
 
-        List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, minutesFromMidnight,
-                maxNumberOfTrips);
+        List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, window);
 
         for (Trip trip : tripsAfter) {
-            List<ServiceTime> times = trip.getServiceTimes(firstStationId, lastStationId, minutesFromMidnight);
+            SortedSet<ServiceTime> times = trip.getServiceTimes(firstStationId, lastStationId, window);
             serviceTimes.addAll(times);
         }
         return serviceTimes;

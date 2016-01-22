@@ -2,6 +2,7 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.Stage;
@@ -23,23 +24,24 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
     }
 
     @Override
-    protected Journey createJourney(RawJourney rawJourney, int maxNumOfServiceTimes, int journeyClock) {
+    protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
         int minNumberOfTimes = Integer.MAX_VALUE;
 
         List<Stage> stages = new LinkedList<>();
         for (RawStage rawStage : rawJourney.getStages()) {
             String serviceId = rawStage.getServiceId();
-            logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, journeyClock));
+            logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
 
             String firstStation = rawStage.getFirstStation();
             String lastStation = rawStage.getLastStation();
             int elapsedTime = rawStage.getElapsedTime();
-            SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, elapsedTime,
-                    maxNumOfServiceTimes);
+            TimeWindow newTimeWindow = timeWindow.next(elapsedTime);
+            SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation,
+                    newTimeWindow);
 
             if (times.isEmpty()) {
                 String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
-                        rawStage, serviceId, journeyClock);
+                        rawStage, serviceId, newTimeWindow);
                 logger.error(message);
                 return null;
             }
@@ -50,11 +52,10 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
             logger.info(format("Found %s times for service id %s", times.size(), serviceId));
             Stage stage = new Stage(rawStage,times);
             stages.add(stage);
-            int departsAtMinutes = stage.findDepartureTimeForEarliestArrival();
-            int duration = stage.getDuration();
-            journeyClock = departsAtMinutes + duration;
-            logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
-                    duration, departsAtMinutes, journeyClock));
+//            int departsAtMinutes = stage.findDepartureTimeForEarliestArrival();
+//            int duration = stage.getDuration();
+//            logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
+//                    duration, departsAtMinutes, newTimeWindow));
         }
         Journey journey = new Journey(stages, rawJourney.getIndex());
         journey.setNumberOfTimes(minNumberOfTimes);
