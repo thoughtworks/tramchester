@@ -11,6 +11,7 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
+import com.tramchester.graph.PathToStagesMapper;
 import com.tramchester.mappers.GenericJourneyResponseMapper;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -87,6 +88,7 @@ public class Dependencies {
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
         picoContainer.addComponent(FetchInstanceMetadata.class);
         picoContainer.addComponent(SignalToCloudformationReady.class);
+        picoContainer.addComponent(PathToStagesMapper.class);
 
         rebuildGraph(configuration);
 

@@ -4,13 +4,14 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.Index;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class StationIndexs {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StationIndexs.class);
+    private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
     private Map<String,Node> routeStationNodeCache;
     private Map<String,Node> stationNodeCache;
     private Index<Node> spatialIndex;

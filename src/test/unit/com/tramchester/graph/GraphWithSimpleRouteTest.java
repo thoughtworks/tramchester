@@ -51,7 +51,9 @@ public class GraphWithSimpleRouteTest {
         builder.buildGraph();
 
         NodeFactory nodeFactory = new NodeFactory();
-        calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory, new RouteCodeToClassMapper());
+        RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
+        calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
+                new PathToStagesMapper(nodeFactory,routeIdToClass));
     }
 
     @Before
