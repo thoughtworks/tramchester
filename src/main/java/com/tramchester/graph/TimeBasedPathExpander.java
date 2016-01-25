@@ -80,9 +80,8 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
             }
         }
 
-//         all filtered out
+        // all filtered out
         if ((servicesOutbound>0) && (servicesFilteredOut.size()==servicesOutbound)) {
-            //logger.info("All services filtered out " + currentNode);
             reportFilterReasons(currentNode, servicesFilteredOut, incoming);
         }
 
@@ -97,9 +96,11 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         }
         logger.info(format("Filtered:%s services for node:%s inbound:%s",
                 servicesFilteredOut.size(), currentNode, incoming));
-        StringBuilder output = new StringBuilder();
-        servicesFilteredOut.forEach(reason -> output.append(reason).append(" "));
-        logger.debug(output.toString());
+        if (logger.isDebugEnabled()) {
+            StringBuilder output = new StringBuilder();
+            servicesFilteredOut.forEach(reason -> output.append(reason).append(" "));
+            logger.debug(output.toString());
+        }
     }
 
     private ServiceReason checkServiceHeuristics(BranchState<GraphBranchState> branchState, TramRelationship incoming,

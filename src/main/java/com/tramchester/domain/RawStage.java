@@ -4,16 +4,16 @@ public class RawStage {
     private final String firstStation;
     private final String mode;
     private final String routeName;
-    private final String routeId;
+    private final String displayClass;
     private int elapsedTime;
     private String serviceId;
     private String lastStation;
 
-    public RawStage(String firstStation, String routeName, String mode, String tramRouteDisplayClass, int elapsedTime) {
+    public RawStage(String firstStation, String routeName, String mode, String displayClass, int elapsedTime) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
-        this.routeId = tramRouteDisplayClass;
+        this.displayClass = displayClass;
         this.elapsedTime = elapsedTime;
     }
 
@@ -43,8 +43,8 @@ public class RawStage {
         return mode;
     }
 
-    public String getRouteId() {
-        return routeId;
+    public String getDisplayClass() {
+        return displayClass;
     }
 
     public String getLastStation() {
@@ -57,7 +57,7 @@ public class RawStage {
                 "firstStation='" + firstStation + '\'' +
                 ", mode='" + mode + '\'' +
                 ", routeName='" + routeName + '\'' +
-                ", routeId='" + routeId + '\'' +
+                ", displayClass='" + displayClass + '\'' +
                 ", serviceId='" + serviceId + '\'' +
                 ", lastStation='" + lastStation + '\'' +
                 '}';

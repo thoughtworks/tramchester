@@ -24,7 +24,7 @@
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
             <div ng-repeat="journey in journeyPlan.journeys" ng-click="showJourneyDetails($index)">
-                <div class="panel {{journey.stages[0].tramRouteId}}" id="journeyPanel{{$index}}">
+                <div class="panel {{journey.stages[0].displayClass}}" id="journeyPanel{{$index}}">
                     <div class="panel-heading" id="journeyHeading{{$index}}">{{journey.stages[0].route}} {{journey.stages[0].mode}} Line</div>
                     <!-- List group -->
                     <div class="list-group">

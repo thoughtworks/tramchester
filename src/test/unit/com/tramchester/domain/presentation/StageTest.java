@@ -2,12 +2,9 @@ package com.tramchester.domain.presentation;
 
 
 import com.tramchester.domain.RawStage;
-import com.tramchester.domain.Service;
-import com.tramchester.domain.ServiceTest;
 import org.junit.Test;
 
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -86,7 +83,7 @@ public class StageTest {
         rawStage.setLastStation("lastStation");
         rawStage.setServiceId("svcId");
         Stage stage = new Stage(rawStage, createSet(serviceTime));
-        assertEquals("cssClass", stage.getTramRouteId());
+        assertEquals("cssClass", stage.getDisplayClass());
         assertEquals("Tram", stage.getMode());
         assertEquals("route", stage.getRoute());
         assertEquals("firstStation", stage.getFirstStation());

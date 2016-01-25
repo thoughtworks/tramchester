@@ -5,7 +5,6 @@ import com.tramchester.domain.RawStage;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
-import java.util.List;
 import java.util.SortedSet;
 
 public class Stage {
@@ -31,8 +30,8 @@ public class Stage {
     }
 
     // used from javascript on front-end
-    public String getTramRouteId() {
-        return rawStage.getRouteId();
+    public String getDisplayClass() {
+        return rawStage.getDisplayClass();
     }
 
     public String getMode() {
