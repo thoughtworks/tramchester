@@ -1,6 +1,7 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Relationship;
 
@@ -13,11 +14,13 @@ public class TramGoesToRelationship extends TramCostRelationship {
     private boolean[] daysRunning;
     private int[] timesRunning;
     private String dest;
+    private TransportMode mode;
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 
     public TramGoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id,
-                                  TramServiceDate startDate, TramServiceDate endDate, String dest) {
+                                  TramServiceDate startDate, TramServiceDate endDate, String dest, TransportMode mode) {
+        //TESTING ONLY
         super(cost, id);
         this.service = service;
         this.daysRunning = daysRunning;
@@ -25,11 +28,17 @@ public class TramGoesToRelationship extends TramCostRelationship {
         this.startDate = startDate;
         this.endDate = endDate;
         this.dest = dest;
+        this.mode = mode;
     }
 
     public TramGoesToRelationship(Relationship graphRelationship) {
         super(graphRelationship);
+        mode = TransportMode.Tram;
+    }
 
+    @Override
+    public TransportMode getMode() {
+        return mode;
     }
 
     public boolean[] getDaysTramRuns() {

@@ -25,7 +25,6 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
     }
 
     protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
-                                    //int maxNumOfSvcTimes, int journeyClock) {
         int minNumberOfTimes = Integer.MAX_VALUE;
         List<Stage> stages = new LinkedList<>();
         for (RawStage rawStage : rawJourney.getStages()) {

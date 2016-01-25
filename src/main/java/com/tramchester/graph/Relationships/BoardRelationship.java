@@ -1,11 +1,17 @@
 package com.tramchester.graph.Relationships;
 
+import com.tramchester.domain.TransportMode;
 import org.neo4j.graphdb.Relationship;
 
 public class BoardRelationship extends TramCostRelationship {
 
     public BoardRelationship(Relationship graphRelationship) {
         super(graphRelationship);
+    }
+
+    @Override
+    public TransportMode getMode() {
+        return TransportMode.Board;
     }
 
     @Override

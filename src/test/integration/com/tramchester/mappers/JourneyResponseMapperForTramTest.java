@@ -7,6 +7,7 @@ import com.tramchester.Stations;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
 import com.tramchester.domain.TimeWindow;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
@@ -58,7 +59,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
         String svcId = findServiceId(Stations.Victoria, Stations.Rochdale, 930);
         int elapsedTime = 931;
-        RawStage vicToRoch = new RawStage(Stations.Victoria, "route text", "tram", "cssClass", elapsedTime);
+        RawStage vicToRoch = new RawStage(Stations.Victoria, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         vicToRoch.setServiceId(svcId);
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
@@ -76,7 +77,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.Altrincham, Stations.Cornbrook, 7*60);
 
         int elapsedTime = (7*60)+1;
-        RawStage altToCorn = new RawStage(Stations.Altrincham, "route text", "tram", "cssClass", elapsedTime);
+        RawStage altToCorn = new RawStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         altToCorn.setServiceId(svcId);
         altToCorn.setLastStation(Stations.Cornbrook);
 
@@ -106,13 +107,13 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.Altrincham, Stations.Deansgate, pm10);
 
         int elapsedTime = pm10 + 1;
-        RawStage altToDeansgate = new RawStage(Stations.Altrincham, "route text", "tram", "cssClass", elapsedTime);
+        RawStage altToDeansgate = new RawStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         altToDeansgate.setLastStation(Stations.Deansgate);
         altToDeansgate.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Deansgate, Stations.Victoria, pm10);
 
-        RawStage deansgateToVic = new RawStage(Stations.Deansgate, "route2 text", "tram", "cssClass", elapsedTime);
+        RawStage deansgateToVic = new RawStage(Stations.Deansgate, "route2 text", TransportMode.Tram, "cssClass", elapsedTime);
         deansgateToVic.setLastStation(Stations.Victoria);
         deansgateToVic.setServiceId(svcId);
 
@@ -139,13 +140,13 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.PiccadilyGardens, Stations.Cornbrook, pm23);
 
         int elapsedTime = pm23 +1;
-        RawStage picToCorn = new RawStage(Stations.PiccadilyGardens, "routeText", "tram", "cssClass", elapsedTime);
+        RawStage picToCorn = new RawStage(Stations.PiccadilyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
         picToCorn.setLastStation(Stations.Cornbrook);
         // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
         picToCorn.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Cornbrook, Stations.ManAirport, pm23);
-        RawStage cornToAir = new RawStage(Stations.Cornbrook, "routeText", "tram", "cssClass", elapsedTime);
+        RawStage cornToAir = new RawStage(Stations.Cornbrook, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
         cornToAir.setLastStation(Stations.ManAirport);
         // user test TramJourneyPlannerTest.shouldFindRouteCornbrookToManAirport
         cornToAir.setServiceId(svcId);

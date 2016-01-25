@@ -53,7 +53,6 @@ public abstract class JourneyResponseMapper {
         });
         if (rawJourneys.size()!=journeys.size()) {
             logger.warn(format("Only mapped %s out of %s journeys", journeys.size(), rawJourneys.size()));
-            //throw new TramchesterException(format("Only mapped %s out of %s journeys", journeys.size(), rawJourneys.size()));
         }
         return journeys;
     }

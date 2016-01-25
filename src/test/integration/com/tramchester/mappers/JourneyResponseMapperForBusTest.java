@@ -6,6 +6,7 @@ import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
 import com.tramchester.domain.TimeWindow;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
@@ -64,7 +65,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private JourneyPlanRepresentation getJourneyPlanRepresentation(String begin, String end, String svcId, int minutesFromMidnight) throws TramchesterException {
 
         int elapsedTime = 8*60;
-        RawStage busStage = new RawStage(begin, "route text", "tram", "cssClass", elapsedTime);
+        RawStage busStage = new RawStage(begin, "route text", TransportMode.Bus, "cssClass", elapsedTime);
         busStage.setServiceId(svcId);
         busStage.setLastStation(end);
 

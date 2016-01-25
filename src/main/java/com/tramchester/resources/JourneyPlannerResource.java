@@ -32,9 +32,7 @@ public class JourneyPlannerResource {
     private RouteCalculator routeCalculator;
     private DateTimeService dateTimeService;
     private JourneyResponseMapper journeyResponseMapper;
-    private int timeWindow = 45; // TODO into config
-    // user for the journey mapper
-    //private int maxNumberOfTrips = 5;
+    private int timeWindow = 60; // TODO into config
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
                                   JourneyResponseMapper journeyResponseMapper) {
@@ -45,13 +43,17 @@ public class JourneyPlannerResource {
 
     @GET
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId,
-                                  @QueryParam("departureTime") String departureTime) throws TramchesterException {
+                                  @QueryParam("departureTime") String departureTime){
         DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
         // today expose this as a parameter
         TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
-        JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, departureTime, dayOfWeek, queryDate);
-        Response response = Response.ok(planRepresentation).build();
-        return response;
+        try {
+            JourneyPlanRepresentation  planRepresentation = createJourneyPlan(startId, endId, departureTime, dayOfWeek, queryDate);
+            return Response.ok(planRepresentation).build();
+        } catch (TramchesterException exception) {
+            logger.error("Unable to plan journey",exception);
+        }
+        return Response.serverError().build();
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String queryTime,

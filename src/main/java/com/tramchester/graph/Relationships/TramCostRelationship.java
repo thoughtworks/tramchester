@@ -1,6 +1,7 @@
 package com.tramchester.graph.Relationships;
 
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Relationship;
 
@@ -37,8 +38,6 @@ public abstract class TramCostRelationship implements TramRelationship {
     }
 
     @Override
-    public String getMode() {
-        return "Tram";
-    }
+    public abstract TransportMode getMode();
 
 }

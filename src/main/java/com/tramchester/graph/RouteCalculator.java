@@ -1,10 +1,8 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.RawStage;
+import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
-import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
@@ -110,7 +108,6 @@ public class RouteCalculator extends StationIndexs {
 
     private List<RawStage> mapStages(WeightedPath path, int minsPastMidnight) {
         List<RawStage> stages = new ArrayList<>();
-        RawStage currentStage = null;
 
         Iterable<Relationship> relationships = path.relationships();
         RelationshipFactory relationshipFactory = new RelationshipFactory();
@@ -118,47 +115,61 @@ public class RouteCalculator extends StationIndexs {
         logger.info("Mapping path to stages, weight is " + path.weight());
 
         int totalCost = 0;
+        RouteStationNode boardNode = null;
+        RawStage currentStage = null;
+        String firstStation = null;
+        int boardTime = -1;
         for (Relationship graphRelationship : relationships) {
             TramRelationship tramRelationship = relationshipFactory.getRelationship(graphRelationship);
 
-            TramNode startNode = nodeFactory.getNode(graphRelationship.getStartNode());
-            String startNodeId = startNode.getId();
+            TramNode firstNode = nodeFactory.getNode(graphRelationship.getStartNode());
+            //String startNodeId = startNode.getId();
 
-            TramNode endNode = nodeFactory.getNode(graphRelationship.getEndNode());
-            String endNodeId = endNode.getId();
+            TramNode secondNode = nodeFactory.getNode(graphRelationship.getEndNode());
+            String endNodeId = secondNode.getId();
 
             int cost = tramRelationship.getCost();
             totalCost += cost;
 
             // todo refactor out first and subsequent stage handling
             int elapsedTime = minsPastMidnight + totalCost;
+
             if (tramRelationship.isBoarding()) {
                 // station -> route station
-                RouteStationNode routeStationNode = (RouteStationNode) endNode;
-                String routeName = routeStationNode.getRouteName();
-                String routeId = routeStationNode.getRouteId();
-                logger.info(format("Board tram: at:'%s' from '%s' at %s", endNode, startNode, elapsedTime));
+                boardNode = (RouteStationNode) secondNode;
+                boardTime = elapsedTime;
+                firstStation = firstNode.getId();
+                logger.info(format("Board tram: at:'%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
+                if (currentStage!=null) {
+                    logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
+                            boardNode, currentStage));
+                }
 
-                String tramRouteClass = routeCodeToClassMapper.map(routeId);
-
-                currentStage = new RawStage(startNodeId, routeName, tramRelationship.getMode(), tramRouteClass
-                    ,elapsedTime);
             } else if (tramRelationship.isTramGoesTo()) {
                 // routeStation -> routeStation
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) tramRelationship;
                 String serviceId = tramGoesToRelationship.getService();
-                logger.info(format("Add goes to %s, service %s, elapsed %s", tramGoesToRelationship.getDest(),
+                logger.info(format("Add stage goes to %s, service %s, elapsed %s", tramGoesToRelationship.getDest(),
                         serviceId, elapsedTime));
-                currentStage.setServiceId(serviceId);
+
+                if (currentStage==null) {
+                    String routeName = boardNode.getRouteName();
+                    String routeId = boardNode.getRouteId();
+                    String tramRouteClass = routeCodeToClassMapper.map(routeId);
+                    currentStage = new RawStage(firstStation, routeName, tramRelationship.getMode(), tramRouteClass
+                            , boardTime);
+                    currentStage.setServiceId(serviceId);
+                }
             } else if (tramRelationship.isDepartTram()) {
                 // route station -> station
-                StationNode stationNode = (StationNode) endNode;
-                String stationName = stationNode.getName();
-                logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", startNodeId, stationName, endNodeId,
+                StationNode departNode = (StationNode) secondNode;
+                String stationName = departNode.getName();
+                logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
                         elapsedTime));
                 currentStage.setLastStation(endNodeId);
-                logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
                 stages.add(currentStage);
+                logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
+                currentStage = null;
             } else if (tramRelationship.isWalk()) {
                 logger.info("Skip adding walk of cost " + cost);
             }

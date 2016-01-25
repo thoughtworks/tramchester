@@ -2,14 +2,14 @@ package com.tramchester.domain;
 
 public class RawStage {
     private final String firstStation;
-    private final String mode;
+    private final TransportMode mode;
     private final String routeName;
     private final String displayClass;
     private int elapsedTime;
     private String serviceId;
     private String lastStation;
 
-    public RawStage(String firstStation, String routeName, String mode, String displayClass, int elapsedTime) {
+    public RawStage(String firstStation, String routeName, TransportMode mode, String displayClass, int elapsedTime) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
@@ -39,7 +39,7 @@ public class RawStage {
         return routeName;
     }
 
-    public String getMode() {
+    public TransportMode getMode() {
         return mode;
     }
 

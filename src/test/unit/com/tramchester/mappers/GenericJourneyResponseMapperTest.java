@@ -1,9 +1,6 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.RawStage;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.TimeWindow;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
@@ -136,9 +133,9 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     }
 
     private void createSimpleRawJourney(int stageATime, int stageBTime) {
-        RawStage rawStage1 = new RawStage("stationA", "routeNameA", "bus", "routeIdA", stageATime).
+        RawStage rawStage1 = new RawStage("stationA", "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
                 setLastStation("stationB").setServiceId("svcId");
-        RawStage rawStage2 = new RawStage("stationB", "routeNameA", "bus", "routeIdA", stageBTime).
+        RawStage rawStage2 = new RawStage("stationB", "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
                 setLastStation("stationC").setServiceId("svcId");
         stages.add(rawStage1);
         stages.add(rawStage2);

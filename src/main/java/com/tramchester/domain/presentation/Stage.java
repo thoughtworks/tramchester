@@ -2,10 +2,15 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.mappers.TransportModeSerializer;
 
 import java.time.LocalTime;
 import java.util.SortedSet;
+
+import static java.lang.String.format;
 
 public class Stage {
     public static final int SECONDS_IN_DAY = 24*60*60;
@@ -34,7 +39,8 @@ public class Stage {
         return rawStage.getDisplayClass();
     }
 
-    public String getMode() {
+    @JsonSerialize(using = TransportModeSerializer.class)
+    public TransportMode getMode() {
         return rawStage.getMode();
     }
 
@@ -104,5 +110,20 @@ public class Stage {
             }
         }
         return depart;
+    }
+
+    public String getSummary() throws TramchesterException {
+        TransportMode mode = rawStage.getMode();
+        String routeName = rawStage.getRouteName();
+        switch (mode) {
+            case Bus : {
+                return format("%s Bus route", routeName);
+            }
+            case Tram: {
+                return format("%s Tram line", routeName);
+            }
+            default:
+                throw new TramchesterException("Unknown transport mode " + mode);
+        }
     }
 }

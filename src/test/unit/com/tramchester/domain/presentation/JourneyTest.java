@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation;
 
 
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.TransportMode;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -34,7 +35,7 @@ public class JourneyTest {
 
     private List<Stage> createStages(LocalTime arrivesEnd) {
         List<Stage> stages = new LinkedList<>();
-        RawStage rawStage = new RawStage("statA", "routeName", "bus", "cssClass", 20).setLastStation("statB");
+        RawStage rawStage = new RawStage("statA", "routeName", TransportMode.Bus, "cssClass", 20).setLastStation("statB");
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));
         stages.add(new Stage(rawStage, serviceTimes));

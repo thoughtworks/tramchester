@@ -52,10 +52,6 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
             logger.info(format("Found %s times for service id %s", times.size(), serviceId));
             Stage stage = new Stage(rawStage,times);
             stages.add(stage);
-//            int departsAtMinutes = stage.findDepartureTimeForEarliestArrival();
-//            int duration = stage.getDuration();
-//            logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
-//                    duration, departsAtMinutes, newTimeWindow));
         }
         Journey journey = new Journey(stages);
         journey.setNumberOfTimes(minNumberOfTimes);

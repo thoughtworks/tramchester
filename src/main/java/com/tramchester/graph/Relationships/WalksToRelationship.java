@@ -1,5 +1,7 @@
 package com.tramchester.graph.Relationships;
 
+import com.tramchester.domain.TransportMode;
+
 public class WalksToRelationship implements TramRelationship {
     @Override
     public boolean isTramGoesTo() {
@@ -37,7 +39,7 @@ public class WalksToRelationship implements TramRelationship {
     }
 
     @Override
-    public String getMode() {
-        return "walk";
+    public TransportMode getMode() {
+        return TransportMode.Walk;
     }
 }

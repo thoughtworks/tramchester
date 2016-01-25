@@ -19,7 +19,7 @@
             <div ng-repeat="stage in journey.stages ">
 
                 <div class="panel {{stage.displayClass}}">
-                    <div class="panel-heading">{{stage.route}} {{stage.mode}} Line</div>
+                    <div class="panel-heading">{{stage.summary}}</div>
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showMap(stage)" class="list-group-item">
