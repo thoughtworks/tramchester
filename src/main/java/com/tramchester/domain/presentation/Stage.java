@@ -126,4 +126,8 @@ public class Stage {
                 throw new TramchesterException("Unknown transport mode " + mode);
         }
     }
+
+    public String getPrompt() {
+        return "Walk to";
+    }
 }

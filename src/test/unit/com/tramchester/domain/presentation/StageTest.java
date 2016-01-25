@@ -94,6 +94,16 @@ public class StageTest {
     }
 
     @Test
+    public void shouldDisplayCorrectPrompt() {
+        ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
+        RawStage rawStage = new RawStage("firstStation", "route", TransportMode.Tram, "cssClass", elapsedTime);
+
+        Stage stage = new Stage(rawStage, createSet(serviceTime));
+
+        assertEquals(stage.getPrompt(),"Walk to");
+    }
+
+    @Test
     public void shouldGetStageSummary() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
 

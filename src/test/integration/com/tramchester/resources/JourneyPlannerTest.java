@@ -6,7 +6,11 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.Stage;
 import com.tramchester.services.SpatialService;
 import org.joda.time.LocalDate;
 import org.junit.*;
@@ -18,6 +22,11 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 public class JourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
@@ -58,7 +67,16 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
             tx.success();
         }
 
-        planner.createJourneyPlan(nearEastDids, nearPiccGardens, "09:00:00", DaysOfWeek.Monday, today);
+        JourneyPlanRepresentation plan = planner.createJourneyPlan(nearEastDids, nearPiccGardens, "09:00:00",
+                DaysOfWeek.Monday, today);
+        SortedSet<Journey> journeys = plan.getJourneys();
+        assertTrue(journeys.size()>=1);
+        Journey journey = journeys.first();
+        List<Stage> stages = journey.getStages();
+        stages.forEach(stage ->
+                assertEquals(TransportMode.Bus, stage.getMode())
+        );
+
     }
 
     @Test

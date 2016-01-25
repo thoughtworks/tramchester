@@ -15,7 +15,7 @@ public class JourneyPlanRepresentation {
         this.stations = stations;
     }
 
-    public Set<Journey> getJourneys() {
+    public SortedSet<Journey> getJourneys() {
         return journeys;
     }
 
