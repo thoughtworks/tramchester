@@ -22,16 +22,18 @@ public class Stage {
         this.serviceTimes = serviceTimes;
     }
 
+    // TODO return station
     public String getFirstStation() {
-        return rawStage.getFirstStation();
+        return rawStage.getFirstStation().getId();
     }
 
     public String getRoute() {
         return rawStage.getRouteName();
     }
 
+    // TODO return station
     public String getLastStation() {
-        return rawStage.getLastStation();
+        return rawStage.getLastStation().getId();
     }
 
     // used from javascript on front-end

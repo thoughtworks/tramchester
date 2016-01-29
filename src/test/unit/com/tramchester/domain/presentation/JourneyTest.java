@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation;
 
 
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import org.junit.Test;
 
@@ -17,6 +18,8 @@ public class JourneyTest {
 
     Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)));
     Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)));
+    Station stationA = new Station("stationA", "area", "nameA", -2, -1, false);
+    Station stationB = new Station("stationB", "area", "nameA", -3, 1, false);
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
@@ -35,7 +38,8 @@ public class JourneyTest {
 
     private List<Stage> createStages(LocalTime arrivesEnd) {
         List<Stage> stages = new LinkedList<>();
-        RawStage rawStage = new RawStage("statA", "routeName", TransportMode.Bus, "cssClass", 20).setLastStation("statB");
+        RawStage rawStage = new RawStage(stationA, "routeName", TransportMode.Bus, "cssClass", 20).
+                setLastStation(stationB);
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));
         stages.add(new Stage(rawStage, serviceTimes));

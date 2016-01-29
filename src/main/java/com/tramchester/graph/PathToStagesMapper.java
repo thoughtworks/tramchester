@@ -8,6 +8,7 @@ import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Relationship;
@@ -24,10 +25,13 @@ public class PathToStagesMapper {
 
     private NodeFactory nodeFactory;
     private RouteCodeToClassMapper routeIdToClass;
+    private StationRepository stationRepository;
 
-    public PathToStagesMapper(NodeFactory nodeFactory, RouteCodeToClassMapper routeIdToClass) {
+    public PathToStagesMapper(NodeFactory nodeFactory, RouteCodeToClassMapper routeIdToClass,
+                              StationRepository stationRepository) {
         this.nodeFactory = nodeFactory;
         this.routeIdToClass = routeIdToClass;
+        this.stationRepository = stationRepository;
     }
 
     public List<RawStage> mapStages(WeightedPath path, int minsPastMidnight) {
@@ -41,7 +45,7 @@ public class PathToStagesMapper {
         int totalCost = 0;
         RouteStationNode boardNode = null;
         RawStage currentStage = null;
-        String firstStation = null;
+        String firstStationId = null;
         int boardTime = -1;
         for (Relationship graphRelationship : relationships) {
             TramRelationship tramRelationship = relationshipFactory.getRelationship(graphRelationship);
@@ -60,7 +64,7 @@ public class PathToStagesMapper {
                 // station -> route station
                 boardNode = (RouteStationNode) secondNode;
                 boardTime = elapsedTime;
-                firstStation = firstNode.getId();
+                firstStationId = firstNode.getId();
                 logger.info(format("Board tram: at:'%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
                 if (currentStage!=null) {
                     logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
@@ -78,8 +82,8 @@ public class PathToStagesMapper {
                     String routeName = boardNode.getRouteName();
                     String routeId = boardNode.getRouteId();
                     String tramRouteClass = routeIdToClass.map(routeId);
-                    currentStage = new RawStage(firstStation, routeName, tramRelationship.getMode(), tramRouteClass
-                            , boardTime);
+                    currentStage = new RawStage(stationRepository.getStation(firstStationId), routeName,
+                            tramRelationship.getMode(), tramRouteClass, boardTime);
                     currentStage.setServiceId(serviceId);
                 }
             } else if (tramRelationship.isDepartTram()) {
@@ -88,7 +92,7 @@ public class PathToStagesMapper {
                 String stationName = departNode.getName();
                 logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
                         elapsedTime));
-                currentStage.setLastStation(endNodeId);
+                currentStage.setLastStation(stationRepository.getStation(endNodeId));
                 stages.add(currentStage);
                 logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
                 currentStage = null;

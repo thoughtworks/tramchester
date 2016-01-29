@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TransportDataFromFiles implements TransportData {
+public class TransportDataFromFiles implements TransportData, StationRepository {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private HashMap<String, Station> stations = new HashMap<>();  // station id -> station
@@ -32,7 +32,7 @@ public class TransportDataFromFiles implements TransportData {
             String stopId = stop.getId();
             String stationId = Station.formId(stopId);
             if (!stations.keySet().contains(stationId)) {
-                Station station = new Station(stopId, stop.getArea(), stop.getName(),
+                Station station = new Station(stationId, stop.getArea(), stop.getName(),
                         stop.getLatitude(), stop.getLongitude(), stop.isTram());
                 stations.put(stationId, station);
             }
@@ -133,17 +133,20 @@ public class TransportDataFromFiles implements TransportData {
         return feedInfo;
     }
 
+    @Override
     public Station getStation(String stationId) {
         return stations.get(stationId);
     }
 
-    public SortedSet<ServiceTime> getTimes(String serviceId, String firstStationId, String lastStationId,
+    public SortedSet<ServiceTime> getTimes(String serviceId, Station firstStation, Station lastStation,
                                       TimeWindow window) {
         logger.info(String.format("Get times for service %s from %s to %s with %s",
-                serviceId, firstStationId, lastStationId, window));
+                serviceId, firstStation, lastStation, window));
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         Service service = getServiceById(serviceId);
 
+        String firstStationId = firstStation.getId();
+        String lastStationId = lastStation.getId();
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, window);
 
         for (Trip trip : tripsAfter) {

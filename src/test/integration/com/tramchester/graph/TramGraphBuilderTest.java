@@ -118,8 +118,8 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws UnknownStationException {
         List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.Deansgate + EAST_DIDS_TO_BURY);
-        List deansAndNext = Arrays.asList(Stations.Deansgate, Stations.MarketStreet);
+                Stations.Deansgate.getId() + EAST_DIDS_TO_BURY);
+        List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet);
 
         outbounds.stream().filter(out->out.isTramGoesTo()).forEach(out -> {
                     TramGoesToRelationship goesTo = (TramGoesToRelationship) out;
@@ -136,7 +136,7 @@ public class TramGraphBuilderTest {
                     assertEquals(svcId, tripsThatCall.size(), timesTramRuns.length);
 
                     List<Integer> times = tripsThatCall.stream().
-                            map(trip -> trip.getStopsFor(Stations.Deansgate)).
+                            map(trip -> trip.getStopsFor(Stations.Deansgate.getId())).
                             flatMap(stops -> stops.stream()).
                             map(stop -> stop.getDepartureMinFromMidnight()).
                             collect(Collectors.toList());
@@ -156,7 +156,7 @@ public class TramGraphBuilderTest {
         String svcId = "Serv001180";
 
         List<TramRelationship> outbounds =
-                calculator.getOutboundRouteStationRelationships(Stations.VeloPark + ASH_TO_MANCHESTER);
+                calculator.getOutboundRouteStationRelationships(Stations.VeloPark.toString() + ASH_TO_MANCHESTER);
         // check on departs relationship & services
         List<TramRelationship> departs = new LinkedList<>();
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
@@ -191,7 +191,7 @@ public class TramGraphBuilderTest {
         List<Trip> notInGraph = new LinkedList<>();
         int[] timesTramRuns = svcFromVelopark.getTimesTramRuns();
         callingTrips.forEach(trip -> {
-            trip.getStopsFor(Stations.VeloPark).forEach(stop -> {
+            trip.getStopsFor(Stations.VeloPark.getId()).forEach(stop -> {
                         if (Arrays.binarySearch(timesTramRuns, stop.getDepartureMinFromMidnight()) < 0) {
                             notInGraph.add(trip);
                         }
@@ -219,7 +219,7 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldReportServicesCorrectlyAtVeloparkTimes() throws UnknownStationException {
 
-        List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark + ASH_TO_MANCHESTER);
+        List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + ASH_TO_MANCHESTER);
         reportServices(outbounds);
     }
 
@@ -254,7 +254,7 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() throws UnknownStationException {
 
-        List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark + ASH_TO_MANCHESTER);
+        List<TramRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + ASH_TO_MANCHESTER);
 
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
         outbounds.forEach(out -> {

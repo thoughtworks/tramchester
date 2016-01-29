@@ -4,8 +4,10 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDate;
 import org.junit.Before;
@@ -17,10 +19,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -32,7 +31,6 @@ public class GraphWithSimpleRouteTest {
     public static final String LAST_STATION = "9400ZZ_LAST";
     public static final String INTERCHANGE = Interchanges.CORNBROOK;
     public static final String STATION_FOUR = "9400ZZ_FOUR";
-    public static final String PLATFORM = "2";
     private static TransportDataForTest transportData;
     private static RouteCalculator calculator;
     private TramServiceDate queryDate;
@@ -53,7 +51,7 @@ public class GraphWithSimpleRouteTest {
         NodeFactory nodeFactory = new NodeFactory();
         RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
-                new PathToStagesMapper(nodeFactory,routeIdToClass));
+                new PathToStagesMapper(nodeFactory,routeIdToClass, transportData));
     }
 
     @Before
@@ -92,9 +90,11 @@ public class GraphWithSimpleRouteTest {
         assertEquals(1, journeys.size());
     }
 
-    private static class TransportDataForTest implements TransportData {
+    private static class TransportDataForTest implements TransportData, StationRepository {
         String serviceAId = "serviceAId";
         String serviceBId = "serviceBId";
+
+        Map<String, Station> stationMap = new HashMap<>();
 
         private Collection<Route> routes;
 
@@ -126,16 +126,20 @@ public class GraphWithSimpleRouteTest {
 
             double latitude = 180.00;
             double longitude = 270.0;
-            Station first = new Station(FIRST_STATION+PLATFORM, "area", "startStation", latitude, longitude, true);
+            Station first = new Station(FIRST_STATION, "area", "startStation", latitude, longitude, true);
+            addStation(first);
             tripA.addStop(createStop(first, createTime(8, 0), createTime(8, 0)));
 
-            Station second = new Station(SECOND_STATION+PLATFORM, "area", "secondStation", latitude, longitude, true);
+            Station second = new Station(SECOND_STATION, "area", "secondStation", latitude, longitude, true);
             tripA.addStop(createStop(second, createTime(8, 11), createTime(8, 11)));
+            addStation(second);
 
-            Station interchangeStation = new Station(INTERCHANGE+PLATFORM, "area", "cornbrook", latitude, longitude, true);
+            Station interchangeStation = new Station(INTERCHANGE, "area", "cornbrook", latitude, longitude, true);
             tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 20)));
+            addStation(interchangeStation);
 
-            Station last = new Station(LAST_STATION+PLATFORM, "area", "endStation", latitude, longitude, true);
+            Station last = new Station(LAST_STATION, "area", "endStation", latitude, longitude, true);
+            addStation(last);
             tripA.addStop(createStop(last, createTime(8, 40), createTime(8, 40)));
             // service
             serviceA.addTrip(tripA);
@@ -144,10 +148,15 @@ public class GraphWithSimpleRouteTest {
             Trip tripB = new Trip("trip2Id", "headSign", serviceBId);
             tripB.addStop(createStop(interchangeStation, createTime(8,26), createTime(8,26)));
 
-            Station four = new Station(STATION_FOUR+PLATFORM, "area", "stat4Station", 170.00, 160.00, true);
+            Station four = new Station(STATION_FOUR, "area", "stat4Station", 170.00, 160.00, true);
+            addStation(four);
             tripB.addStop(createStop(four, createTime(8,36), createTime(8,36)));
             // service
             serviceB.addTrip(tripB);
+        }
+
+        private void addStation(Station first) {
+            stationMap.put(first.getId(), first);
         }
 
         private LocalTime createTime(int hourOfDay, int minuteOfHour) {
@@ -177,6 +186,11 @@ public class GraphWithSimpleRouteTest {
         public FeedInfo getFeedInfo() {
             return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", "validFrom",
                     "validUntil", "version");
+        }
+
+        @Override
+        public Station getStation(String stationId) {
+            return stationMap.get(stationId);
         }
     }
 }

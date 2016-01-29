@@ -31,8 +31,8 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
             String serviceId = rawStage.getServiceId();
             logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
 
-            String firstStation = rawStage.getFirstStation();
-            String lastStation = rawStage.getLastStation();
+            Station firstStation = rawStage.getFirstStation();
+            Station lastStation = rawStage.getLastStation();
             SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, timeWindow);
             if (times.isEmpty()) {
                 String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",

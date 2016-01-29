@@ -1,15 +1,17 @@
 package com.tramchester.domain;
 
+import org.neo4j.unsafe.impl.batchimport.stats.Stat;
+
 public class RawStage {
-    private final String firstStation;
+    private final Station firstStation;
     private final TransportMode mode;
     private final String routeName;
     private final String displayClass;
     private int elapsedTime;
     private String serviceId;
-    private String lastStation;
+    private Station lastStation;
 
-    public RawStage(String firstStation, String routeName, TransportMode mode, String displayClass, int elapsedTime) {
+    public RawStage(Station firstStation, String routeName, TransportMode mode, String displayClass, int elapsedTime) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
@@ -26,13 +28,17 @@ public class RawStage {
         return this;
     }
 
-    public RawStage setLastStation(String lastStation) {
+    public RawStage setLastStation(Station lastStation) {
         this.lastStation = lastStation;
         return this;
     }
 
-    public String getFirstStation() {
+    public Station getFirstStation() {
         return firstStation;
+    }
+
+    public Station getLastStation() {
+        return lastStation;
     }
 
     public String getRouteName() {
@@ -47,9 +53,6 @@ public class RawStage {
         return displayClass;
     }
 
-    public String getLastStation() {
-        return lastStation;
-    }
 
     @Override
     public String toString() {

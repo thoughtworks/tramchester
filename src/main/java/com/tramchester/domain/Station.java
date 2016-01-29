@@ -28,7 +28,7 @@ public class Station {
     }
 
     public String getId() {
-        return formId(id);
+        return id;
     }
 
     public String getName() {
@@ -62,5 +62,21 @@ public class Station {
 
     public boolean isTram() {
         return isTram;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Station station = (Station) o;
+
+        return id.equals(station.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

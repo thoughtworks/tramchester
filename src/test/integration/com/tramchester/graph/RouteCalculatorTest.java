@@ -45,7 +45,8 @@ public class RouteCalculatorTest {
     public void testJourneyFromAltyToAirport() throws Exception {
         int minutes = dateTimeService.getMinutesFromMidnight("11:43:00");
         TramServiceDate today = new TramServiceDate(LocalDate.now());
-        Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham, Stations.ManAirport, minutes, DaysOfWeek.Sunday, today);
+        Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
+                minutes, DaysOfWeek.Sunday, today);
 
         assertEquals(1, results.size());    // results is iterator
         for (RawJourney result : results) {
@@ -53,10 +54,10 @@ public class RouteCalculatorTest {
             assertEquals(2, stages.size());
             RawStage firstStage = stages.get(0);
             assertEquals(Stations.Altrincham, firstStage.getFirstStation());
-            assertEquals(Stations.TraffordBar, firstStage.getLastStation());
+            assertEquals(Stations.TraffordBar, firstStage.getLastStation().getId());
             assertEquals(TransportMode.Tram, firstStage.getMode());
             RawStage secondStage = stages.get(1);
-            assertEquals(Stations.TraffordBar, secondStage.getFirstStation());
+            assertEquals(Stations.TraffordBar, secondStage.getFirstStation().getId());
             assertEquals(Stations.ManAirport, secondStage.getLastStation());
             assertEquals(TransportMode.Tram, secondStage.getMode());
         }
@@ -64,7 +65,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
-        List<TramRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark);
+        List<TramRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark.getId());
         assertEquals(2*3, boarding.size()); // 2 platforms * 3 routes
         assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
         assertTrue(boarding.get(1).isBoarding());

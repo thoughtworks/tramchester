@@ -76,8 +76,8 @@ public abstract class JourneyResponseMapper {
         List<Station> stations = new LinkedList<>();
         for (RawJourney journey : journeys) {
             journey.forEach(stage -> {
-                stations.add(transportData.getStation(stage.getFirstStation()));
-                stations.add(transportData.getStation(stage.getLastStation()));
+                stations.add(stage.getFirstStation());
+                stations.add(stage.getLastStation());
             });
         }
         return stations;

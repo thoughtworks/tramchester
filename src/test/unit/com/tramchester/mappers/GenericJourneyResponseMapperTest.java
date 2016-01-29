@@ -61,8 +61,8 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
         timesLeg2.add(new ServiceTime(LocalTime.of(8,11), LocalTime.of(8,20), "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", "stationA", "stationB", new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getTimes("svcId", "stationB", "stationC", new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getTimes("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
@@ -105,8 +105,8 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         timesLeg2.add(new ServiceTime(LocalTime.of(8,7), LocalTime.of(8,16), "svcId", "headSign", "tripIdA"));
         timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", "stationA", "stationB", new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getTimes("svcId", "stationB", "stationC", new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getTimes("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
@@ -133,10 +133,10 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     }
 
     private void createSimpleRawJourney(int stageATime, int stageBTime) {
-        RawStage rawStage1 = new RawStage("stationA", "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
-                setLastStation("stationB").setServiceId("svcId");
-        RawStage rawStage2 = new RawStage("stationB", "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
-                setLastStation("stationC").setServiceId("svcId");
+        RawStage rawStage1 = new RawStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
+                setLastStation(stationB).setServiceId("svcId");
+        RawStage rawStage2 = new RawStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
+                setLastStation(stationC).setServiceId("svcId");
         stages.add(rawStage1);
         stages.add(rawStage2);
 

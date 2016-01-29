@@ -4,6 +4,9 @@ package com.tramchester.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Nodes.StationNode;
+import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramRelationship;
 import org.junit.AfterClass;
@@ -23,6 +26,7 @@ public class CreateDotDiagramTest {
     private static Dependencies dependencies;
     private GraphDatabaseService graphService;
     private RelationshipFactory relationshipFactory;
+    private NodeFactory nodeFactory;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -33,7 +37,8 @@ public class CreateDotDiagramTest {
     @Before
     public void beforeEachOfTheTestsRun() {
         graphService = dependencies.get(GraphDatabaseService.class);
-        relationshipFactory = new RelationshipFactory();
+        relationshipFactory = dependencies.get(RelationshipFactory.class);
+        nodeFactory = dependencies.get(NodeFactory.class);
     }
 
     @AfterClass
@@ -46,11 +51,11 @@ public class CreateDotDiagramTest {
         try (Transaction tx = graphService.beginTx()) {
 
             Node startNode = graphService.findNode(DynamicLabel.label(TransportGraphBuilder.STATION),
-                    "id", Stations.VeloPark);
+                    GraphStaticKeys.ID, Stations.VeloPark.getId());
             List<Node> seen = new LinkedList<>();
 
             StringBuilder builder = new StringBuilder();
-            builder.append("digraph G {");
+            builder.append("digraph G {\n");
 
             visit(startNode, builder, seen);
 
@@ -64,20 +69,22 @@ public class CreateDotDiagramTest {
 
     }
 
-    private void visit(Node node, StringBuilder builder, List<Node> seen) {
-        if (seen.contains(node)) {
+    private void visit(Node rawNode, StringBuilder builder, List<Node> seen) {
+        if (seen.contains(rawNode)) {
             return;
         } else {
-            seen.add(node);
+            seen.add(rawNode);
         }
+        TramNode node = nodeFactory.getNode(rawNode);
         List<String> services = new LinkedList<>();
-        String startNodeId = node.getProperty(ID).toString();
+        //
+        final String startNodeId = getName(rawNode, node);
 
-        node.getRelationships(Direction.OUTGOING).forEach(relationship -> {
+        rawNode.getRelationships(Direction.OUTGOING).forEach(relationship -> {
             TramRelationship tramRelat = relationshipFactory.getRelationship(relationship);
-            Node endNode = relationship.getEndNode();
-            String endNodeId = endNode.getProperty(ID).toString();
-
+            Node rawEndNode = relationship.getEndNode();
+            TramNode endNode = nodeFactory.getNode(rawEndNode);
+            String endNodeId = getName(rawEndNode, endNode);
             if (tramRelat.isTramGoesTo()) {
                 if (!services.contains(endNodeId)) {
                     services.add(endNodeId);
@@ -89,9 +96,14 @@ public class CreateDotDiagramTest {
                 } else if (tramRelat.isDepartTram()) {
                     label += "D";
                 }
-                builder.append(String.format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, label));
+
+                String line = String.format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, label);
+                if (builder.lastIndexOf(line)<0) {
+                    builder.append(line);
+                }
+
             }
-            visit(endNode, builder, seen);
+            visit(rawEndNode, builder, seen);
         });
         for (String endNodeId : services) {
             builder.append(String.format("\"%s\"->\"%s\" [label=\"%s\"];\n",
@@ -99,6 +111,12 @@ public class CreateDotDiagramTest {
                     "svc"));
         }
 
+    }
+
+    private String getName(Node rawNode, TramNode node) {
+        return node.isStation()?
+                rawNode.getProperty(GraphStaticKeys.Station.NAME).toString()+" Station"
+                :rawNode.getProperty(GraphStaticKeys.RouteStation.STATION_NAME).toString();
     }
 
 }

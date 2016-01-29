@@ -1,33 +1,37 @@
 package com.tramchester;
 
+import com.tramchester.domain.Station;
+
 public class Stations {
 
-    public static String Altrincham = "9400ZZMAALT";
-    public static String ManAirport = "9400ZZMAAIR";
+    public static Station Altrincham = new Station("9400ZZMAALT", "Altrincham area", "Altrincham", 1,1, true);
+    public static Station ManAirport = new Station("9400ZZMAAIR", "Airport", "Manchester Airport", 1,1, true);
     public static String TraffordBar = "9400ZZMATRA";
-    public static String VeloPark = "9400ZZMAVPK";
+    public static Station VeloPark = new Station("9400ZZMAVPK", "Velopark area", "Velopark", 1,1, true);
     public static String MediaCityUK = "9400ZZMAMCU";
     public static String HarbourCity = "9400ZZMAHCY";
-    public static String Cornbrook = "9400ZZMACRN";
+    public static Station Cornbrook = new Station("9400ZZMACRN", "Cornbrook area", "Cornbrook", 1,1, true);
     public static String Etihad = "9400ZZMAECS";
-    public static String Piccadily = "9400ZZMAPIC";
+    public static Station Piccadily = new Station("9400ZZMAPIC", "Piccadily area", "Piccadily", 1,1, true);
     public static String HoltTown = "9400ZZMAHTN";
-    public static String Ashton = "9400ZZMAAUL";
+    public static Station Ashton = new Station("9400ZZMAAUL", "Ashton area", "Ashton", 1,1, true);
     public static String NewIslington = "9400ZZMANIS";
     public static String Eccles = "9400ZZMAECC";
     public static String Bury = "9400ZZMABUR";
     public static String EastDidsbury = "9400ZZMAEDY";
-    public static String Rochdale = "9400ZZMARIN";
+    public static Station Rochdale = new Station("9400ZZMARIN", "Rochdale area", "Rochdale", 1,1, true);
     public static String Pomona = "9400ZZMAPOM";
-    public static String Deansgate = "9400ZZMAGMX";
+    public static Station Deansgate = new Station("9400ZZMAGMX", "Deansgate area", "Deansgate", 1,1, true);
     public static String Broadway = "9400ZZMABWY";
-    public static String PiccadilyGardens = "9400ZZMAPGD";
+    public static Station PiccadilyGardens = new Station("9400ZZMAPGD", "Manchester", "Piccadily Gardens", 1,1, true);
     public static String StPetersSquare = "9400ZZMASTP";
     public static String ExchangeSquare = "9400ZZMAEXS";
-    public static String Victoria = "9400ZZMAVIC";
+    public static Station Victoria = new Station("9400ZZMAVIC", "Manchester", "Victoria", 1,1, true);
     public static String ShawAndCrompton = "9400ZZMASHA";
     public static String MarketStreet = "9400ZZMAMKT";
 
-    public static String[] EndOfTheLine = new String[]{Altrincham, ManAirport, Eccles, EastDidsbury, Ashton, Rochdale,
+    public static String[] EndOfTheLine = new String[]{Altrincham.getId(), ManAirport.getId(),
+            Eccles, EastDidsbury, Ashton.getId(),
+            Rochdale.getId(),
             Bury, ExchangeSquare};
 }

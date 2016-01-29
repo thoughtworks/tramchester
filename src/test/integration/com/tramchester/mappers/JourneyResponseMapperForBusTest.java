@@ -3,10 +3,7 @@ package com.tramchester.mappers;
 import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.RawStage;
-import com.tramchester.domain.TimeWindow;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
@@ -28,8 +25,9 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private Set<RawJourney> journeys;
     private List<RawStage> stages;
 
-    private String stockportBusStation = "1800STBS001";
-    private String stockportBridgefieldStreet = "1800SG15811";
+    private Station stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", 1.5, 1.5, false);
+    private Station stockportBridgefieldStreet = new Station("1800SG15811", "stockportArea", "Bridgefield Street",
+            1.5, 1.5, false);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -62,7 +60,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         assertEquals(1,result.getJourneys().size());
     }
 
-    private JourneyPlanRepresentation getJourneyPlanRepresentation(String begin, String end, String svcId, int minutesFromMidnight) throws TramchesterException {
+    private JourneyPlanRepresentation getJourneyPlanRepresentation(Station begin, Station end, String svcId,
+                                                                   int minutesFromMidnight) throws TramchesterException {
 
         int elapsedTime = 8*60;
         RawStage busStage = new RawStage(begin, "route text", TransportMode.Bus, "cssClass", elapsedTime);

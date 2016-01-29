@@ -85,7 +85,7 @@ public class TransportDataFromFilesTest {
                 .collect(Collectors.toList());
 
         // find trips calling at Velo
-        trips.removeIf(trip -> !trip.travelsBetween(Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM));
+        trips.removeIf(trip -> !trip.travelsBetween(Stations.Ashton.getId(), Stations.VeloPark.getId(), MINUTES_FROM_MIDNIGHT_8AM));
         assertFalse(trips.isEmpty());
 
         List<String> callingServices = trips.stream()
@@ -110,7 +110,8 @@ public class TransportDataFromFilesTest {
     public void shouldGetTripsAfter() {
         // use TramJourneyPlannerTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
-        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate, Stations.Victoria, new TimeWindow((23 * 60) +41,30));
+        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
+                new TimeWindow((23 * 60) +41,30));
         assertFalse(trips.isEmpty());
     }
 
@@ -118,14 +119,14 @@ public class TransportDataFromFilesTest {
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById("Serv001110");
-        List<Trip> trips = svc.getTripsAfter(Stations.Victoria, Stations.ShawAndCrompton,
+        List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton,
                 new TimeWindow(((23 * 60) + 44), 30));
         assertFalse(trips.isEmpty());
     }
 
     @Test
     public void shouldGetStation() {
-        Station result = transportData.getStation(Stations.Altrincham);
+        Station result = transportData.getStation(Stations.Altrincham.getId());
         assertEquals("Altrincham", result.getName());
     }
 
@@ -145,8 +146,8 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldFindTripsForTramStation() {
-        Set<Trip> altyTrips = transportData.getTripsFor(Stations.Altrincham);
-        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham, Stations.Piccadily,
+        Set<Trip> altyTrips = transportData.getTripsFor(Stations.Altrincham.getId());
+        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham.getId(), Stations.Piccadily.getId(),
                 MINUTES_FROM_MIDNIGHT_8AM));
 
         assertFalse(altyTrips.isEmpty());
@@ -210,7 +211,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
-        Set<Trip> trips = transportData.getTripsFor(Stations.VeloPark);
+        Set<Trip> trips = transportData.getTripsFor(Stations.VeloPark.getId());
 
         Collection<Service> allServices = transportData.getServices();
 
@@ -226,7 +227,7 @@ public class TransportDataFromFilesTest {
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<Stop> stoppingAtVelopark = trips.stream()
                 .filter(trip -> mondayAshToManServices.contains(trip.getServiceId()))
-                .map(trip -> trip.getStopsFor(Stations.VeloPark))
+                .map(trip -> trip.getStopsFor(Stations.VeloPark.getId()))
                 .flatMap(stops -> stops.stream())
                 .collect(Collectors.toList());
 

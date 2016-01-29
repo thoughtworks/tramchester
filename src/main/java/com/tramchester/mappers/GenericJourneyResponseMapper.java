@@ -2,6 +2,7 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
@@ -32,8 +33,8 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
             String serviceId = rawStage.getServiceId();
             logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
 
-            String firstStation = rawStage.getFirstStation();
-            String lastStation = rawStage.getLastStation();
+            Station firstStation = rawStage.getFirstStation();
+            Station lastStation = rawStage.getLastStation();
             int elapsedTime = rawStage.getElapsedTime();
             TimeWindow newTimeWindow = timeWindow.next(elapsedTime);
             SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation,
