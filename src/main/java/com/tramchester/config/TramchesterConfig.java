@@ -20,4 +20,6 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract Path getOutputDataPath();
 
     public abstract boolean useGenericMapper();
+
+    public abstract int getTimeWindow(); // time window in which to look ahead for journeys
 }

@@ -59,5 +59,8 @@ public abstract class TestConfig extends TramchesterConfig {
         return getDataFolder();
     }
 
+    @Override
+    public int getTimeWindow() { return 60; }
+
     public abstract Path getDataFolder();
 }

@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TimeWindow;
@@ -29,16 +30,18 @@ import java.util.Set;
 @Produces(MediaType.APPLICATION_JSON)
 public class JourneyPlannerResource {
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
+    private final TramchesterConfig config;
     private RouteCalculator routeCalculator;
     private DateTimeService dateTimeService;
     private JourneyResponseMapper journeyResponseMapper;
-    private int timeWindow = 60; // TODO into config
+    //private int timeWindow = 60; // TODO into config
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
-                                  JourneyResponseMapper journeyResponseMapper) {
+                                  JourneyResponseMapper journeyResponseMapper, TramchesterConfig config) {
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
         this.journeyResponseMapper = journeyResponseMapper;
+        this.config = config;
     }
 
     @GET
@@ -64,7 +67,7 @@ public class JourneyPlannerResource {
 
         Set<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, timeWindow));
+        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
     }
 
     public JourneyPlanRepresentation createJourneyPlan(List<Node> starts, List<Node> ends, String queryTime,
@@ -73,6 +76,6 @@ public class JourneyPlannerResource {
 
         Set<RawJourney> journeys = routeCalculator.calculateRoute(starts, ends, minutesFromMidnight, dayOfWeek, queryDate);
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, timeWindow));
+        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
     }
 }

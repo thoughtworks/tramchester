@@ -42,6 +42,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("genericMapper")
     private boolean genericMapper;
 
+    @JsonProperty("timeWindow")
+    private int timeWindow;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -66,6 +69,10 @@ public class AppConfiguration extends TramchesterConfig {
         return genericMapper;
     }
 
+    @Override
+    public int getTimeWindow() {
+        return timeWindow;
+    }
     public boolean isRebuildGraph() {
         return rebuildGraph;
     }
