@@ -57,4 +57,8 @@ public class Route {
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }
+
+    public boolean isTram() {
+        return agency.equals(METROLINK);
+    }
 }

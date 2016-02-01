@@ -2,9 +2,9 @@ package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TransportMode;
 
-public class WalksToRelationship implements TramRelationship {
+public class WalksToRelationship implements TransportRelationship {
     @Override
-    public boolean isTramGoesTo() {
+    public boolean isGoesTo() {
         return false;
     }
 

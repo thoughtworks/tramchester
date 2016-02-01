@@ -5,13 +5,10 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.UnknownStationException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.Stage;
-import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalDate;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.util.*;
 
@@ -65,7 +62,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
-        List<TramRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark.getId());
+        List<TransportRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark.getId());
         assertEquals(2*3, boarding.size()); // 2 platforms * 3 routes
         assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
         assertTrue(boarding.get(1).isBoarding());

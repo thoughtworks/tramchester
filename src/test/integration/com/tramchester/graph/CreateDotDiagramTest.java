@@ -5,10 +5,9 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.graph.Relationships.TransportRelationship;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -19,8 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.tramchester.graph.GraphStaticKeys.ID;
 
 public class CreateDotDiagramTest {
     private static Dependencies dependencies;
@@ -81,11 +78,11 @@ public class CreateDotDiagramTest {
         final String startNodeId = getName(rawNode, node);
 
         rawNode.getRelationships(Direction.OUTGOING).forEach(relationship -> {
-            TramRelationship tramRelat = relationshipFactory.getRelationship(relationship);
+            TransportRelationship tramRelat = relationshipFactory.getRelationship(relationship);
             Node rawEndNode = relationship.getEndNode();
             TramNode endNode = nodeFactory.getNode(rawEndNode);
             String endNodeId = getName(rawEndNode, endNode);
-            if (tramRelat.isTramGoesTo()) {
+            if (tramRelat.isGoesTo()) {
                 if (!services.contains(endNodeId)) {
                     services.add(endNodeId);
                 }

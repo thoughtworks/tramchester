@@ -5,9 +5,10 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
-import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.graph.Relationships.TransportRelationship;
 import org.joda.time.LocalDate;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.*;
@@ -51,22 +52,22 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
             return relationships;
         }
 
-        TramRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
+        TransportRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
         Set<Relationship> results = new HashSet<>();
 
         List<ServiceReason> servicesFilteredOut = new LinkedList<>();
         int servicesOutbound = 0;
 
         for (Relationship graphRelationship : relationships) {
-            TramRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
-            if (outgoing.isTramGoesTo()) {
+            TransportRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
+            if (outgoing.isGoesTo()) {
                 // filter route station -> route station relationships
-                TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outgoing;
+                GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
                 servicesOutbound++;
                 ServiceReason serviceReason = null;
                 try {
                     serviceReason = checkServiceHeuristics(state, incoming,
-                            tramGoesToRelationship, path);
+                            goesToRelationship, path);
                 } catch (TramchesterException e) {
                     logger.error("Unable to check service heuristics",e);
                 }
@@ -90,7 +91,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
 
     private void reportFilterReasons(TramNode currentNode,
                                      List<ServiceReason> servicesFilteredOut,
-                                     TramRelationship incoming) {
+                                     TransportRelationship incoming) {
         if (servicesFilteredOut.size()==0) {
             return;
         }
@@ -103,8 +104,8 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         }
     }
 
-    private ServiceReason checkServiceHeuristics(BranchState<GraphBranchState> branchState, TramRelationship incoming,
-                                                 TramGoesToRelationship tramGoesToRelationship, Path path) throws TramchesterException {
+    private ServiceReason checkServiceHeuristics(BranchState<GraphBranchState> branchState, TransportRelationship incoming,
+                                                 GoesToRelationship tramGoesToRelationship, Path path) throws TramchesterException {
         if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(),  branchState.getState().getDay())) {
             return new ServiceReason.DoesNotRunOnDay(branchState.getState().getDay());
         }
@@ -138,12 +139,12 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         return false;
     }
 
-    public boolean noInFlightChangeOfService(TramRelationship incoming, TramGoesToRelationship outgoing) {
-        if (!incoming.isTramGoesTo()) {
-            return true; // not a tram service relationship
+    public boolean noInFlightChangeOfService(TransportRelationship incoming, GoesToRelationship outgoing) {
+        if (!incoming.isGoesTo()) {
+            return true; // not a connecting relationship
         }
-        TramGoesToRelationship inComingTram = (TramGoesToRelationship) incoming;
-        return inComingTram.getService().equals(outgoing.getService());
+        GoesToRelationship inComing = (GoesToRelationship) incoming;
+        return inComing.getService().equals(outgoing.getService());
     }
 
     public boolean operatesOnTime(int[] times, ElapsedTime provider) throws TramchesterException {

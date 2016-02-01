@@ -3,7 +3,7 @@ package com.tramchester.graph.Relationships;
 import com.tramchester.domain.TransportMode;
 
 public interface TransportRelationship {
-    boolean isTramGoesTo();
+    boolean isGoesTo();
     boolean isBoarding();
     boolean isDepartTram();
     boolean isInterchange();

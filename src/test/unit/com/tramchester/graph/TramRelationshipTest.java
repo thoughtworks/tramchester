@@ -1,11 +1,10 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.graph.Relationships.TramGoesToRelationship;
+import com.tramchester.graph.Relationships.TransportRelationship;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +29,10 @@ public class TramRelationshipTest extends EasyMockSupport {
         setRelationshipExpectation(TransportRelationshipTypes.BOARD, 45);
 
         replayAll();
-        TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
-        assertTrue(tramRelationship.isBoarding());
-        assertFalse(tramRelationship.isWalk());
-        assertEquals(45, tramRelationship.getCost());
+        TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
+        assertTrue(transportRelationship.isBoarding());
+        assertFalse(transportRelationship.isWalk());
+        assertEquals(45, transportRelationship.getCost());
         verifyAll();
     }
 
@@ -42,10 +41,10 @@ public class TramRelationshipTest extends EasyMockSupport {
         setRelationshipExpectation(TransportRelationshipTypes.DEPART, 43);
 
         replayAll();
-        TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
-        assertTrue(tramRelationship.isDepartTram());
-        assertFalse(tramRelationship.isWalk());
-        assertEquals(43, tramRelationship.getCost());
+        TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
+        assertTrue(transportRelationship.isDepartTram());
+        assertFalse(transportRelationship.isWalk());
+        assertEquals(43, transportRelationship.getCost());
         verifyAll();
     }
 
@@ -55,12 +54,12 @@ public class TramRelationshipTest extends EasyMockSupport {
         setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_BOARD, 44);
 
         replayAll();
-        TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
-        assertTrue(tramRelationship.isInterchange());
-        assertTrue(tramRelationship.isBoarding());
-        assertFalse(tramRelationship.isDepartTram());
-        assertFalse(tramRelationship.isWalk());
-        assertEquals(44, tramRelationship.getCost());
+        TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
+        assertTrue(transportRelationship.isInterchange());
+        assertTrue(transportRelationship.isBoarding());
+        assertFalse(transportRelationship.isDepartTram());
+        assertFalse(transportRelationship.isWalk());
+        assertEquals(44, transportRelationship.getCost());
         verifyAll();
     }
 
@@ -69,11 +68,11 @@ public class TramRelationshipTest extends EasyMockSupport {
         EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.WALKS_TO);
 
         replayAll();
-        TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
-        assertFalse(tramRelationship.isInterchange());
-        assertFalse(tramRelationship.isBoarding());
-        assertFalse(tramRelationship.isDepartTram());
-        assertTrue(tramRelationship.isWalk());
+        TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
+        assertFalse(transportRelationship.isInterchange());
+        assertFalse(transportRelationship.isBoarding());
+        assertFalse(transportRelationship.isDepartTram());
+        assertTrue(transportRelationship.isWalk());
         verifyAll();
 
     }
@@ -88,12 +87,12 @@ public class TramRelationshipTest extends EasyMockSupport {
         setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_DEPART, 55);
 
         replayAll();
-        TramRelationship tramRelationship = relationshipFactory.getRelationship(relationship);
-        assertTrue(tramRelationship.isInterchange());
-        assertFalse(tramRelationship.isBoarding());
-        assertTrue(tramRelationship.isDepartTram());
-        assertEquals(55, tramRelationship.getCost());
-        assertFalse(tramRelationship.isWalk());
+        TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
+        assertTrue(transportRelationship.isInterchange());
+        assertFalse(transportRelationship.isBoarding());
+        assertTrue(transportRelationship.isDepartTram());
+        assertEquals(55, transportRelationship.getCost());
+        assertFalse(transportRelationship.isWalk());
         verifyAll();
     }
 

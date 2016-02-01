@@ -13,28 +13,8 @@ import static com.tramchester.domain.DaysOfWeek.*;
 public class Service {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
     private final String routeId;
-
     private String serviceId;
     private Set<Trip> trips = new LinkedHashSet<>();
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Service service = (Service) o;
-
-        return !(serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null);
-    }
-
-    @Override
-    public int hashCode() {
-        return serviceId != null ? serviceId.hashCode() : 0;
-    }
-
-    private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
-    private TramServiceDate startDate;
-    private TramServiceDate endDate;
 
     public Service(String serviceId, String routeId) {
         this.serviceId = serviceId;
@@ -121,4 +101,24 @@ public class Service {
                 days.get(Saturday) ||
                 days.get(Sunday);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Service service = (Service) o;
+
+        return !(serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return serviceId != null ? serviceId.hashCode() : 0;
+    }
+
+    private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
+    private TramServiceDate startDate;
+    private TramServiceDate endDate;
+
 }

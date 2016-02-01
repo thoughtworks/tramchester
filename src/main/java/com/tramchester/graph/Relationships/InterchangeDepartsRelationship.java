@@ -3,7 +3,7 @@ package com.tramchester.graph.Relationships;
 import com.tramchester.domain.TransportMode;
 import org.neo4j.graphdb.Relationship;
 
-public class InterchangeDepartsRelationship extends TramCostRelationship {
+public class InterchangeDepartsRelationship extends TransportCostRelationship {
     public InterchangeDepartsRelationship(Relationship graphRelationship) {
         super(graphRelationship);
     }
@@ -14,7 +14,7 @@ public class InterchangeDepartsRelationship extends TramCostRelationship {
     }
 
     @Override
-    public boolean isTramGoesTo() {
+    public boolean isGoesTo() {
         return false;
     }
 

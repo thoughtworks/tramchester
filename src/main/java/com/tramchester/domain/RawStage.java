@@ -1,7 +1,5 @@
 package com.tramchester.domain;
 
-import org.neo4j.unsafe.impl.batchimport.stats.Stat;
-
 public class RawStage {
     private final Station firstStation;
     private final TransportMode mode;

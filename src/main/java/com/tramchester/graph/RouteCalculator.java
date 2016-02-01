@@ -8,7 +8,7 @@ import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.InitialBranchState;
@@ -131,15 +131,15 @@ public class RouteCalculator extends StationIndexs {
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
-    public List<TramRelationship> getOutboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
+    public List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
     }
 
-    public List<TramRelationship> getInboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
+    public List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
     }
 
-    public List<TramRelationship> getOutboundStationRelationships(String stationId) throws UnknownStationException {
+    public List<TransportRelationship> getOutboundStationRelationships(String stationId) throws UnknownStationException {
         return graphQuery.getStationRelationships(stationId, Direction.OUTGOING);
     }
 

@@ -96,7 +96,7 @@ public class TransportGraphBuilder extends StationIndexs {
             Node to = getOrCreateRouteStation(nextStop.getStation(), route, service);
 
             if (runsAtLeastADay(service.getDays())) {
-                createOrUpdateRelationship(from, to, TransportRelationshipTypes.TRAM_GOES_TO, currentStop,
+                createOrUpdateRelationship(from, to, currentStop,
                         nextStop, service, route);
             }
         }
@@ -201,7 +201,7 @@ public class TransportGraphBuilder extends StationIndexs {
         return station.getId() + route.getId();
     }
 
-    private void createOrUpdateRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
+    private void createOrUpdateRelationship(Node start, Node end,
                                             Stop beginStop, Stop endStop, Service service, Route route) {
 
         // Confusingly some services can go different routes and hence have different outbound GOES relationships from
@@ -214,9 +214,12 @@ public class TransportGraphBuilder extends StationIndexs {
 
         if (relationship == null) {
             int cost = endStop.getArriveMinsFromMidnight()-beginStop.getDepartureMinFromMidnight();
-            logger.debug(format("Add trip from: '%s' to: '%s' at: '%s' cost: '%s' service: '%s' route: '%s'",
-                    beginStop.getStation(), endStop.getStation(), fromMidnight, cost,
-                    service.getServiceId(), route.getId()));
+            TransportRelationshipTypes transportRelationshipType;
+            if (route.isTram()) {
+                transportRelationshipType = TransportRelationshipTypes.TRAM_GOES_TO;
+            } else {
+                transportRelationshipType = TransportRelationshipTypes.BUS_GOES_TO;
+            }
             createRelationship(start, end, transportRelationshipType, beginStop, cost, service, route, dest);
         } else {
             // add the time of this stop to the service relationship
@@ -274,7 +277,7 @@ public class TransportGraphBuilder extends StationIndexs {
         long endId = end.getId();
 
         Iterable<Relationship> existing = startNode.getRelationships(Direction.OUTGOING,
-                TransportRelationshipTypes.TRAM_GOES_TO);
+                TransportRelationshipTypes.TRAM_GOES_TO, TransportRelationshipTypes.BUS_GOES_TO);
         Stream<Relationship> existingStream = StreamSupport.stream(existing.spliterator(), false);
         Optional<Relationship> match = existingStream
                 .filter(out -> out.getEndNode().getId() == endId)

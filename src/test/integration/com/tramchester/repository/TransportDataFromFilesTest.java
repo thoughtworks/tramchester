@@ -57,7 +57,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
-        long tramRoutes = results.stream().filter(route -> route.getAgency().equals(Route.METROLINK)).count();
+        long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
         assertEquals(34, tramRoutes); // both old format and new form routes present
     }
 

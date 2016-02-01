@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TramRelationship;
+import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
@@ -44,9 +44,9 @@ public class GraphQuery {
         return graphDatabaseService.index().forNodes("spatial_index", SpatialIndexProvider.SIMPLE_POINT_CONFIG);
     }
 
-    public List<TramRelationship> getRouteStationRelationships(String routeStationId, Direction direction) {
+    public List<TransportRelationship> getRouteStationRelationships(String routeStationId, Direction direction) {
         Node routeStationNode = getRouteStationNode(routeStationId);
-        List<TramRelationship> result = new LinkedList<>();
+        List<TransportRelationship> result = new LinkedList<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
             routeStationNode.getRelationships(direction).forEach(
                     relationship -> result.add(relationshipFactory.getRelationship(relationship)));
@@ -55,10 +55,10 @@ public class GraphQuery {
         return result;
     }
 
-    public List<TramRelationship> getStationRelationships(String routeStationId, Direction direction) {
+    public List<TransportRelationship> getStationRelationships(String routeStationId, Direction direction) {
 
         Node stationNode = getStationNode(routeStationId);
-        List<TramRelationship> result = new LinkedList<>();
+        List<TransportRelationship> result = new LinkedList<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
             stationNode.getRelationships(direction).forEach(relationship -> result.add(
                     relationshipFactory.getRelationship(relationship)));

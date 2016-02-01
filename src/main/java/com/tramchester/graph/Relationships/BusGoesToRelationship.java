@@ -1,7 +1,16 @@
 package com.tramchester.graph.Relationships;
 
-/**
- * Created by icartwri on 31/01/2016.
- */
-public class BusGoesToRelationship {
+
+import com.tramchester.domain.TransportMode;
+import org.neo4j.graphdb.Relationship;
+
+public class BusGoesToRelationship extends GoesToRelationship {
+    public BusGoesToRelationship(Relationship graphRelationship) {
+        super(graphRelationship);
+    }
+
+    @Override
+    public TransportMode getMode() {
+        return TransportMode.Bus;
+    }
 }

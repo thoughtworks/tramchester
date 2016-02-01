@@ -5,12 +5,14 @@ import org.neo4j.graphdb.Relationship;
 
 public class RelationshipFactory {
 
-    public TramRelationship getRelationship(Relationship graphRelationship) {
+    public TransportRelationship getRelationship(Relationship graphRelationship) {
 
-        TramRelationship result;
+        TransportRelationship result;
         String relationshipType = graphRelationship.getType().name();
         if (relationshipType.equals(TransportRelationshipTypes.TRAM_GOES_TO.toString())) {
             result = new TramGoesToRelationship(graphRelationship);
+        } else if (relationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO.toString())) {
+                result = new BusGoesToRelationship(graphRelationship);
         } else if (relationshipType.equals(TransportRelationshipTypes.DEPART.toString())) {
             result = new DepartRelationship(graphRelationship);
         }  else if (relationshipType.equals(TransportRelationshipTypes.BOARD.toString())) {
