@@ -5,17 +5,17 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Relationship;
 
-public abstract class TramCostRelationship implements TramRelationship {
+public abstract class TransportCostRelationship implements TransportRelationship {
     private int cost = -1;
     private String id = null;
     protected Relationship graphRelationship;
 
-    public TramCostRelationship(int cost, String id) {
+    public TransportCostRelationship(int cost, String id) {
         this.cost = cost;
         this.id = id;
     }
 
-    public TramCostRelationship(Relationship graphRelationship) {
+    public TransportCostRelationship(Relationship graphRelationship) {
         this.graphRelationship = graphRelationship;
     }
 

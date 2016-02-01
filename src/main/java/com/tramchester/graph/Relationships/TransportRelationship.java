@@ -2,7 +2,7 @@ package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TransportMode;
 
-public interface  TramRelationship {
+public interface TransportRelationship {
     boolean isTramGoesTo();
     boolean isBoarding();
     boolean isDepartTram();
