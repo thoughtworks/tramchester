@@ -14,18 +14,16 @@ graphName: buses.db
 closedStations:
   - St Peters Square
 agencies:
-  - MET
-  - GMS
-  - GMN
+  - "*"
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 dataPath: data/bus
 genericMapper: true
 
 logging:
-  level: DEBUG
+  level: INFO
   loggers:
-    root: DEBUG
+    root: INFO
     com.tramchester: DEBUG
     org.eclipse.jetty.servlet: INFO
     io.dropwizard.jersey.jackson: INFO

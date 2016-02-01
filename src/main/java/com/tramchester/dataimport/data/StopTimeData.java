@@ -22,7 +22,17 @@ public class StopTimeData {
         this.dropOffType = dropOffType;
     }
 
-    private StopTimeData() {
+    @Override
+    public String toString() {
+        return "StopTimeData{" +
+                "tripId='" + tripId + '\'' +
+                ", arrivalTime=" + arrivalTime +
+                ", departureTime=" + departureTime +
+                ", stopId='" + stopId + '\'' +
+                ", stopSequence='" + stopSequence + '\'' +
+                ", pickupType='" + pickupType + '\'' +
+                ", dropOffType='" + dropOffType + '\'' +
+                '}';
     }
 
     public String getTripId() {

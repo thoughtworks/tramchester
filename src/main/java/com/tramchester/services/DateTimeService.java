@@ -21,7 +21,6 @@ public class DateTimeService {
         return (hourOfDay * 60) + theTime.getMinuteOfHour();
     }
 
-
     public static String formatTime(LocalTime time){
         return time.toString();
     }

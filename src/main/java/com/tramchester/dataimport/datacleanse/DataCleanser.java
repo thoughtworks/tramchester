@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 public class DataCleanser {
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
     public static final String DATE_FORMAT = "YYYMMdd";
+    private static final String WILDCARD = "*";
 
     private TransportDataReader transportDataReader;
     private TransportDataWriterFactory transportDataWriterFactory;
@@ -76,15 +77,20 @@ public class DataCleanser {
 
         stopTimes.filter(stopTime -> tripIds.contains(stopTime.getTripId()))
                 .forEach(stopTime -> {
-                    writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
-                            stopTime.getTripId(),
-                            DateTimeService.formatTime(stopTime.getArrivalTime()),
-                            DateTimeService.formatTime(stopTime.getDepartureTime()),
-                            stopTime.getStopId(),
-                            stopTime.getStopSequence(),
-                            stopTime.getPickupType(),
-                            stopTime.getDropOffType()));
-                    stopIds.add(stopTime.getStopId());
+                    try {
+                        writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
+                                stopTime.getTripId(),
+                                DateTimeService.formatTime(stopTime.getArrivalTime()),
+                                DateTimeService.formatTime(stopTime.getDepartureTime()),
+                                stopTime.getStopId(),
+                                stopTime.getStopSequence(),
+                                stopTime.getPickupType(),
+                                stopTime.getDropOffType()));
+                        stopIds.add(stopTime.getStopId());
+                    }
+                    catch (NullPointerException exception) {
+                        logger.error("Unable to add " + stopTime);
+                    }
                 });
 
         writer.close();
@@ -141,20 +147,29 @@ public class DataCleanser {
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("routes");
 
-        routes.filter(route -> agencyCodes.contains(route.getAgency())).forEach(route ->
-        {
-            String id = route.getId();
-            writer.writeLine(String.format("%s,%s,%s,%s,0",
-                    id,
-                    route.getAgency(),
-                    route.getCode(),
-                    route.getName()));
-            routeCodes.add(id);
-            logger.info("Added route " + id);
-        });
+        if ((agencyCodes.size()==1) && (agencyCodes.contains(WILDCARD))) {
+            logger.info("Adding all routes");
+            routes.forEach(route -> addRoute(routeCodes, writer, route));
+
+        } else {
+            logger.info("Adding filtered routes");
+            routes.filter(route -> agencyCodes.contains(route.getAgency())).forEach(route ->
+                    addRoute(routeCodes, writer, route));
+        }
         writer.close();
         logger.info("**** End cleansing routes.\n\n");
         return routeCodes;
+    }
+
+    private void addRoute(List<String> routeCodes, TransportDataWriter writer, RouteData route) {
+        String id = route.getId();
+        writer.writeLine(String.format("%s,%s,%s,%s,0",
+                id,
+                route.getAgency(),
+                route.getCode(),
+                route.getName()));
+        routeCodes.add(id);
+        logger.info("Added route " + id);
     }
 
     private String runsOnDay(boolean day) {

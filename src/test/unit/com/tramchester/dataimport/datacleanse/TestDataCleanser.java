@@ -57,6 +57,22 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     @Test
+    public void shouldCleanseRoutesWildcard() throws IOException {
+        RouteData routeA = new RouteData("R2", "CODE2", "CtoD", "ANY");
+        RouteData routeB = new RouteData("R1", "CODE1", "AtoB", "XYX");
+        Stream<RouteData> routes = Stream.of(routeA, routeB);
+
+        EasyMock.expect(reader.getRoutes()).andReturn(routes);
+        validateWriter("routes", "R1,XYX,CODE1,AtoB,0", "R2,ANY,CODE2,CtoD,0");
+
+        replayAll();
+        List<String> routeCodes = cleanser.cleanseRoutes(new HashSet<>(Arrays.asList("*")));
+        verifyAll();
+
+        assertEquals(2, routeCodes.size());
+    }
+
+    @Test
     public void shouldCleanseStopsMet() throws IOException {
 
         StopData stopA = new StopData("1122IdA", "codeA", "areaA", "nameA", 0.11, 0.22, true);
@@ -73,6 +89,7 @@ public class TestDataCleanser extends EasyMockSupport {
         cleanser.cleanseStops(stopIds);
         verifyAll();
     }
+
 
     @Test
     public void shouldCleanseStopMultiPart() throws IOException {
