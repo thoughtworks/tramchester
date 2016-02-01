@@ -21,7 +21,7 @@ dataPath: data/bus
 genericMapper: true
 timeWindow: 60
 showMyLocation: true
-nearestStopRangeKM: 1
+nearestStopRangeKM: 2
 numOfNearestStops: 5
 
 logging:

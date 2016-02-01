@@ -19,10 +19,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.mappers.TramJourneyResponseMapper;
-import com.tramchester.resources.JourneyPlannerResource;
-import com.tramchester.resources.RouteCodeToClassMapper;
-import com.tramchester.resources.StationResource;
-import com.tramchester.resources.VersionResource;
+import com.tramchester.resources.*;
 import com.tramchester.services.DateTimeService;
 import com.tramchester.services.SpatialService;
 import org.apache.commons.io.FileUtils;
@@ -89,6 +86,7 @@ public class Dependencies {
         picoContainer.addComponent(FetchInstanceMetadata.class);
         picoContainer.addComponent(SignalToCloudformationReady.class);
         picoContainer.addComponent(PathToStagesMapper.class);
+        picoContainer.addComponent(LocationToLocationJourneyPlanner.class);
 
         rebuildGraph(configuration);
 

@@ -37,8 +37,8 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
     @Ignore("St peters square has been deleted from the list of metrolink stations by tfgm")
     public void shouldNotFindRouteToStPetersSquare() throws Exception {
         try {
-            planner.createJourneyPlan(Stations.Altrincham.getId(), Stations.StPetersSquare, "11:43:00",
-                    DaysOfWeek.Monday, today);
+            planner.createJourneyPlan(Stations.Altrincham.getId(), Stations.StPetersSquare,
+                    DaysOfWeek.Monday, today, (11*60)+43);
             fail("should have throw");
         }
         catch (UnknownStationException expected) {

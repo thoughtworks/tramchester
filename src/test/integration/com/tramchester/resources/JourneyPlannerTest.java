@@ -1,9 +1,12 @@
 package com.tramchester.resources;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
+import com.tramchester.Stations;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
@@ -23,6 +26,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -60,17 +64,15 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     @Category({BusTest.class})
-    public void spikeMultipleToMultiple() throws TramchesterException {
-        List<String> nearEastDids;
-        List<String> nearPiccGardens;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            nearEastDids = spatialService.getNearestStationsTo(new LatLong(53.4092, -2.2218), 5);
-            nearPiccGardens = spatialService.getNearestStationsTo(new LatLong(53.4803, -2.2370), 10);
-            tx.success();
-        }
+    public void spikeMultipleToMultiple() throws TramchesterException, IOException {
+        LatLong startLocation = new LatLong(53.4092, -2.2218);
 
-        JourneyPlanRepresentation plan = planner.createJourneyPlan(nearEastDids, nearPiccGardens, "09:00:00",
-                DaysOfWeek.Monday, today);
+        ObjectMapper mapper = new ObjectMapper();
+        String startId = mapper.writeValueAsString(startLocation);
+
+        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
+                Stations.PiccadilyGardens.toString(),
+                DaysOfWeek.Monday, today, 9*60);
         SortedSet<Journey> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         Journey journey = journeys.first();
@@ -83,8 +85,8 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     @Category({BusTest.class})
-    public void reproduceIssueWithRoute() throws TramchesterException {
-        planner.createJourneyPlan("1800SB34231", "1800SB01681", "09:00:00", DaysOfWeek.Monday, today);
+    public void reproduceIssueWithRoute() throws TramchesterException, IOException {
+        planner.createJourneyPlan("1800SB34231", "1800SB01681", DaysOfWeek.Monday, today, 9*60);
     }
 
 }

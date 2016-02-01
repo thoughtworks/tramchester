@@ -6,6 +6,7 @@ import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.Stage;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -28,12 +29,12 @@ public class JourneyPlannerHelper {
         }
     }
 
-    protected JourneyPlanRepresentation validateAtLeastOneJourney(String start, String end, String time, DaysOfWeek dayOfWeek,
+    protected JourneyPlanRepresentation validateAtLeastOneJourney(String start, String end, int minsPastMid, DaysOfWeek dayOfWeek,
                                                                   TramServiceDate queryDate) throws TramchesterException {
-        JourneyPlanRepresentation results = planner.createJourneyPlan(start, end, time, dayOfWeek, queryDate);
+        JourneyPlanRepresentation results = planner.createJourneyPlan(start, end, dayOfWeek, queryDate,minsPastMid);
         Set<Journey> journeys = results.getJourneys();
 
-        String message = String.format("from %s to %s at %s on %s", start, end, time,dayOfWeek);
+        String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, dayOfWeek);
         assertTrue("unable to find journey " + message, journeys.size() > 0);
         checkDepartsAfterPreviousArrival(message, journeys);
         return results;
