@@ -1,5 +1,7 @@
 package com.tramchester.resource;
 
+import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.resources.StationResource;
@@ -10,7 +12,9 @@ import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,9 +27,32 @@ public class StationResourceTest {
     private static final SpatialService spatialService = mock(SpatialService.class);
     private static final List<String> closedStations = asList("St Peters Square");
 
+    private static TramchesterConfig testConfig = new TestConfig() {
+        @Override
+        public Path getDataFolder() {
+            return null;
+        }
+
+        @Override
+        public String getGraphName() {
+            return null;
+        }
+
+        @Override
+        public Set<String> getAgencies() {
+            return null;
+        }
+
+        @Override
+        public boolean useGenericMapper() {
+            return false;
+        }
+    };
+
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new StationResource(transportData, spatialService, new ClosedStations(closedStations)))
+            .addResource(new StationResource(transportData, spatialService,
+                    new ClosedStations(closedStations), testConfig))
             .build();
 
     @Test

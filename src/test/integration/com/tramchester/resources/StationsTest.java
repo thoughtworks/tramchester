@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.domain.Station;
@@ -45,16 +46,29 @@ public class StationsTest {
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
 
         assertTrue(stationGroups.get("Nearest Stops") > 0);
-        assertEquals("All Stops", stations.get(6).getProximityGroup());
-        assertEquals("Abraham Moss", stations.get(6).getName());
-        assertEquals("Altrincham", stations.get(7).getName());
+        int ALL_STOPS_START = 6; // 5 + 1
+        assertEquals("All Stops", stations.get(ALL_STOPS_START).getProximityGroup());
+        assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
+        assertEquals("Altrincham", stations.get(ALL_STOPS_START+1).getName());
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
     }
 
     @Test
+    public void shouldGetSpecialStationWithMyLocation() throws JsonProcessingException {
+        Response result = stationResource.getNearest(53.4804263d, -2.2392436d);
+        List<Station> stations = (List<Station>) result.getEntity();
+
+        Station station = stations.get(0);
+        assertEquals("Nearby", station.getProximityGroup());
+        assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getId());
+        assertEquals("My Location", station.getName());
+        assertEquals("Nearest Stops", stations.get(1).getProximityGroup());
+    }
+
+    @Test
     @Ignore("For performande testing")
-    public void shouldCheckPerformanceOfGettingNearest() {
+    public void shouldCheckPerformanceOfGettingNearest() throws JsonProcessingException {
         DateTime start = DateTime.now();
         for (int i=0; i<10000; i++) {
             stationResource.getNearest(53.4804263d, -2.2392436d);

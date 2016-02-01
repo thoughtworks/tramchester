@@ -62,5 +62,18 @@ public abstract class TestConfig extends TramchesterConfig {
     @Override
     public int getTimeWindow() { return 60; }
 
+    @Override
+    public boolean showMyLocation() { return true; }
+
+    @Override
+    public Double getNearestStopRangeKM() {
+        return 1D;
+    }
+
+    @Override
+    public int getNumOfNearestStops() {
+        return 5;
+    }
+
     public abstract Path getDataFolder();
 }

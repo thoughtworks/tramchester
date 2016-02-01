@@ -5,11 +5,13 @@ import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.Stage;
 import com.tramchester.services.SpatialService;
 import org.joda.time.LocalDate;
@@ -59,11 +61,11 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @Test
     @Category({BusTest.class})
     public void spikeMultipleToMultiple() throws TramchesterException {
-        List<Node> nearEastDids;
-        List<Node> nearPiccGardens;
+        List<String> nearEastDids;
+        List<String> nearPiccGardens;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            nearEastDids = spatialService.getNearestStationsTo(53.4092, -2.2218, 5);
-            nearPiccGardens = spatialService.getNearestStationsTo(53.4803, -2.2370, 10);
+            nearEastDids = spatialService.getNearestStationsTo(new LatLong(53.4092, -2.2218), 5);
+            nearPiccGardens = spatialService.getNearestStationsTo(new LatLong(53.4803, -2.2370), 10);
             tx.success();
         }
 

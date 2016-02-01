@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -29,10 +30,12 @@ public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
     public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
+    public static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
-    // TODO Use INT
+    private int ASSUMED_WALKTO_COST = 0;
+
+    // TODO Use INT? - but difficult as not supported by algos built into neo4j
     public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
-    public static final int MAX_NUM_GRAPH_PATHS = 2;
 
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
@@ -63,23 +66,27 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    public Set<RawJourney> calculateRoute(List<Node> starts, List<Node> ends, int minutesFromMidnight,
+    public Set<RawJourney> calculateRoute(List<String> startIds, List<String> endIds, int minutesFromMidnight,
                                           DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {
+
+            List<Node> starts = startIds.stream().map(id -> getStationNode(id)).collect(Collectors.toList());
+            List<Node> ends = endIds.stream().map(id -> getStationNode(id)).collect(Collectors.toList());
+
             Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
             startNode.setProperty(NAME, "BEGIN");
             startNode.setProperty(STATION_TYPE, QUERY);
             starts.forEach(start -> startNode.
                     createRelationshipTo(start, TransportRelationshipTypes.WALKS_TO).
-                    setProperty(COST,0));
+                    setProperty(COST, ASSUMED_WALKTO_COST));
 
             Node endNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
             endNode.setProperty(NAME, "END");
             endNode.setProperty(STATION_TYPE, QUERY);
             ends.forEach(end -> end.
                     createRelationshipTo(endNode, TransportRelationshipTypes.WALKS_TO).
-                    setProperty(COST,0));
+                    setProperty(COST,ASSUMED_WALKTO_COST));
 
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, dayOfWeek, queryDate);
 
@@ -97,7 +104,7 @@ public class RouteCalculator extends StationIndexs {
     private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
                                        int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path->{
-            logger.info("Map graph path of length " + path.length());
+            logger.info(format("Map graph path of length %s with limit of %s ",path.length(), limit));
             List<RawStage> stages = pathToStages.mapStages(path, minsPathMidnight);
             RawJourney journey = new RawJourney(stages);
             journeys.add(journey);
@@ -122,9 +129,10 @@ public class RouteCalculator extends StationIndexs {
                 endNode.getProperty(NAME), dayOfWeek));
 
         GraphBranchState state = new GraphBranchState(dayOfWeek, queryDate, queryTime);
+        InitialBranchState.State<GraphBranchState> stateFactory = new InitialBranchState.State<>(state, state);
         PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
-                new InitialBranchState.State<>(state, state),
+                stateFactory,
                 COST_EVALUATOR);
 
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);

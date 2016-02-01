@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.RawJourney;
@@ -7,13 +8,12 @@ import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
-import com.tramchester.mappers.GenericJourneyResponseMapper;
 import com.tramchester.mappers.JourneyResponseMapper;
-import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.services.DateTimeService;
+import com.tramchester.services.SpatialService;
 import org.joda.time.LocalDate;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -31,32 +33,52 @@ import java.util.Set;
 public class JourneyPlannerResource {
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
     private final TramchesterConfig config;
+    private SpatialService spatialService;
+    private final ObjectMapper objectMapper;
     private RouteCalculator routeCalculator;
     private DateTimeService dateTimeService;
     private JourneyResponseMapper journeyResponseMapper;
-    //private int timeWindow = 60; // TODO into config
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
-                                  JourneyResponseMapper journeyResponseMapper, TramchesterConfig config) {
+                                  JourneyResponseMapper journeyResponseMapper, TramchesterConfig config,
+                                  SpatialService spatialService) {
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
         this.journeyResponseMapper = journeyResponseMapper;
         this.config = config;
+        this.spatialService = spatialService;
+        objectMapper = new ObjectMapper();
     }
 
     @GET
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId,
                                   @QueryParam("departureTime") String departureTime){
         DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
-        // today expose this as a parameter
+        // TODO expose this as a parameter
         TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
+
+        JourneyPlanRepresentation planRepresentation;
         try {
-            JourneyPlanRepresentation  planRepresentation = createJourneyPlan(startId, endId, departureTime, dayOfWeek, queryDate);
+            if (startId.startsWith("{") && startId.endsWith("}")) {
+                planRepresentation =  quickestRouteForLocation(startId, endId, departureTime, dayOfWeek, queryDate);
+            } else {
+                planRepresentation = createJourneyPlan(startId, endId, departureTime, dayOfWeek, queryDate);
+            }
             return Response.ok(planRepresentation).build();
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);
+        } catch (IOException exception) {
+            logger.error("Unable to plan journey",exception);
         }
         return Response.serverError().build();
+    }
+
+    private JourneyPlanRepresentation quickestRouteForLocation(String startId, String endId, String departureTime,
+                                                               DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws IOException, TramchesterException {
+        LatLong latLong = objectMapper.readValue(startId, LatLong.class);
+        List<String> starts = spatialService.getNearestStationsTo(latLong, config.getNumOfNearestStops());
+        List<String> ends = Arrays.asList(endId);
+        return createJourneyPlan(starts,ends,departureTime,dayOfWeek,queryDate);
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String queryTime,
@@ -70,7 +92,7 @@ public class JourneyPlannerResource {
         return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
     }
 
-    public JourneyPlanRepresentation createJourneyPlan(List<Node> starts, List<Node> ends, String queryTime,
+    public JourneyPlanRepresentation createJourneyPlan(List<String> starts, List<String> ends, String queryTime,
                                                        DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws TramchesterException {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(queryTime);
 

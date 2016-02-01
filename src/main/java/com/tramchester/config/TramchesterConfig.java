@@ -19,7 +19,9 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract Path getInputDataPath();
     public abstract Path getOutputDataPath();
 
-    public abstract boolean useGenericMapper();
-
+    public abstract boolean useGenericMapper(); // use generic mapper, i.e. not tram specific one
     public abstract int getTimeWindow(); // time window in which to look ahead for journeys
+    public abstract boolean showMyLocation(); // show users 'My Location' in stops list
+    public abstract Double getNearestStopRangeKM();
+    public abstract int getNumOfNearestStops();
 }

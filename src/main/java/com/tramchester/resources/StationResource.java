@@ -1,8 +1,12 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.StationClosureMessage;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
@@ -18,19 +22,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource {
     private final Map<String,Station> workingStations;
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
+    private final TramchesterConfig config;
+    private final ObjectMapper mapper;
 
-    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService, ClosedStations closedStations) {
+    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
+                           ClosedStations closedStations, TramchesterConfig config) {
         this.spatialService = spatialService;
         this.closedStations = closedStations;
+        this.config = config;
         this.workingStations = transportData.getStations().stream()
                 .filter(station -> !closedStations.contains(station.getName()))
                 .collect(Collectors.<Station, String, Station>toMap(s -> s.getId(), s->s));
+        mapper = new ObjectMapper();
     }
 
     @GET
@@ -58,8 +69,19 @@ public class StationResource {
 
     @GET
     @Path("/{lat}/{lon}")
-    public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        List<Station> orderedStations = spatialService.reorderNearestStations(lat, lon, workingStations);
+    public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
+        List<Station> orderedStations = spatialService.reorderNearestStations(new LatLong(lat, lon), workingStations);
+
+        if (config.showMyLocation()) {
+            Station myLocation = new Station(formId(lat,lon), "", "My Location", lat, lon, false);
+            myLocation.setProximityGroup("Nearby");
+            orderedStations.add(0, myLocation);
+        }
+
         return Response.ok(orderedStations).build();
+    }
+
+    private String formId(double lat, double lon) throws JsonProcessingException {
+        return mapper.writeValueAsString(new LatLong(lat, lon));
     }
 }

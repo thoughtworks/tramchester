@@ -13,7 +13,7 @@ techLabApp.controller('RoutePlannerController',
             navigator.geolocation.getCurrentPosition(getNearStops, function () {
                 getAllStops();
             }, {
-                maximumAge: 600000
+                maximumAge: 600000 // cached time on location
             });
         } else {
             getAllStops();

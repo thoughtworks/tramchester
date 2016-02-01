@@ -1,9 +1,12 @@
 package com.tramchester.services;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
+import com.tramchester.repository.StationRepository;
 import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -14,31 +17,40 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class SpatialService extends StationIndexs {
-    public static final int NUMBER_OF_NEAREST = 6;
-    public static final double DISTANCE_IN_KM = 30;
-    private GraphDatabaseService graphDatabaseService;
+    // TODO these both into config
+    //public static final int NUMBER_OF_NEAREST = 6;
+    //public static final double DISTANCE_IN_KM = 30;
 
-    public SpatialService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory) {
+    private GraphDatabaseService graphDatabaseService;
+    private StationRepository stationRepository;
+    private TramchesterConfig config;
+
+    public SpatialService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
+                          StationRepository stationRepository,
+                          TramchesterConfig config) {
         super(graphDatabaseService, relationshipFactory, false);
         this.graphDatabaseService = graphDatabaseService;
+        this.stationRepository = stationRepository;
+        this.config = config;
     }
 
-    public List<Station> reorderNearestStations(Double latitude, Double longitude, Map<String, Station> stations) {
+    public List<Station> reorderNearestStations(LatLong latLong, Map<String, Station> stations) {
         Transaction tx = graphDatabaseService.beginTx();
         try {
             List<Station> sorted = stations.values().stream()
                     .sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
 
-            List<Node> nearestStations = getNearestStationsTo(latitude, longitude, NUMBER_OF_NEAREST);
+            List<String> nearestStations = getNearestStationsToNoTransaction(latLong, config.getNumOfNearestStops());
             List<Station> reorderedStations = new ArrayList<>();
 
-            for (Node node : nearestStations) {
-                String id = node.getProperty(GraphStaticKeys.ID).toString();
-                Station nearestStation = stations.get(id);
+            for (String id : nearestStations) {
+
+                Station nearestStation = stationRepository.getStation(id);
                 if (nearestStation != null) {
                     nearestStation.setProximityGroup("Nearest Stops");
                     reorderedStations.add(nearestStation);
@@ -57,15 +69,29 @@ public class SpatialService extends StationIndexs {
         }
     }
 
-    public List<Node> getNearestStationsTo(double latitude, double longitude, int count) {
+    public List<String> getNearestStationsTo(LatLong latLong, int numberOfNearest) {
+        Transaction tx = graphDatabaseService.beginTx();
+        List<String> result;
+        try {
+            result = getNearestStationsToNoTransaction(latLong, numberOfNearest);
+            tx.success();
+        }
+        finally {
+            tx.close();
+        }
+        return result;
+    }
+
+    private List<String> getNearestStationsToNoTransaction(LatLong latLong, int count) {
         Map<String, Object> params = new HashMap<>();
-        params.put(LayerNodeIndex.POINT_PARAMETER, new Double[]{latitude, longitude});
-        params.put(LayerNodeIndex.DISTANCE_IN_KM_PARAMETER, DISTANCE_IN_KM);
+        params.put(LayerNodeIndex.POINT_PARAMETER, new Double[]{latLong.getLat(), latLong.getLon()});
+        params.put(LayerNodeIndex.DISTANCE_IN_KM_PARAMETER, config.getNearestStopRangeKM());
 
         IndexHits<Node> query = getSpatialIndex().query(LayerNodeIndex.WITHIN_DISTANCE_QUERY, params);
 
-        return StreamSupport.stream(query.spliterator(),false).limit(count).collect(Collectors.toList());
+        List<String> ids = StreamSupport.stream(query.spliterator(), false).limit(count)
+                .map(node-> (String)node.getProperty(GraphStaticKeys.ID)).collect(Collectors.toList());
 
+        return ids;
     }
-
 }

@@ -19,6 +19,8 @@ public class Station {
         this.id = id;
         if (isTram) {
             this.name = stopName;
+        } else if (area.isEmpty()) {
+            this.name = stopName;
         } else {
             this.name = String.format("%s,%s", area, stopName);
         }

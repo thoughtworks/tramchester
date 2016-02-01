@@ -20,6 +20,9 @@ tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.
 dataPath: data/tram
 genericMapper: false
 timeWindow: 60
+showMyLocation: false
+nearestStopRangeKM: 1
+numOfNearestStops: 5
 
 logging:
   level: INFO

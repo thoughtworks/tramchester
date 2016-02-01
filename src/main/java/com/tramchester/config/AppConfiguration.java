@@ -1,5 +1,6 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -45,6 +46,15 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("timeWindow")
     private int timeWindow;
 
+    @JsonProperty("showMyLocation")
+    private boolean showMyLocation;
+
+    @JsonProperty("nearestStopRangeKM")
+    private Double nearestStopRangeKM;
+
+    @JsonProperty("numOfNearestStops")
+    private int numOfNearestStops;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -73,6 +83,22 @@ public class AppConfiguration extends TramchesterConfig {
     public int getTimeWindow() {
         return timeWindow;
     }
+
+    @Override
+    public boolean showMyLocation() {
+        return showMyLocation;
+    }
+
+    @Override
+    public Double getNearestStopRangeKM() {
+        return nearestStopRangeKM;
+    }
+
+    @Override
+    public int getNumOfNearestStops() {
+        return numOfNearestStops;
+    }
+
     public boolean isRebuildGraph() {
         return rebuildGraph;
     }
