@@ -24,4 +24,5 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract boolean showMyLocation(); // show users 'My Location' in stops list
     public abstract Double getNearestStopRangeKM();
     public abstract int getNumOfNearestStops();
+    public abstract double getWalkingMPH();
 }

@@ -23,6 +23,7 @@ timeWindow: 60
 showMyLocation: false
 nearestStopRangeKM: 2
 numOfNearestStops: 5
+walkingMPH: 3
 
 logging:
   level: INFO

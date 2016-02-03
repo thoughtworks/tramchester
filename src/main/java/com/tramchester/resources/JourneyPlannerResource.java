@@ -20,9 +20,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.List;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
@@ -64,6 +64,7 @@ public class JourneyPlannerResource {
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId,
                                                        DaysOfWeek dayOfWeek, TramServiceDate queryDate, int minutesFromMidnight)
             throws TramchesterException {
+        logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,dayOfWeek,queryDate,minutesFromMidnight));
         Set<RawJourney> journeys;
         if (startId.startsWith("{") && startId.endsWith("}")) {
             journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
@@ -71,24 +72,7 @@ public class JourneyPlannerResource {
            journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys,
-                new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
+        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
     }
 
-//    public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, String queryTime,
-//                                                       DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws TramchesterException {
-//        logger.info(String.format("start: %s end: %s query time: %s (%s) on %s",
-//                startId, endId, queryTime, minutesFromMidnight, dayOfWeek));
-//
-//        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
-//    }
-//
-//    public JourneyPlanRepresentation createJourneyPlan(List<String> starts, List<String> ends, String queryTime,
-//                                                       DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws TramchesterException {
-//        int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(queryTime);
-//
-//        Set<RawJourney> journeys = routeCalculator.calculateRoute(starts, ends, minutesFromMidnight, dayOfWeek, queryDate);
-//        logger.info("number of journeys: " + journeys.size());
-//        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
-//    }
 }

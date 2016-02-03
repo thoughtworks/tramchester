@@ -55,6 +55,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("numOfNearestStops")
     private int numOfNearestStops;
 
+    @JsonProperty("walkingMPH")
+    private double walkingMPH;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -97,6 +100,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getNumOfNearestStops() {
         return numOfNearestStops;
+    }
+
+    @Override
+    public double getWalkingMPH() {
+        return walkingMPH;
     }
 
     public boolean isRebuildGraph() {

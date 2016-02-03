@@ -67,12 +67,17 @@ public abstract class TestConfig extends TramchesterConfig {
 
     @Override
     public Double getNearestStopRangeKM() {
-        return 1D;
+        return 2D;
     }
 
     @Override
     public int getNumOfNearestStops() {
-        return 5;
+        return 6;
+    }
+
+    @Override
+    public double getWalkingMPH() {
+        return 3;
     }
 
     public abstract Path getDataFolder();

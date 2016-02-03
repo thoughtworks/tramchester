@@ -1,6 +1,8 @@
 package com.tramchester.resources;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
@@ -8,15 +10,19 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.TransportData;
+import junit.framework.TestCase;
 import org.joda.time.LocalDate;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -183,6 +189,27 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Altrincham.getId(), Stations.ShawAndCrompton, (22*60)+45, DaysOfWeek.Wednesday,
                 today);
+    }
+
+    @Ignore("WorkInProgress")
+    @Test
+    public void shouldFindStationsNearPiccGardensToExchangeSquare() throws JsonProcessingException, TramchesterException {
+        validateJourneyFromLocation(new LatLong(53.4805248D, -2.2394929D), Stations.ExchangeSquare);
+    }
+
+    @Test
+    public void shouldFindStationsNearAltrincham() throws JsonProcessingException, TramchesterException {
+        validateJourneyFromLocation(new LatLong(53.388924D, -2.373543D), Stations.PiccadilyGardens.getId());
+    }
+
+    private void validateJourneyFromLocation(LatLong location, String destination) throws JsonProcessingException, TramchesterException {
+        String startId = JourneyPlannerTest.formId(location);
+        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
+                destination,
+                DaysOfWeek.Monday, today, 9*60);
+        SortedSet<Journey> journeys = plan.getJourneys();
+        assertTrue(journeys.size()>=1);
+        assertTrue(journeys.first().getStages().size()>0);
     }
 
     @Test

@@ -22,7 +22,8 @@ genericMapper: true
 timeWindow: 60
 showMyLocation: true
 nearestStopRangeKM: 2
-numOfNearestStops: 5
+numOfNearestStops: 6
+walkingMPH: 3
 
 logging:
   level: DEBUG

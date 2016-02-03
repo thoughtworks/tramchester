@@ -46,7 +46,7 @@ public class StationsTest {
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
 
         assertTrue(stationGroups.get("Nearest Stops") > 0);
-        int ALL_STOPS_START = 6; // 5 + 1
+        int ALL_STOPS_START = 7; // 6 + 1
         assertEquals("All Stops", stations.get(ALL_STOPS_START).getProximityGroup());
         assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
         assertEquals("Altrincham", stations.get(ALL_STOPS_START+1).getName());

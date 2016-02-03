@@ -1,9 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.RawStage;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -18,12 +15,9 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.GraphStaticKeys.Station.NAME;
 import static java.lang.String.format;
 
 public class RouteCalculator extends StationIndexs {
@@ -32,10 +26,8 @@ public class RouteCalculator extends StationIndexs {
     public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
     public static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
-    private int ASSUMED_WALKTO_COST = 0;
-
     // TODO Use INT? - but difficult as not supported by algos built into neo4j
-    public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(COST);
+    public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(GraphStaticKeys.COST);
 
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
@@ -66,31 +58,34 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    public Set<RawJourney> calculateRoute(List<String> startIds, List<String> endIds, int minutesFromMidnight,
+    public Set<RawJourney> calculateRoute(List<StationWalk> startStations, List<Station> endStations, int minutesFromMidnight,
                                           DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
-            List<Node> starts = startIds.stream().map(id -> getStationNode(id)).collect(Collectors.toList());
-            List<Node> ends = endIds.stream().map(id -> getStationNode(id)).collect(Collectors.toList());
-
             Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
-            startNode.setProperty(NAME, "BEGIN");
-            startNode.setProperty(STATION_TYPE, QUERY);
-            starts.forEach(start -> startNode.
-                    createRelationshipTo(start, TransportRelationshipTypes.WALKS_TO).
-                    setProperty(COST, ASSUMED_WALKTO_COST));
+            startNode.setProperty(GraphStaticKeys.Station.NAME, "BEGIN");
+            startNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.QUERY);
+
+            startStations.forEach(station -> {
+                Node node = getStationNode(station.getId());
+                startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO).
+                        setProperty(GraphStaticKeys.COST, station.getCost());
+            });
 
             Node endNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
-            endNode.setProperty(NAME, "END");
-            endNode.setProperty(STATION_TYPE, QUERY);
-            ends.forEach(end -> end.
-                    createRelationshipTo(endNode, TransportRelationshipTypes.WALKS_TO).
-                    setProperty(COST,ASSUMED_WALKTO_COST));
+            endNode.setProperty(GraphStaticKeys.Station.NAME, "END");
+            endNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.QUERY);
+
+            endStations.forEach(station -> {
+                Node penulimate = getStationNode(station.getId());
+                penulimate.createRelationshipTo(endNode, TransportRelationshipTypes.WALKS_TO).
+                        setProperty(GraphStaticKeys.COST, 0);
+            });
 
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, dayOfWeek, queryDate);
 
-            int limit = MAX_NUM_GRAPH_PATHS * starts.size();
+            int limit = MAX_NUM_GRAPH_PATHS * startStations.size();
             mapStreamToJourneySet(journeys, paths, limit, minutesFromMidnight);
 
             startNode.delete();
@@ -125,8 +120,8 @@ public class RouteCalculator extends StationIndexs {
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, DaysOfWeek dayOfWeek,
                                                     TramServiceDate queryDate) {
         logger.info(format("Finding shortest path for %s --> %s on %s",
-                startNode.getProperty(NAME),
-                endNode.getProperty(NAME), dayOfWeek));
+                startNode.getProperty(GraphStaticKeys.Station.NAME),
+                endNode.getProperty(GraphStaticKeys.Station.NAME), dayOfWeek));
 
         GraphBranchState state = new GraphBranchState(dayOfWeek, queryDate, queryTime);
         InitialBranchState.State<GraphBranchState> stateFactory = new InitialBranchState.State<>(state, state);
