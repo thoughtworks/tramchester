@@ -49,11 +49,11 @@ public class RouteCalculatorTest {
         for (RawJourney result : results) {
             List<RawStage> stages = result.getStages();
             assertEquals(2, stages.size());
-            RawStage firstStage = stages.get(0);
+            RawTravelStage firstStage = (RawTravelStage) stages.get(0);
             assertEquals(Stations.Altrincham, firstStage.getFirstStation());
             assertEquals(Stations.TraffordBar, firstStage.getLastStation().getId());
             assertEquals(TransportMode.Tram, firstStage.getMode());
-            RawStage secondStage = stages.get(1);
+            RawTravelStage secondStage = (RawTravelStage) stages.get(1);
             assertEquals(Stations.TraffordBar, secondStage.getFirstStation().getId());
             assertEquals(Stations.ManAirport, secondStage.getLastStation());
             assertEquals(TransportMode.Tram, secondStage.getMode());

@@ -191,7 +191,7 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
                 today);
     }
 
-    @Ignore("WorkInProgress")
+    @Ignore("Work in progress, feature disabled for trams")
     @Test
     public void shouldFindStationsNearPiccGardensToExchangeSquare() throws JsonProcessingException, TramchesterException {
         validateJourneyFromLocation(new LatLong(53.4805248D, -2.2394929D), Stations.ExchangeSquare);

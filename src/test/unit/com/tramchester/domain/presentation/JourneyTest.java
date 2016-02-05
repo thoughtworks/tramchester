@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation;
 
 
-import com.tramchester.domain.RawStage;
+import com.tramchester.domain.RawTravelStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import org.junit.Test;
@@ -38,11 +38,11 @@ public class JourneyTest {
 
     private List<Stage> createStages(LocalTime arrivesEnd) {
         List<Stage> stages = new LinkedList<>();
-        RawStage rawStage = new RawStage(stationA, "routeName", TransportMode.Bus, "cssClass", 20).
+        RawTravelStage rawTravelStage = new RawTravelStage(stationA, "routeName", TransportMode.Bus, "cssClass", 20).
                 setLastStation(stationB);
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));
-        stages.add(new Stage(rawStage, serviceTimes));
+        stages.add(new Stage(rawTravelStage, serviceTimes));
         return stages;
     }
 }

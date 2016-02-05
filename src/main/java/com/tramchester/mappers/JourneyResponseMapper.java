@@ -1,8 +1,6 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.TimeWindow;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
@@ -75,9 +73,12 @@ public abstract class JourneyResponseMapper {
     private List<Station> getStations(Set<RawJourney> journeys) {
         List<Station> stations = new LinkedList<>();
         for (RawJourney journey : journeys) {
-            journey.forEach(stage -> {
-                stations.add(stage.getFirstStation());
-                stations.add(stage.getLastStation());
+            journey.forEach(raw -> {
+                if (raw.getMode().equals(TransportMode.Bus) || raw.getMode().equals(TransportMode.Tram)) {
+                    RawTravelStage stage = (RawTravelStage) raw;
+                    stations.add(stage.getFirstStation());
+                    stations.add(stage.getLastStation());
+                }
             });
         }
         return stations;

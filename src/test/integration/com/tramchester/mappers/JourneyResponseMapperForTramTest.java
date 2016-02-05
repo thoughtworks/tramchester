@@ -4,10 +4,7 @@ package com.tramchester.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.RawStage;
-import com.tramchester.domain.TimeWindow;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
@@ -59,7 +56,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
         String svcId = findServiceId(Stations.Victoria.getId(), Stations.Rochdale.getId(), 930);
         int elapsedTime = 931;
-        RawStage vicToRoch = new RawStage(Stations.Victoria, "route text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawTravelStage vicToRoch = new RawTravelStage(Stations.Victoria, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         vicToRoch.setServiceId(svcId);
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
@@ -77,7 +74,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.Altrincham.getId(), Stations.Cornbrook.getId(), 7*60);
 
         int elapsedTime = (7*60)+1;
-        RawStage altToCorn = new RawStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawTravelStage altToCorn = new RawTravelStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         altToCorn.setServiceId(svcId);
         altToCorn.setLastStation(Stations.Cornbrook);
 
@@ -107,13 +104,13 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.Altrincham.getId(), Stations.Deansgate.getId(), pm10);
 
         int elapsedTime = pm10 + 1;
-        RawStage altToDeansgate = new RawStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawTravelStage altToDeansgate = new RawTravelStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         altToDeansgate.setLastStation(Stations.Deansgate);
         altToDeansgate.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Deansgate.getId(), Stations.Victoria.getId(), pm10);
 
-        RawStage deansgateToVic = new RawStage(Stations.Deansgate, "route2 text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawTravelStage deansgateToVic = new RawTravelStage(Stations.Deansgate, "route2 text", TransportMode.Tram, "cssClass", elapsedTime);
         deansgateToVic.setLastStation(Stations.Victoria);
         deansgateToVic.setServiceId(svcId);
 
@@ -140,13 +137,13 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.PiccadilyGardens.getId(), Stations.Cornbrook.getId(), pm23);
 
         int elapsedTime = pm23 +1;
-        RawStage picToCorn = new RawStage(Stations.PiccadilyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
+        RawTravelStage picToCorn = new RawTravelStage(Stations.PiccadilyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
         picToCorn.setLastStation(Stations.Cornbrook);
         // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
         picToCorn.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Cornbrook.getId(), Stations.ManAirport.getId(), pm23);
-        RawStage cornToAir = new RawStage(Stations.Cornbrook, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
+        RawTravelStage cornToAir = new RawTravelStage(Stations.Cornbrook, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
         cornToAir.setLastStation(Stations.ManAirport);
         // user test TramJourneyPlannerTest.shouldFindRouteCornbrookToManAirport
         cornToAir.setServiceId(svcId);

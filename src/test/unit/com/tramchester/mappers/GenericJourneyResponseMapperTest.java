@@ -133,12 +133,12 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     }
 
     private void createSimpleRawJourney(int stageATime, int stageBTime) {
-        RawStage rawStage1 = new RawStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
+        RawTravelStage rawTravelStage1 = new RawTravelStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
                 setLastStation(stationB).setServiceId("svcId");
-        RawStage rawStage2 = new RawStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
+        RawTravelStage rawTravelStage2 = new RawTravelStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
                 setLastStation(stationC).setServiceId("svcId");
-        stages.add(rawStage1);
-        stages.add(rawStage2);
+        stages.add(rawTravelStage1);
+        stages.add(rawTravelStage2);
 
         RawJourney rawJourney = new RawJourney(stages);
         rawJourneys.add(rawJourney);

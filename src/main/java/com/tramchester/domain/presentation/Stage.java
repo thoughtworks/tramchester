@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.RawStage;
+import com.tramchester.domain.RawTravelStage;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
@@ -14,40 +14,40 @@ import static java.lang.String.format;
 
 public class Stage {
     public static final int SECONDS_IN_DAY = 24*60*60;
-    private final RawStage rawStage;
+    private final RawTravelStage rawTravelStage;
     private SortedSet<ServiceTime> serviceTimes;
 
-    public Stage(RawStage rawStage, SortedSet<ServiceTime> serviceTimes) {
-        this.rawStage = rawStage;
+    public Stage(RawTravelStage rawTravelStage, SortedSet<ServiceTime> serviceTimes) {
+        this.rawTravelStage = rawTravelStage;
         this.serviceTimes = serviceTimes;
     }
 
     // TODO return station
     public String getFirstStation() {
-        return rawStage.getFirstStation().getId();
+        return rawTravelStage.getFirstStation().getId();
     }
 
     public String getRoute() {
-        return rawStage.getRouteName();
+        return rawTravelStage.getRouteName();
     }
 
     // TODO return station
     public String getLastStation() {
-        return rawStage.getLastStation().getId();
+        return rawTravelStage.getLastStation().getId();
     }
 
     // used from javascript on front-end
     public String getDisplayClass() {
-        return rawStage.getDisplayClass();
+        return rawTravelStage.getDisplayClass();
     }
 
     @JsonSerialize(using = TransportModeSerializer.class)
     public TransportMode getMode() {
-        return rawStage.getMode();
+        return rawTravelStage.getMode();
     }
 
     public String getServiceId() {
-        return rawStage.getServiceId();
+        return rawTravelStage.getServiceId();
     }
 
     public SortedSet<ServiceTime> getServiceTimes() {
@@ -97,7 +97,7 @@ public class Stage {
     @Override
     public String toString() {
         return "Stage{" +
-                "rawStage=" + rawStage +
+                "rawTravelStage=" + rawTravelStage +
                 ", serviceTimes=" + serviceTimes +
                 '}';
     }
@@ -115,8 +115,8 @@ public class Stage {
     }
 
     public String getSummary() throws TramchesterException {
-        TransportMode mode = rawStage.getMode();
-        String routeName = rawStage.getRouteName();
+        TransportMode mode = rawTravelStage.getMode();
+        String routeName = rawTravelStage.getRouteName();
         switch (mode) {
             case Bus : {
                 return format("%s Bus route", routeName);

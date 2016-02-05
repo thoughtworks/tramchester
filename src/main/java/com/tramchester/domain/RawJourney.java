@@ -25,7 +25,7 @@ public class RawJourney implements Iterable<RawStage> {
         return stages;
     }
 
-    public String getFirstServiceId() {
-        return stages.get(0).getServiceId();
-    }
+    //public String getFirstServiceId() {
+//        return stages.get(0).getServiceId();
+//    }
 }

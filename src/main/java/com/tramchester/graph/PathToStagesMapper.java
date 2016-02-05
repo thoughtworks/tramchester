@@ -1,13 +1,13 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.RawTravelStage;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
@@ -45,7 +45,7 @@ public class PathToStagesMapper {
 
         int totalCost = 0;
         RouteStationNode boardNode = null;
-        RawStage currentStage = null;
+        RawTravelStage currentStage = null;
         String firstStationId = null;
         int boardTime = -1;
         for (Relationship graphRelationship : relationships) {
@@ -83,7 +83,7 @@ public class PathToStagesMapper {
                     String routeName = boardNode.getRouteName();
                     String routeId = boardNode.getRouteId();
                     String tramRouteClass = routeIdToClass.map(routeId);
-                    currentStage = new RawStage(stationRepository.getStation(firstStationId), routeName,
+                    currentStage = new RawTravelStage(stationRepository.getStation(firstStationId), routeName,
                             transportRelationship.getMode(), tramRouteClass, boardTime);
                     currentStage.setServiceId(serviceId);
                 }
