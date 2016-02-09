@@ -14,7 +14,7 @@
                     class="glyphicon glyphicon-chevron-right"></span></button>
             <h4 class="heading">{{journey.stages[0].serviceTimes[serviceTimeIndex].departureTime}}
                 from
-                {{journey.stages[0].beginStop.name}}</h4>
+                {{journey.stages[0].firstStation.name}}</h4>
 
             <div ng-repeat="stage in journey.stages ">
 
@@ -23,7 +23,7 @@
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showMap(stage)" class="list-group-item">
-                            <h4>{{stage.prompt}} <strong>{{stage.beginStop.name}}</strong> <span
+                            <h4>{{stage.prompt}} <strong>{{stage.firstStation.name}}</strong> <span
                                     ng-class-odd="'glyphicon glyphicon-chevron-right pull-right'"
                                     ng-class-even="'glyphicon glyphicon-map-marker pull-right'"></span></h4>
 
@@ -37,7 +37,7 @@
                             Duration <strong>{{stage.duration}} min</strong></li>
                         <li class="list-group-item">
                             <strong>{{stage.serviceTimes[serviceTimeIndex].arrivalTime}}</strong> Arrive at
-                            {{stage.endStop.name}}
+                            {{stage.lastStation.name}}
                         </li>
                     </ul>
                 </div>

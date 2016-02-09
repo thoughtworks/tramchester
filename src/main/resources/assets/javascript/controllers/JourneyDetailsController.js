@@ -10,11 +10,11 @@ techLabApp.controller('JourneyDetailsController',
 
         $scope.showMap = function (stage) {
             if ($scope.journey.stages.indexOf(stage) == 0) {
-                $location.url('/map?lat=' + stage.beginStop.latitude + "&lon=" + stage.beginStop.longitude
-                    + "&name=" + stage.beginStop.name + "&direction=1");
+                $location.url('/map?lat=' + stage.firstStation.latitude + "&lon=" + stage.firstStation.longitude
+                    + "&name=" + stage.firstStation.name + "&direction=1");
             } else {
-                $location.url('/map?lat=' + stage.beginStop.latitude + "&lon=" + stage.beginStop.longitude
-                    + "&name=" + stage.beginStop.name + "&direction=0");
+                $location.url('/map?lat=' + stage.firstStation.latitude + "&lon=" + stage.firstStation.longitude
+                    + "&name=" + stage.firstStation.name + "&direction=0");
             }
         };
 

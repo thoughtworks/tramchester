@@ -9,7 +9,7 @@ techLabApp.factory('journeyPlanService', function () {
     return  {
 
         setPlan: function (journeyPlan, start, end, departureTime) {
-            journeyPlanCache = journeyPlanFormatter(journeyPlan);
+            journeyPlanCache = journeyPlan;
             departureTimeCache = departureTime;
             startCache = start;
             endCache = end;
@@ -31,11 +31,6 @@ techLabApp.factory('journeyPlanService', function () {
             return startCache;
         },
 
-        //getNumberOfServiceTimes: function(journeyIndex) {
-        //    var journey = journeyPlanCache.journeys[journeyIndex];
-        //    return journey.stages[0].serviceTimes.length;
-        //},
-
         getJourney: function (journeyIndex) {
             if (journeyPlanCache != null) {
                 var journey = journeyPlanCache.journeys[journeyIndex];
@@ -48,27 +43,4 @@ techLabApp.factory('journeyPlanService', function () {
         }
     };
 
-    //function getStop(stops, stopId) {
-    //    var length = stops.length,
-    //        element = null;
-    //    for (var i = 0; i < length; i++) {
-    //        element = stops[i];
-    //        if (element.id === stopId) {
-    //            return element;
-    //        }
-    //    }
-    //}
-
-    function journeyPlanFormatter(journeyPlan) {
-        for (var i = 0; i < journeyPlan.journeys.length; i++) {
-            var journey = journeyPlan.journeys[i];
-            for (var stageIndex = 0; stageIndex < journey.stages.length; stageIndex++) {
-                //journey.stages[stageIndex].beginStop = getStop(journeyPlan.stations, journey.stages[stageIndex].firstStation);
-                //journey.stages[stageIndex].endStop = getStop(journeyPlan.stations, journey.stages[stageIndex].lastStation);//
-                journey.stages[stageIndex].beginStop = journey.stages[stageIndex].firstStation;
-                journey.stages[stageIndex].endStop = journey.stages[stageIndex].lastStation;
-            }
-        }
-        return journeyPlan;
-    }
 });
