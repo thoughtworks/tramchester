@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public class RawTravelStage implements RawStage {
+public class RawVehicleStage implements TransportStage {
     private final Station firstStation;
     private final TransportMode mode;
     private final String routeName;
@@ -9,7 +9,7 @@ public class RawTravelStage implements RawStage {
     private String serviceId;
     private Station lastStation;
 
-    public RawTravelStage(Station firstStation, String routeName, TransportMode mode, String displayClass, int elapsedTime) {
+    public RawVehicleStage(Station firstStation, String routeName, TransportMode mode, String displayClass, int elapsedTime) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
@@ -21,12 +21,12 @@ public class RawTravelStage implements RawStage {
         return serviceId;
     }
 
-    public RawTravelStage setServiceId(String serviceId) {
+    public RawVehicleStage setServiceId(String serviceId) {
         this.serviceId = serviceId;
         return this;
     }
 
-    public RawTravelStage setLastStation(Station lastStation) {
+    public RawVehicleStage setLastStation(Station lastStation) {
         this.lastStation = lastStation;
         return this;
     }
@@ -48,14 +48,18 @@ public class RawTravelStage implements RawStage {
         return mode;
     }
 
+    @Override
+    public boolean isVehicle() {
+        return (mode.equals(TransportMode.Bus)) || (mode.equals(TransportMode.Tram));
+    }
+
     public String getDisplayClass() {
         return displayClass;
     }
 
-
     @Override
     public String toString() {
-        return "RawTravelStage{" +
+        return "RawVehicleStage{" +
                 "firstStation='" + firstStation + '\'' +
                 ", mode='" + mode + '\'' +
                 ", routeName='" + routeName + '\'' +

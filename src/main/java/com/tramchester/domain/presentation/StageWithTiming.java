@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.RawTravelStage;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.TransportStage;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
 import com.tramchester.mappers.TransportModeSerializer;
@@ -12,12 +13,12 @@ import java.util.SortedSet;
 
 import static java.lang.String.format;
 
-public class Stage {
+public class StageWithTiming implements TransportStage {
     public static final int SECONDS_IN_DAY = 24*60*60;
     private final RawTravelStage rawTravelStage;
     private SortedSet<ServiceTime> serviceTimes;
 
-    public Stage(RawTravelStage rawTravelStage, SortedSet<ServiceTime> serviceTimes) {
+    public StageWithTiming(RawTravelStage rawTravelStage, SortedSet<ServiceTime> serviceTimes) {
         this.rawTravelStage = rawTravelStage;
         this.serviceTimes = serviceTimes;
     }
@@ -44,6 +45,11 @@ public class Stage {
     @JsonSerialize(using = TransportModeSerializer.class)
     public TransportMode getMode() {
         return rawTravelStage.getMode();
+    }
+
+    @Override
+    public boolean isVehicle() {
+        return rawTravelStage.isVehicle();
     }
 
     public String getServiceId() {
@@ -96,7 +102,7 @@ public class Stage {
 
     @Override
     public String toString() {
-        return "Stage{" +
+        return "StageWithTiming{" +
                 "rawTravelStage=" + rawTravelStage +
                 ", serviceTimes=" + serviceTimes +
                 '}';
