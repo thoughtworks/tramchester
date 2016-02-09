@@ -4,6 +4,8 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.StageWithTiming;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +58,13 @@ public abstract class JourneyResponseMapper {
         }
         Station station = journey.getStages().get(0).getLastStation();
         return format("Change at %s", station.getName());
+    }
+
+    protected TravelAction decideAction(List<StageWithTiming> stages, List<TransportStage> rawJourneyStages) {
+        if (stages.isEmpty()) {
+            return TravelAction.Board;
+        }
+        return TravelAction.Change;
     }
 
 }

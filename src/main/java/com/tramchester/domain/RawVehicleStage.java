@@ -1,13 +1,14 @@
 package com.tramchester.domain;
 
-public class RawVehicleStage implements VehicleStage {
-    private final Station firstStation;
-    private final TransportMode mode;
-    private final String routeName;
-    private final String displayClass;
-    private int elapsedTime;
-    private String serviceId;
-    private Station lastStation;
+public class RawVehicleStage implements TransportStage {
+    protected final Station firstStation;
+    protected final TransportMode mode;
+    protected final String routeName;
+    protected final String displayClass;
+    protected final int elapsedTime;
+
+    protected String serviceId;
+    protected Station lastStation;
 
     public RawVehicleStage(Station firstStation, String routeName, TransportMode mode, String displayClass, int elapsedTime) {
         this.firstStation = firstStation;
@@ -15,6 +16,16 @@ public class RawVehicleStage implements VehicleStage {
         this.mode = mode;
         this.displayClass = displayClass;
         this.elapsedTime = elapsedTime;
+    }
+
+    public RawVehicleStage(RawVehicleStage other) {
+        this.firstStation = other.firstStation;
+        this.routeName = other.routeName;
+        this.mode = other.mode;
+        this.displayClass = other.displayClass;
+        this.elapsedTime = other.elapsedTime;
+        this.serviceId = other.serviceId;
+        this.lastStation = other.lastStation;
     }
 
     public String getServiceId() {
@@ -31,17 +42,14 @@ public class RawVehicleStage implements VehicleStage {
         return this;
     }
 
-    @Override
     public Station getFirstStation() {
         return firstStation;
     }
 
-    @Override
     public Station getLastStation() {
         return lastStation;
     }
 
-    @Override
     public String getRouteName() {
         return routeName;
     }

@@ -42,7 +42,7 @@ public class JourneyTest {
                 setLastStation(stationB);
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));
-        stages.add(new StageWithTiming(rawTravelStage, serviceTimes));
+        stages.add(new StageWithTiming(rawTravelStage, serviceTimes, TravelAction.Board));
         return stages;
     }
 }

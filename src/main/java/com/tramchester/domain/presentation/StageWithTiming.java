@@ -1,58 +1,24 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.*;
+import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
-import com.tramchester.mappers.TransportModeSerializer;
 
 import java.time.LocalTime;
 import java.util.SortedSet;
 
 import static java.lang.String.format;
 
-public class StageWithTiming implements VehicleStage {
+public class StageWithTiming extends RawVehicleStage {
     public static final int SECONDS_IN_DAY = 24*60*60;
-    private final RawVehicleStage rawTravelStage;
+    private final TravelAction action;
     private SortedSet<ServiceTime> serviceTimes;
 
-    public StageWithTiming(RawVehicleStage rawTravelStage, SortedSet<ServiceTime> serviceTimes) {
-        this.rawTravelStage = rawTravelStage;
+    public StageWithTiming(RawVehicleStage rawTravelStage, SortedSet<ServiceTime> serviceTimes, TravelAction action) {
+        super(rawTravelStage);
         this.serviceTimes = serviceTimes;
-    }
-
-    @Override
-    public Station getFirstStation() {
-        return rawTravelStage.getFirstStation();
-    }
-
-    @Override
-    public String getRouteName() {
-        return rawTravelStage.getRouteName();
-    }
-
-    @Override
-    public Station getLastStation() {
-        return rawTravelStage.getLastStation();
-    }
-
-    // used from javascript on front-end
-    public String getDisplayClass() {
-        return rawTravelStage.getDisplayClass();
-    }
-
-    @JsonSerialize(using = TransportModeSerializer.class)
-    public TransportMode getMode() {
-        return rawTravelStage.getMode();
-    }
-
-    @Override
-    public boolean isVehicle() {
-        return rawTravelStage.isVehicle();
-    }
-
-    public String getServiceId() {
-        return rawTravelStage.getServiceId();
+        this.action = action;
     }
 
     public SortedSet<ServiceTime> getServiceTimes() {
@@ -102,7 +68,7 @@ public class StageWithTiming implements VehicleStage {
     @Override
     public String toString() {
         return "StageWithTiming{" +
-                "rawTravelStage=" + rawTravelStage +
+                "rawTravelStage=" + super.toString() +
                 ", serviceTimes=" + serviceTimes +
                 '}';
     }
@@ -120,8 +86,6 @@ public class StageWithTiming implements VehicleStage {
     }
 
     public String getSummary() throws TramchesterException {
-        TransportMode mode = rawTravelStage.getMode();
-        String routeName = rawTravelStage.getRouteName();
         switch (mode) {
             case Bus : {
                 return format("%s Bus route", routeName);
@@ -134,7 +98,28 @@ public class StageWithTiming implements VehicleStage {
         }
     }
 
-    public String getPrompt() {
-        return "Walk to";
+    public String getPrompt() throws TramchesterException {
+        String verb;
+        switch (action) {
+            case Board: verb = "Board";
+                break;
+            case Leave: verb = "Leave";
+                break;
+            case Change: verb = "Change";
+                break;
+            default:
+                throw new TramchesterException("Unknown transport action " + action);
+        }
+
+        switch (mode) {
+            case Bus : {
+                return format("%s bus at", verb);
+            }
+            case Tram: {
+                return format("%s tram at", verb);
+            }
+            default:
+                throw new TramchesterException("Unknown transport mode " + mode);
+        }
     }
 }

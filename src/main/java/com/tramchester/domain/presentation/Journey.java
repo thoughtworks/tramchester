@@ -12,7 +12,6 @@ public class Journey implements Comparable<Journey> {
 
     private List<StageWithTiming> stages;
     private String summary;
-    private int numberOfTimes;
 
     public Journey(List<StageWithTiming> stages) {
         this.stages = stages;
@@ -68,11 +67,14 @@ public class Journey implements Comparable<Journey> {
 
     // used front end
     public int getNumberOfTimes() {
-        return numberOfTimes;
-    }
-
-    public void setNumberOfTimes(int numberOfTimes) {
-        this.numberOfTimes = numberOfTimes;
+        int minNumberOfTimes = Integer.MAX_VALUE;
+        for (StageWithTiming stage : stages) {
+            int size = stage.getServiceTimes().size();
+            if (size < minNumberOfTimes) {
+                minNumberOfTimes = size;
+            }
+        }
+        return minNumberOfTimes;
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.presentation.DisplayStation;
 import org.joda.time.DateTime;
 import org.junit.*;
 
@@ -41,7 +42,7 @@ public class StationResourceTest {
     @Test
     public void shouldGetNearestStations() throws Exception {
         Response result = stationResource.getNearest(53.4804263d, -2.2392436d);
-        List<Station> stations = (List<Station>) result.getEntity();
+        List<DisplayStation> stations = (List<DisplayStation>) result.getEntity();
 
         Map<String, Long> stationGroups = stations.stream()
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
@@ -58,9 +59,9 @@ public class StationResourceTest {
     @Test
     public void shouldGetSpecialStationWithMyLocation() throws JsonProcessingException {
         Response result = stationResource.getNearest(53.4804263d, -2.2392436d);
-        List<Station> stations = (List<Station>) result.getEntity();
+        List<DisplayStation> stations = (List<DisplayStation>) result.getEntity();
 
-        Station station = stations.get(0);
+        DisplayStation station = stations.get(0);
         assertEquals("Nearby", station.getProximityGroup());
         assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getId());
         assertEquals("My Location", station.getName());
@@ -91,7 +92,7 @@ public class StationResourceTest {
     @Test
     public void shouldGetAllStationsWithRightOrderAndProxGroup() {
         Response result = stationResource.getAll();
-        Collection<Station> stations = (Collection<Station>) result.getEntity();
+        Collection<DisplayStation> stations = (Collection<DisplayStation>) result.getEntity();
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
 

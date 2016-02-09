@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.StageWithTiming;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,44 +23,38 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
     }
 
     protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
-        int minNumberOfTimes = Integer.MAX_VALUE;
         List<StageWithTiming> stages = new LinkedList<>();
-        for (TransportStage rawStage : rawJourney.getStages()) {
+        List<TransportStage> rawJourneyStages = rawJourney.getStages();
+        for (TransportStage rawStage : rawJourneyStages) {
             if (rawStage.isVehicle()) {
                 RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
                 String serviceId = rawTravelStage.getServiceId();
                 logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
-
                 Station firstStation = rawTravelStage.getFirstStation();
                 Station lastStation = rawTravelStage.getLastStation();
+
                 SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, timeWindow);
                 if (times.isEmpty()) {
                     String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                             rawStage, serviceId, timeWindow);
                     logger.error(message);
-                    return null;
-                }
+                } else {
+                    logger.info(format("Found %s times for service id %s", times.size(), serviceId));
+                    StageWithTiming stage = new StageWithTiming(rawTravelStage, times, decideAction(stages,rawJourneyStages));
+                    stages.add(stage);
 
-                if (times.size() < minNumberOfTimes) {
-                    minNumberOfTimes = times.size();
+                    int departsAtMinutes = stage.findEarliestDepartureTime();
+                    int duration = stage.getDuration();
+                    timeWindow = timeWindow.next(departsAtMinutes + duration);
+                    logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
+                            duration, departsAtMinutes, timeWindow));
                 }
-                logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-                StageWithTiming stage = new StageWithTiming(rawTravelStage, times);
-                stages.add(stage);
-                int departsAtMinutes = stage.findEarliestDepartureTime();
-                int duration = stage.getDuration();
-                timeWindow = timeWindow.next(departsAtMinutes + duration);
-                logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
-                        duration, departsAtMinutes, timeWindow));
             }
         }
-        Journey journey = new Journey(stages);
-        // we need to the least number of times we found for any one stage
-        // This likely needs to change, people may want to choose an early depart as it may allow more time for a
-        // connection or might (in the case of the buses) result in an early
-        journey.setNumberOfTimes(minNumberOfTimes);
-        return journey;
+        return new Journey(stages);
     }
+
+
 
 
 }

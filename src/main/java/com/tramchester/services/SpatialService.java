@@ -2,6 +2,7 @@ package com.tramchester.services;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -13,15 +14,13 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.IndexHits;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class SpatialService extends StationIndexs {
+    public static final String ALL_STOPS = "All Stops";
     // TODO these both into config
     //public static final int NUMBER_OF_NEAREST = 6;
     //public static final double DISTANCE_IN_KM = 30;
@@ -39,29 +38,29 @@ public class SpatialService extends StationIndexs {
         this.config = config;
     }
 
-    public List<Station> reorderNearestStations(LatLong latLong, Map<String, Station> stations) {
+    public List<DisplayStation> reorderNearestStations(LatLong latLong, List<Station> sortedStations) {
         Transaction tx = graphDatabaseService.beginTx();
+        List<Station> seen = new LinkedList<>();
         try {
-            List<Station> sorted = stations.values().stream()
-                    .sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
-
             List<String> nearestStations = getNearestStationsToNoTransaction(latLong, config.getNumOfNearestStops());
-            List<Station> reorderedStations = new ArrayList<>();
+            List<DisplayStation> reorderedStations = new ArrayList<>();
 
             for (String id : nearestStations) {
-
                 Station nearestStation = stationRepository.getStation(id);
                 if (nearestStation != null) {
-                    nearestStation.setProximityGroup("Nearest Stops");
-                    reorderedStations.add(nearestStation);
-                    sorted.remove(nearestStation);
+                    DisplayStation displayStation = new DisplayStation(nearestStation, "Nearest Stops");
+                    //nearestStation.setProximityGroup("Nearest Stops");
+                    reorderedStations.add(displayStation);
+                    seen.add(nearestStation);
+//                    sorted.remove(nearestStation);
                 }
             }
 
-            for (Station station : sorted) {
-                    station.setProximityGroup("All Stops");
-                    reorderedStations.add(station);
-            }
+            //                    station.setProximityGroup(ALL_STOPS);
+//                    reorderedStations.add(station);
+            reorderedStations.addAll(sortedStations.stream().filter(station -> !seen.contains(station)).
+                    map(station -> new DisplayStation(station, ALL_STOPS)).
+                    collect(Collectors.toList()));
             tx.success();
             return reorderedStations;
         } finally {

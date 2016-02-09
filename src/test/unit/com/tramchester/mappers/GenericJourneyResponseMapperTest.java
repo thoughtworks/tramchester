@@ -39,7 +39,6 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
 
         transportData = createMock(TransportDataFromFiles.class);
         mapper = new GenericJourneyResponseMapper(transportData);
-
     }
 
     @Test
@@ -66,11 +65,6 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
-        //List<Station> stations = result.getStations();
-//        assertEquals(4, stations.size()); // TODO this current double counts, check this
-//        assertTrue(stations.contains(stationA));
-//        assertTrue(stations.contains(stationB));
-//        assertTrue(stations.contains(stationC));
 
         Set<Journey> journeys = result.getJourneys();
         assertEquals(1, journeys.size());
@@ -110,11 +104,6 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
-//        List<Station> stations = result.getStations();
-//        assertEquals(4, stations.size()); // TODO this current double counts, check this
-//        assertTrue(stations.contains(stationA));
-//        assertTrue(stations.contains(stationB));
-//        assertTrue(stations.contains(stationC));
 
         Set<Journey> journeys = result.getJourneys();
         assertEquals(1, journeys.size());
@@ -128,6 +117,9 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         assertEquals(4, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
         verifyAll();
+
+        assertEquals("Board bus at", stageFirst.getPrompt());
+        assertEquals("Change bus at", stageSecond.getPrompt());
     }
 
     private void createSimpleRawJourney(int stageATime, int stageBTime) {

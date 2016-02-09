@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
@@ -128,6 +129,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         SortedSet<ServiceTime> serviceTimes = stage2.getServiceTimes();
         assertEquals(2, serviceTimes.size());
+
+        assertEquals("Change tram at",stage2.getPrompt());
     }
 
     @Test

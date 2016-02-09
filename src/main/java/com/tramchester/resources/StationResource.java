@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.StationClosureMessage;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
 import org.slf4j.Logger;
@@ -19,10 +21,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -31,36 +33,44 @@ import static java.lang.String.format;
 public class StationResource {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
 
-    private final Map<String,Station> workingStations;
+    private List<Station> allStationsSorted;
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
     private final TramchesterConfig config;
     private final ObjectMapper mapper;
+    private final StationRepository stationRepository;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations, TramchesterConfig config) {
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.config = config;
-        this.workingStations = transportData.getStations().stream()
-                .filter(station -> !closedStations.contains(station.getName()))
-                .collect(Collectors.<Station, String, Station>toMap(s -> s.getId(), s->s));
+        this.stationRepository = transportData;
+//        this.workingStations = transportData.getStations().stream()
+//                .filter(station -> !closedStations.contains(station.getName()))
+//                .collect(Collectors.<Station, String, Station>toMap(s -> s.getId(), s->s));
         mapper = new ObjectMapper();
+        allStationsSorted = new LinkedList<>();
     }
 
     @GET
     @Timed
     public Response getAll() {
         logger.info("Get all stations");
-        return Response.ok(mapStations()).build();
+        List<DisplayStation> displayStations = getStations().stream().
+                map(station -> new DisplayStation(station, SpatialService.ALL_STOPS)).
+                collect(Collectors.toList());
+        return Response.ok(displayStations).build();
     }
 
-    // TODO SORT ON WAY IN
-    private List<Station> mapStations() {
-        List<Station> sorted = workingStations.values().stream()
-                .sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
-        sorted.forEach(station -> station.setProximityGroup("All Stops"));
-        return sorted;
+    private List<Station> getStations() {
+        if (allStationsSorted.isEmpty()) {
+            List<Station> rawList = stationRepository.getStations();
+            allStationsSorted = rawList.stream().
+                    sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).
+                    collect(Collectors.toList());
+        }
+        return allStationsSorted;
     }
 
     @GET
@@ -76,10 +86,13 @@ public class StationResource {
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
-        if (workingStations.containsKey(id)) {
-            return Response.ok(workingStations.get(id)).build();
+        Station station = stationRepository.getStation(id);
+        if (station!=null) {
+            return Response.ok(station).build();
         }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
     @GET
@@ -87,12 +100,11 @@ public class StationResource {
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s ", lat, lon));
 
-        List<Station> orderedStations = spatialService.reorderNearestStations(new LatLong(lat, lon), workingStations);
+        List<DisplayStation> orderedStations = spatialService.reorderNearestStations(new LatLong(lat, lon), getStations());
 
         if (config.showMyLocation()) {
             Station myLocation = new Station(formId(lat,lon), "", "My Location", lat, lon, false);
-            myLocation.setProximityGroup("Nearby");
-            orderedStations.add(0, myLocation);
+            orderedStations.add(0, new DisplayStation(myLocation, "Nearby"));
         }
 
         return Response.ok(orderedStations).build();

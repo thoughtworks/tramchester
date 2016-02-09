@@ -7,13 +7,7 @@ public class Station {
     private final String name;
     private final double latitude;
     private final double longitude;
-    private boolean isTram;
-    private String proximityGroup;
-
-    @Override
-    public String toString() {
-        return String.format("Station: [id:%s name:%s]",id, name);
-    }
+    private final boolean isTram;
 
     public Station(String id, String area, String stopName, double latitude, double longitude, boolean isTram) {
         this.id = id;
@@ -27,6 +21,14 @@ public class Station {
         this.latitude = latitude;
         this.longitude = longitude;
         this.isTram = isTram;
+    }
+
+    public Station(Station other) {
+        this.id = other.id;
+        this.name = other.name;
+        this.latitude = other.latitude;
+        this.longitude = other.longitude;
+        this.isTram = other.isTram;
     }
 
     public String getId() {
@@ -43,14 +45,6 @@ public class Station {
 
     public double getLongitude() {
         return longitude;
-    }
-
-    public void setProximityGroup(String proximityGroup) {
-        this.proximityGroup = proximityGroup;
-    }
-
-    public String getProximityGroup() {
-        return proximityGroup;
     }
 
     public static String formId(String rawId) {
@@ -74,11 +68,15 @@ public class Station {
         Station station = (Station) o;
 
         return id.equals(station.id);
-
     }
 
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Station: [id:%s name:%s]",id, name);
     }
 }

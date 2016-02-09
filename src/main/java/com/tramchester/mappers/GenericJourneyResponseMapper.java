@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.StageWithTiming;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,40 +24,33 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
 
     @Override
     protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
-        int minNumberOfTimes = Integer.MAX_VALUE;
 
         List<StageWithTiming> stages = new LinkedList<>();
-        for (TransportStage rawStage : rawJourney.getStages()) {
+        List<TransportStage> rawJourneyStages = rawJourney.getStages();
+        for (TransportStage rawStage : rawJourneyStages) {
             if (rawStage.isVehicle()) {
                 RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
-
                 String serviceId = rawTravelStage.getServiceId();
                 logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
-
                 Station firstStation = rawTravelStage.getFirstStation();
                 Station lastStation = rawTravelStage.getLastStation();
+
                 int elapsedTime = rawTravelStage.getElapsedTime();
                 TimeWindow newTimeWindow = timeWindow.next(elapsedTime);
-                SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation,
-                        newTimeWindow);
 
+                SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, newTimeWindow);
                 if (times.isEmpty()) {
                     String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                             rawStage, serviceId, newTimeWindow);
                     logger.error(message);
-                    return null;
+                } else {
+                    logger.info(format("Found %s times for service id %s", times.size(), serviceId));
+                    StageWithTiming stage = new StageWithTiming(rawTravelStage, times, decideAction(stages,rawJourneyStages));
+                    stages.add(stage);
                 }
-
-                if (times.size() < minNumberOfTimes) {
-                    minNumberOfTimes = times.size();
-                }
-                logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-                StageWithTiming stage = new StageWithTiming(rawTravelStage, times);
-                stages.add(stage);
             }
         }
         Journey journey = new Journey(stages);
-        journey.setNumberOfTimes(minNumberOfTimes);
         return journey;
     }
 }
