@@ -1,7 +1,9 @@
 package com.tramchester.domain;
 
-/**
- * Created by icartwri on 05/02/2016.
- */
-public interface VehicleStage {
+public interface VehicleStage extends TransportStage{
+    Station getFirstStation();
+
+    Station getLastStation();
+
+    String getRouteName();
 }

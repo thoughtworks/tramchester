@@ -3,14 +3,14 @@ package com.tramchester.domain;
 import java.util.Iterator;
 import java.util.List;
 
-public class RawJourney implements Iterable<RawStage> {
-    private List<RawStage> stages;
+public class RawJourney implements Iterable<TransportStage> {
+    private List<TransportStage> stages;
 
-    public RawJourney(List<RawStage> stages) {
+    public RawJourney(List<TransportStage> stages) {
         this.stages = stages;
     }
     
-    public Iterator<RawStage> iterator() {
+    public Iterator<TransportStage> iterator() {
         return stages.iterator();
     }
 
@@ -21,7 +21,7 @@ public class RawJourney implements Iterable<RawStage> {
                 '}';
     }
 
-    public List<RawStage> getStages() {
+    public List<TransportStage> getStages() {
         return stages;
     }
 

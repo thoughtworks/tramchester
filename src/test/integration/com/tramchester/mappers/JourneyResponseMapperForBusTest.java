@@ -23,7 +23,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private static Dependencies dependencies;
     private JourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
-    private List<RawStage> stages;
+    private List<TransportStage> stages;
 
     private Station stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", 1.5, 1.5, false);
     private Station stockportBridgefieldStreet = new Station("1800SG15811", "stockportArea", "Bridgefield Street",
@@ -64,7 +64,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
                                                                    int minutesFromMidnight) throws TramchesterException {
 
         int elapsedTime = 8*60;
-        RawTravelStage busStage = new RawTravelStage(begin, "route text", TransportMode.Bus, "cssClass", elapsedTime);
+        RawVehicleStage busStage = new RawVehicleStage(begin, "route text", TransportMode.Bus, "cssClass", elapsedTime);
         busStage.setServiceId(svcId);
         busStage.setLastStation(end);
 

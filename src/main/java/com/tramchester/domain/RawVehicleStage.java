@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public class RawVehicleStage implements TransportStage {
+public class RawVehicleStage implements VehicleStage {
     private final Station firstStation;
     private final TransportMode mode;
     private final String routeName;
@@ -31,14 +31,17 @@ public class RawVehicleStage implements TransportStage {
         return this;
     }
 
+    @Override
     public Station getFirstStation() {
         return firstStation;
     }
 
+    @Override
     public Station getLastStation() {
         return lastStation;
     }
 
+    @Override
     public String getRouteName() {
         return routeName;
     }

@@ -29,11 +29,11 @@ public abstract class JourneyResponseMapper {
                     stations.get(0), stations.get(stations.size() - 1),
                     window));
         }
-        SortedSet<Journey> decoratedJourneys = decorateJourneys(journeys, stations, window);
+        SortedSet<Journey> decoratedJourneys = decorateJourneys(journeys, window);
         return new JourneyPlanRepresentation(decoratedJourneys, stations);
     }
 
-    protected SortedSet<Journey> decorateJourneys(Set<RawJourney> rawJourneys, List<Station> stations, TimeWindow window)
+    protected SortedSet<Journey> decorateJourneys(Set<RawJourney> rawJourneys, TimeWindow window)
             throws TramchesterException {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<Journey> journeys = new TreeSet<>();
@@ -42,7 +42,7 @@ public abstract class JourneyResponseMapper {
 
             Journey journey = createJourney(rawJourney, window);
             if (journey!=null) {
-                journey.setSummary(getJourneySummary(journey, stations));
+                journey.setSummary(getJourneySummary(journey));
                 journeys.add(journey);
                 logger.info("Added journey " +journey);
             } else {
@@ -55,18 +55,18 @@ public abstract class JourneyResponseMapper {
         return journeys;
     }
 
-    private String getJourneySummary(Journey journey, List<Station> stations) {
+    private String getJourneySummary(Journey journey) {
         if (journey.getStages().size() < 2) {
             return "Direct";
         }
-        String endStopId = journey.getStages().get(0).getLastStation();
-        Station station = null;
-        for (Station stop : stations) {
-            if (stop.getId().equals(endStopId)) {
-                station = stop;
-                break;
-            }
-        }
+        Station station = journey.getStages().get(0).getLastStation();
+//        Station station = null;
+//        for (Station aStation : stations) {
+//            if (aStation.equals(endStopId)) {
+//                station = aStation;
+//                break;
+//            }
+//        }
         return format("Change at %s", station.getName());
     }
 
@@ -74,8 +74,8 @@ public abstract class JourneyResponseMapper {
         List<Station> stations = new LinkedList<>();
         for (RawJourney journey : journeys) {
             journey.forEach(raw -> {
-                if (raw.getMode().equals(TransportMode.Bus) || raw.getMode().equals(TransportMode.Tram)) {
-                    RawTravelStage stage = (RawTravelStage) raw;
+                if (raw.isVehicle()) {
+                    RawVehicleStage stage = (RawVehicleStage) raw;
                     stations.add(stage.getFirstStation());
                     stations.add(stage.getLastStation());
                 }

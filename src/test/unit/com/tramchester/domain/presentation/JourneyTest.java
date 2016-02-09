@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation;
 
 
-import com.tramchester.domain.RawTravelStage;
+import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import org.junit.Test;
@@ -36,13 +36,13 @@ public class JourneyTest {
         assertEquals(LocalTime.of(10,20), set.first().getExpectedArrivalTime());
     }
 
-    private List<Stage> createStages(LocalTime arrivesEnd) {
-        List<Stage> stages = new LinkedList<>();
-        RawTravelStage rawTravelStage = new RawTravelStage(stationA, "routeName", TransportMode.Bus, "cssClass", 20).
+    private List<StageWithTiming> createStages(LocalTime arrivesEnd) {
+        List<StageWithTiming> stages = new LinkedList<>();
+        RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass", 20).
                 setLastStation(stationB);
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));
-        stages.add(new Stage(rawTravelStage, serviceTimes));
+        stages.add(new StageWithTiming(rawTravelStage, serviceTimes));
         return stages;
     }
 }

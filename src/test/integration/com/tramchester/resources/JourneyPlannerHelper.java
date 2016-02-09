@@ -4,9 +4,8 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.Stage;
+import com.tramchester.domain.presentation.StageWithTiming;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -19,7 +18,7 @@ public class JourneyPlannerHelper {
     protected void checkDepartsAfterPreviousArrival(String message, Set<Journey> journeys) {
         for(Journey journey: journeys) {
             LocalTime previousArrive = null;
-            for(Stage stage : journey.getStages()) {
+            for(StageWithTiming stage : journey.getStages()) {
                 if (previousArrive!=null) {
                     String prefix  = String.format("Check arrive at '%s' and leave at '%s' " , previousArrive, stage.getFirstDepartureTime());
                     assertTrue(prefix + message, stage.getFirstDepartureTime().isAfter(previousArrive));

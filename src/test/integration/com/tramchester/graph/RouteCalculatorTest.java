@@ -47,13 +47,13 @@ public class RouteCalculatorTest {
 
         assertEquals(1, results.size());    // results is iterator
         for (RawJourney result : results) {
-            List<RawStage> stages = result.getStages();
+            List<TransportStage> stages = result.getStages();
             assertEquals(2, stages.size());
-            RawTravelStage firstStage = (RawTravelStage) stages.get(0);
+            RawVehicleStage firstStage = (RawVehicleStage) stages.get(0);
             assertEquals(Stations.Altrincham, firstStage.getFirstStation());
             assertEquals(Stations.TraffordBar, firstStage.getLastStation().getId());
             assertEquals(TransportMode.Tram, firstStage.getMode());
-            RawTravelStage secondStage = (RawTravelStage) stages.get(1);
+            RawVehicleStage secondStage = (RawVehicleStage) stages.get(1);
             assertEquals(Stations.TraffordBar, secondStage.getFirstStation().getId());
             assertEquals(Stations.ManAirport, secondStage.getLastStation());
             assertEquals(TransportMode.Tram, secondStage.getMode());

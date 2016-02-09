@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation;
 
 
-import com.tramchester.domain.RawTravelStage;
+import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -22,7 +22,7 @@ public class StageWithTimingTest {
     @Test
     public void shouldGetDurationCorrectly() {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(8, 00), LocalTime.of(9, 15), "svcId", "headsign", tripId);
-        StageWithTiming stage = new StageWithTiming(new RawTravelStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime), createSet(serviceTime));
+        StageWithTiming stage = new StageWithTiming(new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime), createSet(serviceTime));
 
         assertEquals(75, stage.getDuration());
     }
@@ -32,7 +32,7 @@ public class StageWithTimingTest {
         ServiceTime serviceTimeA = new ServiceTime(LocalTime.of(8, 00), LocalTime.of(9, 15), "svcId", "headsign", tripId);
         ServiceTime serviceTimeB = new ServiceTime(LocalTime.of(7, 00), LocalTime.of(7, 45), "svcId", "headsign", tripId);
 
-        StageWithTiming stage = new StageWithTiming(new RawTravelStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime),
+        StageWithTiming stage = new StageWithTiming(new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime),
                 createSet(serviceTimeA,serviceTimeB));
 
         assertEquals(LocalTime.of(7, 00), stage.getFirstDepartureTime());
@@ -52,7 +52,7 @@ public class StageWithTimingTest {
         ServiceTime serviceTimeA = new ServiceTime(LocalTime.of(8, 00), LocalTime.of(9, 15), "svcId", "headsign", tripId);
         ServiceTime serviceTimeB = new ServiceTime(LocalTime.of(7, 00), LocalTime.of(7, 45), "svcId", "headsign", tripId);
 
-        StageWithTiming stage = new StageWithTiming(new RawTravelStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime),
+        StageWithTiming stage = new StageWithTiming(new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime),
                 createSet(serviceTimeA,serviceTimeB));
 
         assertEquals(7*60, stage.findEarliestDepartureTime());
@@ -65,7 +65,7 @@ public class StageWithTimingTest {
         ServiceTime arrivesFirst = new ServiceTime(LocalTime.of(7, 10), LocalTime.of(9, 00), "svcId", "headsign",
                 tripId);
 
-        StageWithTiming stage = new StageWithTiming(new RawTravelStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime),
+        StageWithTiming stage = new StageWithTiming(new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime),
                 createSet(leavesFirst,arrivesFirst));
 
         assertEquals(LocalTime.of(7,10), stage.getFirstDepartureTime());
@@ -74,7 +74,7 @@ public class StageWithTimingTest {
     @Test
     public void shouldGetDurationCorrectlyWhenAfterMidnight() {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
-        StageWithTiming stage = new StageWithTiming(new RawTravelStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime), createSet(serviceTime));
+        StageWithTiming stage = new StageWithTiming(new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime), createSet(serviceTime));
 
         assertEquals(25, stage.getDuration());
     }
@@ -83,22 +83,23 @@ public class StageWithTimingTest {
     public void shouldGetAttributesPassedIn() {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
 
-        RawTravelStage rawTravelStage = new RawTravelStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
-        rawTravelStage.setLastStation(new Station("lastStation", "area", "name", -1,-1, true));
+        RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
+        Station lastStation = new Station("lastStation", "area", "name", -1, -1, true);
+        rawTravelStage.setLastStation(lastStation);
         rawTravelStage.setServiceId("svcId");
         StageWithTiming stage = new StageWithTiming(rawTravelStage, createSet(serviceTime));
         assertEquals("cssClass", stage.getDisplayClass());
         assertEquals(TransportMode.Tram, stage.getMode());
-        assertEquals("route", stage.getRoute());
-        assertEquals("firstStation", stage.getFirstStation());
-        assertEquals("lastStation", stage.getLastStation());
+        assertEquals("route", stage.getRouteName());
+        assertEquals(firstStation, stage.getFirstStation());
+        assertEquals(lastStation, stage.getLastStation());
         assertEquals("svcId", stage.getServiceId());
     }
 
     @Test
     public void shouldDisplayCorrectPrompt() {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
-        RawTravelStage rawTravelStage = new RawTravelStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
 
         StageWithTiming stage = new StageWithTiming(rawTravelStage, createSet(serviceTime));
 
@@ -109,13 +110,13 @@ public class StageWithTimingTest {
     public void shouldGetStageSummary() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
 
-        RawTravelStage rawTravelStageA = new RawTravelStage(firstStation, "routeName", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage rawTravelStageA = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass", elapsedTime);
         StageWithTiming stageA = new StageWithTiming(rawTravelStageA, createSet(serviceTime));
         String result = stageA.getSummary();
 
         assertEquals(result, "routeName Tram line");
 
-        RawTravelStage rawTravelStageB = new RawTravelStage(firstStation, "routeName", TransportMode.Bus, "cssClass", elapsedTime);
+        RawVehicleStage rawTravelStageB = new RawVehicleStage(firstStation, "routeName", TransportMode.Bus, "cssClass", elapsedTime);
         StageWithTiming stageB = new StageWithTiming(rawTravelStageB, createSet(serviceTime));
         result = stageB.getSummary();
 

@@ -1,10 +1,9 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.RawTravelStage;
-import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.TransportStage;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.mappers.StationSerializer;
 import com.tramchester.mappers.TimeJsonSerializer;
 import com.tramchester.mappers.TransportModeSerializer;
 
@@ -13,28 +12,31 @@ import java.util.SortedSet;
 
 import static java.lang.String.format;
 
-public class StageWithTiming implements TransportStage {
+public class StageWithTiming implements VehicleStage {
     public static final int SECONDS_IN_DAY = 24*60*60;
-    private final RawTravelStage rawTravelStage;
+    private final RawVehicleStage rawTravelStage;
     private SortedSet<ServiceTime> serviceTimes;
 
-    public StageWithTiming(RawTravelStage rawTravelStage, SortedSet<ServiceTime> serviceTimes) {
+    public StageWithTiming(RawVehicleStage rawTravelStage, SortedSet<ServiceTime> serviceTimes) {
         this.rawTravelStage = rawTravelStage;
         this.serviceTimes = serviceTimes;
     }
 
-    // TODO return station
-    public String getFirstStation() {
-        return rawTravelStage.getFirstStation().getId();
+    @Override
+    @JsonSerialize(using = StationSerializer.class)
+    public Station getFirstStation() {
+        return rawTravelStage.getFirstStation();
     }
 
-    public String getRoute() {
+    @Override
+    public String getRouteName() {
         return rawTravelStage.getRouteName();
     }
 
-    // TODO return station
-    public String getLastStation() {
-        return rawTravelStage.getLastStation().getId();
+    @Override
+    @JsonSerialize(using = StationSerializer.class)
+    public Station getLastStation() {
+        return rawTravelStage.getLastStation();
     }
 
     // used from javascript on front-end

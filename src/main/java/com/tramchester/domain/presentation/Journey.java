@@ -2,26 +2,24 @@ package com.tramchester.domain.presentation;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.RawJourney;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 
 public class Journey implements Comparable<Journey> {
 
-    private List<Stage> stages;
+    private List<StageWithTiming> stages;
     private String summary;
     private int numberOfTimes;
 
-    public Journey(List<Stage> stages) {
+    public Journey(List<StageWithTiming> stages) {
         this.stages = stages;
     }
 
     // used front end
-    public List<Stage> getStages() {
+    public List<StageWithTiming> getStages() {
         return stages;
     }
 
@@ -51,12 +49,12 @@ public class Journey implements Comparable<Journey> {
         return getLastStage().getExpectedArrivalTime();
     }
 
-    private Stage getLastStage() {
+    private StageWithTiming getLastStage() {
         int index = stages.size() - 1;
         return stages.get(index);
     }
 
-    private Stage getFirstStage() {
+    private StageWithTiming getFirstStage() {
         return stages.get(0);
     }
 

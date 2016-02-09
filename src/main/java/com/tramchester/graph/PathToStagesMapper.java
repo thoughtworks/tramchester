@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.RawStage;
-import com.tramchester.domain.RawTravelStage;
+import com.tramchester.domain.RawVehicleStage;
+import com.tramchester.domain.TransportStage;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
@@ -35,8 +35,8 @@ public class PathToStagesMapper {
         this.stationRepository = stationRepository;
     }
 
-    public List<RawStage> mapStages(WeightedPath path, int minsPastMidnight) {
-        List<RawStage> stages = new ArrayList<>();
+    public List<TransportStage> mapStages(WeightedPath path, int minsPastMidnight) {
+        List<TransportStage> stages = new ArrayList<>();
 
         Iterable<Relationship> relationships = path.relationships();
         RelationshipFactory relationshipFactory = new RelationshipFactory();
@@ -45,7 +45,7 @@ public class PathToStagesMapper {
 
         int totalCost = 0;
         RouteStationNode boardNode = null;
-        RawTravelStage currentStage = null;
+        RawVehicleStage currentStage = null;
         String firstStationId = null;
         int boardTime = -1;
         for (Relationship graphRelationship : relationships) {
@@ -83,7 +83,7 @@ public class PathToStagesMapper {
                     String routeName = boardNode.getRouteName();
                     String routeId = boardNode.getRouteId();
                     String tramRouteClass = routeIdToClass.map(routeId);
-                    currentStage = new RawTravelStage(stationRepository.getStation(firstStationId), routeName,
+                    currentStage = new RawVehicleStage(stationRepository.getStation(firstStationId), routeName,
                             transportRelationship.getMode(), tramRouteClass, boardTime);
                     currentStage.setServiceId(serviceId);
                 }

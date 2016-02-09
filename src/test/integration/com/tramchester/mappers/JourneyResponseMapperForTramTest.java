@@ -8,7 +8,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.Stage;
+import com.tramchester.domain.presentation.StageWithTiming;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import org.junit.AfterClass;
@@ -30,7 +30,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     private static Dependencies dependencies;
     private TramJourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
-    private List<RawStage> stages;
+    private List<TransportStage> stages;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -42,7 +42,6 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     public static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
-
 
     @Before
     public void beforeEachTestRuns() {
@@ -56,7 +55,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
         String svcId = findServiceId(Stations.Victoria.getId(), Stations.Rochdale.getId(), 930);
         int elapsedTime = 931;
-        RawTravelStage vicToRoch = new RawTravelStage(Stations.Victoria, "route text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage vicToRoch = new RawVehicleStage(Stations.Victoria, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         vicToRoch.setServiceId(svcId);
         vicToRoch.setLastStation(Stations.Rochdale);
         stages.add(vicToRoch);
@@ -64,7 +63,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(930, 30));
 
         Journey journey = result.getJourneys().stream().findFirst().get();
-        Stage stage = journey.getStages().get(0);
+        StageWithTiming stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().isBefore(LocalTime.of(16,00)));
     }
@@ -74,7 +73,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.Altrincham.getId(), Stations.Cornbrook.getId(), 7*60);
 
         int elapsedTime = (7*60)+1;
-        RawTravelStage altToCorn = new RawTravelStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage altToCorn = new RawVehicleStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         altToCorn.setServiceId(svcId);
         altToCorn.setLastStation(Stations.Cornbrook);
 
@@ -85,9 +84,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(1, journey.getStages().size());
-        Stage stage = journey.getStages().get(0);
-        assertEquals(Stations.Altrincham.getId(),stage.getFirstStation());
-        assertEquals(Stations.Cornbrook.getId(),stage.getLastStation());
+        StageWithTiming stage = journey.getStages().get(0);
+        assertEquals(Stations.Altrincham,stage.getFirstStation());
+        assertEquals(Stations.Cornbrook,stage.getLastStation());
         assertTrue(stage.getDuration()>0);
         assertTrue(stage.getFirstDepartureTime().isAfter(sevenAM));
         assertTrue(stage.getFirstDepartureTime().isBefore(eightAM));
@@ -104,13 +103,13 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.Altrincham.getId(), Stations.Deansgate.getId(), pm10);
 
         int elapsedTime = pm10 + 1;
-        RawTravelStage altToDeansgate = new RawTravelStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage altToDeansgate = new RawVehicleStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
         altToDeansgate.setLastStation(Stations.Deansgate);
         altToDeansgate.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Deansgate.getId(), Stations.Victoria.getId(), pm10);
 
-        RawTravelStage deansgateToVic = new RawTravelStage(Stations.Deansgate, "route2 text", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage deansgateToVic = new RawVehicleStage(Stations.Deansgate, "route2 text", TransportMode.Tram, "cssClass", elapsedTime);
         deansgateToVic.setLastStation(Stations.Victoria);
         deansgateToVic.setServiceId(svcId);
 
@@ -123,9 +122,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(2, journey.getStages().size());
 
-        Stage stage2 = journey.getStages().get(1);
-        assertEquals(Stations.Deansgate.getId(),stage2.getFirstStation());
-        assertEquals(Stations.Victoria.getId(),stage2.getLastStation());
+        StageWithTiming stage2 = journey.getStages().get(1);
+        assertEquals(Stations.Deansgate,stage2.getFirstStation());
+        assertEquals(Stations.Victoria,stage2.getLastStation());
 
         SortedSet<ServiceTime> serviceTimes = stage2.getServiceTimes();
         assertEquals(2, serviceTimes.size());
@@ -137,13 +136,13 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         String svcId = findServiceId(Stations.PiccadilyGardens.getId(), Stations.Cornbrook.getId(), pm23);
 
         int elapsedTime = pm23 +1;
-        RawTravelStage picToCorn = new RawTravelStage(Stations.PiccadilyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage picToCorn = new RawVehicleStage(Stations.PiccadilyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
         picToCorn.setLastStation(Stations.Cornbrook);
         // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
         picToCorn.setServiceId(svcId);
 
         svcId = findServiceId(Stations.Cornbrook.getId(), Stations.ManAirport.getId(), pm23);
-        RawTravelStage cornToAir = new RawTravelStage(Stations.Cornbrook, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage cornToAir = new RawVehicleStage(Stations.Cornbrook, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
         cornToAir.setLastStation(Stations.ManAirport);
         // user test TramJourneyPlannerTest.shouldFindRouteCornbrookToManAirport
         cornToAir.setServiceId(svcId);

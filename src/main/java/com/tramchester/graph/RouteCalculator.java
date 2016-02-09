@@ -100,7 +100,7 @@ public class RouteCalculator extends StationIndexs {
                                        int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path->{
             logger.info(format("Map graph path of length %s with limit of %s ",path.length(), limit));
-            List<RawStage> stages = pathToStages.mapStages(path, minsPathMidnight);
+            List<TransportStage> stages = pathToStages.mapStages(path, minsPathMidnight);
             RawJourney journey = new RawJourney(stages);
             journeys.add(journey);
         });

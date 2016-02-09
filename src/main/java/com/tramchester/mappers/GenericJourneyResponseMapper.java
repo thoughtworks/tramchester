@@ -3,7 +3,7 @@ package com.tramchester.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.Stage;
+import com.tramchester.domain.presentation.StageWithTiming;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +25,10 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
     protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
         int minNumberOfTimes = Integer.MAX_VALUE;
 
-        List<Stage> stages = new LinkedList<>();
-        for (RawStage rawStage : rawJourney.getStages()) {
-            if (rawStage.getMode().equals(TransportMode.Bus) || rawStage.getMode().equals(TransportMode.Tram)) {
-                RawTravelStage rawTravelStage = (RawTravelStage) rawStage;
+        List<StageWithTiming> stages = new LinkedList<>();
+        for (TransportStage rawStage : rawJourney.getStages()) {
+            if (rawStage.isVehicle()) {
+                RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
 
                 String serviceId = rawTravelStage.getServiceId();
                 logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
@@ -51,7 +51,7 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
                     minNumberOfTimes = times.size();
                 }
                 logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-                Stage stage = new Stage(rawTravelStage, times);
+                StageWithTiming stage = new StageWithTiming(rawTravelStage, times);
                 stages.add(stage);
             }
         }

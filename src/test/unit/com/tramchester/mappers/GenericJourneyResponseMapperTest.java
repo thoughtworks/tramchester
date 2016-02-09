@@ -5,7 +5,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.Stage;
+import com.tramchester.domain.presentation.StageWithTiming;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -24,7 +24,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     private GenericJourneyResponseMapper mapper;
     private TransportDataFromFiles transportData;
     Set<RawJourney> rawJourneys;
-    List<RawStage> stages;
+    List<TransportStage> stages;
     private Station stationA;
     private Station stationB;
     private Station stationC;
@@ -81,8 +81,8 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
 
         assertEquals(LocalTime.of(8,18),found.getExpectedArrivalTime());
         assertEquals(LocalTime.of(8,2),found.getFirstDepartureTime());
-        Stage stageFirst = found.getStages().get(0);
-        Stage stageSecond = found.getStages().get(1);
+        StageWithTiming stageFirst = found.getStages().get(0);
+        StageWithTiming stageSecond = found.getStages().get(1);
         assertEquals(7, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
         verifyAll();
@@ -125,17 +125,17 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
 
         assertEquals(LocalTime.of(8,16),found.getExpectedArrivalTime());
         assertEquals(LocalTime.of(8,3),found.getFirstDepartureTime());
-        Stage stageFirst = found.getStages().get(0);
-        Stage stageSecond = found.getStages().get(1);
+        StageWithTiming stageFirst = found.getStages().get(0);
+        StageWithTiming stageSecond = found.getStages().get(1);
         assertEquals(4, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
         verifyAll();
     }
 
     private void createSimpleRawJourney(int stageATime, int stageBTime) {
-        RawTravelStage rawTravelStage1 = new RawTravelStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
+        RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
                 setLastStation(stationB).setServiceId("svcId");
-        RawTravelStage rawTravelStage2 = new RawTravelStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
+        RawVehicleStage rawTravelStage2 = new RawVehicleStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
                 setLastStation(stationC).setServiceId("svcId");
         stages.add(rawTravelStage1);
         stages.add(rawTravelStage2);
