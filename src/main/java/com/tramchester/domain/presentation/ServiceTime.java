@@ -32,6 +32,11 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
         return arrivesEnd;
     }
 
+    // used on front end
+    public String getHeadSign() {
+        return headSign;
+    }
+
     public String getServiceId() {
         return serviceId;
     }

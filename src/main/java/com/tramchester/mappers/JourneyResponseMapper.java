@@ -23,14 +23,9 @@ public abstract class JourneyResponseMapper {
     protected abstract Journey createJourney(RawJourney rawJourney, TimeWindow window);
 
     public JourneyPlanRepresentation map(Set<RawJourney> journeys, TimeWindow window) throws TramchesterException {
-        List<Station> stations = getStations(journeys);
-        if (!stations.isEmpty()) {
-            logger.info(format("Mapping journey from %s to %s with %s",
-                    stations.get(0), stations.get(stations.size() - 1),
-                    window));
-        }
+        logger.info(format("Mapping journey %s with window %s", journeys, window));
         SortedSet<Journey> decoratedJourneys = decorateJourneys(journeys, window);
-        return new JourneyPlanRepresentation(decoratedJourneys, stations);
+        return new JourneyPlanRepresentation(decoratedJourneys);
     }
 
     protected SortedSet<Journey> decorateJourneys(Set<RawJourney> rawJourneys, TimeWindow window)
@@ -60,27 +55,7 @@ public abstract class JourneyResponseMapper {
             return "Direct";
         }
         Station station = journey.getStages().get(0).getLastStation();
-//        Station station = null;
-//        for (Station aStation : stations) {
-//            if (aStation.equals(endStopId)) {
-//                station = aStation;
-//                break;
-//            }
-//        }
         return format("Change at %s", station.getName());
     }
 
-    private List<Station> getStations(Set<RawJourney> journeys) {
-        List<Station> stations = new LinkedList<>();
-        for (RawJourney journey : journeys) {
-            journey.forEach(raw -> {
-                if (raw.isVehicle()) {
-                    RawVehicleStage stage = (RawVehicleStage) raw;
-                    stations.add(stage.getFirstStation());
-                    stations.add(stage.getLastStation());
-                }
-            });
-        }
-        return stations;
-    }
 }

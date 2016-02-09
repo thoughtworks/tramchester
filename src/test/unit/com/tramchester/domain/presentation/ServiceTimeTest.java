@@ -15,6 +15,13 @@ public class ServiceTimeTest {
     ServiceTime timeB = new ServiceTime(LocalTime.of(11, 01), LocalTime.of(11,9), "svcId", "headSign", "tripId");
 
     @Test
+    public void shouldSetValuesCorrectly() {
+        assertEquals(LocalTime.of(11, 00), timeA.getDepartureTime());
+        assertEquals(LocalTime.of(11,10), timeA.getArrivalTime());
+        assertEquals("svcId", timeA.getServiceId());
+        assertEquals("headSign", timeA.getHeadSign());
+    }
+    @Test
     public void shouldHaveEquality() {
         assertEquals(timeA, timeC);
         assertEquals(timeC, timeA);
@@ -37,6 +44,5 @@ public class ServiceTimeTest {
 
         assertEquals(timeB, set.first());
         assertEquals(timeA, set.last());
-
     }
 }

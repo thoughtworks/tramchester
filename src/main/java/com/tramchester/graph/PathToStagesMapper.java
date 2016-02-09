@@ -71,7 +71,6 @@ public class PathToStagesMapper {
                     logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
                             boardNode, currentStage));
                 }
-
             } else if (transportRelationship.isGoesTo()) {
                 // routeStation -> routeStation
                 GoesToRelationship goesToRelationship = (GoesToRelationship) transportRelationship;

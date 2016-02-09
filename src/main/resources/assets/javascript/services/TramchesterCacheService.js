@@ -20,7 +20,5 @@ techLabApp.factory('tramchesterCacheService', function ($cacheFactory) {
         getJourneyPlan: function(key){
             return journeyPlanCache.get(key);
         }
-
-
 };
 });

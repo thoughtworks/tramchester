@@ -8,11 +8,11 @@ import java.util.SortedSet;
 
 public class JourneyPlanRepresentation {
     private final SortedSet<Journey> journeys;
-    private final List<Station> stations;
+//    private final List<Station> stations;
 
-    public JourneyPlanRepresentation(SortedSet<Journey> journeys, List<Station> stations) {
+    public JourneyPlanRepresentation(SortedSet<Journey> journeys) {
         this.journeys = journeys;
-        this.stations = stations;
+//        this.stations = stations;
     }
 
     public SortedSet<Journey> getJourneys() {
@@ -20,9 +20,9 @@ public class JourneyPlanRepresentation {
     }
 
     // TODO is this even used in the .js front end?
-    public List<Station> getStations() {
-        return stations;
-    }
+//    public List<Station> getStations() {
+//        return stations;
+//    }
 
 
 }

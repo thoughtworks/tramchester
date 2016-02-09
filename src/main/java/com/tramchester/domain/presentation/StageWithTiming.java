@@ -3,7 +3,6 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.mappers.StationSerializer;
 import com.tramchester.mappers.TimeJsonSerializer;
 import com.tramchester.mappers.TransportModeSerializer;
 
@@ -23,7 +22,6 @@ public class StageWithTiming implements VehicleStage {
     }
 
     @Override
-    @JsonSerialize(using = StationSerializer.class)
     public Station getFirstStation() {
         return rawTravelStage.getFirstStation();
     }
@@ -34,7 +32,6 @@ public class StageWithTiming implements VehicleStage {
     }
 
     @Override
-    @JsonSerialize(using = StationSerializer.class)
     public Station getLastStation() {
         return rawTravelStage.getLastStation();
     }
@@ -72,7 +69,7 @@ public class StageWithTiming implements VehicleStage {
        return serviceTimes.first().getDepartureTime();
     }
 
-    // this is wrong, duration varies, need to extract from servicetime instead
+    // this is wrong, duration varies, need to extract from servicetime instead and pass in index
     @Deprecated
     public int getDuration() {
         // likely this only works for Tram when duration between stops does not vary by time of day
