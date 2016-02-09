@@ -10,6 +10,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.StationClosureMessage;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -27,6 +29,8 @@ import static java.lang.String.format;
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource {
+    private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
+
     private final Map<String,Station> workingStations;
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
@@ -46,14 +50,24 @@ public class StationResource {
 
     @GET
     @Timed
-    public Response getAll() throws SQLException {
-        return Response.ok(workingStations.values()).build();
+    public Response getAll() {
+        logger.info("Get all stations");
+        return Response.ok(mapStations()).build();
+    }
+
+    // TODO SORT ON WAY IN
+    private List<Station> mapStations() {
+        List<Station> sorted = workingStations.values().stream()
+                .sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
+        sorted.forEach(station -> station.setProximityGroup("All Stops"));
+        return sorted;
     }
 
     @GET
     @Timed
     @Path("/closures")
     public Response getClosures() {
+        logger.info("Get station closures");
         StationClosureMessage stationClosureMessage = new StationClosureMessage(closedStations);
         return Response.ok(stationClosureMessage).build();
     }
@@ -61,6 +75,7 @@ public class StationResource {
     @GET
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
+        logger.info("Get station " + id);
         if (workingStations.containsKey(id)) {
             return Response.ok(workingStations.get(id)).build();
         }
@@ -70,6 +85,8 @@ public class StationResource {
     @GET
     @Path("/{lat}/{lon}")
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
+        logger.info(format("Get station at %s,%s ", lat, lon));
+
         List<Station> orderedStations = spatialService.reorderNearestStations(new LatLong(lat, lon), workingStations);
 
         if (config.showMyLocation()) {

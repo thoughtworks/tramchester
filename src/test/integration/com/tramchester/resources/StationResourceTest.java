@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
+import com.tramchester.Stations;
 import com.tramchester.domain.Station;
 import org.joda.time.DateTime;
 import org.junit.*;
@@ -17,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class StationsTest {
+public class StationResourceTest {
     private static Dependencies dependencies;
     private StationResource stationResource;
 
@@ -84,6 +85,17 @@ public class StationsTest {
         Collection<Station> stations = (Collection<Station>) result.getEntity();
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
-        assertThat(stations.stream().filter(station -> station.getName().equals("Altrincham")).count()).isEqualTo(1);
+        assertThat(stations.stream().filter(station -> station.getName().equals(Stations.Altrincham.getName())).count()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldGetAllStationsWithRightOrderAndProxGroup() {
+        Response result = stationResource.getAll();
+        Collection<Station> stations = (Collection<Station>) result.getEntity();
+
+        assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
+
+        stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo("All Stops"));
+
     }
 }

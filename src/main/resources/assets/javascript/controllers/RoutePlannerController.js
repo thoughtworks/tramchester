@@ -1,7 +1,7 @@
 'use strict';
 
 techLabApp.controller('RoutePlannerController',
-    function RoutePlannerController($scope, transportStops, journeyPlanner, $location, journeyPlanService) {
+    function RoutePlannerController($scope, transportStops, journeyPlanner, $location, journeyPlanService, tramchesterCacheService) {
         $scope.selectedStop = null;
         $scope.departureTime = getCurrentTime();
         $scope.fromStop = journeyPlanService.getStart();
