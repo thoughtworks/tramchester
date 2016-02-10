@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -134,11 +135,11 @@ public class RouteCalculator extends StationIndexs {
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
-    public List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
+    public List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) throws TramchesterException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
     }
 
-    public List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws UnknownStationException {
+    public List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws TramchesterException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
     }
 

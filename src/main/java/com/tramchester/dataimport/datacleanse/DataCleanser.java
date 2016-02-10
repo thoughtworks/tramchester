@@ -51,7 +51,7 @@ public class DataCleanser {
         Stream<CalendarData> calendar = transportDataReader.getCalendar();
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("calendar");
-        calendar.filter(calendarData -> services.contains(calendarData.getServiceId()) && calendarData.runsAtLeastADay())
+        calendar.filter(calendarData -> services.contains(calendarData.getServiceId()) ) //&& calendarData.runsAtLeastADay())
                 .forEach(calendarData -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                         calendarData.getServiceId(),
                         runsOnDay(calendarData.isMonday()),

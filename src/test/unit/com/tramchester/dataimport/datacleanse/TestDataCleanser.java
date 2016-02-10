@@ -176,7 +176,9 @@ public class TestDataCleanser extends EasyMockSupport {
 
         Stream<CalendarData> calendar = Stream.of(dayA, dayB, dayC, dayD);
         EasyMock.expect(reader.getCalendar()).andReturn(calendar);
-        validateWriter("calendar", "svcIDB,1,1,1,1,1,1,1,20151025,20151026", "svcIDC,0,1,0,0,0,0,0,20151025,20151026");
+        validateWriter("calendar", "svcIDA,0,0,0,0,0,0,0,20151025,20151026",
+                "svcIDB,1,1,1,1,1,1,1,20151025,20151026",
+                "svcIDC,0,1,0,0,0,0,0,20151025,20151026");
 
         replayAll();
         cleanser.cleanseCalendar(svcIds);

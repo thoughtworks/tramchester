@@ -109,4 +109,12 @@ public class Stops  implements Iterable<Stop> {
     public Stream<Stop> stream() {
         return stops.stream();
     }
+
+    @Override
+    public String toString() {
+        return "Stops{" +
+                "stops=" + stops +
+                ", stations=" + stations +
+                '}';
+    }
 }

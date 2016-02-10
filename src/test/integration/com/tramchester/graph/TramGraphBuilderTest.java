@@ -2,8 +2,10 @@ package com.tramchester.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
+import com.tramchester.RouteCodes;
 import com.tramchester.Stations;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.domain.Trip;
@@ -29,10 +31,6 @@ public class TramGraphBuilderTest {
 
     private RouteCalculator calculator;
     private TransportDataFromFiles transportData;
-    //public static final String ASH_TO_ECCLES_SVC = "MET:MET4:O:"; // not while st peters square is close
-    public static final String ASH_TO_MANCHESTER = "MET:MET3:O:";
-    public static final String MAN_TO_ECCLES = "MET:MET4:O:";
-    private static final String EAST_DIDS_TO_BURY = "MET:MET5:O:";
     private GraphDatabaseService service;
     private Transaction transaction;
 
@@ -61,10 +59,10 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldHaveCorrectInboundsAtMediaCity() throws UnknownStationException {
+    public void shouldHaveCorrectInboundsAtMediaCity() throws TramchesterException {
 
         List<TransportRelationship> inbounds = calculator.getInboundRouteStationRelationships(
-                Stations.MediaCityUK + MAN_TO_ECCLES);
+                Stations.MediaCityUK + RouteCodes.PICC_TO_ECCLES);
 
         List<BoardRelationship> boards = new LinkedList<>();
         List<TramGoesToRelationship> svcsToMediaCity = new LinkedList<>();
@@ -79,10 +77,11 @@ public class TramGraphBuilderTest {
 
     @Ignore("No services currently branch")
     @Test
-    public void shouldHaveService69BranchAtHarbourCityAndGoToMediaCityAndBroadway() throws UnknownStationException {
+    public void shouldHaveService69BranchAtHarbourCityAndGoToMediaCityAndBroadway() throws TramchesterException {
         String svcId = "Serv001261";  // can go to eccles, media city or trafford bar
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity + MAN_TO_ECCLES);
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
+                Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES);
         checkNumberOfServices(svcId, outbounds, 2);
     }
 
@@ -103,22 +102,22 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldHaveHarbourCityRouteStation() throws UnknownStationException {
 
-        TramNode tramNode = calculator.getRouteStation(Stations.HarbourCity + MAN_TO_ECCLES);
+        TramNode tramNode = calculator.getRouteStation(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES);
 
         RouteStationNode routeStationNode = (RouteStationNode) tramNode;
         assertNotNull(routeStationNode);
 
-        assertEquals(Stations.HarbourCity + MAN_TO_ECCLES, routeStationNode.getId());
+        assertEquals(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES, routeStationNode.getId());
         assertFalse(routeStationNode.isStation());
         assertTrue(routeStationNode.isRouteStation());
-        assertEquals("Manchester - Eccles", routeStationNode.getRouteName());
-        assertEquals(MAN_TO_ECCLES, routeStationNode.getRouteId());
+        assertEquals("Piccadilly - MediaCityUK - Eccles", routeStationNode.getRouteName());
+        assertEquals(RouteCodes.PICC_TO_ECCLES, routeStationNode.getRouteId());
     }
 
     @Test
-    public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws UnknownStationException {
+    public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws TramchesterException {
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.Deansgate.getId() + EAST_DIDS_TO_BURY);
+                Stations.Deansgate.getId() + RouteCodes.EAST_DIDS_TO_BURY);
         List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet);
 
         outbounds.stream().filter(out->out.isGoesTo()).forEach(out -> {
@@ -152,11 +151,11 @@ public class TramGraphBuilderTest {
     // this test is data specific and could fail if change to routes happen
     @Ignore("No service direct from velo to media city during st peters square closure")
     @Test
-    public void shouldValidateGraphRepresentationMatchesTransportData() throws UnknownStationException {
+    public void shouldValidateGraphRepresentationMatchesTransportData() throws TramchesterException {
         String svcId = "Serv001180";
 
         List<TransportRelationship> outbounds =
-                calculator.getOutboundRouteStationRelationships(Stations.VeloPark.toString() + ASH_TO_MANCHESTER);
+                calculator.getOutboundRouteStationRelationships(Stations.VeloPark.toString() + RouteCodes.ASH_TO_ROCH);
         // check on departs relationship & services
         List<TransportRelationship> departs = new LinkedList<>();
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
@@ -209,17 +208,17 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldReportServicesAtHarbourCityWithTimes() throws UnknownStationException {
+    public void shouldReportServicesAtHarbourCityWithTimes() throws TramchesterException {
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity
-                + MAN_TO_ECCLES);
+                + RouteCodes.PICC_TO_ECCLES);
         reportServices(outbounds);
     }
 
     @Test
-    public void shouldReportServicesCorrectlyAtVeloparkTimes() throws UnknownStationException {
+    public void shouldReportServicesCorrectlyAtVeloparkTimes() throws TramchesterException {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + ASH_TO_MANCHESTER);
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + RouteCodes.ASH_TO_ROCH);
         reportServices(outbounds);
     }
 
@@ -252,9 +251,9 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() throws UnknownStationException {
+    public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() throws TramchesterException {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + ASH_TO_MANCHESTER);
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + RouteCodes.ASH_TO_ROCH);
 
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
         outbounds.forEach(out -> {
@@ -264,7 +263,7 @@ public class TramGraphBuilderTest {
         assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !svc.getDaysTramRuns()[0]); // monday
         assertTrue(!svcsFromVelopark.isEmpty());
-        svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(svc.getService()).getRouteId().equals(ASH_TO_MANCHESTER));
+        svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(svc.getService()).getRouteId().equals(RouteCodes.ASH_TO_ROCH));
         assertTrue(!svcsFromVelopark.isEmpty());
 
         assertEquals(5, svcsFromVelopark.size());

@@ -90,6 +90,10 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
             logger.warn(String.format("Service %s is missing calendar information", svc.getServiceId()));
             svc.setDays(false, false, false, false, false, false, false);
         });
+        services.values().stream().filter(svc -> !svc.getDays().values().contains(true)).forEach(
+                svc -> logger.warn(String.format("Service %s does not run on any days of the week", svc.getServiceId()))
+        );
+
         logger.info("Data load is complete");
 
     }
@@ -101,7 +105,6 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
         return trips.get(tripId);
     }
 
-
     private Service getOrInsertService(String serviceId, String routeId) {
         if (!services.keySet().contains(serviceId)) {
             services.put(serviceId, new Service(serviceId, routeId));
@@ -110,7 +113,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
     }
 
     public Collection<Route> getRoutes() {
-        return routes.values();
+        return Collections.unmodifiableCollection(routes.values());
     }
 
     @Override
@@ -165,7 +168,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
     }
 
     public Collection<Service> getServices() {
-        return services.values();
+        return Collections.unmodifiableCollection(services.values());
     }
 
     public Set<Trip> getTripsFor(String stationId) {

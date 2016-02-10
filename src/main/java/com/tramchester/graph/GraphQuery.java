@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
@@ -44,8 +45,11 @@ public class GraphQuery {
         return graphDatabaseService.index().forNodes("spatial_index", SpatialIndexProvider.SIMPLE_POINT_CONFIG);
     }
 
-    public List<TransportRelationship> getRouteStationRelationships(String routeStationId, Direction direction) {
+    public List<TransportRelationship> getRouteStationRelationships(String routeStationId, Direction direction) throws TramchesterException {
         Node routeStationNode = getRouteStationNode(routeStationId);
+        if (routeStationNode==null) {
+            throw new TramchesterException("Unable to find routeStationNode with ID " + routeStationId);
+        }
         List<TransportRelationship> result = new LinkedList<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
             routeStationNode.getRelationships(direction).forEach(
