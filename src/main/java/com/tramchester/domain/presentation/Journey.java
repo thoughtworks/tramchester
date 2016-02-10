@@ -2,16 +2,18 @@ package com.tramchester.domain.presentation;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.Station;
+import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
 import java.util.List;
 import java.util.SortedSet;
 
-public class Journey implements Comparable<Journey> {
+import static java.lang.String.format;
 
+public class Journey implements Comparable<Journey> {
     private List<StageWithTiming> stages;
-    private String summary;
 
     public Journey(List<StageWithTiming> stages) {
         this.stages = stages;
@@ -22,13 +24,46 @@ public class Journey implements Comparable<Journey> {
         return stages;
     }
 
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
-
     // used front end
     public String getSummary() {
-        return summary;
+        int size = stages.size();
+        if (size == 1) {
+            return "Direct";
+        }
+        StringBuilder result = new StringBuilder();
+        for(int index = 1; index< size; index++) {
+            StageWithTiming stage = stages.get(index);
+            if (index>1) {
+                if (index< size -1) {
+                    result.append(", ");
+                } else {
+                    result.append(" and ");
+                }
+            }
+            result.append(stage.getFirstStation().getName());
+        }
+
+        return format("Change at %s",result.toString());
+    }
+
+
+    public String getHeading() {
+        return format("%s with %s - %s", getFirstStage().getMode(), getChanges(), getDuration());
+    }
+
+    private String getDuration() {
+        int mins = TimeAsMinutes.timeDiffMinutes(getExpectedArrivalTime(), getFirstDepartureTime());
+        return format("%s minutes", mins);
+    }
+
+    private String getChanges() {
+        if (stages.size()==1) {
+            return "No Changes";
+        }
+        if (stages.size()==2) {
+            return "1 change";
+        }
+        return format("%s changes", stages.size()-1);
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -36,8 +71,9 @@ public class Journey implements Comparable<Journey> {
         if (stages.size() == 0) {
             return LocalTime.MIDNIGHT;
         }
-        SortedSet<ServiceTime> serviceTimes = getFirstStage().getServiceTimes();
-        return serviceTimes.first().getDepartureTime();
+        return getFirstStage().getFirstDepartureTime();
+//        SortedSet<ServiceTime> serviceTimes = getFirstStage().getServiceTimes();
+//        return serviceTimes.first().getDepartureTime();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -61,7 +97,6 @@ public class Journey implements Comparable<Journey> {
     public String toString() {
         return  "Journey{" +
                 "stages= [" +stages.size() +"] "+ stages +
-                ", summary='" + summary + '\'' +
                 '}';
     }
 

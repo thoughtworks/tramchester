@@ -39,7 +39,6 @@ public abstract class JourneyResponseMapper {
 
             Journey journey = createJourney(rawJourney, window);
             if (journey!=null) {
-                journey.setSummary(getJourneySummary(journey));
                 journeys.add(journey);
                 logger.info("Added journey " +journey);
             } else {
@@ -52,13 +51,6 @@ public abstract class JourneyResponseMapper {
         return journeys;
     }
 
-    private String getJourneySummary(Journey journey) {
-        if (journey.getStages().size() < 2) {
-            return "Direct";
-        }
-        Station station = journey.getStages().get(0).getLastStation();
-        return format("Change at %s", station.getName());
-    }
 
     protected TravelAction decideAction(List<StageWithTiming> stages, List<TransportStage> rawJourneyStages) {
         if (stages.isEmpty()) {

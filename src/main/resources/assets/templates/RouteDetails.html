@@ -16,16 +16,20 @@
 </div>
 <div class="container">
     <div class="row">
-        <div ng-show="NoRoutes">
-            Unable to find any routes for the journey, this may be due to station closures.
+        <div ng-show="NoRoutes" class="panel">
+            <div ng-show="NoRoutes" class="panel-heading">No Results</div>
+            <div ng-show="NoRoutes" class="list-group text-center">
+                Unable to find any routes for the journey, this may be due to station closures.
+            </div>
         </div>
+        <p ng-show="NoRoutes"><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
         <div class="col-12 col-sm-12 col-lg-" ng-hide="NoRoutes">
             <div ng-show="!journeyPlan.journeys.length" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
             <div ng-repeat="journey in journeyPlan.journeys" ng-click="showJourneyDetails($index)">
                 <div class="panel {{journey.stages[0].displayClass}}" id="journeyPanel{{$index}}">
-                    <div class="panel-heading" id="journeyHeading{{$index}}">{{journey.stages[0].routeName}} {{journey.stages[0].mode}} Line</div>
+                    <div class="panel-heading" id="journeyHeading{{$index}}">{{journey.heading}}</div>
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showJourneyDetails($index)" class="list-group-item" id="journeyBegin{{$index}}">
@@ -45,6 +49,7 @@
                     </ul>
                 </div>
             </div>
+            <p><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
         </div>
     </div>
 </div>

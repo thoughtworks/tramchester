@@ -1,10 +1,12 @@
 package com.tramchester.domain.presentation;
 
 
+import com.tramchester.Stations;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import org.junit.Test;
+import org.neo4j.unsafe.impl.batchimport.stats.Stat;
 
 import java.time.LocalTime;
 import java.util.LinkedList;
@@ -34,6 +36,57 @@ public class JourneyTest {
         set.add(journeyA);
 
         assertEquals(LocalTime.of(10,20), set.first().getExpectedArrivalTime());
+    }
+
+    @Test
+    public void shouldHaveCorrectSummaryForDirect() {
+        assertEquals("Direct", journeyA.getSummary());
+    }
+
+    @Test
+    public void shouldHaveRightSummaryAndHeadingFor2Stage() {
+        List<StageWithTiming> stages = new LinkedList<>();
+        stages.add(createStage(Stations.Altrincham, TravelAction.Board));
+        stages.add(createStage(Stations.Cornbrook, TravelAction.Change));
+
+        Journey journey = new Journey(stages);
+
+        assertEquals("Change at Cornbrook", journey.getSummary());
+        assertEquals("Tram with 1 change - 12 minutes", journey.getHeading());
+    }
+
+    @Test
+    public void shouldHaveRightSummaryAndHeadingFor3Stage() {
+        List<StageWithTiming> stages = new LinkedList<>();
+        stages.add(createStage(Stations.Altrincham, TravelAction.Board));
+        stages.add(createStage(Stations.Cornbrook, TravelAction.Change));
+        stages.add(createStage(Stations.Victoria, TravelAction.Change));
+
+        Journey journey = new Journey(stages);
+
+        assertEquals("Change at Cornbrook and Victoria", journey.getSummary());
+        assertEquals("Tram with 2 changes - 12 minutes", journey.getHeading());
+    }
+
+    @Test
+    public void shouldHaveRightSummaryFor4Stage() {
+        List<StageWithTiming> stages = new LinkedList<>();
+        stages.add(createStage(Stations.Altrincham, TravelAction.Board));
+        stages.add(createStage(Stations.Cornbrook, TravelAction.Change));
+        stages.add(createStage(Stations.Victoria, TravelAction.Change));
+        stages.add(createStage(Stations.Rochdale, TravelAction.Change));
+
+        Journey journey = new Journey(stages);
+
+        assertEquals("Change at Cornbrook, Victoria and Rochdale", journey.getSummary());
+        assertEquals("Tram with 3 changes - 12 minutes", journey.getHeading());
+    }
+
+    private StageWithTiming createStage(Station station, TravelAction travelAction) {
+        SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
+        serviceTimes.add(new ServiceTime(LocalTime.of(10,8), LocalTime.of(10,20), "svcId", "headSign", "tripId"));
+        RawVehicleStage rawVehicleStage = new RawVehicleStage(station, "routeName", TransportMode.Tram, "cssClass", 20);
+        return new StageWithTiming(rawVehicleStage, serviceTimes, travelAction);
     }
 
     private List<StageWithTiming> createStages(LocalTime arrivesEnd) {

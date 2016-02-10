@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.RawVehicleStage;
+import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
 
@@ -11,7 +12,6 @@ import java.util.SortedSet;
 import static java.lang.String.format;
 
 public class StageWithTiming extends RawVehicleStage {
-    public static final int SECONDS_IN_DAY = 24*60*60;
     private final TravelAction action;
     private SortedSet<ServiceTime> serviceTimes;
 
@@ -42,18 +42,10 @@ public class StageWithTiming extends RawVehicleStage {
         ServiceTime serviceTime = serviceTimes.first();
         LocalTime arrivalTime = serviceTime.getArrivalTime();
         LocalTime departureTime = serviceTime.getDepartureTime();
-        int depSecs = departureTime.toSecondOfDay();
 
-        int seconds;
-        if (arrivalTime.isBefore(departureTime)) { // crosses midnight
-            int secsBeforeMid = SECONDS_IN_DAY - depSecs;
-            int secsAfterMid = arrivalTime.toSecondOfDay();
-            seconds = secsBeforeMid + secsAfterMid;
-        } else {
-            seconds = arrivalTime.toSecondOfDay() - depSecs;
-        }
-        return seconds / 60;
+        return TimeAsMinutes.timeDiffMinutes(arrivalTime, departureTime);
     }
+
 
     public int findEarliestDepartureTime() {
         int earliest = Integer.MAX_VALUE;

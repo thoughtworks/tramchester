@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.SortedSet;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class JourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
