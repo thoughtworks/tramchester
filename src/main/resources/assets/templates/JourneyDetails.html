@@ -14,20 +14,19 @@
                     class="glyphicon glyphicon-chevron-right"></span></button>
             <h4 class="heading">{{journey.stages[0].serviceTimes[serviceTimeIndex].departureTime}}
                 from
-                {{journey.stages[0].firstStation.name}}</h4>
-
+                {{journey.begin.name}}</h4>
             <div ng-repeat="stage in journey.stages ">
-
                 <div class="panel {{stage.displayClass}}">
                     <div class="panel-heading">{{stage.summary}}</div>
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showMap(stage)" class="list-group-item">
-                            <h4>{{stage.prompt}} <strong>{{stage.firstStation.name}}</strong> <span
-                                    ng-class-odd="'glyphicon glyphicon-chevron-right pull-right'"
-                                    ng-class-even="'glyphicon glyphicon-map-marker pull-right'"></span></h4>
-
-                        </a></div>
+                            <h4>{{stage.prompt}} <strong>{{stage.firstStation.name}}</strong>
+                                <span ng-class-odd="'glyphicon glyphicon-chevron-right pull-right'"
+                                    ng-class-even="'glyphicon glyphicon-map-marker pull-right'"></span>
+                            </h4>
+                        </a>
+                    </div>
                     <ul class="list-group">
                         <li class="list-group-item">
                             <strong>{{stage.serviceTimes[serviceTimeIndex].departureTime}}</strong> Catch
@@ -41,12 +40,10 @@
                         </li>
                     </ul>
                 </div>
-
                 <div ng-if="!$last" class="tcr-change" >
                     <span class="glyphicon glyphicon-random"></span>
                     <span class="trc-change-text">Change {{stage.mode}}</span>
                 </div>
-
             </div>
             <p><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
         </div>

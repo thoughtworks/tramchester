@@ -99,7 +99,7 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
 
     @Test
     public void shouldReproduceIssueWithMissingRoutes() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, 10*60, DaysOfWeek.Saturday, today);
+        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare.getId(), 10*60, DaysOfWeek.Saturday, today);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     @Ignore("Work in progress, feature disabled for trams")
     @Test
     public void shouldFindStationsNearPiccGardensToExchangeSquare() throws JsonProcessingException, TramchesterException {
-        validateJourneyFromLocation(new LatLong(53.4805248D, -2.2394929D), Stations.ExchangeSquare);
+        validateJourneyFromLocation(new LatLong(53.4805248D, -2.2394929D), Stations.ExchangeSquare.getId());
     }
 
     @Test

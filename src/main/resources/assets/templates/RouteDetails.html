@@ -33,7 +33,7 @@
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showJourneyDetails($index)" class="list-group-item" id="journeyBegin{{$index}}">
-                            <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.stages[0].firstStation.name}}</strong>
+                            <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.begin.name}}</strong>
                             <span class="glyphicon glyphicon-chevron-right pull-right"></span>
                         </a></div>
                     <ul class="list-group" id="journeySummary{{$index}}">
@@ -44,8 +44,8 @@
                     </ul>
                     <ul class="list-group">
                         <li class="list-group-item" id="journeyEnd{{$index}}">
-                            <strong>{{journey.expectedArrivalTime}}</strong> Arrive at <strong>{{journey.stages[journey.stages.length
-                            - 1].lastStation.name}}</strong>
+                            <strong>{{journey.expectedArrivalTime}}</strong> Arrive at
+                            <strong>{{journey.end.name}}</strong>
                     </ul>
                 </div>
             </div>

@@ -72,8 +72,6 @@ public class Journey implements Comparable<Journey> {
             return LocalTime.MIDNIGHT;
         }
         return getFirstStage().getFirstDepartureTime();
-//        SortedSet<ServiceTime> serviceTimes = getFirstStage().getServiceTimes();
-//        return serviceTimes.first().getDepartureTime();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -132,4 +130,11 @@ public class Journey implements Comparable<Journey> {
         return compare;
     }
 
+    public Station getBegin() {
+        return getFirstStage().getFirstStation();
+    }
+
+    public Station getEnd() {
+        return getLastStage().getLastStation();
+    }
 }

@@ -25,13 +25,17 @@ public class Stations {
     public static String Broadway = "9400ZZMABWY";
     public static Station PiccadilyGardens = new Station("9400ZZMAPGD", "Manchester", "Piccadily Gardens", 1,1, true);
     public static String StPetersSquare = "9400ZZMASTP";
-    public static String ExchangeSquare = "9400ZZMAEXS";
+    public static Station ExchangeSquare = new Station("9400ZZMAEXS", "Manchester", "Exchange Square", 1, 1, true);
     public static Station Victoria = new Station("9400ZZMAVIC", "Manchester", "Victoria", 1,1, true);
     public static String ShawAndCrompton = "9400ZZMASHA";
     public static String MarketStreet = "9400ZZMAMKT";
 
-    public static String[] EndOfTheLine = new String[]{Altrincham.getId(), ManAirport.getId(),
-            Eccles, EastDidsbury, Ashton.getId(),
+    public static String[] EndOfTheLine = new String[]{Altrincham.getId(),
+            ManAirport.getId(),
+            Eccles,
+            EastDidsbury,
+            Ashton.getId(),
             Rochdale.getId(),
-            Bury, ExchangeSquare};
+            Bury,
+            ExchangeSquare.getId()};
 }
