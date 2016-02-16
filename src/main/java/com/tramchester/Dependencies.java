@@ -111,7 +111,7 @@ public class Dependencies {
             picoContainer.getComponent(TransportGraphBuilder.class).buildGraph();
             logger.info("Graph rebuild is finished for " + graphName);
         } else {
-            logger.info("Not rebuilding graph " + graphName);
+            logger.info("Not rebuilding graph " + graphName + ". Loading graph");
             picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
         }
         logger.info("graph db ready for " + graphName);

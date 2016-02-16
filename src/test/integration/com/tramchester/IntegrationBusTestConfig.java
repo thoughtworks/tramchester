@@ -15,7 +15,8 @@ public class IntegrationBusTestConfig extends TestConfig {
 
     @Override
     public Set<String> getAgencies() {
-        return new HashSet<>(Arrays.asList("*"));
+        return new HashSet<>(Arrays.asList("MET","GMS","GMN"));
+        //return new HashSet<>(Arrays.asList("*"));
     }
 
     @Override

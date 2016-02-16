@@ -21,7 +21,6 @@ public class ClosedStations {
         this.stations = new ArrayList<>();
     }
 
-
     public boolean isNotEmpty() {
         return !stations.isEmpty();
     }

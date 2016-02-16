@@ -42,10 +42,8 @@ public class Journey implements Comparable<Journey> {
             }
             result.append(stage.getFirstStation().getName());
         }
-
         return format("Change at %s",result.toString());
     }
-
 
     public String getHeading() {
         return format("%s with %s - %s", getFirstStage().getMode(), getChanges(), getDuration());

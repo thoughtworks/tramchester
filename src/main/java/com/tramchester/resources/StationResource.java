@@ -46,9 +46,6 @@ public class StationResource {
         this.closedStations = closedStations;
         this.config = config;
         this.stationRepository = transportData;
-//        this.workingStations = transportData.getStations().stream()
-//                .filter(station -> !closedStations.contains(station.getName()))
-//                .collect(Collectors.<Station, String, Station>toMap(s -> s.getId(), s->s));
         mapper = new ObjectMapper();
         allStationsSorted = new LinkedList<>();
     }
@@ -68,6 +65,7 @@ public class StationResource {
             List<Station> rawList = stationRepository.getStations();
             allStationsSorted = rawList.stream().
                     sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).
+                    filter(station -> !closedStations.contains(station.getName())).
                     collect(Collectors.toList());
         }
         return allStationsSorted;
@@ -103,6 +101,7 @@ public class StationResource {
         List<DisplayStation> orderedStations = spatialService.reorderNearestStations(new LatLong(lat, lon), getStations());
 
         if (config.showMyLocation()) {
+            logger.info("Showing users location in stations list");
             Station myLocation = new Station(formId(lat,lon), "", "My Location", lat, lon, false);
             orderedStations.add(0, new DisplayStation(myLocation, "Nearby"));
         }
