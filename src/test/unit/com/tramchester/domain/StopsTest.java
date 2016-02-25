@@ -14,10 +14,10 @@ public class StopsTest {
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";
     private final String stationIdC = "statC";
-    private Station stationA;
-    private Station stationB;
-    private Station stationC;
-    private Station stationD;
+    private Location stationA;
+    private Location stationB;
+    private Location stationC;
+    private Location stationD;
     private Stop stopA;
     private Stop stopB;
     private Stop stopC;

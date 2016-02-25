@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
+import com.tramchester.domain.Location;
+import com.tramchester.domain.MyLocation;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;
@@ -24,7 +26,6 @@ import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -55,7 +56,7 @@ public class StationResource {
     public Response getAll() {
         logger.info("Get all stations");
         List<DisplayStation> displayStations = getStations().stream().
-                map(station -> new DisplayStation(station, SpatialService.ALL_STOPS)).
+                map(station -> new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP)).
                 collect(Collectors.toList());
         return Response.ok(displayStations).build();
     }
@@ -84,7 +85,7 @@ public class StationResource {
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
-        Station station = stationRepository.getStation(id);
+        Location station = stationRepository.getStation(id);
         if (station!=null) {
             return Response.ok(station).build();
         }
@@ -102,6 +103,8 @@ public class StationResource {
 
         if (config.showMyLocation()) {
             logger.info("Showing users location in stations list");
+
+            // TODO use MyLocation instead of Station
             Station myLocation = new Station(formId(lat,lon), "", "My Location", lat, lon, false);
             orderedStations.add(0, new DisplayStation(myLocation, "Nearby"));
         }

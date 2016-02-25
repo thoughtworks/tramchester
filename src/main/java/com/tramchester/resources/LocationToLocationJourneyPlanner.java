@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,25 +48,23 @@ public class LocationToLocationJourneyPlanner {
             throw new TramchesterException(msg, e);
         }
         List<String> starts = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
-        List<String> ends = Arrays.asList(endId);
 
-        return createJourneyPlan(latLong, starts,ends,minutesFromMidnight,dayOfWeek,queryDate);
+        return createJourneyPlan(latLong, starts,endId,minutesFromMidnight,dayOfWeek,queryDate);
     }
 
-    private Set<RawJourney>  createJourneyPlan(LatLong latLong, List<String> startIds, List<String> endIds, int minutesFromMidnight, DaysOfWeek dayOfWeek,
+    private Set<RawJourney>  createJourneyPlan(LatLong latLong, List<String> startIds, String endId, int minutesFromMidnight, DaysOfWeek dayOfWeek,
                                                TramServiceDate queryDate) throws UnknownStationException {
 
-        List<Station> starts = startIds.stream().map(id -> stationRepository.getStation(id)).collect(Collectors.toList());
-        List<Station> ends = endIds.stream().map(id -> stationRepository.getStation(id)).collect(Collectors.toList());
+        List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).collect(Collectors.toList());
 
-        List<StationWalk> toStarts = starts.stream().map(station -> new StationWalk(station, findCost(latLong, station))).collect(Collectors.toList());
-        // TODO can only select by location for start of journey
-        //List<StationWalk> toEnds = ends.stream().map(station -> new StationWalk(station, 0)).collect(Collectors.toList());
+        List<StationWalk> toStarts = starts.stream().map(station ->
+                new StationWalk(station, findCost(latLong, station))).collect(Collectors.toList());
 
-        return routeCalculator.calculateRoute(toStarts, ends, minutesFromMidnight, dayOfWeek, queryDate);
+        Station end = stationRepository.getStation(endId);
+        return routeCalculator.calculateRoute(latLong, toStarts, end, minutesFromMidnight, dayOfWeek, queryDate);
     }
 
-    private int findCost(LatLong latLong, Station station) {
+    private int findCost(LatLong latLong, Location station) {
         LatLng point1 = new LatLng(latLong.getLat(), latLong.getLon());
         LatLng point2 = new LatLng(station.getLatitude(), station.getLongitude());
         double distanceInMiles = LatLngTool.distance(point1, point2, LengthUnit.MILE);

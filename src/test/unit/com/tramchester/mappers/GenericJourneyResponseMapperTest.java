@@ -2,10 +2,7 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.StageWithTiming;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -73,8 +70,8 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
 
         assertEquals(LocalTime.of(8,18),found.getExpectedArrivalTime());
         assertEquals(LocalTime.of(8,2),found.getFirstDepartureTime());
-        StageWithTiming stageFirst = found.getStages().get(0);
-        StageWithTiming stageSecond = found.getStages().get(1);
+        PresentableStage stageFirst = found.getStages().get(0);
+        PresentableStage stageSecond = found.getStages().get(1);
         assertEquals(7, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
         verifyAll();
@@ -112,8 +109,8 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
 
         assertEquals(LocalTime.of(8,16),found.getExpectedArrivalTime());
         assertEquals(LocalTime.of(8,3),found.getFirstDepartureTime());
-        StageWithTiming stageFirst = found.getStages().get(0);
-        StageWithTiming stageSecond = found.getStages().get(1);
+        PresentableStage stageFirst = found.getStages().get(0);
+        PresentableStage stageSecond = found.getStages().get(1);
         assertEquals(4, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
         verifyAll();

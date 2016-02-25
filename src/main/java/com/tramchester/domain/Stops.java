@@ -31,7 +31,7 @@ public class Stops  implements Iterable<Stop> {
     }
 
     public void add(Stop stop) {
-        Station station = stop.getStation();
+        Location station = stop.getStation();
         if (station==null) {
             logger.error("Stop is missing station");
         } else {

@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public class Station {
+public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
 
     private final String id;
@@ -31,18 +31,22 @@ public class Station {
         this.isTram = other.isTram;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public double getLatitude() {
         return latitude;
     }
 
+    @Override
     public double getLongitude() {
         return longitude;
     }
@@ -56,6 +60,7 @@ public class Station {
         return rawId;
     }
 
+    @Override
     public boolean isTram() {
         return isTram;
     }

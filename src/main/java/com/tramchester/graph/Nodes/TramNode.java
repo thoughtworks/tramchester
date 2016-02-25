@@ -5,4 +5,5 @@ public interface TramNode {
     boolean isRouteStation();
     String getId();
     boolean isQuery();
+    String getName();
 }

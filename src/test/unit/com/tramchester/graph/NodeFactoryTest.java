@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import org.easymock.EasyMock;
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -40,6 +42,8 @@ public class NodeFactoryTest extends EasyMockSupport {
     @Test
     public void shouldGetNodeOfCorrectTypeQuery() {
         EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.QUERY);
+        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.LAT)).andReturn(-2);
+        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.LONG)).andReturn(1);
 
         replayAll();
         TramNode tramNode = factory.getNode(node);
@@ -55,6 +59,7 @@ public class NodeFactoryTest extends EasyMockSupport {
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME)).andReturn("routeName");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID)).andReturn("routeId");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME)).andReturn("stationName");
 
         replayAll();
         TramNode tramNode = factory.getNode(node);

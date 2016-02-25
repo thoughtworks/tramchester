@@ -7,7 +7,6 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDate;
 import org.junit.Before;
@@ -163,7 +162,7 @@ public class GraphWithSimpleRouteTest {
             return LocalTime.of(hourOfDay,minuteOfHour,00);
         }
 
-        private Stop createStop(Station startStation, LocalTime arrivalTime, LocalTime departureTime) {
+        private Stop createStop(Location startStation, LocalTime arrivalTime, LocalTime departureTime) {
            return new Stop(startStation, arrivalTime, departureTime);
         }
 

@@ -2,9 +2,7 @@ package com.tramchester.domain.presentation;
 
 
 import com.tramchester.Stations;
-import com.tramchester.domain.RawVehicleStage;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -19,8 +17,8 @@ public class JourneyTest {
 
     Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)));
     Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)));
-    Station stationA = new Station("stationA", "area", "nameA", -2, -1, false);
-    Station stationB = new Station("stationB", "area", "nameA", -3, 1, false);
+    Location stationA = new Station("stationA", "area", "nameA", -2, -1, false);
+    Location stationB = new Station("stationB", "area", "nameA", -3, 1, false);
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
@@ -43,8 +41,22 @@ public class JourneyTest {
     }
 
     @Test
+    public void shouldHaveCorrectSummaryAndHeadingForWalkAndTram() {
+        List<PresentableStage> stages = new LinkedList<>();
+        Location start = new MyLocation(new LatLong(-2,1));
+        Location destination = Stations.Cornbrook;
+        stages.add(new WalkingStage(3, start, destination, 8*60));
+        stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate));
+
+        Journey journey = new Journey(stages);
+
+        assertEquals("Direct", journey.getSummary());
+        assertEquals("Tram with No Changes - 12 minutes", journey.getHeading());
+    }
+
+    @Test
     public void shouldHaveRightSummaryAndHeadingFor2Stage() {
-        List<StageWithTiming> stages = new LinkedList<>();
+        List<PresentableStage> stages = new LinkedList<>();
         stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate));
 
@@ -56,7 +68,7 @@ public class JourneyTest {
 
     @Test
     public void shouldHaveRightSummaryAndHeadingFor3Stage() {
-        List<StageWithTiming> stages = createThreeStages();
+        List<PresentableStage> stages = createThreeStages();
 
         Journey journey = new Journey(stages);
 
@@ -66,7 +78,7 @@ public class JourneyTest {
 
     @Test
     public void shouldHaveBeginAndEnd() {
-        List<StageWithTiming> stages = createThreeStages();
+        List<PresentableStage> stages = createThreeStages();
         Journey journey = new Journey(stages);
 
         assertEquals(Stations.Altrincham, journey.getBegin());
@@ -75,7 +87,7 @@ public class JourneyTest {
 
     @Test
     public void shouldHaveRightSummaryAndHeadingFor4Stage() {
-        List<StageWithTiming> stages = createThreeStages();
+        List<PresentableStage> stages = createThreeStages();
         stages.add(createStage(Stations.ExchangeSquare, TravelAction.Change, Stations.Rochdale));
 
         Journey journey = new Journey(stages);
@@ -85,29 +97,29 @@ public class JourneyTest {
     }
 
 
-    private List<StageWithTiming> createThreeStages() {
-        List<StageWithTiming> stages = new LinkedList<>();
+    private List<PresentableStage> createThreeStages() {
+        List<PresentableStage> stages = new LinkedList<>();
         stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Victoria));
         stages.add(createStage(Stations.Victoria, TravelAction.Change, Stations.ExchangeSquare));
         return stages;
     }
 
-    private StageWithTiming createStage(Station firstStation, TravelAction travelAction, Station lastStation) {
+    private VehicleStageWithTiming createStage(Location firstStation, TravelAction travelAction, Location lastStation) {
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), LocalTime.of(10,20), "svcId", "headSign", "tripId"));
         RawVehicleStage rawVehicleStage = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass", 20);
         rawVehicleStage.setLastStation(lastStation);
-        return new StageWithTiming(rawVehicleStage, serviceTimes, travelAction);
+        return new VehicleStageWithTiming(rawVehicleStage, serviceTimes, travelAction);
     }
 
-    private List<StageWithTiming> createStages(LocalTime arrivesEnd) {
-        List<StageWithTiming> stages = new LinkedList<>();
+    private List<PresentableStage> createStages(LocalTime arrivesEnd) {
+        List<PresentableStage> stages = new LinkedList<>();
         RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass", 20).
                 setLastStation(stationB);
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));
-        stages.add(new StageWithTiming(rawTravelStage, serviceTimes, TravelAction.Board));
+        stages.add(new VehicleStageWithTiming(rawTravelStage, serviceTimes, TravelAction.Board));
         return stages;
     }
 }

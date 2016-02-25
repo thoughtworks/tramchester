@@ -102,7 +102,7 @@ public class TransportGraphBuilder extends StationIndexs {
         }
     }
 
-    private Node getOrCreateStation(Station station) {
+    private Node getOrCreateStation(Location station) {
 
         String id = station.getId();
         String stationName = station.getName();
@@ -123,7 +123,7 @@ public class TransportGraphBuilder extends StationIndexs {
         return node;
     }
 
-    private Node getOrCreateRouteStation(Station station, Route route, Service service) {
+    private Node getOrCreateRouteStation(Location station, Route route, Service service) {
         String routeStationId = createRouteStationId(station, route);
         Node routeStation = getRouteStationNode(routeStationId);
 
@@ -185,7 +185,7 @@ public class TransportGraphBuilder extends StationIndexs {
         return false;
     }
 
-    private Node createRouteStation(Station station, Route route, String routeStationId, Service service) {
+    private Node createRouteStation(Location station, Route route, String routeStationId, Service service) {
         logger.info(format("Creating route station %s route %s service %s", station.getId(),route.getId(),
                 service.getServiceId()));
         Node routeStation = graphDatabaseService.createNode(DynamicLabel.label(ROUTE_STATION));
@@ -197,7 +197,7 @@ public class TransportGraphBuilder extends StationIndexs {
         return routeStation;
     }
 
-    private String createRouteStationId(Station station, Route route) {
+    private String createRouteStationId(Location station, Route route) {
         return station.getId() + route.getId();
     }
 

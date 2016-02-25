@@ -2,7 +2,6 @@ package com.tramchester.resources;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
@@ -12,10 +11,8 @@ import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.TransportData;
-import junit.framework.TestCase;
 import org.joda.time.LocalDate;
 import org.junit.*;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 
 import javax.ws.rs.core.Response;
@@ -218,8 +215,8 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
                 Stations.ManAirport.getId(), (23*60)+10, DaysOfWeek.Monday, today);
         Journey journey = results.getJourneys().stream().findFirst().get();
 
-        assertEquals("number of times for stage one", 3, journey.getStages().get(0).getServiceTimes().size());
-        assertEquals("number of times for stage two", 1, journey.getStages().get(1).getServiceTimes().size());
+        assertEquals("number of times for stage one", 3, journey.getStages().get(0).getNumberOfServiceTimes());
+        assertEquals("number of times for stage two", 1, journey.getStages().get(1).getNumberOfServiceTimes());
         assertEquals("available times", 1, journey.getNumberOfTimes());
     }
 
@@ -233,8 +230,8 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldFindRouteEachStationToEveryOther() throws TramchesterException {
         TransportData data = dependencies.get(TransportData.class);
         List<Station> allStations = data.getStations();
-        for(Station start : allStations) {
-            for(Station end: allStations) {
+        for(Location start : allStations) {
+            for(Location end: allStations) {
                 String startCode = start.getId();
                 String endCode = end.getId();
                 if (!startCode.equals(endCode)) {

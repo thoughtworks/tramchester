@@ -141,8 +141,8 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
         return stations.get(stationId);
     }
 
-    public SortedSet<ServiceTime> getTimes(String serviceId, Station firstStation, Station lastStation,
-                                      TimeWindow window) {
+    public SortedSet<ServiceTime> getTimes(String serviceId, Location firstStation, Location lastStation,
+                                           TimeWindow window) {
         logger.info(String.format("Get times for service %s from %s to %s with %s",
                 serviceId, firstStation, lastStation, window));
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();

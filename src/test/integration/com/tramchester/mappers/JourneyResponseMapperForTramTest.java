@@ -6,11 +6,8 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.StageWithTiming;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.graph.RouteCalculator;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -64,7 +61,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(930, 30));
 
         Journey journey = result.getJourneys().stream().findFirst().get();
-        StageWithTiming stage = journey.getStages().get(0);
+        PresentableStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().isBefore(LocalTime.of(16,00)));
     }
@@ -85,7 +82,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(1, journey.getStages().size());
-        StageWithTiming stage = journey.getStages().get(0);
+        PresentableStage stage = journey.getStages().get(0);
         assertEquals(Stations.Altrincham,stage.getFirstStation());
         assertEquals(Stations.Cornbrook,stage.getLastStation());
         assertTrue(stage.getDuration()>0);
@@ -94,8 +91,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getExpectedArrivalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
 
-        SortedSet<ServiceTime> serviceTimes = stage.getServiceTimes();
-        assertEquals(2, serviceTimes.size());
+        assertEquals(2, stage.getNumberOfServiceTimes());
     }
 
     @Test
@@ -123,13 +119,11 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(2, journey.getStages().size());
 
-        StageWithTiming stage2 = journey.getStages().get(1);
+        PresentableStage stage2 = journey.getStages().get(1);
         assertEquals(Stations.Deansgate,stage2.getFirstStation());
         assertEquals(Stations.Victoria,stage2.getLastStation());
 
-        SortedSet<ServiceTime> serviceTimes = stage2.getServiceTimes();
-        assertEquals(2, serviceTimes.size());
-
+        assertEquals(2, stage2.getNumberOfServiceTimes());
         assertEquals("Change tram at",stage2.getPrompt());
     }
 

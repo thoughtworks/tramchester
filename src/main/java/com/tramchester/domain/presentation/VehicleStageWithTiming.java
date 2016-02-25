@@ -11,11 +11,11 @@ import java.util.SortedSet;
 
 import static java.lang.String.format;
 
-public class StageWithTiming extends RawVehicleStage {
+public class VehicleStageWithTiming extends RawVehicleStage implements PresentableStage {
     private final TravelAction action;
     private SortedSet<ServiceTime> serviceTimes;
 
-    public StageWithTiming(RawVehicleStage rawTravelStage, SortedSet<ServiceTime> serviceTimes, TravelAction action) {
+    public VehicleStageWithTiming(RawVehicleStage rawTravelStage, SortedSet<ServiceTime> serviceTimes, TravelAction action) {
         super(rawTravelStage);
         this.serviceTimes = serviceTimes;
         this.action = action;
@@ -46,7 +46,6 @@ public class StageWithTiming extends RawVehicleStage {
         return TimeAsMinutes.timeDiffMinutes(arrivalTime, departureTime);
     }
 
-
     public int findEarliestDepartureTime() {
         int earliest = Integer.MAX_VALUE;
         for (ServiceTime time : serviceTimes) {
@@ -59,7 +58,7 @@ public class StageWithTiming extends RawVehicleStage {
 
     @Override
     public String toString() {
-        return "StageWithTiming{" +
+        return "VehicleStageWithTiming{" +
                 "rawTravelStage=" + super.toString() +
                 ", serviceTimes=" + serviceTimes +
                 '}';
@@ -113,5 +112,10 @@ public class StageWithTiming extends RawVehicleStage {
             default:
                 throw new TramchesterException("Unknown transport mode " + mode);
         }
+    }
+
+    @Override
+    public int getNumberOfServiceTimes() {
+        return serviceTimes.size();
     }
 }

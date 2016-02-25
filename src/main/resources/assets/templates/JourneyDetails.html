@@ -27,8 +27,8 @@
                             </h4>
                         </a>
                     </div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
+                    <ul class="list-group" ng-show="stage.isAVehicle">
+                        <li class="list-group-item" >
                             <strong>{{stage.serviceTimes[serviceTimeIndex].departureTime}}</strong> Catch
                             {{stage.serviceTimes[serviceTimeIndex].headSign}} {{stage.mode}}
                         </li>

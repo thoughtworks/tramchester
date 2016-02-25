@@ -1,11 +1,7 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.RawVehicleStage;
-import com.tramchester.domain.TransportStage;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Nodes.RouteStationNode;
-import com.tramchester.graph.Nodes.StationNode;
-import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.domain.*;
+import com.tramchester.graph.Nodes.*;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
@@ -93,11 +89,21 @@ public class PathToStagesMapper {
                 logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
                         elapsedTime));
                 currentStage.setLastStation(stationRepository.getStation(endNodeId));
+                currentStage.setDepartTime(elapsedTime);
                 stages.add(currentStage);
                 logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
                 currentStage = null;
             } else if (transportRelationship.isWalk()) {
-                logger.info("Skip adding walk of cost " + cost);
+                if (firstNode.isQuery()) {
+                    StationNode dest = (StationNode) secondNode;
+                    Location destStation = stationRepository.getStation(dest.getId());
+                    QueryNode queryNode = (QueryNode) firstNode;
+                    Location begin = new MyLocation(queryNode.getLatLon());
+                    WalkingStage walkingStage = new WalkingStage(cost, begin, destStation, elapsedTime);
+                    logger.info("Adding walk " + walkingStage);
+                    stages.add(walkingStage);
+                }
+
             }
         }
         logger.info(format("Number of stages: %s Total cost:%s Finish: %s",stages.size(), totalCost,

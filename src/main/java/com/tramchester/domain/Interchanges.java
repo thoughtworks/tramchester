@@ -30,7 +30,7 @@ public class Interchanges {
             DEANSGATE,
             SHAW_AND_CROMPTON));
 
-    public static boolean has(Station station) {
+    public static boolean has(Location station) {
         // TODO changes for Buses
         return interchanges.contains(station.getId());
     }

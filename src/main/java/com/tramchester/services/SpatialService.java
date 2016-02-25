@@ -1,6 +1,7 @@
 package com.tramchester.services;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;
@@ -15,12 +16,11 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.IndexHits;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class SpatialService extends StationIndexs {
-    public static final String ALL_STOPS = "All Stops";
+    public static final String ALL_STOPS_PROX_GROUP = "All Stops";
     // TODO these both into config
     //public static final int NUMBER_OF_NEAREST = 6;
     //public static final double DISTANCE_IN_KM = 30;
@@ -49,17 +49,13 @@ public class SpatialService extends StationIndexs {
                 Station nearestStation = stationRepository.getStation(id);
                 if (nearestStation != null) {
                     DisplayStation displayStation = new DisplayStation(nearestStation, "Nearest Stops");
-                    //nearestStation.setProximityGroup("Nearest Stops");
                     reorderedStations.add(displayStation);
                     seen.add(nearestStation);
-//                    sorted.remove(nearestStation);
                 }
             }
 
-            //                    station.setProximityGroup(ALL_STOPS);
-//                    reorderedStations.add(station);
             reorderedStations.addAll(sortedStations.stream().filter(station -> !seen.contains(station)).
-                    map(station -> new DisplayStation(station, ALL_STOPS)).
+                    map(station -> new DisplayStation(station, ALL_STOPS_PROX_GROUP)).
                     collect(Collectors.toList()));
             tx.success();
             return reorderedStations;

@@ -6,11 +6,11 @@ import java.time.LocalTime;
 import static java.lang.String.format;
 
 public class Stop extends TimeAsMinutes {
-    private final Station station;
+    private final Location station;
     private final LocalTime arrivalTime;
     private final LocalTime departureTime;
 
-    public Stop(Station station, LocalTime arrivalTime, LocalTime departureTime) {
+    public Stop(Location station, LocalTime arrivalTime, LocalTime departureTime) {
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.station = station;
@@ -24,7 +24,7 @@ public class Stop extends TimeAsMinutes {
         return departureTime;
     }
 
-    public Station getStation() {
+    public Location getStation() {
         return station;
     }
 

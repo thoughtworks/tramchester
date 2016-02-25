@@ -7,11 +7,13 @@ public class RouteStationNode implements TramNode {
     private final String id;
     private final String routeName;
     private final String routeId;
+    private final String name;
 
     public RouteStationNode(Node node) {
         this.id = node.getProperty(GraphStaticKeys.ID).toString();
         this.routeName = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME).toString();
         this.routeId = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID).toString();
+        this.name = node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME).toString();
     }
 
     @Override
@@ -32,6 +34,11 @@ public class RouteStationNode implements TramNode {
     @Override
     public boolean isQuery() {
         return false;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

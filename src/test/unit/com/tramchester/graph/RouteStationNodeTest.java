@@ -28,12 +28,14 @@ public class RouteStationNodeTest extends EasyMockSupport {
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME)).andReturn("routeName");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID)).andReturn("routeId");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME)).andReturn("stationName");
 
         replayAll();
         RouteStationNode stationNode = new RouteStationNode(node);
         assertEquals("stationId", stationNode.getId());
         assertEquals("routeName", stationNode.getRouteName());
         assertEquals("routeId", stationNode.getRouteId());
+        assertEquals("stationName", stationNode.getName());
         verifyAll();
     }
 }

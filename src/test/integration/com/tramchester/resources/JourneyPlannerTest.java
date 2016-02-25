@@ -11,10 +11,7 @@ import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.StageWithTiming;
+import com.tramchester.domain.presentation.*;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
@@ -64,7 +61,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         SortedSet<Journey> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         Journey journey = journeys.first();
-        List<StageWithTiming> stages = journey.getStages();
+        List<PresentableStage> stages = journey.getStages();
         stages.forEach(stage ->
                 assertEquals(TransportMode.Bus, stage.getMode())
         );

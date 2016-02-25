@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -59,12 +60,14 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    public Set<RawJourney> calculateRoute(List<StationWalk> startStations, List<Station> endStations, int minutesFromMidnight,
+    public Set<RawJourney> calculateRoute(LatLong origin,List<StationWalk> startStations, Station endStation, int minutesFromMidnight,
                                           DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
             Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
+            startNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
+            startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
             startNode.setProperty(GraphStaticKeys.Station.NAME, "BEGIN");
             startNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.QUERY);
 
@@ -74,15 +77,7 @@ public class RouteCalculator extends StationIndexs {
                         setProperty(GraphStaticKeys.COST, station.getCost());
             });
 
-            Node endNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
-            endNode.setProperty(GraphStaticKeys.Station.NAME, "END");
-            endNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.QUERY);
-
-            endStations.forEach(station -> {
-                Node penulimate = getStationNode(station.getId());
-                penulimate.createRelationshipTo(endNode, TransportRelationshipTypes.WALKS_TO).
-                        setProperty(GraphStaticKeys.COST, 0);
-            });
+            Node endNode = getStationNode(endStation.getId());
 
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, dayOfWeek, queryDate);
 

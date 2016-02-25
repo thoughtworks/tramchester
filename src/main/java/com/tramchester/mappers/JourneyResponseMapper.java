@@ -2,10 +2,7 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.StageWithTiming;
-import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +48,11 @@ public abstract class JourneyResponseMapper {
         return journeys;
     }
 
-
-    protected TravelAction decideAction(List<StageWithTiming> stages, List<TransportStage> rawJourneyStages) {
+    protected TravelAction decideAction(List<PresentableStage> stages, List<TransportStage> rawJourneyStages) {
         if (stages.isEmpty()) {
+            return TravelAction.Board;
+        }
+        if ((stages.size()==1) && (stages.get(0) instanceof WalkingStage)) {
             return TravelAction.Board;
         }
         return TravelAction.Change;

@@ -1,21 +1,22 @@
 package com.tramchester.domain;
 
 public class RawVehicleStage implements TransportStage {
-    protected final Station firstStation;
+    protected final Location firstStation;
     protected final TransportMode mode;
     protected final String routeName;
     protected final String displayClass;
-    protected final int elapsedTime;
+    protected final int startTime;
 
     protected String serviceId;
-    protected Station lastStation;
+    protected Location lastStation;
+    private int endTime;
 
-    public RawVehicleStage(Station firstStation, String routeName, TransportMode mode, String displayClass, int elapsedTime) {
+    public RawVehicleStage(Location firstStation, String routeName, TransportMode mode, String displayClass, int startTime) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
         this.displayClass = displayClass;
-        this.elapsedTime = elapsedTime;
+        this.startTime = startTime;
     }
 
     public RawVehicleStage(RawVehicleStage other) {
@@ -23,7 +24,7 @@ public class RawVehicleStage implements TransportStage {
         this.routeName = other.routeName;
         this.mode = other.mode;
         this.displayClass = other.displayClass;
-        this.elapsedTime = other.elapsedTime;
+        this.startTime = other.startTime;
         this.serviceId = other.serviceId;
         this.lastStation = other.lastStation;
     }
@@ -37,16 +38,16 @@ public class RawVehicleStage implements TransportStage {
         return this;
     }
 
-    public RawVehicleStage setLastStation(Station lastStation) {
+    public RawVehicleStage setLastStation(Location lastStation) {
         this.lastStation = lastStation;
         return this;
     }
 
-    public Station getFirstStation() {
+    public Location getFirstStation() {
         return firstStation;
     }
 
-    public Station getLastStation() {
+    public Location getLastStation() {
         return lastStation;
     }
 
@@ -60,7 +61,7 @@ public class RawVehicleStage implements TransportStage {
     }
 
     @Override
-    public boolean isVehicle() {
+    public boolean getIsAVehicle() {
         return (mode.equals(TransportMode.Bus)) || (mode.equals(TransportMode.Tram));
     }
 
@@ -80,7 +81,14 @@ public class RawVehicleStage implements TransportStage {
                 '}';
     }
 
-    public int getElapsedTime() {
-        return elapsedTime;
+    public int getStartTime() {
+        return startTime;
+    }
+
+    public int getEndTime() { return endTime; }
+
+    public void setDepartTime(int endTime) {
+        this.endTime = endTime;
+
     }
 }

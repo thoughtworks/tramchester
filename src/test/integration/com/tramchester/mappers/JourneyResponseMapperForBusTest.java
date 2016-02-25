@@ -25,8 +25,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private Set<RawJourney> journeys;
     private List<TransportStage> stages;
 
-    private Station stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", 1.5, 1.5, false);
-    private Station stockportBridgefieldStreet = new Station("1800SG15811", "stockportArea", "Bridgefield Street",
+    private Location stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", 1.5, 1.5, false);
+    private Location stockportBridgefieldStreet = new Station("1800SG15811", "stockportArea", "Bridgefield Street",
             1.5, 1.5, false);
 
     @BeforeClass
@@ -51,8 +51,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     @Test
     @Category({BusTest.class})
     public void shouldMapStockportCircularJourney() throws TramchesterException {
-        //String svcId = findServiceId(stockportBusStation, stockportBridgefieldStreet, minutesFromMidnight);
-        String svcId = "Serv002953"; // use above when timetable changes to find new svc id
+        String svcId = findServiceId(stockportBusStation.getId(), stockportBridgefieldStreet.getId(), 571);
+        //String svcId = "Serv002953"; // use above when timetable changes to find new svc id
 
         JourneyPlanRepresentation result = getJourneyPlanRepresentation(stockportBusStation, stockportBridgefieldStreet,
                 svcId, 571);
@@ -60,7 +60,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         assertEquals(1,result.getJourneys().size());
     }
 
-    private JourneyPlanRepresentation getJourneyPlanRepresentation(Station begin, Station end, String svcId,
+    private JourneyPlanRepresentation getJourneyPlanRepresentation(Location begin, Location end, String svcId,
                                                                    int minutesFromMidnight) throws TramchesterException {
 
         int elapsedTime = 8*60;

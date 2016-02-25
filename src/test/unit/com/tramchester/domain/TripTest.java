@@ -14,8 +14,8 @@ public class TripTest {
     public void shouldModelCircularTripsCorrectly() {
         Trip trip = new Trip("tripId","headSign", "svcId");
 
-        Station stationA = new Station("statA","areaA", "stopNameA", 1.0, -1.0, false);
-        Station stationB = new Station("statB","areaA", "stopNameB", 2.0, -2.0, false);
+        Location stationA = new Station("statA","areaA", "stopNameA", 1.0, -1.0, false);
+        Location stationB = new Station("statB","areaA", "stopNameB", 2.0, -2.0, false);
 
         Stop firstStop = new Stop(stationA, LocalTime.of(10, 00), LocalTime.of(10, 01));
         Stop secondStop = new Stop(stationB, LocalTime.of(10, 05), LocalTime.of(10, 06));

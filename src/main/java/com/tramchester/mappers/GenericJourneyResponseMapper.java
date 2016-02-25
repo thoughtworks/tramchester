@@ -2,9 +2,9 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.PresentableStage;
 import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.StageWithTiming;
-import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.presentation.VehicleStageWithTiming;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +25,17 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
     @Override
     protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
 
-        List<StageWithTiming> stages = new LinkedList<>();
+        List<PresentableStage> stages = new LinkedList<>();
         List<TransportStage> rawJourneyStages = rawJourney.getStages();
         for (TransportStage rawStage : rawJourneyStages) {
-            if (rawStage.isVehicle()) {
+            if (rawStage.getIsAVehicle()) {
                 RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
                 String serviceId = rawTravelStage.getServiceId();
                 logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
-                Station firstStation = rawTravelStage.getFirstStation();
-                Station lastStation = rawTravelStage.getLastStation();
+                Location firstStation = rawTravelStage.getFirstStation();
+                Location lastStation = rawTravelStage.getLastStation();
 
-                int elapsedTime = rawTravelStage.getElapsedTime();
+                int elapsedTime = rawTravelStage.getStartTime();
                 TimeWindow newTimeWindow = timeWindow.next(elapsedTime);
 
                 SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, newTimeWindow);
@@ -45,7 +45,7 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
                     logger.error(message);
                 } else {
                     logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-                    StageWithTiming stage = new StageWithTiming(rawTravelStage, times, decideAction(stages,rawJourneyStages));
+                    VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times, decideAction(stages,rawJourneyStages));
                     stages.add(stage);
                 }
             }

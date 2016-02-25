@@ -4,9 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.presentation.DisplayStation;
-import org.joda.time.DateTime;
 import org.junit.*;
 
 import javax.ws.rs.core.Response;
@@ -16,8 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class StationResourceTest {
     private static Dependencies dependencies;
@@ -69,21 +67,18 @@ public class StationResourceTest {
     }
 
     @Test
-    @Ignore("For performande testing")
-    public void shouldCheckPerformanceOfGettingNearest() throws JsonProcessingException {
-        DateTime start = DateTime.now();
-        for (int i=0; i<10000; i++) {
-            stationResource.getNearest(53.4804263d, -2.2392436d);
-        }
-        DateTime finished = DateTime.now();
+    public void shouldNotGetSpecialStationWhenGettingAllStations() throws JsonProcessingException {
+        stationResource.getNearest(53.4804263d, -2.2392436d);
+        Response result = stationResource.getAll();
+        List<DisplayStation> stations = (List<DisplayStation>) result.getEntity();
 
-        System.out.println("Initialisation took: " + finished.minus(start.getMillis()).getMillis());
+        stations.forEach(station -> assertNotEquals("My Location", station.getName()));
     }
 
     @Test
     public void shouldNotGetClosedStations() throws Exception {
         Response result = stationResource.getAll();
-        Collection<Station> stations = (Collection<Station>) result.getEntity();
+        Collection<Location> stations = (Collection<Location>) result.getEntity();
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
         assertThat(stations.stream().filter(station -> station.getName().equals(Stations.Altrincham.getName())).count()).isEqualTo(1);

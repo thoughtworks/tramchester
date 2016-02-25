@@ -30,7 +30,7 @@
                         <select id="toStop"
                                 ng-model="toStop"
                                 required
-                                ng-options="stop.id as stop.name for stop in stops | orderBy:'name'"
+                                ng-options="stop.id as stop.name for stop in stops | orderBy:'name' | filter:{proximityGroup:'All Stops'}"
                                 ng-show="stops.length"
                                 class="form-control input-lg">
                             <option value="">- Please select stop -</option>

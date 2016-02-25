@@ -2,7 +2,6 @@ package com.tramchester.domain;
 
 
 import org.junit.Test;
-import org.neo4j.unsafe.impl.batchimport.stats.Stat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -11,7 +10,7 @@ public class StationTest {
 
     @Test
     public void testShouldSetTramNameCorrecly() {
-        Station tramStation = new Station("id", "area", "stopName", -2.0, 2.3, true);
+        Location tramStation = new Station("id", "area", "stopName", -2.0, 2.3, true);
 
         assertEquals("stopName", tramStation.getName());
         assertEquals("id", tramStation.getId());
@@ -22,7 +21,7 @@ public class StationTest {
 
     @Test
     public void testShouldSetBusNameCorrecly() {
-        Station busStation = new Station("id", "area", "stopName", -2.0, 2.3, false);
+        Location busStation = new Station("id", "area", "stopName", -2.0, 2.3, false);
 
         assertEquals("area,stopName", busStation.getName());
         assertEquals("id", busStation.getId());
