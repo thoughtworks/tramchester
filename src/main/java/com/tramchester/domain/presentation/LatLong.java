@@ -34,4 +34,12 @@ public class LatLong {
     public void setLon(double lon) {
         this.lon = lon;
     }
+
+    @Override
+    public String toString() {
+        return "LatLong{" +
+                "lat=" + lat +
+                ", lon=" + lon +
+                '}';
+    }
 }

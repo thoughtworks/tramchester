@@ -60,7 +60,7 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    public Set<RawJourney> calculateRoute(LatLong origin,List<StationWalk> startStations, Station endStation, int minutesFromMidnight,
+    public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation, int minutesFromMidnight,
                                           DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {

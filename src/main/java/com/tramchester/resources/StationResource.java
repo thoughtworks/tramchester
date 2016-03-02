@@ -106,7 +106,7 @@ public class StationResource {
 
             // TODO use MyLocation instead of Station
             Station myLocation = new Station(formId(lat,lon), "", "My Location", lat, lon, false);
-            orderedStations.add(0, new DisplayStation(myLocation, "Nearby"));
+            orderedStations.add(0, new DisplayStation(myLocation, SpatialService.NEARBY));
         }
 
         return Response.ok(orderedStations).build();

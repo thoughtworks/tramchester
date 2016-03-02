@@ -1,8 +1,13 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TransportMode;
+import org.neo4j.graphdb.Relationship;
 
-public class WalksToRelationship implements TransportRelationship {
+public class WalksToRelationship extends TransportCostRelationship {
+    public WalksToRelationship(Relationship graphRelationship) {
+        super(graphRelationship);
+    }
+
     @Override
     public boolean isGoesTo() {
         return false;
@@ -26,11 +31,6 @@ public class WalksToRelationship implements TransportRelationship {
     @Override
     public boolean isWalk() {
         return true;
-    }
-
-    @Override
-    public int getCost() {
-        return 0;
     }
 
     @Override

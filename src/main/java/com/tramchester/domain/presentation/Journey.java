@@ -4,6 +4,7 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
+import com.tramchester.domain.WalkingStage;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
@@ -28,6 +29,9 @@ public class Journey implements Comparable<Journey> {
 
     // used front end
     public String getSummary() {
+        if (allStages.size() == 1) {
+            return "Direct";
+        }
         long size = vehicleStages.size();
         if (size == 1) {
             return "Direct";
@@ -48,6 +52,7 @@ public class Journey implements Comparable<Journey> {
     }
 
     public String getHeading() {
+
         return format("%s with %s - %s", getFirstStage().getMode(), getChanges(), getDuration());
     }
 
@@ -57,10 +62,10 @@ public class Journey implements Comparable<Journey> {
     }
 
     private String getChanges() {
-        if (vehicleStages.size() ==1) {
+        if (vehicleStages.size() <= 1) {
             return "No Changes";
         }
-        if (vehicleStages.size() ==2) {
+        if (vehicleStages.size() == 2) {
             return "1 change";
         }
         return format("%s changes", vehicleStages.size() -1);
@@ -68,7 +73,7 @@ public class Journey implements Comparable<Journey> {
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
-        if (vehicleStages.size() == 0) {
+        if (allStages.size() == 0) {
             return LocalTime.MIDNIGHT;
         }
         return getFirstStage().getFirstDepartureTime();
@@ -76,31 +81,32 @@ public class Journey implements Comparable<Journey> {
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
-        if (vehicleStages.size() == 0) {
+        if (allStages.size() == 0) {
             return LocalTime.MIDNIGHT;
         }
         return getLastStage().getExpectedArrivalTime();
     }
 
     private PresentableStage getLastStage() {
-        int index = vehicleStages.size() - 1;
-        return vehicleStages.get(index);
+        if (vehicleStages.size()>0) {
+            int index = vehicleStages.size() - 1;
+            return vehicleStages.get(index);
+        }
+        int index = allStages.size()-1;
+        return allStages.get(index);
     }
 
     private PresentableStage getFirstStage() {
-        return vehicleStages.get(0);
-//        PresentableStage presentableStage = vehicleStages.get(0);
-//        if (presentableStage.getIsAVehicle()) {
-//            return presentableStage;
-//        } else {
-//            return vehicleStages.get(1);
-//        }
+        if (vehicleStages.size()>0) {
+            return vehicleStages.get(0);
+        }
+        return allStages.get(0);
     }
 
     @Override
     public String toString() {
         return  "Journey{" +
-                "stages= [" +vehicleStages.size() +"] "+ vehicleStages +
+                "stages= [" +allStages.size() +"] "+ allStages +
                 '}';
     }
 

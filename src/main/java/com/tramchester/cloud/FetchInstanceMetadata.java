@@ -6,6 +6,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 import static java.lang.String.format;
@@ -51,7 +53,12 @@ public class FetchInstanceMetadata implements FetchMetadata {
             HttpEntity entity = result.getEntity();
             entity.writeTo(stream);
             return new String(stream.toByteArray());
-        } catch (IOException e) {
+        }
+        catch (ConnectTimeoutException timeout) {
+            logger.info("Timed out getting meta data, not running in cloud");
+            return "";
+        }
+        catch (IOException e) {
             logger.warn("Unable to get instance user data, likely not running in cloud", e);
             return "";
         }

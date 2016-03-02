@@ -90,6 +90,8 @@ public class Dependencies {
 
         rebuildGraph(configuration);
 
+        picoContainer.addComponent(GraphHealthCheck.class);
+
         logger.info("Prepare to signal cloud formation if running in cloud");
         SignalToCloudformationReady signaller = picoContainer.getComponent(SignalToCloudformationReady.class);
         signaller.send();

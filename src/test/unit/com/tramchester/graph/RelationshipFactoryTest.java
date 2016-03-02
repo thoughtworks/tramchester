@@ -13,7 +13,7 @@ import org.neo4j.graphdb.Relationship;
 import static org.junit.Assert.*;
 
 
-public class TramRelationshipTest extends EasyMockSupport {
+public class RelationshipFactoryTest extends EasyMockSupport {
 
     private Relationship relationship;
     private RelationshipFactory relationshipFactory;
@@ -65,7 +65,7 @@ public class TramRelationshipTest extends EasyMockSupport {
 
     @Test
     public void shouldHaveWalkToRelationship() {
-        EasyMock.expect(relationship.getType()).andReturn(TransportRelationshipTypes.WALKS_TO);
+        setRelationshipExpectation(TransportRelationshipTypes.WALKS_TO, 6);
 
         replayAll();
         TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
@@ -73,6 +73,7 @@ public class TramRelationshipTest extends EasyMockSupport {
         assertFalse(transportRelationship.isBoarding());
         assertFalse(transportRelationship.isDepartTram());
         assertTrue(transportRelationship.isWalk());
+        assertEquals(6, transportRelationship.getCost());
         verifyAll();
 
     }

@@ -1,11 +1,11 @@
 package com.tramchester.resources;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.PresentableStage;
-import com.tramchester.domain.presentation.VehicleStageWithTiming;
 
 import java.time.LocalTime;
 import java.util.Set;

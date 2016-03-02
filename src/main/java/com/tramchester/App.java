@@ -50,5 +50,7 @@ public class App extends Application<AppConfiguration> {
         environment.jersey().register(dependencies.get(StationResource.class));
         environment.jersey().register(dependencies.get(VersionResource.class));
         environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
+
+        environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
     }
 }

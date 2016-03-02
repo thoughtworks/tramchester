@@ -28,15 +28,41 @@ techLabApp.controller('RoutePlannerController',
             }
         }
 
+        $scope.fromStopSelected = function() {
+           $scope.filterDestinationStop($scope.fromStop);
+        }
+
+        $scope.filterDestinationStop = function(selectedId) {
+            if (selectedId==null) {
+                $scope.endStops = $scope.stops;
+            } else {
+                $scope.endStops = new Array();
+                if ($scope.fromStop != null) {
+                    angular.forEach($scope.stops, function (stop) {
+                        if (stop.id != selectedId) {
+                            $scope.endStops.push(stop);
+                        }
+                    });
+                }
+            }
+        }
+
+        $scope.groupFilter = function (item) {
+            return item.proximityGroup === 'Nearest Stops' || item.proximityGroup === 'All Stops';
+        };
+
         function getNearStops(position) {
             transportStops.getNearStops(position.coords.latitude, position.coords.longitude).query(function (stopList) {
                 $scope.stops = stopList;
+                $scope.filterDestinationStop($scope.fromStop);
+                //$scope.endStops = stopList;
             });
         }
 
         function getAllStops() {
             transportStops.getAll().query(function (stopList) {
                 $scope.stops = stopList;
+                $scope.filterDestinationStop($scope.fromStop);
                 tramchesterCacheService.addStops("All", stopList);
             });
         }

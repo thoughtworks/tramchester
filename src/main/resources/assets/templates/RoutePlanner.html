@@ -17,7 +17,8 @@
                                 required
                                 ng-options="stop.id as stop.name group by stop.proximityGroup for stop in stops"
                                 ng-show="stops.length"
-                                class="form-control input-lg">
+                                class="form-control input-lg"
+                                ng-change="fromStopSelected()">
                             <option value="">- Please select stop -</option>
                         </select>
 
@@ -30,7 +31,7 @@
                         <select id="toStop"
                                 ng-model="toStop"
                                 required
-                                ng-options="stop.id as stop.name for stop in stops | orderBy:'name' | filter:{proximityGroup:'All Stops'}"
+                                ng-options="stop.id as stop.name for stop in endStops | orderBy:'name' | filter: groupFilter"
                                 ng-show="stops.length"
                                 class="form-control input-lg">
                             <option value="">- Please select stop -</option>

@@ -99,7 +99,7 @@ public class PathToStagesMapper {
                     Location destStation = stationRepository.getStation(dest.getId());
                     QueryNode queryNode = (QueryNode) firstNode;
                     Location begin = new MyLocation(queryNode.getLatLon());
-                    WalkingStage walkingStage = new WalkingStage(cost, begin, destStation, elapsedTime);
+                    WalkingStage walkingStage = new WalkingStage(cost, begin, destStation, minsPastMidnight);
                     logger.info("Adding walk " + walkingStage);
                     stages.add(walkingStage);
                 }

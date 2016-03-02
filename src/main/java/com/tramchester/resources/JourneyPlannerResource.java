@@ -54,10 +54,14 @@ public class JourneyPlannerResource {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
         try {
             JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, dayOfWeek, queryDate, minutesFromMidnight);
-            return Response.ok(planRepresentation).build();
+            Response response = Response.ok(planRepresentation).build();
+            return response;
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);
+        } catch(Exception exception) {
+            logger.error("Problem processing response", exception);
         }
+
         return Response.serverError().build();
     }
 

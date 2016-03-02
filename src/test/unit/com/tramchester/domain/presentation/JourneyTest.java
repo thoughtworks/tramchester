@@ -96,6 +96,16 @@ public class JourneyTest {
         assertEquals("Tram with 3 changes - 12 minutes", journey.getHeading());
     }
 
+    @Test
+    public void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() {
+        List<PresentableStage> stages = new LinkedList<>();
+        stages.add(new WalkingStage(2, new MyLocation(new LatLong(-1,2)), Stations.Victoria, 8*60));
+
+        Journey journey = new Journey(stages);
+
+        assertEquals("Direct", journey.getSummary());
+        assertEquals("Walk with No Changes - 2 minutes", journey.getHeading());
+    }
 
     private List<PresentableStage> createThreeStages() {
         List<PresentableStage> stages = new LinkedList<>();

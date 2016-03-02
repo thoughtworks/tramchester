@@ -21,9 +21,8 @@ import java.util.stream.StreamSupport;
 
 public class SpatialService extends StationIndexs {
     public static final String ALL_STOPS_PROX_GROUP = "All Stops";
-    // TODO these both into config
-    //public static final int NUMBER_OF_NEAREST = 6;
-    //public static final double DISTANCE_IN_KM = 30;
+    public static final String NEARBY = "Nearby";
+    private static final String NEAREST_STOPS = "Nearest Stops";
 
     private GraphDatabaseService graphDatabaseService;
     private StationRepository stationRepository;
@@ -48,7 +47,7 @@ public class SpatialService extends StationIndexs {
             for (String id : nearestStations) {
                 Station nearestStation = stationRepository.getStation(id);
                 if (nearestStation != null) {
-                    DisplayStation displayStation = new DisplayStation(nearestStation, "Nearest Stops");
+                    DisplayStation displayStation = new DisplayStation(nearestStation, NEAREST_STOPS);
                     reorderedStations.add(displayStation);
                     seen.add(nearestStation);
                 }

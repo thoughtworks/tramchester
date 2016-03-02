@@ -6,6 +6,13 @@ public class MyLocation implements Location {
 
     private LatLong latLong;
 
+    @Override
+    public String toString() {
+        return "MyLocation{" +
+                "latLong=" + latLong +
+                '}';
+    }
+
     public MyLocation(LatLong latLong) {
         this.latLong = latLong;
     }

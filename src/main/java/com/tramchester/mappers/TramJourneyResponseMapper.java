@@ -32,6 +32,7 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
                 WalkingStage stage = (WalkingStage) rawStage;
                 logger.info("Adding walking stage " + stage);
                 stages.add(stage);
+                timeWindow = timeWindow.next(timeWindow.minsFromMidnight()+stage.getDuration());
             }
         }
         return new Journey(stages);
