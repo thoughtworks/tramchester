@@ -1,7 +1,6 @@
 package com.tramchester.pages;
 
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -16,8 +15,9 @@ public class WelcomePage extends Page {
         driver.get(url);
     }
 
-    public void begin() {
+    public RoutePlannerPage begin() throws InterruptedException {
         WebElement beginLink = waitForElement("plan", timeOutSeconds);
         beginLink.click();
+        return new RoutePlannerPage(driver);
     }
 }

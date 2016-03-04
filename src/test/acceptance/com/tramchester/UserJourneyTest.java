@@ -37,7 +37,7 @@ public class UserJourneyTest {
 
     @After
     public void afterEachTestRuns() {
-        //driver.close();
+        driver.close();
     }
 
     @Test
@@ -51,17 +51,15 @@ public class UserJourneyTest {
         WelcomePage welcomePage = new WelcomePage(driver);
         welcomePage.load(testRule.getUrl());
 
-        welcomePage.begin();
+        RoutePlannerPage routePlannerPage = welcomePage.begin();
 
-        RoutePlannerPage routePlannerPage = new RoutePlannerPage(driver);
         routePlannerPage.waitForToStops();
 
         routePlannerPage.setFromStop(fromStop);
         routePlannerPage.setToStop(toStop);
         routePlannerPage.setTime(time);
-        routePlannerPage.submit();
+        RouteDetailsPage routeDetailsPage = routePlannerPage.submit();
 
-        RouteDetailsPage routeDetailsPage = new RouteDetailsPage(driver);
         assertTrue(routeDetailsPage.waitForRoutes());
         assertTrue(routeDetailsPage.journeyPresent(0));
 
