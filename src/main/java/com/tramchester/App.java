@@ -53,4 +53,9 @@ public class App extends Application<AppConfiguration> {
 
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
     }
+
+    public void stop() {
+        dependencies.close();
+
+    }
 }

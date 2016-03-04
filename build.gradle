@@ -28,6 +28,11 @@ repositories {
         url "https://raw.github.com/neo4j-contrib/m2/master/releases"
     }
     mavenCentral()
+
+    flatDir {
+        dirs 'lib/cfnassist-1.0.121/lib/'
+    }
+
 }
 
 dependencies {
@@ -51,6 +56,22 @@ dependencies {
             'org.seleniumhq.selenium:selenium-java:2.48.2'
 }
 
+sourceSets {
+    test {
+        java {
+            srcDirs = ['src/test/unit', 'src/test/integration', 'src/test/acceptance']
+        }
+    }
+}
+
+task cfnassist << {
+    antBuild.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
+        classpath {
+            fileset(dir: 'lib/cfnassist-1.0.121/lib/', includes: 'cfnassist-all-1.0.121.jar')
+        }
+    }
+}
+
 jar {
     manifest {
         attributes(
@@ -68,20 +89,6 @@ jar {
 }
 
 task stage(dependsOn: ['clean', 'installApp'])
-
-test {
-    // t2.micro has 1gb
-    maxHeapSize = "2g"
-    useJUnit {
-        excludeCategories 'com.tramchester.BusTest'
-    }
-}
-
-task busTest(type: Test) {
-    useJUnit {
-        includeCategories 'com.tramchester.BusTest'
-    }
-}
 
 clean {
     delete 'int_test_tramchester.db' , 'data/tram/data.zip', 'data/bus/data.zip', 'int_test_bus_tramchester.db',
@@ -113,26 +120,44 @@ task buses(type:JavaExec) {
     args 'server', 'config/buses.yml'
 }
 
-sourceSets {
-    test {
-        java {
-            srcDirs = ['src/test/unit', 'src/test/integration']
-        }
+test {
+    // t2.micro has 1gb
+    maxHeapSize = "2g"
+    useJUnit {
+        excludeCategories 'com.tramchester.BusTest', 'com.tramchester.AcceptanceTest'
     }
 }
+
+task busTest(type: Test) {
+    useJUnit {
+        includeCategories 'com.tramchester.BusTest'
+    }
+}
+
+task whitelist(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+        WhiteList(port: '80', tag:'web')
+    }
+}
+
+task blacklist(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+        BlackList(port: '80', tag:'web')
+    }
+}
+
+task acceptance(type: Test, dependsOn: whitelist) {
+    useJUnit {
+        includeCategories 'com.tramchester.AcceptanceTest'
+    }
+}
+acceptance.finalizedBy blacklist
+
 
 task uploadData(dependsOn: ['cfnassist', 'pullData']) << {
     antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
         Artifact(name: 'data', value: 'data/tramData-1.0.zip')
         S3Create()
-    }
-}
-
-task cfnassist << {
-    antBuild.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
-        classpath {
-            fileset(dir: 'lib/cfnassist-1.0.121/lib/', includes: '*.jar')
-        }
     }
 }
 
@@ -189,20 +214,17 @@ task tidy(dependsOn: cfnassist) << {
 	}
 }
 
-task whitelist(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
-		WhiteList(port: '80', tag:'web')
-	}
-}
-
 task whitelistUAT(dependsOn: cfnassist) << {
     antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
         WhiteList(port: '80', tag:'web')
     }
 }
 
-task blacklist(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
-		BlackList(port: '80', tag:'web')
-	}
+task blacklistUAT(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
+        BlackList(port: '80', tag:'web')
+    }
 }
+
+
+

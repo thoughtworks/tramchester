@@ -24,7 +24,7 @@
         </div>
         <p ng-show="NoRoutes"><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
         <div class="col-12 col-sm-12 col-lg-" ng-hide="NoRoutes">
-            <div ng-show="!journeyPlan.journeys.length" class="text-center">
+            <div id="routes" ng-show="!journeyPlan.journeys.length" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
             <div ng-repeat="journey in journeyPlan.journeys" ng-click="showJourneyDetails($index)">
