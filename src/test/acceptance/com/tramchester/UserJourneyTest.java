@@ -24,6 +24,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class UserJourneyTest {
@@ -59,6 +60,26 @@ public class UserJourneyTest {
                 "10:15", headSigns);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldHideStationInToListWhenSelectedInFromList() throws InterruptedException {
+        WelcomePage welcomePage = new WelcomePage(driver);
+        welcomePage.load(testRule.getUrl());
+
+        RoutePlannerPage routePlannerPage = welcomePage.begin();
+
+        routePlannerPage.waitForToStops();
+        routePlannerPage.setFromStop(Stations.Altrincham.getName());
+        List<String> toStops = routePlannerPage.getToStops();
+        assertFalse(toStops.contains(Stations.Altrincham.getName()));
+        assertTrue(toStops.contains(Stations.Cornbrook.getName()));
+
+        routePlannerPage.setFromStop(Stations.Cornbrook.getName());
+        toStops = routePlannerPage.getToStops();
+        assertTrue(toStops.contains(Stations.Altrincham.getName()));
+        assertFalse(toStops.contains(Stations.Cornbrook.getName()));
     }
 
     @Test
