@@ -1,6 +1,6 @@
 <div class="navbar tcr-navbar">
     <div class="container">
-        <a class="navbar-button" ng-click="goBack(journey)"><span class="glyphicon glyphicon-chevron-left"></span>
+        <a id="backToRouteDetails" class="navbar-button" ng-click="goBack(journey)"><span class="glyphicon glyphicon-chevron-left"></span>
         </a>
         <h5 class="navbar-title">Directions</h5>
     </div>
@@ -51,7 +51,7 @@
                         <div id="change{{$index}}">Change {{stage.mode}}</div></span>
                 </div>
             </div>
-            <p><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
+            <p><a id="newJourney" href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
         </div>
     </div>
 </div>

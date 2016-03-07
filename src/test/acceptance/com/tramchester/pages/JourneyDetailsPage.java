@@ -31,4 +31,14 @@ public class JourneyDetailsPage extends Page {
     public String getChange(int index) {
         return getTextFor("change", index);
     }
+
+    public RoutePlannerPage planNewJourney() throws InterruptedException {
+        findElementById("newJourney").click();
+        return new RoutePlannerPage(driver);
+    }
+
+    public RouteDetailsPage backToRouteDetails() {
+        findElementById("backToRouteDetails").click();
+        return new RouteDetailsPage(driver);
+    }
 }

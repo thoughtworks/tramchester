@@ -52,20 +52,24 @@ public class UserJourneyTest {
 
     @Test
     @Category({AcceptanceTest.class})
-    public void shouldCheckAltrinchamToBury() throws InterruptedException {
+    public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
         List<String> changes = Arrays.asList(Stations.Deansgate.getName());
         List<String> headSigns = Arrays.asList("Etihad Campus", "Bury");
-        checkJourney(Stations.Altrincham.getName(), Stations.Bury.getName(), changes,
+        JourneyDetailsPage journeyDetailsPage = checkJourney(Stations.Altrincham.getName(), Stations.Bury.getName(), changes,
                 "10:15", headSigns);
+        RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
+        plannerPage.waitForToStops();
     }
 
     @Test
     @Category({AcceptanceTest.class})
-    public void shouldCheckAirportToBury() throws InterruptedException {
+    public void shouldCheckAirportToBuryThenBackToRoute() throws InterruptedException {
         List<String> changes = Arrays.asList(Stations.TraffordBar.getName());
         List<String> headSigns = Arrays.asList("Cornbrook","Bury");
-        checkJourney(Stations.ManAirport.getName(), Stations.Bury.getName(), changes, "10:15",
+        JourneyDetailsPage journeyDetailsPage = checkJourney(Stations.ManAirport.getName(), Stations.Bury.getName(), changes, "10:15",
                 headSigns);
+        RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
+        routeDetailsPage.waitForRoutes();
     }
 
     @Test
@@ -78,8 +82,8 @@ public class UserJourneyTest {
                changes, "10:15", headSigns);
     }
 
-    private void checkJourney(String fromStop, String toStop, List<String> changes,
-                              String time, List<String> headSigns) throws InterruptedException {
+    private JourneyDetailsPage checkJourney(String fromStop, String toStop, List<String> changes,
+                                            String time, List<String> headSigns) throws InterruptedException {
 
         WelcomePage welcomePage = new WelcomePage(driver);
         welcomePage.load(testRule.getUrl());
@@ -117,9 +121,7 @@ public class UserJourneyTest {
         for(int index=0; index<headSigns.size(); index++) {
             checkStage(index, journeyDetailsPage, fromStop, toStop, changes, headSigns);
         }
-        //checkStage(0, journeyDetailsPage, fromStop, toStop, changes, headSigns);
-        //checkStage(1, journeyDetailsPage, fromStop, toStop, changes, headSigns);
-
+        return journeyDetailsPage;
     }
 
     private void checkStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop, String toStop, List<String> changes, List<String> headSigns) {
