@@ -18,11 +18,11 @@ public class Stations {
     public static Location Ashton = new Station("9400ZZMAAUL", "Ashton area", "Ashton", 1,1, true);
     public static String NewIslington = "9400ZZMANIS";
     public static String Eccles = "9400ZZMAECC";
-    public static String Bury = "9400ZZMABUR";
+    public static Location Bury = new Station("9400ZZMABUR", "Bury Area", "Bury", 1,1, true);
     public static String EastDidsbury = "9400ZZMAEDY";
     public static Location Rochdale = new Station("9400ZZMARIN", "Rochdale area", "Rochdale", 1,1, true);
     public static String Pomona = "9400ZZMAPOM";
-    public static Location Deansgate = new Station("9400ZZMAGMX", "Deansgate area", "Deansgate", 1,1, true);
+    public static Location Deansgate = new Station("9400ZZMAGMX", "Deansgate area", "Deansgate-Castlefield", 1,1, true);
     public static String Broadway = "9400ZZMABWY";
     public static Location PiccadilyGardens = new Station("9400ZZMAPGD", "Manchester", "Piccadily Gardens", 1,1, true);
     public static String StPetersSquare = "9400ZZMASTP";
@@ -37,6 +37,6 @@ public class Stations {
             EastDidsbury,
             Ashton.getId(),
             Rochdale.getId(),
-            Bury,
+            Bury.getId(),
             ExchangeSquare.getId()};
 }

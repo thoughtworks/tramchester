@@ -50,13 +50,14 @@ public class UserJourneyTest {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToBury() throws InterruptedException {
-        checkJourney("Altrincham", "Bury", "Deansgate-Castlefield", 1, "10:15");
+        checkJourney(Stations.Altrincham.getName(), Stations.Bury.getName(), Stations.Deansgate.getName(), 1, "10:15");
     }
 
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        checkJourney("Altrincham", "Exchange Square", "Cornbrook and Victoria", 2, "10:15");
+        checkJourney(Stations.Altrincham.getName(), Stations.ExchangeSquare.getName(),
+                format("%s and %s",Stations.Cornbrook.getName(),  Stations.Victoria.getName()), 2, "10:15");
     }
 
     private void checkJourney(String fromStop, String toStop, String expectedChange, Integer changes, String time) throws InterruptedException {
