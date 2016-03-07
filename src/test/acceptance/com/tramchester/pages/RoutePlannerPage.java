@@ -8,7 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class RoutePlannerPage extends Page {
-    long timeoutInSeconds = 3;
+    long timeoutInSeconds = 5;
 
     public RoutePlannerPage(WebDriver driver) throws InterruptedException {
         super(driver);

@@ -13,10 +13,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
@@ -49,25 +47,16 @@ public class UserJourneyTest {
         driver.close();
     }
 
-    private void takeScreenShot()  {
-        try {
-            TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
-            byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
-            File target = new File(format("build/reports/tests/%s.png", testName.getMethodName()));
-            FileOutputStream output = null;
-            output = new FileOutputStream(target);
-            output.write(bytes);
-            output.close();
-        } catch (IOException e) {
-            // unable to take screenshot
-        }
-
-    }
-
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToBury() throws InterruptedException {
         checkJourney("Altrincham", "Bury", "Deansgate-Castlefield", 1, "10:15");
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
+        checkJourney("Altrincham", "Exchange Square", "Cornbrook and Victoria", 2, "10:15");
     }
 
     private void checkJourney(String fromStop, String toStop, String expectedChange, Integer changes, String time) throws InterruptedException {
@@ -92,11 +81,27 @@ public class UserJourneyTest {
         String end = routeDetailsPage.getJourneyEnd(0);
         String summary = routeDetailsPage.getSummary(0);
 
-        assertThat(heading, startsWith("Tram with "+changes+" change - "));
+        String plural = (changes==1) ? "" : "s";
+        assertThat(heading, startsWith(format("Tram with %s change%s - ",changes, plural)));
         assertThat(heading, endsWith(" minutes"));
         assertThat(begin,endsWith(" from "+ fromStop));
         assertThat(end,endsWith(" Arrive at "+ toStop));
         assertThat(summary,is("Change at "+ expectedChange));
+    }
+
+    private void takeScreenShot()  {
+        try {
+            TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+            byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
+            File target = new File(format("build/reports/tests/%s.png", testName.getMethodName()));
+            FileOutputStream output = null;
+            output = new FileOutputStream(target);
+            output.write(bytes);
+            output.close();
+        } catch (IOException e) {
+            // unable to take screenshot
+        }
+
     }
 
 }
