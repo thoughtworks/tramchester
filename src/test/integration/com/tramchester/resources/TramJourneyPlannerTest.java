@@ -93,7 +93,7 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
 
     @Test
     public void shouldReproduceIssueWithMissingRoutes() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.TraffordBar.getName(), Stations.ExchangeSquare.getId(), 10*60, DaysOfWeek.Saturday, today);
+        validateAtLeastOneJourney(Stations.TraffordBar.getId(), Stations.ExchangeSquare.getId(), 10*60, DaysOfWeek.Saturday, today);
     }
 
     @Test

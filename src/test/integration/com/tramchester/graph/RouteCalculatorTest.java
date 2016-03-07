@@ -51,10 +51,10 @@ public class RouteCalculatorTest {
             assertEquals(2, stages.size());
             RawVehicleStage firstStage = (RawVehicleStage) stages.get(0);
             assertEquals(Stations.Altrincham, firstStage.getFirstStation());
-            assertEquals(Stations.TraffordBar, firstStage.getLastStation().getId());
+            assertEquals(Stations.TraffordBar, firstStage.getLastStation());
             assertEquals(TransportMode.Tram, firstStage.getMode());
             RawVehicleStage secondStage = (RawVehicleStage) stages.get(1);
-            assertEquals(Stations.TraffordBar, secondStage.getFirstStation().getId());
+            assertEquals(Stations.TraffordBar, secondStage.getFirstStation());
             assertEquals(Stations.ManAirport, secondStage.getLastStation());
             assertEquals(TransportMode.Tram, secondStage.getMode());
         }
