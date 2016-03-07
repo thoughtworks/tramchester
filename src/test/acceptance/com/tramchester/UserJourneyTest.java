@@ -3,17 +3,22 @@ package com.tramchester;
 import com.tramchester.pages.RouteDetailsPage;
 import com.tramchester.pages.RoutePlannerPage;
 import com.tramchester.pages.WelcomePage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
@@ -26,6 +31,9 @@ public class UserJourneyTest {
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, "config/local.yml");
     private WebDriver driver;
 
+    @Rule
+    public TestName testName = new TestName();
+
     @Before
     public void beforeEachTestRuns() {
         File profileDir = new File("src/test/acceptance/firefoxTestProfile/");
@@ -36,8 +44,24 @@ public class UserJourneyTest {
     }
 
     @After
-    public void afterEachTestRuns() {
+    public void afterEachTestRuns() throws IOException {
+        takeScreenShot();
         driver.close();
+    }
+
+    private void takeScreenShot()  {
+        try {
+            TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+            byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
+            File target = new File(format("build/reports/tests/%s.png", testName.getMethodName()));
+            FileOutputStream output = null;
+            output = new FileOutputStream(target);
+            output.write(bytes);
+            output.close();
+        } catch (IOException e) {
+            // unable to take screenshot
+        }
+
     }
 
     @Test
