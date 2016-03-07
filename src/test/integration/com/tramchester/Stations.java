@@ -7,7 +7,7 @@ public class Stations {
 
     public static Location Altrincham = new Station("9400ZZMAALT", "Altrincham area", "Altrincham", 1,1, true);
     public static Location ManAirport = new Station("9400ZZMAAIR", "Airport", "Manchester Airport", 1,1, true);
-    public static String TraffordBar = "9400ZZMATRA";
+    public static Location TraffordBar = new Station("9400ZZMATRA", "Trafford", "Trafford Bar", 1,1, true);
     public static Location VeloPark = new Station("9400ZZMAVPK", "Velopark area", "Velopark", 1,1, true);
     public static String MediaCityUK = "9400ZZMAMCU";
     public static String HarbourCity = "9400ZZMAHCY";

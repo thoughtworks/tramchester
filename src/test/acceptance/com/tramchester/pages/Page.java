@@ -21,7 +21,7 @@ public class Page {
 
     protected WebElement waitForElement(String elementId, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(elementId)));
+        return wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementId)));
     }
 
     protected void setSelectorTo(String selector, String name) {

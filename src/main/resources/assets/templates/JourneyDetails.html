@@ -12,16 +12,18 @@
                     ng-disabled="disablePreviousTram"><span class="glyphicon glyphicon-chevron-left"></span></button>
             <button class="btn btn-default btn-sm pull-right" ng-click="nextTram(journey)" ng-disabled="disableNextTram"><span
                     class="glyphicon glyphicon-chevron-right"></span></button>
-            <h4 class="heading">{{journey.stages[0].serviceTimes[serviceTimeIndex].departureTime}}
+            <h4 id="journeyHeader" class="heading">{{journey.stages[0].serviceTimes[serviceTimeIndex].departureTime}}
                 from
                 {{journey.begin.name}}</h4>
             <div ng-repeat="stage in journey.stages ">
                 <div class="panel {{stage.displayClass}}">
-                    <div class="panel-heading">{{stage.summary}}</div>
+                    <div id="stageSummary{{$index}}" class="panel-heading">{{stage.summary}}</div>
                     <!-- List group -->
                     <div class="list-group">
                         <a ng-click="showMap(stage)" class="list-group-item">
-                            <h4>{{stage.prompt}} <strong>{{stage.firstStation.name}}</strong>
+                            <h4>
+                                <div id="stagePrompt{{$index}}">{{stage.prompt}} <strong>{{stage.firstStation.name}}</strong>
+                                </div>
                                 <span ng-class-odd="'glyphicon glyphicon-chevron-right pull-right'"
                                     ng-class-even="'glyphicon glyphicon-map-marker pull-right'"></span>
                             </h4>
@@ -29,20 +31,24 @@
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item" ng-show="stage.isAVehicle">
+                            <div id="stageInstruction{{$index}}">
                             <strong>{{stage.serviceTimes[serviceTimeIndex].departureTime}}</strong> Catch
                             {{stage.serviceTimes[serviceTimeIndex].headSign}} {{stage.mode}}
+                            </div>
                         </li>
                         <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>
-                            Duration <strong>{{stage.duration}} min</strong></li>
+                            <div id="stageDuration{{$index}}">Duration <strong>{{stage.duration}} min</strong></div>
+                        </li>
                         <li class="list-group-item" ng-show="stage.isAVehicle">
-                            <strong>{{stage.serviceTimes[serviceTimeIndex].arrivalTime}}</strong> Arrive at
-                            {{stage.lastStation.name}}
+                            <div id="stageArrive{{$index}}">
+                            <strong>{{stage.serviceTimes[serviceTimeIndex].arrivalTime}}</strong> Arrive at {{stage.lastStation.name}}</div>
                         </li>
                     </ul>
                 </div>
                 <div ng-if="!$last" class="tcr-change" >
                     <span class="glyphicon glyphicon-random"></span>
-                    <span class="trc-change-text" ng-show="stage.isAVehicle">Change {{stage.mode}}</span>
+                    <span class="trc-change-text" ng-show="stage.isAVehicle">
+                        <div id="change{{$index}}">Change {{stage.mode}}</div></span>
                 </div>
             </div>
             <p><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>

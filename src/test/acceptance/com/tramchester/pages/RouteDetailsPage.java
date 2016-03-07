@@ -2,10 +2,11 @@ package com.tramchester.pages;
 
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class RouteDetailsPage extends Page {
 
-    private long timeOut = 3;
+    private long timeOut = 4;
 
     public RouteDetailsPage(WebDriver driver) {
         super(driver);
@@ -28,11 +29,21 @@ public class RouteDetailsPage extends Page {
     }
 
     public boolean waitForRoutes() {
-        return waitForElement("routes", timeOut).isDisplayed();
+        return waitForElement("routes", timeOut).isEnabled();
     }
 
     public boolean journeyPresent(int index) {
-        String id = "journeyPanel" + Integer.toString(index);
-        return waitForElement(id, timeOut).isDisplayed();
+        return waitForElement(formJourneyPanelId(index), timeOut).isDisplayed();
+    }
+
+    public JourneyDetailsPage getDetailsFor(int index) {
+        WebElement panel = findElementById(formJourneyPanelId(index));
+        panel.click();
+        waitForElement("journeyHeader", timeOut);
+        return new JourneyDetailsPage(driver);
+    }
+
+    private String formJourneyPanelId(int index) {
+        return "journeyPanel" + Integer.toString(index);
     }
 }

@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.tramchester.pages.JourneyDetailsPage;
 import com.tramchester.pages.RouteDetailsPage;
 import com.tramchester.pages.RoutePlannerPage;
 import com.tramchester.pages.WelcomePage;
@@ -15,6 +16,8 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
@@ -50,17 +53,33 @@ public class UserJourneyTest {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToBury() throws InterruptedException {
-        checkJourney(Stations.Altrincham.getName(), Stations.Bury.getName(), Stations.Deansgate.getName(), 1, "10:15");
+        List<String> changes = Arrays.asList(Stations.Deansgate.getName());
+        List<String> headSigns = Arrays.asList("Etihad Campus", "Bury");
+        checkJourney(Stations.Altrincham.getName(), Stations.Bury.getName(), changes,
+                "10:15", headSigns);
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldCheckAirportToBury() throws InterruptedException {
+        List<String> changes = Arrays.asList(Stations.TraffordBar.getName());
+        List<String> headSigns = Arrays.asList("Cornbrook","Bury");
+        checkJourney(Stations.ManAirport.getName(), Stations.Bury.getName(), changes, "10:15",
+                headSigns);
     }
 
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
+        List<String> changes = Arrays.asList(Stations.Cornbrook.getName(),  Stations.Victoria.getName());
+        List<String> headSigns = Arrays.asList("Etihad Campus");
+
         checkJourney(Stations.Altrincham.getName(), Stations.ExchangeSquare.getName(),
-                format("%s and %s",Stations.Cornbrook.getName(),  Stations.Victoria.getName()), 2, "10:15");
+               changes, "10:15", headSigns);
     }
 
-    private void checkJourney(String fromStop, String toStop, String expectedChange, Integer changes, String time) throws InterruptedException {
+    private void checkJourney(String fromStop, String toStop, List<String> changes,
+                              String time, List<String> headSigns) throws InterruptedException {
 
         WelcomePage welcomePage = new WelcomePage(driver);
         welcomePage.load(testRule.getUrl());
@@ -82,12 +101,52 @@ public class UserJourneyTest {
         String end = routeDetailsPage.getJourneyEnd(0);
         String summary = routeDetailsPage.getSummary(0);
 
-        String plural = (changes==1) ? "" : "s";
-        assertThat(heading, startsWith(format("Tram with %s change%s - ",changes, plural)));
+        String plural = (changes.size()==1) ? "" : "s";
+        assertThat(heading, startsWith(format("Tram with %s change%s - ",changes.size(), plural)));
         assertThat(heading, endsWith(" minutes"));
-        assertThat(begin,endsWith(" from "+ fromStop));
+        String fromStationText = " from " + fromStop;
+        assertThat(begin,endsWith(fromStationText));
         assertThat(end,endsWith(" Arrive at "+ toStop));
-        assertThat(summary,is("Change at "+ expectedChange));
+        String summaryResult = (changes.size()==1) ? changes.get(0) : format("%s and %s", changes.get(0), changes.get(1));
+        assertThat(summary,is("Change at "+ summaryResult));
+
+        JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
+
+        assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
+
+        for(int index=0; index<headSigns.size(); index++) {
+            checkStage(index, journeyDetailsPage, fromStop, toStop, changes, headSigns);
+        }
+        //checkStage(0, journeyDetailsPage, fromStop, toStop, changes, headSigns);
+        //checkStage(1, journeyDetailsPage, fromStop, toStop, changes, headSigns);
+
+    }
+
+    private void checkStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop, String toStop, List<String> changes, List<String> headSigns) {
+        String promptText = journeyDetailsPage.getPrompt(stageIndex);
+        if (stageIndex==0) {
+            assertThat(promptText, is("Board tram at " + fromStop));
+        } else {
+            assertThat(promptText, is("Change tram at " +changes.get(stageIndex-1)));
+        }
+        assertThat(journeyDetailsPage.getInstruction(stageIndex), endsWith(format("Catch %s Tram", headSigns.get(stageIndex))));
+        checkDuration(journeyDetailsPage, stageIndex);
+        String arriveText = journeyDetailsPage.getArrive(stageIndex);
+        if (stageIndex<changes.size()) {
+            assertThat(arriveText, endsWith(" Arrive at " + changes.get(stageIndex)));
+        } else {
+            assertThat(arriveText, endsWith(" Arrive at " +toStop));
+        }
+        if (stageIndex<changes.size()) {
+            assertThat(journeyDetailsPage.getChange(stageIndex), is("Change Tram"));
+        }
+    }
+
+    private void checkDuration(JourneyDetailsPage journeyDetailsPage, int durIndex) {
+        String durationText;
+        durationText = journeyDetailsPage.getDuration(durIndex);
+        assertThat(durationText, endsWith("min"));
+        assertThat(durationText, startsWith("Duration"));
     }
 
     private void takeScreenShot()  {
@@ -95,8 +154,7 @@ public class UserJourneyTest {
             TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
             byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
             File target = new File(format("build/reports/tests/%s.png", testName.getMethodName()));
-            FileOutputStream output = null;
-            output = new FileOutputStream(target);
+            FileOutputStream output = new FileOutputStream(target);
             output.write(bytes);
             output.close();
         } catch (IOException e) {
