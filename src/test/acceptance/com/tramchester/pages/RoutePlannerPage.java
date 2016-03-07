@@ -1,13 +1,14 @@
 package com.tramchester.pages;
 
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class RoutePlannerPage extends Page {
-    long timeoutInSeconds = 2;
+    long timeoutInSeconds = 3;
 
     public RoutePlannerPage(WebDriver driver) throws InterruptedException {
         super(driver);
@@ -35,7 +36,9 @@ public class RoutePlannerPage extends Page {
 
     public void waitForToStops() {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        WebElement fromStopElement = findElementById("fromStop");
+        String fromStop = "fromStop";
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(fromStop)));
+        WebElement fromStopElement = findElementById(fromStop);
         wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, "Altrincham"));
     }
 }
