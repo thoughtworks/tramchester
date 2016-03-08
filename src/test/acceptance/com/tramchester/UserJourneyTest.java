@@ -38,7 +38,7 @@ public class UserJourneyTest {
 
     @Before
     public void beforeEachTestRuns() {
-        File profileDir = new File("src/test/acceptance/firefoxTestProfile/");
+        File profileDir = new File("src/test/acceptance/com/tramchester/firefoxTestProfile");
         assertTrue(profileDir.exists());
         FirefoxProfile profile = new FirefoxProfile(profileDir);
 
