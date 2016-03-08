@@ -5,7 +5,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 public class WelcomePage extends Page {
-    long timeOutSeconds = 2;
+    long timeOutSeconds = 10; // initial page load is slow on snap ci
 
     public WelcomePage(WebDriver driver) {
         super(driver);
