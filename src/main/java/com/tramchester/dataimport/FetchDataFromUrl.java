@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
@@ -62,10 +63,16 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         logger.info(format("Downloading data from %s to %s", website, destination));
 
         FileUtils.forceMkdir(path.toFile());
-        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        FileOutputStream fos = new FileOutputStream(destination.toFile());
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        logger.info("Finished download");
+        try {
+            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            FileOutputStream fos = new FileOutputStream(destination.toFile());
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            logger.info("Finished download");
+        }
+        catch(UnknownHostException unknownhost) {
+            logger.error("Unable to download data from " + dataUrl,unknownhost);
+        }
+
         return destination;
     }
 }
