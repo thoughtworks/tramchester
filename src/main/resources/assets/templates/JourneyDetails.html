@@ -46,9 +46,10 @@
                     </ul>
                 </div>
                 <div ng-if="!$last" class="tcr-change" >
-                    <span class="glyphicon glyphicon-random"></span>
-                    <span class="trc-change-text" ng-show="stage.isAVehicle">
-                        <div id="change{{$index}}">Change {{stage.mode}}</div></span>
+                    <div id="change{{$index}}">
+                        <span class="glyphicon glyphicon-random"></span>
+                        <span class="trc-change-text" ng-show="stage.isAVehicle">Change {{stage.mode}}</span>
+                    </div>
                 </div>
             </div>
             <p><a id="newJourney" href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
