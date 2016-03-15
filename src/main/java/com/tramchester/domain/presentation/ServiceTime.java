@@ -62,7 +62,8 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
 
     @Override
     public int compareTo(ServiceTime other) {
-        return arrivesEnd.compareTo(other.arrivesEnd);
+        return TimeAsMinutes.compare(arrivesEnd,other.arrivesEnd);
+        //return arrivesEnd.compareTo(other.arrivesEnd);
     }
 
     @Override

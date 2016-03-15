@@ -67,6 +67,24 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     @Test
+    public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() throws TramchesterException {
+        String svcId = findServiceId(Stations.Deansgate.getId(), Stations.Bury.getId(), 1364);
+
+        int elapsedTime = 1364;
+        RawVehicleStage DeansgateToBury = new RawVehicleStage(Stations.Deansgate, "route text", TransportMode.Tram, "cssClass", elapsedTime);
+        DeansgateToBury.setServiceId(svcId);
+        DeansgateToBury.setLastStation(Stations.Bury);
+        stages.add(DeansgateToBury);
+        journeys.add(new RawJourney(stages));
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(1364, 60));
+
+        Journey journey = result.getJourneys().stream().findFirst().get();
+        PresentableStage stage = journey.getStages().get(0);
+        // for this service trips later in the list actually depart earlier, so this would fail
+        assertTrue(stage.getFirstDepartureTime().isBefore(LocalTime.of(22,55)));
+    }
+
+    @Test
     public void shouldMapSimpleJourney() throws TramchesterException {
         String svcId = findServiceId(Stations.Altrincham.getId(), Stations.Cornbrook.getId(), 7*60);
 

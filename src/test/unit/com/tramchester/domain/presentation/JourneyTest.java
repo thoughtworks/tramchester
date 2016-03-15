@@ -12,6 +12,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class JourneyTest {
 
@@ -22,8 +24,8 @@ public class JourneyTest {
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
-        assertEquals(-1,journeyA.compareTo(journeyB));
-        assertEquals(1,journeyB.compareTo(journeyA));
+        assertTrue(journeyA.compareTo(journeyB)<0);
+        assertTrue(journeyB.compareTo(journeyA)>0);
     }
 
     @Test
@@ -33,6 +35,17 @@ public class JourneyTest {
         set.add(journeyA);
 
         assertEquals(LocalTime.of(10,20), set.first().getExpectedArrivalTime());
+    }
+
+    @Test
+    public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() {
+        SortedSet<Journey> set = new TreeSet<>();
+        set.add(new Journey(createStages(LocalTime.of(00, 10))));
+        set.add(new Journey(createStages(LocalTime.of(23, 50))));
+
+        assertEquals(LocalTime.of(23,50), set.first().getExpectedArrivalTime());
+        assertEquals(LocalTime.of(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
+
     }
 
     @Test

@@ -18,7 +18,7 @@ public class TimeAsMinutes {
         return seconds / 60;
     }
 
-    protected int getMinutes(LocalTime time) {
+    public static int getMinutes(LocalTime time) {
         int hour = time.getHour();
         int minute = time.getMinute();
         if(hour == 0){
@@ -27,5 +27,9 @@ public class TimeAsMinutes {
             hour = 25;
         }
         return (hour * 60) + minute;
+    }
+
+    public static int compare(LocalTime first, LocalTime second) {
+        return getMinutes(first)-getMinutes(second);
     }
 }

@@ -19,8 +19,8 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     public static final int AM8 = 8 * 60;
     private GenericJourneyResponseMapper mapper;
     private TransportDataFromFiles transportData;
-    Set<RawJourney> rawJourneys;
-    List<TransportStage> stages;
+    private Set<RawJourney> rawJourneys;
+    private List<TransportStage> stages;
     private Station stationA;
     private Station stationB;
     private Station stationC;

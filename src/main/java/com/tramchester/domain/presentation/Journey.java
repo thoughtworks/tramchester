@@ -125,10 +125,10 @@ public class Journey implements Comparable<Journey> {
     @Override
     public int compareTo(Journey other) {
         // arrival first
-        int compare = getExpectedArrivalTime().compareTo(other.getExpectedArrivalTime());
+        int compare = checkArrival(other);
         // then departure time
         if (compare==0) {
-            compare = getFirstDepartureTime().compareTo(other.getFirstDepartureTime());
+            compare = checkDeparture(other);
         }
         // then number of stages
         if (compare==0) {
@@ -140,6 +140,14 @@ public class Journey implements Comparable<Journey> {
             }
         }
         return compare;
+    }
+
+    private int checkDeparture(Journey other) {
+        return TimeAsMinutes.compare(getFirstDepartureTime(),other.getFirstDepartureTime());
+    }
+
+    private int checkArrival(Journey other) {
+        return TimeAsMinutes.compare(getExpectedArrivalTime(), other.getExpectedArrivalTime());
     }
 
     public Location getBegin() {

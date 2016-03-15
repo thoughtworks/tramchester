@@ -45,4 +45,17 @@ public class ServiceTimeTest {
         assertEquals(timeB, set.first());
         assertEquals(timeA, set.last());
     }
+
+    @Test
+    public void correctOrderingInSortedSetAccrossMidnight() {
+        SortedSet<ServiceTime> set = new TreeSet<>();
+        ServiceTime timeBeforeMid = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(23, 55), "svcId", "headSign", "tripId");
+        ServiceTime timeAfterMid = new ServiceTime(LocalTime.of(00, 10), LocalTime.of(00, 15), "svcId", "headSign", "tripId");
+
+        set.add(timeAfterMid);
+        set.add(timeBeforeMid);
+
+        assertEquals(timeBeforeMid, set.first());
+        assertEquals(timeAfterMid, set.last());
+    }
 }
