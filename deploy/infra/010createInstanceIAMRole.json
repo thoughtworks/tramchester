@@ -30,10 +30,15 @@
 						      "Action": [
 						        "logs:*"
 						      ],
-						      "Resource": [
-						        "arn:aws:logs:*:*:*"
-						      ]
-						    }
+						      "Resource": [ "arn:aws:logs:*:*:*" ]
+						    },
+						    {
+						     "Effect": "Allow",
+					             "Action": [
+					                "cloudwatch:PutMetricData"
+					             ],
+					             "Resource": [ "*" ]
+        					    }
 						  ]
                		}
                } ]

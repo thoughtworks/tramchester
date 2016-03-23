@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,6 +83,7 @@ public class StationResource {
     }
 
     @GET
+    @Timed
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
@@ -95,6 +97,7 @@ public class StationResource {
     }
 
     @GET
+    @Timed
     @Path("/{lat}/{lon}")
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s ", lat, lon));

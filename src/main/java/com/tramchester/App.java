@@ -1,5 +1,8 @@
 package com.tramchester;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
+import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.resources.StationResource;
@@ -10,6 +13,9 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 public class App extends Application<AppConfiguration> {
     public static final String SERVICE_NAME = "tramchester";
@@ -50,8 +56,11 @@ public class App extends Application<AppConfiguration> {
         environment.jersey().register(dependencies.get(StationResource.class));
         environment.jersey().register(dependencies.get(VersionResource.class));
         environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
-
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
+
+        MetricRegistry registry = environment.metrics();
+        final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry);
+        cloudWatchReporter.start(1, TimeUnit.MINUTES);
     }
 
     public void stop() {

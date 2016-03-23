@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.RawJourney;
@@ -45,6 +46,7 @@ public class JourneyPlannerResource {
     }
 
     @GET
+    @Timed
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId,
                                   @QueryParam("departureTime") String departureTime){
         DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
