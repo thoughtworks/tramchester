@@ -72,7 +72,7 @@ public class TramGraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        assertEquals(4, svcsToMediaCity.size());
+        assertEquals(8, svcsToMediaCity.size());
     }
 
     @Ignore("No services currently branch")
@@ -266,7 +266,7 @@ public class TramGraphBuilderTest {
         svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(svc.getService()).getRouteId().equals(RouteCodes.ASH_TO_ROCH));
         assertTrue(!svcsFromVelopark.isEmpty());
 
-        assertEquals(5, svcsFromVelopark.size());
+        assertEquals(10, svcsFromVelopark.size());
 
         svcsFromVelopark.removeIf(svc -> {
             for (int mins : svc.getTimesTramRuns()) {
