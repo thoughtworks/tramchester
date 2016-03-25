@@ -51,9 +51,10 @@ public class SendMetricsToCloudWatch {
                     .withNamespace(nameSpace)
                     .withMetricData(metricDatum);
             client.putMetricData(request);
+            logger.info("Sent metric with namespace " + nameSpace);
         }
         catch (AmazonServiceException exception) {
-            logger.warn("Unable to log metrics to cloudwatch",exception);
+            logger.warn("Unable to log metrics to cloudwatch with namespace "+nameSpace,exception);
         }
     }
 }
