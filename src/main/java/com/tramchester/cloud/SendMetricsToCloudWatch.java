@@ -3,7 +3,6 @@ package com.tramchester.cloud;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
@@ -28,7 +27,7 @@ public class SendMetricsToCloudWatch {
         client = new AmazonCloudWatchClient(provider);
 
         // TODO is this needed for cloudwatch metrics?
-        client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.EU_WEST_1));
+        //client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.EU_WEST_1));
     }
 
     private MetricDatum createDatum(String name, Timer timer) {

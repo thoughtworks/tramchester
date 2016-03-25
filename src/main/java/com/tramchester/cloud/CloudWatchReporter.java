@@ -12,10 +12,14 @@ import java.util.concurrent.TimeUnit;
 public class CloudWatchReporter extends ScheduledReporter {
     private static final Logger logger = LoggerFactory.getLogger(CloudWatchReporter.class);
     private final SendMetricsToCloudWatch client;
+    private ConfigFromInstanceUserData providesConfig;
+
     String PREFIX = "com.tramchester";
 
-    protected CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit, TimeUnit durationUnit) {
+    protected CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
+                                 TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig) {
         super(registry, name, filter, rateUnit, durationUnit);
+        this.providesConfig = providesConfig;
         client = new SendMetricsToCloudWatch();
     }
 
@@ -24,24 +28,25 @@ public class CloudWatchReporter extends ScheduledReporter {
         SortedMap<String, Timer> toSubmit = new TreeMap<>();
 
         timers.forEach((name, timer) -> {
-            logger.info("Add timer " + name + " to cloud watch metric");
+            logger.debug("Add timer " + name + " to cloud watch metric");
             if (name.startsWith(PREFIX)) {
                 toSubmit.put(name,timer);
             }
         });
         logger.info(String.format("Send %s cloudwatch metrics", toSubmit.size()));
-        client.putMetricData(toSubmit, formNamespace(PREFIX));
+        client.putMetricData(toSubmit, formNamespace(PREFIX, providesConfig));
     }
 
-    public static String formNamespace(String namespace) {
-        String currentEnvironment = System.getenv("ENV");
+    public static String formNamespace(String namespace, ConfigFromInstanceUserData providesConfig) {
+        String currentEnvironment = providesConfig.get("ENV");
         if (currentEnvironment==null) {
             currentEnvironment = "Unknown";
         }
         return currentEnvironment + ":" + namespace.replaceAll("\\.",":");
     }
 
-    public static CloudWatchReporter forRegistry(MetricRegistry registry) {
-        return new CloudWatchReporter(registry, "name", MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
+    public static CloudWatchReporter forRegistry(MetricRegistry registry, ConfigFromInstanceUserData providesConfig) {
+        return new CloudWatchReporter(registry, "name", MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS,
+                providesConfig);
     }
 }

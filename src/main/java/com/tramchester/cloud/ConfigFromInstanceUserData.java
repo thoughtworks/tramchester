@@ -11,7 +11,6 @@ public class ConfigFromInstanceUserData {
     private Map<String,String> tokenToValue;
 
     public ConfigFromInstanceUserData(FetchMetadata provider) {
-
         this.provider = provider;
     }
 
