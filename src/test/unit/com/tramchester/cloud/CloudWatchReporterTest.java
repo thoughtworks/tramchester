@@ -1,15 +1,29 @@
 package com.tramchester.cloud;
 
 
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CloudWatchReporterTest {
+public class CloudWatchReporterTest extends EasyMockSupport {
+
+    private ConfigFromInstanceUserData configFromInstanceUserData;
+
+    @Before
+    public void beforeEachTestRuns() {
+        configFromInstanceUserData = createMock(ConfigFromInstanceUserData.class);
+    }
 
     @Test
     public void shouldFormNamespaceCorrectly() {
-        String result = CloudWatchReporter.formNamespace("com.tramchester");
-        assertThat(result).endsWith(":com:tramchester");
+        EasyMock.expect(configFromInstanceUserData.get("ENV")).andReturn("environment");
+
+        replayAll();
+        String result = CloudWatchReporter.formNamespace("com.tramchester",configFromInstanceUserData);
+        verifyAll();
+        assertThat(result).isEqualTo("environment:com:tramchester");
     }
 }
