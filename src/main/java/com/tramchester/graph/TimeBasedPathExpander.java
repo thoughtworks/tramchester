@@ -5,10 +5,7 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
-import com.tramchester.graph.Relationships.GoesToRelationship;
-import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TramGoesToRelationship;
-import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.graph.Relationships.*;
 import org.joda.time.LocalDate;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.*;
@@ -76,7 +73,9 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 } else {
                     servicesFilteredOut.add(serviceReason);
                 }
-            } else  {
+            }
+            else {
+                // just add the relationship
                 results.add(graphRelationship);
             }
         }
@@ -95,7 +94,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         if (servicesFilteredOut.size()==0) {
             return;
         }
-        logger.info(format("Filtered:%s services for node:%s inbound:%s",
+        logger.info(format("Filtered:%s all services for node:%s inbound:%s",
                 servicesFilteredOut.size(), currentNode, incoming));
         if (logger.isDebugEnabled()) {
             StringBuilder output = new StringBuilder();
@@ -162,8 +161,6 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 if ((nextTram-elapsedTime) <= maxWaitMinutes) {
                     if (provider.startNotSet()) {
                         int realJounrneyStartTime = nextTram-TransportGraphBuilder.BOARDING_COST;
-                        logger.info(format("Setting start time for journey to %s",
-                                realJounrneyStartTime));
                         provider.setJourneyStart(realJounrneyStartTime);
                     }
                     return true;  // within max wait time

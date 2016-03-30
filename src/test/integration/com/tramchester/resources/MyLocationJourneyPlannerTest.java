@@ -20,8 +20,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.SortedSet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
@@ -88,11 +87,24 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         assertEquals(LocalTime.of(9,03), stage.getExpectedArrivalTime());
     }
 
-    private SortedSet<Journey> validateJourneyFromLocation(LatLong location, String destination, int minutesFromMidnight) throws JsonProcessingException, TramchesterException {
+    @Test
+    public void shouldFindRouteNearEndOfServiceTimes() throws JsonProcessingException, TramchesterException {
+        String destination = Stations.PiccadilyGardens.getId();
+
+        int queryTime = 23 * 60;
+        int walkingTime = 13;
+        JourneyPlanRepresentation direct = validateAtLeastOneJourney(Stations.NavigationRoad.getId(),
+                destination, queryTime+walkingTime, DaysOfWeek.Monday, today);
+        assertTrue(direct.getJourneys().size()>0);
+
+        validateJourneyFromLocation(nearAltrincham, destination, queryTime);
+
+    }
+
+    private SortedSet<Journey> validateJourneyFromLocation(LatLong location, String destination, int queryTime)
+            throws JsonProcessingException, TramchesterException {
         String startId = JourneyPlannerTest.formId(location);
-        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
-                destination,
-                DaysOfWeek.Monday, today, minutesFromMidnight);
+        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId, destination, DaysOfWeek.Monday, today, queryTime);
         SortedSet<Journey> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         List<PresentableStage> stages = journeys.first().getStages();

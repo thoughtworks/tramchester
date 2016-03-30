@@ -20,24 +20,26 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 public class LocationToLocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationToLocationJourneyPlanner.class);
 
     private final ObjectMapper objectMapper;
+    private final double walkingSpeed;
     private SpatialService spatialService;
-    private TramchesterConfig config;
     private RouteCalculator routeCalculator;
     private StationRepository stationRepository;
 
     public LocationToLocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config, RouteCalculator routeCalculator, StationRepository stationRepository) {
         this.spatialService = spatialService;
-        this.config = config;
+        this.walkingSpeed = config.getWalkingMPH();
         this.routeCalculator = routeCalculator;
         this.stationRepository = stationRepository;
         objectMapper = new ObjectMapper();
     }
 
-    public Set<RawJourney> quickestRouteForLocation(String startId, String endId, int minutesFromMidnight,
+    public Set<RawJourney> quickestRouteForLocation(String startId, String endId, int queryTime,
                                                     DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws TramchesterException {
         LatLong latLong;
         try {
@@ -49,30 +51,28 @@ public class LocationToLocationJourneyPlanner {
         }
         List<String> starts = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
-        return createJourneyPlan(latLong, starts,endId,minutesFromMidnight,dayOfWeek,queryDate);
+        logger.info(format("Found %s stations close to %s", starts.size(), latLong));
+        return createJourneyPlan(latLong, starts, endId, queryTime, dayOfWeek, queryDate);
     }
 
-    private Set<RawJourney>  createJourneyPlan(LatLong latLong, List<String> startIds, String endId, int minutesFromMidnight, DaysOfWeek dayOfWeek,
-                                               TramServiceDate queryDate) throws UnknownStationException {
+    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, int queryTime,
+                                              DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).collect(Collectors.toList());
 
         List<StationWalk> toStarts = starts.stream().map(station ->
-                new StationWalk(station, findCost(latLong, station))).collect(Collectors.toList());
+                new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
         Station end = stationRepository.getStation(endId);
-        return routeCalculator.calculateRoute(latLong, toStarts, end, minutesFromMidnight, dayOfWeek, queryDate);
+        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTime, dayOfWeek, queryDate);
     }
 
-    private int findCost(LatLong latLong, Location station) {
+    private int findCostInMinutes(LatLong latLong, Location station) {
         LatLng point1 = new LatLng(latLong.getLat(), latLong.getLon());
         LatLng point2 = new LatLng(station.getLatitude(), station.getLongitude());
+
         double distanceInMiles = LatLngTool.distance(point1, point2, LengthUnit.MILE);
-
-        double walkingSpeed = config.getWalkingMPH();
-
         double hours = distanceInMiles / walkingSpeed;
-
         return (int)Math.ceil(hours * 60D);
     }
 }

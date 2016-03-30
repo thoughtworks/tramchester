@@ -21,7 +21,7 @@ public class GraphBranchState {
         return new GraphBranchState(day, queryDate, queryTime).setStartTime(startTime);
     }
 
-    private GraphBranchState setStartTime(int startTime) {
+    public GraphBranchState setStartTime(int startTime) {
         this.startTime = startTime;
         this.hasStartTime = true;
         return this;

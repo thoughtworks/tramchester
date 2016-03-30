@@ -28,6 +28,7 @@ public class Stations {
     public static String StPetersSquare = "9400ZZMASTP";
     public static Location ExchangeSquare = new Station("9400ZZMAEXS", "Manchester", "Exchange Square", 1, 1, true);
     public static Location Victoria = new Station("9400ZZMAVIC", "Manchester", "Victoria", 1,1, true);
+    public static Location NavigationRoad = new Station("9400ZZMANAV", "Altrincham", "Navigation Road", 1,1, true);
     public static String ShawAndCrompton = "9400ZZMASHA";
     public static String MarketStreet = "9400ZZMAMKT";
 
