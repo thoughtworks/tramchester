@@ -3,11 +3,13 @@ package com.tramchester.cloud;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.codahale.metrics.Timer;
+import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +24,13 @@ public class SendMetricsToCloudWatch {
 
     private AmazonCloudWatchClient client;
 
-    public SendMetricsToCloudWatch() {
+    public SendMetricsToCloudWatch(TramchesterConfig config) {
         DefaultAWSCredentialsProviderChain provider = new DefaultAWSCredentialsProviderChain();
         client = new AmazonCloudWatchClient(provider);
 
-        // TODO is this needed for cloudwatch metrics?
-        //client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.EU_WEST_1));
+        // this will silently default to US East if not set
+        Regions region = Regions.fromName(config.getAWSRegionName());
+        client.setRegion(com.amazonaws.regions.Region.getRegion(region));
     }
 
     private MetricDatum createDatum(String name, Timer timer) {

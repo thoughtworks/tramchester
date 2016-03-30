@@ -81,4 +81,9 @@ public abstract class TestConfig extends TramchesterConfig {
     }
 
     public abstract Path getDataFolder();
+
+    @Override
+    public String getAWSRegionName() {
+        return "eu-west-1";
+    }
 }

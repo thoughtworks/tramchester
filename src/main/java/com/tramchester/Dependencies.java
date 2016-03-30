@@ -3,6 +3,7 @@ package com.tramchester;
 
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.FetchInstanceMetadata;
+import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
@@ -22,6 +23,7 @@ import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.resources.*;
 import com.tramchester.services.DateTimeService;
 import com.tramchester.services.SpatialService;
+import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -69,6 +71,7 @@ public class Dependencies {
         picoContainer.addComponent(NodeFactory.class);
         picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(RouteCalculator.class);
+        picoContainer.addComponent(StationLocalityService.class);
         if (configuration.useGenericMapper()) {
             picoContainer.addComponent(GenericJourneyResponseMapper.class);
         } else {
@@ -87,6 +90,7 @@ public class Dependencies {
         picoContainer.addComponent(SignalToCloudformationReady.class);
         picoContainer.addComponent(PathToStagesMapper.class);
         picoContainer.addComponent(LocationToLocationJourneyPlanner.class);
+        picoContainer.addComponent(SendMetricsToCloudWatch.class);
 
         rebuildGraph(configuration);
 
@@ -115,6 +119,9 @@ public class Dependencies {
         } else {
             logger.info("Not rebuilding graph " + graphName + ". Loading graph");
             picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
+        }
+        if (configuration.isCreateLocality()) {
+            picoContainer.getComponent(StationLocalityService.class).populateLocality();
         }
         logger.info("graph db ready for " + graphName);
     }

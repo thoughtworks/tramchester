@@ -16,14 +16,17 @@ closedStations:
 agencies:
   - MET
 instanceDataUrl: http://169.254.169.254
+awsRegionName: eu-west-1
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 dataPath: data/tram
-genericMapper: false
 timeWindow: 60
 showMyLocation: true
 nearestStopRangeKM: 2
 numOfNearestStops: 5
 walkingMPH: 3
+
+genericMapper: false
+createLocality: false
 
 logging:
   level: INFO

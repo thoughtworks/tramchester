@@ -55,6 +55,11 @@ public class GraphBuilderTestPerformance {
         }
 
         @Override
+        public boolean isCreateLocality() {
+            return true;
+        }
+
+        @Override
         public boolean useGenericMapper() {
             return true;
         }

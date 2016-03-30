@@ -17,10 +17,10 @@ public class CloudWatchReporter extends ScheduledReporter {
     String PREFIX = "com.tramchester";
 
     protected CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
-                                 TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig) {
+                                 TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
         super(registry, name, filter, rateUnit, durationUnit);
         this.providesConfig = providesConfig;
-        client = new SendMetricsToCloudWatch();
+        this.client = client;
     }
 
     @Override
@@ -45,8 +45,9 @@ public class CloudWatchReporter extends ScheduledReporter {
         return currentEnvironment + ":" + namespace.replaceAll("\\.",":");
     }
 
-    public static CloudWatchReporter forRegistry(MetricRegistry registry, ConfigFromInstanceUserData providesConfig) {
+    public static CloudWatchReporter forRegistry(MetricRegistry registry, ConfigFromInstanceUserData providesConfig,
+                                                 SendMetricsToCloudWatch client) {
         return new CloudWatchReporter(registry, "name", MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS,
-                providesConfig);
+                providesConfig, client);
     }
 }

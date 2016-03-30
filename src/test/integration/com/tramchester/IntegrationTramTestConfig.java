@@ -22,6 +22,11 @@ public class IntegrationTramTestConfig extends TestConfig {
     }
 
     @Override
+    public boolean isCreateLocality() {
+        return false;
+    }
+
+    @Override
     public boolean useGenericMapper() {
         return false;
     }

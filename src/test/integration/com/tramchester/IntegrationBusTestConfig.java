@@ -15,8 +15,13 @@ public class IntegrationBusTestConfig extends TestConfig {
 
     @Override
     public Set<String> getAgencies() {
-        return new HashSet<>(Arrays.asList("MET","GMS","GMN"));
-        //return new HashSet<>(Arrays.asList("*"));
+//        return new HashSet<>(Arrays.asList("MET","GMS","GMN"));
+        return new HashSet<>(Arrays.asList("*"));
+    }
+
+    @Override
+    public boolean isCreateLocality() {
+        return true;
     }
 
     @Override
@@ -27,5 +32,10 @@ public class IntegrationBusTestConfig extends TestConfig {
     @Override
     public Path getDataFolder() {
         return Paths.get("data/bus");
+    }
+
+    @Override
+    public boolean isRebuildGraph() {
+        return true;
     }
 }

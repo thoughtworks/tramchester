@@ -1,13 +1,11 @@
 package com.tramchester.resources;
 
-import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Location;
-import com.tramchester.domain.MyLocation;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;

@@ -57,8 +57,19 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("walkingMPH")
     private double walkingMPH;
 
+    @JsonProperty("createLocality")
+    private boolean createLocality;
+
+    @JsonProperty("awsRegionName")
+    private String awsRegionName;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
+    }
+
+    @Override
+    public String getAWSRegionName() {
+        return awsRegionName;
     }
 
     @Override
@@ -113,6 +124,8 @@ public class AppConfiguration extends TramchesterConfig {
     public boolean isPullData() {
         return pullData;
     }
+
+    public boolean isCreateLocality() { return createLocality; }
 
     @Override
     public boolean isFilterData() {

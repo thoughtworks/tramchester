@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
+import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.resources.StationResource;
@@ -61,7 +62,7 @@ public class App extends Application<AppConfiguration> {
 
         MetricRegistry registry = environment.metrics();
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry,
-                dependencies.get(ConfigFromInstanceUserData.class));
+                dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
     }
 
