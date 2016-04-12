@@ -49,12 +49,14 @@ public class JourneyPlannerResource {
     @Timed
     public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId,
                                   @QueryParam("departureTime") String departureTime){
+        logger.info(format("Plan journey from %s to %s at %s", startId, endId,departureTime));
+
         DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
         // TODO expose this as a parameter
         TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
 
-        int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
         try {
+            int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
             JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, dayOfWeek, queryDate, minutesFromMidnight);
             Response response = Response.ok(planRepresentation).build();
             return response;
