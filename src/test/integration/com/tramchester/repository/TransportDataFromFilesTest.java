@@ -25,7 +25,7 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use TramJourneyPlannerTest.
-    private final String svcDeansgateToVic = "Serv005231";
+    private final String svcDeansgateToVic = "Serv005336";
     private Collection<Service> allServices;
 
     @BeforeClass
@@ -122,7 +122,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv005353");
+        Service svc = transportData.getServiceById("Serv005398");
         List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton,
                 new TimeWindow(((23 * 60) + 41), 30));
         assertFalse(trips.isEmpty());
