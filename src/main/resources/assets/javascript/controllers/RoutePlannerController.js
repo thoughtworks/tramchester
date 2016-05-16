@@ -9,16 +9,6 @@ techLabApp.controller('RoutePlannerController',
 
         journeyPlanService.removePlan();
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(getNearStops, function () {
-                getAllStops();
-            }, {
-                maximumAge: 600000 // cached time on location
-            });
-        } else {
-            getAllStops();
-        }
-
         $scope.findRoute = function (fromStop, toStop, departureTime, journeyPlanForm) {
             if (journeyPlanForm.$valid) {
                 var hour = departureTime.getHours() > 9 ? departureTime.getHours().toString() : "0" + departureTime.getHours().toString();
@@ -26,11 +16,11 @@ techLabApp.controller('RoutePlannerController',
                 var time=  hour + ":" + minutes;
                 $location.url('/routeDetails?start=' + fromStop + '&end=' + toStop + "&departureTime=" + time);
             }
-        }
+        };
 
         $scope.fromStopSelected = function() {
            $scope.filterDestinationStop($scope.fromStop);
-        }
+        };
 
         $scope.filterDestinationStop = function(selectedId) {
             if (selectedId==null) {
@@ -45,17 +35,31 @@ techLabApp.controller('RoutePlannerController',
                     });
                 }
             }
-        }
+        };
 
         $scope.groupFilter = function (item) {
             return item.proximityGroup === 'Nearest Stops' || item.proximityGroup === 'All Stops';
         };
 
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(getNearStops, positionError,
+                {
+                maximumAge: 600000 // cached time on location
+                });
+        } else {
+            console.log("Unable to get current position");
+            getAllStops();
+        }
+
+        function positionError(error) {
+            console.log(error);
+            getAllStops();
+        }
+
         function getNearStops(position) {
             transportStops.getNearStops(position.coords.latitude, position.coords.longitude).query(function (stopList) {
                 $scope.stops = stopList;
                 $scope.filterDestinationStop($scope.fromStop);
-                //$scope.endStops = stopList;
             });
         }
 
