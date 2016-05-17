@@ -1,0 +1,52 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: set up subnets",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" },
+			"zoneB" : { "Type" : "String" , "Description" : "::CFN_ZONE_B" }
+		},
+		"Resources" : {
+			"webSubnetZoneA" : {
+				"Type" : "AWS::EC2::Subnet",
+				"Properties" : {
+					"AvailabilityZone" : { "Ref" : "zoneA" },
+					"CidrBlock" : "10.0.10.0/24",
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+			"webSubnetZoneB" : {
+				"Type" : "AWS::EC2::Subnet",
+				"Properties" : {
+					"AvailabilityZone" : { "Ref" : "zoneB" },
+					"CidrBlock" : "10.0.210.0/24",
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+			"lbSubnetA" : {
+				"Type" : "AWS::EC2::Subnet",
+				"Properties" : {
+					"AvailabilityZone" : { "Ref" : "zoneA" },
+					"CidrBlock" : "10.0.12.0/24",
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+            "lbSubnetB" : {
+              "Type" : "AWS::EC2::Subnet",
+              "Properties" : {
+                "AvailabilityZone" : { "Ref" : "zoneB" },
+                "CidrBlock" : "10.0.212.0/24",
+                "VpcId" : { "Ref" : "vpc" }
+              }
+            },
+			"natSubnet" : {
+				"Type" : "AWS::EC2::Subnet",
+				"Properties" : {
+					"AvailabilityZone" : { "Ref" : "zoneA" },
+					"CidrBlock" : "10.0.100.0/24",
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			}
+		}
+}

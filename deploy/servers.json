@@ -2,53 +2,47 @@
 	"AWSTemplateFormatVersion":"2010-09-09",
 		"Description":"NOTE: Make sure vpc ID is added to S3 permissions on the Bucket itself",
 	"Parameters":{
-	"env":{
-		"Type":"String"
-	}, "vpc":{
-		"Type":"String"
-	}, "build":{
-		"Type":"String"
-	}, "webSubnetA":{
-		"Type":"String", "Description":"::webSubnetZoneA"
-	}, "webSubnetB":{
-		"Type":"String", "Description":"::webSubnetZoneB"
-	}, "webSg":{
-		"Type":"String", "Description":"::sgWeb"
-	}, "webServerName":{
-		"Type":"String", "Default":"tramchesterWeb"
-	}, "ami":{
-		"Type":"String", "Default":"ami-47a23a30"
-	}, "baseUrl":{
-		"Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com"
-	}, "bucketName":{"Type":"String", "Description":"::CFN_TAG"},
+	"env":{ "Type":"String" }, 
+	"vpc":{ "Type":"String" }, 
+	"build":{ "Type":"String" }, 
+	"webSubnetA":{ "Type":"String", "Description":"::webSubnetZoneA" }, 
+	"webSubnetB":{ "Type":"String", "Description":"::webSubnetZoneB" }, 
+	"webSg":{ "Type":"String", "Description":"::sgWeb" }, 
+	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" }, 
+	"ami":{ "Type":"String", "Default":"ami-f95ef58a" }, 
+	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" }, 
+	"bucketName":{"Type":"String", "Description":"::CFN_TAG"}, 
 	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInit.txt"},
 	"bootstrapWebScript":{"Type":"String", "Default":"setupTramWebServer.sh"},
-	"instanceProfile":{"Type":"String", "Description":"::InstanceProfile"}
-}, "Mappings":{
+	"keypairname": { "Type" : "String" , "Description" : "::CFN_TAG" },
+	"instanceProfile":{"Type":"String", "Description":"::InstanceProfile"} }, 
+	"Mappings":{
 	"environMap":{
 		"Dev":{ "keyName":"tramchester2", "webSize":"t2.micro" }, 
 		"UAT":{ "keyName":"tramchester2", "webSize":"t2.micro" }, 
-		"Prod":{ "keyName":"tramchester2", "webSize":"t2.micro" },
+		"ProdGreen":{ "keyName":"tramchester2", "webSize":"t2.micro" },
 		"ProdBlue":{ "keyName":"tramchester2", "webSize":"t2.micro" }
-	}
-}, "Resources":{
+	},
+	"redirectMap":{
+		"Dev":{ "keyName":"redirect", "flag":"false" }, 
+		"UAT":{ "keyName":"redirect", "flag":"true" }, 
+		"ProdGreen":{ "keyName":"redirect", "flag":"true" },
+		"ProdBlue":{ "keyName":"redirect", "flag":"false" }
+
+	}	}, 
+	"Resources":{
 	"webDoneWaitHandle":{
-		"Type":"AWS::CloudFormation::WaitConditionHandle", "Properties":{}
-	}, "waitForWebServerCallBack":{
+		"Type":"AWS::CloudFormation::WaitConditionHandle", "Properties":{} }, 
+	"waitForWebServerCallBack":{
 		"Type":"AWS::CloudFormation::WaitCondition", "DependsOn":"TramWebServerA", "Properties":{
 			"Handle":{
 				"Ref":"webDoneWaitHandle"
 			}, "Timeout":"1200", "Count":"1"
-		}
-	}, "TramWebServerA":{
+		} }, 
+	"TramWebServerA":{
 		"Type":"AWS::EC2::Instance", "Properties":{
-			"KeyName":{
-				"Fn::FindInMap":[
-					"environMap", {
-						"Ref":"env"
-					}, "keyName"
-				]
-			}, "InstanceType":{
+			"KeyName":{ "Ref":"keypairname" }, 
+			"InstanceType":{
 				"Fn::FindInMap":[
 					"environMap", {
 						"Ref":"env"
@@ -70,7 +64,8 @@
 							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
 							"# ENV=", {"Ref":"env"}, "\n",
 							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "\n",
-							"# BUILD=", {"Ref":"build"}, "\n"
+							"# BUILD=", {"Ref":"build"}, "\n",
+							"# REDIRECTHTTP=", {"Fn::FindInMap":[ "redirectMap", { "Ref":"env" }, "flag" ]} , "\n"
 						]
 					]
 				}
@@ -98,13 +93,8 @@
 		}
 	}, "TramWebServerB":{
 		"Type":"AWS::EC2::Instance", "Properties":{
-			"KeyName":{
-				"Fn::FindInMap":[
-					"environMap", {
-						"Ref":"env"
-					}, "keyName"
-				]
-			}, "InstanceType":{
+			"KeyName":{ "Ref":"keypairname" },  
+			"InstanceType":{
 				"Fn::FindInMap":[
 					"environMap", {
 						"Ref":"env"
@@ -126,7 +116,8 @@
 							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
 							"# ENV=", {"Ref":"env"}, "\n",
 							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "\n",
-							"# BUILD=", {"Ref":"build"}, "\n" ]
+							"# BUILD=", {"Ref":"build"}, "\n" ,
+							"# REDIRECTHTTP=", {"Fn::FindInMap":[ "redirectMap", { "Ref":"env" }, "flag" ]} , "\n"]
 					]
 				}
 			}, "SubnetId":{

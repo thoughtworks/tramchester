@@ -1,0 +1,115 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "NAT Subnet ACL & SG",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" }
+		},
+		"Resources" : {
+			"assocAclNatSubnet" : {
+				"Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+				"Properties" : {
+					"SubnetId" : { "Ref": "natSubnet" },
+					"NetworkAclId" : { "Ref": "natAcl" }
+				}
+			},
+			"natAcl" : {
+				"Type" : "AWS::EC2::NetworkAcl",
+				"Properties" : {
+					"VpcId" : { "Ref" : "vpc" }
+				}
+			},
+			"sgNat": {
+				"Type": "AWS::EC2::SecurityGroup",
+				"Properties": {
+					"GroupDescription": "NAT box security group",
+					"VpcId" : { "Ref" : "vpc" },
+					"SecurityGroupIngress": [
+					{ "IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": "0.0.0.0/0" },
+					{ "IpProtocol": "tcp", "FromPort": "80", "ToPort": "80", "CidrIp": "10.0.0.0/16" },
+					{ "IpProtocol": "tcp", "FromPort": "443", "ToPort": "443", "CidrIp": "10.0.0.0/16" },
+					{ "IpProtocol": "icmp", "FromPort": "-1", "ToPort": "-1", "CidrIp": "10.0.0.0/16" }
+					],
+						"SecurityGroupEgress": [
+						{ "IpProtocol": "tcp", "FromPort": "80", "ToPort": "80", "CidrIp": "0.0.0.0/0" },
+						{ "IpProtocol": "tcp", "FromPort": "8080", "ToPort": "8080", "CidrIp": "10.0.0.0/16" },
+						{ "IpProtocol": "tcp", "FromPort": "443", "ToPort": "443", "CidrIp": "0.0.0.0/0" },
+						{ "IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": "10.0.0.0/16" },
+						{ "IpProtocol": "icmp", "FromPort": "-1", "ToPort": "-1", "CidrIp": "10.0.0.0/16" }
+					]
+				}
+			},
+
+			"networkAclEntryNatOutboundEthemeral" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber":	"100" ,"RuleAction": "allow", "Egress": "true", "CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"1024" , "To": "65535" }
+				}
+			},
+			"networkAclEntryNatOutboundHTTP" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber":	"200" ,"RuleAction": "allow", "Egress": "true", "CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"80" , "To": "80" }
+				}
+			},
+			"networkAclEntryNatOutboundHTTPS" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber":	"300" ,"RuleAction": "allow", "Egress": "true", "CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"443" , "To": "443" }
+				}
+			},
+			"networkAclEntryNatOutboundSSH" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber":	"400" ,"RuleAction": "allow", "Egress": "true", "CidrBlock": "10.0.0.0/16", "Protocol": "6"	, "PortRange": { "From":"22" , "To": "22" }
+				}
+			},
+			"networkAclEntryNatOutboundIcmpLocal" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber": "600" ,"RuleAction": "allow",  "Egress": "true","CidrBlock": "10.0.0.0/16", "Protocol": "1", "Icmp" : { "Code" : "-1", "Type" : "-1" }
+				}
+			},
+			"networkAclEntryNatInboundSSH" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber": "100" ,"RuleAction": "allow", "Egress": "false", "CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"22" , "To": "22" }
+				}
+			},
+			"networkAclEntryNatInboundEphemeral" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber": "200" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"1024" , "To": "65535" }
+				}
+			},
+			"networkAclEntryNatInboundHTTPLocal" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber": "300" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "10.0.0.0/16", "Protocol": "6"	, "PortRange": { "From":"80" , "To": "80" }
+				}
+			},
+			"networkAclEntryNatInboundHTTPSLocal" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber": "400" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "10.0.0.0/16", "Protocol": "6"	, "PortRange": { "From":"443" , "To": "443" }
+				}
+			},
+			"networkAclEntryNatInboundICMPLocal" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "natAcl" },
+					"RuleNumber": "600" ,"RuleAction": "allow",  "Egress": "false","CidrBlock": "10.0.0.0/16", "Protocol": "1", "Icmp" : { "Code" : "-1", "Type" : "-1" }
+				}
+			} 
+		}
+}

@@ -63,7 +63,7 @@ sourceSets {
 task cfnassist << {
     antBuild.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
         classpath {
-            fileset(dir: 'lib/cfnassist-1.0.121/lib/', includes: 'cfnassist-all-1.0.121.jar')
+            fileset(dir: 'lib/cfnassist-1.0.135/lib/', includes: 'cfnassist-all-1.0.135.jar')
         }
     }
 }
@@ -133,12 +133,14 @@ task busTest(type: Test) {
 task whitelist(dependsOn: cfnassist) << {
     antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
         WhiteList(port: '80', tag:'web')
+        WhiteList(port: '443', tag:'web')
     }
 }
 
 task blacklist(dependsOn: cfnassist) << {
     antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
         BlackList(port: '80', tag:'web')
+        BlackList(port: '443', tag:'web')
     }
 }
 
@@ -219,12 +221,14 @@ task tidy(dependsOn: cfnassist) << {
 task whitelistUAT(dependsOn: cfnassist) << {
     antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
         WhiteList(port: '80', tag:'web')
+        WhiteList(port: '443', tag:'web')
     }
 }
 
 task blacklistUAT(dependsOn: cfnassist) << {
     antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
         BlackList(port: '80', tag:'web')
+        BlackList(port: '443', tag:'web')
     }
 }
 

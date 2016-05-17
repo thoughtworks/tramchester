@@ -1,0 +1,20 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description" : "cfnassist: internet gateway",
+ "Parameters" : {
+    "env" : { "Type" : "String" },
+    "vpc" : { "Type" : "String" }
+  },
+  "Resources" : {
+    "internetGateway" : {
+         "Type" : "AWS::EC2::InternetGateway"
+     },
+     "AttachGateway" : {
+        "Type" : "AWS::EC2::VPCGatewayAttachment",
+        "Properties" : {
+      	   "VpcId" : { "Ref" : "vpc" },
+           "InternetGatewayId" : { "Ref" : "internetGateway" }
+        }
+    }
+  }
+}

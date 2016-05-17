@@ -5,6 +5,7 @@ logger Begin setup of tramchester server
 export ENV=`ec2metadata --user-data| grep ENV | cut -d = -f 2-`
 export BUILD=`ec2metadata --user-data| grep BUILD | cut -d = -f 2-`
 export ARTIFACTSURL=`ec2metadata --user-data| grep ARTIFACTSURL | cut -d = -f 2-`
+export REDIRECTHTTP=`ec2metadata --user-data| grep REDIRECTHTTP | cut -d = -f 2-`
 
 if [ "$BUILD" == '' ]; then
         echo 'BUILD missing'
@@ -17,6 +18,9 @@ fi
 if [ "$ARTIFACTSURL" == '' ]; then
         echo 'ARTIFACTSURL missing'
         exit;
+fi
+if [ "$REDIRECTHTTP" == '' ]; then
+        export REDIRECTHTTP=false
 fi
 
 logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $ENV

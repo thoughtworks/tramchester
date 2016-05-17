@@ -24,7 +24,7 @@ showMyLocation: true
 nearestStopRangeKM: 2
 numOfNearestStops: 6
 walkingMPH: 3
-redirectHTTP: false
+redirectHTTP: ${REDIRECTHTTP:- false}
 
 genericMapper: true
 createLocality: true
