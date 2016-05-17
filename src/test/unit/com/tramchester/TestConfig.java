@@ -86,4 +86,7 @@ public abstract class TestConfig extends TramchesterConfig {
     public String getAWSRegionName() {
         return "eu-west-1";
     }
+
+    @Override
+    public boolean isRedirectHTTP() { return false; }
 }

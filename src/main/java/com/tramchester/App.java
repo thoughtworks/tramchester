@@ -17,6 +17,8 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.DispatcherType;
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 public class App extends Application<AppConfiguration> {
@@ -44,6 +46,7 @@ public class App extends Application<AppConfiguration> {
                         bootstrap.getConfigurationSourceProvider(),
                         new EnvironmentVariableSubstitutor(false)));
 
+
         bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.htm", "static"));
         bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
         bootstrap.addBundle(new AssetsBundle("/assets/images", "/images", null, "images"));
@@ -54,6 +57,11 @@ public class App extends Application<AppConfiguration> {
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         dependencies.initialise(configuration);
+
+        if (configuration.isRedirectHTTP()) {
+            environment.getApplicationContext().addFilter(RedirectHttpFilter.class,
+                    "/*", EnumSet.of(DispatcherType.REQUEST));
+        }
 
         environment.jersey().register(dependencies.get(StationResource.class));
         environment.jersey().register(dependencies.get(VersionResource.class));

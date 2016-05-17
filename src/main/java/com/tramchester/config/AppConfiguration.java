@@ -63,6 +63,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("awsRegionName")
     private String awsRegionName;
 
+    @JsonProperty("redirectHTTP")
+    private boolean redirectHTTP;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -90,6 +93,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean useGenericMapper() {
         return genericMapper;
+    }
+
+    @Override
+    public boolean isRedirectHTTP() {
+        return redirectHTTP;
     }
 
     @Override

@@ -52,5 +52,8 @@ public abstract class TramchesterConfig extends Configuration {
     // time window in which to look ahead for journeys from a station during route building
     public abstract boolean useGenericMapper();
 
+    // direct traffic from http to https
+    public abstract boolean isRedirectHTTP();
+
 }
 

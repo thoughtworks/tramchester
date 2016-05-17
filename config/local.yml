@@ -7,6 +7,7 @@ server:
     type: http
     port: 8080
 
+redirectHTTP: false
 rebuildGraph: true
 pullData: ${TRAM_PULLDATA:- false}
 filterData: true
