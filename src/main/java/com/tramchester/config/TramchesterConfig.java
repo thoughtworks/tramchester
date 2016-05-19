@@ -55,5 +55,8 @@ public abstract class TramchesterConfig extends Configuration {
     // direct traffic from http to https
     public abstract boolean isRedirectHTTP();
 
+    // the secure host, the one the cert matches
+    public abstract String getSecureHost();
+
 }
 

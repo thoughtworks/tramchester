@@ -10,42 +10,70 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 
 public class RedirectHttpFilterTest extends EasyMockSupport {
 
-    private RedirectHttpFilter filter = new RedirectHttpFilter();
+    private RedirectHttpFilter filter = new RedirectHttpFilter(new IntegrationTramTestConfig());
+    String path = "http://green.tramchester.co.uk/somethingelse";
+    private String expected = "https://green.tramchester.com/somethingelse";
 
     @Test
-    public void shouldFormNewURLLower() {
-        String path = "someurl.com/somethingelse";
-        String original = "http://" + path;
-
-        String result = filter.mapUrl(original);
-
-        assertEquals("https://"+path, result);
+    public void shouldFormNewURLLower() throws MalformedURLException, URISyntaxException {
+        String result = filter.mapUrl(path);
+        assertEquals(expected, result);
     }
 
     @Test
-    public void shouldFormNewURLUpper() {
-        String path = "someurl.com/somethingelse";
-        String original = "HTTP://" + path;
+    public void shouldFormNewURLUpper() throws MalformedURLException, URISyntaxException {
+        String original = path.replace("http","HTTP");
 
         String result = filter.mapUrl(original);
 
-        assertEquals("https://"+path, result);
+        assertEquals(expected, result);
     }
 
     @Test
-    public void shouldFilterIfCorrectHeaderIsSet() throws IOException, ServletException {
+    public void shouldFilterIfCorrectHeaderIsSetTramBusterCoUk() throws IOException, ServletException {
+        checkUrl("http://green.trambuster.co.uk/somethingelse");
+    }
+
+    @Test
+    public void shouldFilterIfCorrectHeaderIsSetTramBusterCom() throws IOException, ServletException {
+        checkUrl("http://green.trambuster.com/somethingelse");
+    }
+
+    @Test
+    public void shouldFilterIfCorrectHeaderIsSetTramBusterIndo() throws IOException, ServletException {
+        checkUrl("http://green.trambuster.info/somethingelse");
+    }
+
+    @Test
+    public void shouldFilterIfCorrectHeaderIsSetTramChesterCoUK() throws IOException, ServletException {
+        checkUrl("http://green.tramchester.co.uk/somethingelse");
+    }
+
+    @Test
+    public void shouldFilterIfCorrectHeaderIsSetTramChesterInfo() throws IOException, ServletException {
+        checkUrl("http://green.tramchester.info/somethingelse");
+    }
+
+    @Test
+    public void shouldFilterIfCorrectHeaderIsSetTramChesterCom() throws IOException, ServletException {
+        checkUrl("http://green.tramchester.com/somethingelse");
+    }
+
+    private void checkUrl(String original) throws IOException, ServletException {
         HttpServletRequest request = createMock(HttpServletRequest.class);
         HttpServletResponse response = createMock(HttpServletResponse.class);
         FilterChain chain = createMock(FilterChain.class);
 
         EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
-        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer("http://something.com/someotherstuff"));
-        response.sendRedirect("https://something.com/someotherstuff");
+        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
+        response.sendRedirect(expected);
         EasyMock.expectLastCall();
 
         replayAll();

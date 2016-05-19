@@ -89,4 +89,9 @@ public abstract class TestConfig extends TramchesterConfig {
 
     @Override
     public boolean isRedirectHTTP() { return false; }
+
+    @Override
+    public String getSecureHost() {
+        return "tramchester.com";
+    }
 }

@@ -66,6 +66,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("redirectHTTP")
     private boolean redirectHTTP;
 
+    @JsonProperty("secureHost")
+    private String secureHost;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -98,6 +101,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean isRedirectHTTP() {
         return redirectHTTP;
+    }
+
+    @Override
+    public String getSecureHost() {
+        return secureHost;
     }
 
     @Override
