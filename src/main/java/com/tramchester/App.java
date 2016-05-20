@@ -1,7 +1,6 @@
 package com.tramchester;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Slf4jReporter;
 import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
@@ -15,7 +14,7 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.slf4j.LoggerFactory;
+import org.eclipse.jetty.servlet.FilterHolder;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
@@ -46,7 +45,6 @@ public class App extends Application<AppConfiguration> {
                         bootstrap.getConfigurationSourceProvider(),
                         new EnvironmentVariableSubstitutor(false)));
 
-
         bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.htm", "static"));
         bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
         bootstrap.addBundle(new AssetsBundle("/assets/images", "/images", null, "images"));
@@ -59,7 +57,8 @@ public class App extends Application<AppConfiguration> {
         dependencies.initialise(configuration);
 
         if (configuration.isRedirectHTTP()) {
-            environment.getApplicationContext().addFilter(RedirectHttpFilter.class,
+            RedirectHttpFilter redirectHttpFilter = new RedirectHttpFilter(configuration);
+            environment.getApplicationContext().addFilter(new FilterHolder(redirectHttpFilter),
                     "/*", EnumSet.of(DispatcherType.REQUEST));
         }
 

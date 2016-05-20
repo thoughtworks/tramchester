@@ -20,6 +20,9 @@ import static java.lang.String.format;
 
 public class RedirectHttpFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(RedirectHttpFilter.class);
+
+    private TramchesterConfig config;
+
     List<String> unsecureHosts = Arrays.asList(new String[]{
             "trambuster.com",
             "trambuster.info",
@@ -28,15 +31,12 @@ public class RedirectHttpFilter implements Filter {
             "tramchester.info"
     });
 
-    private final TramchesterConfig config;
-
     public RedirectHttpFilter(TramchesterConfig config) {
         this.config = config;
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
     }
 
     @Override
