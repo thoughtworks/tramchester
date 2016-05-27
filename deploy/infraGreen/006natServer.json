@@ -45,6 +45,6 @@
 			}
 		},
 		"Outputs" : {
-				"EIPAllocID" : { "Value" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]} , "Description":"::CFN_TAG" }
+				"natEip" : { "Value" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]} , "Description":"::CFN_TAG" }
 		}
 }

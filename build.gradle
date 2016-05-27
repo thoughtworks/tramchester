@@ -63,7 +63,7 @@ sourceSets {
 task cfnassist << {
     antBuild.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
         classpath {
-            fileset(dir: 'lib/cfnassist-1.0.135/lib/', includes: 'cfnassist-all-1.0.135.jar')
+            fileset(dir: 'lib/cfnassist-1.0.136/lib/', includes: 'cfnassist-all-1.0.136.jar')
         }
     }
 }
