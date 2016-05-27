@@ -7,11 +7,14 @@ import com.tramchester.pages.WelcomePage;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,11 +41,9 @@ public class UserJourneyTest {
 
     @Before
     public void beforeEachTestRuns() {
-        File profileDir = new File("src/test/acceptance/com/tramchester/firefoxTestProfile");
-        assertTrue(profileDir.exists());
-        FirefoxProfile profile = new FirefoxProfile(profileDir);
-
-        driver = new FirefoxDriver(profile);
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, false);
+        driver = new FirefoxDriver(capabilities);
     }
 
     @After
