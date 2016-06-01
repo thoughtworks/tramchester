@@ -9,6 +9,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.CapabilityType;
@@ -41,6 +42,7 @@ public class UserJourneyTest {
     public void beforeEachTestRuns() {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, false);
+        capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.ACCEPT);
         driver = new FirefoxDriver(capabilities);
     }
 
