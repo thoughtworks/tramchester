@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoutePlannerPage extends Page {
-    long timeoutInSeconds = 8;
+    long timeoutInSeconds = 30;
     private String toStop = "toStop";
     private String fromStop = "fromStop";
 
