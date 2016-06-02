@@ -185,8 +185,6 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
                 today);
     }
 
-
-
     @Test
     public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.PiccadilyGardens.getId(),
@@ -202,23 +200,6 @@ public class TramJourneyPlannerTest extends  JourneyPlannerHelper {
     public void shouldInvokeQuickestRouteDirectly() throws TramchesterException {
         Response result = planner.quickestRoute(Stations.Altrincham.getId(), Stations.Piccadily.getId(), "23:00:00");
         assertEquals(200, result.getStatus());
-    }
-
-    @Test
-    public void shouldFindRouteEachStationToEveryOther() throws TramchesterException {
-        TransportData data = dependencies.get(TransportData.class);
-        List<Station> allStations = data.getStations();
-        for(Location start : allStations) {
-            for(Location end: allStations) {
-                String startCode = start.getId();
-                String endCode = end.getId();
-                if (!startCode.equals(endCode)) {
-                    JourneyPlanRepresentation results = planner.createJourneyPlan(startCode, endCode,
-                            DaysOfWeek.Monday, today,12*60);
-                    assertTrue(results.getJourneys().size() > 0);
-                }
-            }
-        }
     }
 
     private void checkRouteForAllDays(String start, String dest, int time, TramServiceDate queryDate) throws TramchesterException {

@@ -25,7 +25,7 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use TramJourneyPlannerTest.
-    private final String svcDeansgateToVic = "Serv005336";
+    private final String svcDeansgateToVic = "Serv003477";
     private Collection<Service> allServices;
 
     @BeforeClass
@@ -61,7 +61,7 @@ public class TransportDataFromFilesTest {
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
-        assertEquals(20, tramRoutes); // both old format and new form routes present
+        assertEquals(22, tramRoutes); // both old format and new form routes present
     }
 
     @Test
@@ -122,7 +122,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv005398");
+        Service svc = transportData.getServiceById("Serv003539");
         List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton,
                 new TimeWindow(((23 * 60) + 41), 30));
         assertFalse(trips.isEmpty());
@@ -164,7 +164,7 @@ public class TransportDataFromFilesTest {
                 break;
             }
         }
-        assertEquals(16, count); // this number will change when st peters square re-opens
+        assertEquals(13, count); // this number will change when st peters square re-opens
     }
 
     @Test
