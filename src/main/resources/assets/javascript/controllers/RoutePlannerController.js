@@ -43,10 +43,11 @@ techLabApp.controller('RoutePlannerController',
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(getNearStops, positionError,
-                {
-                maximumAge: 600000 // cached time on location
+                {maximumAge: 600000, // 10 minutes cached time on location
+                    timeout: 20000  // by default this call never times out...
                 });
         } else {
+            // can't get position
             console.log("Unable to get current position");
             getAllStops();
         }
