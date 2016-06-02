@@ -1,3 +1,5 @@
+import sun.util.logging.PlatformLogger
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'application'
@@ -151,6 +153,7 @@ task localAcceptance(type: Test) {
 }
 
 task acceptance(type: Test, dependsOn: whitelist) {
+    logging.captureStandardOutput LogLevel.INFO
     useJUnit {
         includeCategories 'com.tramchester.AcceptanceTest'
     }

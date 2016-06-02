@@ -12,6 +12,9 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -20,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
@@ -43,13 +47,22 @@ public class UserJourneyTest {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, false);
         capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.ACCEPT);
+        LoggingPreferences loggingPrefs = new LoggingPreferences();
+        loggingPrefs.enable(LogType.BROWSER, Level.FINE);
+        capabilities.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
         driver = new FirefoxDriver(capabilities);
     }
 
     @After
     public void afterEachTestRuns() throws IOException {
-        takeScreenShot();
-        driver.close();
+        try {
+            takeScreenShot();
+            LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
+            logs.forEach(log -> System.out.println(log));
+        }
+        finally {
+            driver.close();
+        }
     }
 
     @Test

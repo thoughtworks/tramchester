@@ -7,9 +7,11 @@ import io.dropwizard.testing.junit.DropwizardAppRule;
 
 public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
 
+    // if SERVER_URL env var not set then run against localhost
     private String serverUrl;
 
-    public AcceptanceTestRun(Class<? extends Application<AppConfiguration>> applicationClass, String configPath, ConfigOverride... configOverrides) {
+    public AcceptanceTestRun(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
+                             ConfigOverride... configOverrides) {
         super(applicationClass, configPath, configOverrides);
         serverUrl = System.getenv("SERVER_URL");
     }
