@@ -8,6 +8,7 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.InitialBranchState;
@@ -31,15 +32,17 @@ public class RouteCalculator extends StationIndexs {
     private String queryNodeName = "BEGIN";
 
     // TODO Use INT? - but difficult as not supported by algos built into neo4j
-    public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(GraphStaticKeys.COST);
+    //public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(GraphStaticKeys.COST);
+
+    public static final CostEvaluator<Double> COST_EVALUATOR = new CachingCostEvaluator(GraphStaticKeys.COST);
 
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
     private PathToStagesMapper pathToStages;
 
     public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
-                           PathToStagesMapper pathToStages) {
-        super(db, relationshipFactory, true);
+                           SpatialDatabaseService spatialDatabaseService, PathToStagesMapper pathToStages) {
+        super(db, relationshipFactory, spatialDatabaseService, true);
         this.nodeFactory = nodeFactory;
         this.pathToStages = pathToStages;
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);

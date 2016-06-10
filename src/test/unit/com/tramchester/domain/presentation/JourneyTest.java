@@ -19,8 +19,8 @@ public class JourneyTest {
 
     Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)));
     Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)));
-    Location stationA = new Station("stationA", "area", "nameA", -2, -1, false);
-    Location stationB = new Station("stationB", "area", "nameA", -3, 1, false);
+    Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
+    Location stationB = new Station("stationB", "area", "nameA", new LatLong(-3, 1), false);
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {

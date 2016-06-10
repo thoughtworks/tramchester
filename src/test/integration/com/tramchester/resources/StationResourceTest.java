@@ -63,6 +63,7 @@ public class StationResourceTest {
         assertEquals("Nearby", station.getProximityGroup());
         assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getId());
         assertEquals("My Location", station.getName());
+        // the nearest stops show come next
         assertEquals("Nearest Stops", stations.get(1).getProximityGroup());
     }
 

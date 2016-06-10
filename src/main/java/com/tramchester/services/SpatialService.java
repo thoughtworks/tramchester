@@ -1,7 +1,6 @@
 package com.tramchester.services;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;
@@ -9,17 +8,25 @@ import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
 import com.tramchester.repository.StationRepository;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
+import org.neo4j.gis.spatial.filter.SearchIntersectWindow;
 import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
+import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.IndexHits;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class SpatialService extends StationIndexs {
+    private static final Logger logger = LoggerFactory.getLogger(SpatialService.class);
+
     public static final String ALL_STOPS_PROX_GROUP = "All Stops";
     public static final String NEARBY = "Nearby";
     private static final String NEAREST_STOPS = "Nearest Stops";
@@ -30,8 +37,8 @@ public class SpatialService extends StationIndexs {
 
     public SpatialService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
                           StationRepository stationRepository,
-                          TramchesterConfig config) {
-        super(graphDatabaseService, relationshipFactory, false);
+                          SpatialDatabaseService spatialDatabaseService, TramchesterConfig config) {
+        super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.config = config;
@@ -43,6 +50,10 @@ public class SpatialService extends StationIndexs {
         try {
             List<String> nearestStations = getNearestStationsToNoTransaction(latLong, config.getNumOfNearestStops());
             List<DisplayStation> reorderedStations = new ArrayList<>();
+
+            if (nearestStations.size()==0) {
+                logger.warn("Unable to find stations close to " + latLong);
+            }
 
             for (String id : nearestStations) {
                 Station nearestStation = stationRepository.getStation(id);
@@ -77,14 +88,11 @@ public class SpatialService extends StationIndexs {
     }
 
     private List<String> getNearestStationsToNoTransaction(LatLong latLong, int count) {
-        Map<String, Object> params = new HashMap<>();
-        params.put(LayerNodeIndex.POINT_PARAMETER, new Double[]{latLong.getLat(), latLong.getLon()});
-        params.put(LayerNodeIndex.DISTANCE_IN_KM_PARAMETER, config.getNearestStopRangeKM());
+        List<GeoPipeFlow> results = getSpatialLayer().findClosestPointsTo(LatLong.getCoordinate(latLong),
+                config.getNearestStopRangeKM());
 
-        IndexHits<Node> query = getSpatialIndex().query(LayerNodeIndex.WITHIN_DISTANCE_QUERY, params);
-
-        List<String> ids = StreamSupport.stream(query.spliterator(), false).limit(count)
-                .map(node-> (String)node.getProperty(GraphStaticKeys.ID)).collect(Collectors.toList());
+        List<String> ids =results.stream().limit(count).map(item -> (String)item.getRecord().getGeomNode().getProperty(GraphStaticKeys.ID)).
+                collect(Collectors.toList());
 
         return ids;
     }

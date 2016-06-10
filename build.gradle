@@ -36,8 +36,8 @@ dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
-            'org.neo4j:neo4j:2.2.2',
-            'org.neo4j:neo4j-spatial:0.14-neo4j-2.2.2',
+            'org.neo4j:neo4j:2.3.3',
+            'org.neo4j:neo4j-spatial:0.15-neo4j-2.3.3',
             'joda-time:joda-time:2.4',
             'com.googlecode.jcsv:jcsv:1.4.0',
             'net.lingala.zip4j:zip4j:1.2.3',

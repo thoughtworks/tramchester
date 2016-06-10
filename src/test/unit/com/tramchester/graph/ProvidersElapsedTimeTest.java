@@ -54,9 +54,10 @@ public class ProvidersElapsedTimeTest extends EasyMockSupport {
     public void shouldCalculateElapsedTimeCorrectly() throws TramchesterException {
         EasyMock.expect(path.relationships()).andStubReturn(relationships);
 
+        replayAll();
+
         ProvidesElapsedTime provider = new ProvidesElapsedTime(path, branchState, costEvaluator);
 
-        replayAll();
         int result = provider.getElapsedTime();
         assertEquals(QUERY_TIME, result);
         provider.setJourneyStart(START_TIME);
@@ -67,23 +68,27 @@ public class ProvidersElapsedTimeTest extends EasyMockSupport {
 
     @Test
     public void shouldCalculateElapsedTimeCorrectlyIncludeDurations() throws TramchesterException {
-        addRelationship(5);
-        addRelationship(10);
+        addRelationship(5,5000);
+        addRelationship(10, 5001);
         EasyMock.expect(path.relationships()).andStubReturn(relationships);
+
+        replayAll();
 
         ProvidesElapsedTime provider = new ProvidesElapsedTime(path, branchState, RouteCalculator.COST_EVALUATOR);
 
-        replayAll();
         int result = provider.getElapsedTime();
         assertEquals(QUERY_TIME +15, result);
+
         provider.setJourneyStart(START_TIME);
         result = provider.getElapsedTime();
         assertEquals(START_TIME +15, result);
+
         verifyAll();
     }
 
-    private void addRelationship(int duration) {
+    private void addRelationship(int duration, long id) {
         Relationship relationship = createMock(Relationship.class);
+        EasyMock.expect(relationship.getId()).andStubReturn(id);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andStubReturn(duration);
         relationships.add(relationship);
     }

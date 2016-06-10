@@ -21,7 +21,7 @@ public class IntegrationBusTestConfig extends TestConfig {
 
     @Override
     public boolean isCreateLocality() {
-        return true;
+        return false;
     }
 
     @Override

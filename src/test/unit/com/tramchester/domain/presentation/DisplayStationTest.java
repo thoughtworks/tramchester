@@ -9,7 +9,7 @@ public class DisplayStationTest {
 
     @Test
     public void shouldGetCorrectProximityGroup() {
-        Station station = new Station("id", "area", "stopName", 0.1D, -2D, true);
+        Station station = new Station("id", "area", "stopName", new LatLong(0.1D, -2D), true);
         DisplayStation displayStation = new DisplayStation(station, "ProxGroup");
         assertEquals("ProxGroup", displayStation.getProximityGroup());
     }

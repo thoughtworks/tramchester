@@ -13,6 +13,7 @@ import static java.lang.String.format;
 
 public class ProvidesElapsedTime implements ElapsedTime {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesElapsedTime.class);
+    private final WeightedPathImpl weightedPath;
 
     private int duration = -1;
     private Path path;
@@ -23,6 +24,7 @@ public class ProvidesElapsedTime implements ElapsedTime {
         this.path = path;
         this.branchState = branchState;
         this.costEvaluator = costEvaluator;
+        weightedPath = new WeightedPathImpl(costEvaluator, path);
     }
 
     public int getElapsedTime() throws TramchesterException {
@@ -36,7 +38,7 @@ public class ProvidesElapsedTime implements ElapsedTime {
 
     private int getDuration() {
         if (duration<0) {
-            duration = (int)new WeightedPathImpl(costEvaluator, path).weight();
+            duration = (int) weightedPath.weight();
         }
         return duration;
     }

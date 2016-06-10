@@ -1,13 +1,13 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.presentation.LatLong;
+
 public interface Location {
     String getId();
 
     String getName();
 
-    double getLatitude();
-
-    double getLongitude();
+    LatLong getLatLong();
 
     boolean isTram();
 }

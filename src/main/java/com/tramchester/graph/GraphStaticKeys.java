@@ -29,7 +29,7 @@ public class GraphStaticKeys {
     // station properties
     public static class Station {
         public static final String NAME = "name";
-        public static final String LAT = "lat";
-        public static final String LONG = "lon";
+        public static final String LAT = "latitude";
+        public static final String LONG = "longitude";
     }
 }

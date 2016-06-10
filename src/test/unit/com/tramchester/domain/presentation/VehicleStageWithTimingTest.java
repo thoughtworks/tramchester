@@ -19,7 +19,7 @@ public class VehicleStageWithTimingTest {
 
     private String tripId = "tripId";
     private int elapsedTime = 101;
-    Location firstStation = new Station("firstStation", "area", "name", 1,1, true);
+    Location firstStation = new Station("firstStation", "area", "name", new LatLong(1,1), true);
     RawVehicleStage tramRawStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
 
     @Test
@@ -84,7 +84,7 @@ public class VehicleStageWithTimingTest {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
 
         RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
-        Location lastStation = new Station("lastStation", "area", "name", -1, -1, true);
+        Location lastStation = new Station("lastStation", "area", "name", new LatLong(-1, -1), true);
         rawTravelStage.setLastStation(lastStation);
         rawTravelStage.setServiceId("svcId");
         VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, createSet(serviceTime), TravelAction.Board);

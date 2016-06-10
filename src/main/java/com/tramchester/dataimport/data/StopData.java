@@ -1,5 +1,7 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.domain.presentation.LatLong;
+
 public class StopData {
     private String id;
     private String code;
@@ -46,5 +48,9 @@ public class StopData {
 
     public boolean isTram() {
         return isTram;
+    }
+
+    public LatLong getLatLong() {
+        return new LatLong(latitude, longitude);
     }
 }

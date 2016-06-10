@@ -30,9 +30,9 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         rawJourneys = new HashSet<>();
         stages = new LinkedList<>();
 
-        stationA = new Station("stationA", "area", "nameA", -2, -1, false);
-        stationB = new Station("stationB", "area", "nameA", -3, 1, false);
-        stationC = new Station("stationC", "area", "nameA", -4, 2, false);
+        stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
+        stationB = new Station("stationB", "area", "nameA", new LatLong(-3, 1), false);
+        stationC = new Station("stationC", "area", "nameA", new LatLong(-4, 2), false);
 
         transportData = createMock(TransportDataFromFiles.class);
         mapper = new GenericJourneyResponseMapper(transportData);

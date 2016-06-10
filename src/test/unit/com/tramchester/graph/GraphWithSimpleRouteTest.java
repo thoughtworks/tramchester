@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.UnknownStationException;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.StationRepository;
@@ -12,6 +13,7 @@ import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -37,20 +39,22 @@ public class GraphWithSimpleRouteTest {
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
-        FileUtils.deleteDirectory(new File(TMP_DB));
+        File dbFile = new File(TMP_DB);
+        FileUtils.deleteDirectory(dbFile);
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
-        GraphDatabaseService graphDBService = graphDatabaseFactory.newEmbeddedDatabase(TMP_DB);
+        GraphDatabaseService graphDBService = graphDatabaseFactory.newEmbeddedDatabase(dbFile);
 
         RelationshipFactory relationshipFactory = new RelationshipFactory();
 
         transportData = new TransportDataForTest();
-        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory);
+        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
+        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory, spatialDatabaseService);
         builder.buildGraph();
 
         NodeFactory nodeFactory = new NodeFactory();
         RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
-                new PathToStagesMapper(nodeFactory,routeIdToClass, transportData));
+                spatialDatabaseService, new PathToStagesMapper(nodeFactory,routeIdToClass, transportData));
     }
 
     @Before
@@ -125,19 +129,20 @@ public class GraphWithSimpleRouteTest {
 
             double latitude = 180.00;
             double longitude = 270.0;
-            Station first = new Station(FIRST_STATION, "area", "startStation", latitude, longitude, true);
+            LatLong latLong = new LatLong(latitude, longitude);
+            Station first = new Station(FIRST_STATION, "area", "startStation", latLong, true);
             addStation(first);
             tripA.addStop(createStop(first, createTime(8, 0), createTime(8, 0)));
 
-            Station second = new Station(SECOND_STATION, "area", "secondStation", latitude, longitude, true);
+            Station second = new Station(SECOND_STATION, "area", "secondStation", latLong, true);
             tripA.addStop(createStop(second, createTime(8, 11), createTime(8, 11)));
             addStation(second);
 
-            Station interchangeStation = new Station(INTERCHANGE, "area", "cornbrook", latitude, longitude, true);
+            Station interchangeStation = new Station(INTERCHANGE, "area", "cornbrook", latLong, true);
             tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 20)));
             addStation(interchangeStation);
 
-            Station last = new Station(LAST_STATION, "area", "endStation", latitude, longitude, true);
+            Station last = new Station(LAST_STATION, "area", "endStation", latLong, true);
             addStation(last);
             tripA.addStop(createStop(last, createTime(8, 40), createTime(8, 40)));
             // service
@@ -147,7 +152,7 @@ public class GraphWithSimpleRouteTest {
             Trip tripB = new Trip("trip2Id", "headSign", serviceBId);
             tripB.addStop(createStop(interchangeStation, createTime(8,26), createTime(8,26)));
 
-            Station four = new Station(STATION_FOUR, "area", "stat4Station", 170.00, 160.00, true);
+            Station four = new Station(STATION_FOUR, "area", "stat4Station", new LatLong(170.00, 160.00), true);
             addStation(four);
             tripB.addStop(createStop(four, createTime(8,36), createTime(8,36)));
             // service

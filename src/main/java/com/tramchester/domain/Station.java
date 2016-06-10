@@ -1,15 +1,16 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.presentation.LatLong;
+
 public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
 
     private final String id;
     private final String name;
-    private final double latitude;
-    private final double longitude;
+    private LatLong latLong;
     private final boolean isTram;
 
-    public Station(String id, String area, String stopName, double latitude, double longitude, boolean isTram) {
+    public Station(String id, String area, String stopName, LatLong latLong, boolean isTram) {
         this.id = id;
         if (isTram) {
             this.name = stopName;
@@ -18,16 +19,14 @@ public class Station implements Location {
         } else {
             this.name = String.format("%s,%s", area, stopName);
         }
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.latLong = latLong;
         this.isTram = isTram;
     }
 
     public Station(Station other) {
         this.id = other.id;
         this.name = other.name;
-        this.latitude = other.latitude;
-        this.longitude = other.longitude;
+        this.latLong = other.latLong;
         this.isTram = other.isTram;
     }
 
@@ -42,13 +41,8 @@ public class Station implements Location {
     }
 
     @Override
-    public double getLatitude() {
-        return latitude;
-    }
-
-    @Override
-    public double getLongitude() {
-        return longitude;
+    public LatLong getLatLong() {
+        return latLong;
     }
 
     public static String formId(String rawId) {
@@ -82,6 +76,11 @@ public class Station implements Location {
 
     @Override
     public String toString() {
-        return String.format("Station: [id:%s name:%s]",id, name);
+        return "Station{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", latLong=" + latLong +
+                ", isTram=" + isTram +
+                '}';
     }
 }

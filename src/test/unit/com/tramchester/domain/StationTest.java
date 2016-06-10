@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.presentation.LatLong;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,23 +11,23 @@ public class StationTest {
 
     @Test
     public void testShouldSetTramNameCorrecly() {
-        Location tramStation = new Station("id", "area", "stopName", -2.0, 2.3, true);
+        Location tramStation = new Station("id", "area", "stopName", new LatLong(-2.0, 2.3), true);
 
         assertEquals("stopName", tramStation.getName());
         assertEquals("id", tramStation.getId());
-        assertEquals(-2.0, tramStation.getLatitude(),0);
-        assertEquals(2.3, tramStation.getLongitude(),0);
+        assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
+        assertEquals(2.3, tramStation.getLatLong().getLon(),0);
         assertTrue(tramStation.isTram());
     }
 
     @Test
     public void testShouldSetBusNameCorrecly() {
-        Location busStation = new Station("id", "area", "stopName", -2.0, 2.3, false);
+        Location busStation = new Station("id", "area", "stopName",new LatLong(-2.0, 2.3), false);
 
         assertEquals("area,stopName", busStation.getName());
         assertEquals("id", busStation.getId());
-        assertEquals(-2.0, busStation.getLatitude(),0);
-        assertEquals(2.3, busStation.getLongitude(),0);
+        assertEquals(-2.0, busStation.getLatLong().getLat(),0);
+        assertEquals(2.3, busStation.getLatLong().getLon(),0);
         assertTrue(!busStation.isTram());
     }
 

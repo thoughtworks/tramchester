@@ -47,7 +47,7 @@ public class CreateDotDiagramTest {
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
         try (Transaction tx = graphService.beginTx()) {
 
-            Node startNode = graphService.findNode(DynamicLabel.label(TransportGraphBuilder.STATION),
+            Node startNode = graphService.findNode(TransportGraphBuilder.Labels.STATION,
                     GraphStaticKeys.ID, Stations.VeloPark.getId());
             List<Node> seen = new LinkedList<>();
 

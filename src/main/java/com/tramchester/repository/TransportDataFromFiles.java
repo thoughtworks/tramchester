@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
             String stationId = Station.formId(stopId);
             if (!stations.keySet().contains(stationId)) {
                 Station station = new Station(stationId, stop.getArea(), stop.getName(),
-                        stop.getLatitude(), stop.getLongitude(), stop.isTram());
+                        stop.getLatLong(), stop.isTram());
                 stations.put(stationId, station);
             }
         });

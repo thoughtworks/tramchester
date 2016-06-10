@@ -68,8 +68,8 @@ public class LocationToLocationJourneyPlanner {
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {
-        LatLng point1 = new LatLng(latLong.getLat(), latLong.getLon());
-        LatLng point2 = new LatLng(station.getLatitude(), station.getLongitude());
+        LatLng point1 = LatLong.getLatLng(latLong);
+        LatLng point2 = LatLong.getLatLng(station.getLatLong());
 
         double distanceInMiles = LatLngTool.distance(point1, point2, LengthUnit.MILE);
         double hours = distanceInMiles / walkingSpeed;

@@ -1,10 +1,13 @@
 package com.tramchester.domain.presentation;
 
 
+import com.javadocmd.simplelatlng.LatLng;
+import com.vividsolutions.jts.geom.Coordinate;
+
 public class LatLong {
 
-    private double lat;
-    private double lon;
+    private double lat; // north/south
+    private double lon; // east/west
 
     // for json
     public LatLong() {
@@ -12,7 +15,6 @@ public class LatLong {
     }
 
     public LatLong(double lat, double lon) {
-
         this.lat = lat;
         this.lon = lon;
     }
@@ -38,8 +40,16 @@ public class LatLong {
     @Override
     public String toString() {
         return "LatLong{" +
-                "lat=" + lat +
-                ", lon=" + lon +
+                "lon=" + lon +
+                ", lat=" + lat +
                 '}';
+    }
+
+    public static Coordinate getCoordinate(LatLong latLong) {
+        return new Coordinate(latLong.getLon(), latLong.getLat());
+    }
+
+    public static LatLng getLatLng(LatLong latLong) {
+        return new LatLng(latLong.getLat(), latLong.getLon());
     }
 }

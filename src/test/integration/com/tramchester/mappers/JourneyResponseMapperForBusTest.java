@@ -6,6 +6,7 @@ import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
@@ -25,9 +26,9 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private Set<RawJourney> journeys;
     private List<TransportStage> stages;
 
-    private Location stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", 1.5, 1.5, false);
+    private Location stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", new LatLong(1.5, 1.5), false);
     private Location stockportBridgefieldStreet = new Station("1800SG15811", "stockportArea", "Bridgefield Street",
-            1.5, 1.5, false);
+            new LatLong(1.5, 1.5), false);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {

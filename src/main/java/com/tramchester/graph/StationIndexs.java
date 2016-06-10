@@ -1,9 +1,11 @@
 package com.tramchester.graph;
 
 import com.tramchester.graph.Relationships.RelationshipFactory;
+import org.neo4j.gis.spatial.Layer;
+import org.neo4j.gis.spatial.SimplePointLayer;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.index.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +16,15 @@ public class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
     private Map<String,Node> routeStationNodeCache;
     private Map<String,Node> stationNodeCache;
-    private Index<Node> spatialIndex;
+    private SimplePointLayer spatialLayer;
 
     protected GraphDatabaseService graphDatabaseService;
     protected GraphQuery graphQuery;
     private boolean warnIfMissing;
 
-    public StationIndexs(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory, boolean warnIfMissing) {
+    public StationIndexs(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory, SpatialDatabaseService spatialDatabaseService, boolean warnIfMissing) {
         this.graphDatabaseService = graphDatabaseService;
-        graphQuery = new GraphQuery(graphDatabaseService, relationshipFactory);
+        graphQuery = new GraphQuery(graphDatabaseService, relationshipFactory, spatialDatabaseService);
         this.warnIfMissing = warnIfMissing;
         routeStationNodeCache = new HashMap<>();
         stationNodeCache = new HashMap<>();
@@ -55,10 +57,10 @@ public class StationIndexs {
         return node;
     }
 
-    protected Index<Node> getSpatialIndex() {
-        if (spatialIndex == null) {
-            spatialIndex = graphQuery.getSpatialIndex();
+    protected SimplePointLayer getSpatialLayer() {
+        if (spatialLayer == null) {
+            spatialLayer = graphQuery.getSpatialLayer();
         }
-        return spatialIndex;
+        return spatialLayer;
     }
 }

@@ -106,7 +106,8 @@ public class StationResource {
             logger.info("Showing users location in stations list");
 
             // TODO use MyLocation instead of Station
-            Station myLocation = new Station(formId(lat,lon), "", "My Location", lat, lon, false);
+            LatLong latLong = new LatLong(lat,lon);
+            Station myLocation = new Station(formId(lat,lon), "", "My Location", latLong, false);
             orderedStations.add(0, new DisplayStation(myLocation, SpatialService.NEARBY));
         }
 

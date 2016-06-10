@@ -28,13 +28,8 @@ public class MyLocation implements Location {
     }
 
     @Override
-    public double getLatitude() {
-        return latLong.getLat();
-    }
-
-    @Override
-    public double getLongitude() {
-        return latLong.getLon();
+    public LatLong getLatLong() {
+        return latLong;
     }
 
     @Override

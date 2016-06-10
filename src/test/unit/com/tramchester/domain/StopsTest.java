@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.presentation.LatLong;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,10 +26,10 @@ public class StopsTest {
 
     @Before
     public void beforeEachTestRuns() {
-        stationA = new Station(stationIdA, "areaA", "nameA", -1,1, false);
-        stationB = new Station(stationIdB, "areaB", "nameB", -2,2, false);
-        stationC = new Station(stationIdC, "areaC", "nameC", -3,3, false);
-        stationD = new Station("statD", "areaC", "nameC", -3,3, false);
+        stationA = new Station(stationIdA, "areaA", "nameA", new LatLong(-1,1), false);
+        stationB = new Station(stationIdB, "areaB", "nameB", new LatLong(-2,2), false);
+        stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
+        stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
         stopA = new Stop(stationA, LocalTime.of(10, 00), LocalTime.of(10, 01));
         stopB = new Stop(stationB, LocalTime.of(10, 02), LocalTime.of(10, 03));

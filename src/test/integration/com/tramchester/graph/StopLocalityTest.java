@@ -15,8 +15,8 @@ public class StopLocalityTest {
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationBusTestConfig());
+//        dependencies = new Dependencies();
+//        dependencies.initialise(new IntegrationBusTestConfig());
     }
 
     @Before

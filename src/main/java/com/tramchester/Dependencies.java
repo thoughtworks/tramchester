@@ -25,6 +25,7 @@ import com.tramchester.services.DateTimeService;
 import com.tramchester.services.SpatialService;
 import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.picocontainer.DefaultPicoContainer;
@@ -105,25 +106,29 @@ public class Dependencies {
         String graphName = configuration.getGraphName();
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
 
+        File graphFile = new File(graphName);
+
+        picoContainer.addComponent(SpatialDatabaseService.class);
         if (configuration.isRebuildGraph()) {
-            logger.info("Deleting previous graph db for " + graphName);
+            logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
             try {
-                FileUtils.deleteDirectory(new File(graphName));
+                FileUtils.deleteDirectory(graphFile);
             } catch (IOException e) {
                 logger.error("Error deleting the graph!",e);
                 throw e;
             }
-            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
+            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphFile));
             picoContainer.getComponent(TransportGraphBuilder.class).buildGraph();
             logger.info("Graph rebuild is finished for " + graphName);
         } else {
-            logger.info("Not rebuilding graph " + graphName + ". Loading graph");
-            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphName));
+            logger.info("Not rebuilding graph " + graphFile.getAbsolutePath() + ". Loading graph");
+            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphFile));
         }
+
         if (configuration.isCreateLocality()) {
             picoContainer.getComponent(StationLocalityService.class).populateLocality();
         }
-        logger.info("graph db ready for " + graphName);
+        logger.info("graph db ready for " + graphFile.getAbsolutePath());
     }
 
     public <T> T get(Class<T> klass) {

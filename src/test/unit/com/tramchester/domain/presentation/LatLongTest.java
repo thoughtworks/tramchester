@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vividsolutions.jts.geom.Coordinate;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -22,5 +23,15 @@ public class LatLongTest {
 
         assertEquals(-1, result.getLat(),0);
         assertEquals(2, result.getLon(),0);
+    }
+
+    @Test
+    public void shouldBeAbleToConvertToACoordinate() {
+        LatLong latLong = new LatLong(2, 5);
+        Coordinate coordinate = LatLong.getCoordinate(latLong);
+
+        assertEquals(5, coordinate.x, 0);
+        assertEquals(2, coordinate.y, 0);
+
     }
 }

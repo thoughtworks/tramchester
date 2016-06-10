@@ -2,10 +2,12 @@ package com.tramchester.graph;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
@@ -25,8 +27,11 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final int INTERCHANGE_BOARD_COST = 1;
     public static final int BOARDING_COST = 2;
     public static final int DEPARTS_COST = 1;
-    public static final String ROUTE_STATION = "RouteStation";
-    public static final String STATION = "Station";
+
+    public enum Labels implements Label
+    {
+        ROUTE_STATION, STATION
+    }
 
     private Map<String,TransportRelationshipTypes> boardings;
     private Map<String,TransportRelationshipTypes> departs;
@@ -36,8 +41,8 @@ public class TransportGraphBuilder extends StationIndexs {
     private TransportData transportData;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
-                                 RelationshipFactory relationshipFactory) {
-        super(graphDatabaseService, relationshipFactory, false);
+                                 RelationshipFactory relationshipFactory, SpatialDatabaseService spatialDatabaseService) {
+        super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
         this.transportData = transportData;
         boardings = new HashMap<>();
         departs = new HashMap<>();
@@ -76,10 +81,10 @@ public class TransportGraphBuilder extends StationIndexs {
         try ( Transaction tx = graphDatabaseService.beginTx() )
         {
             Schema schema = graphDatabaseService.schema();
-            schema.indexFor(DynamicLabel.label(ROUTE_STATION))
+            schema.indexFor(Labels.ROUTE_STATION)
                     .on(GraphStaticKeys.ID)
                     .create();
-            schema.indexFor(DynamicLabel.label(STATION))
+            schema.indexFor(Labels.STATION)
                     .on(GraphStaticKeys.ID)
                     .create();
             tx.success();
@@ -110,15 +115,17 @@ public class TransportGraphBuilder extends StationIndexs {
 
         if (node == null) {
             logger.info(format("Creating station node: %s ",station));
-            node = graphDatabaseService.createNode(DynamicLabel.label(STATION));
+            node = graphDatabaseService.createNode(Labels.STATION);
 
             node.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
             node.setProperty(GraphStaticKeys.ID, id);
             node.setProperty(GraphStaticKeys.Station.NAME, stationName);
-            node.setProperty(GraphStaticKeys.Station.LAT, station.getLatitude());
-            node.setProperty(GraphStaticKeys.Station.LONG, station.getLongitude());
+            LatLong latLong = station.getLatLong();
+            node.setProperty(GraphStaticKeys.Station.LAT, latLong.getLat());
+            node.setProperty(GraphStaticKeys.Station.LONG, latLong.getLon());
 
-            getSpatialIndex().add(node, id, stationName);
+            getSpatialLayer().add(node);
+            //getSpatialLayer().add(node, id, stationName);
         }
         return node;
     }
@@ -188,7 +195,7 @@ public class TransportGraphBuilder extends StationIndexs {
     private Node createRouteStation(Location station, Route route, String routeStationId, Service service) {
         logger.info(format("Creating route station %s route %s service %s", station.getId(),route.getId(),
                 service.getServiceId()));
-        Node routeStation = graphDatabaseService.createNode(DynamicLabel.label(ROUTE_STATION));
+        Node routeStation = graphDatabaseService.createNode(Labels.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());

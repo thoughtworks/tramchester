@@ -26,10 +26,10 @@ import static org.junit.Assert.assertEquals;
 
 public class JourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
+    private TramServiceDate today;
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10*60);
-    private TramServiceDate today;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
