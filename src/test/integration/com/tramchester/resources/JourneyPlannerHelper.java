@@ -1,6 +1,5 @@
 package com.tramchester.resources;
 
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -33,18 +32,17 @@ public class JourneyPlannerHelper {
 
     protected JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, int minsPastMid,
                                                                   LocalDate date) throws TramchesterException {
-
         TramServiceDate queryDate = new TramServiceDate(date);
         JourneyPlanRepresentation results = planner.createJourneyPlan(start.getId(), end.getId(), queryDate,minsPastMid);
         Set<Journey> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, queryDate);
-        assertTrue("unable to find journey " + message, journeys.size() > 0);
+        assertTrue("Unable to find journey " + message, journeys.size() > 0);
         checkDepartsAfterPreviousArrival(message, journeys);
         return results;
     }
 
-    protected void checkRouteNext7Days(Location start, Location dest, int time, LocalDate date) throws TramchesterException {
+    protected void checkRouteNext7Days(Location start, Location dest, LocalDate date, int time) throws TramchesterException {
         if (!dest.equals(start)) {
             for(int day=0; day<7; day++) {
                 validateAtLeastOneJourney(start, dest, time, date.plusDays(day));

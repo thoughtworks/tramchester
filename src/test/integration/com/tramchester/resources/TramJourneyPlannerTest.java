@@ -25,7 +25,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     private LocalDate today;
 
     @Rule
-    public Timeout globalTimeout = Timeout.seconds(10*60);
+    public Timeout globalTimeout = Timeout.seconds(5*60);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -48,7 +48,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNext7Days(start, dest, 10*60, today);
+                checkRouteNext7Days(start, dest, today, 10*60);
             }
         }
     }
@@ -57,7 +57,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {
         for (Location start :  Stations.getInterchanges()) {
             for (Location dest : Stations.getInterchanges()) {
-                checkRouteNext7Days(start, dest, 9*60, today);
+                checkRouteNext7Days(start, dest, today, 9*60);
             }
         }
     }
@@ -66,7 +66,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.getInterchanges()) {
-                checkRouteNext7Days(start, dest, 9*60, today);
+                checkRouteNext7Days(start, dest, today, 9*60);
             }
         }
     }
@@ -75,7 +75,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.getInterchanges() ) {
             for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNext7Days(start,dest, 10*60, today);
+                checkRouteNext7Days(start,dest, today, 10*60);
             }
         }
     }
