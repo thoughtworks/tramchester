@@ -123,7 +123,7 @@ public class TransportDataFromFilesTest {
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById("Serv003453");
-        List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton,
+        List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertFalse(trips.isEmpty());
     }
@@ -136,16 +136,10 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldHaveAllEndOfLineTramStations() {
-        List<Station> allStations = transportData.getStations();
+        long filteredStations = transportData.getStations().stream()
+                .filter(station -> Stations.EndOfTheLine.contains(station)).count();
 
-        List<String> endsOfTheLines = Stations.EndOfTheLine;
-
-        List<String> filteredStations = allStations.stream()
-                .map(station -> station.getId())
-                .filter(station -> endsOfTheLines.contains(station))
-                .collect(Collectors.toList());
-
-        assertEquals(Stations.EndOfTheLine.size(), filteredStations.size());
+        assertEquals(Stations.EndOfTheLine.size(), filteredStations);
     }
 
     @Test

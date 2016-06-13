@@ -226,7 +226,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForInitialPath() {
+    public void shouldExpandPathsCorrectlyForInitialPath() throws TramchesterException {
 
         RelationshipFactory mockRelationshipFactory = createMock(RelationshipFactory.class);
         NodeFactory mockNodeFactory = createMock(NodeFactory.class);
@@ -253,7 +253,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoing() {
+    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoing() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 580;
 
@@ -263,7 +263,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithTotalDurationOverWaitTime() {
+    public void shouldExpandPathsCorrectlyForPathWithTotalDurationOverWaitTime() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 580;
         int inboundDuration = 2 * maxWait;
@@ -281,7 +281,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingTooEarly() {
+    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingTooEarly() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
 
         int journeyStartTime = 100;
@@ -292,7 +292,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingTooLate() {
+    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingTooLate() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 1000;
 
@@ -302,7 +302,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleWaitTooLong() {
+    public void shouldExpandPathsCorrectlyForPathWithSimpleWaitTooLong() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 561;
 
@@ -312,7 +312,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithLongIncomingDuration() {
+    public void shouldExpandPathsCorrectlyForPathWithLongIncomingDuration() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 561;
 
@@ -322,7 +322,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithDifferingServiceId() {
+    public void shouldExpandPathsCorrectlyForPathWithDifferingServiceId() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 580;
 
@@ -332,7 +332,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyWithServiceThatDoesNotRunOnGivenDate() {
+    public void shouldExpandPathsCorrectlyWithServiceThatDoesNotRunOnGivenDate() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 580;
 
@@ -345,7 +345,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingWrongDay() {
+    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingWrongDay() throws TramchesterException {
         int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
         int journeyStartTime = 580;
 
@@ -356,7 +356,7 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
 
     private int countExpandedRelationships(int maxWait, int queriedTime,
                                            String inboundServiceId, String outboundServiceId, int[] outgoingTimes,
-                                           Relationship incomingTram, TramServiceDate queryDate, boolean pathExpands) {
+                                           Relationship incomingTram, TramServiceDate queryDate, boolean pathExpands) throws TramchesterException {
         RelationshipFactory mockRelationshipFactory = createMock(RelationshipFactory.class);
         NodeFactory mockNodeFactory = createMock(NodeFactory.class);
 

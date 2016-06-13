@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.UnknownStationException;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -26,12 +26,12 @@ import static junit.framework.TestCase.assertEquals;
 
 public class GraphWithSimpleRouteTest {
 
-    public static final String TMP_DB = "tmp.db";
-    public static final String FIRST_STATION = "9400ZZ_FIRST";
-    public static final String SECOND_STATION = "9400ZZ_SECOND";
-    public static final String LAST_STATION = "9400ZZ_LAST";
-    public static final String INTERCHANGE = Interchanges.CORNBROOK;
-    public static final String STATION_FOUR = "9400ZZ_FOUR";
+    private static final String TMP_DB = "tmp.db";
+    private static final String FIRST_STATION = "9400ZZ_FIRST";
+    private static final String SECOND_STATION = "9400ZZ_SECOND";
+    private static final String LAST_STATION = "9400ZZ_LAST";
+    private static final String INTERCHANGE = Interchanges.CORNBROOK;
+    private static final String STATION_FOUR = "9400ZZ_FOUR";
     private static TransportDataForTest transportData;
     private static RouteCalculator calculator;
     private TramServiceDate queryDate;
@@ -64,31 +64,31 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void shouldTestSimpleJourneyIsPossible() throws UnknownStationException {
+    public void shouldTestSimpleJourneyIsPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, SECOND_STATION, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
-    public void shouldTestSimpleJourneyIsPossibleToInterchange() throws UnknownStationException {
+    public void shouldTestSimpleJourneyIsPossibleToInterchange() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
-    public void shouldTestSimpleJourneyIsNotPossible() throws UnknownStationException {
+    public void shouldTestSimpleJourneyIsNotPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, 9*60, queryDate);
         assertEquals(0, journeys.size());
     }
 
     @Test
-    public void shouldTestJourneyEndOverWaitLimitIsPossible() throws UnknownStationException {
+    public void shouldTestJourneyEndOverWaitLimitIsPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, LAST_STATION, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
-    public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws UnknownStationException {
+    public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, STATION_FOUR, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }

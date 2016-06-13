@@ -49,7 +49,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public Set<RawJourney> calculateRoute(String startStationId, String endStationId, int queryTime,
-                                          TramServiceDate queryDate) throws UnknownStationException {
+                                          TramServiceDate queryDate) throws TramchesterException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -66,7 +66,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation, int minutesFromMidnight,
-                                          TramServiceDate queryDate) throws UnknownStationException {
+                                          TramServiceDate queryDate) throws TramchesterException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
@@ -121,7 +121,7 @@ public class RouteCalculator extends StationIndexs {
         return nodeFactory.getNode(node);
     }
 
-    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) {
+    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) throws TramchesterException {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));

@@ -49,7 +49,7 @@ public class ProvidesElapsedTime implements ElapsedTime {
     }
 
     @Override
-    public void setJourneyStart(int minutesPastMidnight) {
+    public void setJourneyStart(int minutesPastMidnight) throws TramchesterException {
         GraphBranchState state = getState();
         logger.info(format("Setting journey start to %s (queried time was %s)",
                 minutesPastMidnight, state.getQueriedTime()));

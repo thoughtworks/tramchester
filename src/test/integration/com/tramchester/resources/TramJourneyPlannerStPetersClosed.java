@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.LocalDate;
 import org.junit.*;
@@ -38,9 +39,9 @@ public class TramJourneyPlannerStPetersClosed extends JourneyPlannerHelper {
     @Ignore("Work in progress")
     @Test
     public void shouldFindEndOfLinesToEndOfLinesEast() throws TramchesterException {
-        for (String start : Stations.EndOfTheLineEast) {
-            for (String dest : Stations.EndOfTheLineEast) {
-                checkRouteForAllDays(start, dest, 10 * 60, when);
+        for (Location start : Stations.EndOfTheLineEast) {
+            for (Location dest : Stations.EndOfTheLineEast) {
+                checkRouteNext7Days(start, dest, 10 * 60, when);
             }
         }
     }
@@ -48,9 +49,9 @@ public class TramJourneyPlannerStPetersClosed extends JourneyPlannerHelper {
     @Ignore("Work in progress")
     @Test
     public void shouldFindEndOfLinesToEndOfLinesWest() throws TramchesterException {
-        for (String start : Stations.EndOfTheLineWest) {
-            for (String dest : Stations.EndOfTheLineWest) {
-                checkRouteForAllDays(start, dest, 10 * 60, when);
+        for (Location start : Stations.EndOfTheLineWest) {
+            for (Location dest : Stations.EndOfTheLineWest) {
+                checkRouteNext7Days(start, dest, 10 * 60, when);
             }
         }
     }

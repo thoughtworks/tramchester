@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
@@ -89,15 +90,15 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteNearEndOfServiceTimes() throws JsonProcessingException, TramchesterException {
-        String destination = Stations.PiccadilyGardens.getId();
+        Location destination = Stations.PiccadilyGardens;
 
         int queryTime = 23 * 60;
         int walkingTime = 13;
-        JourneyPlanRepresentation direct = validateAtLeastOneJourney(Stations.NavigationRoad.getId(),
+        JourneyPlanRepresentation direct = validateAtLeastOneJourney(Stations.NavigationRoad,
                 destination, queryTime+walkingTime, today);
         assertTrue(direct.getJourneys().size()>0);
 
-        validateJourneyFromLocation(nearAltrincham, destination, queryTime);
+        validateJourneyFromLocation(nearAltrincham, destination.getId(), queryTime);
 
     }
 

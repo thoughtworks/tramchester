@@ -46,43 +46,43 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
-        for (String start : Stations.EndOfTheLine) {
-            for (String dest : Stations.EndOfTheLine) {
-                checkRouteForAllDays(start, dest, 10*60, today);
+        for (Location start : Stations.EndOfTheLine) {
+            for (Location dest : Stations.EndOfTheLine) {
+                checkRouteNext7Days(start, dest, 10*60, today);
             }
         }
     }
 
     @Test
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {
-        for (String start : Interchanges.stations()) {
-            for (String dest : Interchanges.stations()) {
-                checkRouteForAllDays(start, dest, 9*60, today);
+        for (Location start :  Stations.getInterchanges()) {
+            for (Location dest : Stations.getInterchanges()) {
+                checkRouteNext7Days(start, dest, 9*60, today);
             }
         }
     }
 
     @Test
     public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
-        for (String start : Stations.EndOfTheLine) {
-            for (String dest : Interchanges.stations()) {
-                checkRouteForAllDays(start, dest, 9*60, today);
+        for (Location start : Stations.EndOfTheLine) {
+            for (Location dest : Stations.getInterchanges()) {
+                checkRouteNext7Days(start, dest, 9*60, today);
             }
         }
     }
 
     @Test
     public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
-        for (String start : Interchanges.stations() ) {
-            for (String dest : Stations.EndOfTheLine) {
-                checkRouteForAllDays(start,dest, 10*60, today);
+        for (Location start : Stations.getInterchanges() ) {
+            for (Location dest : Stations.EndOfTheLine) {
+                checkRouteNext7Days(start,dest, 10*60, today);
             }
         }
     }
 
     @Test
     public void shouldReproduceIssueWithMissingRoutes() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.TraffordBar.getId(), Stations.ExchangeSquare.getId(), 10*60, today);
+        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, 10*60, today);
     }
 
     @Test
@@ -100,85 +100,85 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteVeloToEtihad() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark.getId(), Stations.Etihad, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Etihad, 8*60, today);
     }
 
     @Test
     public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Victoria.getId(), Stations.ShawAndCrompton, (23*60)+44, today);
+        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, (23*60)+44, today);
     }
 
     @Test
     public void shouldFindRoutePiccadilyGardensToCornbrook() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.PiccadilyGardens.getId(), Stations.Cornbrook.getId(), 23*60, today);
+        validateAtLeastOneJourney(Stations.PiccadilyGardens, Stations.Cornbrook, 23*60, today);
     }
 
     @Test
     public void shouldFindRouteCornbrookToManAirport() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Cornbrook.getId(), Stations.ManAirport.getId(), (23*60)+20, today);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, (23*60)+20, today);
     }
 
     @Test
     public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Deansgate.getId(), Stations.Victoria.getId(), (23*60)+41, today);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, (23*60)+41, today);
     }
 
     @Test
     public void shouldFindRouteVeloToHoltTownAt8AM() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark.getId(), Stations.HoltTown, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, 8*60, today);
     }
 
     @Test
     public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() throws TramchesterException {
         for(int i=0; i<60; i++) {
             int time = (8*60)+i;
-            validateAtLeastOneJourney(Stations.VeloPark.getId(), Stations.HoltTown, time, today);
+            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, today);
         }
     }
 
     @Test
     public void shouldFindRouteVeloToEndOfLines() throws TramchesterException {
-        for (String dest : Stations.EndOfTheLine) {
-            validateAtLeastOneJourney(Stations.VeloPark.getId(), dest, 8*60, today);
+        for (Location dest : Stations.EndOfTheLine) {
+            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, today);
         }
     }
 
     @Test
     public void shouldFindRouteVeloInterchanges() throws TramchesterException {
-        for (String dest : Interchanges.stations()) {
-            validateAtLeastOneJourney(Stations.VeloPark.getId(), dest, 8*60, today);
+        for (Location dest : Stations.getInterchanges()) {
+            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, today);
         }
     }
 
     @Test
     public void shouldFindRouteVeloToDeansgate() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark.getId(), Stations.Deansgate.getId(), 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Deansgate, 8*60, today);
     }
 
     @Test
     public void shouldFindRouteVeloToBroadway() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark.getId(), Stations.Broadway, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Broadway, 8*60, today);
     }
 
     @Test
     public void shouldFindRouteVeloToPomona() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark.getId(), Stations.Pomona, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, 8*60, today);
     }
 
     @Test
     public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Altrincham.getId(), Stations.Victoria.getId(), 23*60, today);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.Victoria, 23*60, today);
     }
 
     @Test
     public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Altrincham.getId(), Stations.ShawAndCrompton, (22*60)+45, today);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, (22*60)+45, today);
     }
 
     @Test
     public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
-        JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.PiccadilyGardens.getId(),
-                Stations.ManAirport.getId(), (23*60)+10, today);
+        JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.PiccadilyGardens,
+                Stations.ManAirport, (23*60)+10, today);
         Journey journey = results.getJourneys().stream().findFirst().get();
 
         assertEquals("number of times for stage one", 3, journey.getStages().get(0).getNumberOfServiceTimes());

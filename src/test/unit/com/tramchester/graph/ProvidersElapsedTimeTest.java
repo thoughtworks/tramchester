@@ -41,7 +41,7 @@ public class ProvidersElapsedTimeTest extends EasyMockSupport {
     };
 
     @Before
-    public void beforeEachTestRuns() {
+    public void beforeEachTestRuns() throws TramchesterException {
         path = createMock(Path.class);
         relationships = new LinkedList<>();
         queryDate = new TramServiceDate(LocalDate.now());

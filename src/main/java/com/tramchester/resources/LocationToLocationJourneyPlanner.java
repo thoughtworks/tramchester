@@ -56,7 +56,7 @@ public class LocationToLocationJourneyPlanner {
     }
 
     private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, int queryTime,
-                                              TramServiceDate queryDate) throws UnknownStationException {
+                                              TramServiceDate queryDate) throws TramchesterException {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).collect(Collectors.toList());
 

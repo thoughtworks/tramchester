@@ -9,13 +9,15 @@ public class GraphBranchState {
     private int startTime;
     private TramServiceDate queryDate;
     private boolean hasStartTime = false;
+    private DaysOfWeek day;
 
-    public GraphBranchState(TramServiceDate queryDate, int queryTime) {
+    public GraphBranchState(TramServiceDate queryDate, int queryTime) throws TramchesterException {
         this.queryDate = queryDate;
         this.queryTime = queryTime;
+        day = queryDate.getDay(); // cached as called many many times during search...
     }
 
-    public GraphBranchState updateStartTime(int startTime) {
+    public GraphBranchState updateStartTime(int startTime) throws TramchesterException {
         return new GraphBranchState(queryDate, queryTime).setStartTime(startTime);
     }
 
@@ -38,8 +40,8 @@ public class GraphBranchState {
         return startTime;
     }
 
-    public DaysOfWeek getDay() throws TramchesterException {
-        return queryDate.getDay();
+    public DaysOfWeek getDay() {
+        return day;
     }
 
     public TramServiceDate getQueryDate() {
