@@ -5,9 +5,9 @@ import org.joda.time.DateTime;
 public enum DaysOfWeek {
     Sunday, Saturday, Friday, Thursday, Wednesday, Tuesday, Monday;
 
-    public static DaysOfWeek fromToday() {
-        return fromDate(DateTime.now());
-    }
+//    public static DaysOfWeek fromToday() {
+//        return fromDate(DateTime.now());
+//    }
 
     public static DaysOfWeek fromDate(DateTime date) {
         int dayOfWeek = date.getDayOfWeek();

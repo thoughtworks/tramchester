@@ -3,7 +3,6 @@ package com.tramchester.resources;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import org.joda.time.LocalDate;
@@ -38,7 +37,7 @@ public class StPeterClosureTests extends JourneyPlannerHelper {
     public void shouldNotFindRouteToStPetersSquare() throws Exception {
         try {
             planner.createJourneyPlan(Stations.Altrincham.getId(), Stations.StPetersSquare,
-                    DaysOfWeek.Monday, today, (11*60)+43);
+                    today, (11*60)+43);
             fail("should have throw");
         }
         catch (UnknownStationException expected) {

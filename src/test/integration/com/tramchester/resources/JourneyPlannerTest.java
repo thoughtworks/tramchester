@@ -7,7 +7,6 @@ import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -57,7 +56,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
 
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
                 Stations.PiccadilyGardens.getId(),
-                DaysOfWeek.Monday, today, 9*60);
+                today, 9*60);
         SortedSet<Journey> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         Journey journey = journeys.first();
@@ -75,7 +74,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @Test
     @Category({BusTest.class})
     public void reproduceIssueWithRoute() throws TramchesterException, IOException {
-        planner.createJourneyPlan("1800SB34231", "1800SB01681", DaysOfWeek.Monday, today, 9*60);
+        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, 9*60);
     }
 
 }

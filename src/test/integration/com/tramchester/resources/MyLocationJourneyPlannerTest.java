@@ -4,13 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.PresentableStage;
+import org.assertj.core.internal.cglib.core.Local;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.Timeout;
@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 
 public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
-    private TramServiceDate today;
+    private LocalDate today;
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10*60);
@@ -41,7 +41,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
     public void beforeEachTestRuns() {
         nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
         nearAltrincham = new LatLong(53.394948299999996D,-2.3581502D);
-        today = new TramServiceDate(LocalDate.now());
+        today = LocalDate.now();
         planner = dependencies.get(JourneyPlannerResource.class);
     }
 
@@ -94,7 +94,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         int queryTime = 23 * 60;
         int walkingTime = 13;
         JourneyPlanRepresentation direct = validateAtLeastOneJourney(Stations.NavigationRoad.getId(),
-                destination, queryTime+walkingTime, DaysOfWeek.Monday, today);
+                destination, queryTime+walkingTime, today);
         assertTrue(direct.getJourneys().size()>0);
 
         validateJourneyFromLocation(nearAltrincham, destination, queryTime);
@@ -104,7 +104,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
     private SortedSet<Journey> validateJourneyFromLocation(LatLong location, String destination, int queryTime)
             throws JsonProcessingException, TramchesterException {
         String startId = JourneyPlannerTest.formId(location);
-        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId, destination, DaysOfWeek.Monday, today, queryTime);
+        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId, destination, new TramServiceDate(today), queryTime);
         SortedSet<Journey> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         List<PresentableStage> stages = journeys.first().getStages();

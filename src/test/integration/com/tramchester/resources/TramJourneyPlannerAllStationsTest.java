@@ -2,7 +2,6 @@ package com.tramchester.resources;
 
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
@@ -55,7 +54,7 @@ public class TramJourneyPlannerAllStationsTest extends JourneyPlannerHelper {
                 String endCode = end.getId();
                 if (!startCode.equals(endCode)) {
                     JourneyPlanRepresentation results = planner.createJourneyPlan(startCode, endCode,
-                            DaysOfWeek.Monday, today,12*60);
+                            today,12*60);
                     assertTrue(results.getJourneys().size() > 0);
                 }
             }

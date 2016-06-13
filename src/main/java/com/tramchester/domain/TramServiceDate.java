@@ -1,7 +1,11 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.exceptions.TramchesterException;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
+
+import static java.lang.String.format;
 
 public class TramServiceDate {
     private org.joda.time.LocalDate date;
@@ -29,6 +33,21 @@ public class TramServiceDate {
     public String toString() {
         return "TramServiceDate{" +
                 "date=" + date +
+                ", day=" + date.getDayOfWeek() +
                 '}';
+    }
+
+    public DaysOfWeek getDay() throws TramchesterException {
+        int dayOfWeek = date.getDayOfWeek();
+        switch (dayOfWeek) {
+            case DateTimeConstants.SUNDAY: return DaysOfWeek.Sunday;
+            case DateTimeConstants.MONDAY: return DaysOfWeek.Monday;
+            case DateTimeConstants.TUESDAY: return DaysOfWeek.Tuesday;
+            case DateTimeConstants.WEDNESDAY: return DaysOfWeek.Wednesday;
+            case DateTimeConstants.THURSDAY: return DaysOfWeek.Thursday;
+            case DateTimeConstants.FRIDAY: return DaysOfWeek.Friday;
+            case DateTimeConstants.SATURDAY: return DaysOfWeek.Saturday;
+        }
+        throw new TramchesterException(format("Cannot find day of week for %s on %s", dayOfWeek, date));
     }
 }

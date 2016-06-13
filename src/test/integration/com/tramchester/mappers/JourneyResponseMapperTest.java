@@ -14,7 +14,7 @@ public class JourneyResponseMapperTest {
     protected TramServiceDate today = new TramServiceDate(LocalDate.now());
 
     protected String findServiceId(String firstId, String secondId, int queryTime) throws UnknownStationException {
-        Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTime, DaysOfWeek.Monday, today);
+        Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTime, today);
         RawJourney rawJourney = found.stream().findFirst().get();
         TransportStage rawStage = rawJourney.getStages().get(0);
         assertEquals(RawVehicleStage.class, rawStage.getClass());

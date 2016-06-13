@@ -9,16 +9,14 @@ import java.util.List;
 public class ClosedStations {
     private List<String> stations;
 
+    // via pico-container & Dependencies
     public ClosedStations(TramchesterConfig config) {
         stations = config.getClosedStations();
     }
 
+    // for testing
     public ClosedStations(List<String> stations) {
         this.stations = stations;
-    }
-
-    public ClosedStations() {
-        this.stations = new ArrayList<>();
     }
 
     public boolean isNotEmpty() {

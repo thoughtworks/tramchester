@@ -42,10 +42,11 @@ public class RouteCalculatorTest {
     public void testJourneyFromAltyToAirport() throws Exception {
         int minutes = dateTimeService.getMinutesFromMidnight("11:43:00");
         TramServiceDate today = new TramServiceDate(LocalDate.now());
-        Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
-                minutes, DaysOfWeek.Sunday, today);
 
-        assertEquals(1, results.size());    // results is iterator
+        Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
+                minutes, today);
+
+        assertTrue(results.size()>0);    // results is iterator
         for (RawJourney result : results) {
             List<TransportStage> stages = result.getStages();
             assertEquals(2, stages.size());

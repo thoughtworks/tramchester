@@ -138,14 +138,14 @@ public class TransportDataFromFilesTest {
     public void shouldHaveAllEndOfLineTramStations() {
         List<Station> allStations = transportData.getStations();
 
-        List<String> endsOfTheLines = Arrays.asList(Stations.EndOfTheLine);
+        List<String> endsOfTheLines = Stations.EndOfTheLine;
 
         List<String> filteredStations = allStations.stream()
                 .map(station -> station.getId())
                 .filter(station -> endsOfTheLines.contains(station))
                 .collect(Collectors.toList());
 
-        assertEquals(Stations.EndOfTheLine.length, filteredStations.size());
+        assertEquals(Stations.EndOfTheLine.size(), filteredStations.size());
     }
 
     @Test

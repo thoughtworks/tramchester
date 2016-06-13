@@ -65,31 +65,31 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestSimpleJourneyIsPossible() throws UnknownStationException {
-        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, SECOND_STATION, queryTime, DaysOfWeek.Monday, queryDate);
+        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, SECOND_STATION, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() throws UnknownStationException {
-        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, queryTime, DaysOfWeek.Monday, queryDate);
+        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() throws UnknownStationException {
-        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, 9*60, DaysOfWeek.Monday, queryDate);
+        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, INTERCHANGE, 9*60, queryDate);
         assertEquals(0, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() throws UnknownStationException {
-        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, LAST_STATION, queryTime, DaysOfWeek.Monday, queryDate);
+        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, LAST_STATION, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws UnknownStationException {
-        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, STATION_FOUR, queryTime, DaysOfWeek.Monday, queryDate);
+        Set<RawJourney> journeys = calculator.calculateRoute(FIRST_STATION, STATION_FOUR, queryTime, queryDate);
         assertEquals(1, journeys.size());
     }
 

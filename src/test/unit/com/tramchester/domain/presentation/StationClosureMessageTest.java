@@ -11,7 +11,7 @@ public class StationClosureMessageTest {
 
     @Test
     public void shouldNotHaveClosedStations() throws Exception {
-        StationClosureMessage stationClosureMessage = new StationClosureMessage(new ClosedStations());
+        StationClosureMessage stationClosureMessage = new StationClosureMessage(new ClosedStations(asList()));
         assertThat(stationClosureMessage.isClosed()).isFalse();
         assertThat(stationClosureMessage.getMessage()).isEmpty();
     }

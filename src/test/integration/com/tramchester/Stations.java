@@ -3,12 +3,17 @@ package com.tramchester;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
+import org.apache.commons.collections.ListUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class Stations {
 
     public static LatLong position = new LatLong(1,1);
 
     public static Location Altrincham = new Station("9400ZZMAALT", "Altrincham area", "Altrincham", position, true);
+    public static Location Ashton = new Station("9400ZZMAAUL", "Ashton area", "Ashton", position, true);
     public static Location ManAirport = new Station("9400ZZMAAIR", "Airport", "Manchester Airport", position, true);
     public static Location TraffordBar = new Station("9400ZZMATRA", "Trafford", "Trafford Bar", position, true);
     public static Location VeloPark = new Station("9400ZZMAVPK", "Velopark area", "Velopark", position, true);
@@ -18,8 +23,6 @@ public class Stations {
     public static String Etihad = "9400ZZMAECS";
     public static Location Piccadily = new Station("9400ZZMAPIC", "Piccadily area", "Piccadily", position, true);
     public static String HoltTown = "9400ZZMAHTN";
-    public static Location Ashton = new Station("9400ZZMAAUL", "Ashton area", "Ashton", position, true);
-    public static String NewIslington = "9400ZZMANIS";
     public static String Eccles = "9400ZZMAECC";
     public static Location Bury = new Station("9400ZZMABUR", "Bury Area", "Bury", position, true);
     public static String EastDidsbury = "9400ZZMAEDY";
@@ -35,12 +38,17 @@ public class Stations {
     public static String ShawAndCrompton = "9400ZZMASHA";
     public static String MarketStreet = "9400ZZMAMKT";
 
-    public static String[] EndOfTheLine = new String[]{Altrincham.getId(),
+    public static List<String> EndOfTheLineWest = Arrays.asList(new String[]{
+            Altrincham.getId(),
             ManAirport.getId(),
             Eccles,
-            EastDidsbury,
+            EastDidsbury});
+
+    public static List<String> EndOfTheLineEast = Arrays.asList(new String[]{
             Ashton.getId(),
             Rochdale.getId(),
             Bury.getId(),
-            ExchangeSquare.getId()};
+            ExchangeSquare.getId()});
+
+    public static List<String> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 }

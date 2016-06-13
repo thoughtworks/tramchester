@@ -51,13 +51,12 @@ public class JourneyPlannerResource {
                                   @QueryParam("departureTime") String departureTime){
         logger.info(format("Plan journey from %s to %s at %s", startId, endId,departureTime));
 
-        DaysOfWeek dayOfWeek = DaysOfWeek.fromToday();
         // TODO expose this as a parameter
         TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
 
         try {
             int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
-            JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, dayOfWeek, queryDate, minutesFromMidnight);
+            JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate, minutesFromMidnight);
             Response response = Response.ok(planRepresentation).build();
             return response;
         } catch (TramchesterException exception) {
@@ -70,14 +69,14 @@ public class JourneyPlannerResource {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId,
-                                                       DaysOfWeek dayOfWeek, TramServiceDate queryDate, int minutesFromMidnight)
+                                                       TramServiceDate queryDate, int minutesFromMidnight)
             throws TramchesterException {
-        logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,dayOfWeek,queryDate,minutesFromMidnight));
+        logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),queryDate,minutesFromMidnight));
         Set<RawJourney> journeys;
         if (startId.startsWith("{") && startId.endsWith("}")) {
-            journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
+            journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, minutesFromMidnight, queryDate);
         } else {
-           journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, dayOfWeek, queryDate);
+           journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
         return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));

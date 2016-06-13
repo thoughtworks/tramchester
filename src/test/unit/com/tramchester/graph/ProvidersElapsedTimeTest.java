@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.easymock.EasyMock;
@@ -46,7 +45,7 @@ public class ProvidersElapsedTimeTest extends EasyMockSupport {
         path = createMock(Path.class);
         relationships = new LinkedList<>();
         queryDate = new TramServiceDate(LocalDate.now());
-        branchState.setState(new GraphBranchState(DaysOfWeek.Friday, queryDate, QUERY_TIME));
+        branchState.setState(new GraphBranchState(queryDate, QUERY_TIME));
         costEvaluator = RouteCalculator.COST_EVALUATOR;
     }
 

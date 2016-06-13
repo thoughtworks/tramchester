@@ -6,6 +6,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.PresentableStage;
+import org.joda.time.LocalDate;
 
 import java.time.LocalTime;
 import java.util.Set;
@@ -29,15 +30,25 @@ public class JourneyPlannerHelper {
         }
     }
 
-    protected JourneyPlanRepresentation validateAtLeastOneJourney(String start, String end, int minsPastMid, DaysOfWeek dayOfWeek,
-                                                                  TramServiceDate queryDate) throws TramchesterException {
-        JourneyPlanRepresentation results = planner.createJourneyPlan(start, end, dayOfWeek, queryDate,minsPastMid);
+    protected JourneyPlanRepresentation validateAtLeastOneJourney(String start, String end, int minsPastMid,
+                                                                  LocalDate date) throws TramchesterException {
+
+        TramServiceDate queryDate = new TramServiceDate(date);
+        JourneyPlanRepresentation results = planner.createJourneyPlan(start, end, queryDate,minsPastMid);
         Set<Journey> journeys = results.getJourneys();
 
-        String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, dayOfWeek);
+        String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, queryDate);
         assertTrue("unable to find journey " + message, journeys.size() > 0);
         checkDepartsAfterPreviousArrival(message, journeys);
         return results;
+    }
+
+    protected void checkRouteForAllDays(String start, String dest, int time, LocalDate date) throws TramchesterException {
+        if (!dest.equals(start)) {
+            for(int day=0; day<7; day++) {
+                validateAtLeastOneJourney(start, dest, time, date.plusDays(day));
+            }
+        }
     }
 
 }

@@ -48,15 +48,15 @@ public class RouteCalculator extends StationIndexs {
         pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);
     }
 
-    public Set<RawJourney> calculateRoute(String startStationId, String endStationId, int queryTime, DaysOfWeek dayOfWeek,
-                                       TramServiceDate queryDate) throws UnknownStationException {
+    public Set<RawJourney> calculateRoute(String startStationId, String endStationId, int queryTime,
+                                          TramServiceDate queryDate) throws UnknownStationException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = getStationNode(startStationId);
             Node endNode = getStationNode(endStationId);
 
-            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, dayOfWeek, queryDate);
+            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate);
             // todo eliminate duplicate journeys that use different services??
 
             mapStreamToJourneySet(journeys, paths, MAX_NUM_GRAPH_PATHS, queryTime);
@@ -66,7 +66,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation, int minutesFromMidnight,
-                                          DaysOfWeek dayOfWeek, TramServiceDate queryDate) throws UnknownStationException {
+                                          TramServiceDate queryDate) throws UnknownStationException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
@@ -87,7 +87,7 @@ public class RouteCalculator extends StationIndexs {
 
             Node endNode = getStationNode(endStation.getId());
 
-            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, dayOfWeek, queryDate);
+            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, queryDate);
 
             int limit = MAX_NUM_GRAPH_PATHS * startStations.size();
             mapStreamToJourneySet(journeys, paths, limit, minutesFromMidnight);
@@ -121,13 +121,12 @@ public class RouteCalculator extends StationIndexs {
         return nodeFactory.getNode(node);
     }
 
-    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, DaysOfWeek dayOfWeek,
-                                                    TramServiceDate queryDate) {
+    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
-                endNode.getProperty(GraphStaticKeys.Station.NAME), dayOfWeek, queryTime));
+                endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));
 
-        GraphBranchState state = new GraphBranchState(dayOfWeek, queryDate, queryTime);
+        GraphBranchState state = new GraphBranchState(queryDate, queryTime);
 
         if (startNode.getProperty(GraphStaticKeys.Station.NAME).equals(queryNodeName)) {
             logger.info("Query node based search, setting start time to actual query time");
