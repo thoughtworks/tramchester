@@ -49,7 +49,7 @@ public class TramJourneyPlannerSummer2016Closures extends JourneyPlannerHelper {
     public void shouldFindAltrinchamToDeansgate() throws TramchesterException {
         checkRouteNext7Days(Stations.Altrincham, Stations.Deansgate, date, AM10);
     }
-    
+
     @Test
     public void shouldFindARochToExSq() throws TramchesterException {
         checkRouteNext7Days(Stations.Rochdale, Stations.ExchangeSquare, date, AM10);
