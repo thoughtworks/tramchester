@@ -7,10 +7,7 @@ import com.tramchester.pages.WelcomePage;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.UnexpectedAlertBehaviour;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogType;
@@ -21,6 +18,8 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -30,6 +29,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -51,6 +51,7 @@ public class UserJourneyTest {
         loggingPrefs.enable(LogType.BROWSER, Level.FINE);
         capabilities.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
         driver = new FirefoxDriver(capabilities);
+        driver.manage().deleteAllCookies();
     }
 
     @After
@@ -63,6 +64,24 @@ public class UserJourneyTest {
         finally {
             driver.close();
         }
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldRedirectDirectToJourneyPageAfterFirstVisit() throws InterruptedException, UnsupportedEncodingException {
+        WelcomePage welcomePage = new WelcomePage(driver);
+        welcomePage.load(testRule.getUrl());
+        assertTrue(welcomePage.hasBeginLink());
+
+        // check cookie now present
+        Cookie cookie = driver.manage().getCookieNamed("tramchesterVisited");
+        String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
+        assertEquals("{\"visited\":true}", cookieContents);
+
+        // check redirect
+        RoutePlannerPage redirectedPage = new RoutePlannerPage(driver);
+        redirectedPage.load(testRule.getUrl());
+        redirectedPage.waitForToStops();
     }
 
     @Test

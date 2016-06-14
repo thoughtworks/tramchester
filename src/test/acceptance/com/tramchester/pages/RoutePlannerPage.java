@@ -53,4 +53,8 @@ public class RoutePlannerPage extends Page {
         List<WebElement> options = select.getOptions();
         return options.stream().map(option -> option.getText()).collect(Collectors.toList());
     }
+
+    public void load(String url) {
+        driver.get(url);
+    }
 }

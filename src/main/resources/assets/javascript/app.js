@@ -1,9 +1,9 @@
 'use strict';
 
-var techLabApp = angular.module('techLabApp', ['ngResource','ngRoute']).
+var techLabApp = angular.module('techLabApp', ['ngResource','ngRoute', 'ngCookies']).
     config(function ($routeProvider, $locationProvider) {
         $routeProvider.
-            when('/', {templateUrl: 'templates/splash.html'}).
+            when('/', {templateUrl: 'templates/splash.html', controller: 'SplashController'}).
             when('/routePlanner', { templateUrl: 'templates/RoutePlanner.html', controller: 'RoutePlannerController'}).
             when('/routeDetails', {templateUrl: 'templates/RouteDetails.html', controller: 'RouteDetailsController'}).
             when('/disclaimer', {templateUrl: 'templates/Disclaimer.html'}).
