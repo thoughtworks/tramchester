@@ -22,7 +22,28 @@ techLabApp.controller('MapController',
                 zoom: 14
             });
 
-            dir = MQ.routing.directions();
+            dir = MQ.routing.directions()
+                .on('success', function(data) {
+                    var legs = data.route.legs,
+                        html = '',
+                        maneuvers,
+                        i;
+
+                    if (legs && legs.length) {
+                        html += '<table><tbody>';
+                        maneuvers = legs[0].maneuvers;
+
+                        for (i=0; i < maneuvers.length; i++) {
+                            html += '<tr>'
+                            html += '<td>' + (i+1) + '.</td>';
+                            html += '<td>'+ maneuvers[i].narrative + '</td>';
+                            html += '</tr>'
+                        }
+                        html += '</tbody></table>';
+
+                        document.getElementById('narrative').innerHTML = html;
+                    }
+                });
 
             dir.route({
                 locations: [
