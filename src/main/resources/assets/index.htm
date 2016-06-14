@@ -22,6 +22,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
     <link href="css/tramchester.css" rel="stylesheet" media="screen">
+    <link href="css/leaflet.css" rel="stylesheet"  />
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
                     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -42,6 +43,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-resource.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-route.min.js"></script>
 <script src="/javascript/lib/angulartics.min.js"></script>
+<!-- CND for leaflet not available over https -->
+<script src="/javascript/lib/leaflet-0.7.5/leaflet.js"></script>
 <script src="/javascript/app.js"></script>
 <script src="/javascript/services/TramchesterCacheService.js"></script>
 <script src="/javascript/controllers/RoutePlannerController.js"></script>
@@ -53,9 +56,9 @@
 <script src="/javascript/resources/TransportStopsResource.js"></script>
 <script src="/javascript/resources/VersionResource.js"></script>
 <script src="/javascript/resources/JourneyPlannerResource.js"></script>
-<script src="/javascript/services/MapService.js"></script>
 <script src="/javascript/services/VersionService.js"></script>
 <script src="/javascript/services/JourneyPlanService.js"></script>
-<script src="https://open.mapquestapi.com/sdk/js/v7.0.s/mqa.toolkit.js?key=Fmjtd%7Cluub20a22h%2C2w%3Do5-9urgd4"></script>
+<script src="https://www.mapquestapi.com/sdk/leaflet/v2.s/mq-map.js?key=Fmjtd%7Cluub20a22h%2C2w%3Do5-9urgd4"></script>
+<script src="https://www.mapquestapi.com/sdk/leaflet/v2.s/mq-routing.js?key=Fmjtd%7Cluub20a22h%2C2w%3Do5-9urgd4"></script>
 </body>
 </html>

@@ -1,12 +1,9 @@
+
 <script type="text/javascript">
     $('#map').css('width', $('#map-container').width());
     $('#map').css('height', (window.innerHeight / 3) * 2 - 80);
-
 </script>
-<!--<div class="navbar tcr-navbar">-->
-<!--<a class="navbar-brand" href="#" onclick="window.history.go(-1); return false;"><span class="glyphicon glyphicon-chevron-left"></span>-->
-<!--Back</a>-->
-<!--</div>-->
+
 <div class="navbar tcr-navbar">
     <div class="container">
         <a class="navbar-button" onclick="window.history.go(-1); return false;"><span class="glyphicon glyphicon-chevron-left"></span>
@@ -14,17 +11,10 @@
         <h5 class="navbar-title">Walking Directions</h5>
     </div>
 </div>
+
 <div class="container" id="map-container">
-    <!--<button class="btn btn-tcr btn-sm" style="position:absolute;top:10px; right:10px; z-index:100;"-->
-            <!--onclick="window.history.go(-1); return false;">-->
-        <!--Close map-->
-    <!--</button>-->
-
-    <div id="map" style="overflow: hidden" ></div>
-
-
-    <div class="tcr-directions" id="narrative">
-    </div>
+    <div id="map"></div>
+    <div class="tcr-directions" id="narrative"></div>
 </div>
 
 <ng-include src="'templates/footer.html'"></ng-include>

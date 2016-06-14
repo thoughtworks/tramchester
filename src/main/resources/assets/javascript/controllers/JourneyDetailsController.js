@@ -9,12 +9,13 @@ techLabApp.controller('JourneyDetailsController',
         $scope.showChangeIndicator = false;
 
         $scope.showMap = function (stage) {
+            var latLong = stage.firstStation.latLong;
             if ($scope.journey.stages.indexOf(stage) == 0) {
-                $location.url('/map?lat=' + stage.firstStation.latitude + "&lon=" + stage.firstStation.longitude
-                    + "&name=" + stage.firstStation.name + "&direction=1");
+                $location.url('/map?lat=' + latLong.lat + "&lon=" + latLong.lon
+                    + "&name=" + stage.firstStation.name + "&showDirections=1");
             } else {
-                $location.url('/map?lat=' + stage.firstStation.latitude + "&lon=" + stage.firstStation.longitude
-                    + "&name=" + stage.firstStation.name + "&direction=0");
+                $location.url('/map?lat=' + latLong.lat + "&lon=" + latLong.lon
+                    + "&name=" + stage.firstStation.name + "&showDirections=0");
             }
         };
 
