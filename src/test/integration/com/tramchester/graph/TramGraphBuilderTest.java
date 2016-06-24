@@ -1,9 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTramTestConfig;
-import com.tramchester.RouteCodes;
-import com.tramchester.Stations;
+import com.tramchester.*;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
@@ -17,6 +14,7 @@ import com.tramchester.graph.Relationships.DepartRelationship;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
@@ -59,10 +57,14 @@ public class TramGraphBuilderTest {
     }
 
     @Test
+    @Category({ClosureTest.class})
+    @Ignore("summer 2016 closure")
     public void shouldHaveCorrectInboundsAtMediaCity() throws TramchesterException {
 
         List<TransportRelationship> inbounds = calculator.getInboundRouteStationRelationships(
-                Stations.MediaCityUK + RouteCodes.PICC_TO_ECCLES);
+                Stations.MediaCityUK );
+                        // this route not present during summer 2016 closure
+                        // + RouteCodes.PICC_TO_ECCLES);
 
         List<BoardRelationship> boards = new LinkedList<>();
         List<TramGoesToRelationship> svcsToMediaCity = new LinkedList<>();
@@ -72,57 +74,54 @@ public class TramGraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        assertEquals(4, svcsToMediaCity.size());
-    }
-
-    @Ignore("No services currently branch")
-    @Test
-    public void shouldHaveService69BranchAtHarbourCityAndGoToMediaCityAndBroadway() throws TramchesterException {
-        String svcId = "Serv001261";  // can go to eccles, media city or trafford bar
-
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES);
-        checkNumberOfServices(svcId, outbounds, 2);
+        //assertEquals(4, svcsToMediaCity.size());
+        // 8 during the clousures
+        assertEquals(8, svcsToMediaCity.size());
     }
 
     @Test
     public void shouldHaveHarbourCityStation() throws UnknownStationException {
 
-        TramNode tramNode = calculator.getStation(Stations.HarbourCity);
+        TramNode tramNode = calculator.getStation(Stations.HarbourCity.getId());
 
         StationNode stationNode = (StationNode) tramNode;
         assertNotNull(stationNode);
 
-        assertEquals(Stations.HarbourCity, stationNode.getId());
+        assertEquals(Stations.HarbourCity.getId(), stationNode.getId());
         assertFalse(stationNode.isRouteStation());
         assertTrue(stationNode.isStation());
         assertEquals("Harbour City", stationNode.getName());
     }
 
     @Test
+    @Category({ClosureTest.class})
+    @Ignore("summer 2016 closure")
     public void shouldHaveHarbourCityRouteStation() throws UnknownStationException {
-
-        TramNode tramNode = calculator.getRouteStation(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES);
-
-        RouteStationNode routeStationNode = (RouteStationNode) tramNode;
-        assertNotNull(routeStationNode);
-
-        assertEquals(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES, routeStationNode.getId());
-        assertFalse(routeStationNode.isStation());
-        assertTrue(routeStationNode.isRouteStation());
-
-        // for data as of 2nd June 2016 this is shown as "Deansgate-Castlefield - MediaCityUK"
-        // it is not clear if this is an issue with the data
-        assertEquals("Piccadilly - MediaCityUK - Eccles", routeStationNode.getRouteName());
-        //assertEquals("Deansgate-Castlefield - MediaCityUK", routeStationNode.getRouteName());
-
-        assertEquals(RouteCodes.PICC_TO_ECCLES, routeStationNode.getRouteId());
+//        TramNode tramNode = calculator.getRouteStation(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES);
+//
+//        RouteStationNode routeStationNode = (RouteStationNode) tramNode;
+//        assertNotNull(routeStationNode);
+//
+//        assertEquals(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES, routeStationNode.getId());
+//        assertFalse(routeStationNode.isStation());
+//        assertTrue(routeStationNode.isRouteStation());
+//
+//        // for data as of 2nd June 2016 this is shown as "Deansgate-Castlefield - MediaCityUK"
+//        // this is an known (i.e. tfgm know) issue with the data
+//        //assertEquals("Piccadilly - MediaCityUK - Eccles", routeStationNode.getRouteName());
+//        assertEquals("Deansgate-Castlefield - MediaCityUK", routeStationNode.getRouteName());
+//
+//        assertEquals(RouteCodes.PICC_TO_ECCLES, routeStationNode.getRouteId());
     }
 
     @Test
+    @Category({ClosureTest.class})
+    @Ignore("summer 2016 closure")
     public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws TramchesterException {
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.Deansgate.getId() + RouteCodes.EAST_DIDS_TO_BURY);
+                Stations.Deansgate.getId() );
+                        //+ RouteCodes.EAST_DIDS_TO_BURY);
+
         List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet);
 
         outbounds.stream().filter(out->out.isGoesTo()).forEach(out -> {
@@ -213,10 +212,12 @@ public class TramGraphBuilderTest {
     }
 
     @Test
+    @Category({ClosureTest.class})
+    @Ignore("summer 2016 closure")
     public void shouldReportServicesAtHarbourCityWithTimes() throws TramchesterException {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity
-                + RouteCodes.PICC_TO_ECCLES);
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity.getId());
+                //+ RouteCodes.PICC_TO_ECCLES);
         reportServices(outbounds);
     }
 

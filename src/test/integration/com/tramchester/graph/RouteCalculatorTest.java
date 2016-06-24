@@ -1,14 +1,13 @@
 package com.tramchester.graph;
 
-import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTramTestConfig;
-import com.tramchester.Stations;
+import com.tramchester.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalDate;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 
 import java.util.*;
 
@@ -62,9 +61,12 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    @Category({ClosureTest.class})
     public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
         List<TransportRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark.getId());
-        assertEquals(2*2, boarding.size()); // 2 platforms * 2 routes
+        //assertEquals(2*2, boarding.size()); // 2 platforms * 2 routes
+
+        assertEquals(3*2, boarding.size()); // 2 platforms * 3 routes during closures
         assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
         assertTrue(boarding.get(1).isBoarding());
         assertTrue(boarding.get(2).isBoarding());

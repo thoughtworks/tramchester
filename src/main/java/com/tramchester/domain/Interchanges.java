@@ -1,8 +1,10 @@
 package com.tramchester.domain;
 
+import org.apache.commons.collections4.ListUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Interchanges {
@@ -18,17 +20,16 @@ public class Interchanges {
     public static final String HARBOURCITY = "9400ZZMAHCY";
     public static final String SHAW_AND_CROMPTON = "9400ZZMASHA";
 
-    private static final Set<String> interchanges = new HashSet<>(Arrays.asList(
-            CORNBROOK,
-            // ST_PETERS_SQUARE, closed until 2016
-            PIC_GARDENS,
-            TRAF_BAR,
-            ST_WS_ROAD,
-            VICTORIA,
-            PICCADILLY, // not official interchange, but some routes terminate here
-            HARBOURCITY, // not official, but eccles services and branch here to media city
-            DEANSGATE,
-            SHAW_AND_CROMPTON));
+
+    public static List<String> eastInterchanges = Arrays.asList(new String[] {
+            PIC_GARDENS, VICTORIA, SHAW_AND_CROMPTON, PICCADILLY
+    });
+
+    public static List<String> westInterchanges = Arrays.asList(new String[] {
+            CORNBROOK, TRAF_BAR, ST_WS_ROAD, HARBOURCITY, DEANSGATE});
+
+    // the split into east and west is to make the st peters square closure tests easier to maintain
+    private static final Set<String> interchanges = new HashSet<>(ListUtils.union(eastInterchanges,westInterchanges));
 
     public static boolean has(Location station) {
         // TODO changes for Buses

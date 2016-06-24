@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 
+import com.tramchester.ClosureTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
@@ -10,6 +11,7 @@ import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import org.joda.time.LocalDate;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 
 import javax.ws.rs.core.Response;
@@ -45,6 +47,8 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
+    @Category(ClosureTest.class)
+    @Ignore("Summer 2016 closure")
     public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -54,6 +58,8 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
+    @Category(ClosureTest.class)
+    @Ignore("Summer 2016 closure")
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {
         for (Location start :  Stations.getInterchanges()) {
             for (Location dest : Stations.getInterchanges()) {
@@ -63,6 +69,8 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
+    @Category(ClosureTest.class)
+    @Ignore("Summer 2016 closure")
     public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.getInterchanges()) {
@@ -72,6 +80,8 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
+    @Ignore("summer closures")
+    @Category(ClosureTest.class)
     public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.getInterchanges() ) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -177,11 +187,11 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
-        JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.PiccadilyGardens,
+        JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,
                 Stations.ManAirport, (23*60)+10, today);
         Journey journey = results.getJourneys().stream().findFirst().get();
 
-        assertEquals("number of times for stage one", 3, journey.getStages().get(0).getNumberOfServiceTimes());
+        assertEquals("number of times for stage one", 4, journey.getStages().get(0).getNumberOfServiceTimes());
         assertEquals("number of times for stage two", 1, journey.getStages().get(1).getNumberOfServiceTimes());
         assertEquals("available times", 1, journey.getNumberOfTimes());
     }

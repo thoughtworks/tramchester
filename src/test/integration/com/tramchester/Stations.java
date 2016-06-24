@@ -4,7 +4,7 @@ import com.tramchester.domain.Interchanges;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
-import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections4.ListUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,10 +36,10 @@ public class Stations {
     public static Location Victoria = createStation("9400ZZMAVIC", "Manchester", "Victoria");
     public static Location NavigationRoad = createStation("9400ZZMANAV", "Altrincham", "Navigation Road");
     public static Location ShawAndCrompton = createStation("9400ZZMASHA", "Shaw and Crompton Area", "Shaw And Crompton");
+    public static Location HarbourCity = createStation("9400ZZMAHCY", "Harbour City", "Harbour City area");
 
     public static String MarketStreet = "9400ZZMAMKT";
     public static String MediaCityUK = "9400ZZMAMCU";
-    public static String HarbourCity = "9400ZZMAHCY";
     public static String StPetersSquare = "9400ZZMASTP";
 
 
@@ -58,11 +58,22 @@ public class Stations {
     public static List<Location> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 
     public static List<Location> getInterchanges() {
-        Set<String> ids = Interchanges.stations();
+        return toLocationList(Interchanges.stations());
+    }
+
+    private static List<Location> toLocationList(Set<String> ids) {
         return ids.stream().map(id -> createStation(id, "area", "name")).collect(Collectors.toList());
     }
 
     private static Station createStation(String id, String area, String name) {
         return new Station(id, area, name, position, true);
+    }
+
+    public static List<Location> getWestInterchanges() {
+        return Interchanges.westInterchanges.stream().map(id -> createStation(id, "area", "name")).collect(Collectors.toList());
+    }
+
+    public static List<Location> getEastInterchanges() {
+        return Interchanges.eastInterchanges.stream().map(id -> createStation(id, "area", "name")).collect(Collectors.toList());
     }
 }

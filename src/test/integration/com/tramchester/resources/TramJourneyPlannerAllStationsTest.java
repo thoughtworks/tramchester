@@ -1,5 +1,6 @@
 package com.tramchester.resources;
 
+import com.tramchester.ClosureTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.domain.Location;
@@ -10,6 +11,7 @@ import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.repository.TransportData;
 import org.joda.time.LocalDate;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 
 import java.io.IOException;
@@ -45,6 +47,8 @@ public class TramJourneyPlannerAllStationsTest extends JourneyPlannerHelper {
 
 
     @Test
+    @Ignore("Summer 2016 closure")
+    @Category(ClosureTest.class)
     public void shouldFindRouteEachStationToEveryOther() throws TramchesterException {
         TransportData data = dependencies.get(TransportData.class);
         List<Station> allStations = data.getStations();

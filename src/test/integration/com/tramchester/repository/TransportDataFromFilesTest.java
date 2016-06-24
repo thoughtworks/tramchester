@@ -1,16 +1,11 @@
 package com.tramchester.repository;
 
 
-import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTramTestConfig;
-import com.tramchester.RouteCodes;
-import com.tramchester.Stations;
+import com.tramchester.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.ServiceTime;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -111,6 +106,8 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
+    @Ignore("Not during summer closures")
+    @Category(ClosureTest.class)
     public void shouldGetTripsAfter() {
         // use TramJourneyPlannerTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
@@ -122,7 +119,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv003453");
+        Service svc = transportData.getServiceById("Serv005082");
         List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertFalse(trips.isEmpty());
