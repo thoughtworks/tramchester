@@ -5,12 +5,14 @@ techLabApp.controller('RouteDetailsController',
         var start = $location.search().start;
         var end = $location.search().end;
         var departureTime = $location.search().departureTime;
+        var departureDate = $location.search().departureDate;
+
         transportStops.getClosures().get(function(closure){
            $scope.closure = closure;
         });
 
         if (journeyPlanService.getPlan() == null) {
-            journeyPlanner.quickestRoute(start, end, departureTime).get(function (journeyPlan) {
+            journeyPlanner.quickestRoute(start, end, departureTime,departureDate).get(function (journeyPlan) {
                 journeyPlanService.setPlan(journeyPlan, start, end, departureTime);
                 $scope.journeyPlan = journeyPlanService.getPlan();
                 if($scope.journeyPlan.journeys.length == 0){

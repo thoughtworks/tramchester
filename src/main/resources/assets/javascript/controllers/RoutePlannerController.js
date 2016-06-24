@@ -11,10 +11,13 @@ techLabApp.controller('RoutePlannerController',
 
         $scope.findRoute = function (fromStop, toStop, departureTime, journeyPlanForm) {
             if (journeyPlanForm.$valid) {
-                var hour = departureTime.getHours() > 9 ? departureTime.getHours().toString() : "0" + departureTime.getHours().toString();
-                var minutes = departureTime.getMinutes() > 9 ? departureTime.getMinutes().toString() : "0" + departureTime.getMinutes().toString();
-                var time=  hour + ":" + minutes;
-                $location.url('/routeDetails?start=' + fromStop + '&end=' + toStop + "&departureTime=" + time);
+                var time = moment(departureTime).format('HH:mm');
+                var date = moment(departureTime).format('YYYY-MM-DD');
+                $location.url('/routeDetails?start=' + fromStop +
+                    '&end=' + toStop +
+                    '&departureTime=' + time +
+                        '&departureDate=' + date
+                );
             }
         };
 
@@ -74,7 +77,7 @@ techLabApp.controller('RoutePlannerController',
 
         function getCurrentTime() {
             var currentDate = new Date();
-            return  new Date(currentDate.getYear(), currentDate.getDay(), currentDate.getDay(),
+            return  new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(),
                 currentDate.getHours(), currentDate.getMinutes(), 0, 0);
         }
     });

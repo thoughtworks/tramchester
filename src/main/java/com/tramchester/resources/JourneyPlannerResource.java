@@ -47,12 +47,14 @@ public class JourneyPlannerResource {
 
     @GET
     @Timed
-    public Response quickestRoute(@QueryParam("start") String startId, @QueryParam("end") String endId,
-                                  @QueryParam("departureTime") String departureTime){
-        logger.info(format("Plan journey from %s to %s at %s", startId, endId,departureTime));
+    public Response quickestRoute(@QueryParam("start") String startId,
+                                  @QueryParam("end") String endId,
+                                  @QueryParam("departureTime") String departureTime,
+                                  @QueryParam("departureDate") String departureDate){
+        logger.info(format("Plan journey from %s to %s at %s on %s", startId, endId,departureTime, departureDate));
 
-        // TODO expose this as a parameter
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
+        LocalDate date = new LocalDate(departureDate);
+        TramServiceDate queryDate = new TramServiceDate(date);
 
         try {
             int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);

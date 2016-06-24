@@ -7,7 +7,6 @@ import com.javadocmd.simplelatlng.util.LengthUnit;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.repository.StationRepository;
