@@ -18,9 +18,9 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Set;
 
+import static org.joda.time.DateTimeConstants.MONDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
@@ -148,8 +148,11 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteVeloToEndOfLines() throws TramchesterException {
+        int offsetToMonday = MONDAY-today.getDayOfWeek();
+        LocalDate nextMonday = today.plusDays(offsetToMonday);
+
         for (Location dest : Stations.EndOfTheLine) {
-            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, today);
+            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, nextMonday);
         }
     }
 
@@ -191,9 +194,9 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
                 Stations.ManAirport, (23*60)+10, today);
         Journey journey = results.getJourneys().stream().findFirst().get();
 
-        assertEquals("number of times for stage one", 4, journey.getStages().get(0).getNumberOfServiceTimes());
-        assertEquals("number of times for stage two", 1, journey.getStages().get(1).getNumberOfServiceTimes());
-        assertEquals("available times", 1, journey.getNumberOfTimes());
+        assertEquals("number of times for stage one", 5, journey.getStages().get(0).getNumberOfServiceTimes());
+        assertEquals("number of times for stage two", 5, journey.getStages().get(1).getNumberOfServiceTimes());
+        assertEquals("available times", 5, journey.getNumberOfTimes());
     }
 
     @Test
