@@ -55,7 +55,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         String startId = formId(startLocation);
 
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
-                Stations.PiccadilyGardens.getId(),
+                Stations.PiccadillyGardens.getId(),
                 today, 9*60);
         SortedSet<Journey> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);

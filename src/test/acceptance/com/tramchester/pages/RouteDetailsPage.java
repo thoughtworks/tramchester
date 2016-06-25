@@ -46,4 +46,8 @@ public class RouteDetailsPage extends Page {
     private String formJourneyPanelId(int index) {
         return "journeyPanel" + Integer.toString(index);
     }
+
+    public boolean waitForError() {
+        return waitForElement("NoRoutes", 2*timeOut).isEnabled();
+    }
 }

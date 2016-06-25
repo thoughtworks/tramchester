@@ -3,16 +3,17 @@
 techLabApp.controller('RoutePlannerController',
     function RoutePlannerController($scope, transportStops, journeyPlanner, $location, journeyPlanService) {
         $scope.selectedStop = null;
-        $scope.departureTime = getCurrentTime();
+        $scope.departureTime = getCurrentTime(); // in model
+        $scope.departureDate = getCurrentTime(); // in model
         $scope.fromStop = journeyPlanService.getStart();
         $scope.toStop = journeyPlanService.getEnd();
 
         journeyPlanService.removePlan();
 
-        $scope.findRoute = function (fromStop, toStop, departureTime, journeyPlanForm) {
+        $scope.findRoute = function (fromStop, toStop, departureTime, departureDate, journeyPlanForm) {
             if (journeyPlanForm.$valid) {
                 var time = moment(departureTime).format('HH:mm');
-                var date = moment(departureTime).format('YYYY-MM-DD');
+                var date = moment(departureDate).format('YYYY-MM-DD');
                 $location.url('/routeDetails?start=' + fromStop +
                     '&end=' + toStop +
                     '&departureTime=' + time +
@@ -71,7 +72,6 @@ techLabApp.controller('RoutePlannerController',
             transportStops.getAll().query(function (stopList) {
                 $scope.stops = stopList;
                 $scope.filterDestinationStop($scope.fromStop);
-                tramchesterCacheService.addStops("All", stopList);
             });
         }
 

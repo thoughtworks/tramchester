@@ -196,6 +196,10 @@ html {
     border-bottom: 1px solid #fffbb3;
 }
 
+.tcr-date {
+    visibility: hidden;
+}
+
 /*! Directions */
 
 .tcr-directions table {

@@ -1,7 +1,9 @@
 package com.tramchester.pages;
 
 
+import org.joda.time.LocalDate;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -56,5 +58,16 @@ public class RoutePlannerPage extends Page {
 
     public void load(String url) {
         driver.get(url);
+    }
+
+    public void setDate(LocalDate value) {
+        JavascriptExecutor jse = (JavascriptExecutor)driver;
+        // make the hidden date element visible so we can input text
+        jse.executeScript("document.getElementById('date').style.visibility='visible';");
+
+        WebElement date = findElementById("date");
+        date.clear();
+        String input = value.toString("YYYY-MM-dd");
+        date.sendKeys(input);
     }
 }

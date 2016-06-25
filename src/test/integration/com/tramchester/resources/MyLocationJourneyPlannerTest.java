@@ -11,7 +11,6 @@ import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.PresentableStage;
-import org.assertj.core.internal.cglib.core.Local;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.Timeout;
@@ -58,7 +57,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void planRouteAllowingForWalkingTime() throws JsonProcessingException, TramchesterException {
-        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Piccadily.getId(), (22 * 60) + 9);
+        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Piccadilly.getId(), (22 * 60) + 9);
         assertEquals(1, journeys.size());
         Journey first = journeys.first();
 
@@ -74,13 +73,13 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindStationsNearPiccGardensWalkingOnly() throws JsonProcessingException, TramchesterException {
-        SortedSet<Journey> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadilyGardens.getId(), 9 * 60);
+        SortedSet<Journey> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadillyGardens.getId(), 9 * 60);
         assertEquals(1, journeys.size());
         Journey first = journeys.first();
         List<PresentableStage> stages = first.getStages();
         assertEquals(LocalTime.of(9,00), first.getFirstDepartureTime());
         assertEquals(LocalTime.of(9,03), first.getExpectedArrivalTime());
-        assertEquals(Stations.PiccadilyGardens, first.getEnd());
+        assertEquals(Stations.PiccadillyGardens, first.getEnd());
 
         assertEquals(1, stages.size());
         PresentableStage stage = stages.get(0);
@@ -90,7 +89,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteNearEndOfServiceTimes() throws JsonProcessingException, TramchesterException {
-        Location destination = Stations.PiccadilyGardens;
+        Location destination = Stations.PiccadillyGardens;
 
         int queryTime = 23 * 60;
         int walkingTime = 13;

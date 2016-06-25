@@ -148,10 +148,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     @Test
     public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
         int pm23 = 23 * 60;
-        String svcId = findServiceId(Stations.PiccadilyGardens.getId(), Stations.Cornbrook.getId(), pm23);
+        String svcId = findServiceId(Stations.PiccadillyGardens.getId(), Stations.Cornbrook.getId(), pm23);
 
         int elapsedTime = pm23 +1;
-        RawVehicleStage picToCorn = new RawVehicleStage(Stations.PiccadilyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage picToCorn = new RawVehicleStage(Stations.PiccadillyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
         picToCorn.setLastStation(Stations.Cornbrook);
         // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
         picToCorn.setServiceId(svcId);

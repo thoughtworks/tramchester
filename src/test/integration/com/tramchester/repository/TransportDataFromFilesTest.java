@@ -142,7 +142,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldFindTripsForTramStation() {
         Set<Trip> altyTrips = transportData.getTripsFor(Stations.Altrincham.getId());
-        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham.getId(), Stations.Piccadily.getId(),
+        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham.getId(), Stations.Piccadilly.getId(),
                 MINUTES_FROM_MIDNIGHT_8AM));
 
         assertFalse(altyTrips.isEmpty());
@@ -151,7 +151,7 @@ public class TransportDataFromFilesTest {
         int count = 0;
         for (Stop stop : trip.getStops()) {
             count++;
-            if (stop.getStation().getId().equals(Stations.Piccadily)) {
+            if (stop.getStation().getId().equals(Stations.Piccadilly)) {
                 break;
             }
         }
@@ -175,7 +175,7 @@ public class TransportDataFromFilesTest {
 
         for(Service svc : mondayServices) {
             if (transportData.getTimes(svc.getServiceId(),
-                    Stations.VeloPark, Stations.Piccadily, MINUTES_FROM_MIDNIGHT_8AM).size()>0) {
+                    Stations.VeloPark, Stations.Piccadilly, MINUTES_FROM_MIDNIGHT_8AM).size()>0) {
                 veloToPiccadily.add(svc);
             }
         }

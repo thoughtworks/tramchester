@@ -49,9 +49,15 @@
                                placeholder="HH:mm"
                                required
                                ng-model="departureTime">
+                        <input id="date"
+                               type="date"
+                               class="tcr-date form-control input-lg"
+                               placeholder="dd/MM/YYYY"
+                               required
+                               ng-model="departureDate">
                     </div>
                     <button type="submit" id="plan" class="btn btn-default btn-lg btn-block"
-                            ng-click="findRoute(fromStop, toStop, departureTime, journeyPlanForm)">
+                            ng-click="findRoute(fromStop, toStop, departureTime, departureDate, journeyPlanForm)">
                         Find Routes
                     </button>
                 </fieldset>

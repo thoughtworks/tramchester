@@ -16,13 +16,13 @@ public class Stations {
     public static LatLong position = new LatLong(1,1);
 
     public static Location Altrincham = createStation("9400ZZMAALT", "Altrincham area", "Altrincham");
-    public static Location Ashton = createStation("9400ZZMAAUL", "Ashton area", "Ashton");
+    public static Location Ashton = createStation("9400ZZMAAUL", "Ashton area", "Ashton-Under-Lyne");
     public static Location ManAirport = createStation("9400ZZMAAIR", "Airport", "Manchester Airport");
     public static Location TraffordBar = createStation("9400ZZMATRA", "Trafford", "Trafford Bar");
     public static Location VeloPark = createStation("9400ZZMAVPK", "Velopark area", "Velopark");
     public static Location Cornbrook = createStation("9400ZZMACRN", "Cornbrook area", "Cornbrook");
     public static Location Etihad = createStation("9400ZZMAECS", "Etihad area", "Etihad");
-    public static Location Piccadily = createStation("9400ZZMAPIC", "Piccadily area", "Piccadily");
+    public static Location Piccadilly = createStation("9400ZZMAPIC", "Piccadilly area", "Piccadilly");
     public static Location HoltTown = createStation("9400ZZMAHTN", "Holt Area", "Hold Town");
     public static Location Eccles = createStation("9400ZZMAECC", "Eccles Area", "Eccles");
     public static Location Bury = createStation("9400ZZMABUR", "Bury Area", "Bury");
@@ -31,7 +31,7 @@ public class Stations {
     public static Location Pomona = createStation("9400ZZMAPOM", "Pomona", "Pomona");
     public static Location Deansgate = createStation("9400ZZMAGMX", "Deansgate area", "Deansgate-Castlefield");
     public static Location Broadway = createStation("9400ZZMABWY", "Broadway area", "Broadway");
-    public static Location PiccadilyGardens = createStation("9400ZZMAPGD", "Manchester", "Piccadily Gardens");
+    public static Location PiccadillyGardens = createStation("9400ZZMAPGD", "Manchester", "Piccadilly Gardens");
     public static Location ExchangeSquare = createStation("9400ZZMAEXS", "Manchester", "Exchange Square");
     public static Location Victoria = createStation("9400ZZMAVIC", "Manchester", "Victoria");
     public static Location NavigationRoad = createStation("9400ZZMANAV", "Altrincham", "Navigation Road");
