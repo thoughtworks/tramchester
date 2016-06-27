@@ -23,11 +23,17 @@ if [ "$REDIRECTHTTP" == '' ]; then
         export REDIRECTHTTP=false
 fi
 
+export EXPERIMENTAL=true
+if [ "$ENV" == 'ProdBlue' ] || [ "$ENV" == 'ProdGreen' ]; then
+    unset EXPERIMENTAL
+fi
+
 logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $ENV
 
 # fetch and install the package
 distUrl=$ARTIFACTSURL/$BUILD/tramchester-1.0.zip
 dist=`basename $distUrl`
+
 # set up overrides for server config so data is pulled at start up
 export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
 export TRAM_PULLDATA=true

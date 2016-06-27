@@ -45,7 +45,6 @@ public class JourneyTest {
 
         assertEquals(LocalTime.of(23,50), set.first().getExpectedArrivalTime());
         assertEquals(LocalTime.of(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
-
     }
 
     @Test
@@ -58,7 +57,7 @@ public class JourneyTest {
         List<PresentableStage> stages = new LinkedList<>();
         Location start = new MyLocation(new LatLong(-2,1));
         Location destination = Stations.Cornbrook;
-        stages.add(new WalkingStage(3, start, destination, 8*60));
+        stages.add(new WalkingStage(start, destination, 8*60, 3));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate));
 
         Journey journey = new Journey(stages);
@@ -112,12 +111,25 @@ public class JourneyTest {
     @Test
     public void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() {
         List<PresentableStage> stages = new LinkedList<>();
-        stages.add(new WalkingStage(2, new MyLocation(new LatLong(-1,2)), Stations.Victoria, 8*60));
+        stages.add(new WalkingStage(new MyLocation(new LatLong(-1,2)), Stations.Victoria, 8*60, 2));
 
         Journey journey = new Journey(stages);
 
         assertEquals("Direct", journey.getSummary());
         assertEquals("Walk with No Changes - 2 minutes", journey.getHeading());
+    }
+
+    @Test
+    public void shouldHaveCorrectSummaryAndHeadingForTramStagesConnectedByWalk() {
+        List<PresentableStage> stages = new LinkedList<>();
+        stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate));
+        stages.add(new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 8*60, 14));
+        stages.add(createStage(Stations.MarketStreet, TravelAction.Change, Stations.Bury));
+
+        Journey journey = new Journey(stages);
+
+        assertEquals("Change at Deansgate-Castlefield and Market Street", journey.getSummary());
+        assertEquals("Tram and Walk with 2 changes - 12 minutes", journey.getHeading());
     }
 
     private List<PresentableStage> createThreeStages() {

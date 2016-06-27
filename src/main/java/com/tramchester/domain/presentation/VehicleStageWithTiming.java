@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -118,4 +119,5 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
     public int getNumberOfServiceTimes() {
         return serviceTimes.size();
     }
+
 }

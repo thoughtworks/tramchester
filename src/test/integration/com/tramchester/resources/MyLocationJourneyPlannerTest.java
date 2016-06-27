@@ -57,7 +57,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void planRouteAllowingForWalkingTime() throws JsonProcessingException, TramchesterException {
-        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Piccadilly.getId(), (22 * 60) + 9);
+        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(), (22 * 60) + 9);
         assertEquals(1, journeys.size());
         Journey first = journeys.first();
 
@@ -67,8 +67,8 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         assertEquals(LocalTime.of(22,9), walkingStage.getFirstDepartureTime());
         assertEquals(LocalTime.of(22,22), walkingStage.getExpectedArrivalTime());
 
-        assertEquals(LocalTime.of(22,34), first.getFirstDepartureTime());
-        assertEquals(LocalTime.of(23,5), first.getExpectedArrivalTime());
+        assertEquals(LocalTime.of(22,24), first.getFirstDepartureTime());
+        assertEquals(LocalTime.of(22,43), first.getExpectedArrivalTime());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteNearEndOfServiceTimes() throws JsonProcessingException, TramchesterException {
-        Location destination = Stations.PiccadillyGardens;
+        Location destination = Stations.Deansgate;
 
         int queryTime = 23 * 60;
         int walkingTime = 13;
@@ -98,7 +98,6 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         assertTrue(direct.getJourneys().size()>0);
 
         validateJourneyFromLocation(nearAltrincham, destination.getId(), queryTime);
-
     }
 
     private SortedSet<Journey> validateJourneyFromLocation(LatLong location, String destination, int queryTime)

@@ -30,7 +30,8 @@ public class LocationToLocationJourneyPlanner {
     private RouteCalculator routeCalculator;
     private StationRepository stationRepository;
 
-    public LocationToLocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config, RouteCalculator routeCalculator, StationRepository stationRepository) {
+    public LocationToLocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config,
+                                            RouteCalculator routeCalculator, StationRepository stationRepository) {
         this.spatialService = spatialService;
         this.walkingSpeed = config.getWalkingMPH();
         this.routeCalculator = routeCalculator;

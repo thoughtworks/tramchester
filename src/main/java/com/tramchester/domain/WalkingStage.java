@@ -2,17 +2,16 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.PresentableStage;
-import com.tramchester.graph.Nodes.TramNode;
 
 import java.time.LocalTime;
 
 public class WalkingStage implements PresentableStage {
-    private final Location destination;
     private final Location start;
+    private final Location destination;
     private int cost;
     private int beginTime;
 
-    public WalkingStage(int cost, Location start, Location destination, int beginTime) {
+    public WalkingStage(Location start, Location destination, int beginTime, int cost) {
         this.cost = cost;
         this.destination = destination;
         this.start = start;
@@ -45,17 +44,17 @@ public class WalkingStage implements PresentableStage {
     }
 
     @Override
+    public Location getActionStation() {
+        return destination;
+    }
+
+    @Override
     public Location getLastStation() {
         return destination;
     }
 
     @Override
-    public Location getFirstStation() {
-        if (start instanceof MyLocation) {
-            return destination;
-        }
-        return start;
-    }
+    public Location getFirstStation() { return start; }
 
     @Override
     public LocalTime getFirstDepartureTime() {

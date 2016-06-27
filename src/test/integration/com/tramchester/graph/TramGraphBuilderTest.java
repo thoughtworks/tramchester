@@ -122,7 +122,7 @@ public class TramGraphBuilderTest {
                 Stations.Deansgate.getId() );
                         //+ RouteCodes.EAST_DIDS_TO_BURY);
 
-        List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet);
+        List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet.getId());
 
         outbounds.stream().filter(out->out.isGoesTo()).forEach(out -> {
                     TramGoesToRelationship goesTo = (TramGoesToRelationship) out;

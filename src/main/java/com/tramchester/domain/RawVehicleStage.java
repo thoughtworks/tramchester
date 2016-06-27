@@ -51,6 +51,8 @@ public class RawVehicleStage implements TransportStage {
         return lastStation;
     }
 
+    public Location getActionStation() { return firstStation; }
+
     public String getRouteName() {
         return routeName;
     }

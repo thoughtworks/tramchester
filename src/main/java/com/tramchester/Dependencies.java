@@ -13,6 +13,7 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.graph.PathToStagesMapper;
+import com.tramchester.graph.TransportGraphAddWalkingRoutes;
 import com.tramchester.mappers.GenericJourneyResponseMapper;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -62,8 +63,9 @@ public class Dependencies {
             dataCleanser.run(configuration);
             logger.info("Data cleansing finished");
         }
+
         logger.info("Creating dependencies");
-        // caching on by default
+        // caching is on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(ClosedStations.class);
@@ -82,6 +84,7 @@ public class Dependencies {
 
         TransportDataReader dataReader = new TransportDataReader(outputPath);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
+
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);
@@ -92,6 +95,8 @@ public class Dependencies {
         picoContainer.addComponent(PathToStagesMapper.class);
         picoContainer.addComponent(LocationToLocationJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
+        picoContainer.addComponent(SpatialDatabaseService.class);
+        picoContainer.addComponent(TransportGraphAddWalkingRoutes.class);
 
         rebuildGraph(configuration);
 
@@ -108,7 +113,6 @@ public class Dependencies {
 
         File graphFile = new File(graphName);
 
-        picoContainer.addComponent(SpatialDatabaseService.class);
         if (configuration.isRebuildGraph()) {
             logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
             try {
@@ -129,6 +133,11 @@ public class Dependencies {
             picoContainer.getComponent(StationLocalityService.class).populateLocality();
         }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
+
+        if (configuration.addWalkingRoutes()) {
+            picoContainer.getComponent(TransportGraphAddWalkingRoutes.class).addCityCentreWalkingRoutes();
+        }
+
     }
 
     public <T> T get(Class<T> klass) {

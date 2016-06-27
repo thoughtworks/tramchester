@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 public class UserJourneyTest {
 
     @ClassRule
-    public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, "config/local.yml");
+    public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, "config/localAcceptance.yml");
     private WebDriver driver;
 
     @Rule
@@ -95,7 +95,7 @@ public class UserJourneyTest {
         List<String> changes = Arrays.asList(Stations.Deansgate.getName());
         List<String> headSigns = Arrays.asList("Etihad Campus", "Bury");
         JourneyDetailsPage journeyDetailsPage = checkJourney(Stations.Altrincham.getName(), Stations.Bury.getName(),
-                when, "10:15", changes, headSigns);
+                when, "10:15", changes, headSigns, false);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
     }
@@ -137,7 +137,7 @@ public class UserJourneyTest {
         List<String> headSigns = Arrays.asList("Cornbrook");
         JourneyDetailsPage journeyDetailsPage = checkJourney(Stations.ManAirport.getName(),
                 Stations.Deansgate.getName(), when, "10:15", changes,
-                headSigns);
+                headSigns, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
     }
@@ -149,7 +149,7 @@ public class UserJourneyTest {
         List<String> headSigns = Arrays.asList("Deansgate-Castlefield");
 
         checkJourney(Stations.Altrincham.getName(), Stations.Deansgate.getName(),
-                when, "10:15", changes, headSigns);
+                when, "10:15", changes, headSigns, false);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class UserJourneyTest {
         List<String> headSigns = Arrays.asList("Bury");
 
         checkJourney(Stations.Ashton.getName(), Stations.PiccadillyGardens.getName(),
-                when, "10:15", changes, headSigns);
+                when, "10:15", changes, headSigns, false);
     }
 
     @Test
@@ -170,14 +170,50 @@ public class UserJourneyTest {
         List<String> headSigns = Arrays.asList("Etihad Campus");
 
         checkJourney(Stations.Altrincham.getName(), Stations.ExchangeSquare.getName(),
-                when, "10:15", changes, headSigns);
+                when, "10:15", changes, headSigns, false);
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldHaveWalkingRoutesAcrossCity() throws InterruptedException {
+        List<String> changes = Arrays.asList(Stations.Deansgate.getName(),  Stations.MarketStreet.getName());
+        List<String> headSigns = Arrays.asList("Deansgate-Castlefield", "none", "Bury");
+
+        String fromStop = Stations.Altrincham.getName();
+        String toStop = Stations.Bury.getName();
+
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(fromStop,
+                toStop, when, "10:15");
+
+        String fromStationText = checkRoutes(fromStop, toStop, changes, true, routeDetailsPage);
+
+        JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
+
+        assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
+
+        checkStage(0, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
+        checkStage(1, journeyDetailsPage, fromStop, toStop, changes, headSigns, true);
+        checkStage(2, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
     }
 
     private JourneyDetailsPage checkJourney(String fromStop, String toStop, LocalDate date, String time, List<String> changes,
-                                            List<String> headSigns) throws InterruptedException {
+                                            List<String> headSigns, boolean embeddedWalk) throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(fromStop, toStop, date, time);
 
+        String fromStationText = checkRoutes(fromStop, toStop, changes, embeddedWalk, routeDetailsPage);
+
+        JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
+
+        assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
+
+        for(int index=0; index<headSigns.size(); index++) {
+            checkStage(index, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
+        }
+        return journeyDetailsPage;
+    }
+
+    private String checkRoutes(String fromStop, String toStop, List<String> changes, boolean embeddedWalk, RouteDetailsPage routeDetailsPage) {
         assertTrue(routeDetailsPage.waitForRoutes());
         assertTrue(routeDetailsPage.journeyPresent(0));
 
@@ -190,7 +226,12 @@ public class UserJourneyTest {
         if (changes.isEmpty()) {
             assertThat(heading, startsWith("Tram with No Changes - "));
         } else {
-            assertThat(heading, startsWith(format("Tram with %s change%s - ", changes.size(), plural)));
+            if (!embeddedWalk) {
+                assertThat(heading, startsWith(format("Tram with %s change%s - ", changes.size(), plural)));
+            } else {
+                assertThat(heading, startsWith(format("Tram and Walk with %s change%s - ", changes.size(), plural)));
+
+            }
         }
         assertThat(heading, endsWith(" minutes"));
         String fromStationText = " from " + fromStop;
@@ -202,15 +243,7 @@ public class UserJourneyTest {
             String summaryResult = (changes.size() == 1) ? changes.get(0) : format("%s and %s", changes.get(0), changes.get(1));
             assertThat(summary, is("Change at " + summaryResult));
         }
-
-        JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
-
-        assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
-
-        for(int index=0; index<headSigns.size(); index++) {
-            checkStage(index, journeyDetailsPage, fromStop, toStop, changes, headSigns);
-        }
-        return journeyDetailsPage;
+        return fromStationText;
     }
 
     private RouteDetailsPage enterRouteSelection(String fromStop, String toStop, LocalDate date, String time) throws InterruptedException {
@@ -228,24 +261,34 @@ public class UserJourneyTest {
         return routePlannerPage.submit();
     }
 
-    private void checkStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop, String toStop, List<String> changes, List<String> headSigns) {
+    private void checkStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop, String toStop,
+                            List<String> changes, List<String> headSigns, boolean walk) {
         String promptText = journeyDetailsPage.getPrompt(stageIndex);
         if (stageIndex==0) {
-            assertThat(promptText, is("Board tram at " + fromStop));
+            assertThat("Changes", promptText, is("Board tram at " + fromStop));
         } else {
-            assertThat(promptText, is("Change tram at " +changes.get(stageIndex-1)));
+            if (walk) {
+                assertThat("Changes", promptText, is("Walk to " +changes.get(stageIndex)));
+            } else {
+                assertThat("Changes", promptText, is("Change tram at " + changes.get(stageIndex - 1)));
+            }
         }
-        assertThat(journeyDetailsPage.getInstruction(stageIndex), endsWith(format("Catch %s Tram", headSigns.get(stageIndex))));
         checkDuration(journeyDetailsPage, stageIndex);
-        String arriveText = journeyDetailsPage.getArrive(stageIndex);
-        if (stageIndex<changes.size()) {
-            assertThat(arriveText, endsWith(" Arrive at " + changes.get(stageIndex)));
-        } else {
-            assertThat(arriveText, endsWith(" Arrive at " +toStop));
+
+        if (!walk) {
+            assertThat(journeyDetailsPage.getInstruction(stageIndex),
+                    endsWith(format("Catch %s Tram", headSigns.get(stageIndex))));
+            String arriveText = journeyDetailsPage.getArrive(stageIndex);
+            if (stageIndex < changes.size()) {
+                assertThat(arriveText, endsWith(" Arrive at " + changes.get(stageIndex)));
+            } else {
+                assertThat(arriveText, endsWith(" Arrive at " + toStop));
+            }
+            if (stageIndex<changes.size()) {
+                assertThat(journeyDetailsPage.getChange(stageIndex), is("Change Tram"));
+            }
         }
-        if (stageIndex<changes.size()) {
-            assertThat(journeyDetailsPage.getChange(stageIndex), is("Change Tram"));
-        }
+
     }
 
     private void checkDuration(JourneyDetailsPage journeyDetailsPage, int durIndex) {

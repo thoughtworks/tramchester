@@ -36,9 +36,10 @@ public class Stations {
     public static Location Victoria = createStation("9400ZZMAVIC", "Manchester", "Victoria");
     public static Location NavigationRoad = createStation("9400ZZMANAV", "Altrincham", "Navigation Road");
     public static Location ShawAndCrompton = createStation("9400ZZMASHA", "Shaw and Crompton Area", "Shaw And Crompton");
-    public static Location HarbourCity = createStation("9400ZZMAHCY", "Harbour City", "Harbour City area");
+    public static Location HarbourCity = createStation("9400ZZMAHCY", "Harbour City area", "Harbour City");
 
-    public static String MarketStreet = "9400ZZMAMKT";
+    public static Location MarketStreet = createStation("9400ZZMAMKT", "Market Street Area", "Market Street");
+
     public static String MediaCityUK = "9400ZZMAMCU";
     public static String StPetersSquare = "9400ZZMASTP";
 

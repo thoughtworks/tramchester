@@ -4,22 +4,25 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class Journey implements Comparable<Journey> {
+    private long containedWalking;
     private List<PresentableStage> allStages;
-    private List<PresentableStage> vehicleStages;
 
     public Journey(List<PresentableStage> allStages) {
         this.allStages = allStages;
-        vehicleStages = allStages.stream().filter(stage -> stage.getIsAVehicle()).collect(Collectors.toList());
+        containedWalking = allStages.stream().filter(stage -> (stage instanceof WalkingStage)).count();
+        if (firstStageIsWalk()) {
+            containedWalking -= 1;
+        }
     }
 
     // used front end
@@ -29,16 +32,17 @@ public class Journey implements Comparable<Journey> {
 
     // used front end
     public String getSummary() {
-        if (allStages.size() == 1) {
-            return "Direct";
-        }
-        long size = vehicleStages.size();
+        int size = allStages.size();
+        // Direct first
         if (size == 1) {
             return "Direct";
+        } else if (size == 2 && firstStageIsWalk()) {
+            return "Direct";
         }
+
         StringBuilder result = new StringBuilder();
         for(int index = 1; index< size; index++) {
-            PresentableStage stage = vehicleStages.get(index);
+            PresentableStage stage = allStages.get(index);
             if (index>1) {
                 if (index< size -1) {
                     result.append(", ");
@@ -51,9 +55,16 @@ public class Journey implements Comparable<Journey> {
         return format("Change at %s",result.toString());
     }
 
-    public String getHeading() {
+    private boolean firstStageIsWalk() {
+        return !allStages.get(0).getIsAVehicle();
+    }
 
-        return format("%s with %s - %s", getFirstStage().getMode(), getChanges(), getDuration());
+    public String getHeading() {
+        String mode = getFirstStage().getMode().toString();
+        if (containedWalking>0) {
+            mode = mode + " and Walk";
+        }
+        return format("%s with %s - %s", mode, getChanges(), getDuration());
     }
 
     private String getDuration() {
@@ -62,13 +73,13 @@ public class Journey implements Comparable<Journey> {
     }
 
     private String getChanges() {
-        if (vehicleStages.size() <= 1) {
+        if (allStages.size() <= 1) {
             return "No Changes";
         }
-        if (vehicleStages.size() == 2) {
-            return "1 change";
+        if (allStages.size() == 2) {
+            return firstStageIsWalk() ? "No Changes" : "1 change";
         }
-        return format("%s changes", vehicleStages.size() -1);
+        return format("%s changes", allStages.size() -1);
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -88,17 +99,16 @@ public class Journey implements Comparable<Journey> {
     }
 
     private PresentableStage getLastStage() {
-        if (vehicleStages.size()>0) {
-            int index = vehicleStages.size() - 1;
-            return vehicleStages.get(index);
-        }
         int index = allStages.size()-1;
         return allStages.get(index);
     }
 
     private PresentableStage getFirstStage() {
-        if (vehicleStages.size()>0) {
-            return vehicleStages.get(0);
+        if (allStages.size()==1) {
+            return allStages.get(0);
+        }
+        if (firstStageIsWalk()) {
+            return allStages.get(1);
         }
         return allStages.get(0);
     }
@@ -113,7 +123,7 @@ public class Journey implements Comparable<Journey> {
     // used front end
     public int getNumberOfTimes() {
         int minNumberOfTimes = Integer.MAX_VALUE;
-        for (PresentableStage stage : vehicleStages) {
+        for (PresentableStage stage : allStages) {
             int size = stage.getNumberOfServiceTimes();
             if (size < minNumberOfTimes) {
                 minNumberOfTimes = size;

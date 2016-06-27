@@ -69,6 +69,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("secureHost")
     private String secureHost;
 
+    @JsonProperty("addWalkingRoutes")
+    private boolean addWalkingRoutes;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -106,6 +109,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getSecureHost() {
         return secureHost;
+    }
+
+    @Override
+    public boolean addWalkingRoutes() {
+        return addWalkingRoutes;
     }
 
     @Override

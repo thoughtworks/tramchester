@@ -9,7 +9,7 @@ techLabApp.controller('JourneyDetailsController',
         $scope.showChangeIndicator = false;
 
         $scope.showMap = function (stage) {
-            var latLong = stage.firstStation.latLong;
+            var latLong = stage.actionStation.latLong;
             if ($scope.journey.stages.indexOf(stage) == 0) {
                 $location.url('/map?lat=' + latLong.lat + "&lon=" + latLong.lon
                     + "&name=" + stage.firstStation.name + "&showDirections=1");

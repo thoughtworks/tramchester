@@ -31,9 +31,6 @@ public class RouteCalculator extends StationIndexs {
 
     private String queryNodeName = "BEGIN";
 
-    // TODO Use INT? - but difficult as not supported by algos built into neo4j
-    //public static final CostEvaluator<Double> COST_EVALUATOR = CommonEvaluators.doubleCostEvaluator(GraphStaticKeys.COST);
-
     public static final CostEvaluator<Double> COST_EVALUATOR = new CachingCostEvaluator(GraphStaticKeys.COST);
 
     private NodeFactory nodeFactory;

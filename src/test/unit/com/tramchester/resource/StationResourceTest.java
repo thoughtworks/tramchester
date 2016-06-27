@@ -44,6 +44,11 @@ public class StationResourceTest {
         }
 
         @Override
+        public boolean addWalkingRoutes() {
+            return true;
+        }
+
+        @Override
         public boolean isCreateLocality() {
             return false;
         }

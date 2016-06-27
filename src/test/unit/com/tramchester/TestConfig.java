@@ -94,4 +94,7 @@ public abstract class TestConfig extends TramchesterConfig {
     public String getSecureHost() {
         return "tramchester.com";
     }
+
+    @Override
+    public boolean addWalkingRoutes() { return true; }
 }

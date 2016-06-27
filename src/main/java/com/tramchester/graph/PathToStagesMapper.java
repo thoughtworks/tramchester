@@ -94,15 +94,24 @@ public class PathToStagesMapper {
                 logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
                 currentStage = null;
             } else if (transportRelationship.isWalk()) {
+
+                Location begin;
+                int walkStartTime;
+
                 if (firstNode.isQuery()) {
-                    StationNode dest = (StationNode) secondNode;
-                    Location destStation = stationRepository.getStation(dest.getId());
                     QueryNode queryNode = (QueryNode) firstNode;
-                    Location begin = new MyLocation(queryNode.getLatLon());
-                    WalkingStage walkingStage = new WalkingStage(cost, begin, destStation, minsPastMidnight);
-                    logger.info("Adding walk " + walkingStage);
-                    stages.add(walkingStage);
+                    begin = new MyLocation(queryNode.getLatLon());
+                    walkStartTime = minsPastMidnight;
+                } else {
+                    begin = stationRepository.getStation(firstNode.getId());
+                    walkStartTime = elapsedTime;
                 }
+
+                StationNode dest = (StationNode) secondNode;
+                Location destStation = stationRepository.getStation(dest.getId());
+                WalkingStage walkingStage = new WalkingStage(begin, destStation, walkStartTime, cost);
+                logger.info("Adding walk " + walkingStage);
+                stages.add(walkingStage);
 
             }
         }

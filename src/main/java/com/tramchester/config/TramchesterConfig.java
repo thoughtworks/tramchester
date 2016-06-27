@@ -43,7 +43,12 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract int getNumOfNearestStops();
     // an assumed mph for walking
     public abstract double getWalkingMPH();
-
+    // direct traffic from http to https
+    public abstract boolean isRedirectHTTP();
+    // the secure host, the one the certificate matches
+    public abstract String getSecureHost();
+    // add in the cross city walking routes to the graph
+    public abstract boolean addWalkingRoutes();
 
     // EXPERIMENTAL FOR BUSES /////////
 
@@ -52,11 +57,6 @@ public abstract class TramchesterConfig extends Configuration {
     // time window in which to look ahead for journeys from a station during route building
     public abstract boolean useGenericMapper();
 
-    // direct traffic from http to https
-    public abstract boolean isRedirectHTTP();
-
-    // the secure host, the one the cert matches
-    public abstract String getSecureHost();
 
 }
 

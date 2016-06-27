@@ -8,10 +8,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.graph.RouteCalculator;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.time.LocalTime;
@@ -19,6 +16,7 @@ import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
@@ -51,11 +49,11 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
-        String svcId = findServiceId(Stations.Victoria.getId(), Stations.Rochdale.getId(), 930);
-        int elapsedTime = 931;
-        RawVehicleStage vicToRoch = new RawVehicleStage(Stations.Victoria, "route text", TransportMode.Tram, "cssClass", elapsedTime);
-        vicToRoch.setServiceId(svcId);
-        vicToRoch.setLastStation(Stations.Rochdale);
+        int time = 930;
+        int elapsedTime = time +1;
+
+        RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", elapsedTime, time);
+
         stages.add(vicToRoch);
         journeys.add(new RawJourney(stages));
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(930, 30));
@@ -68,17 +66,18 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() throws TramchesterException {
-        String svcId = findServiceId(Stations.Deansgate.getId(), Stations.Bury.getId(), 1364);
+        int pm1044  = (22*60)+44;
+        int elapsedTime = pm1044 +1 ;
 
-        int elapsedTime = 1364;
-        RawVehicleStage DeansgateToBury = new RawVehicleStage(Stations.Deansgate, "route text", TransportMode.Tram, "cssClass", elapsedTime);
-        DeansgateToBury.setServiceId(svcId);
-        DeansgateToBury.setLastStation(Stations.Bury);
-        stages.add(DeansgateToBury);
+        RawVehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
+                elapsedTime, pm1044);
+
+        stages.add(rawStage);
         journeys.add(new RawJourney(stages));
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(1364, 60));
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(elapsedTime, 60));
 
         Journey journey = result.getJourneys().stream().findFirst().get();
+        assertFalse(journey.getStages().isEmpty());
         PresentableStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().isBefore(LocalTime.of(22,55)));
@@ -86,16 +85,14 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapSimpleJourney() throws TramchesterException {
-        String svcId = findServiceId(Stations.Altrincham.getId(), Stations.Cornbrook.getId(), 7*60);
+        int am7 = 7 * 60;
+        int elapsedTime = am7 +1;
 
-        int elapsedTime = (7*60)+1;
-        RawVehicleStage altToCorn = new RawVehicleStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
-        altToCorn.setServiceId(svcId);
-        altToCorn.setLastStation(Stations.Cornbrook);
+        RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", elapsedTime, am7);
 
         stages.add(altToCorn);
         journeys.add(new RawJourney(stages));
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(7*60, 30));
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(am7, 30));
 
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
@@ -109,27 +106,23 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getExpectedArrivalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
 
-        assertEquals(2, stage.getNumberOfServiceTimes());
+        assertEquals(4, stage.getNumberOfServiceTimes());
     }
 
     @Test
     public void shouldMapTwoStageJourney() throws TramchesterException {
-        int pm10 = 22 * 60;
-        String svcId = findServiceId(Stations.Altrincham.getId(), Stations.Deansgate.getId(), pm10);
+        int pm10 = 10 * 60;
+        Location begin = Stations.Altrincham;
+        Location middle = Stations.Cornbrook;
+        Location end = Stations.ManAirport;
 
         int elapsedTime = pm10 + 1;
-        RawVehicleStage altToDeansgate = new RawVehicleStage(Stations.Altrincham, "route text", TransportMode.Tram, "cssClass", elapsedTime);
-        altToDeansgate.setLastStation(Stations.Deansgate);
-        altToDeansgate.setServiceId(svcId);
 
-        svcId = findServiceId(Stations.Deansgate.getId(), Stations.Victoria.getId(), pm10);
+        RawVehicleStage rawStageA = getRawVehicleStage(begin, middle, "route text", elapsedTime, pm10);
+        RawVehicleStage rawStageB = getRawVehicleStage(middle, end, "route2 text", elapsedTime, pm10);
 
-        RawVehicleStage deansgateToVic = new RawVehicleStage(Stations.Deansgate, "route2 text", TransportMode.Tram, "cssClass", elapsedTime);
-        deansgateToVic.setLastStation(Stations.Victoria);
-        deansgateToVic.setServiceId(svcId);
-
-        stages.add(altToDeansgate);
-        stages.add(deansgateToVic);
+        stages.add(rawStageA);
+        stages.add(rawStageB);
         journeys.add(new RawJourney(stages));
 
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm10, 30));
@@ -138,38 +131,106 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(2, journey.getStages().size());
 
         PresentableStage stage2 = journey.getStages().get(1);
-        assertEquals(Stations.Deansgate,stage2.getFirstStation());
-        assertEquals(Stations.Victoria,stage2.getLastStation());
+        assertEquals(middle,stage2.getFirstStation());
+        assertEquals(end,stage2.getLastStation());
 
-        assertEquals(2, stage2.getNumberOfServiceTimes());
+        assertTrue(stage2.getNumberOfServiceTimes()>1);
         assertEquals("Change tram at",stage2.getPrompt());
     }
 
     @Test
+    public void shouldMapWalkingStageJourney() throws TramchesterException {
+        int pm10 = 22 * 60;
+
+        int elapsedTime = pm10 + 1;
+        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, elapsedTime, 10);
+
+        stages.add(walkingStage);
+        journeys.add(new RawJourney(stages));
+
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm10, 30));
+
+        assertEquals(1,result.getJourneys().size());
+        Journey journey = result.getJourneys().stream().findFirst().get();
+        assertEquals(1, journey.getStages().size());
+
+        PresentableStage stage = journey.getStages().get(0);
+        assertEquals(Stations.Deansgate,stage.getFirstStation());
+        assertEquals(Stations.MarketStreet,stage.getLastStation());
+
+        assertEquals(1, stage.getNumberOfServiceTimes());
+        assertEquals("Walk to",stage.getPrompt());
+    }
+
+    @Test
+    public void shouldMapThreeStageJourneyWithWalk() throws TramchesterException {
+        int am10 = 10 * 60;
+        Location begin = Stations.Altrincham;
+        Location middleA = Stations.Deansgate;
+        Location middleB = Stations.MarketStreet;
+        Location end = Stations.Bury;
+
+        int elapsedTime = am10 + 1;
+
+        RawVehicleStage rawStageA = getRawVehicleStage(begin, middleA, "route text", elapsedTime, am10);
+        int walkCost = 10;
+        WalkingStage walkingStage = new WalkingStage(middleA, middleB, am10, walkCost);
+        RawVehicleStage finalStage = getRawVehicleStage(middleB, end, "route3 text", elapsedTime, am10);
+
+        stages.add(rawStageA);
+        stages.add(walkingStage);
+        stages.add(finalStage);
+        journeys.add(new RawJourney(stages));
+
+        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(am10, 30));
+        assertEquals(1,result.getJourneys().size());
+        Journey journey = result.getJourneys().stream().findFirst().get();
+        assertEquals(3, journey.getStages().size());
+        LocalTime arrivalTime = journey.getExpectedArrivalTime();
+        assertTrue(arrivalTime.isAfter(LocalTime.of(10,10)));
+
+        PresentableStage stage1 = journey.getStages().get(0);
+        assertEquals("Board tram at",stage1.getPrompt());
+
+        PresentableStage stage2 = journey.getStages().get(1);
+        assertEquals(middleB,stage2.getActionStation());
+        assertEquals(middleB,stage2.getLastStation());
+        assertEquals("Walk to",stage2.getPrompt());
+        assertEquals(walkCost, stage2.getDuration());
+
+        PresentableStage stage3 = journey.getStages().get(2);
+        assertEquals("Board tram at",stage1.getPrompt());
+        assertEquals(middleB,stage3.getFirstStation());
+        assertEquals(end,stage3.getLastStation());
+
+    }
+
+    @Test
     public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
-        int pm23 = 23 * 60;
-        String svcId = findServiceId(Stations.PiccadillyGardens.getId(), Stations.Cornbrook.getId(), pm23);
+        int pm23 = (23 * 60)+25;
+        Location start = Stations.Altrincham;
+        Location middle = Stations.Cornbrook;
 
         int elapsedTime = pm23 +1;
-        RawVehicleStage picToCorn = new RawVehicleStage(Stations.PiccadillyGardens, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
-        picToCorn.setLastStation(Stations.Cornbrook);
-        // use test TramJourneyPlannerTest.shouldFindRoutePiccadilyGardensToCornbrook
-        picToCorn.setServiceId(svcId);
+        RawVehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", elapsedTime, pm23);
+        RawVehicleStage rawStageB = getRawVehicleStage(middle, Stations.ManAirport, "rouet2 text", elapsedTime, pm23);
 
-        svcId = findServiceId(Stations.Cornbrook.getId(), Stations.ManAirport.getId(), pm23);
-        RawVehicleStage cornToAir = new RawVehicleStage(Stations.Cornbrook, "routeText", TransportMode.Tram, "cssClass", elapsedTime);
-        cornToAir.setLastStation(Stations.ManAirport);
-        // user test TramJourneyPlannerTest.shouldFindRouteCornbrookToManAirport
-        cornToAir.setServiceId(svcId);
-
-        stages.add(picToCorn);
-        stages.add(cornToAir);
+        stages.add(rawStageA);
+        stages.add(rawStageB);
         journeys.add(new RawJourney(stages));
 
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm23, 30));
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertTrue(journey.getNumberOfTimes()>0);
+    }
+
+    private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, int elapsedTime, int startTime) throws TramchesterException {
+        String svcId = findServiceId(start.getId(), finish.getId(), startTime);
+        RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass", elapsedTime);
+        rawVehicleStage.setLastStation(finish);
+        rawVehicleStage.setServiceId(svcId);
+        return rawVehicleStage;
     }
 
 }

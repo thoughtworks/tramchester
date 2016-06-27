@@ -32,13 +32,14 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
                 WalkingStage stage = (WalkingStage) rawStage;
                 logger.info("Adding walking stage " + stage);
                 stages.add(stage);
-                timeWindow = timeWindow.next(timeWindow.minsFromMidnight()+stage.getDuration());
+                timeWindow = timeWindow.next(TimeAsMinutes.getMinutes(stage.getFirstDepartureTime())+stage.getDuration());
             }
         }
         return new Journey(stages);
     }
 
-    private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<PresentableStage> stages, List<TransportStage> rawJourneyStages, TransportStage rawStage) {
+    private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<PresentableStage> stages, List<TransportStage> rawJourneyStages,
+                                       TransportStage rawStage) {
         RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
         String serviceId = rawTravelStage.getServiceId();
         logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));

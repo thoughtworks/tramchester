@@ -3,9 +3,6 @@ package com.tramchester.domain;
 
 import com.tramchester.Stations;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.Nodes.QueryNode;
-import com.tramchester.graph.Nodes.TramNode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +24,7 @@ public class WalkingStageTest {
         cost = 22;
         start = Stations.Altrincham;
         destination = Stations.Cornbrook;
-        walkingStage = new WalkingStage(cost, start, destination, begin);
+        walkingStage = new WalkingStage(start, destination, begin, cost);
     }
 
     @Test
@@ -57,13 +54,9 @@ public class WalkingStageTest {
 
     @Test
     public void shouldGetStartAndDestinaiton() {
-        assertEquals(start, walkingStage.getFirstStation());
+        assertEquals(start, walkingStage.getFirstStation()); // comment in the class
         assertEquals(destination, walkingStage.getLastStation());
+        assertEquals(destination, walkingStage.getActionStation());
     }
 
-    @Test
-    public void shouldGetWalkingDestinationAsFirstStationWhenStartingFromMyLocation() {
-        WalkingStage stage = new WalkingStage(10, new MyLocation(new LatLong(-2,1)), Stations.Victoria, 8*60);
-        assertEquals(Stations.Victoria, stage.getFirstStation());
-    }
 }

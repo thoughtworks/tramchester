@@ -93,6 +93,7 @@ public class VehicleStageWithTimingTest {
         assertEquals("route", stage.getRouteName());
         assertEquals(firstStation, stage.getFirstStation());
         assertEquals(lastStation, stage.getLastStation());
+        assertEquals(firstStation, stage.getActionStation());
         assertEquals("svcId", stage.getServiceId());
     }
 
