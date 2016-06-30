@@ -1,24 +1,47 @@
 'use strict';
 
 techLabApp.controller('MapController',
-    function MapController($scope, $location) {
+    function MapController(journeyPlanService, $scope, $routeParams) {
+        $scope.journey = journeyPlanService.getJourney($routeParams.journeyIndex);
+        $scope.stage = $scope.journey.stages[$routeParams.stageIndex];
+        $scope.dest = $scope.stage.lastStation;
+        
         var map, dir;
 
         $scope.drawMap = function () {
-            if ($location.search().showDirections==1) {
-                navigator.geolocation.getCurrentPosition(showDirections, showStation,
-                    {maximumAge: 600000, // 10 minutes cached time on location
-                        timeout: 20000  // by default this call never times out...
-                    });
+            var stageIndex = $routeParams.stageIndex;
+
+            if (stageIndex==0) {
+                if ($scope.stage.mode=="Walk") {
+                    navigator.geolocation.getCurrentPosition(showDirections, showActionPlace,
+                            {maximumAge: 600000, // 10 minutes cached time on location
+                                timeout: 20000  // by default this call never times out...
+                            });
+                } else {
+                    showActionPlace();
+                }
             } else {
-                showStation();
+                if ($scope.stage.mode=="Walk") {
+                    showMapDirections(
+                        {latLng: {lat: $scope.stage.firstStation.latLong.lat, lng: $scope.stage.firstStation.latLong.lon}},
+                        {latLng: {lat: $scope.dest.latLong.lat, lng: $scope.dest.latLong.lon}}
+                    );
+                } else {
+                    showActionPlace();
+                }
             }
         };
 
-        function showDirections(position) {
+        function showDirections(currentLocation) {
+            showMapDirections(
+                {latLng: {lat: currentLocation.coords.latitude, lng: currentLocation.coords.longitude}},
+                {latLng: {lat: $scope.dest.latLong.lat, lng: $scope.dest.latLong.lon}})
+        }
+
+        function showMapDirections(start, destination) {
             map = L.map('map', {
                 layers: MQ.mapLayer(),
-                center: [ position.coords.latitude, position.coords.longitude ],
+                center: [ start.latLng.lat, start.latLng.lng ],
                 zoom: 14
             });
 
@@ -47,8 +70,8 @@ techLabApp.controller('MapController',
 
             dir.route({
                 locations: [
-                    {latLng: {lat: position.coords.latitude, lng: position.coords.longitude}},
-                    {latLng: {lat: $location.search().lat, lng: $location.search().lon}}
+                    start,
+                    destination
                 ],
                 options: {
                     routeType: "pedestrian",
@@ -62,21 +85,23 @@ techLabApp.controller('MapController',
             }));
         }
 
-        function showStation()  {
+        function showActionPlace()  {
+            var destLat = $scope.stage.actionStation.latLong.lat;
+            var destLon = $scope.stage.actionStation.latLong.lon;
             map = L.map('map', {
                 layers: MQ.mapLayer(),
-                center: [ $location.search().lat, $location.search().lon ],
+                center: [ destLat, destLon ],
                 zoom: 14
             });
 
             var latLng = {
-                lat: $location.search().lat,
-                lng: $location.search().lon
+                lat: destLat,
+                lng: destLon
             };
 
             var popup = L.popup();
             popup.setLatLng(latLng);
-            popup.setContent($location.search().name);
+            popup.setContent($scope.stage.actionStation.name);
             popup.openOn(map);
 
             map.setView(latLng);

@@ -52,9 +52,6 @@ public abstract class JourneyResponseMapper {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }
-//        if ((stagesSoFar.size()==1) && (stagesSoFar.get(0) instanceof WalkingStage)) {
-//            return TravelAction.Board;
-//        }
         if ((stagesSoFar.get(stagesSoFar.size()-1) instanceof WalkingStage)) {
             return TravelAction.Board;
         }

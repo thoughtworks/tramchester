@@ -7,7 +7,7 @@ var techLabApp = angular.module('techLabApp', ['ngResource','ngRoute', 'ngCookie
             when('/routePlanner', { templateUrl: 'templates/RoutePlanner.html', controller: 'RoutePlannerController'}).
             when('/routeDetails', {templateUrl: 'templates/RouteDetails.html', controller: 'RouteDetailsController'}).
             when('/disclaimer', {templateUrl: 'templates/Disclaimer.html'}).
-            when('/map', {templateUrl: 'templates/map.html', controller: 'MapController'}).
+            when('/map/:journeyIndex/:stageIndex', {templateUrl: 'templates/map.html', controller: 'MapController'}).
             when('/about', {templateUrl: 'templates/about.html', controller: 'AboutController'}).
             when('/journeyDetails/:journeyIndex', { templateUrl: 'templates/JourneyDetails.html',
                 controller: 'JourneyDetailsController' })

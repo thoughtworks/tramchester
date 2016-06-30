@@ -1,9 +1,6 @@
 package com.tramchester;
 
-import com.tramchester.pages.JourneyDetailsPage;
-import com.tramchester.pages.RouteDetailsPage;
-import com.tramchester.pages.RoutePlannerPage;
-import com.tramchester.pages.WelcomePage;
+import com.tramchester.pages.*;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
@@ -193,6 +190,10 @@ public class UserJourneyTest {
         checkStage(0, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
         checkWalkingStage(1, journeyDetailsPage, fromStop, changes);
         checkStage(2, journeyDetailsPage, fromStop, toStop, changes, headSigns, true);
+
+        MapPage mapPage = journeyDetailsPage.clickOnMapLink(1);
+
+        assertEquals(Stations.MarketStreet.getName(),mapPage.getTitle());
     }
 
     private JourneyDetailsPage checkJourney(String fromStop, String toStop, LocalDate date, String time, List<String> changes,

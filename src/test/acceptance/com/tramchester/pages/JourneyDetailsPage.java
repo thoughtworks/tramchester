@@ -41,4 +41,9 @@ public class JourneyDetailsPage extends Page {
         findElementById("backToRouteDetails").click();
         return new RouteDetailsPage(driver);
     }
+
+    public MapPage clickOnMapLink(int index) {
+        findElementById("showMap"+index).click();
+        return new MapPage(driver);
+    }
 }

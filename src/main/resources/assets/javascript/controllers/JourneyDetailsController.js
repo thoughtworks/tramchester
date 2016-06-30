@@ -2,6 +2,7 @@
 
 techLabApp.controller('JourneyDetailsController',
     function JourneyDetailsController(journeyPlanService, $scope, $routeParams, $location) {
+        // routeParams is an angular built-in for URL params
         $scope.journey = journeyPlanService.getJourney($routeParams.journeyIndex);
         $scope.serviceTimeIndex = 0;
         $scope.disableNextTram = false;
@@ -9,14 +10,9 @@ techLabApp.controller('JourneyDetailsController',
         $scope.showChangeIndicator = false;
 
         $scope.showMap = function (stage) {
-            var latLong = stage.actionStation.latLong;
-            if ($scope.journey.stages.indexOf(stage) == 0) {
-                $location.url('/map?lat=' + latLong.lat + "&lon=" + latLong.lon
-                    + "&name=" + stage.firstStation.name + "&showDirections=1");
-            } else {
-                $location.url('/map?lat=' + latLong.lat + "&lon=" + latLong.lon
-                    + "&name=" + stage.firstStation.name + "&showDirections=0");
-            }
+            var stageIndex = $scope.journey.stages.indexOf(stage);
+            var journeyIndex = $routeParams.journeyIndex;
+            $location.url('/map/'+journeyIndex+'/'+stageIndex)
         };
 
         $scope.goBack = function (journey) {
