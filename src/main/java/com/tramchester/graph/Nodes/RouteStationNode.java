@@ -9,6 +9,17 @@ public class RouteStationNode implements TramNode {
     private final String routeId;
     private final String name;
 
+    private RouteStationNode(String id, String routeName, String routeId, String name) {
+        this.id = id;
+        this.routeName = routeName;
+        this.routeId = routeId;
+        this.name = name;
+    }
+
+    public static RouteStationNode TestOnly(String id, String routeName, String routeId, String name) {
+        return new RouteStationNode(id, routeName, routeId, name);
+    }
+
     public RouteStationNode(Node node) {
         this.id = node.getProperty(GraphStaticKeys.ID).toString();
         this.routeName = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME).toString();

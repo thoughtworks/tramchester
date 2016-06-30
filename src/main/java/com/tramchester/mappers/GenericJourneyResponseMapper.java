@@ -45,7 +45,7 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
                     logger.error(message);
                 } else {
                     logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-                    VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times, decideAction(stages,rawJourneyStages));
+                    VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times, decideAction(stages));
                     stages.add(stage);
                 }
             }

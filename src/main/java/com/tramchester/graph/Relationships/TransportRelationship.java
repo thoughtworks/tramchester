@@ -1,6 +1,7 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TransportMode;
+import com.tramchester.graph.Nodes.TramNode;
 
 public interface TransportRelationship {
     boolean isGoesTo();
@@ -11,4 +12,7 @@ public interface TransportRelationship {
     int getCost();
     String getId();
     TransportMode getMode();
+
+    TramNode getStartNode();
+    TramNode getEndNode();
 }

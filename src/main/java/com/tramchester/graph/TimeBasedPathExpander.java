@@ -142,8 +142,9 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         if (!incoming.isGoesTo()) {
             return true; // not a connecting relationship
         }
-        GoesToRelationship inComing = (GoesToRelationship) incoming;
-        return inComing.getService().equals(outgoing.getService());
+        GoesToRelationship goesToRelationship = (GoesToRelationship) incoming;
+        String service = goesToRelationship.getService();
+        return service.equals(outgoing.getService());
     }
 
     public boolean operatesOnTime(int[] times, ElapsedTime provider) throws TramchesterException {

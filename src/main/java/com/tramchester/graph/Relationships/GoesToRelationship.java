@@ -1,8 +1,9 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Nodes.TramNode;
 import org.neo4j.graphdb.Relationship;
 
 public abstract class GoesToRelationship extends TransportCostRelationship {
@@ -13,10 +14,11 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 
-    public GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id,
-                                  TramServiceDate startDate, TramServiceDate endDate, String dest) {
+    protected GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id,
+                              TramServiceDate startDate, TramServiceDate endDate, String dest,
+                              TramNode startNode, TramNode endNode) {
         //TESTING ONLY
-        super(cost, id);
+        super(cost, id, startNode, endNode);
         this.service = service;
         this.daysRunning = daysRunning;
         this.timesRunning = timesRunning;
@@ -25,8 +27,8 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         this.dest = dest;
     }
 
-    public GoesToRelationship(Relationship graphRelationship) {
-        super(graphRelationship);
+    public GoesToRelationship(Relationship graphRelationship, NodeFactory nodeFactory) {
+        super(graphRelationship, nodeFactory);
     }
 
     public boolean[] getDaysTramRuns() {
@@ -104,6 +106,5 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
                 ", endDate=" + getEndDate() +
                 '}';
     }
-
 
 }

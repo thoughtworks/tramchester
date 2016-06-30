@@ -1,5 +1,9 @@
 package com.tramchester.graph;
 
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Nodes.RouteStationNode;
+import com.tramchester.graph.Nodes.StationNode;
+import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
@@ -8,6 +12,7 @@ import org.easymock.EasyMockSupport;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import static org.junit.Assert.*;
@@ -17,11 +22,24 @@ public class RelationshipFactoryTest extends EasyMockSupport {
 
     private Relationship relationship;
     private RelationshipFactory relationshipFactory;
+    private StubNode startTramNode;
+    private StubNode endTramNode;
 
     @Before
     public void beforeEachTestRuns() {
-        relationshipFactory = new RelationshipFactory();
+        NodeFactory nodeFactory = createMock(NodeFactory.class);
+        relationshipFactory = new RelationshipFactory(nodeFactory);
+
         relationship = createMock(Relationship.class);
+        Node startNode = createMock(Node.class);
+        Node endNode = createMock(Node.class);
+        EasyMock.expect(relationship.getStartNode()).andReturn(startNode);
+        EasyMock.expect(relationship.getEndNode()).andReturn(endNode);
+
+        startTramNode = new StubNode();
+        endTramNode = new StubNode();
+        EasyMock.expect(nodeFactory.getNode(startNode)).andReturn(startTramNode);
+        EasyMock.expect(nodeFactory.getNode(endNode)).andReturn(endTramNode);
     }
 
     @Test
@@ -33,6 +51,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertTrue(transportRelationship.isBoarding());
         assertFalse(transportRelationship.isWalk());
         assertEquals(45, transportRelationship.getCost());
+        assertSame(startTramNode, transportRelationship.getStartNode());
+        assertSame(endTramNode, transportRelationship.getEndNode());
         verifyAll();
     }
 
@@ -45,6 +65,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertTrue(transportRelationship.isDepartTram());
         assertFalse(transportRelationship.isWalk());
         assertEquals(43, transportRelationship.getCost());
+        assertSame(startTramNode, transportRelationship.getStartNode());
+        assertSame(endTramNode, transportRelationship.getEndNode());
         verifyAll();
     }
 
@@ -60,6 +82,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertFalse(transportRelationship.isDepartTram());
         assertFalse(transportRelationship.isWalk());
         assertEquals(44, transportRelationship.getCost());
+        assertSame(startTramNode, transportRelationship.getStartNode());
+        assertSame(endTramNode, transportRelationship.getEndNode());
         verifyAll();
     }
 
@@ -74,6 +98,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertFalse(transportRelationship.isDepartTram());
         assertTrue(transportRelationship.isWalk());
         assertEquals(6, transportRelationship.getCost());
+        assertSame(startTramNode, transportRelationship.getStartNode());
+        assertSame(endTramNode, transportRelationship.getEndNode());
         verifyAll();
 
     }
@@ -94,6 +120,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertTrue(transportRelationship.isDepartTram());
         assertEquals(55, transportRelationship.getCost());
         assertFalse(transportRelationship.isWalk());
+        assertSame(startTramNode, transportRelationship.getStartNode());
+        assertSame(endTramNode, transportRelationship.getEndNode());
         verifyAll();
     }
 
@@ -119,6 +147,35 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertSame(days, tramRelationship.getDaysTramRuns());
         assertEquals(new LocalDate(2015, 10, 25), tramRelationship.getStartDate().getDate());
         assertEquals(new LocalDate(2016, 11, 24), tramRelationship.getEndDate().getDate());
+        assertSame(startTramNode, tramRelationship.getStartNode());
+        assertSame(endTramNode, tramRelationship.getEndNode());
         verifyAll();
+    }
+
+    private class StubNode implements com.tramchester.graph.Nodes.TramNode {
+        @Override
+        public boolean isStation() {
+            return false;
+        }
+
+        @Override
+        public boolean isRouteStation() {
+            return false;
+        }
+
+        @Override
+        public String getId() {
+            return null;
+        }
+
+        @Override
+        public boolean isQuery() {
+            return false;
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
     }
 }

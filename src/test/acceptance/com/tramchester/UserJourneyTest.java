@@ -182,8 +182,7 @@ public class UserJourneyTest {
         String fromStop = Stations.Altrincham.getName();
         String toStop = Stations.Bury.getName();
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(fromStop,
-                toStop, when, "10:15");
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(fromStop, toStop, when, "10:15");
 
         String fromStationText = checkRoutes(fromStop, toStop, changes, true, routeDetailsPage);
 
@@ -192,8 +191,8 @@ public class UserJourneyTest {
         assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
 
         checkStage(0, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
-        checkStage(1, journeyDetailsPage, fromStop, toStop, changes, headSigns, true);
-        checkStage(2, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
+        checkWalkingStage(1, journeyDetailsPage, fromStop, changes);
+        checkStage(2, journeyDetailsPage, fromStop, toStop, changes, headSigns, true);
     }
 
     private JourneyDetailsPage checkJourney(String fromStop, String toStop, LocalDate date, String time, List<String> changes,
@@ -226,11 +225,10 @@ public class UserJourneyTest {
         if (changes.isEmpty()) {
             assertThat(heading, startsWith("Tram with No Changes - "));
         } else {
-            if (!embeddedWalk) {
-                assertThat(heading, startsWith(format("Tram with %s change%s - ", changes.size(), plural)));
-            } else {
+            if (embeddedWalk) {
                 assertThat(heading, startsWith(format("Tram and Walk with %s change%s - ", changes.size(), plural)));
-
+            } else {
+                assertThat(heading, startsWith(format("Tram with %s change%s - ", changes.size(), plural)));
             }
         }
         assertThat(heading, endsWith(" minutes"));
@@ -262,33 +260,40 @@ public class UserJourneyTest {
     }
 
     private void checkStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop, String toStop,
-                            List<String> changes, List<String> headSigns, boolean walk) {
+                            List<String> changes, List<String> headSigns, boolean wasWalking) {
+        String promptText = journeyDetailsPage.getPrompt(stageIndex);
+        if (stageIndex==0) {
+            assertThat("Changes", promptText, is("Board tram at " + fromStop));
+        } else if (wasWalking) {
+            assertThat("Changes", promptText, is("Board tram at " + changes.get(stageIndex - 1)));
+        }
+        else {
+            assertThat("Changes", promptText, is("Change tram at " + changes.get(stageIndex - 1)));
+        }
+        checkDuration(journeyDetailsPage, stageIndex);
+
+        assertThat(journeyDetailsPage.getInstruction(stageIndex),
+                endsWith(format("Catch %s Tram", headSigns.get(stageIndex))));
+        String arriveText = journeyDetailsPage.getArrive(stageIndex);
+        if (stageIndex < changes.size()) {
+            assertThat(arriveText, endsWith(" Arrive at " + changes.get(stageIndex)));
+        } else {
+            assertThat(arriveText, endsWith(" Arrive at " + toStop));
+        }
+        if (stageIndex<changes.size()) {
+            assertThat(journeyDetailsPage.getChange(stageIndex), is("Change Tram"));
+        }
+    }
+
+    private void checkWalkingStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop,
+                                   List<String> changes) {
         String promptText = journeyDetailsPage.getPrompt(stageIndex);
         if (stageIndex==0) {
             assertThat("Changes", promptText, is("Board tram at " + fromStop));
         } else {
-            if (walk) {
-                assertThat("Changes", promptText, is("Walk to " +changes.get(stageIndex)));
-            } else {
-                assertThat("Changes", promptText, is("Change tram at " + changes.get(stageIndex - 1)));
-            }
+            assertThat("Changes", promptText, is("Walk to " +changes.get(stageIndex)));
         }
         checkDuration(journeyDetailsPage, stageIndex);
-
-        if (!walk) {
-            assertThat(journeyDetailsPage.getInstruction(stageIndex),
-                    endsWith(format("Catch %s Tram", headSigns.get(stageIndex))));
-            String arriveText = journeyDetailsPage.getArrive(stageIndex);
-            if (stageIndex < changes.size()) {
-                assertThat(arriveText, endsWith(" Arrive at " + changes.get(stageIndex)));
-            } else {
-                assertThat(arriveText, endsWith(" Arrive at " + toStop));
-            }
-            if (stageIndex<changes.size()) {
-                assertThat(journeyDetailsPage.getChange(stageIndex), is("Change Tram"));
-            }
-        }
-
     }
 
     private void checkDuration(JourneyDetailsPage journeyDetailsPage, int durIndex) {

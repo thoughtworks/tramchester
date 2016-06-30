@@ -1,11 +1,12 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TransportMode;
+import com.tramchester.graph.Nodes.NodeFactory;
 import org.neo4j.graphdb.Relationship;
 
 public class InterchangeBoardsRelationship extends TransportCostRelationship {
-    public InterchangeBoardsRelationship(Relationship graphRelationship) {
-        super(graphRelationship);
+    public InterchangeBoardsRelationship(Relationship graphRelationship, NodeFactory nodeFactory) {
+        super(graphRelationship, nodeFactory);
     }
 
     @Override

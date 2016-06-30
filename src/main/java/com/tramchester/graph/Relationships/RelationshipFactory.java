@@ -1,28 +1,38 @@
 package com.tramchester.graph.Relationships;
 
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.TransportRelationshipTypes;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 public class RelationshipFactory {
+
+    private NodeFactory nodeFactory;
+
+    public RelationshipFactory(NodeFactory nodeFactory) {
+
+        this.nodeFactory = nodeFactory;
+    }
 
     public TransportRelationship getRelationship(Relationship graphRelationship) {
 
         TransportRelationship result;
         String relationshipType = graphRelationship.getType().name();
         if (relationshipType.equals(TransportRelationshipTypes.TRAM_GOES_TO.toString())) {
-            result = new TramGoesToRelationship(graphRelationship);
+            result = new TramGoesToRelationship(graphRelationship, nodeFactory);
         } else if (relationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO.toString())) {
-                result = new BusGoesToRelationship(graphRelationship);
+                result = new BusGoesToRelationship(graphRelationship, nodeFactory);
         } else if (relationshipType.equals(TransportRelationshipTypes.DEPART.toString())) {
-            result = new DepartRelationship(graphRelationship);
+            result = new DepartRelationship(graphRelationship, nodeFactory);
         }  else if (relationshipType.equals(TransportRelationshipTypes.BOARD.toString())) {
-            result = new BoardRelationship(graphRelationship);
+            result = new BoardRelationship(graphRelationship, nodeFactory);
         } else if (relationshipType.equals(TransportRelationshipTypes.INTERCHANGE_DEPART.toString())) {
-            result = new InterchangeDepartsRelationship(graphRelationship);
+            result = new InterchangeDepartsRelationship(graphRelationship, nodeFactory);
         } else if (relationshipType.equals(TransportRelationshipTypes.INTERCHANGE_BOARD.toString())) {
-            result = new InterchangeBoardsRelationship(graphRelationship);
+            result = new InterchangeBoardsRelationship(graphRelationship, nodeFactory);
         } else if (relationshipType.endsWith(TransportRelationshipTypes.WALKS_TO.toString())) {
-            result = new WalksToRelationship(graphRelationship);
+            result = new WalksToRelationship(graphRelationship, nodeFactory);
         }
         else {
             throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);

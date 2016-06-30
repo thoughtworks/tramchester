@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
@@ -44,17 +45,21 @@ public class GraphWithSimpleRouteTest {
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
         GraphDatabaseService graphDBService = graphDatabaseFactory.newEmbeddedDatabase(dbFile);
 
-        RelationshipFactory relationshipFactory = new RelationshipFactory();
+        NodeFactory nodeFactory = new NodeFactory();
+        RelationshipFactory relationshipFactory = new RelationshipFactory(nodeFactory);
 
         transportData = new TransportDataForTest();
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory, spatialDatabaseService);
         builder.buildGraph();
 
-        NodeFactory nodeFactory = new NodeFactory();
         RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
+        PathToTransportRelationship pathToRelationships  = new PathToTransportRelationship(relationshipFactory);
+        MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData);
+
+        MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
-                spatialDatabaseService, new PathToStagesMapper(nodeFactory,routeIdToClass, transportData));
+                spatialDatabaseService, mapper);
     }
 
     @Before

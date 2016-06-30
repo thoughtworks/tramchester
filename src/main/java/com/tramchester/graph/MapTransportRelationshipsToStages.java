@@ -3,12 +3,9 @@ package com.tramchester.graph;
 import com.tramchester.domain.*;
 import com.tramchester.graph.Nodes.*;
 import com.tramchester.graph.Relationships.GoesToRelationship;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
-import org.neo4j.graphalgo.WeightedPath;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,38 +14,31 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class PathToStagesMapper {
-    private static final Logger logger = LoggerFactory.getLogger(PathToStagesMapper.class);
+public class MapTransportRelationshipsToStages {
+    private static final Logger logger = LoggerFactory.getLogger(MapTransportRelationshipsToStages.class);
 
-    private NodeFactory nodeFactory;
     private RouteCodeToClassMapper routeIdToClass;
     private StationRepository stationRepository;
 
-    public PathToStagesMapper(NodeFactory nodeFactory, RouteCodeToClassMapper routeIdToClass,
-                              StationRepository stationRepository) {
-        this.nodeFactory = nodeFactory;
+    public MapTransportRelationshipsToStages(RouteCodeToClassMapper routeIdToClass,
+                                             StationRepository stationRepository) {
         this.routeIdToClass = routeIdToClass;
         this.stationRepository = stationRepository;
     }
 
-    public List<TransportStage> mapStages(WeightedPath path, int minsPastMidnight) {
-        List<TransportStage> stages = new ArrayList<>();
-
-        Iterable<Relationship> relationships = path.relationships();
-        RelationshipFactory relationshipFactory = new RelationshipFactory();
-
-        logger.info("Mapping path to stages, weight is " + path.weight());
-
+    public List<TransportStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
         int totalCost = 0;
         RouteStationNode boardNode = null;
         RawVehicleStage currentStage = null;
         String firstStationId = null;
         int boardTime = -1;
-        for (Relationship graphRelationship : relationships) {
-            TransportRelationship transportRelationship = relationshipFactory.getRelationship(graphRelationship);
 
-            TramNode firstNode = nodeFactory.getNode(graphRelationship.getStartNode());
-            TramNode secondNode = nodeFactory.getNode(graphRelationship.getEndNode());
+        List<TransportStage> stages = new ArrayList<>();
+
+        for (TransportRelationship transportRelationship : transportRelationships) {
+            TramNode firstNode = transportRelationship.getStartNode();
+            TramNode secondNode = transportRelationship.getEndNode();
+
             String endNodeId = secondNode.getId();
 
             int cost = transportRelationship.getCost();
@@ -97,7 +87,6 @@ public class PathToStagesMapper {
 
                 Location begin;
                 int walkStartTime;
-
                 if (firstNode.isQuery()) {
                     QueryNode queryNode = (QueryNode) firstNode;
                     begin = new MyLocation(queryNode.getLatLon());

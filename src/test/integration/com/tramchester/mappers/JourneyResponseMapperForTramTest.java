@@ -199,7 +199,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(walkCost, stage2.getDuration());
 
         PresentableStage stage3 = journey.getStages().get(2);
-        assertEquals("Board tram at",stage1.getPrompt());
+        assertEquals("Board tram at",stage3.getPrompt());
         assertEquals(middleB,stage3.getFirstStation());
         assertEquals(end,stage3.getLastStation());
 

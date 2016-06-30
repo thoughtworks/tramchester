@@ -210,7 +210,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldInvokeQuickestRouteDirectly() throws TramchesterException {
-        Response result = planner.quickestRoute(Stations.Altrincham.getId(), Stations.Piccadilly.getId(), "23:00:00",
+        Response result = planner.quickestRoute(Stations.Altrincham.getId(), Stations.Deansgate.getId(), "23:00:00",
                 today.toString("YYYY-MM-dd"));
         assertEquals(200, result.getStatus());
     }

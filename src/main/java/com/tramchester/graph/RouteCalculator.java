@@ -35,10 +35,10 @@ public class RouteCalculator extends StationIndexs {
 
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
-    private PathToStagesMapper pathToStages;
+    private MapPathToStages pathToStages;
 
     public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
-                           SpatialDatabaseService spatialDatabaseService, PathToStagesMapper pathToStages) {
+                           SpatialDatabaseService spatialDatabaseService, MapPathToStages pathToStages) {
         super(db, relationshipFactory, spatialDatabaseService, true);
         this.nodeFactory = nodeFactory;
         this.pathToStages = pathToStages;
@@ -100,8 +100,8 @@ public class RouteCalculator extends StationIndexs {
     private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
                                        int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path->{
-            logger.info(format("Map graph path of length %s with limit of %s ",path.length(), limit));
-            List<TransportStage> stages = pathToStages.mapStages(path, minsPathMidnight);
+            logger.info(format("map graph path of length %s with limit of %s ",path.length(), limit));
+            List<TransportStage> stages = pathToStages.map(path, minsPathMidnight);
             RawJourney journey = new RawJourney(stages);
             journeys.add(journey);
         });

@@ -13,6 +13,15 @@ public class StationNode implements TramNode {
         this.name = node.getProperty(GraphStaticKeys.Station.NAME).toString();
     }
 
+    private StationNode(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public static StationNode TestOnly(String id, String name) {
+        return new StationNode(id,name);
+    }
+
     @Override
     public String toString() {
         return "StationNode{" +

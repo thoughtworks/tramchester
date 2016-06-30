@@ -12,15 +12,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyTest {
 
-    Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)));
-    Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)));
-    Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
-    Location stationB = new Station("stationB", "area", "nameA", new LatLong(-3, 1), false);
+    private Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)));
+    private Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)));
+    private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
+    private Location stationB = new Station("stationB", "area", "nameA", new LatLong(-3, 1), false);
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
@@ -33,7 +32,6 @@ public class JourneyTest {
         SortedSet<Journey> set = new TreeSet<>();
         set.add(journeyB);
         set.add(journeyA);
-
         assertEquals(LocalTime.of(10,20), set.first().getExpectedArrivalTime());
     }
 

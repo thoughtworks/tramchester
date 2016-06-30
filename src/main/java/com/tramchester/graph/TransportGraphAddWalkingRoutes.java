@@ -1,53 +1,67 @@
 package com.tramchester.graph;
 
 
-import com.javadocmd.simplelatlng.LatLng;
-import com.javadocmd.simplelatlng.LatLngTool;
-import com.javadocmd.simplelatlng.util.LengthUnit;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Location;
-import com.tramchester.domain.StationWalk;
-import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.Interchanges;
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.repository.StationRepository;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class TransportGraphAddWalkingRoutes extends StationIndexs  {
 
-    private static final String DEANSGATE = "9400ZZMAGMX";
     private static final String MARKET_STREET = "9400ZZMAMKT";
-    private static final int COST = 17;
-    private TramchesterConfig config;
+    private static final String EXCHANGE_SQUARE = "9400ZZMAEXS";
+
+    private List<Walk> walks = Arrays.asList(
+            walk(Interchanges.DEANSGATE, MARKET_STREET, 17),
+            walk(Interchanges.DEANSGATE, Interchanges.PIC_GARDENS, 17),
+            walk(Interchanges.DEANSGATE, Interchanges.PICCADILLY, 19),
+            walk(Interchanges.DEANSGATE, EXCHANGE_SQUARE, 19),
+            walk(Interchanges.DEANSGATE, Interchanges.VICTORIA, 22)
+    );
 
     public TransportGraphAddWalkingRoutes(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
-                                          SpatialDatabaseService spatialDatabaseService,
-                                          TramchesterConfig config) {
+                                          SpatialDatabaseService spatialDatabaseService) {
         super(graphDatabaseService, relationshipFactory, spatialDatabaseService, true);
-        this.config = config;
     }
 
     public void addCityCentreWalkingRoutes() {
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            Node deansgate = super.getStationNode(DEANSGATE);
-            Node marketStreet = super.getStationNode(MARKET_STREET);
-
-            deansgate.createRelationshipTo(marketStreet,TransportRelationshipTypes.WALKS_TO).
-                    setProperty(GraphStaticKeys.COST, COST);
+            walks.forEach(walk -> {
+                Node first = super.getStationNode(walk.begin);
+                Node second = super.getStationNode(walk.end);
+                first.createRelationshipTo(second,TransportRelationshipTypes.WALKS_TO).
+                        setProperty(GraphStaticKeys.COST, walk.minutes);
+                second.createRelationshipTo(first, TransportRelationshipTypes.WALKS_TO).
+                        setProperty(GraphStaticKeys.COST, walk.minutes);
+            });
 
             tx.success();
             tx.close();
         }
     }
 
-    private int findCostInMinutes(Location startionA, Location stationB) {
-        LatLng point1 = LatLong.getLatLng(startionA.getLatLong());
-        LatLng point2 = LatLong.getLatLng(stationB.getLatLong());
-
-        double distanceInMiles = LatLngTool.distance(point1, point2, LengthUnit.MILE);
-        double hours = distanceInMiles / config.getWalkingMPH();
-        return (int)Math.ceil(hours * 60D);
+    private static Walk walk(String begin, String end, int minutes) {
+        return new Walk(begin,end,minutes);
     }
+
+    private static class Walk {
+
+        private String begin;
+        private String end;
+        private int minutes;
+
+        public Walk(String begin, String end, int minutes) {
+
+            this.begin = begin;
+            this.end = end;
+            this.minutes = minutes;
+        }
+    }
+
 }

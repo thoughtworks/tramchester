@@ -48,11 +48,14 @@ public abstract class JourneyResponseMapper {
         return journeys;
     }
 
-    protected TravelAction decideAction(List<PresentableStage> stages, List<TransportStage> rawJourneyStages) {
-        if (stages.isEmpty()) {
+    protected TravelAction decideAction(List<PresentableStage> stagesSoFar) {
+        if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }
-        if ((stages.size()==1) && (stages.get(0) instanceof WalkingStage)) {
+//        if ((stagesSoFar.size()==1) && (stagesSoFar.get(0) instanceof WalkingStage)) {
+//            return TravelAction.Board;
+//        }
+        if ((stagesSoFar.get(stagesSoFar.size()-1) instanceof WalkingStage)) {
             return TravelAction.Board;
         }
         return TravelAction.Change;

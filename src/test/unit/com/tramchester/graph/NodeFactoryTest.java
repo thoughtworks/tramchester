@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import org.easymock.EasyMock;
@@ -27,9 +26,7 @@ public class NodeFactoryTest extends EasyMockSupport {
 
     @Test
     public void shouldGetNodeOfCorrectTypeStation() {
-        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.STATION);
-        EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
-        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn("stationName");
+        createStationNode(node, "stationId", "stationName");
 
         replayAll();
         TramNode tramNode = factory.getNode(node);
@@ -67,5 +64,12 @@ public class NodeFactoryTest extends EasyMockSupport {
         assertTrue(tramNode.isRouteStation());
         assertFalse(tramNode.isQuery());
         verifyAll();
+    }
+
+
+    public static void createStationNode(Node node, String stationId, String stationName) {
+        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.STATION);
+        EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn(stationId);
+        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn(stationName);
     }
 }
