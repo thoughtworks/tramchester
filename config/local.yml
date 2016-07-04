@@ -27,7 +27,7 @@ showMyLocation: true
 nearestStopRangeKM: 2
 numOfNearestStops: 5
 walkingMPH: 3
-addWalkingRoutes: ${EXPERIMENTAL:- false}
+addWalkingRoutes: true
 
 genericMapper: false
 createLocality: false
