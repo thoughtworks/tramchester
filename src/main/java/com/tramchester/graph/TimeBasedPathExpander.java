@@ -63,8 +63,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 servicesOutbound++;
                 ServiceReason serviceReason = null;
                 try {
-                    serviceReason = checkServiceHeuristics(state, incoming,
-                            goesToRelationship, path);
+                    serviceReason = checkServiceHeuristics(state, incoming, goesToRelationship, path);
                 } catch (TramchesterException e) {
                     logger.error("Unable to check service heuristics",e);
                 }

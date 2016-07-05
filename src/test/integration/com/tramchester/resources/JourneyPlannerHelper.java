@@ -23,8 +23,10 @@ public class JourneyPlannerHelper {
             LocalTime previousArrive = null;
             for(PresentableStage stage : journey.getStages()) {
                 if (previousArrive!=null) {
-                    String prefix  = String.format("Check arrive at '%s' and leave at '%s' " , previousArrive, stage.getFirstDepartureTime());
-                    assertTrue(prefix + message, stage.getFirstDepartureTime().isAfter(previousArrive));
+                    LocalTime firstDepartureTime = stage.getFirstDepartureTime();
+                    String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
+                            firstDepartureTime, previousArrive, stage);
+                    assertTrue(prefix + message, firstDepartureTime.isAfter(previousArrive));
                 }
                 previousArrive = stage.getExpectedArrivalTime();
             }

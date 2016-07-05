@@ -151,6 +151,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
 
         String firstStationId = firstStation.getId();
         String lastStationId = lastStation.getId();
+
         List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, window);
 
         for (Trip trip : tripsAfter) {

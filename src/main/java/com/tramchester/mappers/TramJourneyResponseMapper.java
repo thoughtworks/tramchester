@@ -27,7 +27,7 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         List<TransportStage> rawJourneyStages = rawJourney.getStages();
         for (TransportStage rawStage : rawJourneyStages) {
             if (rawStage.getIsAVehicle()) {
-                timeWindow = mapVehicleStage(timeWindow, stages, rawJourneyStages, rawStage);
+                timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
             } else if (rawStage.getMode().equals(TransportMode.Walk)) {
                 WalkingStage stage = (WalkingStage) rawStage;
                 logger.info("Adding walking stage " + stage);
@@ -38,11 +38,12 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         return new Journey(stages);
     }
 
-    private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<PresentableStage> stages, List<TransportStage> rawJourneyStages,
+    private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<PresentableStage> stages,
                                        TransportStage rawStage) {
         RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
         String serviceId = rawTravelStage.getServiceId();
         logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
+
         Location firstStation = rawTravelStage.getFirstStation();
         Location lastStation = rawTravelStage.getLastStation();
 

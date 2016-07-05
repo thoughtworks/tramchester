@@ -96,6 +96,12 @@ public class JourneyResponseMapperForTramSummer2016Closures extends JourneyPlann
 
     @Test
     @Category(ClosureTest.class)
+    public void testExchangeSquareToAshton() throws TramchesterException {
+        checkRouteNext7Days(Stations.ExchangeSquare, Stations.Ashton, new LocalDate(2016,6,27), 9*60);
+    }
+
+    @Test
+    @Category(ClosureTest.class)
     public void shouldFindEastInterchangesToEastInterchanges() throws TramchesterException {
         for (Location start : Stations.getEastInterchanges()) {
             for (Location dest : Stations.getEastInterchanges()) {

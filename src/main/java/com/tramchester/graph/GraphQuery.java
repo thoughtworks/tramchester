@@ -47,10 +47,8 @@ public class GraphQuery {
     }
 
     public SimplePointLayer getSpatialLayer() {
-
         return (SimplePointLayer) spatialDatabaseService.getOrCreateLayer("stations",
                 SimplePointEncoder.class, SimplePointLayer.class);
-        //return graphDatabaseService.index().forNodes("spatial_index", SpatialIndexProvider.SIMPLE_POINT_CONFIG);
     }
 
     public List<TransportRelationship> getRouteStationRelationships(String routeStationId, Direction direction) throws TramchesterException {

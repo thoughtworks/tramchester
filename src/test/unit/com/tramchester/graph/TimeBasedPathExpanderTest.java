@@ -365,10 +365,6 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
                                            Relationship incomingTram, TramServiceDate queryDate, boolean pathExpands) throws TramchesterException {
         RelationshipFactory mockRelationshipFactory = createMock(RelationshipFactory.class);
         NodeFactory mockNodeFactory = createMock(NodeFactory.class);
-
-        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(RouteCalculator.COST_EVALUATOR,
-                maxWait , mockRelationshipFactory, mockNodeFactory);
-
         Node endNode = createMock(Node.class);
         TramNode tramNode = createMock(TramNode.class);
 
@@ -376,10 +372,12 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
         createInboundExpectations(mockRelationshipFactory, path, inboundServiceId, incomingTram, pathExpands);
         createOutgoingExpectations(mockRelationshipFactory, goesToACost, outboundServiceId, outgoingTimes, goesToA);
 
+        replayAll();
         GraphBranchState state = new GraphBranchState(queryDate, queriedTime);
         BranchState<GraphBranchState> branchState = createGraphBranchState(state);
 
-        replayAll();
+        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(RouteCalculator.COST_EVALUATOR,
+                maxWait , mockRelationshipFactory, mockNodeFactory);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         verifyAll();
 
