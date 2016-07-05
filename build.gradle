@@ -36,8 +36,8 @@ dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
-            'org.neo4j:neo4j:2.3.3',
-            'org.neo4j:neo4j-spatial:0.15-neo4j-2.3.3',
+            'org.neo4j:neo4j:2.3.4',
+            'org.neo4j:neo4j-spatial:0.15-neo4j-2.3.4',
             'joda-time:joda-time:2.4',
             'com.googlecode.jcsv:jcsv:1.4.0',
             'net.lingala.zip4j:zip4j:1.2.3',
@@ -49,7 +49,7 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.11',
             'org.assertj:assertj-core:1.2.0',
-            'org.mockito:mockito-core:1.9.5',
+            'org.mockito:mockito-core:1.10.19',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
 			'org.easymock:easymock:3.3.1',
             'org.seleniumhq.selenium:selenium-java:2.48.2'
@@ -95,6 +95,10 @@ clean {
     delete fileTree('data/tram') {
         include '*.txt'
     }
+    delete fileTree('data/tram/gtdf-out') {
+        include '*.txt'
+    }
+    delete 'data/tram/gtdf-out'
     delete fileTree('data/bus') {
         include '*.txt'
     }
