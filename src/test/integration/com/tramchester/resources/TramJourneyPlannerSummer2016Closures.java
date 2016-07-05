@@ -30,8 +30,8 @@ public class TramJourneyPlannerSummer2016Closures extends JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
-        //date = new LocalDate(2016,6,28); // closure starts on the 27th
-        date = LocalDate.now();
+        date = new LocalDate(2016,7,15); // closure starts on the 27th
+        //date = LocalDate.now();
         planner = dependencies.get(JourneyPlannerResource.class);
     }
 
