@@ -93,13 +93,14 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
         if (servicesFilteredOut.size()==0) {
             return;
         }
-        logger.info(format("Filtered:%s all services for node:%s inbound:%s",
-                servicesFilteredOut.size(), currentNode, incoming));
-//        if (logger.isDebugEnabled()) {
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(format("Filtered:%s all services for node:%s inbound:%s",
+                    servicesFilteredOut.size(), currentNode, incoming));
 //            StringBuilder output = new StringBuilder();
 //            servicesFilteredOut.forEach(reason -> output.append(reason).append(" "));
 //            logger.debug(output.toString());
-//        }
+        }
     }
 
     private ServiceReason checkServiceHeuristics(BranchState<GraphBranchState> branchState, TransportRelationship incoming,

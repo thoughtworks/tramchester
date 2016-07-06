@@ -6,7 +6,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.domain.Trip;
-import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.BoardRelationship;
@@ -17,6 +16,8 @@ import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 public class TramGraphBuilderTest {
+    private static final Logger logger = LoggerFactory.getLogger(TramGraphBuilderTest.class);
     private static final int MINUTES_FROM_MIDNIGHT_8AM = 8 * 60;
     private static Dependencies dependencies;
 
@@ -234,26 +236,28 @@ public class TramGraphBuilderTest {
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outbound;
                 int[] runsAt = tramGoesToRelationship.getTimesTramRuns();
                 assertTrue(runsAt.length >0 );
-                System.out.print(String.format("%s (%s): ", tramGoesToRelationship.getService(), tramGoesToRelationship.getDest()));
-                display(runsAt);
+                logger.info(String.format("%s (%s): ", tramGoesToRelationship.getService(), tramGoesToRelationship.getDest()));
+                logger.info(display(runsAt));
                 boolean[] days = tramGoesToRelationship.getDaysTramRuns();
-                System.out.println();
-                display(days);
-                System.out.println();
+                logger.info(display(days));
             }
         });
     }
 
-    private void display(boolean[] days) {
+    private String display(boolean[] days) {
+        StringBuilder builder = new StringBuilder();
         for(boolean runs : days) {
-            System.out.print(" " + (runs?"Y":"N"));
+            builder.append(" " + (runs?"Y":"N"));
         }
+        return builder.toString();
     }
 
-    private void display(int[] runsAt) {
+    private String display(int[] runsAt) {
+        StringBuilder builder = new StringBuilder();
         for (int i : runsAt) {
-            System.out.print(" " + i);
+            builder.append(" " + i);
         }
+        return builder.toString();
     }
 
     @Test
