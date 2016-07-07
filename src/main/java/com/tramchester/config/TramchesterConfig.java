@@ -57,6 +57,7 @@ public abstract class TramchesterConfig extends Configuration {
     // time window in which to look ahead for journeys from a station during route building
     public abstract boolean useGenericMapper();
 
-
+    // max time to wait for tram/connection
+    public abstract int getMaxWait();
 }
 

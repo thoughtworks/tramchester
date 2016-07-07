@@ -8,7 +8,9 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.*;
+import org.junit.rules.TestName;
 import org.junit.rules.Timeout;
+import org.slf4j.MDC;
 
 import java.io.IOException;
 
@@ -22,6 +24,9 @@ public class TramJourneyPlannerSummer2016Closures extends JourneyPlannerHelper {
     @Rule
     public Timeout globalTimeout = Timeout.seconds(200); // TODO should not have to set this so high
 
+    @Rule
+    public TestName testName = new TestName();
+
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
@@ -30,6 +35,9 @@ public class TramJourneyPlannerSummer2016Closures extends JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
+        // for logging
+        MDC.put("test", testName.getMethodName());
+
         date = new LocalDate(2016,7,15); // closure starts on the 27th
         //date = LocalDate.now();
         planner = dependencies.get(JourneyPlannerResource.class);

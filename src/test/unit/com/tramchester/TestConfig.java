@@ -97,4 +97,9 @@ public abstract class TestConfig extends TramchesterConfig {
 
     @Override
     public boolean addWalkingRoutes() { return true; }
+
+    @Override
+    public int getMaxWait() {
+        return 25;
+    }
 }

@@ -71,6 +71,9 @@ public class Dependencies {
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(NodeFactory.class);
         picoContainer.addComponent(RelationshipFactory.class);
+        picoContainer.addComponent(ServiceHeuristics.class);
+        picoContainer.addComponent(CachingCostEvaluator.class);
+        picoContainer.addComponent(TimeBasedPathExpander.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(StationLocalityService.class);
         if (configuration.useGenericMapper()) {

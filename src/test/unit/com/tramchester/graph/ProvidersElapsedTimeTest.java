@@ -46,7 +46,7 @@ public class ProvidersElapsedTimeTest extends EasyMockSupport {
         relationships = new LinkedList<>();
         queryDate = new TramServiceDate(LocalDate.now());
         branchState.setState(new GraphBranchState(queryDate, QUERY_TIME));
-        costEvaluator = RouteCalculator.COST_EVALUATOR;
+        costEvaluator = new CachingCostEvaluator();
     }
 
     @Test
@@ -73,7 +73,7 @@ public class ProvidersElapsedTimeTest extends EasyMockSupport {
 
         replayAll();
 
-        ProvidesElapsedTime provider = new ProvidesElapsedTime(path, branchState, RouteCalculator.COST_EVALUATOR);
+        ProvidesElapsedTime provider = new ProvidesElapsedTime(path, branchState, costEvaluator);
 
         int result = provider.getElapsedTime();
         assertEquals(QUERY_TIME +15, result);

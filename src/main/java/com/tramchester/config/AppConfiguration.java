@@ -72,6 +72,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("addWalkingRoutes")
     private boolean addWalkingRoutes;
 
+    @JsonProperty("maxWait")
+    private int maxWait;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -99,6 +102,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean useGenericMapper() {
         return genericMapper;
+    }
+
+    @Override
+    public int getMaxWait() {
+        return maxWait;
     }
 
     @Override

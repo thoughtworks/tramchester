@@ -5,7 +5,7 @@
             <level>WARN</level>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %X{test} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -16,12 +16,12 @@
             <fileNamePattern>build/reports/tests/testing.%d{yyyy-MM-dd}.log</fileNamePattern>
 
             <maxHistory>5</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
+            <totalSizeCap>50MB</totalSizeCap>
 
         </rollingPolicy>
 
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %X{test} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 

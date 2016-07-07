@@ -23,6 +23,7 @@ awsRegionName: eu-west-1
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 dataPath: data/tram
 timeWindow: 60
+maxWait: 25
 showMyLocation: true
 nearestStopRangeKM: 2
 numOfNearestStops: 5

@@ -16,14 +16,10 @@ public class ProvidesElapsedTime implements ElapsedTime {
     private final WeightedPathImpl weightedPath;
 
     private int duration = -1;
-    private Path path;
     private BranchState<GraphBranchState> branchState;
-    private CostEvaluator<Double> costEvaluator;
 
     public ProvidesElapsedTime(Path path, BranchState<GraphBranchState> branchState, CostEvaluator<Double> costEvaluator) {
-        this.path = path;
         this.branchState = branchState;
-        this.costEvaluator = costEvaluator;
         weightedPath = new WeightedPathImpl(costEvaluator, path);
     }
 
@@ -59,5 +55,13 @@ public class ProvidesElapsedTime implements ElapsedTime {
 
     private GraphBranchState getState() {
         return branchState.getState();
+    }
+
+    @Override
+    public String toString() {
+        return "ProvidesElapsedTime{" +
+                "duration=" + duration +
+                ", branchState=" + branchState +
+                '}';
     }
 }

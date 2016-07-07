@@ -1,257 +1,84 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
-import com.tramchester.graph.Relationships.*;
+import com.tramchester.graph.Relationships.GoesToRelationship;
+import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.graph.Relationships.TransportRelationship;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.graphalgo.CommonEvaluators;
+import org.junit.rules.TestName;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.BranchState;
+import org.slf4j.MDC;
 
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.graph.GraphStaticKeys.COST;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TimeBasedPathExpanderTest extends EasyMockSupport {
 
-    public static final int MAX_WAIT_MINUTES = 30;
-    private int[] times = new int[] { 600, 700, 800, 900, 1000 };
     private Relationship departs;
     private Relationship boards;
-    private Relationship interchangeBoards;
-    private Relationship interchangeDeparts;
     private Relationship goesToA;
     private Relationship goesToB;
-    private boolean[] days = new boolean[] {true,true,true,true,true,true,true};
-    private RelationshipFactory relationshipFactory;
-    private NodeFactory nodeFactory;
-    private int goesToACost;
-    private int goesToBCost;
-    private TramServiceDate startDate;
-    private TramServiceDate endDate;
-    private TramServiceDate sunday;
-    private TramServiceDate monday;
+    private NodeFactory mockNodeFactory;
+    private RelationshipFactory mockRelationshipFactory;
+    private ServiceHeuristics serviceHeuristics;
+    private Node endNode;
+    private BranchState<GraphBranchState> branchState;
+
+    @Rule
+    public TestName testName = new TestName();
+    private Path path;
 
     @Before
     public void beforeEachTestRuns() {
-        nodeFactory = new NodeFactory();
+        // for logging
+        MDC.put("test", testName.getMethodName());
 
-        relationshipFactory = new RelationshipFactory(nodeFactory);
-        // departing
+        new NodeFactory();
+
         departs = createMock(Relationship.class);
         EasyMock.expect(departs.getType()).andStubReturn(TransportRelationshipTypes.DEPART);
-        EasyMock.expect(departs.getProperty(GraphStaticKeys.COST)).andStubReturn(0);
-        EasyMock.expect(departs.getId()).andStubReturn((long) 5000);
 
-        // boarding
         boards = createMock(Relationship.class);
         EasyMock.expect(boards.getType()).andStubReturn(TransportRelationshipTypes.BOARD);
-        EasyMock.expect(boards.getProperty(GraphStaticKeys.COST)).andStubReturn(5);
-        EasyMock.expect(boards.getId()).andStubReturn((long) 5001);
 
-        // interchanges
-        interchangeBoards = createMock(Relationship.class);
-        EasyMock.expect(interchangeBoards.getType()).andStubReturn(TransportRelationshipTypes.INTERCHANGE_BOARD);
-        EasyMock.expect(interchangeBoards.getProperty(GraphStaticKeys.COST)).andStubReturn(3);
-        EasyMock.expect(interchangeBoards.getId()).andStubReturn((long) 5002);
-
-        interchangeDeparts = createMock(Relationship.class);
-        EasyMock.expect(interchangeDeparts.getType()).andStubReturn(TransportRelationshipTypes.INTERCHANGE_BOARD);
-        EasyMock.expect(interchangeDeparts.getProperty(GraphStaticKeys.COST)).andStubReturn(3);
-        EasyMock.expect(interchangeDeparts.getId()).andStubReturn((long) 5003);
-
-        // outgoing A
         goesToA = createMock(Relationship.class);
-        goesToACost = 5;
         EasyMock.expect(goesToA.getType()).andStubReturn(TransportRelationshipTypes.TRAM_GOES_TO);
-        EasyMock.expect(goesToA.getProperty(GraphStaticKeys.COST)).andStubReturn(goesToACost);
-        EasyMock.expect(goesToA.getId()).andStubReturn((long) 5004);
 
-        // outgoing B
         goesToB = createMock(Relationship.class);
-        goesToBCost = 10;
         EasyMock.expect(goesToB.getType()).andStubReturn(TransportRelationshipTypes.TRAM_GOES_TO);
-        EasyMock.expect(goesToB.getProperty(GraphStaticKeys.COST)).andStubReturn(goesToBCost);
-        EasyMock.expect(goesToB.getId()).andStubReturn((long) 5005);
 
-        // date range for running services
-        startDate = new TramServiceDate("20141201");
-        endDate = new TramServiceDate("20151130");
-        sunday = new TramServiceDate("20150215");
-        monday = new TramServiceDate("20150216");
-    }
-
-    @Test
-    public void shouldHandleTimesWith30MinWait() throws TramchesterException {
-        TimeBasedPathExpander expander = new TimeBasedPathExpander(
-                CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
-
-        ProvidesElapsedTime providerA = createNoMatchProvider(400);
-        ProvidesElapsedTime providerB = createNoMatchProvider(550);
-        ProvidesElapsedTime providerC = createMatchProvider(580, 600-TransportGraphBuilder.BOARDING_COST);
-        ProvidesElapsedTime providerD = createMatchProvider(600, 600-TransportGraphBuilder.BOARDING_COST);
-        ProvidesElapsedTime providerE = createNoMatchProvider(620);
-        ProvidesElapsedTime providerF = createNoMatchProvider(630);
-        ProvidesElapsedTime providerG = createNoMatchProvider(650);
-        ProvidesElapsedTime providerH = createMatchProvider(680, 700-TransportGraphBuilder.BOARDING_COST);
-        ProvidesElapsedTime providerI = createNoMatchProvider(1001);
-
-        replayAll();
-        assertFalse(expander.operatesOnTime(times, providerA));
-        assertFalse(expander.operatesOnTime(times, providerB));
-        assertTrue(expander.operatesOnTime(times, providerC));
-        assertTrue(expander.operatesOnTime(times, providerD));
-        assertFalse(expander.operatesOnTime(times, providerE));
-        assertFalse(expander.operatesOnTime(times, providerF));
-        assertFalse(expander.operatesOnTime(times, providerG));
-        assertTrue(expander.operatesOnTime(times, providerH));
-        assertFalse(expander.operatesOnTime(times, providerI));
-        verifyAll();
-    }
-
-    private ProvidesElapsedTime createMatchProvider(int queryTime, int journeyStart) throws TramchesterException {
-        ProvidesElapsedTime provider = createMock(ProvidesElapsedTime.class);
-        EasyMock.expect(provider.getElapsedTime()).andStubReturn(queryTime);
-        EasyMock.expect(provider.startNotSet()).andReturn(true);
-        provider.setJourneyStart(journeyStart);
-        EasyMock.expectLastCall();
-
-        return provider;
-    }
-
-    private ProvidesElapsedTime createNoMatchProvider(int queryTime) throws TramchesterException {
-        ProvidesElapsedTime provider = createMock(ProvidesElapsedTime.class);
-        EasyMock.expect(provider.getElapsedTime()).andReturn(queryTime);
-        return provider;
-    }
-
-    @Test
-    public void shouldHandleTimesWith15MinWait() throws TramchesterException {
-        TimeBasedPathExpander expander = new TimeBasedPathExpander(
-                CommonEvaluators.doubleCostEvaluator(COST), 15, relationshipFactory, nodeFactory);
-
-        ProvidesElapsedTime providerA = createNoMatchProvider(400);
-        ProvidesElapsedTime providerB = createNoMatchProvider(550);
-        ProvidesElapsedTime providerC = createNoMatchProvider(580);
-        ProvidesElapsedTime providerD = createMatchProvider(600, 600-TransportGraphBuilder.BOARDING_COST);
-        ProvidesElapsedTime providerE = createNoMatchProvider(620);
-        ProvidesElapsedTime providerF = createNoMatchProvider(630);
-        ProvidesElapsedTime providerG = createNoMatchProvider(650);
-        ProvidesElapsedTime providerH = createNoMatchProvider(680);
-        ProvidesElapsedTime providerI = createMatchProvider(590, 600-TransportGraphBuilder.BOARDING_COST);
-        ProvidesElapsedTime providerJ = createNoMatchProvider(1001);
-
-        replayAll();
-        assertFalse(expander.operatesOnTime(times, providerA));
-        assertFalse(expander.operatesOnTime(times, providerB));
-        assertFalse(expander.operatesOnTime(times, providerC));
-        assertTrue(expander.operatesOnTime(times, providerD));
-        assertFalse(expander.operatesOnTime(times, providerE));
-        assertFalse(expander.operatesOnTime(times, providerF));
-        assertFalse(expander.operatesOnTime(times, providerG));
-        assertFalse(expander.operatesOnTime(times, providerH));
-        assertTrue(expander.operatesOnTime(times, providerI));
-        assertFalse(expander.operatesOnTime(times, providerJ));
-        verifyAll();
-    }
-
-    @Test
-    public void shouldHandleTimesOneTime() throws TramchesterException {
-        TimeBasedPathExpander expander = new TimeBasedPathExpander(
-                CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
-
-        int[] time = new int[] { 450 };
-        ProvidesElapsedTime providerA = createNoMatchProvider(400);
-        ProvidesElapsedTime providerB = createMatchProvider(420, 450-TransportGraphBuilder.BOARDING_COST);
-        ProvidesElapsedTime providerC = createNoMatchProvider(451);
-
-        replayAll();
-        assertFalse(expander.operatesOnTime(time, providerA));
-        assertTrue(expander.operatesOnTime(time, providerB));
-        assertFalse(expander.operatesOnTime(time, providerC));
-        verifyAll();
-    }
-
-    @Test
-    public void shouldCheckIfChangeOfServiceWithDepartAndThenBoard() {
-
-        TransportRelationship board = new BoardRelationship(boards, nodeFactory);
-        TransportRelationship depart = new DepartRelationship(departs, nodeFactory);
-        TransportRelationship change = new InterchangeDepartsRelationship(interchangeBoards, nodeFactory);
-
-        Relationship relationshipA = createMockGoesTo("0042", 10, days, times, "id1", startDate, endDate, "destA");
-        TramGoesToRelationship outA = new TramGoesToRelationship(relationshipA, nodeFactory);
-
-        Relationship relationshipB = createMockGoesTo("0048", 5, days, times, "id2", startDate, endDate, "destB");
-        TramGoesToRelationship outB = new TramGoesToRelationship(relationshipB, nodeFactory);
-
-        replayAll();
-
-        TimeBasedPathExpander expander = new TimeBasedPathExpander(
-                CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
-
-        assertTrue(expander.noInFlightChangeOfService(board, outA));
-        assertTrue(expander.noInFlightChangeOfService(depart, outA));
-        assertTrue(expander.noInFlightChangeOfService(change, outA));
-        assertTrue(expander.noInFlightChangeOfService(outA, outA));
-        assertFalse(expander.noInFlightChangeOfService(outB, outA));
-        verifyAll();
-    }
-
-    @Test
-    public void shouldCheckIfTramRunsOnADay() {
-        TimeBasedPathExpander expander = new TimeBasedPathExpander(
-                CommonEvaluators.doubleCostEvaluator(COST), MAX_WAIT_MINUTES, relationshipFactory, nodeFactory);
-
-        checkDay(expander, true,false,false,false,false,false,false,DaysOfWeek.Monday);
-        checkDay(expander, false,true,false,false,false,false,false,DaysOfWeek.Tuesday);
-        checkDay(expander, false,false,true,false,false,false,false,DaysOfWeek.Wednesday);
-        checkDay(expander, false,false,false,true,false,false,false,DaysOfWeek.Thursday);
-        checkDay(expander, false,false,false,false,true,false,false,DaysOfWeek.Friday);
-        checkDay(expander, false,false,false,false,false,true,false,DaysOfWeek.Saturday);
-        checkDay(expander, false, false, false, false, false, false, true, DaysOfWeek.Sunday);
-    }
-
-    private void checkDay(TimeBasedPathExpander expander, boolean d1, boolean d2, boolean d3, boolean d4,
-                          boolean d5, boolean d6, boolean d7, DaysOfWeek day) {
-
-        boolean[] days = new boolean[]{d1, d2, d3, d4, d5, d6, d7};
-        assertTrue(expander.operatesOnDayOnWeekday(days, day));
+        mockNodeFactory = createMock(NodeFactory.class);
+        mockRelationshipFactory = createMock(RelationshipFactory.class);
+        serviceHeuristics = createMock(ServiceHeuristics.class);
+        endNode = createMock(Node.class);
+        path = createMock(Path.class);
+        GraphBranchState state = createMock(GraphBranchState.class);
+        branchState = createGraphBranchState(state);
     }
 
     @Test
     public void shouldExpandPathsCorrectlyForInitialPath() throws TramchesterException {
 
-        RelationshipFactory mockRelationshipFactory = createMock(RelationshipFactory.class);
-        NodeFactory mockNodeFactory = createMock(NodeFactory.class);
-
-        Set<Relationship> outgoingRelationships = createRelationships(departs, boards, goesToA);
-        //
-        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(RouteCalculator.COST_EVALUATOR,
-                RouteCalculator.MAX_WAIT_TIME_MINS, mockRelationshipFactory, mockNodeFactory);
-        Node endNode = createMock(Node.class);
-        TramNode tramNode = createMock(TramNode.class);
-        //
-        Path path = setNodeExpectations(mockNodeFactory, outgoingRelationships, endNode, tramNode);
+        Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
         EasyMock.expect(path.length()).andReturn(0);
-
-        GraphBranchState state = new GraphBranchState(sunday, 580);
-        BranchState<GraphBranchState> branchState = createGraphBranchState(state);
+        EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
 
         replayAll();
+        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(mockRelationshipFactory,
+                mockNodeFactory, serviceHeuristics);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         verifyAll();
 
@@ -259,192 +86,100 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoing() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 580;
+    public void shouldExpandPathsCorrectlyForMatchingPath() throws TramchesterException {
+        Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "0042",
-                times, goesToB, monday, true);
-        assertEquals(2, results);
-    }
+        EasyMock.expect(path.length()).andReturn(1);
+        EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
+        Relationship lastRelationship = createMock(Relationship.class);
+        EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+        TransportRelationship incoming = createMock(TransportRelationship.class);
+        EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
+        GoesToRelationship goesTo = createMock(GoesToRelationship.class);
+        EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo);
 
-    @Test
-    public void shouldExpandPathsCorrectlyForPathWithTotalDurationOverWaitTime() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 580;
-        int inboundDuration = 2 * maxWait;
-
-        Relationship longDurationInbound = createMock(Relationship.class);
-        EasyMock.expect(longDurationInbound.getType()).andStubReturn(TransportRelationshipTypes.TRAM_GOES_TO);
-        EasyMock.expect(longDurationInbound.getProperty(GraphStaticKeys.COST)).andStubReturn(
-                inboundDuration);
-        EasyMock.expect(longDurationInbound.getId()).andStubReturn((long) 6000);
-
-        int[] outboundTimes = new int[] { journeyStartTime+inboundDuration+1 };
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "0042",
-                outboundTimes, longDurationInbound, monday, true);
-        assertEquals(2, results);
-    }
-
-    @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingTooEarly() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-
-        int journeyStartTime = 100;
-
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "0042",
-                times, goesToB, monday, true);
-        assertEquals(1, results);
-    }
-
-    @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingTooLate() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 1000;
-
-        int results = countExpandedRelationships(maxWait, journeyStartTime,  "0042", "0042",
-                times, goesToB, monday, true);
-        assertEquals(1, results);
-    }
-
-    @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleWaitTooLong() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 561;
-
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "0042",
-                times, goesToB, monday, true);
-        assertEquals(1, results);
-    }
-
-    @Test
-    public void shouldExpandPathsCorrectlyForPathWithLongIncomingDuration() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 561;
-
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "0042",
-                times, goesToB, monday, true);
-        assertEquals(1, results);
-    }
-
-    @Test
-    public void shouldExpandPathsCorrectlyForPathWithDifferingServiceId() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 580;
-
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "00XX",
-                times, goesToB, monday, false);
-        assertEquals(1, results);
-    }
-
-    @Test
-    public void shouldExpandPathsCorrectlyWithServiceThatDoesNotRunOnGivenDate() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 580;
-
-        TramServiceDate outOfRangeDate = new TramServiceDate("20160630");
-
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "0042",
-                times, goesToB, outOfRangeDate, false);
-        assertEquals(1, results);
-
-    }
-
-    @Test
-    public void shouldExpandPathsCorrectlyForPathWithSimpleOutgoingWrongDay() throws TramchesterException {
-        int maxWait = RouteCalculator.MAX_WAIT_TIME_MINS;
-        int journeyStartTime = 580;
-
-        int results = countExpandedRelationships(maxWait, journeyStartTime, "0042", "0042",
-                times, goesToB, sunday, false);
-        assertEquals(1, results);
-    }
-
-    private int countExpandedRelationships(int maxWait, int queriedTime,
-                                           String inboundServiceId, String outboundServiceId, int[] outgoingTimes,
-                                           Relationship incomingTram, TramServiceDate queryDate, boolean pathExpands) throws TramchesterException {
-        RelationshipFactory mockRelationshipFactory = createMock(RelationshipFactory.class);
-        NodeFactory mockNodeFactory = createMock(NodeFactory.class);
-        Node endNode = createMock(Node.class);
-        TramNode tramNode = createMock(TramNode.class);
-
-        Path path = setNodeExpectations(mockNodeFactory, createRelationships(goesToA, departs), endNode, tramNode);
-        createInboundExpectations(mockRelationshipFactory, path, inboundServiceId, incomingTram, pathExpands);
-        createOutgoingExpectations(mockRelationshipFactory, goesToACost, outboundServiceId, outgoingTimes, goesToA);
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo, path)).
+                andReturn(ServiceReason.IsValid);
 
         replayAll();
-        GraphBranchState state = new GraphBranchState(queryDate, queriedTime);
-        BranchState<GraphBranchState> branchState = createGraphBranchState(state);
-
-        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(RouteCalculator.COST_EVALUATOR,
-                maxWait , mockRelationshipFactory, mockNodeFactory);
+        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(mockRelationshipFactory,
+                mockNodeFactory, serviceHeuristics);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         verifyAll();
 
-        return countResults(results);
+        assertEquals(3, countResults(results));
     }
 
-    private void createInboundExpectations(RelationshipFactory mockRelationshipFactory, Path path,
-                                           String incomingService, Relationship incomingTram, boolean pathExpands) {
-        EasyMock.expect(path.length()).andStubReturn(1);
-        EasyMock.expect(path.lastRelationship()).andReturn(incomingTram);
-        Relationship relationship = createMockGoesTo(incomingService, goesToBCost, days, times,
-                "id", startDate, endDate, "destFrom");
-        TransportRelationship gotoRelationship = new TramGoesToRelationship(relationship, nodeFactory);
-        EasyMock.expect(mockRelationshipFactory.getRelationship(incomingTram)).andStubReturn(gotoRelationship);
-        // neo gets current cost by adding up steps so far
-        if (pathExpands) {
-            List<Relationship> pathSoFar = new LinkedList<>();
-            pathSoFar.add(incomingTram);
-            EasyMock.expect(path.relationships()).andReturn(pathSoFar);
-        }
-    }
+    @Test
+    public void shouldExpandPathsCorrectlyForNonMatchingPath() throws TramchesterException {
+        Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
-    private Relationship createMockGoesTo(String incomingService, int goesToCost, boolean[] days, int[] times,
-                                          String id, TramServiceDate startDate, TramServiceDate endDate, String destFrom) {
-        Relationship relationship = createMock(Relationship.class);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DAYS)).andStubReturn(days);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_ID)).andStubReturn(incomingService);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_START_DATE)).andStubReturn(startDate.getStringDate());
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andStubReturn(endDate.getStringDate());
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.TIMES)).andStubReturn(times);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.COST)).andStubReturn(goesToCost);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.ROUTE_STATION)).andStubReturn(destFrom);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.ID)).andStubReturn(id);
-        return relationship;
-    }
-
-    private void createOutgoingExpectations(RelationshipFactory mockRelationshipFactory, int outgoingStageCost,
-                                            String service, int[] outgoingTimes, Relationship outgoingTram) {
-        EasyMock.expect(mockRelationshipFactory.getRelationship(departs)).andStubReturn(departsRelationship);
-        boolean[] expectedDays = new boolean[] { true, false, false, false, false, false, false };
-        Relationship relationship = createMockGoesTo(service, outgoingStageCost,
-                expectedDays, outgoingTimes, "id", startDate, endDate, "destTo");
-        TramGoesToRelationship outgoingRelationship = new TramGoesToRelationship(relationship, nodeFactory);
-        EasyMock.expect(mockRelationshipFactory.getRelationship(outgoingTram)).andStubReturn(outgoingRelationship);
-    }
-
-    private Path setNodeExpectations(NodeFactory mockNodeFactory, Set<Relationship> relationships,
-                                     Node endNode, TramNode tramNode) {
-        Path path = createMock(Path.class);
-
+        EasyMock.expect(path.length()).andReturn(1);
         EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
+        Relationship lastRelationship = createMock(Relationship.class);
+        EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+        TransportRelationship incoming = createMock(TransportRelationship.class);
+        EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
+        GoesToRelationship goesTo = createMock(GoesToRelationship.class);
+        EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo);
+
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo, path)).
+                andReturn(ServiceReason.DoesNotRunOnQueryDate);
+
+        TramNode tramNode = createMock(TramNode.class);
         EasyMock.expect(mockNodeFactory.getNode(endNode)).andReturn(tramNode);
-        EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(relationships);
-        return path;
+
+        replayAll();
+        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(mockRelationshipFactory,
+                mockNodeFactory, serviceHeuristics);
+        Iterable<Relationship> results = pathExpander.expand(path, branchState);
+        verifyAll();
+
+        assertEquals(2, countResults(results));
+    }
+
+    @Test
+    public void shouldExpandPathsCorrectlyForMixedMatchingPath() throws TramchesterException {
+        Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, goesToB, departs);
+
+        EasyMock.expect(path.length()).andReturn(1);
+        EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
+        Relationship lastRelationship = createMock(Relationship.class);
+        EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+        TransportRelationship incoming = createMock(TransportRelationship.class);
+        EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
+        GoesToRelationship goesTo1 = createMock(GoesToRelationship.class);
+        EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo1);
+        GoesToRelationship goesTo2 = createMock(GoesToRelationship.class);
+        EasyMock.expect(mockRelationshipFactory.getRelationship(goesToB)).andReturn(goesTo2);
+
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo1, path)).
+                andReturn(ServiceReason.DoesNotRunOnQueryDate);
+
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo2, path)).
+                andReturn(ServiceReason.IsValid);
+
+        replayAll();
+        PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(mockRelationshipFactory,
+                mockNodeFactory, serviceHeuristics);
+        Iterable<Relationship> results = pathExpander.expand(path, branchState);
+        verifyAll();
+
+        assertEquals(3, countResults(results));
     }
 
     private Set<Relationship> createRelationships(Relationship... relats) {
         Set<Relationship> relationships = new HashSet<>();
-        for(Relationship r : relats) {
-            relationships.add(r);
-        }
+        Collections.addAll(relationships, relats);
         return relationships;
     }
 
     private int countResults(Iterable<Relationship> results) {
         int count = 0;
-        for(Relationship rel : results) {
+        for(Relationship ignored : results) {
             count++;
         }
         return count;
@@ -463,55 +198,5 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
                 }
             };
     }
-
-    TransportRelationship departsRelationship = new TransportRelationship() {
-        @Override
-        public boolean isGoesTo() {
-            return false;
-        }
-
-        @Override
-        public boolean isBoarding() {
-            return false;
-        }
-
-        @Override
-        public boolean isDepartTram() {
-            return true;
-        }
-
-        @Override
-        public boolean isInterchange() {
-            return false;
-        }
-
-        @Override
-        public boolean isWalk() {return false;}
-
-        @Override
-        public int getCost() {
-            return 2;
-        }
-
-        @Override
-        public String getId() {
-            return "ID";
-        }
-
-        @Override
-        public TransportMode getMode() {
-            return TransportMode.Tram;
-        }
-
-        @Override
-        public TramNode getStartNode() {
-            return null;
-        }
-
-        @Override
-        public TramNode getEndNode() {
-            return null;
-        }
-    };
 
 }

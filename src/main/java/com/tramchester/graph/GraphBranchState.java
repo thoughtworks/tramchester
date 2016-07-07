@@ -51,4 +51,15 @@ public class GraphBranchState {
     public boolean hasStartTime() {
         return hasStartTime;
     }
+
+    @Override
+    public String toString() {
+        return "GraphBranchState{" +
+                "queryTime=" + queryTime +
+                ", startTime=" + startTime +
+                ", queryDate=" + queryDate +
+                ", hasStartTime=" + hasStartTime +
+                ", day=" + day +
+                '}';
+    }
 }

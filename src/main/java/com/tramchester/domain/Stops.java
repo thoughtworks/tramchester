@@ -50,7 +50,7 @@ public class Stops  implements Iterable<Stop> {
 
     public boolean travelsBetween(String firstStationId, String lastStationId, TimeWindow window) {
         if (!(stations.containsKey(firstStationId) && stations.containsKey(lastStationId))) {
-            logger.warn(format("No stops for %s to %s as one or more station missing", firstStationId, lastStationId));
+            //logger.warn(format("No stops for %s to %s as one or more station missing", firstStationId, lastStationId));
             return false;
         }
         List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, window);

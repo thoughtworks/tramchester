@@ -12,8 +12,8 @@ public class CachingCostEvaluator implements CostEvaluator<Double>{
     Map<Long, Integer> idToCost;
     private String propertyName;
 
-    public CachingCostEvaluator(String propertyName) {
-        this.propertyName = propertyName;
+    public CachingCostEvaluator() {
+        this.propertyName = GraphStaticKeys.COST;
         idToCost = new HashMap<>();
     }
 

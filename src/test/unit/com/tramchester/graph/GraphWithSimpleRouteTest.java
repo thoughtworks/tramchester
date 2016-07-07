@@ -1,5 +1,7 @@
 package com.tramchester.graph;
 
+import com.tramchester.IntegrationTramTestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
@@ -15,6 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
+import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -57,9 +60,14 @@ public class GraphWithSimpleRouteTest {
         PathToTransportRelationship pathToRelationships  = new PathToTransportRelationship(relationshipFactory);
         MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData);
 
+        CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
+        TramchesterConfig configuration = new IntegrationTramTestConfig();
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, configuration);
+        TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
+
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
-                spatialDatabaseService, mapper);
+                spatialDatabaseService, pathExpander, mapper, costEvaluator);
     }
 
     @Before

@@ -26,23 +26,23 @@ import static java.lang.String.format;
 public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
+    //public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
     public static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
     private String queryNodeName = "BEGIN";
 
-    public static final CostEvaluator<Double> COST_EVALUATOR = new CachingCostEvaluator(GraphStaticKeys.COST);
-
     private NodeFactory nodeFactory;
     private PathExpander pathExpander;
     private MapPathToStages pathToStages;
+    private CostEvaluator<Double> costEvaluator;
 
     public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
-                           SpatialDatabaseService spatialDatabaseService, MapPathToStages pathToStages) {
+                           SpatialDatabaseService spatialDatabaseService, PathExpander pathExpander, MapPathToStages pathToStages, CostEvaluator<Double> costEvaluator) {
         super(db, relationshipFactory, spatialDatabaseService, true);
         this.nodeFactory = nodeFactory;
+        this.pathExpander = pathExpander;
         this.pathToStages = pathToStages;
-        pathExpander = new TimeBasedPathExpander(COST_EVALUATOR, MAX_WAIT_TIME_MINS, relationshipFactory, nodeFactory);
+        this.costEvaluator = costEvaluator;
     }
 
     public Set<RawJourney> calculateRoute(String startStationId, String endStationId, int queryTime,
@@ -134,7 +134,7 @@ public class RouteCalculator extends StationIndexs {
         PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
                 pathExpander,
                 stateFactory,
-                COST_EVALUATOR);
+                costEvaluator);
 
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
         return StreamSupport.stream(pathIterator.spliterator(), false);
