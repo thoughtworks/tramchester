@@ -99,10 +99,10 @@ public class UserJourneyTest {
 
     @Test
     @Category({AcceptanceTest.class})
-    public void shouldCheckAltrinchamToEcclesNotPossibleDuringClosures() throws InterruptedException {
+    public void shouldCheckAltrinchamToPiccadiltNotPossibleDuringClosures() throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(Stations.Altrincham.getName(),
-                Stations.Eccles.getName(), when, "10:15");
+                Stations.Piccadilly.getName(), when, "10:15");
 
         assertTrue(routeDetailsPage.waitForError());
     }
