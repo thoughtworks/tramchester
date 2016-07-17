@@ -6,6 +6,7 @@ import com.tramchester.cloud.FetchInstanceMetadata;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Set;
 
 public class Dependencies {
 
@@ -51,15 +53,10 @@ public class Dependencies {
             FetchDataFromUrl fetcher = new FetchDataFromUrl(inputPath, configuration.getTramDataUrl());
             fetcher.fetchData();
         }
+
         Path outputPath = configuration.getOutputDataPath();
         if (configuration.isFilterData() || configuration.isPullData()) {
-            Path inputDir = inputPath.resolve(TFGM_UNZIP_DIR);
-            TransportDataReader reader = new TransportDataReader(inputDir);
-            TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(outputPath);
-
-            DataCleanser dataCleanser = new DataCleanser(reader, writerFactory);
-            dataCleanser.run(configuration);
-            logger.info("Data cleansing finished");
+            cleanseData(configuration.getAgencies(), inputPath, outputPath);
         }
 
         logger.info("Creating dependencies");
@@ -108,6 +105,21 @@ public class Dependencies {
         logger.info("Prepare to signal cloud formation if running in cloud");
         SignalToCloudformationReady signaller = picoContainer.getComponent(SignalToCloudformationReady.class);
         signaller.send();
+    }
+
+    public ErrorCount cleanseData(Set<String> agencies, Path inputPath, Path outputPath) throws IOException {
+        Path inputDir = inputPath.resolve(TFGM_UNZIP_DIR);
+        TransportDataReader reader = new TransportDataReader(inputDir);
+        TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(outputPath);
+
+        ErrorCount count = new ErrorCount();
+        DataCleanser dataCleanser = new DataCleanser(reader, writerFactory, count);
+        dataCleanser.run(agencies);
+        if (!count.noErrors()) {
+            logger.warn("Errors encounted during parsing data " + count);
+        }
+        logger.info("Data cleansing finished");
+        return count;
     }
 
     private void rebuildGraph(TramchesterConfig configuration) throws IOException {

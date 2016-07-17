@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.MyLocation;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;
@@ -100,13 +101,13 @@ public class StationResource {
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s ", lat, lon));
 
-        List<DisplayStation> orderedStations = spatialService.reorderNearestStations(new LatLong(lat, lon), getStations());
+        LatLong latLong = new LatLong(lat,lon);
+        List<DisplayStation> orderedStations = spatialService.reorderNearestStations(latLong, getStations());
 
         if (config.showMyLocation()) {
             logger.info("Showing users location in stations list");
 
             // TODO use MyLocation instead of Station
-            LatLong latLong = new LatLong(lat,lon);
             Station myLocation = new Station(formId(lat,lon), "", "My Location", latLong, false);
             orderedStations.add(0, new DisplayStation(myLocation, SpatialService.NEARBY));
         }

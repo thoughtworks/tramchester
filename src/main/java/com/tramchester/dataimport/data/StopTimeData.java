@@ -1,18 +1,25 @@
 package com.tramchester.dataimport.data;
 
+import com.amazonaws.services.devicefarm.model.Run;
+import com.tramchester.domain.exceptions.TramchesterException;
+
 import java.time.LocalTime;
+import java.util.Optional;
 
 public class StopTimeData {
     private String tripId;
-    private LocalTime arrivalTime;
-    private LocalTime departureTime;
+    private Optional<LocalTime> arrivalTime = Optional.empty();
+    private Optional<LocalTime> departureTime = Optional.empty();
     private String stopId;
     private String stopSequence;
     private String pickupType;
     private String dropOffType;
 
-    public StopTimeData(String tripId, LocalTime arrivalTime, LocalTime departureTime, String stopId,
+    public StopTimeData(String tripId, Optional<LocalTime> arrivalTime, Optional<LocalTime> departureTime, String stopId,
                         String stopSequence, String pickupType, String dropOffType) {
+        if (arrivalTime==null || departureTime==null) {
+            throw new RuntimeException("Constrain violation");
+        }
         this.tripId = tripId;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
@@ -40,11 +47,11 @@ public class StopTimeData {
     }
 
     public LocalTime getArrivalTime() {
-        return arrivalTime;
+        return arrivalTime.orElse(null);
     }
 
     public LocalTime getDepartureTime() {
-        return departureTime;
+        return departureTime.orElse(null);
     }
 
     public String getStopId() {
@@ -63,4 +70,13 @@ public class StopTimeData {
         return dropOffType;
     }
 
+    public boolean isInError() {
+        if (!arrivalTime.isPresent()) {
+            return true;
+        }
+        if (!departureTime.isPresent()) {
+            return true;
+        }
+        return false;
+    }
 }

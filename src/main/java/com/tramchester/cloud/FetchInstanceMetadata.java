@@ -21,6 +21,7 @@ import static java.lang.String.format;
 
 public class FetchInstanceMetadata implements FetchMetadata {
     private static final Logger logger = LoggerFactory.getLogger(FetchInstanceMetadata.class);
+
     private static final java.lang.String USER_DATA_PATH = "/latest/user-data";
 
     private URL instanceDataURL;

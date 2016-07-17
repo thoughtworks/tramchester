@@ -1,6 +1,6 @@
 package com.tramchester.dataimport.datacleanse;
 
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.StopDataParser;
@@ -24,15 +24,17 @@ public class DataCleanser {
 
     private TransportDataReader transportDataReader;
     private TransportDataWriterFactory transportDataWriterFactory;
+    private ErrorCount count;
 
-    public DataCleanser(TransportDataReader reader, TransportDataWriterFactory factory) {
+    public DataCleanser(TransportDataReader reader, TransportDataWriterFactory factory, ErrorCount count) {
         this.transportDataReader = reader;
         this.transportDataWriterFactory = factory;
+        this.count = count;
     }
 
-    public void run(TramchesterConfig configuration) throws IOException {
+    public void run(Set<String> agencies) throws IOException {
 
-        List<String> routeCodes = cleanseRoutes(configuration.getAgencies());
+        List<String> routeCodes = cleanseRoutes(agencies);
 
         ServicesAndTrips servicesAndTrips = cleanseTrips(routeCodes);
 
@@ -43,6 +45,10 @@ public class DataCleanser {
         cleanseCalendar(servicesAndTrips.getServiceIds());
 
         cleanFeedInfo();
+
+        if (!count.noErrors()) {
+            logger.warn("Unable to cleanse all data" + count);
+        }
     }
 
     public void cleanseCalendar(Set<String> services) throws IOException {
@@ -77,19 +83,24 @@ public class DataCleanser {
 
         stopTimes.filter(stopTime -> tripIds.contains(stopTime.getTripId()))
                 .forEach(stopTime -> {
-                    try {
-                        writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
-                                stopTime.getTripId(),
-                                DateTimeService.formatTime(stopTime.getArrivalTime()),
-                                DateTimeService.formatTime(stopTime.getDepartureTime()),
-                                stopTime.getStopId(),
-                                stopTime.getStopSequence(),
-                                stopTime.getPickupType(),
-                                stopTime.getDropOffType()));
-                        stopIds.add(stopTime.getStopId());
-                    }
-                    catch (NullPointerException exception) {
-                        logger.error("Unable to add " + stopTime);
+                    if (stopTime.isInError()) {
+                        logger.warn("Unable to process " + stopTime);
+                        count.inc();
+                    } else {
+                        try {
+                            writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
+                                    stopTime.getTripId(),
+                                    DateTimeService.formatTime(stopTime.getArrivalTime()),
+                                    DateTimeService.formatTime(stopTime.getDepartureTime()),
+                                    stopTime.getStopId(),
+                                    stopTime.getStopSequence(),
+                                    stopTime.getPickupType(),
+                                    stopTime.getDropOffType()));
+                            stopIds.add(stopTime.getStopId());
+                        } catch (NullPointerException exception) {
+                            count.inc();
+                            logger.error("Unable to add " + stopTime, exception);
+                        }
                     }
                 });
 
@@ -194,4 +205,5 @@ public class DataCleanser {
         logger.info("**** End cleansing feed info.");
 
     }
+
 }

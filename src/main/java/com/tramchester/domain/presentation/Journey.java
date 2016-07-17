@@ -7,6 +7,8 @@ import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.mappers.TimeJsonSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.List;
 import static java.lang.String.format;
 
 public class Journey implements Comparable<Journey> {
+    private static final Logger logger = LoggerFactory.getLogger(Journey.class);
+
     private long containedWalking;
     private List<PresentableStage> allStages;
 
@@ -56,6 +60,10 @@ public class Journey implements Comparable<Journey> {
     }
 
     private boolean firstStageIsWalk() {
+        if (allStages.isEmpty()) {
+            logger.error("No stages in the journey");
+            return false;
+        }
         return !allStages.get(0).getIsAVehicle();
     }
 

@@ -1,11 +1,11 @@
 package com.tramchester.dataimport.datacleanse;
 
+import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -14,10 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +32,7 @@ public class TestDataCleanser extends EasyMockSupport {
         reader = createMock(TransportDataReader.class);
         writer = createMock(TransportDataWriter.class);
         factory = createMock(TransportDataWriterFactory.class);
-        cleanser = new DataCleanser(reader, factory);
+        cleanser = new DataCleanser(reader, factory, new ErrorCount());
     }
 
     @Test
@@ -138,11 +135,11 @@ public class TestDataCleanser extends EasyMockSupport {
         LocalTime arrivalTime = LocalTime.parse("11:10:09");    //, formatter);
         LocalTime departureTime = LocalTime.parse("12:09:29");  //, formatter);
 
-        StopTimeData stopTimeA = new StopTimeData("tripIdA", now.minusHours(1), now.plusHours(1), "1200stopIdA",
-                "stopSeqA", "pickupA", "dropA");
+        StopTimeData stopTimeA = new StopTimeData("tripIdA", Optional.of(now.minusHours(1)),
+                Optional.of(now.plusHours(1)), "1200stopIdA", "stopSeqA", "pickupA", "dropA");
 
-        StopTimeData stopTimeB = new StopTimeData("tripIdB", arrivalTime, departureTime, "9400stopIdB",
-                "stopSeqB", "pickupB", "dropB");
+        StopTimeData stopTimeB = new StopTimeData("tripIdB", Optional.of(arrivalTime), Optional.of(departureTime),
+                "9400stopIdB", "stopSeqB", "pickupB", "dropB");
 
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeA, stopTimeB);
 

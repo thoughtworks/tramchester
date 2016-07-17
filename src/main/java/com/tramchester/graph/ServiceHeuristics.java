@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
@@ -48,17 +49,7 @@ public class ServiceHeuristics {
     }
 
     public boolean operatesOnQueryDate(TramServiceDate startDate, TramServiceDate endDate, TramServiceDate queryDate) {
-        // start date and end date are inclusive
-        LocalDate date = queryDate.getDate();
-        LocalDate startingDate = startDate.getDate();
-        LocalDate endingDate = endDate.getDate();
-        if  (date.isAfter(startingDate) && date.isBefore(endingDate)) {
-            return true;
-        }
-        if (date.equals(startingDate) || date.equals(endingDate)) {
-            return true;
-        }
-        return false;
+        return Service.operatesOn(startDate, endDate, queryDate.getDate());
     }
 
 

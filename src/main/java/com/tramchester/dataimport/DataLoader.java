@@ -41,10 +41,7 @@ public class DataLoader<T> {
             return resultStream;
 
         } catch (FileNotFoundException e) {
-            logger.error("File not found: " + fileName + ".txt");
-            e.printStackTrace();
-        } finally {
-            //reader.close();
+            logger.error("File not found: " + fileName + ".txt",e);
         }
         return Stream.empty();
     }

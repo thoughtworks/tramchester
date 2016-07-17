@@ -53,7 +53,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             ZipFile zipFile = new ZipFile(filename.toFile());
             zipFile.extractAll(path.toAbsolutePath().toString());
         } catch (ZipException e) {
-            e.printStackTrace();
+            logger.warn("Unable to unzip "+filename, e);
         }
     }
 

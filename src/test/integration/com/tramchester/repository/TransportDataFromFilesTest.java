@@ -9,12 +9,13 @@ import org.junit.experimental.categories.Category;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
     public static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(8 * 60, 45);
-    public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodes.ASH_TO_ROCH, RouteCodes.ASH_TO_VICTORIA});
+    public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodes.ASH_TO_BURY});
 
     private static Dependencies dependencies;
 
@@ -48,15 +49,15 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetRoute() {
-        Route result = transportData.getRoute(RouteCodes.ASH_TO_VICTORIA);
-        assertEquals("Ashton-under-Lyne - Victoria", result.getName());
+        Route result = transportData.getRoute(RouteCodes.ASH_TO_BURY);
+        assertEquals("Ashton-under-Lyne - Bury", result.getName());
     }
 
     @Test
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
-        assertEquals(22, tramRoutes); // both old format and new form routes present
+        assertEquals(18, tramRoutes);
     }
 
     @Test
@@ -119,7 +120,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv005082");
+        Service svc = transportData.getServiceById("Serv007138");
         List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertFalse(trips.isEmpty());
@@ -133,16 +134,16 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldHaveAllEndOfLineTramStations() {
-        long filteredStations = transportData.getStations().stream()
-                .filter(station -> Stations.EndOfTheLine.contains(station)).count();
+        List<Station> filteredStations = transportData.getStations().stream()
+                .filter(station -> Stations.EndOfTheLine.contains(station)).collect(Collectors.toList());
 
-        assertEquals(Stations.EndOfTheLine.size(), filteredStations);
+        assertEquals(Stations.EndOfTheLine.size(), filteredStations.size());
     }
 
     @Test
     public void shouldFindTripsForTramStation() {
         Set<Trip> altyTrips = transportData.getTripsFor(Stations.Altrincham.getId());
-        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham.getId(), Stations.Piccadilly.getId(),
+        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham.getId(), Stations.Deansgate.getId(),
                 MINUTES_FROM_MIDNIGHT_8AM));
 
         assertFalse(altyTrips.isEmpty());
@@ -151,11 +152,11 @@ public class TransportDataFromFilesTest {
         int count = 0;
         for (Stop stop : trip.getStops()) {
             count++;
-            if (stop.getStation().getId().equals(Stations.Piccadilly)) {
+            if (stop.getStation().getId().equals(Stations.Deansgate)) {
                 break;
             }
         }
-        assertEquals(16, count); // this number will change when st peters square re-opens
+        assertEquals(11, count);
     }
 
     @Test

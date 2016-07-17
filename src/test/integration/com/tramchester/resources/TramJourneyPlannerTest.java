@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
-    private LocalDate today;
+    private LocalDate when;
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(5*60);
@@ -37,7 +37,9 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
-        today = LocalDate.now();
+        LocalDate now = LocalDate.now();
+        int offset = now.getDayOfWeek()-MONDAY;
+        when =  now.plusDays(offset);
         planner = dependencies.get(JourneyPlannerResource.class);
     }
 
@@ -52,7 +54,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNext7Days(start, dest, today, 10*60);
+                checkRouteNext7Days(start, dest, when, 10*60);
             }
         }
     }
@@ -63,7 +65,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {
         for (Location start :  Stations.getInterchanges()) {
             for (Location dest : Stations.getInterchanges()) {
-                checkRouteNext7Days(start, dest, today, 9*60);
+                checkRouteNext7Days(start, dest, when, 9*60);
             }
         }
     }
@@ -74,7 +76,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.getInterchanges()) {
-                checkRouteNext7Days(start, dest, today, 9*60);
+                checkRouteNext7Days(start, dest, when, 9*60);
             }
         }
     }
@@ -85,7 +87,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.getInterchanges() ) {
             for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNext7Days(start,dest, today, 10*60);
+                checkRouteNext7Days(start,dest, when, 10*60);
             }
         }
     }
@@ -93,13 +95,13 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldReproduceIssueWithMissingRoutes() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, 10*60, today);
+        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, 10*60, when);
     }
 
     @Test
     public void testAltyToManAirportHasRealisticTranferAtCornbrook() throws TramchesterException {
-        int offsetToSunday = SUNDAY-today.getDayOfWeek();
-        LocalDate nextSunday = today.plusDays(offsetToSunday);
+        int offsetToSunday = SUNDAY- when.getDayOfWeek();
+        LocalDate nextSunday = when.plusDays(offsetToSunday);
 
         JourneyPlanRepresentation results = planner.createJourneyPlan(Stations.Altrincham.getId(),
                 Stations.ManAirport.getId(), new TramServiceDate(nextSunday), (11*60)+43);
@@ -111,49 +113,49 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteVeloToEtihad() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Etihad, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Etihad, 8*60, when);
     }
 
     @Test
     public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, (23*60)+44, today);
+        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, (23*60)+44, when);
     }
 
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldFindRoutePiccadilyGardensToCornbrook() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Cornbrook, 23*60, today);
+        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Cornbrook, 23*60, when);
     }
 
     @Test
     public void shouldFindRouteCornbrookToManAirport() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, (23*60)+20, today);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, (23*60)+20, when);
     }
 
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, (23*60)+41, today);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, (23*60)+41, when);
     }
 
     @Test
     public void shouldFindRouteVeloToHoltTownAt8AM() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, 8*60, when);
     }
 
     @Test
     public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() throws TramchesterException {
         for(int i=0; i<60; i++) {
             int time = (8*60)+i;
-            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, today);
+            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, when);
         }
     }
 
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToEndOfLines() throws TramchesterException {
-        int offsetToMonday = MONDAY-today.getDayOfWeek();
-        LocalDate nextMonday = today.plusDays(offsetToMonday);
+        int offsetToMonday = MONDAY- when.getDayOfWeek();
+        LocalDate nextMonday = when.plusDays(offsetToMonday);
 
         for (Location dest : Stations.EndOfTheLine) {
             validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, nextMonday);
@@ -164,54 +166,54 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloInterchanges() throws TramchesterException {
         for (Location dest : Stations.getInterchanges()) {
-            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, today);
+            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, when);
         }
     }
 
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToDeansgate() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Deansgate, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Deansgate, 8*60, when);
     }
 
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToBroadway() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Broadway, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Broadway, 8*60, when);
     }
 
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToPomona() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, 8*60, today);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, 8*60, when);
     }
 
     @Test
     public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, 23*60, today);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, 23*60, when);
     }
 
     @Test
     @Ignore("Summary 2016 closures")
     public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, (22*60)+45, today);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, (22*60)+45, when);
     }
 
     @Test
     public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,
-                Stations.ManAirport, (23*60)+10, today);
+                Stations.ManAirport, (23*60)+10, when);
         Journey journey = results.getJourneys().stream().findFirst().get();
 
-        assertEquals("number of times for stage one", 4, journey.getStages().get(0).getNumberOfServiceTimes());
-        assertEquals("number of times for stage two", 1, journey.getStages().get(1).getNumberOfServiceTimes());
-        assertEquals("available times", 1, journey.getNumberOfTimes());
+        assertEquals("number of times for stage one", 5, journey.getStages().get(0).getNumberOfServiceTimes());
+        assertEquals("number of times for stage two", 5, journey.getStages().get(1).getNumberOfServiceTimes());
+        assertEquals("available times", 5, journey.getNumberOfTimes());
     }
 
     @Test
     public void shouldInvokeQuickestRouteDirectly() throws TramchesterException {
         Response result = planner.quickestRoute(Stations.Altrincham.getId(), Stations.Deansgate.getId(), "23:00:00",
-                today.toString("YYYY-MM-dd"));
+                when.toString("YYYY-MM-dd"));
         assertEquals(200, result.getStatus());
     }
 

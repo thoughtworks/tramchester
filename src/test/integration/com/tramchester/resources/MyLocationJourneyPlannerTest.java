@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.PresentableStage;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.Timeout;
@@ -20,6 +21,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.SortedSet;
 
+import static org.joda.time.DateTimeConstants.MONDAY;
 import static org.junit.Assert.*;
 
 public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
@@ -41,7 +43,8 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
     public void beforeEachTestRuns() {
         nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
         nearAltrincham = new LatLong(53.394948299999996D,-2.3581502D);
-        today = LocalDate.now();
+        int offset = LocalDate.now().getDayOfWeek() - MONDAY;
+        today = LocalDate.now().plusDays(offset);
         planner = dependencies.get(JourneyPlannerResource.class);
     }
 
@@ -65,10 +68,10 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         assertEquals(2, stages.size());
         PresentableStage walkingStage = stages.get(0);
         assertEquals(LocalTime.of(22,9), walkingStage.getFirstDepartureTime());
-        assertEquals(LocalTime.of(22,22), walkingStage.getExpectedArrivalTime());
+        LocalTime walkArrives = LocalTime.of(22, 22);
+        assertEquals(walkArrives, walkingStage.getExpectedArrivalTime());
 
-        assertEquals(LocalTime.of(22,24), first.getFirstDepartureTime());
-        assertEquals(LocalTime.of(22,43), first.getExpectedArrivalTime());
+        assertTrue(first.getFirstDepartureTime().isAfter(walkArrives));
     }
 
     @Test

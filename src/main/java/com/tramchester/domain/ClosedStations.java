@@ -9,9 +9,10 @@ import java.util.List;
 public class ClosedStations {
     private List<String> stations;
 
-    // via pico-container & Dependencies
+    // called via pico-container & Dependencies
+    // TODO refactor tests to use this constructor
     public ClosedStations(TramchesterConfig config) {
-        stations = config.getClosedStations();
+        this(config.getClosedStations());
     }
 
     // for testing

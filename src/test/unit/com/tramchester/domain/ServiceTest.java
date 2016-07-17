@@ -1,12 +1,13 @@
 package com.tramchester.domain;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import java.util.HashMap;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ServiceTest {
 
@@ -22,6 +23,14 @@ public class ServiceTest {
 
         assertThat(service.getStartDate().getDate()).isEqualTo(startDate);
         assertThat(service.getEndDate().getDate()).isEqualTo(endDate);
+
+        assertTrue(service.operatesOn(startDate));
+        assertTrue(service.operatesOn(endDate));
+        assertTrue(service.operatesOn(new LocalDate(2014,11,30)));
+
+        assertFalse(service.operatesOn(new LocalDate(2016,11,30)));
+        assertFalse(service.operatesOn(startDate.minusDays(1)));
+        assertFalse(service.operatesOn(endDate.plusDays(1)));
     }
 
     @Test
@@ -78,5 +87,6 @@ public class ServiceTest {
 
         assertThat(service.isRunning()).isTrue();
     }
+
 
 }

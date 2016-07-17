@@ -12,9 +12,14 @@ import static com.tramchester.domain.DaysOfWeek.*;
 
 public class Service {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
+
     private final String routeId;
     private String serviceId;
     private Set<Trip> trips = new LinkedHashSet<>();
+
+    private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
+    private TramServiceDate startDate;
+    private TramServiceDate endDate;
 
     public Service(String serviceId, String routeId) {
         this.serviceId = serviceId;
@@ -117,8 +122,20 @@ public class Service {
         return serviceId != null ? serviceId.hashCode() : 0;
     }
 
-    private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
-    private TramServiceDate startDate;
-    private TramServiceDate endDate;
 
+    public boolean operatesOn(LocalDate date) {
+        return operatesOn(startDate, endDate, date);
+    }
+
+    public static boolean operatesOn(TramServiceDate startDate, TramServiceDate endDate, LocalDate date) {
+        LocalDate begin = startDate.getDate();
+        LocalDate end = endDate.getDate();
+        if  (date.isAfter(begin) && date.isBefore(end)) {
+            return true;
+        }
+        if (date.equals(begin) || date.equals(end)) {
+            return true;
+        }
+        return false;
+    }
 }

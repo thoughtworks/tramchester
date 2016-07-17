@@ -47,7 +47,7 @@ public class Stations {
     public static List<Location> EndOfTheLineWest = Arrays.asList(new Location[]{
             Altrincham,
             ManAirport,
-            Eccles,
+            //Eccles,   // Eccles is closed during summer 2016 refurb
             EastDidsbury});
 
     public static List<Location> EndOfTheLineEast = Arrays.asList(new Location[]{

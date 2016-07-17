@@ -8,6 +8,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.graph.RouteCalculator;
+import org.joda.time.LocalDate;
 import org.junit.*;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
+import static org.joda.time.DateTimeConstants.MONDAY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -106,7 +108,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getExpectedArrivalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
 
-        assertEquals(4, stage.getNumberOfServiceTimes());
+        assertTrue(stage.getNumberOfServiceTimes()>1);
     }
 
     @Test
@@ -226,7 +228,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, int elapsedTime, int startTime) throws TramchesterException {
-        String svcId = findServiceId(start.getId(), finish.getId(), startTime);
+        LocalDate now = LocalDate.now();
+        int offset = now.getDayOfWeek()-MONDAY;
+        LocalDate when = now.plusDays(offset);
+        String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
         RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass", elapsedTime);
         rawVehicleStage.setLastStation(finish);
         rawVehicleStage.setServiceId(svcId);

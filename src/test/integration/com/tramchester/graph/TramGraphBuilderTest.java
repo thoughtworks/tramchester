@@ -1,6 +1,8 @@
 package com.tramchester.graph;
 
 import com.tramchester.*;
+import com.tramchester.dataimport.ErrorCount;
+import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
@@ -57,6 +59,12 @@ public class TramGraphBuilderTest {
     public static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
+
+//    @Test
+//    public void shouldHaveZeroErrorCountOnImport() {
+//        ErrorCount errorCount = dependencies.get(ErrorCount.class);
+//        assertTrue(errorCount.noErrors());
+//    }
 
     @Test
     @Category({ClosureTest.class})
@@ -161,7 +169,7 @@ public class TramGraphBuilderTest {
         String svcId = "Serv001180";
 
         List<TransportRelationship> outbounds =
-                calculator.getOutboundRouteStationRelationships(Stations.VeloPark.toString() + RouteCodes.ASH_TO_ROCH);
+                calculator.getOutboundRouteStationRelationships(Stations.VeloPark.toString() + RouteCodes.ASH_TO_BURY);
         // check on departs relationship & services
         List<TransportRelationship> departs = new LinkedList<>();
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
@@ -226,7 +234,8 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldReportServicesCorrectlyAtVeloparkTimes() throws TramchesterException {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + RouteCodes.ASH_TO_ROCH);
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
+                Stations.VeloPark.getId() + RouteCodes.ASH_TO_BURY);
         reportServices(outbounds);
     }
 
@@ -263,7 +272,8 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() throws TramchesterException {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + RouteCodes.ASH_TO_ROCH);
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
+                Stations.VeloPark.getId() + RouteCodes.ASH_TO_BURY);
 
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
         outbounds.forEach(out -> {
@@ -273,7 +283,8 @@ public class TramGraphBuilderTest {
         assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !svc.getDaysTramRuns()[0]); // monday
         assertTrue(!svcsFromVelopark.isEmpty());
-        svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(svc.getService()).getRouteId().equals(RouteCodes.ASH_TO_ROCH));
+        svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(
+                svc.getService()).getRouteId().equals(RouteCodes.ASH_TO_BURY));
         assertTrue(!svcsFromVelopark.isEmpty());
 
         assertTrue(svcsFromVelopark.size() >=1 );
