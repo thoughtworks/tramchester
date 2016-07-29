@@ -29,10 +29,12 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
             if (rawStage.getIsAVehicle()) {
                 timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
             } else if (rawStage.getMode().equals(TransportMode.Walk)) {
-                WalkingStage stage = (WalkingStage) rawStage;
+                RawWalkingStage stage = (RawWalkingStage) rawStage;
+                WalkingStage walkingStage = new WalkingStage(stage, timeWindow.minsFromMidnight());
                 logger.info("Adding walking stage " + stage);
-                stages.add(stage);
-                timeWindow = timeWindow.next(TimeAsMinutes.getMinutes(stage.getFirstDepartureTime())+stage.getDuration());
+                stages.add(walkingStage);
+
+                timeWindow = timeWindow.next(TimeAsMinutes.getMinutes(walkingStage.getExpectedArrivalTime()));
             }
         }
         return new Journey(stages);

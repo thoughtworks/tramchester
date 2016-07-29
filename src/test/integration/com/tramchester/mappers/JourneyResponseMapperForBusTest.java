@@ -68,9 +68,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     private JourneyPlanRepresentation getJourneyPlanRepresentation(Location begin, Location end, String svcId,
                                                                    int minutesFromMidnight) throws TramchesterException {
-
-        int elapsedTime = 8*60;
-        RawVehicleStage busStage = new RawVehicleStage(begin, "route text", TransportMode.Bus, "cssClass", elapsedTime);
+        RawVehicleStage busStage = new RawVehicleStage(begin, "route text", TransportMode.Bus, "cssClass");
         busStage.setServiceId(svcId);
         busStage.setLastStation(end);
 

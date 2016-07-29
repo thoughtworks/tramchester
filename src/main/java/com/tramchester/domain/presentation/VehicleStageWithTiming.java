@@ -65,18 +65,6 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
                 '}';
     }
 
-    @Deprecated
-    public int findDepartureTimeForEarliestArrival() {
-        int depart = Integer.MAX_VALUE;
-        int earlierArrive = Integer.MAX_VALUE;
-        for (ServiceTime time : serviceTimes) {
-            if (time.getFromMidnightArrives() < earlierArrive) {
-                depart = time.getFromMidnightLeaves();
-            }
-        }
-        return depart;
-    }
-
     public String getSummary() throws TramchesterException {
         switch (mode) {
             case Bus : {

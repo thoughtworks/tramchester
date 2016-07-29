@@ -54,7 +54,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         int time = 930;
         int elapsedTime = time +1;
 
-        RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", elapsedTime, time);
+        RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time);
 
         stages.add(vicToRoch);
         journeys.add(new RawJourney(stages));
@@ -72,7 +72,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         int elapsedTime = pm1044 +1 ;
 
         RawVehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
-                elapsedTime, pm1044);
+                pm1044);
 
         stages.add(rawStage);
         journeys.add(new RawJourney(stages));
@@ -90,7 +90,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         int am7 = 7 * 60;
         int elapsedTime = am7 +1;
 
-        RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", elapsedTime, am7);
+        RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7);
 
         stages.add(altToCorn);
         journeys.add(new RawJourney(stages));
@@ -120,8 +120,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         int elapsedTime = pm10 + 1;
 
-        RawVehicleStage rawStageA = getRawVehicleStage(begin, middle, "route text", elapsedTime, pm10);
-        RawVehicleStage rawStageB = getRawVehicleStage(middle, end, "route2 text", elapsedTime, pm10);
+        RawVehicleStage rawStageA = getRawVehicleStage(begin, middle, "route text", pm10);
+        RawVehicleStage rawStageB = getRawVehicleStage(middle, end, "route2 text", pm10);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
@@ -144,8 +144,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     public void shouldMapWalkingStageJourney() throws TramchesterException {
         int pm10 = 22 * 60;
 
-        int elapsedTime = pm10 + 1;
-        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, elapsedTime, 10);
+        RawWalkingStage walkingStage = new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 10);
 
         stages.add(walkingStage);
         journeys.add(new RawJourney(stages));
@@ -172,12 +171,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         Location middleB = Stations.MarketStreet;
         Location end = Stations.Bury;
 
-        int elapsedTime = am10 + 1;
-
-        RawVehicleStage rawStageA = getRawVehicleStage(begin, middleA, "route text", elapsedTime, am10);
+        RawVehicleStage rawStageA = getRawVehicleStage(begin, middleA, "route text", am10);
         int walkCost = 10;
-        WalkingStage walkingStage = new WalkingStage(middleA, middleB, am10, walkCost);
-        RawVehicleStage finalStage = getRawVehicleStage(middleB, end, "route3 text", elapsedTime, am10);
+        RawWalkingStage walkingStage = new RawWalkingStage(middleA, middleB, walkCost);
+        RawVehicleStage finalStage = getRawVehicleStage(middleB, end, "route3 text", am10);
 
         stages.add(rawStageA);
         stages.add(walkingStage);
@@ -213,9 +210,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         Location start = Stations.Altrincham;
         Location middle = Stations.Cornbrook;
 
-        int elapsedTime = pm23 +1;
-        RawVehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", elapsedTime, pm23);
-        RawVehicleStage rawStageB = getRawVehicleStage(middle, Stations.ManAirport, "rouet2 text", elapsedTime, pm23);
+        RawVehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", pm23);
+        RawVehicleStage rawStageB = getRawVehicleStage(middle, Stations.ManAirport, "rouet2 text", pm23);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
@@ -227,12 +223,12 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(journey.getNumberOfTimes()>0);
     }
 
-    private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, int elapsedTime, int startTime) throws TramchesterException {
+    private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, int startTime) throws TramchesterException {
         LocalDate now = LocalDate.now();
         int offset = now.getDayOfWeek()-MONDAY;
         LocalDate when = now.plusDays(offset);
         String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
-        RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass");
         rawVehicleStage.setLastStation(finish);
         rawVehicleStage.setServiceId(svcId);
         return rawVehicleStage;

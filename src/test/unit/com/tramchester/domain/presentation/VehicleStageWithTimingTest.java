@@ -13,14 +13,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.fail;
 
 public class VehicleStageWithTimingTest {
 
     private String tripId = "tripId";
-    private int elapsedTime = 101;
     Location firstStation = new Station("firstStation", "area", "name", new LatLong(1,1), true);
-    RawVehicleStage tramRawStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
+    RawVehicleStage tramRawStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
 
     @Test
     public void shouldGetDurationCorrectly() {
@@ -83,7 +81,7 @@ public class VehicleStageWithTimingTest {
     public void shouldGetAttributesPassedIn() {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
 
-        RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
         Location lastStation = new Station("lastStation", "area", "name", new LatLong(-1, -1), true);
         rawTravelStage.setLastStation(lastStation);
         rawTravelStage.setServiceId("svcId");
@@ -100,7 +98,7 @@ public class VehicleStageWithTimingTest {
     @Test
     public void shouldDisplayCorrectPrompt() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
-        RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
 
         VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, createSet(serviceTime), TravelAction.Board);
 
@@ -111,13 +109,13 @@ public class VehicleStageWithTimingTest {
     public void shouldGetStageSummary() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
 
-        RawVehicleStage rawTravelStageA = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass", elapsedTime);
+        RawVehicleStage rawTravelStageA = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass");
         VehicleStageWithTiming stageA = new VehicleStageWithTiming(rawTravelStageA, createSet(serviceTime), TravelAction.Board);
         String result = stageA.getSummary();
 
         assertEquals(result, "routeName Tram line");
 
-        RawVehicleStage rawTravelStageB = new RawVehicleStage(firstStation, "routeName", TransportMode.Bus, "cssClass", elapsedTime);
+        RawVehicleStage rawTravelStageB = new RawVehicleStage(firstStation, "routeName", TransportMode.Bus, "cssClass");
         VehicleStageWithTiming stageB = new VehicleStageWithTiming(rawTravelStageB, createSet(serviceTime), TravelAction.Board);
         result = stageB.getSummary();
 
@@ -136,7 +134,7 @@ public class VehicleStageWithTimingTest {
         assertEquals("Leave tram at", tramStageLeave.getPrompt());
         assertEquals("Change tram at", tramStageChange.getPrompt());
 
-        RawVehicleStage busRawStage = new RawVehicleStage(firstStation, "route", TransportMode.Bus, "cssClass", elapsedTime);
+        RawVehicleStage busRawStage = new RawVehicleStage(firstStation, "route", TransportMode.Bus, "cssClass");
 
         VehicleStageWithTiming busStageBoard = new VehicleStageWithTiming(busRawStage, createSet(serviceTime), TravelAction.Board);
         VehicleStageWithTiming busStageLeave = new VehicleStageWithTiming(busRawStage, createSet(serviceTime), TravelAction.Leave);

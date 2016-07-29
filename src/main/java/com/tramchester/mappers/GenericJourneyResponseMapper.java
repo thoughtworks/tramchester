@@ -1,6 +1,7 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.PresentableStage;
 import com.tramchester.domain.presentation.ServiceTime;
@@ -24,6 +25,7 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
 
     @Override
     protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
+        TimeWindow newTimeWindow = timeWindow;
 
         List<PresentableStage> stages = new LinkedList<>();
         List<TransportStage> rawJourneyStages = rawJourney.getStages();
@@ -35,19 +37,20 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
                 Location firstStation = rawTravelStage.getFirstStation();
                 Location lastStation = rawTravelStage.getLastStation();
 
-                int elapsedTime = rawTravelStage.getStartTime();
-                TimeWindow newTimeWindow = timeWindow.next(elapsedTime);
-
+                // TODO use the first matching time only
                 SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, newTimeWindow);
                 if (times.isEmpty()) {
                     String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                             rawStage, serviceId, newTimeWindow);
                     logger.error(message);
-                } else {
-                    logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-                    VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times, decideAction(stages));
-                    stages.add(stage);
+                    break;
                 }
+
+                logger.info(format("Found %s times for service id %s", times.size(), serviceId));
+                VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times, decideAction(stages));
+                stages.add(stage);
+                int arrivesAt = times.first().getFromMidnightArrives();
+                newTimeWindow = newTimeWindow.next(arrivesAt);
             }
         }
         Journey journey = new Journey(stages);

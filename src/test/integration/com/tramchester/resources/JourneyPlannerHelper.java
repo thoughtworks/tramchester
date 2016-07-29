@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
@@ -26,7 +27,9 @@ public class JourneyPlannerHelper {
                     LocalTime firstDepartureTime = stage.getFirstDepartureTime();
                     String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
                             firstDepartureTime, previousArrive, stage);
-                    assertTrue(prefix + message, firstDepartureTime.isAfter(previousArrive));
+                    if (stage.getMode()!= TransportMode.Walk) {
+                        assertTrue(prefix + message, firstDepartureTime.isAfter(previousArrive));
+                    }
                 }
                 previousArrive = stage.getExpectedArrivalTime();
             }

@@ -31,7 +31,6 @@ public class MapTransportRelationshipsToStages {
         RouteStationNode boardNode = null;
         RawVehicleStage currentStage = null;
         String firstStationId = null;
-        int boardTime = -1;
 
         List<TransportStage> stages = new ArrayList<>();
 
@@ -50,7 +49,6 @@ public class MapTransportRelationshipsToStages {
             if (transportRelationship.isBoarding()) {
                 // station -> route station
                 boardNode = (RouteStationNode) secondNode;
-                boardTime = elapsedTime;
                 firstStationId = firstNode.getId();
                 logger.info(format("Board tram: at:'%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
                 if (currentStage!=null) {
@@ -69,7 +67,7 @@ public class MapTransportRelationshipsToStages {
                     String routeId = boardNode.getRouteId();
                     String tramRouteClass = routeIdToClass.map(routeId);
                     currentStage = new RawVehicleStage(stationRepository.getStation(firstStationId), routeName,
-                            transportRelationship.getMode(), tramRouteClass, boardTime);
+                            transportRelationship.getMode(), tramRouteClass);
                     currentStage.setServiceId(serviceId);
                 }
             } else if (transportRelationship.isDepartTram()) {
@@ -79,29 +77,24 @@ public class MapTransportRelationshipsToStages {
                 logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
                         elapsedTime));
                 currentStage.setLastStation(stationRepository.getStation(endNodeId));
-                currentStage.setDepartTime(elapsedTime);
                 stages.add(currentStage);
                 logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
                 currentStage = null;
             } else if (transportRelationship.isWalk()) {
 
                 Location begin;
-                int walkStartTime;
                 if (firstNode.isQuery()) {
                     QueryNode queryNode = (QueryNode) firstNode;
                     begin = new MyLocation(queryNode.getLatLon());
-                    walkStartTime = minsPastMidnight;
                 } else {
                     begin = stationRepository.getStation(firstNode.getId());
-                    walkStartTime = elapsedTime;
                 }
 
                 StationNode dest = (StationNode) secondNode;
                 Location destStation = stationRepository.getStation(dest.getId());
-                WalkingStage walkingStage = new WalkingStage(begin, destStation, walkStartTime, cost);
+                RawWalkingStage walkingStage = new RawWalkingStage(begin, destStation, cost);
                 logger.info("Adding walk " + walkingStage);
                 stages.add(walkingStage);
-
             }
         }
         logger.info(format("Number of stages: %s Total cost:%s Finish: %s",stages.size(), totalCost,

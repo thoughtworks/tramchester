@@ -5,18 +5,15 @@ public class RawVehicleStage implements TransportStage {
     protected final TransportMode mode;
     protected final String routeName;
     protected final String displayClass;
-    protected final int startTime;
 
     protected String serviceId;
     protected Location lastStation;
-    private int endTime;
 
-    public RawVehicleStage(Location firstStation, String routeName, TransportMode mode, String displayClass, int startTime) {
+    public RawVehicleStage(Location firstStation, String routeName, TransportMode mode, String displayClass) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
         this.displayClass = displayClass;
-        this.startTime = startTime;
     }
 
     public RawVehicleStage(RawVehicleStage other) {
@@ -24,7 +21,6 @@ public class RawVehicleStage implements TransportStage {
         this.routeName = other.routeName;
         this.mode = other.mode;
         this.displayClass = other.displayClass;
-        this.startTime = other.startTime;
         this.serviceId = other.serviceId;
         this.lastStation = other.lastStation;
     }
@@ -83,14 +79,4 @@ public class RawVehicleStage implements TransportStage {
                 '}';
     }
 
-    public int getStartTime() {
-        return startTime;
-    }
-
-    public int getEndTime() { return endTime; }
-
-    public void setDepartTime(int endTime) {
-        this.endTime = endTime;
-
-    }
 }

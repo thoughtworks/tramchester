@@ -55,7 +55,7 @@ public class JourneyTest {
         List<PresentableStage> stages = new LinkedList<>();
         Location start = new MyLocation(new LatLong(-2,1));
         Location destination = Stations.Cornbrook;
-        stages.add(new WalkingStage(start, destination, 8*60, 3));
+        stages.add(new WalkingStage(new RawWalkingStage(start, destination, 3), 8*60));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate));
 
         Journey journey = new Journey(stages);
@@ -109,7 +109,8 @@ public class JourneyTest {
     @Test
     public void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() {
         List<PresentableStage> stages = new LinkedList<>();
-        stages.add(new WalkingStage(new MyLocation(new LatLong(-1,2)), Stations.Victoria, 8*60, 2));
+        MyLocation myLocation = new MyLocation(new LatLong(-1, 2));
+        stages.add(new WalkingStage(new RawWalkingStage(myLocation, Stations.Victoria, 2), 8*60));
 
         Journey journey = new Journey(stages);
 
@@ -121,7 +122,7 @@ public class JourneyTest {
     public void shouldHaveCorrectSummaryAndHeadingForTramStagesConnectedByWalk() {
         List<PresentableStage> stages = new LinkedList<>();
         stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate));
-        stages.add(new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 8*60, 14));
+        stages.add(new WalkingStage(new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 14), 8*60));
         stages.add(createStage(Stations.MarketStreet, TravelAction.Change, Stations.Bury));
 
         Journey journey = new Journey(stages);
@@ -141,14 +142,14 @@ public class JourneyTest {
     private VehicleStageWithTiming createStage(Location firstStation, TravelAction travelAction, Location lastStation) {
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), LocalTime.of(10,20), "svcId", "headSign", "tripId"));
-        RawVehicleStage rawVehicleStage = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass", 20);
+        RawVehicleStage rawVehicleStage = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass");
         rawVehicleStage.setLastStation(lastStation);
         return new VehicleStageWithTiming(rawVehicleStage, serviceTimes, travelAction);
     }
 
     private List<PresentableStage> createStages(LocalTime arrivesEnd) {
         List<PresentableStage> stages = new LinkedList<>();
-        RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass", 20).
+        RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass").
                 setLastStation(stationB);
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));

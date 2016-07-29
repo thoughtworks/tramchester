@@ -41,7 +41,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     @Test
     public void testSimpleMappingOfJourney() throws TramchesterException {
 
-        createSimpleRawJourney(AM8 + 2, AM8 + 9);
+        createSimpleRawJourney();
 
         EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
@@ -55,7 +55,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
         timesLeg2.add(new ServiceTime(LocalTime.of(8,11), LocalTime.of(8,20), "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
         EasyMock.expect(transportData.getTimes("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
 
         replayAll();
@@ -80,7 +80,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     @Test
     public void testSimpleMappingOfJourneyUseEarliestArrive() throws TramchesterException {
 
-        createSimpleRawJourney(AM8 + 2, AM8 + 7);
+        createSimpleRawJourney();
 
         EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
@@ -94,7 +94,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         timesLeg2.add(new ServiceTime(LocalTime.of(8,7), LocalTime.of(8,16), "svcId", "headSign", "tripIdA"));
         timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8+2, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
         EasyMock.expect(transportData.getTimes("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
 
         replayAll();
@@ -119,10 +119,10 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         assertEquals("Change bus at", stageSecond.getPrompt());
     }
 
-    private void createSimpleRawJourney(int stageATime, int stageBTime) {
-        RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA", stageATime).
+    private void createSimpleRawJourney() {
+        RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA").
                 setLastStation(stationB).setServiceId("svcId");
-        RawVehicleStage rawTravelStage2 = new RawVehicleStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA", stageBTime).
+        RawVehicleStage rawTravelStage2 = new RawVehicleStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA").
                 setLastStation(stationC).setServiceId("svcId");
         stages.add(rawTravelStage1);
         stages.add(rawTravelStage2);

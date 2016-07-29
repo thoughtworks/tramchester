@@ -26,7 +26,6 @@ import static java.lang.String.format;
 public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    //public static final int MAX_WAIT_TIME_MINS = 25; // todo into config
     public static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
     private String queryNodeName = "BEGIN";
@@ -107,16 +106,15 @@ public class RouteCalculator extends StationIndexs {
         });
     }
 
-
     public TramNode getStation(String id) throws UnknownStationException {
         Node node =  getStationNode(id);
         return nodeFactory.getNode(node);
     }
 
-    public TramNode getRouteStation(String id) throws UnknownStationException {
-        Node node = getRouteStationNode(id);
-        return nodeFactory.getNode(node);
-    }
+//    public TramNode getRouteStation(String id) throws UnknownStationException {
+//        Node node = getRouteStationNode(id);
+//        return nodeFactory.getNode(node);
+//    }
 
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) throws TramchesterException {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",

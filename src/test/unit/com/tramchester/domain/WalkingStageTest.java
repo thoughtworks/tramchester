@@ -24,7 +24,7 @@ public class WalkingStageTest {
         cost = 22;
         start = Stations.Altrincham;
         destination = Stations.Cornbrook;
-        walkingStage = new WalkingStage(start, destination, begin, cost);
+        walkingStage = new WalkingStage(new RawWalkingStage(start, destination, cost), begin);
     }
 
     @Test

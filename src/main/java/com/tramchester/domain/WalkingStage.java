@@ -11,10 +11,17 @@ public class WalkingStage implements PresentableStage {
     private int cost;
     private int beginTime;
 
-    public WalkingStage(Location start, Location destination, int beginTime, int cost) {
-        this.cost = cost;
-        this.destination = destination;
-        this.start = start;
+//    public WalkingStage(Location start, Location destination, int beginTime, int cost) {
+//        this.cost = cost;
+//        this.destination = destination;
+//        this.start = start;
+//        this.beginTime = beginTime;
+//    }
+
+    public WalkingStage(RawWalkingStage stage, int beginTime) {
+        this.cost = stage.getDuration();
+        this.start = stage.getStart();
+        this.destination = stage.getDestination();
         this.beginTime = beginTime;
     }
 

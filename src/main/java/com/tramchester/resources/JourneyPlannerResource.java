@@ -71,17 +71,17 @@ public class JourneyPlannerResource {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId,
-                                                       TramServiceDate queryDate, int minutesFromMidnight)
+                                                       TramServiceDate queryDate, int queryTime)
             throws TramchesterException {
-        logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),queryDate,minutesFromMidnight));
+        logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),queryDate,queryTime));
         Set<RawJourney> journeys;
         if (startId.startsWith("{") && startId.endsWith("}")) {
-            journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, minutesFromMidnight, queryDate);
+            journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, queryTime, queryDate);
         } else {
-           journeys = routeCalculator.calculateRoute(startId, endId, minutesFromMidnight, queryDate);
+           journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, new TimeWindow(minutesFromMidnight, config.getTimeWindow()));
+        return journeyResponseMapper.map(journeys, new TimeWindow(queryTime, config.getTimeWindow()));
     }
 
 }
