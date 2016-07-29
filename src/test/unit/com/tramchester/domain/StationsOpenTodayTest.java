@@ -20,6 +20,14 @@ public class StationsOpenTodayTest {
         Set<Location> stations = openToday.getStations(new LocalDate(2016,6,20));
         assertEquals(5, stations.size());
 
+        // same day, cached
+        openToday.getStations(new LocalDate(2016,6,20));
+        assertEquals(5, stations.size());
+
+        // different day
+        openToday.getStations(new LocalDate(2016,6,21));
+        assertEquals(5, stations.size());
+
         stations = openToday.getStations(new LocalDate(2013,6,20));
         assertEquals(0, stations.size());
     }

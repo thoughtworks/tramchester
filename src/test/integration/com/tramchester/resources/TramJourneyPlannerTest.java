@@ -205,9 +205,9 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
                 Stations.ManAirport, (23*60)+10, when);
         Journey journey = results.getJourneys().stream().findFirst().get();
 
-        assertEquals("number of times for stage one", 5, journey.getStages().get(0).getNumberOfServiceTimes());
-        assertEquals("number of times for stage two", 5, journey.getStages().get(1).getNumberOfServiceTimes());
-        assertEquals("available times", 5, journey.getNumberOfTimes());
+        assertEquals("number of times for stage one", 4, journey.getStages().get(0).getNumberOfServiceTimes());
+        assertEquals("number of times for stage two", 1, journey.getStages().get(1).getNumberOfServiceTimes());
+        assertEquals("available times", 1, journey.getNumberOfTimes());
     }
 
     @Test
