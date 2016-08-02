@@ -36,15 +36,14 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
        return serviceTimes.first().getDepartureTime();
     }
 
-    // this is wrong, duration varies, need to extract from servicetime instead and pass in index
-    @Deprecated
     public int getDuration() {
-        // likely this only works for Tram when duration between stops does not vary by time of day
-        ServiceTime serviceTime = serviceTimes.first();
-        LocalTime arrivalTime = serviceTime.getArrivalTime();
-        LocalTime departureTime = serviceTime.getDepartureTime();
-
-        return TimeAsMinutes.timeDiffMinutes(arrivalTime, departureTime);
+//        // likely this only works for Tram when duration between stops does not vary by time of day
+//        ServiceTime serviceTime = serviceTimes.first();
+//        LocalTime arrivalTime = serviceTime.getArrivalTime();
+//        LocalTime departureTime = serviceTime.getDepartureTime();
+//
+//        return TimeAsMinutes.timeDiffMinutes(arrivalTime, departureTime);
+        return cost;
     }
 
     public int findEarliestDepartureTime() {

@@ -5,6 +5,7 @@ public class RawVehicleStage implements TransportStage {
     protected final TransportMode mode;
     protected final String routeName;
     protected final String displayClass;
+    protected int cost;
 
     protected String serviceId;
     protected Location lastStation;
@@ -23,6 +24,7 @@ public class RawVehicleStage implements TransportStage {
         this.displayClass = other.displayClass;
         this.serviceId = other.serviceId;
         this.lastStation = other.lastStation;
+        this.cost = other.cost;
     }
 
     public String getServiceId() {
@@ -79,4 +81,8 @@ public class RawVehicleStage implements TransportStage {
                 '}';
     }
 
+    public RawVehicleStage setCost(int cost) {
+        this.cost = cost;
+        return this;
+    }
 }

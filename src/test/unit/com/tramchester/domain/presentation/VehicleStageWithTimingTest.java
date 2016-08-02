@@ -24,6 +24,7 @@ public class VehicleStageWithTimingTest {
     public void shouldGetDurationCorrectly() {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(8, 00), LocalTime.of(9, 15), "svcId", "headsign", tripId);
         VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, createSet(serviceTime), TravelAction.Board);
+        stage.setCost(75);
 
         assertEquals(75, stage.getDuration());
     }
@@ -69,13 +70,13 @@ public class VehicleStageWithTimingTest {
         assertEquals(LocalTime.of(7,10), stage.getFirstDepartureTime());
     }
 
-    @Test
-    public void shouldGetDurationCorrectlyWhenAfterMidnight() {
-        ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
-        VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, createSet(serviceTime), TravelAction.Board);
-
-        assertEquals(25, stage.getDuration());
-    }
+//    @Test
+//    public void shouldGetDurationCorrectlyWhenAfterMidnight() {
+//        ServiceTime serviceTime = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(0, 15), "svcId", "headsign", tripId);
+//        VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, createSet(serviceTime), TravelAction.Board);
+//
+//        assertEquals(25, stage.getDuration());
+//    }
 
     @Test
     public void shouldGetAttributesPassedIn() {
@@ -85,6 +86,7 @@ public class VehicleStageWithTimingTest {
         Location lastStation = new Station("lastStation", "area", "name", new LatLong(-1, -1), true);
         rawTravelStage.setLastStation(lastStation);
         rawTravelStage.setServiceId("svcId");
+        rawTravelStage.setCost(25);
         VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, createSet(serviceTime), TravelAction.Board);
         assertEquals("cssClass", stage.getDisplayClass());
         assertEquals(TransportMode.Tram, stage.getMode());

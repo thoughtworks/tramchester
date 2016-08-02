@@ -144,13 +144,14 @@ public class JourneyTest {
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), LocalTime.of(10,20), "svcId", "headSign", "tripId"));
         RawVehicleStage rawVehicleStage = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass");
         rawVehicleStage.setLastStation(lastStation);
+        rawVehicleStage.setCost(20-8);
         return new VehicleStageWithTiming(rawVehicleStage, serviceTimes, travelAction);
     }
 
     private List<PresentableStage> createStages(LocalTime arrivesEnd) {
         List<PresentableStage> stages = new LinkedList<>();
         RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass").
-                setLastStation(stationB);
+                setLastStation(stationB).setCost(42);
         SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
         serviceTimes.add(new ServiceTime(LocalTime.of(10,8), arrivesEnd, "svcId", "headSign", "tripId"));
         stages.add(new VehicleStageWithTiming(rawTravelStage, serviceTimes, TravelAction.Board));

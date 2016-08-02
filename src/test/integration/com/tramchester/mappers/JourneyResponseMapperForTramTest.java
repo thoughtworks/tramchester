@@ -229,6 +229,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         LocalDate when = now.plusDays(offset);
         String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
         RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass");
+        rawVehicleStage.setCost(42);
         rawVehicleStage.setLastStation(finish);
         rawVehicleStage.setServiceId(svcId);
         return rawVehicleStage;

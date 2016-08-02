@@ -6,22 +6,11 @@ import com.tramchester.domain.presentation.PresentableStage;
 import java.time.LocalTime;
 
 public class WalkingStage implements PresentableStage {
-    private final Location start;
-    private final Location destination;
-    private int cost;
+    RawWalkingStage rawWalkingStage;
     private int beginTime;
 
-//    public WalkingStage(Location start, Location destination, int beginTime, int cost) {
-//        this.cost = cost;
-//        this.destination = destination;
-//        this.start = start;
-//        this.beginTime = beginTime;
-//    }
-
-    public WalkingStage(RawWalkingStage stage, int beginTime) {
-        this.cost = stage.getDuration();
-        this.start = stage.getStart();
-        this.destination = stage.getDestination();
+    public WalkingStage(RawWalkingStage rawWalkingStage, int beginTime) {
+        this.rawWalkingStage = rawWalkingStage;
         this.beginTime = beginTime;
     }
 
@@ -52,16 +41,16 @@ public class WalkingStage implements PresentableStage {
 
     @Override
     public Location getActionStation() {
-        return destination;
+        return rawWalkingStage.getDestination();
     }
 
     @Override
     public Location getLastStation() {
-        return destination;
+        return rawWalkingStage.getDestination();
     }
 
     @Override
-    public Location getFirstStation() { return start; }
+    public Location getFirstStation() { return rawWalkingStage.getStart(); }
 
     @Override
     public LocalTime getFirstDepartureTime() {
@@ -70,20 +59,20 @@ public class WalkingStage implements PresentableStage {
 
     @Override
     public LocalTime getExpectedArrivalTime() {
-        return LocalTime.ofSecondOfDay((beginTime+cost)*60);
+        return LocalTime.ofSecondOfDay((beginTime+rawWalkingStage.getDuration())*60);
     }
 
     @Override
     public int getDuration() {
-        return cost;
+        return rawWalkingStage.getDuration();
     }
 
     @Override
     public String toString() {
         return "WalkingStage{" +
-                "destination=" + destination +
-                ", start=" + start +
-                ", cost=" + cost +
+                "destination=" + rawWalkingStage.getDestination() +
+                ", start=" + rawWalkingStage.getStart() +
+                ", cost=" + rawWalkingStage.getDuration() +
                 ", beginTime=" + beginTime +
                 '}';
     }

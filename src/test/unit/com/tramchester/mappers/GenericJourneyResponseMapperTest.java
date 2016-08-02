@@ -41,7 +41,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     @Test
     public void testSimpleMappingOfJourney() throws TramchesterException {
 
-        createSimpleRawJourney();
+        createSimpleRawJourney(7, 9);
 
         EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
@@ -80,7 +80,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
     @Test
     public void testSimpleMappingOfJourneyUseEarliestArrive() throws TramchesterException {
 
-        createSimpleRawJourney();
+        createSimpleRawJourney(4, 9);
 
         EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
@@ -119,11 +119,11 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         assertEquals("Change bus at", stageSecond.getPrompt());
     }
 
-    private void createSimpleRawJourney() {
+    private void createSimpleRawJourney(int costA, int costB) {
         RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA").
-                setLastStation(stationB).setServiceId("svcId");
+                setLastStation(stationB).setServiceId("svcId").setCost(costA);
         RawVehicleStage rawTravelStage2 = new RawVehicleStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA").
-                setLastStation(stationC).setServiceId("svcId");
+                setLastStation(stationC).setServiceId("svcId").setCost(costB);
         stages.add(rawTravelStage1);
         stages.add(rawTravelStage2);
 

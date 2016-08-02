@@ -28,6 +28,7 @@ public class MapTransportRelationshipsToStages {
 
     public List<TransportStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
         int totalCost = 0;
+        int serviceStart = 0;
         RouteStationNode boardNode = null;
         RawVehicleStage currentStage = null;
         String firstStationId = null;
@@ -50,6 +51,7 @@ public class MapTransportRelationshipsToStages {
                 // station -> route station
                 boardNode = (RouteStationNode) secondNode;
                 firstStationId = firstNode.getId();
+                serviceStart = totalCost;
                 logger.info(format("Board tram: at:'%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
                 if (currentStage!=null) {
                     logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
@@ -77,6 +79,8 @@ public class MapTransportRelationshipsToStages {
                 logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
                         elapsedTime));
                 currentStage.setLastStation(stationRepository.getStation(endNodeId));
+                currentStage.setCost(totalCost-serviceStart);
+                serviceStart = 0;
                 stages.add(currentStage);
                 logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
                 currentStage = null;
