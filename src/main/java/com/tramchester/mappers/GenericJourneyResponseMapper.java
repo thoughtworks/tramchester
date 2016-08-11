@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 
 import static java.lang.String.format;
@@ -38,18 +39,19 @@ public class GenericJourneyResponseMapper extends JourneyResponseMapper {
                 Location lastStation = rawTravelStage.getLastStation();
 
                 // TODO use the first matching time only
-                SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, newTimeWindow);
-                if (times.isEmpty()) {
+                Optional<ServiceTime> maybeTimes = transportData.getFirstServiceTime(serviceId, firstStation, lastStation, newTimeWindow);
+                if (!maybeTimes.isPresent()) {
                     String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                             rawStage, serviceId, newTimeWindow);
                     logger.error(message);
                     break;
                 }
 
-                logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-                VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times, decideAction(stages));
+                ServiceTime time = maybeTimes.get();
+                logger.info(format("Found time %s for service id %s", time, serviceId));
+                VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time, decideAction(stages));
                 stages.add(stage);
-                int arrivesAt = times.first().getFromMidnightArrives();
+                int arrivesAt = time.getFromMidnightArrives();
                 newTimeWindow = newTimeWindow.next(arrivesAt);
             }
         }

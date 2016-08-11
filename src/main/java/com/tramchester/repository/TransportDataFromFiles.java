@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class TransportDataFromFiles implements TransportData, StationRepository {
+
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private HashMap<String, Station> stations = new HashMap<>();  // station id -> station
@@ -29,46 +30,26 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
             logger.warn("Did not find feedinfo");
         }
 
-        stops.forEach((stop) -> {
-            String stopId = stop.getId();
-            String stationId = Station.formId(stopId);
-            if (!stations.keySet().contains(stationId)) {
-                Station station = new Station(stationId, stop.getArea(), stop.getName(),
-                        stop.getLatLong(), stop.isTram());
-                stations.put(stationId, station);
-            }
+        populateStops(stops);
+        populateRoutes(routes);
+        populateTrips(trips);
+        populateStopTimes(stopTimes);
+        populateCalendars(calendars);
+
+        // update svcs where calendar data is missing
+        services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
+            logger.warn(String.format("Service %s is missing calendar information", svc.getServiceId()));
+            svc.setDays(false, false, false, false, false, false, false);
         });
+        services.values().stream().filter(svc -> !svc.getDays().values().contains(true)).forEach(
+                svc -> logger.warn(String.format("Service %s does not run on any days of the week", svc.getServiceId()))
+        );
 
-        routes.forEach((routeData) -> {
-            Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName(), routeData.getAgency());
-            this.routes.put(route.getId(), route);
-        });
+        logger.info("Data load is complete");
 
-        trips.forEach((tripData) -> {
-            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), tripData.getServiceId());
-            Service service = getOrInsertService(tripData.getServiceId(), tripData.getRouteId());
-            Route route = this.routes.get(tripData.getRouteId());
-            if (route != null) {
-                service.addTrip(trip);
-                route.addService(service);
-            }
-        });
+    }
 
-        stopTimes.forEach((stopTimeData) -> {
-            Trip trip = getTrip(stopTimeData.getTripId());
-
-            String stopId = stopTimeData.getStopId();
-            String stationId = Station.formId(stopId);
-            if (!stations.containsKey(stationId)) {
-                logger.error("Cannot find station for Id " + stationId);
-            }
-            Stop stop = new Stop(stations.get(stationId), stopTimeData.getArrivalTime(),
-                    stopTimeData.getDepartureTime()
-            );
-
-            trip.addStop(stop);
-        });
-
+    private void populateCalendars(Stream<CalendarData> calendars) {
         calendars.forEach((calendar) -> {
             Service service = services.get(calendar.getServiceId());
 
@@ -85,18 +66,54 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
                 service.setServiceDateRange(calendar.getStartDate(), calendar.getEndDate());
             }
         });
+    }
 
-        // update svcs where calendar data is missing
-        services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
-            logger.warn(String.format("Service %s is missing calendar information", svc.getServiceId()));
-            svc.setDays(false, false, false, false, false, false, false);
+    private void populateStopTimes(Stream<StopTimeData> stopTimes) {
+        stopTimes.forEach((stopTimeData) -> {
+            Trip trip = getTrip(stopTimeData.getTripId());
+
+            String stopId = stopTimeData.getStopId();
+            String stationId = Station.formId(stopId);
+            if (!stations.containsKey(stationId)) {
+                logger.error("Cannot find station for Id " + stationId);
+            }
+            Stop stop = new Stop(stations.get(stationId), stopTimeData.getArrivalTime(),
+                    stopTimeData.getDepartureTime()
+            );
+
+            trip.addStop(stop);
         });
-        services.values().stream().filter(svc -> !svc.getDays().values().contains(true)).forEach(
-                svc -> logger.warn(String.format("Service %s does not run on any days of the week", svc.getServiceId()))
-        );
+    }
 
-        logger.info("Data load is complete");
+    private void populateTrips(Stream<TripData> trips) {
+        trips.forEach((tripData) -> {
+            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), tripData.getServiceId());
+            Service service = getOrInsertService(tripData.getServiceId(), tripData.getRouteId());
+            Route route = this.routes.get(tripData.getRouteId());
+            if (route != null) {
+                service.addTrip(trip);
+                route.addService(service);
+            }
+        });
+    }
 
+    private void populateRoutes(Stream<RouteData> routes) {
+        routes.forEach((routeData) -> {
+            Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName(), routeData.getAgency());
+            this.routes.put(route.getId(), route);
+        });
+    }
+
+    private void populateStops(Stream<StopData> stops) {
+        stops.forEach((stop) -> {
+            String stopId = stop.getId();
+            String stationId = Station.formId(stopId);
+            if (!stations.keySet().contains(stationId)) {
+                Station station = new Station(stationId, stop.getArea(), stop.getName(),
+                        stop.getLatLong(), stop.isTram());
+                stations.put(stationId, station);
+            }
+        });
     }
 
     private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId) {
@@ -142,6 +159,8 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
         return stations.get(stationId);
     }
 
+    @Deprecated
+    // use getFirstServiceTime
     public SortedSet<ServiceTime> getTimes(String serviceId, Location firstStation, Location lastStation,
                                            TimeWindow window) {
         logger.info(String.format("Get times for service %s from %s to %s with %s",
@@ -159,6 +178,22 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
             serviceTimes.addAll(times);
         }
         return serviceTimes;
+    }
+
+    public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation,
+                                                     TimeWindow window) {
+        logger.info(String.format("Get first time for service %s from %s to %s with %s", serviceId, firstStation,
+                lastStation, window));
+        String firstStationId = firstStation.getId();
+        String lastStationId = lastStation.getId();
+        Service service = getServiceById(serviceId);
+        Optional<Trip> trip = service.getFirstTripAfter(firstStationId, lastStationId, window);
+
+        if (trip.isPresent()) {
+            return trip.get().earliestDepartFor(firstStationId, lastStationId, window);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Service getServiceById(String svcId) {
@@ -182,4 +217,6 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
         });
         return callingTrips;
     }
+
+
 }

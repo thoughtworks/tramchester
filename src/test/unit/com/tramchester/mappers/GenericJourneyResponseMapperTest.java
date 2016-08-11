@@ -47,16 +47,14 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
         EasyMock.expect(transportData.getStation("stationC")).andStubReturn(stationC);
 
-        SortedSet<ServiceTime> timesLeg1 = new TreeSet<>();
-        timesLeg1.add(new ServiceTime(LocalTime.of(8,2), LocalTime.of(8,9), "svcId", "headSign", "tripIdA"));
-        timesLeg1.add(new ServiceTime(LocalTime.of(8,3), LocalTime.of(8,11), "svcId", "headSign", "tripIdA"));
+        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(LocalTime.of(8,2), LocalTime.of(8,9), "svcId",
+                "headSign", "tripIdA"));
 
-        SortedSet<ServiceTime> timesLeg2 = new TreeSet<>();
-        timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
-        timesLeg2.add(new ServiceTime(LocalTime.of(8,11), LocalTime.of(8,20), "svcId", "headSign", "tripIdA"));
+        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18),
+                "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getTimes("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
@@ -86,16 +84,14 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
         EasyMock.expect(transportData.getStation("stationC")).andStubReturn(stationC);
 
-        SortedSet<ServiceTime> timesLeg1 = new TreeSet<>();
-        timesLeg1.add(new ServiceTime(LocalTime.of(8,2), LocalTime.of(8,9), "svcId", "headSign", "tripIdA"));
-        timesLeg1.add(new ServiceTime(LocalTime.of(8,3), LocalTime.of(8,7), "svcId", "headSign", "tripIdA"));
+        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(LocalTime.of(8,3), LocalTime.of(8,7),
+                "svcId", "headSign", "tripIdA"));
 
-        SortedSet<ServiceTime> timesLeg2 = new TreeSet<>();
-        timesLeg2.add(new ServiceTime(LocalTime.of(8,7), LocalTime.of(8,16), "svcId", "headSign", "tripIdA"));
-        timesLeg2.add(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18), "svcId", "headSign", "tripIdA"));
+        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(LocalTime.of(8,7), LocalTime.of(8,16),
+                "svcId", "headSign", "tripIdA"));
 
-        EasyMock.expect(transportData.getTimes("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getTimes("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
+        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));

@@ -8,7 +8,9 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
+import java.util.Optional;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.lang.String.format;
 
@@ -16,14 +18,29 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
     private final TravelAction action;
     private SortedSet<ServiceTime> serviceTimes;
 
+    @Deprecated
     public VehicleStageWithTiming(RawVehicleStage rawTravelStage, SortedSet<ServiceTime> serviceTimes, TravelAction action) {
         super(rawTravelStage);
         this.serviceTimes = serviceTimes;
         this.action = action;
     }
 
+    public VehicleStageWithTiming(RawVehicleStage rawTravelStage, ServiceTime time, TravelAction action) {
+        super(rawTravelStage);
+        this.action = action;
+        // TODO store only the one service time
+        serviceTimes = new TreeSet<>();
+        serviceTimes.add(time);
+    }
+
+    // front end
     public SortedSet<ServiceTime> getServiceTimes() {
         return serviceTimes;
+    }
+
+    @Override
+    public int getNumberOfServiceTimes() {
+        return serviceTimes.size();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
@@ -102,9 +119,6 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
         }
     }
 
-    @Override
-    public int getNumberOfServiceTimes() {
-        return serviceTimes.size();
-    }
+
 
 }

@@ -4,7 +4,9 @@ import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -87,20 +89,25 @@ public class Trip {
         return stops.getStopsFor(stationId);
     }
 
-    public int earliestDepartFor(String firstStationId, String lastStationId, TimeWindow window) {
-        int earliest = Integer.MAX_VALUE;
+    public Optional<ServiceTime> earliestDepartFor(String firstStationId, String lastStationId, TimeWindow window) {
+        int earliestMins = Integer.MAX_VALUE;
+        Optional<ServiceTime> earliestTime = Optional.empty();
 
         for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, window)) {
-            int firstDepart = pair.begin().getDepartureMinFromMidnight();
-            if (firstDepart < earliest) {
-                earliest = firstDepart;
+            Stop begin = pair.begin();
+            int firstDepart = begin.getDepartureMinFromMidnight();
+            if (firstDepart < earliestMins) {
+                earliestMins = firstDepart;
+                earliestTime = Optional.of(new ServiceTime(pair.begin().getDepartureTime(), pair.end().getArrivalTime(),
+                        serviceId, headSign, tripId));
             }
         }
-        if (earliest==Integer.MAX_VALUE) {
+
+        if (!earliestTime.isPresent()) {
             logger.warn(format("Unable to find earlier time between %s and %s with %s", firstStationId,lastStationId,
                     window));
         }
-        return earliest;
+        return earliestTime;
     }
 
 }

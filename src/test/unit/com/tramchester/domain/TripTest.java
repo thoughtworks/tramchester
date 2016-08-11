@@ -47,8 +47,8 @@ public class TripTest {
         assertEquals(am10Minutes+6, time.getFromMidnightLeaves());
 
         // earliest departs
-        assertEquals(am10Minutes+1, trip.earliestDepartFor("statA","statB", new TimeWindow(am10Minutes, 30)));
-        assertEquals(am10Minutes+6, trip.earliestDepartFor("statB","statA", new TimeWindow(am10Minutes, 30)));
-        assertEquals(am10Minutes+1, trip.earliestDepartFor("statA","statA", new TimeWindow(am10Minutes, 30)));
+        assertEquals(am10Minutes+1, trip.earliestDepartFor("statA","statB", new TimeWindow(am10Minutes, 30)).get().getFromMidnightLeaves());
+        assertEquals(am10Minutes+6, trip.earliestDepartFor("statB","statA", new TimeWindow(am10Minutes, 30)).get().getFromMidnightLeaves());
+        assertEquals(am10Minutes+1, trip.earliestDepartFor("statA","statA", new TimeWindow(am10Minutes, 30)).get().getFromMidnightLeaves());
     }
 }

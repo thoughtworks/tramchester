@@ -25,6 +25,11 @@ public class WalkingStage implements PresentableStage {
     }
 
     @Override
+    public boolean isWalk() {
+        return true;
+    }
+
+    @Override
     public String getSummary() throws TramchesterException {
         return "Walking";
     }

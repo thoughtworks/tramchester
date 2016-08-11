@@ -65,6 +65,11 @@ public class RawVehicleStage implements TransportStage {
         return (mode.equals(TransportMode.Bus)) || (mode.equals(TransportMode.Tram));
     }
 
+    @Override
+    public boolean isWalk() {
+        return mode.equals(TransportMode.Walk);
+    }
+
     public String getDisplayClass() {
         return displayClass;
     }

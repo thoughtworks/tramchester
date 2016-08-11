@@ -12,6 +12,7 @@ import org.joda.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 
+import static org.joda.time.DateTimeConstants.MONDAY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -55,6 +56,12 @@ public class JourneyPlannerHelper {
                 validateAtLeastOneJourney(start, dest, time, date.plusDays(day));
             }
         }
+    }
+
+    public static LocalDate nextMonday() {
+        LocalDate now = LocalDate.now();
+        int offset = now.getDayOfWeek()-MONDAY;
+        return now.minusDays(offset).plusWeeks(1);
     }
 
 }

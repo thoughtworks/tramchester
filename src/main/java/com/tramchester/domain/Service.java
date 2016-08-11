@@ -1,6 +1,8 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.presentation.ServiceTime;
+import org.apache.http.annotation.Obsolete;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,20 +54,29 @@ public class Service {
         return days;
     }
 
+    @Deprecated
+    // Use getFirstTripAfter
     public List<Trip> getTripsAfter(String firstStationId, String lastStationId, TimeWindow timeWindow) {
         Map<Integer,Trip> sortedValidTrips = new TreeMap<>();
         StringBuilder tripIds = new StringBuilder();
         trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow))
                 .forEach(trip -> {
                     tripIds.append(trip.getTripId() + " ");
-                    int minutes = trip.earliestDepartFor(firstStationId, lastStationId, timeWindow);
-                    sortedValidTrips.put(minutes, trip);
+                    Optional<ServiceTime> svcTime = trip.earliestDepartFor(firstStationId, lastStationId, timeWindow);
+                    if (svcTime.isPresent()) {
+                        sortedValidTrips.put(svcTime.get().getFromMidnightLeaves(), trip);
+                    }
         });
 
         logger.info(String.format("Service %s selected %s of %s trips %s", serviceId, sortedValidTrips.size(),
                 trips.size(), tripIds.toString()));
 
         return sortedValidTrips.values().stream().collect(Collectors.toList());
+    }
+
+
+    public Optional<Trip> getFirstTripAfter(String firstStationId, String lastStationId, TimeWindow timeWindow) {
+        return trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow)).findFirst();
     }
 
     @Override
@@ -138,4 +149,5 @@ public class Service {
         }
         return false;
     }
+
 }

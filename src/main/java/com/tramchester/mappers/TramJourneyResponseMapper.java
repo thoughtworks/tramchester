@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 
 import static java.lang.String.format;
@@ -28,7 +29,7 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         for (TransportStage rawStage : rawJourneyStages) {
             if (rawStage.getIsAVehicle()) {
                 timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
-            } else if (rawStage.getMode().equals(TransportMode.Walk)) {
+            } else if (rawStage.isWalk()) {
                 RawWalkingStage stage = (RawWalkingStage) rawStage;
                 WalkingStage walkingStage = new WalkingStage(stage, timeWindow.minsFromMidnight());
                 logger.info("Adding walking stage " + stage);
@@ -49,14 +50,14 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         Location firstStation = rawTravelStage.getFirstStation();
         Location lastStation = rawTravelStage.getLastStation();
 
-        SortedSet<ServiceTime> times = transportData.getTimes(serviceId, firstStation, lastStation, timeWindow);
-        if (times.isEmpty()) {
+        Optional<ServiceTime> times = transportData.getFirstServiceTime(serviceId, firstStation, lastStation, timeWindow);
+        if (!times.isPresent()) {
             String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                     rawStage, serviceId, timeWindow);
             logger.error(message);
         } else {
-            logger.info(format("Found %s times for service id %s", times.size(), serviceId));
-            VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times, decideAction(stages));
+            logger.info(format("Found time %s for service id %s", times.get(), serviceId));
+            VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times.get(), decideAction(stages));
             stages.add(stage);
 
             int departsAtMinutes = stage.findEarliestDepartureTime();

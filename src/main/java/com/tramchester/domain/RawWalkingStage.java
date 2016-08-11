@@ -21,6 +21,11 @@ public class RawWalkingStage implements TransportStage  {
         return false;
     }
 
+    @Override
+    public boolean isWalk() {
+        return true;
+    }
+
     public int getDuration() {
         return duration;
     }
