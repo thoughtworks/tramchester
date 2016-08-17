@@ -19,22 +19,22 @@ public abstract class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    protected abstract Journey createJourney(RawJourney rawJourney, TimeWindow window);
+    protected abstract Journey createJourney(RawJourney rawJourney, int withinMins);
 
-    public JourneyPlanRepresentation map(Set<RawJourney> journeys, TimeWindow window) throws TramchesterException {
-        logger.info(format("Mapping journey %s with window %s", journeys, window));
-        SortedSet<Journey> decoratedJourneys = decorateJourneys(journeys, window);
+    public JourneyPlanRepresentation map(Set<RawJourney> journeys, int withinMins) throws TramchesterException {
+        logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
+        SortedSet<Journey> decoratedJourneys = decorateJourneys(journeys, withinMins);
         return new JourneyPlanRepresentation(decoratedJourneys);
     }
 
-    protected SortedSet<Journey> decorateJourneys(Set<RawJourney> rawJourneys, TimeWindow window)
+    protected SortedSet<Journey> decorateJourneys(Set<RawJourney> rawJourneys, int withinMins)
             throws TramchesterException {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<Journey> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
 
-            Journey journey = createJourney(rawJourney, window);
+            Journey journey = createJourney(rawJourney, withinMins);
             if (journey!=null) {
                 journeys.add(journey);
                 logger.info("Added journey " +journey);

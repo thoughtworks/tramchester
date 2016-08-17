@@ -57,8 +57,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42);
 
         stages.add(vicToRoch);
-        journeys.add(new RawJourney(stages));
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(930, 30));
+        journeys.add(new RawJourney(stages, time));
+        JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         PresentableStage stage = journey.getStages().get(0);
@@ -75,8 +75,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
                 pm1044, 42);
 
         stages.add(rawStage);
-        journeys.add(new RawJourney(stages));
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(elapsedTime, 60));
+        journeys.add(new RawJourney(stages,pm1044));
+        JourneyPlanRepresentation result = mapper.map(journeys, 60);
 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertFalse(journey.getStages().isEmpty());
@@ -88,13 +88,12 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     @Test
     public void shouldMapSimpleJourney() throws TramchesterException {
         int am7 = 7 * 60;
-        int elapsedTime = am7 +1;
 
         RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42);
 
         stages.add(altToCorn);
-        journeys.add(new RawJourney(stages));
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(am7, 30));
+        journeys.add(new RawJourney(stages,am7));
+        JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
@@ -121,9 +120,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(rawStageA);
         stages.add(rawStageB);
-        journeys.add(new RawJourney(stages));
+        journeys.add(new RawJourney(stages, pm10));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm10, 30));
+        JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
         assertEquals(1,result.getJourneys().size());
 
@@ -149,9 +148,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         RawWalkingStage walkingStage = new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 10);
 
         stages.add(walkingStage);
-        journeys.add(new RawJourney(stages));
+        journeys.add(new RawJourney(stages,pm10));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm10, 30));
+        JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
@@ -180,9 +179,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageA);
         stages.add(walkingStage);
         stages.add(finalStage);
-        journeys.add(new RawJourney(stages));
+        journeys.add(new RawJourney(stages,am10));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(am10, 30));
+        JourneyPlanRepresentation result = mapper.map(journeys, 30);
         assertEquals(1,result.getJourneys().size());
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(3, journey.getStages().size());
@@ -216,9 +215,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(rawStageA);
         stages.add(rawStageB);
-        journeys.add(new RawJourney(stages));
+        journeys.add(new RawJourney(stages,pm23));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm23, 30));
+        JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
         assertTrue(result.getJourneys().size()>0);
     }

@@ -101,7 +101,7 @@ public class RouteCalculator extends StationIndexs {
         paths.limit(limit).forEach(path->{
             logger.info(format("map graph path of length %s with limit of %s ",path.length(), limit));
             List<TransportStage> stages = pathToStages.map(path, minsPathMidnight);
-            RawJourney journey = new RawJourney(stages);
+            RawJourney journey = new RawJourney(stages, minsPathMidnight);
             journeys.add(journey);
         });
     }
@@ -110,11 +110,6 @@ public class RouteCalculator extends StationIndexs {
         Node node =  getStationNode(id);
         return nodeFactory.getNode(node);
     }
-
-//    public TramNode getRouteStation(String id) throws UnknownStationException {
-//        Node node = getRouteStationNode(id);
-//        return nodeFactory.getNode(node);
-//    }
 
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) throws TramchesterException {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",

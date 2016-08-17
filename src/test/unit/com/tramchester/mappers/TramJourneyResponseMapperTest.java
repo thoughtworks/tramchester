@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
-    public static final int AM8 = 8 * 60;
+    private static final int AM8 = 8 * 60;
     private TramJourneyResponseMapper mapper;
     private TransportDataFromFiles transportData;
     private Set<RawJourney> rawJourneys;
@@ -41,7 +41,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
     @Test
     public void testSimpleMappingOfJourney() throws TramchesterException {
 
-        createSimpleRawJourney(7, 9);
+        createSimpleRawJourney(7, 9, AM8);
 
         EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
@@ -57,7 +57,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
 
         replayAll();
-        JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
+        JourneyPlanRepresentation result = mapper.map(rawJourneys, 30);
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
 
@@ -78,7 +78,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
     @Test
     public void testSimpleMappingOfJourneyUseEarliestArrive() throws TramchesterException {
 
-        createSimpleRawJourney(4, 9);
+        createSimpleRawJourney(4, 9, AM8);
 
         EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
@@ -94,7 +94,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
 
         replayAll();
-        JourneyPlanRepresentation result = mapper.map(rawJourneys, new TimeWindow(AM8, 30));
+        JourneyPlanRepresentation result = mapper.map(rawJourneys, 30);
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
 
@@ -115,7 +115,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         assertEquals("Change bus at", stageSecond.getPrompt());
     }
 
-    private void createSimpleRawJourney(int costA, int costB) {
+    private void createSimpleRawJourney(int costA, int costB, int queryTime) {
         RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA").
                 setLastStation(stationB).setServiceId("svcId").setCost(costA);
         RawVehicleStage rawTravelStage2 = new RawVehicleStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA").
@@ -123,7 +123,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         stages.add(rawTravelStage1);
         stages.add(rawTravelStage2);
 
-        RawJourney rawJourney = new RawJourney(stages);
+        RawJourney rawJourney = new RawJourney(stages, queryTime);
         rawJourneys.add(rawJourney);
     }
 

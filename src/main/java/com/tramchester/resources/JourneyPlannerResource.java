@@ -81,7 +81,7 @@ public class JourneyPlannerResource {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, new TimeWindow(queryTime, config.getTimeWindow()));
+        return journeyResponseMapper.map(journeys, config.getTimeWindow());
     }
 
 }

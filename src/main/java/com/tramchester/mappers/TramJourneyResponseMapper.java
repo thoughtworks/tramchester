@@ -23,9 +23,10 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         super(transportData);
     }
 
-    protected Journey createJourney(RawJourney rawJourney, TimeWindow timeWindow) {
+    protected Journey createJourney(RawJourney rawJourney, int withinMins) {
         List<PresentableStage> stages = new LinkedList<>();
         List<TransportStage> rawJourneyStages = rawJourney.getStages();
+        TimeWindow timeWindow = new TimeWindow(rawJourney.getQueryTime(), withinMins);
         for (TransportStage rawStage : rawJourneyStages) {
             if (rawStage.getIsAVehicle()) {
                 timeWindow = mapVehicleStage(timeWindow, stages, rawStage);

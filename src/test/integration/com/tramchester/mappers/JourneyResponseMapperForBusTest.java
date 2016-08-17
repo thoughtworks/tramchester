@@ -75,8 +75,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         busStage.setCost(cost);
 
         stages.add(busStage);
-        journeys.add(new RawJourney(stages));
+        journeys.add(new RawJourney(stages, minutesFromMidnight));
 
-        return mapper.map(journeys, new TimeWindow(minutesFromMidnight, 30));
+        return mapper.map(journeys, 30);
     }
 }
