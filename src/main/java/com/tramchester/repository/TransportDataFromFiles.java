@@ -159,27 +159,6 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
         return stations.get(stationId);
     }
 
-    @Deprecated
-    // use getFirstServiceTime
-    public SortedSet<ServiceTime> getTimes(String serviceId, Location firstStation, Location lastStation,
-                                           TimeWindow window) {
-        logger.info(String.format("Get times for service %s from %s to %s with %s",
-                serviceId, firstStation, lastStation, window));
-        SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
-        Service service = getServiceById(serviceId);
-
-        String firstStationId = firstStation.getId();
-        String lastStationId = lastStation.getId();
-
-        List<Trip> tripsAfter = service.getTripsAfter(firstStationId, lastStationId, window);
-
-        for (Trip trip : tripsAfter) {
-            SortedSet<ServiceTime> times = trip.getServiceTimes(firstStationId, lastStationId, window);
-            serviceTimes.addAll(times);
-        }
-        return serviceTimes;
-    }
-
     public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation,
                                                      TimeWindow window) {
         logger.info(String.format("Get first time for service %s from %s to %s with %s", serviceId, firstStation,

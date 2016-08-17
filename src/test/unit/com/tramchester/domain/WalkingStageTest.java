@@ -12,16 +12,14 @@ import static org.junit.Assert.assertEquals;
 
 public class WalkingStageTest {
 
-    private int begin;
-    private int cost;
     private WalkingStage walkingStage;
     private Location start;
     private Location destination;
 
     @Before
     public void setUp() throws Exception {
-        begin = 8*60;
-        cost = 22;
+        int begin = 8 * 60;
+        int cost = 22;
         start = Stations.Altrincham;
         destination = Stations.Cornbrook;
         walkingStage = new WalkingStage(new RawWalkingStage(start, destination, cost), begin);
@@ -38,7 +36,6 @@ public class WalkingStageTest {
 
         assertEquals(22, walkingStage.getDuration());
 
-        assertEquals(1, walkingStage.getNumberOfServiceTimes());
     }
 
     @Test

@@ -128,18 +128,6 @@ public class Journey implements Comparable<Journey> {
                 '}';
     }
 
-    // used front end
-    public int getNumberOfTimes() {
-        int minNumberOfTimes = Integer.MAX_VALUE;
-        for (PresentableStage stage : allStages) {
-            int size = stage.getNumberOfServiceTimes();
-            if (size < minNumberOfTimes) {
-                minNumberOfTimes = size;
-            }
-        }
-        return minNumberOfTimes;
-    }
-
     @Override
     public int compareTo(Journey other) {
         // arrival first
@@ -175,4 +163,5 @@ public class Journey implements Comparable<Journey> {
     public Location getEnd() {
         return getLastStage().getLastStation();
     }
+
 }

@@ -1,17 +1,19 @@
 package com.tramchester.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.PresentableStage;
+import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
 
 public class WalkingStage implements PresentableStage {
-    RawWalkingStage rawWalkingStage;
-    private int beginTime;
+    private RawWalkingStage rawWalkingStage;
+    private int beginTimeMins;
 
-    public WalkingStage(RawWalkingStage rawWalkingStage, int beginTime) {
+    public WalkingStage(RawWalkingStage rawWalkingStage, int beginTimeMins) {
         this.rawWalkingStage = rawWalkingStage;
-        this.beginTime = beginTime;
+        this.beginTimeMins = beginTimeMins;
     }
 
     @Override
@@ -40,8 +42,8 @@ public class WalkingStage implements PresentableStage {
     }
 
     @Override
-    public int getNumberOfServiceTimes() {
-        return 1;
+    public String getHeadSign() {
+        return "WalkingHeadSign";
     }
 
     @Override
@@ -57,14 +59,14 @@ public class WalkingStage implements PresentableStage {
     @Override
     public Location getFirstStation() { return rawWalkingStage.getStart(); }
 
-    @Override
+    @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
-        return LocalTime.ofSecondOfDay(beginTime*60);
+        return LocalTime.ofSecondOfDay(beginTimeMins*60);
     }
 
-    @Override
+    @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
-        return LocalTime.ofSecondOfDay((beginTime+rawWalkingStage.getDuration())*60);
+        return LocalTime.ofSecondOfDay((beginTimeMins+getDuration())*60);
     }
 
     @Override
@@ -78,7 +80,7 @@ public class WalkingStage implements PresentableStage {
                 "destination=" + rawWalkingStage.getDestination() +
                 ", start=" + rawWalkingStage.getStart() +
                 ", cost=" + rawWalkingStage.getDuration() +
-                ", beginTime=" + beginTime +
+                ", beginTime=" + beginTimeMins +
                 '}';
     }
 }

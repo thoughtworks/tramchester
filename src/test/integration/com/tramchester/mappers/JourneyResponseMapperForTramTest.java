@@ -107,8 +107,6 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getFirstDepartureTime().isBefore(eightAM));
         assertTrue(stage.getExpectedArrivalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
-
-        assertEquals(stage.getNumberOfServiceTimes(),1);
     }
 
     @Test
@@ -136,12 +134,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         PresentableStage stage1 = journey.getStages().get(0);
         assertEquals(begin,stage1.getFirstStation());
         assertEquals(middle,stage1.getLastStation());
-        assertEquals(stage1.getNumberOfServiceTimes(),1);
 
         PresentableStage stage2 = journey.getStages().get(1);
         assertEquals(middle,stage2.getFirstStation());
         assertEquals(end,stage2.getLastStation());
-        assertEquals(stage2.getNumberOfServiceTimes(),1);
 
         assertEquals("Change tram at",stage2.getPrompt());
     }
@@ -165,7 +161,6 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(Stations.Deansgate,stage.getFirstStation());
         assertEquals(Stations.MarketStreet,stage.getLastStation());
 
-        assertEquals(1, stage.getNumberOfServiceTimes());
         assertEquals("Walk to",stage.getPrompt());
     }
 
@@ -225,8 +220,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         JourneyPlanRepresentation result = mapper.map(journeys, new TimeWindow(pm23, 30));
 
-        Journey journey = result.getJourneys().stream().findFirst().get();
-        assertTrue(journey.getNumberOfTimes()>0);
+        assertTrue(result.getJourneys().size()>0);
     }
 
     private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, int startTime, int cost) throws TramchesterException {

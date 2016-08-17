@@ -50,14 +50,14 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         Location firstStation = rawTravelStage.getFirstStation();
         Location lastStation = rawTravelStage.getLastStation();
 
-        Optional<ServiceTime> times = transportData.getFirstServiceTime(serviceId, firstStation, lastStation, timeWindow);
-        if (!times.isPresent()) {
+        Optional<ServiceTime> time = transportData.getFirstServiceTime(serviceId, firstStation, lastStation, timeWindow);
+        if (!time.isPresent()) {
             String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                     rawStage, serviceId, timeWindow);
             logger.error(message);
         } else {
-            logger.info(format("Found time %s for service id %s", times.get(), serviceId));
-            VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, times.get(), decideAction(stages));
+            logger.info(format("Found time %s for service id %s", time.get(), serviceId));
+            VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time.get(), decideAction(stages));
             stages.add(stage);
 
             int departsAtMinutes = stage.findEarliestDepartureTime();

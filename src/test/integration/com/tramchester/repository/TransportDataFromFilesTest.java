@@ -71,43 +71,6 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    @Deprecated
-    public void shouldGetServicesForLineAndStop() {
-
-        // select servcies for one route
-        List<Service> filtered = allServices.stream().
-                filter(svc -> ashtonRoutes.contains(svc.getRouteId())).
-                collect(Collectors.toList());
-        assertFalse(filtered.isEmpty());
-
-        List<Trip> trips = filtered.stream()
-                .map(svc -> svc.getTrips())
-                .flatMap(svcTrips -> svcTrips.stream())
-                .collect(Collectors.toList());
-
-        // find trips calling at Velo
-        trips.removeIf(trip -> !trip.travelsBetween(Stations.Ashton.getId(), Stations.VeloPark.getId(), MINUTES_FROM_MIDNIGHT_8AM));
-        assertFalse(trips.isEmpty());
-
-        List<String> callingServices = trips.stream()
-                .map(trip -> trip.getServiceId())
-                .collect(Collectors.toList());
-
-        // find one service id from trips
-        String callingService = callingServices.get(0);
-
-        // check can now get service
-        Service velopark8AMSvc = transportData.getServiceById(callingService);
-
-        assertTrue(ashtonRoutes.contains(velopark8AMSvc.getRouteId()));
-
-        // now check can get trips using times instead
-        SortedSet<ServiceTime> tripsByTime = transportData.getTimes(velopark8AMSvc.getServiceId(),
-                Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM);
-        assertFalse(tripsByTime.isEmpty());
-    }
-
-    @Test
     public void shouldGetServiceForLineAndStop() {
 
         // select servcies for one route
@@ -149,18 +112,18 @@ public class TransportDataFromFilesTest {
     public void shouldGetTripsAfter() {
         // use TramJourneyPlannerTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
-        List<Trip> trips = svc.getTripsAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
+        Optional<Trip> trips = svc.getFirstTripAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
                 new TimeWindow((23 * 60) +41,30));
-        assertFalse(trips.isEmpty());
+        assertTrue(trips.isPresent());
     }
 
     @Test
     public void shouldGetTripsCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById("Serv007138");
-        List<Trip> trips = svc.getTripsAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
+        Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
-        assertFalse(trips.isEmpty());
+        assertTrue(trips.isPresent());
     }
 
     @Test

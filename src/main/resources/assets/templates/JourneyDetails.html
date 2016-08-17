@@ -8,11 +8,13 @@
 <div class="container">
     <div class="row">
         <div class="col-12 col-sm-12 col-lg-" ng-hide='!journey.stages.length'>
+            <!-- to replace with Earlier/Later link
             <button class="btn btn-default btn-sm pull-left" ng-click="previousTram()"
                     ng-disabled="disablePreviousTram"><span class="glyphicon glyphicon-chevron-left"></span></button>
             <button class="btn btn-default btn-sm pull-right" ng-click="nextTram(journey)" ng-disabled="disableNextTram"><span
                     class="glyphicon glyphicon-chevron-right"></span></button>
-            <h4 id="journeyHeader" class="heading">{{journey.stages[0].serviceTimes[serviceTimeIndex].departureTime}}
+                    -->
+            <h4 id="journeyHeader" class="heading">{{journey.firstDepartureTime}}
                 from
                 {{journey.begin.name}}</h4>
             <div ng-repeat="stage in journey.stages ">
@@ -32,8 +34,8 @@
                     <ul class="list-group">
                         <li class="list-group-item" ng-show="stage.isAVehicle">
                             <div id="stageInstruction{{$index}}">
-                            <strong>{{stage.serviceTimes[serviceTimeIndex].departureTime}}</strong> Catch
-                            {{stage.serviceTimes[serviceTimeIndex].headSign}} {{stage.mode}}
+                            <strong>{{stage.firstDepartureTime}}</strong> Catch
+                            {{stage.headSign}} {{stage.mode}}
                             </div>
                         </li>
                         <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>
@@ -41,7 +43,7 @@
                         </li>
                         <li class="list-group-item" ng-show="stage.isAVehicle">
                             <div id="stageArrive{{$index}}">
-                            <strong>{{stage.serviceTimes[serviceTimeIndex].arrivalTime}}</strong> Arrive at {{stage.lastStation.name}}</div>
+                            <strong>{{stage.expectedArrivalTime}}</strong> Arrive at {{stage.lastStation.name}}</div>
                         </li>
                     </ul>
                 </div>

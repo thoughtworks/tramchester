@@ -61,8 +61,7 @@ public class UserJourneyTest {
             takeScreenShot();
             LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
             logs.forEach(log -> System.out.println(log));
-        }
-        finally {
+        } finally {
             driver.close();
         }
     }
@@ -163,7 +162,7 @@ public class UserJourneyTest {
     @Category({AcceptanceTest.class})
     @Ignore("summer 2016 closure")
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Cornbrook.getName(),  Stations.Victoria.getName());
+        List<String> changes = Arrays.asList(Stations.Cornbrook.getName(), Stations.Victoria.getName());
         List<String> headSigns = Arrays.asList("Etihad Campus");
 
         checkJourney(Stations.Altrincham.getName(), Stations.ExchangeSquare.getName(),
@@ -173,7 +172,7 @@ public class UserJourneyTest {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldHaveWalkingRoutesAcrossCity() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Deansgate.getName(),  Stations.MarketStreet.getName());
+        List<String> changes = Arrays.asList(Stations.Deansgate.getName(), Stations.MarketStreet.getName());
         List<String> headSigns = Arrays.asList("Deansgate-Castlefield", "none", "Bury");
 
         String fromStop = Stations.Altrincham.getName();
@@ -193,7 +192,7 @@ public class UserJourneyTest {
 
         MapPage mapPage = journeyDetailsPage.clickOnMapLink(1);
 
-        assertEquals(Stations.MarketStreet.getName(),mapPage.getTitle());
+        assertEquals(Stations.MarketStreet.getName(), mapPage.getTitle());
     }
 
     private JourneyDetailsPage checkJourney(String fromStop, String toStop, LocalDate date, String time, List<String> changes,
@@ -207,7 +206,7 @@ public class UserJourneyTest {
 
         assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
 
-        for(int index=0; index<headSigns.size(); index++) {
+        for (int index = 0; index < headSigns.size(); index++) {
             checkStage(index, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
         }
         return journeyDetailsPage;
@@ -222,7 +221,7 @@ public class UserJourneyTest {
         String end = routeDetailsPage.getJourneyEnd(0);
         String summary = routeDetailsPage.getSummary(0);
 
-        String plural = (changes.size()==1) ? "" : "s";
+        String plural = (changes.size() == 1) ? "" : "s";
         if (changes.isEmpty()) {
             assertThat(heading, startsWith("Tram with No Changes - "));
         } else {
@@ -234,8 +233,8 @@ public class UserJourneyTest {
         }
         assertThat(heading, endsWith(" minutes"));
         String fromStationText = " from " + fromStop;
-        assertThat(begin,endsWith(fromStationText));
-        assertThat(end,endsWith(" Arrive at "+ toStop));
+        assertThat(begin, endsWith(fromStationText));
+        assertThat(end, endsWith(" Arrive at " + toStop));
         if (changes.isEmpty()) {
             assertThat(summary, is("Direct"));
         } else {
@@ -263,12 +262,11 @@ public class UserJourneyTest {
     private void checkStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop, String toStop,
                             List<String> changes, List<String> headSigns, boolean wasWalking) {
         String promptText = journeyDetailsPage.getPrompt(stageIndex);
-        if (stageIndex==0) {
+        if (stageIndex == 0) {
             assertThat("Changes", promptText, is("Board tram at " + fromStop));
         } else if (wasWalking) {
             assertThat("Changes", promptText, is("Board tram at " + changes.get(stageIndex - 1)));
-        }
-        else {
+        } else {
             assertThat("Changes", promptText, is("Change tram at " + changes.get(stageIndex - 1)));
         }
         checkDuration(journeyDetailsPage, stageIndex);
@@ -281,7 +279,7 @@ public class UserJourneyTest {
         } else {
             assertThat(arriveText, endsWith(" Arrive at " + toStop));
         }
-        if (stageIndex<changes.size()) {
+        if (stageIndex < changes.size()) {
             assertThat(journeyDetailsPage.getChange(stageIndex), is("Change Tram"));
         }
     }
@@ -289,10 +287,10 @@ public class UserJourneyTest {
     private void checkWalkingStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop,
                                    List<String> changes) {
         String promptText = journeyDetailsPage.getPrompt(stageIndex);
-        if (stageIndex==0) {
+        if (stageIndex == 0) {
             assertThat("Changes", promptText, is("Board tram at " + fromStop));
         } else {
-            assertThat("Changes", promptText, is("Walk to " +changes.get(stageIndex)));
+            assertThat("Changes", promptText, is("Walk to " + changes.get(stageIndex)));
         }
         checkDuration(journeyDetailsPage, stageIndex);
     }
@@ -304,7 +302,7 @@ public class UserJourneyTest {
         assertThat(durationText, startsWith("Duration"));
     }
 
-    private void takeScreenShot()  {
+    private void takeScreenShot() {
         try {
             TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
             byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);

@@ -16,68 +16,37 @@ import static java.lang.String.format;
 
 public class VehicleStageWithTiming extends RawVehicleStage implements PresentableStage {
     private final TravelAction action;
-    private SortedSet<ServiceTime> serviceTimes;
+    private ServiceTime serviceTime;
 
-    @Deprecated
-    public VehicleStageWithTiming(RawVehicleStage rawTravelStage, SortedSet<ServiceTime> serviceTimes, TravelAction action) {
-        super(rawTravelStage);
-        this.serviceTimes = serviceTimes;
-        this.action = action;
-    }
-
-    public VehicleStageWithTiming(RawVehicleStage rawTravelStage, ServiceTime time, TravelAction action) {
+    public VehicleStageWithTiming(RawVehicleStage rawTravelStage, ServiceTime serviceTime, TravelAction action) {
         super(rawTravelStage);
         this.action = action;
-        // TODO store only the one service time
-        serviceTimes = new TreeSet<>();
-        serviceTimes.add(time);
-    }
-
-    // front end
-    public SortedSet<ServiceTime> getServiceTimes() {
-        return serviceTimes;
-    }
-
-    @Override
-    public int getNumberOfServiceTimes() {
-        return serviceTimes.size();
+        this.serviceTime = serviceTime;
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
-        return serviceTimes.first().getArrivalTime();
+        return serviceTime.getArrivalTime();
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
-       return serviceTimes.first().getDepartureTime();
+       return serviceTime.getDepartureTime();
     }
 
     public int getDuration() {
-//        // likely this only works for Tram when duration between stops does not vary by time of day
-//        ServiceTime serviceTime = serviceTimes.first();
-//        LocalTime arrivalTime = serviceTime.getArrivalTime();
-//        LocalTime departureTime = serviceTime.getDepartureTime();
-//
-//        return TimeAsMinutes.timeDiffMinutes(arrivalTime, departureTime);
         return cost;
     }
 
     public int findEarliestDepartureTime() {
-        int earliest = Integer.MAX_VALUE;
-        for (ServiceTime time : serviceTimes) {
-            if (time.getFromMidnightLeaves() < earliest) {
-                earliest = time.getFromMidnightLeaves();
-            }
-        }
-        return earliest;
+        return serviceTime.getFromMidnightLeaves();
     }
 
     @Override
     public String toString() {
         return "VehicleStageWithTiming{" +
                 "rawTravelStage=" + super.toString() +
-                ", serviceTimes=" + serviceTimes +
+                ", serviceTime=" + serviceTime +
                 '}';
     }
 
@@ -119,6 +88,10 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
         }
     }
 
+    @Override
+    public String getHeadSign() {
+        return serviceTime.getHeadSign();
+    }
 
 
 }

@@ -9,8 +9,7 @@ import java.time.LocalTime;
 public interface PresentableStage extends TransportStage {
     String getSummary() throws TramchesterException;
     String getPrompt() throws TramchesterException;
-
-    int getNumberOfServiceTimes();
+    String getHeadSign();
 
     Location getActionStation(); // place where action happens, i.e. Board At X or Walk To X
     Location getLastStation();
