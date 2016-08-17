@@ -52,11 +52,6 @@ public class StationResourceTest {
         public boolean isCreateLocality() {
             return false;
         }
-
-        @Override
-        public boolean useGenericMapper() {
-            return false;
-        }
     };
 
     @ClassRule

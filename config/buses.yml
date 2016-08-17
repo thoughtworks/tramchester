@@ -29,7 +29,6 @@ walkingMPH: 3
 redirectHTTP: ${REDIRECTHTTP:- false}
 secureHost: tramchester.com
 
-genericMapper: true
 createLocality: true
 
 logging:

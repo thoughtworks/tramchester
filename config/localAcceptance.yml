@@ -30,7 +30,6 @@ numOfNearestStops: 5
 walkingMPH: 3
 addWalkingRoutes: true
 
-genericMapper: false
 createLocality: false
 
 logging:

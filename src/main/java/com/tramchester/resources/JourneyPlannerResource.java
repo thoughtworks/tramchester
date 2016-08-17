@@ -78,7 +78,7 @@ public class JourneyPlannerResource {
         if (startId.startsWith("{") && startId.endsWith("}")) {
             journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, queryTime, queryDate);
         } else {
-           journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
+            journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
         return journeyResponseMapper.map(journeys, new TimeWindow(queryTime, config.getTimeWindow()));

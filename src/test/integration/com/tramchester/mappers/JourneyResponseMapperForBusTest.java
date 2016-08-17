@@ -45,7 +45,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     @Before
     public void beforeEachTestRuns() {
-        mapper = dependencies.get(GenericJourneyResponseMapper.class);
+        mapper = dependencies.get(TramJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();

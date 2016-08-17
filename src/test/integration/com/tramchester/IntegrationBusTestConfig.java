@@ -25,11 +25,6 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean useGenericMapper() {
-        return true;
-    }
-
-    @Override
     public Path getDataFolder() {
         return Paths.get("data/bus");
     }

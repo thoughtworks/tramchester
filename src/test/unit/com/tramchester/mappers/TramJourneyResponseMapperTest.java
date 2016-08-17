@@ -14,10 +14,10 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
-public class GenericJourneyResponseMapperTest extends EasyMockSupport {
+public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
     public static final int AM8 = 8 * 60;
-    private GenericJourneyResponseMapper mapper;
+    private TramJourneyResponseMapper mapper;
     private TransportDataFromFiles transportData;
     private Set<RawJourney> rawJourneys;
     private List<TransportStage> stages;
@@ -35,7 +35,7 @@ public class GenericJourneyResponseMapperTest extends EasyMockSupport {
         stationC = new Station("stationC", "area", "nameA", new LatLong(-4, 2), false);
 
         transportData = createMock(TransportDataFromFiles.class);
-        mapper = new GenericJourneyResponseMapper(transportData);
+        mapper = new TramJourneyResponseMapper(transportData);
     }
 
     @Test

@@ -27,11 +27,6 @@ public class IntegrationTramTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean useGenericMapper() {
-        return false;
-    }
-
-    @Override
     public Path getDataFolder() {
         return Paths.get("data/tram");
     }
