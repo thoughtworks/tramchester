@@ -102,4 +102,7 @@ public abstract class TestConfig extends TramchesterConfig {
     public int getMaxWait() {
         return 25;
     }
+
+    @Override
+    public int getQueryInterval() { return 6; }
 }

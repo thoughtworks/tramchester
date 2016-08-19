@@ -44,26 +44,29 @@ public class RouteCalculator extends StationIndexs {
         this.costEvaluator = costEvaluator;
     }
 
-    public Set<RawJourney> calculateRoute(String startStationId, String endStationId, int queryTime,
+    public Set<RawJourney> calculateRoute(String startStationId, String endStationId, List<Integer> queryTimes,
                                           TramServiceDate queryDate) throws TramchesterException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
+        Node endNode = getStationNode(endStationId);
+
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = getStationNode(startStationId);
-            Node endNode = getStationNode(endStationId);
 
-            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate);
-            // todo eliminate duplicate journeys that use different services??
+            gatherJounerys(endNode, queryTimes, queryDate, journeys, startNode, MAX_NUM_GRAPH_PATHS);
 
-            mapStreamToJourneySet(journeys, paths, MAX_NUM_GRAPH_PATHS, queryTime);
             tx.success();
         }
         return journeys;
     }
 
-    public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation, int minutesFromMidnight,
-                                          TramServiceDate queryDate) throws TramchesterException {
+    public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation,
+                                          List<Integer> queryTimes, TramServiceDate queryDate) throws TramchesterException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
+        int limit = MAX_NUM_GRAPH_PATHS * startStations.size();
+        Node endNode = getStationNode(endStation.getId());
+
+
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
             Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
@@ -71,22 +74,18 @@ public class RouteCalculator extends StationIndexs {
             startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
             startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
             startNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.QUERY);
+            logger.info(format("Added start node at %s as node %s", origin, startNode));
 
             startStations.forEach(stationWalk -> {
                 String id = stationWalk.getId();
                 Node node = getStationNode(id);
                 int cost = stationWalk.getCost();
-                logger.info(format("Add walking relationship from %s to %s cost %s", origin, id, cost));
+                logger.info(format("Add walking relationship from %s to %s cost %s", startNode, id, cost));
                 startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO).
                         setProperty(GraphStaticKeys.COST, cost);
             });
 
-            Node endNode = getStationNode(endStation.getId());
-
-            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, minutesFromMidnight, queryDate);
-
-            int limit = MAX_NUM_GRAPH_PATHS * startStations.size();
-            mapStreamToJourneySet(journeys, paths, limit, minutesFromMidnight);
+            gatherJounerys(endNode, queryTimes, queryDate, journeys, startNode, limit);
 
             startNode.delete();
 
@@ -94,6 +93,14 @@ public class RouteCalculator extends StationIndexs {
             tx.close();
         }
         return journeys;
+    }
+
+    private void gatherJounerys(Node endNode, List<Integer> queryTimes, TramServiceDate queryDate, Set<RawJourney> journeys,
+                                Node startNode, int limit) throws TramchesterException {
+        queryTimes.forEach(queryTime->{
+            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate);
+            mapStreamToJourneySet(journeys, paths, limit, queryTime);
+        });
     }
 
     private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
@@ -104,6 +111,10 @@ public class RouteCalculator extends StationIndexs {
             RawJourney journey = new RawJourney(stages, minsPathMidnight);
             journeys.add(journey);
         });
+        paths.close();
+        if (journeys.size()<1) {
+            logger.warn(format("Did not create any journeys from the limit:%s queryTime:%s", limit, minsPathMidnight));
+        }
     }
 
     public TramNode getStation(String id) throws UnknownStationException {
@@ -111,7 +122,7 @@ public class RouteCalculator extends StationIndexs {
         return nodeFactory.getNode(node);
     }
 
-    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) throws TramchesterException {
+    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));

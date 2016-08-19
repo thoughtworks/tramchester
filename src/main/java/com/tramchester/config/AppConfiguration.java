@@ -72,6 +72,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("maxWait")
     private int maxWait;
 
+    @JsonProperty("queryInterval")
+    private int queryInterval;
+
     public String getInstanceDataBaseURL() {
         return instanceDataUrl;
     }
@@ -99,6 +102,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxWait() {
         return maxWait;
+    }
+
+    @Override
+    public int getQueryInterval() {
+        return queryInterval;
     }
 
     @Override

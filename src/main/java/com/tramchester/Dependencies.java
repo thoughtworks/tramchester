@@ -13,6 +13,7 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
+import com.tramchester.domain.CreateQueryTimes;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -64,6 +65,7 @@ public class Dependencies {
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(ClosedStations.class);
         picoContainer.addComponent(VersionResource.class);
+        picoContainer.addComponent(CreateQueryTimes.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(NodeFactory.class);
         picoContainer.addComponent(RelationshipFactory.class);

@@ -30,5 +30,9 @@ public class IntegrationTramTestConfig extends TestConfig {
     public Path getDataFolder() {
         return Paths.get("data/tram");
     }
+
+    // just get one query time by doing this
+    @Override
+    public int getQueryInterval() { return getMaxWait()+1; }
 }
 

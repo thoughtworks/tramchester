@@ -31,7 +31,7 @@ public class GraphBuilderTestPerformance {
     }
 
     @Test
-    @Ignore("For performance testing")
+    @Ignore("For performance testing only")
     public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
         DateTime start = DateTime.now();
 

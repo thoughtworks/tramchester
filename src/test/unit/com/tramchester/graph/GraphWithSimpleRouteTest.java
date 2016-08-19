@@ -4,6 +4,7 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -30,7 +31,8 @@ public class GraphWithSimpleRouteTest {
     private static TransportDataForTest transportData;
     private static RouteCalculator calculator;
     private TramServiceDate queryDate;
-    private int queryTime;
+    private List<Integer> queryTimes;
+    private Station firstStation;
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
@@ -59,47 +61,61 @@ public class GraphWithSimpleRouteTest {
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
                 spatialDatabaseService, pathExpander, mapper, costEvaluator);
+
     }
 
     @Before
     public void beforeEachTestRuns() {
         queryDate = new TramServiceDate("20140630");
-        queryTime = (8 * 60)-3;
+        int minutesPastMidnight = (8 * 60) - 3;
+        // note: trams only run at specific times so still only get one journey in results
+        queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
+        firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION);
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.SECOND_STATION, queryTime, queryDate);
+                TransportDataForTest.SECOND_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, queryTime, queryDate);
+                TransportDataForTest.INTERCHANGE, queryTimes, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, 9*60, queryDate);
+                TransportDataForTest.INTERCHANGE, Arrays.asList(new Integer[]{9*60}), queryDate);
         assertEquals(0, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.LAST_STATION, queryTime, queryDate);
+                TransportDataForTest.LAST_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.STATION_FOUR, queryTime, queryDate);
+                TransportDataForTest.STATION_FOUR, queryTimes, queryDate);
         assertEquals(1, journeys.size());
     }
 
+    @Test
+    public void shouldTestJourneyWithLocationBasedStart() throws TramchesterException {
+        LatLong origin = new LatLong(180.001, 270.001);
+        int walkCost = 1;
+        List<StationWalk> startStations = Arrays.asList(new StationWalk[]{new StationWalk(firstStation, walkCost)});
+
+        Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION);
+        Set<RawJourney> journeys = calculator.calculateRoute(origin, startStations, endStation, queryTimes, queryDate);
+        assertEquals(1, journeys.size());
+    }
 }

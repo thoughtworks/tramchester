@@ -32,7 +32,6 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract Path getInputDataPath();
     // where to place preprocessed timetable data
     public abstract Path getOutputDataPath();
-    // use generic mapper, i.e. not tram specific one
 
     public abstract int getTimeWindow();
     // show users 'My Location' in stops list
@@ -57,5 +56,8 @@ public abstract class TramchesterConfig extends Configuration {
 
     // max time to wait for tram/connection
     public abstract int getMaxWait();
+
+    // how often to query for trams into the future from initial query tie, i.e. every 6 minutes
+    public abstract int getQueryInterval();
 }
 

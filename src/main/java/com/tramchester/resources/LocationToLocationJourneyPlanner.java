@@ -39,7 +39,7 @@ public class LocationToLocationJourneyPlanner {
         objectMapper = new ObjectMapper();
     }
 
-    public Set<RawJourney> quickestRouteForLocation(String startId, String endId, int queryTime,
+    public Set<RawJourney> quickestRouteForLocation(String startId, String endId, List<Integer> queryTimes,
                                                     TramServiceDate queryDate) throws TramchesterException {
         LatLong latLong;
         try {
@@ -52,10 +52,10 @@ public class LocationToLocationJourneyPlanner {
         List<String> starts = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
         logger.info(format("Found %s stations close to %s", starts.size(), latLong));
-        return createJourneyPlan(latLong, starts, endId, queryTime, queryDate);
+        return createJourneyPlan(latLong, starts, endId, queryTimes, queryDate);
     }
 
-    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, int queryTime,
+    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<Integer> queryTimes,
                                               TramServiceDate queryDate) throws TramchesterException {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).collect(Collectors.toList());
@@ -64,7 +64,7 @@ public class LocationToLocationJourneyPlanner {
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
         Station end = stationRepository.getStation(endId);
-        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTime, queryDate);
+        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate);
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {

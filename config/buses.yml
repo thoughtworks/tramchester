@@ -21,6 +21,7 @@ tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.
 dataPath: data/bus
 timeWindow: 60
 maxWait: 25
+queryInterval: 6
 showMyLocation: true
 nearestStopRangeKM: 2
 numOfNearestStops: 6

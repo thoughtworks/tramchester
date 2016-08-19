@@ -2,10 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.TimeWindow;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
@@ -21,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -34,15 +32,17 @@ public class JourneyPlannerResource {
     private RouteCalculator routeCalculator;
     private DateTimeService dateTimeService;
     private JourneyResponseMapper journeyResponseMapper;
+    private CreateQueryTimes createQueryTimes;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
                                   JourneyResponseMapper journeyResponseMapper, TramchesterConfig config,
-                                  LocationToLocationJourneyPlanner locToLocPlanner) {
+                                  LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes) {
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
         this.journeyResponseMapper = journeyResponseMapper;
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
+        this.createQueryTimes = createQueryTimes;
     }
 
     @GET
@@ -71,17 +71,24 @@ public class JourneyPlannerResource {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId,
-                                                       TramServiceDate queryDate, int queryTime)
+                                                       TramServiceDate queryDate, int initialQueryTime)
             throws TramchesterException {
-        logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),queryDate,queryTime));
+        logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
+                queryDate,initialQueryTime));
         Set<RawJourney> journeys;
-        if (startId.startsWith("{") && startId.endsWith("}")) {
-            journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, queryTime, queryDate);
+        List<Integer> queryTimes = createQueryTimes.generate(initialQueryTime);
+        if (isFromMyLocation(startId)) {
+            journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, queryTimes, queryDate);
         } else {
-            journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
+            journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
         return journeyResponseMapper.map(journeys, config.getTimeWindow());
+    }
+
+    private boolean isFromMyLocation(String startId) {
+        // euk!
+        return startId.startsWith("{") && startId.endsWith("}");
     }
 
 }

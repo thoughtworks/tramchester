@@ -37,7 +37,7 @@ public class TramServiceDate {
                 '}';
     }
 
-    public DaysOfWeek getDay() throws TramchesterException {
+    public DaysOfWeek getDay() {
         int dayOfWeek = date.getDayOfWeek();
         switch (dayOfWeek) {
             case DateTimeConstants.SUNDAY: return DaysOfWeek.Sunday;
@@ -48,6 +48,6 @@ public class TramServiceDate {
             case DateTimeConstants.FRIDAY: return DaysOfWeek.Friday;
             case DateTimeConstants.SATURDAY: return DaysOfWeek.Saturday;
         }
-        throw new TramchesterException(format("Cannot find day of week for %s on %s", dayOfWeek, date));
+        throw new RuntimeException(format("Cannot find day of week for %s on %s", dayOfWeek, date));
     }
 }

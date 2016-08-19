@@ -11,7 +11,7 @@ public class GraphBranchState {
     private boolean hasStartTime = false;
     private DaysOfWeek day;
 
-    public GraphBranchState(TramServiceDate queryDate, int queryTime) throws TramchesterException {
+    public GraphBranchState(TramServiceDate queryDate, int queryTime) {
         this.queryDate = queryDate;
         this.queryTime = queryTime;
         day = queryDate.getDay(); // cached as called many many times during search...

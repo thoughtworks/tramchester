@@ -89,7 +89,7 @@ task stage(dependsOn: ['clean', 'installApp'])
 
 clean {
     delete 'int_test_tramchester.db' , 'data/tram/data.zip', 'data/bus/data.zip', 'int_test_bus_tramchester.db',
-            'perf_test_tramchester'
+            'perf_test_tramchester.db'
     delete fileTree('data/tram') {
         include '*.txt'
     }

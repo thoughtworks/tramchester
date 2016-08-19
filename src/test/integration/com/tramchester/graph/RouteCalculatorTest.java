@@ -39,7 +39,8 @@ public class RouteCalculatorTest {
 
     @Test
     public void testJourneyFromAltyToAirport() throws Exception {
-        int minutes = dateTimeService.getMinutesFromMidnight("11:43:00");
+        int minutesFromMidnight = dateTimeService.getMinutesFromMidnight("11:43:00");
+        List<Integer> minutes = Arrays.asList(new Integer[]{minutesFromMidnight});
         TramServiceDate today = new TramServiceDate(LocalDate.now());
 
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
