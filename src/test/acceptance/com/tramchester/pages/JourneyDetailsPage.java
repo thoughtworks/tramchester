@@ -1,5 +1,6 @@
 package com.tramchester.pages;
 
+import org.joda.time.LocalTime;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -58,9 +59,9 @@ public class JourneyDetailsPage extends Page {
     }
 
 
-    public JourneyDetailsPage laterTram() {
+    public void laterTram() {
         getLaterTram().click();
-        return waitForPage();
+        waitForPage();
     }
 
     private JourneyDetailsPage waitForPage() {
@@ -69,9 +70,9 @@ public class JourneyDetailsPage extends Page {
     }
 
 
-    public JourneyDetailsPage earlierTram() {
+    public void earlierTram() {
         getEarlierTram().click();
-        return waitForPage();
+        waitForPage();
     }
 
     private WebElement getLaterTram() {
@@ -80,5 +81,10 @@ public class JourneyDetailsPage extends Page {
 
     private WebElement getEarlierTram() {
         return findElementById("earlierTram");
+    }
+
+    public LocalTime getTime() {
+        String[] parts = getSummary().split(" ");
+        return LocalTime.parse(parts[0]);
     }
 }

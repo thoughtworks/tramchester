@@ -2,6 +2,7 @@ package com.tramchester;
 
 import com.tramchester.pages.*;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
@@ -180,24 +181,26 @@ public class UserJourneyTest {
                     changes, headSigns, false);
         }
 
-        journeyDetailsPage = journeyDetailsPage.laterTram();
-
+        journeyDetailsPage.laterTram();
         assertTrue(journeyDetailsPage.laterTramEnabled());
         assertTrue(journeyDetailsPage.earlierTramEnabled());
 
-        journeyDetailsPage = journeyDetailsPage.earlierTram();
-
+        journeyDetailsPage.earlierTram();
         assertTrue(journeyDetailsPage.laterTramEnabled());
         assertFalse(journeyDetailsPage.earlierTramEnabled());
 
         int count = 0;
         while(journeyDetailsPage.laterTramEnabled()) {
+            LocalTime firstTime = journeyDetailsPage.getTime();
             journeyDetailsPage.laterTram();
+            assertTrue(firstTime.isBefore(journeyDetailsPage.getTime()));
             count++;
         }
 
         while(journeyDetailsPage.earlierTramEnabled()) {
+            LocalTime beforeTime = journeyDetailsPage.getTime();
             journeyDetailsPage.earlierTram();
+            assertTrue(beforeTime.isAfter(journeyDetailsPage.getTime()));
             count--;
         }
 
