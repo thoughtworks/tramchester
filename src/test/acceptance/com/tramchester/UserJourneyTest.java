@@ -36,6 +36,9 @@ public class UserJourneyTest {
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, "config/localAcceptance.yml");
+    private final String altrincham = Stations.Altrincham.getName();
+    private final String deansgate = Stations.Deansgate.getName();
+    private final String cornbrook = Stations.Cornbrook.getName();
     private WebDriver driver;
 
     @Rule
@@ -88,10 +91,10 @@ public class UserJourneyTest {
     @Category({AcceptanceTest.class})
     @Ignore("summer 2016 closure")
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Deansgate.getName());
+        List<String> changes = Arrays.asList(deansgate);
         List<String> headSigns = Arrays.asList("Etihad Campus", "Bury");
-        JourneyDetailsPage journeyDetailsPage = checkJourney(Stations.Altrincham.getName(), Stations.Bury.getName(),
-                when, "10:15", changes, headSigns, false);
+        JourneyDetailsPage journeyDetailsPage = checkJourney(altrincham, Stations.Bury.getName(),
+                when, "10:15", changes, headSigns, false, 5, 0);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
     }
@@ -99,9 +102,8 @@ public class UserJourneyTest {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToPiccadiltNotPossibleDuringClosures() throws InterruptedException {
-
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(Stations.Altrincham.getName(),
-                Stations.Piccadilly.getName(), when, "10:15");
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(altrincham, Stations.Piccadilly.getName(),
+                when, "10:15");
 
         assertTrue(routeDetailsPage.waitForError());
     }
@@ -115,25 +117,25 @@ public class UserJourneyTest {
         RoutePlannerPage routePlannerPage = welcomePage.begin();
 
         routePlannerPage.waitForToStops();
-        routePlannerPage.setFromStop(Stations.Altrincham.getName());
+        routePlannerPage.setFromStop(altrincham);
         List<String> toStops = routePlannerPage.getToStops();
-        assertFalse(toStops.contains(Stations.Altrincham.getName()));
-        assertTrue(toStops.contains(Stations.Cornbrook.getName()));
+        assertFalse(toStops.contains(altrincham));
+        assertTrue(toStops.contains(cornbrook));
 
-        routePlannerPage.setFromStop(Stations.Cornbrook.getName());
+        routePlannerPage.setFromStop(cornbrook);
         toStops = routePlannerPage.getToStops();
-        assertTrue(toStops.contains(Stations.Altrincham.getName()));
-        assertFalse(toStops.contains(Stations.Cornbrook.getName()));
+        assertTrue(toStops.contains(altrincham));
+        assertFalse(toStops.contains(cornbrook));
     }
 
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Cornbrook.getName());
+        List<String> changes = Arrays.asList(cornbrook);
         List<String> headSigns = Arrays.asList("Cornbrook");
         JourneyDetailsPage journeyDetailsPage = checkJourney(Stations.ManAirport.getName(),
-                Stations.Deansgate.getName(), when, "10:15", changes,
-                headSigns, false);
+                deansgate, when, "10:15", changes,
+                headSigns, false, 5, 0);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
     }
@@ -144,8 +146,17 @@ public class UserJourneyTest {
         List<String> changes = new LinkedList<>();
         List<String> headSigns = Arrays.asList("Deansgate-Castlefield");
 
-        checkJourney(Stations.Altrincham.getName(), Stations.Deansgate.getName(),
-                when, "10:15", changes, headSigns, false);
+        RouteDetailsPage routeDetailsPage = checkJourney(altrincham, deansgate,
+                when, "10:15", changes, headSigns, false, 5, 0)
+                .backToRouteDetails();
+        routeDetailsPage = checkJourneyFor(routeDetailsPage, altrincham, deansgate,
+                changes, headSigns, false, 5, 1).backToRouteDetails();
+        routeDetailsPage = checkJourneyFor(routeDetailsPage, altrincham, deansgate,
+                changes, headSigns, false, 5, 2).backToRouteDetails();
+        routeDetailsPage = checkJourneyFor(routeDetailsPage, altrincham, deansgate,
+                changes, headSigns, false, 5, 3).backToRouteDetails();
+        checkJourneyFor(routeDetailsPage, altrincham, deansgate,
+                changes, headSigns, false, 5, 4).backToRouteDetails();
     }
 
     @Test
@@ -154,28 +165,63 @@ public class UserJourneyTest {
         List<String> changes = new LinkedList<>();
         List<String> headSigns = Arrays.asList("Bury");
 
-        checkJourney(Stations.Ashton.getName(), Stations.PiccadillyGardens.getName(),
-                when, "10:15", changes, headSigns, false);
+        String ashton = Stations.Ashton.getName();
+        String piccadilly = Stations.PiccadillyGardens.getName();
+
+        JourneyDetailsPage journeyDetailsPage = checkJourney(ashton, piccadilly,
+                when, "10:15", changes, headSigns, false, 5, 0);
+
+        assertTrue(journeyDetailsPage.laterTramEnabled());
+        assertFalse(journeyDetailsPage.earlierTramEnabled());
+
+        assertThat(journeyDetailsPage.getSummary(), endsWith(ashton));
+        for (int index = 0; index < headSigns.size(); index++) {
+            checkStage(index, journeyDetailsPage, ashton, piccadilly,
+                    changes, headSigns, false);
+        }
+
+        journeyDetailsPage = journeyDetailsPage.laterTram();
+
+        assertTrue(journeyDetailsPage.laterTramEnabled());
+        assertTrue(journeyDetailsPage.earlierTramEnabled());
+
+        journeyDetailsPage = journeyDetailsPage.earlierTram();
+
+        assertTrue(journeyDetailsPage.laterTramEnabled());
+        assertFalse(journeyDetailsPage.earlierTramEnabled());
+
+        int count = 0;
+        while(journeyDetailsPage.laterTramEnabled()) {
+            journeyDetailsPage.laterTram();
+            count++;
+        }
+
+        while(journeyDetailsPage.earlierTramEnabled()) {
+            journeyDetailsPage.earlierTram();
+            count--;
+        }
+
+        assertEquals(0,count);
     }
 
     @Test
     @Category({AcceptanceTest.class})
     @Ignore("summer 2016 closure")
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Cornbrook.getName(), Stations.Victoria.getName());
+        List<String> changes = Arrays.asList(cornbrook, Stations.Victoria.getName());
         List<String> headSigns = Arrays.asList("Etihad Campus");
 
-        checkJourney(Stations.Altrincham.getName(), Stations.ExchangeSquare.getName(),
-                when, "10:15", changes, headSigns, false);
+        checkJourney(altrincham, Stations.ExchangeSquare.getName(),
+                when, "10:15", changes, headSigns, false, 5, 0);
     }
 
     @Test
     @Category({AcceptanceTest.class})
     public void shouldHaveWalkingRoutesAcrossCity() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Deansgate.getName(), Stations.MarketStreet.getName());
+        List<String> changes = Arrays.asList(deansgate, Stations.MarketStreet.getName());
         List<String> headSigns = Arrays.asList("Deansgate-Castlefield", "none", "Bury");
 
-        String fromStop = Stations.Altrincham.getName();
+        String fromStop = altrincham;
         String toStop = Stations.Bury.getName();
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(fromStop, toStop, when, "10:15");
@@ -196,16 +242,25 @@ public class UserJourneyTest {
     }
 
     private JourneyDetailsPage checkJourney(String fromStop, String toStop, LocalDate date, String time, List<String> changes,
-                                            List<String> headSigns, boolean embeddedWalk) throws InterruptedException {
+                                            List<String> headSigns, boolean embeddedWalk, int expectedJourneys, int selectedJourney) throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(fromStop, toStop, date, time);
 
+        return checkJourneyFor(routeDetailsPage, fromStop, toStop, changes, headSigns, embeddedWalk, expectedJourneys, selectedJourney);
+    }
+
+    private JourneyDetailsPage checkJourneyFor(RouteDetailsPage routeDetailsPage, String fromStop, String toStop,
+                                               List<String> changes, List<String> headSigns, boolean embeddedWalk,
+                                               int expectedJourneys, int selectedJourney) {
         String fromStationText = checkRoutes(fromStop, toStop, changes, embeddedWalk, routeDetailsPage);
 
-        JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
+        for(int i=0;i<expectedJourneys; i++) {
+            assertTrue("Check for journey "+i,routeDetailsPage.journeyPresent(0));
+        }
+
+        JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(selectedJourney);
 
         assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
-
         for (int index = 0; index < headSigns.size(); index++) {
             checkStage(index, journeyDetailsPage, fromStop, toStop, changes, headSigns, false);
         }

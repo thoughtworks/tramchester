@@ -1,6 +1,7 @@
 package com.tramchester.pages;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class JourneyDetailsPage extends Page {
 
@@ -45,5 +46,39 @@ public class JourneyDetailsPage extends Page {
     public MapPage clickOnMapLink(int index) {
         findElementById("showMap"+index).click();
         return new MapPage(driver);
+    }
+
+    public boolean laterTramEnabled() {
+        return getLaterTram().isEnabled();
+    }
+
+    public  boolean earlierTramEnabled() {
+
+        return getEarlierTram().isEnabled();
+    }
+
+
+    public JourneyDetailsPage laterTram() {
+        getLaterTram().click();
+        return waitForPage();
+    }
+
+    private JourneyDetailsPage waitForPage() {
+        waitForElement("journeyHeader", timeOut);
+        return new JourneyDetailsPage(driver);
+    }
+
+
+    public JourneyDetailsPage earlierTram() {
+        getEarlierTram().click();
+        return waitForPage();
+    }
+
+    private WebElement getLaterTram() {
+        return findElementById("laterTram");
+    }
+
+    private WebElement getEarlierTram() {
+        return findElementById("earlierTram");
     }
 }

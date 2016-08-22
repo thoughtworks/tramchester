@@ -37,6 +37,10 @@ techLabApp.factory('journeyPlanService', function () {
                 return journey;
             }
         },
+        
+        numberOfJourneys: function() {
+            return journeyPlanCache.journeys.length;
+        },
 
         removePlan: function () {
             journeyPlanCache = null;

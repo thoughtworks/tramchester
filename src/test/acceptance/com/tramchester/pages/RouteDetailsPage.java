@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement;
 
 public class RouteDetailsPage extends Page {
 
-    private long timeOut = 4;
 
     public RouteDetailsPage(WebDriver driver) {
         super(driver);
@@ -50,4 +49,5 @@ public class RouteDetailsPage extends Page {
     public boolean waitForError() {
         return waitForElement("NoRoutes", 2*timeOut).isEnabled();
     }
+
 }

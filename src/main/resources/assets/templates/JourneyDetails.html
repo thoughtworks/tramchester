@@ -1,6 +1,7 @@
 <div class="navbar tcr-navbar">
     <div class="container">
-        <a id="backToRouteDetails" class="navbar-button" ng-click="goBack(journey)"><span class="glyphicon glyphicon-chevron-left"></span>
+        <a id="backToRouteDetails" class="navbar-button" ng-click="goBack(journey)">
+            <span class="glyphicon glyphicon-chevron-left"></span>
         </a>
         <h5 class="navbar-title">Directions</h5>
     </div>
@@ -8,16 +9,19 @@
 <div class="container">
     <div class="row">
         <div class="col-12 col-sm-12 col-lg-" ng-hide='!journey.stages.length'>
-            <!-- to replace with Earlier/Later link
-            <button class="btn btn-default btn-sm pull-left" ng-click="previousTram()"
-                    ng-disabled="disablePreviousTram"><span class="glyphicon glyphicon-chevron-left"></span></button>
-            <button class="btn btn-default btn-sm pull-right" ng-click="nextTram(journey)" ng-disabled="disableNextTram"><span
-                    class="glyphicon glyphicon-chevron-right"></span></button>
-                    -->
+            <button id="earlierTram" class="btn btn-default btn-sm pull-left"
+                    ng-click="earlierTram()" ng-disabled="disableEarlierTram">
+                <span>Earlier </span><span class="glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button id="laterTram" class="btn btn-default btn-sm pull-right"
+                    ng-click="laterTram()" ng-disabled="disableLaterTram">
+                <span class="glyphicon glyphicon-chevron-right"> Later</span>
+            </button>
+
             <h4 id="journeyHeader" class="heading">{{journey.firstDepartureTime}}
                 from
                 {{journey.begin.name}}</h4>
-            <div ng-repeat="stage in journey.stages ">
+            <div ng-repeat="stage in journey.stages">
                 <div class="panel {{stage.displayClass}}">
                     <div id="stageSummary{{$index}}" class="panel-heading">{{stage.summary}}</div>
                     <!-- List group -->
