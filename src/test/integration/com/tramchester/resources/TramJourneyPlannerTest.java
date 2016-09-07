@@ -1,17 +1,15 @@
 package com.tramchester.resources;
 
-
-import com.tramchester.ClosureTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Location;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import org.joda.time.LocalDate;
 import org.junit.*;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 
 import javax.ws.rs.core.Response;
@@ -48,8 +46,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Category(ClosureTest.class)
-    @Ignore("Summer 2016 closure")
     public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -59,8 +55,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Category(ClosureTest.class)
-    @Ignore("Summer 2016 closure")
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {
         for (Location start :  Stations.getInterchanges()) {
             for (Location dest : Stations.getInterchanges()) {
@@ -70,8 +64,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Category(ClosureTest.class)
-    @Ignore("Summer 2016 closure")
     public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.getInterchanges()) {
@@ -81,8 +73,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("summer closures")
-    @Category(ClosureTest.class)
     public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.getInterchanges() ) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -92,7 +82,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldReproduceIssueWithMissingRoutes() throws TramchesterException {
         validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, 10*60, when);
     }
@@ -117,11 +106,10 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, (23*60)+44, when);
+        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, (23*60)+34, when);
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindRoutePiccadilyGardensToCornbrook() throws TramchesterException {
         validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Cornbrook, 23*60, when);
     }
@@ -132,7 +120,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, (23*60)+41, when);
     }
@@ -151,7 +138,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToEndOfLines() throws TramchesterException {
         int offsetToMonday = MONDAY- when.getDayOfWeek();
         LocalDate nextMonday = when.plusDays(offsetToMonday);
@@ -162,7 +148,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloInterchanges() throws TramchesterException {
         for (Location dest : Stations.getInterchanges()) {
             validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, when);
@@ -170,19 +155,16 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToDeansgate() throws TramchesterException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Deansgate, 8*60, when);
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToBroadway() throws TramchesterException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Broadway, 8*60, when);
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindRouteVeloToPomona() throws TramchesterException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, 8*60, when);
     }
@@ -193,7 +175,6 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
-    @Ignore("Summary 2016 closures")
     public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, (22*60)+45, when);
     }

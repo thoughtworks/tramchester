@@ -6,6 +6,7 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.exceptions.UnknownStationException;
+import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.domain.Trip;
 import com.tramchester.graph.Nodes.StationNode;
@@ -67,14 +68,10 @@ public class TramGraphBuilderTest {
 //    }
 
     @Test
-    @Category({ClosureTest.class})
-    @Ignore("summer 2016 closure")
     public void shouldHaveCorrectInboundsAtMediaCity() throws TramchesterException {
 
         List<TransportRelationship> inbounds = calculator.getInboundRouteStationRelationships(
-                Stations.MediaCityUK );
-                        // this route not present during summer 2016 closure
-                        // + RouteCodes.PICC_TO_ECCLES);
+                Stations.MediaCityUK + RouteCodes.ECCLES_TO_ASH );
 
         List<BoardRelationship> boards = new LinkedList<>();
         List<TramGoesToRelationship> svcsToMediaCity = new LinkedList<>();
@@ -84,9 +81,7 @@ public class TramGraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        //assertEquals(4, svcsToMediaCity.size());
-        // 8 during the clousures
-        assertEquals(8, svcsToMediaCity.size());
+        assertEquals(7, svcsToMediaCity.size());
     }
 
     @Test
@@ -104,33 +99,9 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    @Category({ClosureTest.class})
-    @Ignore("summer 2016 closure")
-    public void shouldHaveHarbourCityRouteStation() throws UnknownStationException {
-//        TramNode tramNode = calculator.getRouteStation(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES);
-//
-//        RouteStationNode routeStationNode = (RouteStationNode) tramNode;
-//        assertNotNull(routeStationNode);
-//
-//        assertEquals(Stations.HarbourCity + RouteCodes.PICC_TO_ECCLES, routeStationNode.getId());
-//        assertFalse(routeStationNode.isStation());
-//        assertTrue(routeStationNode.isRouteStation());
-//
-//        // for data as of 2nd June 2016 this is shown as "Deansgate-Castlefield - MediaCityUK"
-//        // this is an known (i.e. tfgm know) issue with the data
-//        //assertEquals("Piccadilly - MediaCityUK - Eccles", routeStationNode.getRouteName());
-//        assertEquals("Deansgate-Castlefield - MediaCityUK", routeStationNode.getRouteName());
-//
-//        assertEquals(RouteCodes.PICC_TO_ECCLES, routeStationNode.getRouteId());
-    }
-
-    @Test
-    @Category({ClosureTest.class})
-    @Ignore("summer 2016 closure")
     public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws TramchesterException {
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.Deansgate.getId() );
-                        //+ RouteCodes.EAST_DIDS_TO_BURY);
+                Stations.Deansgate.getId() + RouteCodes.EAST_DIDS_TO_DEANSGATE);
 
         List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet.getId());
 
@@ -163,13 +134,12 @@ public class TramGraphBuilderTest {
     }
 
     // this test is data specific and could fail if change to routes happen
-    @Ignore("No service direct from velo to media city during st peters square closure")
     @Test
     public void shouldValidateGraphRepresentationMatchesTransportData() throws TramchesterException {
-        String svcId = "Serv001180";
+        String svcId = "Serv002025";
 
         List<TransportRelationship> outbounds =
-                calculator.getOutboundRouteStationRelationships(Stations.VeloPark.toString() + RouteCodes.ASH_TO_BURY);
+                calculator.getOutboundRouteStationRelationships(Stations.VeloPark.getId() + RouteCodes.ECCLES_TO_ASH);
         // check on departs relationship & services
         List<TransportRelationship> departs = new LinkedList<>();
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
@@ -222,12 +192,10 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    @Category({ClosureTest.class})
-    @Ignore("summer 2016 closure")
     public void shouldReportServicesAtHarbourCityWithTimes() throws TramchesterException {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity.getId());
-                //+ RouteCodes.PICC_TO_ECCLES);
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity.getId()
+                + RouteCodes.ECCLES_TO_ASH);
         reportServices(outbounds);
     }
 

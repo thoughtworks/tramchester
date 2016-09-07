@@ -21,7 +21,7 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use TramJourneyPlannerTest.
-    private final String svcDeansgateToVic = "Serv003391";
+    private final String svcDeansgateToVic = "Serv002009";
     private Collection<Service> allServices;
 
     @BeforeClass
@@ -57,7 +57,7 @@ public class TransportDataFromFilesTest {
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
-        assertEquals(18, tramRoutes);
+        assertEquals(22, tramRoutes);
     }
 
     @Test
@@ -107,8 +107,6 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    @Ignore("Not during summer closures")
-    @Category(ClosureTest.class)
     public void shouldGetTripsAfter() {
         // use TramJourneyPlannerTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
@@ -120,7 +118,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripsCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv007138");
+        Service svc = transportData.getServiceById("Serv005824");
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertTrue(trips.isPresent());
@@ -129,7 +127,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv007138");
+        Service svc = transportData.getServiceById("Serv005824");
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertTrue(trips.isPresent());

@@ -90,7 +90,6 @@ public class UserJourneyTest {
 
     @Test
     @Category({AcceptanceTest.class})
-    @Ignore("summer 2016 closure")
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
         List<String> changes = Arrays.asList(deansgate);
         List<String> headSigns = Arrays.asList("Etihad Campus", "Bury");
@@ -209,7 +208,6 @@ public class UserJourneyTest {
 
     @Test
     @Category({AcceptanceTest.class})
-    @Ignore("summer 2016 closure")
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
         List<String> changes = Arrays.asList(cornbrook, Stations.Victoria.getName());
         List<String> headSigns = Arrays.asList("Etihad Campus");

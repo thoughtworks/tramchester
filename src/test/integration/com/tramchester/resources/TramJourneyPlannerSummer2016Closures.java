@@ -48,34 +48,6 @@ public class TramJourneyPlannerSummer2016Closures extends JourneyPlannerHelper {
         dependencies.close();
     }
 
-    @Test
-    public void shouldFindAltrinchamToDeansgate() throws TramchesterException {
-        checkRouteNext7Days(Stations.Altrincham, Stations.Deansgate, date, AM10);
-    }
-
-    @Test
-    public void shouldFindARochToExSq() throws TramchesterException {
-        checkRouteNext7Days(Stations.Rochdale, Stations.ExchangeSquare, date, AM10);
-    }
-
-    @Test
-    public void shouldFindEndOfLinesToEndOfLinesEast() throws TramchesterException {
-        for (Location start : Stations.EndOfTheLineEast) {
-            for (Location dest : Stations.EndOfTheLineEast) {
-                checkRouteNext7Days(start, dest, date, AM10);
-            }
-        }
-    }
-
-    @Test
-    public void shouldFindEndOfLinesToEndOfLinesWest() throws TramchesterException {
-        for (Location start : Stations.EndOfTheLineWest) {
-            for (Location dest : Stations.EndOfTheLineWest) {
-                if (!start.equals(Stations.Eccles) && !dest.equals(Stations.Eccles))
-                checkRouteNext7Days(start, dest, date, AM10);
-            }
-        }
-    }
 
     @Test
     public void shouldFindWalkingRouteInCentre() throws TramchesterException {

@@ -61,15 +61,4 @@ public class RouteCalculatorTest {
         }
     }
 
-    @Test
-    @Category({ClosureTest.class})
-    public void shouldGetToRouteStopsAtVelopark() throws UnknownStationException {
-        List<TransportRelationship> boarding = calculator.getOutboundStationRelationships(Stations.VeloPark.getId());
-        //assertEquals(2*2, boarding.size()); // 2 platforms * 2 routes
-
-        assertEquals(2, boarding.size()); // only one route during the 2016 closures
-        assertTrue(boarding.get(0).isBoarding());  // we can get to either platform
-        assertTrue(boarding.get(1).isBoarding());
-    }
-
 }

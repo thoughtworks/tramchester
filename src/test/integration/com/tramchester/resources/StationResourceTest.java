@@ -51,7 +51,6 @@ public class StationResourceTest {
         assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
         assertEquals("Altrincham", stations.get(ALL_STOPS_START+1).getName());
 
-        assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Interchanges;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
