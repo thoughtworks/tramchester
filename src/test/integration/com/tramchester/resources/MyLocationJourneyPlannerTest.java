@@ -40,7 +40,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
     @Before
     public void beforeEachTestRuns() {
         nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
-        nearAltrincham = new LatLong(53.394948299999996D,-2.3581502D);
+        nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
         when = nextMonday();
         planner = dependencies.get(JourneyPlannerResource.class);
     }
@@ -85,6 +85,17 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         PresentableStage stage = stages.get(0);
         assertEquals(LocalTime.of(9,00), stage.getFirstDepartureTime());
         assertEquals(LocalTime.of(9,03), stage.getExpectedArrivalTime());
+    }
+
+    @Test
+    public void reproduceIssueNearAltyToAshton() throws JsonProcessingException, TramchesterException {
+        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham,
+                Stations.Ashton.getId(), (19 * 60) +47);
+
+        journeys.forEach(journey -> {
+            assertEquals(Stations.Ashton, journey.getEnd());
+            assertEquals(3, journey.getStages().size());
+        });
     }
 
     @Test

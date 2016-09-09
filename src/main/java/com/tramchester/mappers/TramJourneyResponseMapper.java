@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
 
 import static java.lang.String.format;
 
@@ -23,7 +22,7 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         super(transportData);
     }
 
-    protected Journey createJourney(RawJourney rawJourney, int withinMins) {
+    protected Optional<Journey> createJourney(RawJourney rawJourney, int withinMins) {
         List<PresentableStage> stages = new LinkedList<>();
         List<TransportStage> rawJourneyStages = rawJourney.getStages();
         TimeWindow timeWindow = new TimeWindow(rawJourney.getQueryTime(), withinMins);
@@ -39,7 +38,11 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
                 timeWindow = timeWindow.next(TimeAsMinutes.getMinutes(walkingStage.getExpectedArrivalTime()));
             }
         }
-        return new Journey(stages);
+        if (rawJourneyStages.size()!=stages.size()) {
+            logger.error("Failed to create valid journey");
+            return Optional.empty();
+        }
+        return Optional.of(new Journey(stages));
     }
 
     private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<PresentableStage> stages,

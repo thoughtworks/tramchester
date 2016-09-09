@@ -109,9 +109,10 @@ public class ServiceHeuristics {
                         int realJounrneyStartTime = nextTram-TransportGraphBuilder.BOARDING_COST;
                         provider.setJourneyStart(realJounrneyStartTime);
                     }
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(format("Tram operates on time. Times: '%s' ElapsedTime '%s'", log(times), provider));
-                    }
+                    // causes major performance issue if debug is enabled
+//                    if (logger.isDebugEnabled()) {
+//                        logger.debug(format("Tram operates on time. Times: '%s' ElapsedTime '%s'", log(times), provider));
+//                    }
                     return true;  // within max wait time
                 }
             }

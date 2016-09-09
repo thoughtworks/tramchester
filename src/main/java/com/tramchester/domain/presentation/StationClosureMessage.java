@@ -17,7 +17,6 @@ public class StationClosureMessage {
         if (closedStations.singleClosure()) {
             return String.format("%s station temporary closure.", closedStations.firstClosure());
         } else if (closedStations.multipleClosures()) {
-
             return String.format("%s stations temporary closure.", closedStations.closureList());
         }
         return "";

@@ -14,8 +14,7 @@ rebuildGraph: true
 pullData: ${TRAM_PULLDATA:- false}
 filterData: true
 graphName: tramchester.db
-closedStations:
-  - St Peters Square
+closedStations: []
 agencies:
   - MET
 instanceDataUrl: http://169.254.169.254

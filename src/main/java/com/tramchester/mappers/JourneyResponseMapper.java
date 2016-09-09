@@ -19,7 +19,7 @@ public abstract class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    protected abstract Journey createJourney(RawJourney rawJourney, int withinMins);
+    protected abstract Optional<Journey> createJourney(RawJourney rawJourney, int withinMins);
 
     public JourneyPlanRepresentation map(Set<RawJourney> journeys, int withinMins) throws TramchesterException {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
@@ -34,17 +34,15 @@ public abstract class JourneyResponseMapper {
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
 
-            Journey journey = createJourney(rawJourney, withinMins);
-            if (journey!=null) {
-                journeys.add(journey);
+            Optional<Journey> journey = createJourney(rawJourney, withinMins);
+            if (journey.isPresent()) {
+                journeys.add(journey.get());
                 logger.info("Added journey " +journey);
             } else {
                 logger.warn(format("Unable to map %s to journey", rawJourney));
             }
         });
-        if (rawJourneys.size()!=journeys.size()) {
-            logger.warn(format("Only mapped %s out of %s journeys", journeys.size(), rawJourneys.size()));
-        }
+
         return journeys;
     }
 

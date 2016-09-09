@@ -63,9 +63,8 @@ public class RouteCalculator extends StationIndexs {
     public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation,
                                           List<Integer> queryTimes, TramServiceDate queryDate) throws TramchesterException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
-        int limit = MAX_NUM_GRAPH_PATHS * startStations.size();
+        int limit = startStations.isEmpty() ? MAX_NUM_GRAPH_PATHS : (MAX_NUM_GRAPH_PATHS*startStations.size());
         Node endNode = getStationNode(endStation.getId());
-
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
@@ -113,7 +112,8 @@ public class RouteCalculator extends StationIndexs {
         });
         paths.close();
         if (journeys.size()<1) {
-            logger.warn(format("Did not create any journeys from the limit:%s queryTime:%s", limit, minsPathMidnight));
+            logger.warn(format("Did not create any journeys from the limit:%s queryTime:%s",
+                    limit, minsPathMidnight));
         }
     }
 

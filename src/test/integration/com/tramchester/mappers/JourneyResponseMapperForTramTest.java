@@ -206,16 +206,16 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
-        int pm23 = (23 * 60)+25;
+        int startTime = (22 * 60)+55;
         Location start = Stations.Altrincham;
         Location middle = Stations.Cornbrook;
 
-        RawVehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", pm23, 42);
-        RawVehicleStage rawStageB = getRawVehicleStage(middle, Stations.ManAirport, "rouet2 text", pm23, 42);
+        RawVehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", startTime, 22);
+        RawVehicleStage rawStageB = getRawVehicleStage(middle, Stations.ManAirport, "rouet2 text", startTime+20, 42);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
-        journeys.add(new RawJourney(stages,pm23));
+        journeys.add(new RawJourney(stages,startTime));
 
         JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
