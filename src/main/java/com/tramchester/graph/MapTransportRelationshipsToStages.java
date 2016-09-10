@@ -74,8 +74,7 @@ public class MapTransportRelationshipsToStages {
                 }
             } else if (transportRelationship.isDepartTram()) {
                 // route station -> station
-                StationNode departNode = (StationNode) secondNode;
-                String stationName = departNode.getName();
+                String stationName = secondNode.getName();
                 logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
                         elapsedTime));
                 currentStage.setLastStation(stationRepository.getStation(endNodeId));

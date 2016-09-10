@@ -32,6 +32,16 @@ public class LatLongTest {
 
         assertEquals(5, coordinate.x, 0);
         assertEquals(2, coordinate.y, 0);
+    }
 
+
+    @Test
+    public void shouldBeAbleToSetGet() {
+        LatLong latLong = new LatLong();
+        latLong.setLat(5);
+        latLong.setLon(2);
+
+        assertEquals(5, latLong.getLat(), 0);
+        assertEquals(2, latLong.getLon(), 0);
     }
 }

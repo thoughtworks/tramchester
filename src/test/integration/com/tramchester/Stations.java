@@ -41,13 +41,11 @@ public class Stations {
     public static Location MarketStreet = createStation("9400ZZMAMKT", "Market Street Area", "Market Street");
 
     public static String MediaCityUK = "9400ZZMAMCU";
-    public static String StPetersSquare = "9400ZZMASTP";
-
 
     public static List<Location> EndOfTheLineWest = Arrays.asList(new Location[]{
             Altrincham,
             ManAirport,
-            //Eccles,   // Eccles is closed during summer 2016 refurb
+            Eccles,   // Eccles is closed during summer 2016 refurb
             EastDidsbury});
 
     public static List<Location> EndOfTheLineEast = Arrays.asList(new Location[]{
@@ -70,11 +68,4 @@ public class Stations {
         return new Station(id, area, name, position, true);
     }
 
-    public static List<Location> getWestInterchanges() {
-        return Interchanges.westInterchanges.stream().map(id -> createStation(id, "area", "name")).collect(Collectors.toList());
-    }
-
-    public static List<Location> getEastInterchanges() {
-        return Interchanges.eastInterchanges.stream().map(id -> createStation(id, "area", "name")).collect(Collectors.toList());
-    }
 }

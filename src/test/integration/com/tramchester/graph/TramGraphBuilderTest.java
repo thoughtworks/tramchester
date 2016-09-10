@@ -7,7 +7,6 @@ import com.tramchester.Stations;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.Trip;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.exceptions.UnknownStationException;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.BoardRelationship;
@@ -87,7 +86,7 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldHaveHarbourCityStation() throws UnknownStationException {
+    public void shouldHaveHarbourCityStation() {
 
         TramNode tramNode = calculator.getStation(Stations.HarbourCity.getId());
 
@@ -170,7 +169,7 @@ public class TramGraphBuilderTest {
         Set<Trip> trips = rawService.getTrips();
         List<Trip> callingTrips = new LinkedList<>();
         trips.forEach(trip -> trip.getStops().forEach(stop -> {
-            if (stop.getStation().getId().equals(Stations.VeloPark)) callingTrips.add(trip);
+            if (stop.getStation().getId().equals(Stations.VeloPark.getId())) callingTrips.add(trip);
         }));
         // create list of calling not matching the graph (could compare sizes but makes diagnosis of issues hard)
         List<Trip> notInGraph = new LinkedList<>();

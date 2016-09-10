@@ -13,6 +13,8 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
+
 public class ServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
 
@@ -106,10 +108,9 @@ public class ServiceHeuristics {
                         int realJounrneyStartTime = nextTram-TransportGraphBuilder.BOARDING_COST;
                         provider.setJourneyStart(realJounrneyStartTime);
                     }
-                    // causes major performance issue if debug is enabled
-//                    if (logger.isDebugEnabled()) {
-//                        logger.debug(format("Tram operates on time. Times: '%s' ElapsedTime '%s'", log(times), provider));
-//                    }
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(format("Tram operates on time. Times: '%s' ElapsedTime '%s'", log(times), provider));
+                    }
                     return true;  // within max wait time
                 }
             }

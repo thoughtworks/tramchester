@@ -13,9 +13,6 @@ public class TripData {
         this.tripHeadsign = tripHeadsign;
     }
 
-    private TripData() {
-    }
-
     public String getRouteId() {
         return routeId;
     }

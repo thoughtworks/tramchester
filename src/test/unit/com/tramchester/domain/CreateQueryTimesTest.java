@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class CreateQueryTimesTest {
 
     private final LocalConfig config = new LocalConfig();
+
     CreateQueryTimes createQueryTimes = new CreateQueryTimes(config);
 
     @Test

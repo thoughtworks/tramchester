@@ -73,8 +73,4 @@ public class App extends Application<AppConfiguration> {
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
     }
 
-    public void stop() {
-        dependencies.close();
-
-    }
 }

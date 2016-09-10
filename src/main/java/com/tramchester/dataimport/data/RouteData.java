@@ -13,9 +13,6 @@ public class RouteData {
         this.agency = agency;
     }
 
-    private RouteData() {
-    }
-
     public String getId() {
         return id;
     }

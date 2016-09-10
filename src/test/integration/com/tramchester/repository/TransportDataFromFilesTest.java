@@ -163,7 +163,7 @@ public class TransportDataFromFilesTest {
         int count = 0;
         for (Stop stop : trip.getStops()) {
             count++;
-            if (stop.getStation().getId().equals(Stations.Deansgate)) {
+            if (stop.getStation().getId().equals(Stations.Deansgate.getId())) {
                 break;
             }
         }

@@ -69,7 +69,4 @@ public class CalendarData {
         return start;
     }
 
-    public boolean runsAtLeastADay() {
-        return monday || tuesday || wednesday || thursday || friday || saturday || sunday;
-    }
 }

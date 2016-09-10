@@ -7,6 +7,7 @@ public class Version {
         this.buildNumber = buildNumber;
     }
 
+    // from json
     public String getBuildNumber() {
         return buildNumber;
     }

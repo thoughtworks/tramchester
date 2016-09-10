@@ -13,7 +13,6 @@ import java.util.Set;
 import static com.tramchester.domain.DaysOfWeek.*;
 
 public class Service {
-    private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
     private final String routeId;
     private String serviceId;
@@ -53,27 +52,6 @@ public class Service {
     public HashMap<DaysOfWeek, Boolean> getDays() {
         return days;
     }
-
-//    @Deprecated
-//    // Use getFirstTripAfter
-//    public List<Trip> getTripsAfter(String firstStationId, String lastStationId, TimeWindow timeWindow) {
-//        Map<Integer,Trip> sortedValidTrips = new TreeMap<>();
-//        StringBuilder tripIds = new StringBuilder();
-//        trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow))
-//                .forEach(trip -> {
-//                    tripIds.append(trip.getTripId() + " ");
-//                    Optional<ServiceTime> svcTime = trip.earliestDepartFor(firstStationId, lastStationId, timeWindow);
-//                    if (svcTime.isPresent()) {
-//                        sortedValidTrips.put(svcTime.get().getFromMidnightLeaves(), trip);
-//                    }
-//        });
-//
-//        logger.info(String.format("Service %s selected %s of %s trips %s", serviceId, sortedValidTrips.size(),
-//                trips.size(), tripIds.toString()));
-//
-//        return sortedValidTrips.values().stream().collect(Collectors.toList());
-//    }
-
 
     public Optional<Trip> getFirstTripAfter(String firstStationId, String lastStationId, TimeWindow timeWindow) {
         return trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow)).findFirst();
@@ -132,7 +110,6 @@ public class Service {
     public int hashCode() {
         return serviceId != null ? serviceId.hashCode() : 0;
     }
-
 
     public boolean operatesOn(LocalDate date) {
         return operatesOn(startDate, endDate, date);
