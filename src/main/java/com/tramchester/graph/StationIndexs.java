@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import org.neo4j.gis.spatial.Layer;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;

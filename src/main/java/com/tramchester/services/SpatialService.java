@@ -8,21 +8,17 @@ import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
 import com.tramchester.repository.StationRepository;
-import com.vividsolutions.jts.geom.Coordinate;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.gis.spatial.filter.SearchIntersectWindow;
-import org.neo4j.gis.spatial.indexprovider.LayerNodeIndex;
 import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.index.IndexHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class SpatialService extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(SpatialService.class);

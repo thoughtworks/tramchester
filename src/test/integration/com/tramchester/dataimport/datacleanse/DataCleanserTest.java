@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.datacleanse;
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.FetchDataFromUrl;

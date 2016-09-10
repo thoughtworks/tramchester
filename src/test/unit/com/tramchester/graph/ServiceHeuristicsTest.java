@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.IntegrationTramTestConfig;
-import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;

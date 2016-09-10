@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
-
 public class Stops  implements Iterable<Stop> {
     private static final Logger logger = LoggerFactory.getLogger(Stops.class);
 

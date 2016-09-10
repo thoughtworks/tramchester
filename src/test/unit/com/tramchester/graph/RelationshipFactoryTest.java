@@ -1,9 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Nodes.RouteStationNode;
-import com.tramchester.graph.Nodes.StationNode;
-import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;

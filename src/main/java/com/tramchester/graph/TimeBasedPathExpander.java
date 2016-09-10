@@ -16,8 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static java.lang.String.format;
-
 public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private static final Logger logger = LoggerFactory.getLogger(TimeBasedPathExpander.class);
 

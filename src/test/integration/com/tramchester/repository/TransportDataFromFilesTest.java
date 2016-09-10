@@ -1,15 +1,19 @@
 package com.tramchester.repository;
 
 
-import com.tramchester.*;
+import com.tramchester.Dependencies;
+import com.tramchester.IntegrationTramTestConfig;
+import com.tramchester.RouteCodes;
+import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.ServiceTime;
-import org.junit.*;
-import org.junit.experimental.categories.Category;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 

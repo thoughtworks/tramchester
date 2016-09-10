@@ -3,9 +3,7 @@ package com.tramchester.resources;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
-import com.tramchester.domain.Location;
 import com.tramchester.domain.exceptions.TramchesterException;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.TestName;
@@ -13,8 +11,6 @@ import org.junit.rules.Timeout;
 import org.slf4j.MDC;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertTrue;
 
 public class TramJourneyPlannerSummer2016Closures extends JourneyPlannerHelper {
     public static final int AM10 = 10 * 60;

@@ -3,11 +3,13 @@ package com.tramchester.graph;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
-import org.neo4j.gis.spatial.Layer;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -2,7 +2,6 @@ package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.exceptions.TramchesterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,7 +4,6 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
-import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.mappers.TimeJsonSerializer;
 import org.slf4j.Logger;

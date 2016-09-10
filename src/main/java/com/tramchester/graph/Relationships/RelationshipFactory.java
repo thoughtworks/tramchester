@@ -1,9 +1,7 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.TransportRelationshipTypes;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 public class RelationshipFactory {

@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.services.StationLocalityService;
 import org.junit.Before;
 import org.junit.BeforeClass;

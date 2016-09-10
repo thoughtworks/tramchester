@@ -7,14 +7,11 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
-import org.joda.time.LocalDate;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.String.format;
 
 public class ServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);

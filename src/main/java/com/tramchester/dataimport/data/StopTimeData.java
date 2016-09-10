@@ -1,8 +1,5 @@
 package com.tramchester.dataimport.data;
 
-import com.amazonaws.services.devicefarm.model.Run;
-import com.tramchester.domain.exceptions.TramchesterException;
-
 import java.time.LocalTime;
 import java.util.Optional;
 

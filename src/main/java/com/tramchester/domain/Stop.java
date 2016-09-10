@@ -3,8 +3,6 @@ package com.tramchester.domain;
 
 import java.time.LocalTime;
 
-import static java.lang.String.format;
-
 public class Stop extends TimeAsMinutes {
     private final Location station;
     private final LocalTime arrivalTime;

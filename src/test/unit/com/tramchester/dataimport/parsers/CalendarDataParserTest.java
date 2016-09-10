@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.CalendarData;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 

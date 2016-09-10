@@ -3,7 +3,6 @@ package com.tramchester.domain;
 
 import com.tramchester.config.TramchesterConfig;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClosedStations {

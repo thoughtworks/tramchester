@@ -9,8 +9,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import org.junit.Test;
 
 import java.time.LocalTime;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import static junit.framework.TestCase.assertEquals;
 

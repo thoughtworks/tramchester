@@ -1,7 +1,6 @@
 package com.tramchester.domain;
 
 
-import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 

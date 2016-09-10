@@ -1,16 +1,11 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.Location;
 import com.tramchester.domain.RawVehicleStage;
-import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
 
 import java.time.LocalTime;
-import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import static java.lang.String.format;
 

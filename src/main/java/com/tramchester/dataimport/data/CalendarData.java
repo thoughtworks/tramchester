@@ -1,6 +1,5 @@
 package com.tramchester.dataimport.data;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 public class CalendarData {

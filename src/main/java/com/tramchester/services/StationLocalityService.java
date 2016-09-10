@@ -13,13 +13,10 @@ import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.index.IndexHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-import static java.lang.String.format;
 
 public class StationLocalityService extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationLocalityService.class);

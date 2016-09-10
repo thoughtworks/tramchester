@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import org.junit.Test;
 

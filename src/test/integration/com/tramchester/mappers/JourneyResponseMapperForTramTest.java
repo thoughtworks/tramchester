@@ -6,19 +6,25 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.PresentableStage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.resources.JourneyPlannerHelper;
 import org.joda.time.LocalDate;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.fail;
-import static org.joda.time.DateTimeConstants.MONDAY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

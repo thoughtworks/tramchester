@@ -2,7 +2,6 @@ package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.CalendarData;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import static org.apache.commons.lang3.StringUtils.isNumeric;

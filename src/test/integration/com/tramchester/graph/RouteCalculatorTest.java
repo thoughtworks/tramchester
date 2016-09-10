@@ -1,17 +1,22 @@
 package com.tramchester.graph;
 
-import com.tramchester.*;
+import com.tramchester.Dependencies;
+import com.tramchester.IntegrationTramTestConfig;
+import com.tramchester.Stations;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.UnknownStationException;
-import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalDate;
-import org.junit.*;
-import org.junit.experimental.categories.Category;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorTest {
 

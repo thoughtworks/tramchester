@@ -1,14 +1,14 @@
 package com.tramchester.domain;
 
 
-import com.tramchester.domain.presentation.ServiceTime;
-import org.apache.http.annotation.Obsolete;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.tramchester.domain.DaysOfWeek.*;
 
