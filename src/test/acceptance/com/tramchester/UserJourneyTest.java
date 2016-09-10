@@ -104,15 +104,6 @@ public class UserJourneyTest {
 
     @Test
     @Category({AcceptanceTest.class})
-    public void shouldCheckAltrinchamToPiccadiltNotPossibleDuringClosures() throws InterruptedException {
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(altrincham, Stations.Piccadilly.getName(),
-                when, "10:15");
-
-        assertTrue(routeDetailsPage.waitForError());
-    }
-
-    @Test
-    @Category({AcceptanceTest.class})
     public void shouldHideStationInToListWhenSelectedInFromList() throws InterruptedException {
         WelcomePage welcomePage = new WelcomePage(driver);
         welcomePage.load(testRule.getUrl());
@@ -145,6 +136,18 @@ public class UserJourneyTest {
 
     @Test
     @Category({AcceptanceTest.class})
+    public void shouldCheckRochdaleToAirportThreeStageJourney() throws InterruptedException {
+        List<String> changes = Arrays.asList(Stations.Victoria.getName(), "St Werburgh's Road");
+        List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
+        JourneyDetailsPage journeyDetailsPage = checkJourney(Stations.Rochdale.getName(),
+                Stations.ManAirport.getName(), when, "10:15", changes,
+                headSigns, false, expectedNumberJourneyResults, 0);
+        RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
+        routeDetailsPage.waitForRoutes();
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
         List<String> headsSignNoChange = Arrays.asList("Piccadilly");
@@ -157,7 +160,6 @@ public class UserJourneyTest {
         List<String> traffordChange = Arrays.asList(Stations.TraffordBar.getName());
         checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, traffordChange, headSignsBury, 2);
     }
-
 
     @Test
     @Category({AcceptanceTest.class})

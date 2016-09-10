@@ -27,7 +27,7 @@ public class Stations {
     public static Location Eccles = createStation("9400ZZMAECC", "Eccles Area", "Eccles");
     public static Location Bury = createStation("9400ZZMABUR", "Bury Area", "Bury");
     public static Location EastDidsbury = createStation("9400ZZMAEDY", "Didsbury Area", "East Didsbury");
-    public static Location Rochdale = createStation("9400ZZMARIN", "Rochdale area", "Rochdale");
+    public static Location Rochdale = createStation("9400ZZMARIN", "Rochdale", "Rochdale Interchange");
     public static Location Pomona = createStation("9400ZZMAPOM", "Pomona", "Pomona");
     public static Location Deansgate = createStation("9400ZZMAGMX", "Deansgate area", "Deansgate-Castlefield");
     public static Location Broadway = createStation("9400ZZMABWY", "Broadway area", "Broadway");
