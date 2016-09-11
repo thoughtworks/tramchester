@@ -25,7 +25,7 @@ import static java.lang.String.format;
 public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    public static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
+    private static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
     private String queryNodeName = "BEGIN";
 
@@ -143,11 +143,11 @@ public class RouteCalculator extends StationIndexs {
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
-    public List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) throws TramchesterException {
+    List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) throws TramchesterException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
     }
 
-    public List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws TramchesterException {
+    List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws TramchesterException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
     }
 

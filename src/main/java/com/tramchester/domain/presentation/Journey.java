@@ -17,14 +17,14 @@ import static java.lang.String.format;
 public class Journey implements Comparable<Journey> {
     private static final Logger logger = LoggerFactory.getLogger(Journey.class);
 
-    private long containedWalking;
+    private long embeddedWalk;
     private List<PresentableStage> allStages;
 
     public Journey(List<PresentableStage> allStages) {
         this.allStages = allStages;
-        containedWalking = allStages.stream().filter(stage -> (stage instanceof WalkingStage)).count();
+        embeddedWalk = allStages.stream().filter(stage -> (stage instanceof WalkingStage)).count();
         if (firstStageIsWalk()) {
-            containedWalking -= 1;
+            embeddedWalk -= 1;
         }
     }
 
@@ -67,8 +67,19 @@ public class Journey implements Comparable<Journey> {
     }
 
     public String getHeading() {
-        String mode = getFirstStage().getMode().toString();
-        if (containedWalking>0) {
+        String mode;
+        if (firstStageIsWalk()) {
+            if (allStages.size()>1) {
+                mode = allStages.get(1).getMode().toString();
+                mode = "Walk and " + mode;
+            }
+            else {
+                mode = "Walk";
+            }
+        } else {
+            mode = getFirstStage().getMode().toString();
+        }
+        if (embeddedWalk >0) {
             mode = mode + " and Walk";
         }
         return format("%s with %s - %s", mode, getChanges(), getDuration());
@@ -114,9 +125,9 @@ public class Journey implements Comparable<Journey> {
         if (allStages.size()==1) {
             return allStages.get(0);
         }
-        if (firstStageIsWalk()) {
-            return allStages.get(1);
-        }
+//        if (firstStageIsWalk()) {
+//            return allStages.get(1);
+//        }
         return allStages.get(0);
     }
 

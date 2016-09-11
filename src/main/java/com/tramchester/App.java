@@ -15,12 +15,13 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.util.component.LifeCycle;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
-public class App extends Application<AppConfiguration> {
+public class App extends Application<AppConfiguration>  {
     public static final String SERVICE_NAME = "tramchester";
 
     private final Dependencies dependencies;
@@ -55,6 +56,8 @@ public class App extends Application<AppConfiguration> {
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         dependencies.initialise(configuration);
+
+        environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(dependencies));
 
         if (configuration.isRedirectHTTP()) {
             RedirectHttpFilter redirectHttpFilter = new RedirectHttpFilter(configuration);

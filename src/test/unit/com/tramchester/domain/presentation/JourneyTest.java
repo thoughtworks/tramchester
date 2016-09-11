@@ -55,13 +55,13 @@ public class JourneyTest {
         List<PresentableStage> stages = new LinkedList<>();
         Location start = new MyLocation(new LatLong(-2,1));
         Location destination = Stations.Cornbrook;
-        stages.add(new WalkingStage(new RawWalkingStage(start, destination, 3), 8*60));
+        stages.add(new WalkingStage(new RawWalkingStage(start, destination, 3), 10*60));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate));
 
         Journey journey = new Journey(stages);
 
         assertEquals("Direct", journey.getSummary());
-        assertEquals("Tram with No Changes - 12 minutes", journey.getHeading());
+        assertEquals("Walk and Tram with No Changes - 20 minutes", journey.getHeading());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class JourneyTest {
         ServiceTime serviceTime = new ServiceTime(LocalTime.of(10, 8), LocalTime.of(10, 20), "svcId", "headSign", "tripId");
         RawVehicleStage rawVehicleStage = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass");
         rawVehicleStage.setLastStation(lastStation);
-        rawVehicleStage.setCost(20-8);
+        rawVehicleStage.setCost(20-8); // 12 mins
         return new VehicleStageWithTiming(rawVehicleStage, serviceTime, travelAction);
     }
 
