@@ -185,12 +185,14 @@ public class TestDataCleanser extends EasyMockSupport {
     @Test
     public void shoudRemoveHeaderFromFeedInfo() throws IOException {
 
-        FeedInfo lineA = new FeedInfo("pubA", "urlA", "tzA", "landA", "fromA", "toA", "versionA");
-        FeedInfo lineB = new FeedInfo("pubB", "urlB", "tzB", "landB", "fromB", "toB", "versionB");
+        FeedInfo lineA = new FeedInfo("pubA", "urlA", "tzA", "landA", new LocalDate(2016,11,29),
+                new LocalDate(2016,11,30), "versionA");
+        FeedInfo lineB = new FeedInfo("pubB", "urlB", "tzB", "landB", new LocalDate(2016,12,29),
+                new LocalDate(2016,12,30), "versionB");
 
         Stream<FeedInfo> feedInfo = Stream.of(lineA, lineB);
         EasyMock.expect(reader.getFeedInfo()).andReturn(feedInfo);
-        validateWriter("feed_info",  "pubB,urlB,tzB,landB,fromB,toB,versionB");
+        validateWriter("feed_info",  "pubB,urlB,tzB,landB,2016-12-29,2016-12-30,versionB");
         EasyMock.expectLastCall();
 
         replayAll();

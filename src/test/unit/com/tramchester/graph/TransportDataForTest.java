@@ -110,8 +110,8 @@ public class TransportDataForTest implements TransportData, StationRepository {
 
     @Override
     public FeedInfo getFeedInfo() {
-        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", "validFrom",
-                "validUntil", "version");
+        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", new LocalDate(2016,5,25),
+                new LocalDate(2016,6,30), "version");
     }
 
     @Override

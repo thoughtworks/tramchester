@@ -2,6 +2,7 @@ package com.tramchester.dataimport;
 
 import com.tramchester.domain.*;
 import com.tramchester.repository.TransportData;
+import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -42,7 +43,7 @@ public class TramTransportDataImporterTest {
         assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");
         assertThat(feedInfo.getLang()).isEqualTo("en");
         assertThat(feedInfo.getVersion()).isEqualTo("20150617");
-        assertThat(feedInfo.validFrom()).isEqualTo("20150618");
-        assertThat(feedInfo.validUntil()).isEqualTo("20150818");
+        assertThat(feedInfo.validFrom()).isEqualTo(new LocalDate(2015,6,18));
+        assertThat(feedInfo.validUntil()).isEqualTo(new LocalDate(2015,8,18));
     }
 }

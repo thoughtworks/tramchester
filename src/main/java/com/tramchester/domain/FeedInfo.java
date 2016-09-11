@@ -1,16 +1,18 @@
 package com.tramchester.domain;
 
+import org.joda.time.LocalDate;
+
 public class FeedInfo {
     private String version;
-    private String validFrom;
-    private String validUntil;
+    private LocalDate validFrom;
+    private LocalDate validUntil;
     private String publisherName;
     private String publisherUrl;
     private String timezone;
     private String lang;
 
-    public FeedInfo(String publisherName, String publisherUrl, String timezone, String lang, String validFrom,
-                    String validUntil, String version) {
+    public FeedInfo(String publisherName, String publisherUrl, String timezone, String lang, LocalDate validFrom,
+                    LocalDate validUntil, String version) {
         this.publisherName = publisherName;
         this.publisherUrl = publisherUrl;
         this.timezone = timezone;
@@ -24,11 +26,11 @@ public class FeedInfo {
         return version;
     }
 
-    public String validFrom() {
+    public LocalDate validFrom() {
         return validFrom;
     }
 
-    public String validUntil() {
+    public LocalDate validUntil() {
         return validUntil;
     }
 

@@ -95,6 +95,7 @@ public class Dependencies {
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
         picoContainer.addComponent(SpatialDatabaseService.class);
         picoContainer.addComponent(TransportGraphAddWalkingRoutes.class);
+        picoContainer.addComponent(FeedInfoResource.class);
 
         rebuildGraph(configuration);
 
