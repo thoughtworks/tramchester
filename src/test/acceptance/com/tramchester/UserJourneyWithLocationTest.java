@@ -83,6 +83,12 @@ public class UserJourneyWithLocationTest extends UserJourneys {
         checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
         checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
         checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSigns, false);
+        while(journeyDetailsPage.laterTramEnabled()) {
+            journeyDetailsPage.laterTram();
+            checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
+            checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
+            checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSigns, false);
+        }
     }
 
     @Test
