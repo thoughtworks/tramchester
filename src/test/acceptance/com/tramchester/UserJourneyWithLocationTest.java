@@ -75,11 +75,11 @@ public class UserJourneyWithLocationTest extends UserJourneys {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
-        checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
+        checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
-        assertTrue(journeyDetailsPage.getSummary().endsWith(" from My Location"));
+        assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
         checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
         checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
         checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSigns, false);
@@ -105,11 +105,11 @@ public class UserJourneyWithLocationTest extends UserJourneys {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
-        checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
+        checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
-        assertTrue(journeyDetailsPage.getSummary().endsWith(" from My Location"));
+        assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
         checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
         checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
     }

@@ -86,7 +86,7 @@ public class Journey implements Comparable<Journey> {
     }
 
     private String getDuration() {
-        int mins = TimeAsMinutes.timeDiffMinutes(getExpectedArrivalTime(), getFirstDepartureTime());
+        int mins = TimeAsMinutes.timeDiffMinutes(getExpectedArrivalTime(), getFirstStage().getFirstDepartureTime());
         return format("%s minutes", mins);
     }
 
@@ -104,6 +104,11 @@ public class Journey implements Comparable<Journey> {
     public LocalTime getFirstDepartureTime() {
         if (allStages.size() == 0) {
             return LocalTime.MIDNIGHT;
+        }
+        if (firstStageIsWalk()) {
+            if (allStages.size()>1) {
+                return allStages.get(1).getFirstDepartureTime();
+            }
         }
         return getFirstStage().getFirstDepartureTime();
     }
@@ -167,6 +172,9 @@ public class Journey implements Comparable<Journey> {
     }
 
     public Location getBegin() {
+        if (firstStageIsWalk()) {
+            return allStages.get(1).getFirstStation();
+        }
         return getFirstStage().getFirstStation();
     }
 

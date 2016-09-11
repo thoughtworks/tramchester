@@ -65,9 +65,9 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         assertEquals(2, stages.size());
         PresentableStage walkingStage = stages.get(0);
         assertEquals(LocalTime.of(22,9), walkingStage.getFirstDepartureTime());
+
         LocalTime walkArrives = LocalTime.of(22, 22);
         assertEquals(walkArrives, walkingStage.getExpectedArrivalTime());
-
         assertTrue(first.getFirstDepartureTime().isAfter(walkArrives));
     }
 
