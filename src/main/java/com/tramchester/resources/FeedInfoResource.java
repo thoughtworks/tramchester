@@ -23,6 +23,7 @@ public class FeedInfoResource {
     @GET
     @Timed
     public Response get() {
+
         return Response.ok(feedInfo).build();
     }
 }

@@ -1,5 +1,8 @@
 package com.tramchester;
 
+import io.dropwizard.server.DefaultServerFactory;
+import io.dropwizard.server.ServerFactory;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -22,7 +25,7 @@ public class IntegrationTramTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean isCreateLocality() {
+    public boolean getCreateLocality() {
         return false;
     }
 
@@ -34,5 +37,15 @@ public class IntegrationTramTestConfig extends TestConfig {
     // just get one query time by doing this
     @Override
     public int getQueryInterval() { return getMaxWait()+1; }
+
+    @Override
+    public ServerFactory getServerFactory() {
+        DefaultServerFactory factory = new DefaultServerFactory();
+        factory.setApplicationContextPath("/");
+        factory.setAdminContextPath("/admin");
+        factory.setJerseyRootPath("/api/*");
+        return factory;
+    }
+
 }
 

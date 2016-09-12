@@ -44,12 +44,12 @@ public class StationResourceTest {
         }
 
         @Override
-        public boolean addWalkingRoutes() {
+        public boolean getAddWalkingRoutes() {
             return true;
         }
 
         @Override
-        public boolean isCreateLocality() {
+        public boolean getCreateLocality() {
             return false;
         }
     };

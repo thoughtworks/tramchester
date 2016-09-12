@@ -46,17 +46,16 @@ public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
     public void initialise(TramchesterConfig configuration) throws IOException {
-        Path inputPath = configuration.getInputDataPath();
-        if (configuration.isPullData()) {
+        Path dataPath = configuration.getDataPath();
+        if (configuration.getPullData()) {
             logger.info("Pulling data");
 
-            FetchDataFromUrl fetcher = new FetchDataFromUrl(inputPath, configuration.getTramDataUrl());
+            FetchDataFromUrl fetcher = new FetchDataFromUrl(dataPath, configuration.getTramDataUrl());
             fetcher.fetchData();
         }
 
-        Path outputPath = configuration.getOutputDataPath();
-        if (configuration.isFilterData() || configuration.isPullData()) {
-            cleanseData(configuration.getAgencies(), inputPath, outputPath);
+        if (configuration.getFilterData() || configuration.getPullData()) {
+            cleanseData(configuration.getAgencies(), dataPath, dataPath);
         }
 
         logger.info("Creating dependencies");
@@ -78,7 +77,7 @@ public class Dependencies {
 
         picoContainer.addComponent(RouteCodeToClassMapper.class);
 
-        TransportDataReader dataReader = new TransportDataReader(outputPath);
+        TransportDataReader dataReader = new TransportDataReader(dataPath);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
 
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
@@ -127,7 +126,7 @@ public class Dependencies {
 
         File graphFile = new File(graphName);
 
-        if (configuration.isRebuildGraph()) {
+        if (configuration.getRebuildGraph()) {
             logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
             try {
                 FileUtils.deleteDirectory(graphFile);
@@ -143,12 +142,12 @@ public class Dependencies {
             picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphFile));
         }
 
-        if (configuration.isCreateLocality()) {
+        if (configuration.getCreateLocality()) {
             picoContainer.getComponent(StationLocalityService.class).populateLocality();
         }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
 
-        if (configuration.addWalkingRoutes()) {
+        if (configuration.getAddWalkingRoutes()) {
             picoContainer.getComponent(TransportGraphAddWalkingRoutes.class).addCityCentreWalkingRoutes();
         }
 

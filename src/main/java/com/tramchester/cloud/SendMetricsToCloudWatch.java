@@ -29,7 +29,7 @@ public class SendMetricsToCloudWatch {
         client = new AmazonCloudWatchClient(provider);
 
         // this will silently default to US East if not set
-        Regions region = Regions.fromName(config.getAWSRegionName());
+        Regions region = Regions.fromName(config.getAwsRegionName());
         client.setRegion(com.amazonaws.regions.Region.getRegion(region));
     }
 

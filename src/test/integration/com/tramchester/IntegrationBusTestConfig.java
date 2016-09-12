@@ -20,7 +20,7 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean isCreateLocality() {
+    public boolean getCreateLocality() {
         return false;
     }
 
@@ -30,7 +30,7 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean isRebuildGraph() {
+    public boolean getRebuildGraph() {
         return true;
     }
 }

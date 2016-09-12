@@ -198,8 +198,8 @@ public class DataCleanser {
                 info.getPublisherUrl(),
                 info.getTimezone(),
                 info.getLang(),
-                info.validFrom(),
-                info.validUntil(),
+                info.validFrom().toString(DATE_FORMAT),
+                info.validUntil().toString(DATE_FORMAT),
                 info.getVersion())));
         writer.close();
         logger.info("**** End cleansing feed info.");

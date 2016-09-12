@@ -192,7 +192,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         Stream<FeedInfo> feedInfo = Stream.of(lineA, lineB);
         EasyMock.expect(reader.getFeedInfo()).andReturn(feedInfo);
-        validateWriter("feed_info",  "pubB,urlB,tzB,landB,2016-12-29,2016-12-30,versionB");
+        validateWriter("feed_info",  "pubB,urlB,tzB,landB,20161229,20161230,versionB");
         EasyMock.expectLastCall();
 
         replayAll();

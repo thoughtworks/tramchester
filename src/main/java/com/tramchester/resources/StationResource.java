@@ -103,7 +103,7 @@ public class StationResource {
         LatLong latLong = new LatLong(lat,lon);
         List<DisplayStation> orderedStations = spatialService.reorderNearestStations(latLong, getStations());
 
-        if (config.showMyLocation()) {
+        if (config.getShowMyLocation()) {
             logger.info("Showing users location in stations list");
 
             // TODO use MyLocation instead of Station

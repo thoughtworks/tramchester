@@ -1,43 +1,33 @@
 package com.tramchester.resources;
 
 
-import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTramTestConfig;
+import com.tramchester.*;
 import com.tramchester.domain.FeedInfo;
+import io.dropwizard.testing.ConfigOverride;
 import org.joda.time.LocalDate;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
 
 public class FeedInfoResourceTest {
-    private static Dependencies dependencies;
-    private FeedInfoResource feedInfoResource;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
-    }
-
-    @Before
-    public void beforeEachTestRuns() {
-        feedInfoResource = dependencies.get(FeedInfoResource.class);
-    }
-
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
-    }
+    @ClassRule
+    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     @Test
     public void shouldGetFeedinfoCorrectly() {
-        Response responce = feedInfoResource.get();
-        FeedInfo result = (FeedInfo) responce.getEntity();
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target("http://localhost:" + testRule.getLocalPort() + "/api/feedinfo");
+        Response responce = target.request().get();
+
+        assertEquals(200, responce.getStatus());
+
+        FeedInfo result = responce.readEntity(FeedInfo.class);
 
         assertEquals("Transport for Greater Manchester", result.getPublisherName());
         assertEquals("http://www.tfgm.com", result.getPublisherUrl());

@@ -1,6 +1,6 @@
 package com.tramchester;
 
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.config.AppConfiguration;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -10,8 +10,9 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 
-public abstract class TestConfig extends TramchesterConfig {
+public abstract class TestConfig extends AppConfiguration {
     private List<String> closedStations = asList("St Peters Square");
+
     private Path zipFilePath = Paths.get("data.zip");
 
     private boolean graphExists() {
@@ -19,18 +20,18 @@ public abstract class TestConfig extends TramchesterConfig {
     }
 
     @Override
-    public boolean isRebuildGraph() {
+    public boolean getRebuildGraph() {
         return !graphExists();
     }
 
     @Override
-    public boolean isPullData() {
+    public boolean getPullData() {
         File file = getDataFolder().resolve(zipFilePath).toFile();
         return !file.exists();
     }
 
     @Override
-    public boolean isFilterData() {
+    public boolean getFilterData() {
         return !getDataFolder().resolve("feed_info.txt").toFile().exists() ;
     }
 
@@ -40,7 +41,7 @@ public abstract class TestConfig extends TramchesterConfig {
     }
 
     @Override
-    public String getInstanceDataBaseURL() {
+    public String getInstanceDataUrl() {
         return "http://localhost:8080";
     }
 
@@ -50,12 +51,7 @@ public abstract class TestConfig extends TramchesterConfig {
     }
 
     @Override
-    public Path getInputDataPath() {
-        return getDataFolder();
-    }
-
-    @Override
-    public Path getOutputDataPath() {
+    public Path getDataPath() {
         return getDataFolder();
     }
 
@@ -63,7 +59,7 @@ public abstract class TestConfig extends TramchesterConfig {
     public int getTimeWindow() { return 60; }
 
     @Override
-    public boolean showMyLocation() { return true; }
+    public boolean getShowMyLocation() { return true; }
 
     @Override
     public Double getNearestStopRangeKM() {
@@ -83,12 +79,12 @@ public abstract class TestConfig extends TramchesterConfig {
     public abstract Path getDataFolder();
 
     @Override
-    public String getAWSRegionName() {
+    public String getAwsRegionName() {
         return "eu-west-1";
     }
 
     @Override
-    public boolean isRedirectHTTP() { return false; }
+    public boolean getRedirectHTTP() { return false; }
 
     @Override
     public String getSecureHost() {
@@ -96,7 +92,7 @@ public abstract class TestConfig extends TramchesterConfig {
     }
 
     @Override
-    public boolean addWalkingRoutes() { return true; }
+    public boolean getAddWalkingRoutes() { return true; }
 
     @Override
     public int getMaxWait() {

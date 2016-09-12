@@ -55,7 +55,7 @@ public class GraphBuilderTestPerformance {
         }
 
         @Override
-        public boolean isCreateLocality() {
+        public boolean getCreateLocality() {
             return true;
         }
 

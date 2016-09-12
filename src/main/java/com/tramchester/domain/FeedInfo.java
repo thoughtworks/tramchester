@@ -1,5 +1,9 @@
 package com.tramchester.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.mappers.LocalDateJsonDeserializer;
+import com.tramchester.mappers.LocalDateJsonSerializer;
 import org.joda.time.LocalDate;
 
 public class FeedInfo {
@@ -10,6 +14,10 @@ public class FeedInfo {
     private String publisherUrl;
     private String timezone;
     private String lang;
+
+    public FeedInfo() {
+        // for JSON deserialisation
+    }
 
     public FeedInfo(String publisherName, String publisherUrl, String timezone, String lang, LocalDate validFrom,
                     LocalDate validUntil, String version) {
@@ -26,10 +34,14 @@ public class FeedInfo {
         return version;
     }
 
+    @JsonSerialize(using = LocalDateJsonSerializer.class)
+    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
     public LocalDate validFrom() {
         return validFrom;
     }
 
+    @JsonSerialize(using = LocalDateJsonSerializer.class)
+    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
     public LocalDate validUntil() {
         return validUntil;
     }

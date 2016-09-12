@@ -75,12 +75,12 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("queryInterval")
     private int queryInterval;
 
-    public String getInstanceDataBaseURL() {
+    public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
 
     @Override
-    public String getAWSRegionName() {
+    public String getAwsRegionName() {
         return awsRegionName;
     }
 
@@ -90,12 +90,7 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public Path getInputDataPath() {
-        return dataPath;
-    }
-
-    @Override
-    public Path getOutputDataPath() {
+    public Path getDataPath() {
         return dataPath;
     }
 
@@ -110,7 +105,7 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public boolean isRedirectHTTP() {
+    public boolean getRedirectHTTP() {
         return redirectHTTP;
     }
 
@@ -120,7 +115,7 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public boolean addWalkingRoutes() {
+    public boolean getAddWalkingRoutes() {
         return addWalkingRoutes;
     }
 
@@ -130,7 +125,7 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public boolean showMyLocation() {
+    public boolean getShowMyLocation() {
         return showMyLocation;
     }
 
@@ -149,18 +144,21 @@ public class AppConfiguration extends TramchesterConfig {
         return walkingMPH;
     }
 
-    public boolean isRebuildGraph() {
+    @Override
+    public boolean getRebuildGraph() {
         return rebuildGraph;
     }
 
-    public boolean isPullData() {
+    @Override
+    public boolean getPullData() {
         return pullData;
     }
 
-    public boolean isCreateLocality() { return createLocality; }
+    @Override
+    public boolean getCreateLocality() { return createLocality; }
 
     @Override
-    public boolean isFilterData() {
+    public boolean getFilterData() {
         return filterData;
     }
 

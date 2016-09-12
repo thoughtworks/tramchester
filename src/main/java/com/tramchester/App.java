@@ -5,6 +5,7 @@ import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.resources.FeedInfoResource;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.resources.StationResource;
 import com.tramchester.resources.VersionResource;
@@ -15,7 +16,6 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.util.component.LifeCycle;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
@@ -59,7 +59,7 @@ public class App extends Application<AppConfiguration>  {
 
         environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(dependencies));
 
-        if (configuration.isRedirectHTTP()) {
+        if (configuration.getRedirectHTTP()) {
             RedirectHttpFilter redirectHttpFilter = new RedirectHttpFilter(configuration);
             environment.getApplicationContext().addFilter(new FilterHolder(redirectHttpFilter),
                     "/*", EnumSet.of(DispatcherType.REQUEST));
@@ -68,6 +68,7 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(StationResource.class));
         environment.jersey().register(dependencies.get(VersionResource.class));
         environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
+        environment.jersey().register(dependencies.get(FeedInfoResource.class));
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
 
         MetricRegistry registry = environment.metrics();

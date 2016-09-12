@@ -26,7 +26,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
     private URL instanceDataURL;
 
     public FetchInstanceMetadata(TramchesterConfig tramchesterConfig) throws MalformedURLException {
-        this.instanceDataURL = new URL(tramchesterConfig.getInstanceDataBaseURL());
+        this.instanceDataURL = new URL(tramchesterConfig.getInstanceDataUrl());
     }
 
     public String getUserData() {

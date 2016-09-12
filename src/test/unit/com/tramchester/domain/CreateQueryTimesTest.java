@@ -46,7 +46,7 @@ public class CreateQueryTimesTest {
         }
 
         @Override
-        public boolean isCreateLocality() {
+        public boolean getCreateLocality() {
             return false;
         }
     }

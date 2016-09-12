@@ -2,7 +2,6 @@ package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.domain.FeedInfo;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
