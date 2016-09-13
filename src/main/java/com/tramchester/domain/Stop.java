@@ -1,7 +1,6 @@
 package com.tramchester.domain;
 
-
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 
 public class Stop extends TimeAsMinutes {
     private final Location station;

@@ -4,7 +4,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.junit.Test;
 
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
@@ -18,9 +18,9 @@ public class TripTest {
         Location stationA = new Station("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), false);
         Location stationB = new Station("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
 
-        Stop firstStop = new Stop(stationA, LocalTime.of(10, 00), LocalTime.of(10, 01));
-        Stop secondStop = new Stop(stationB, LocalTime.of(10, 05), LocalTime.of(10, 06));
-        Stop thirdStop = new Stop(stationA, LocalTime.of(10, 10), LocalTime.of(10, 10));
+        Stop firstStop = new Stop(stationA, new LocalTime(10, 00), new LocalTime(10, 01));
+        Stop secondStop = new Stop(stationB, new LocalTime(10, 05), new LocalTime(10, 06));
+        Stop thirdStop = new Stop(stationA, new LocalTime(10, 10), new LocalTime(10, 10));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -32,8 +32,8 @@ public class TripTest {
         // service times
         assertEquals(1, times.size());
         ServiceTime time = times.first();
-        assertEquals(LocalTime.of(10, 01), time.getDepartureTime());
-        assertEquals(LocalTime.of(10, 05), time.getArrivalTime());
+        assertEquals(new LocalTime(10, 01), time.getDepartureTime());
+        assertEquals(new LocalTime(10, 05), time.getArrivalTime());
         assertEquals("svcId", time.getServiceId());
         assertEquals(am10Minutes+1, time.getFromMidnightLeaves());
 
@@ -41,8 +41,8 @@ public class TripTest {
         times = trip.getServiceTimes("statB", "statA", new TimeWindow(am10Minutes, 30));
         assertEquals(1, times.size());
         time = times.first();
-        assertEquals(LocalTime.of(10, 06), time.getDepartureTime());
-        assertEquals(LocalTime.of(10, 10), time.getArrivalTime());
+        assertEquals(new LocalTime(10, 06), time.getDepartureTime());
+        assertEquals(new LocalTime(10, 10), time.getArrivalTime());
         assertEquals("svcId", time.getServiceId());
         assertEquals(am10Minutes+6, time.getFromMidnightLeaves());
 

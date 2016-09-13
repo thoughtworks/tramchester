@@ -12,11 +12,11 @@ import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.PresentableStage;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.*;
 import org.junit.rules.Timeout;
 
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -64,9 +64,9 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         List<PresentableStage> stages = first.getStages();
         assertEquals(2, stages.size());
         PresentableStage walkingStage = stages.get(0);
-        assertEquals(LocalTime.of(22,9), walkingStage.getFirstDepartureTime());
+        assertEquals(new LocalTime(22,9), walkingStage.getFirstDepartureTime());
 
-        LocalTime walkArrives = LocalTime.of(22, 22);
+        LocalTime walkArrives = new LocalTime(22, 22);
         assertEquals(walkArrives, walkingStage.getExpectedArrivalTime());
         assertTrue(first.getFirstDepartureTime().isAfter(walkArrives));
     }
@@ -77,14 +77,14 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         assertEquals(1, journeys.size());
         Journey first = journeys.first();
         List<PresentableStage> stages = first.getStages();
-        assertEquals(LocalTime.of(9,00), first.getFirstDepartureTime());
-        assertEquals(LocalTime.of(9,03), first.getExpectedArrivalTime());
+        assertEquals(new LocalTime(9,00), first.getFirstDepartureTime());
+        assertEquals(new LocalTime(9,03), first.getExpectedArrivalTime());
         assertEquals(Stations.PiccadillyGardens, first.getEnd());
 
         assertEquals(1, stages.size());
         PresentableStage stage = stages.get(0);
-        assertEquals(LocalTime.of(9,00), stage.getFirstDepartureTime());
-        assertEquals(LocalTime.of(9,03), stage.getExpectedArrivalTime());
+        assertEquals(new LocalTime(9,00), stage.getFirstDepartureTime());
+        assertEquals(new LocalTime(9,03), stage.getExpectedArrivalTime());
     }
 
     @Test

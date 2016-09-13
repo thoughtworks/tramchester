@@ -6,10 +6,10 @@ import com.tramchester.domain.presentation.*;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -47,10 +47,10 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
         EasyMock.expect(transportData.getStation("stationC")).andStubReturn(stationC);
 
-        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(LocalTime.of(8,2), LocalTime.of(8,9), "svcId",
+        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(new LocalTime(8,2), new LocalTime(8,9), "svcId",
                 "headSign", "tripIdA"));
 
-        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(LocalTime.of(8,9), LocalTime.of(8,18),
+        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(new LocalTime(8,9), new LocalTime(8,18),
                 "svcId", "headSign", "tripIdA"));
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
@@ -66,8 +66,8 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         Journey found = journeys.iterator().next();
 
-        assertEquals(LocalTime.of(8,18),found.getExpectedArrivalTime());
-        assertEquals(LocalTime.of(8,2),found.getFirstDepartureTime());
+        assertEquals(new LocalTime(8,18),found.getExpectedArrivalTime());
+        assertEquals(new LocalTime(8,2),found.getFirstDepartureTime());
         PresentableStage stageFirst = found.getStages().get(0);
         PresentableStage stageSecond = found.getStages().get(1);
         assertEquals(7, stageFirst.getDuration());
@@ -84,10 +84,10 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
         EasyMock.expect(transportData.getStation("stationC")).andStubReturn(stationC);
 
-        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(LocalTime.of(8,3), LocalTime.of(8,7),
+        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(new LocalTime(8,3), new LocalTime(8,7),
                 "svcId", "headSign", "tripIdA"));
 
-        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(LocalTime.of(8,7), LocalTime.of(8,16),
+        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(new LocalTime(8,7), new LocalTime(8,16),
                 "svcId", "headSign", "tripIdA"));
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
@@ -103,8 +103,8 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         Journey found = journeys.iterator().next();
 
-        assertEquals(LocalTime.of(8,16),found.getExpectedArrivalTime());
-        assertEquals(LocalTime.of(8,3),found.getFirstDepartureTime());
+        assertEquals(new LocalTime(8,16),found.getExpectedArrivalTime());
+        assertEquals(new LocalTime(8,3),found.getFirstDepartureTime());
         PresentableStage stageFirst = found.getStages().get(0);
         PresentableStage stageSecond = found.getStages().get(1);
         assertEquals(4, stageFirst.getDuration());

@@ -4,19 +4,22 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.mappers.TimeJsonSerializer;
-
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 
 import static java.lang.String.format;
 
 public class VehicleStageWithTiming extends RawVehicleStage implements PresentableStage {
-    private final TravelAction action;
+    private TravelAction action;
     private ServiceTime serviceTime;
 
     public VehicleStageWithTiming(RawVehicleStage rawTravelStage, ServiceTime serviceTime, TravelAction action) {
         super(rawTravelStage);
         this.action = action;
         this.serviceTime = serviceTime;
+    }
+
+    public VehicleStageWithTiming() {
+        // deserialisation
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)

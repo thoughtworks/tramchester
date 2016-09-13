@@ -4,6 +4,7 @@ import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.services.DateTimeService;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.LocalDate;
@@ -13,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -145,7 +146,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(reader.getStopTimes()).andReturn(stopTimes);
         validateWriter("stop_times", String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB",
-                arrivalTime.toString(), departureTime.toString()));
+                arrivalTime.toString(DateTimeService.pattern), departureTime.toString(DateTimeService.pattern)));
 
         replayAll();
         Set<String> trips = new HashSet<>();

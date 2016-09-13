@@ -1,13 +1,13 @@
 package com.tramchester.services;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.time.LocalTime;
-
 public class DateTimeService {
-    public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm:ss");
+    public static final String pattern = "HH:mm:ss";
+    public static final DateTimeFormatter formatter = DateTimeFormat.forPattern(pattern);
 
     public int getMinutesFromMidnight(String time) {
         DateTime theTime = DateTime.parse(time, formatter);
@@ -22,6 +22,6 @@ public class DateTimeService {
     }
 
     public static String formatTime(LocalTime time){
-        return time.toString();
+        return time.toString(pattern);
     }
 }

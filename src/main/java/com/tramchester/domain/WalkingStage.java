@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.PresentableStage;
 import com.tramchester.mappers.TimeJsonSerializer;
-
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 
 public class WalkingStage implements PresentableStage {
     private RawWalkingStage rawWalkingStage;
     private int beginTimeMins;
+    private int millisInMinute = 60 * 1000;
 
     public WalkingStage(RawWalkingStage rawWalkingStage, int beginTimeMins) {
         this.rawWalkingStage = rawWalkingStage;
@@ -61,12 +61,12 @@ public class WalkingStage implements PresentableStage {
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
-        return LocalTime.ofSecondOfDay(beginTimeMins*60);
+        return LocalTime.fromMillisOfDay(beginTimeMins * millisInMinute);
     }
 
     @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
-        return LocalTime.ofSecondOfDay((beginTimeMins+getDuration())*60);
+        return LocalTime.fromMillisOfDay((beginTimeMins+getDuration()) * millisInMinute);
     }
 
     @Override

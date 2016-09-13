@@ -6,7 +6,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import org.joda.time.LocalDate;
 
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 import java.util.*;
 
 public class TransportDataForTest implements TransportData, StationRepository {
@@ -86,7 +86,7 @@ public class TransportDataForTest implements TransportData, StationRepository {
     }
 
     private LocalTime createTime(int hourOfDay, int minuteOfHour) {
-        return LocalTime.of(hourOfDay, minuteOfHour, 00);
+        return new LocalTime(hourOfDay, minuteOfHour, 00);
     }
 
     private Stop createStop(Location startStation, LocalTime arrivalTime, LocalTime departureTime) {

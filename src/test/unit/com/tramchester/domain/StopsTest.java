@@ -5,8 +5,8 @@ import com.tramchester.domain.presentation.LatLong;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalTime;
 import java.util.List;
+import org.joda.time.LocalTime;
 
 import static org.junit.Assert.*;
 
@@ -31,10 +31,10 @@ public class StopsTest {
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        stopA = new Stop(stationA, LocalTime.of(10, 00), LocalTime.of(10, 01));
-        stopB = new Stop(stationB, LocalTime.of(10, 02), LocalTime.of(10, 03));
-        stopC = new Stop(stationC, LocalTime.of(10, 10), LocalTime.of(10, 10));
-        busStopD = new Stop(stationD, LocalTime.of(10,10), LocalTime.of(10,11));
+        stopA = new Stop(stationA, new LocalTime(10, 00), new LocalTime(10, 01));
+        stopB = new Stop(stationB, new LocalTime(10, 02), new LocalTime(10, 03));
+        stopC = new Stop(stationC, new LocalTime(10, 10), new LocalTime(10, 10));
+        busStopD = new Stop(stationD, new LocalTime(10,10), new LocalTime(10,11));
         am10Minutes = 10 * 60;
     }
 
@@ -87,7 +87,7 @@ public class StopsTest {
         stops.add(stopB);
         stops.add(stopC);
 
-        Stop stopD = new Stop(stationA, LocalTime.of(10, 20), LocalTime.of(10, 21));
+        Stop stopD = new Stop(stationA, new LocalTime(10, 20), new LocalTime(10, 21));
         stops.add(stopD);
 
         assertTrue(stops.visitsStation(stationIdA));

@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation;
 
 import org.junit.Test;
 
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -10,14 +10,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 public class ServiceTimeTest {
-    ServiceTime timeA = new ServiceTime(LocalTime.of(11, 00), LocalTime.of(11,10), "svcId", "headSign", "tripId");
-    ServiceTime timeC = new ServiceTime(LocalTime.of(11, 00), LocalTime.of(11,10), "svcId", "headSign", "tripId");
-    ServiceTime timeB = new ServiceTime(LocalTime.of(11, 01), LocalTime.of(11,9), "svcId", "headSign", "tripId");
+    ServiceTime timeA = new ServiceTime(new LocalTime(11, 00), new LocalTime(11,10), "svcId", "headSign", "tripId");
+    ServiceTime timeC = new ServiceTime(new LocalTime(11, 00), new LocalTime(11,10), "svcId", "headSign", "tripId");
+    ServiceTime timeB = new ServiceTime(new LocalTime(11, 01), new LocalTime(11,9), "svcId", "headSign", "tripId");
 
     @Test
     public void shouldSetValuesCorrectly() {
-        assertEquals(LocalTime.of(11, 00), timeA.getDepartureTime());
-        assertEquals(LocalTime.of(11,10), timeA.getArrivalTime());
+        assertEquals(new LocalTime(11, 00), timeA.getDepartureTime());
+        assertEquals(new LocalTime(11,10), timeA.getArrivalTime());
         assertEquals("svcId", timeA.getServiceId());
         assertEquals("headSign", timeA.getHeadSign());
     }
@@ -49,8 +49,8 @@ public class ServiceTimeTest {
     @Test
     public void correctOrderingInSortedSetAccrossMidnight() {
         SortedSet<ServiceTime> set = new TreeSet<>();
-        ServiceTime timeBeforeMid = new ServiceTime(LocalTime.of(23, 50), LocalTime.of(23, 55), "svcId", "headSign", "tripId");
-        ServiceTime timeAfterMid = new ServiceTime(LocalTime.of(00, 10), LocalTime.of(00, 15), "svcId", "headSign", "tripId");
+        ServiceTime timeBeforeMid = new ServiceTime(new LocalTime(23, 50), new LocalTime(23, 55), "svcId", "headSign", "tripId");
+        ServiceTime timeAfterMid = new ServiceTime(new LocalTime(00, 10), new LocalTime(00, 15), "svcId", "headSign", "tripId");
 
         set.add(timeAfterMid);
         set.add(timeBeforeMid);

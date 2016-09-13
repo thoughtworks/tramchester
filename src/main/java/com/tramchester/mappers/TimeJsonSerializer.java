@@ -3,19 +3,18 @@ package com.tramchester.mappers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import org.joda.time.LocalTime;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 public class TimeJsonSerializer extends JsonSerializer<LocalTime> {
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+    public static String pattern = "HH:mm";
 
     @Override
     public void serialize(LocalTime time, JsonGenerator gen,
                           SerializerProvider arg2)
             throws IOException {
 
-        gen.writeString(time.format(formatter));
+        gen.writeString(time.toString(pattern));
     }
 }

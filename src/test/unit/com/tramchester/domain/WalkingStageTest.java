@@ -6,7 +6,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,10 +29,10 @@ public class WalkingStageTest {
     public void shouldCalculateTimesCorrectly() {
 
         LocalTime arrival = walkingStage.getExpectedArrivalTime();
-        assertEquals(LocalTime.of(8,22), arrival);
+        assertEquals(new LocalTime(8,22), arrival);
 
         LocalTime departTime = walkingStage.getFirstDepartureTime();
-        assertEquals(LocalTime.of(8,00), departTime);
+        assertEquals(new LocalTime(8,00), departTime);
 
         assertEquals(22, walkingStage.getDuration());
 

@@ -2,6 +2,7 @@ package com.tramchester.dataimport;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -76,8 +77,8 @@ public class TramDataLoaderTest {
         assertThat(stopTime.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTime.getDropOffType()).isEqualTo("1");
         assertThat(stopTime.getStopSequence()).isEqualTo("0001");
-        assertThat(stopTime.getArrivalTime().toString()).isEqualTo("06:41");
-        assertThat(stopTime.getDepartureTime().toString()).isEqualTo("06:41");
+        assertThat(stopTime.getArrivalTime()).isEqualTo(new LocalTime(6,41));
+        assertThat(stopTime.getDepartureTime()).isEqualTo(new LocalTime(6,41));
     }
 
     @Test

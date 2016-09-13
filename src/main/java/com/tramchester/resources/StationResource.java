@@ -57,7 +57,8 @@ public class StationResource {
         List<DisplayStation> displayStations = getStations().stream().
                 map(station -> new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP)).
                 collect(Collectors.toList());
-        return Response.ok(displayStations).build();
+        Response response = Response.ok(displayStations).build();
+        return response;
     }
 
     private List<Station> getStations() {

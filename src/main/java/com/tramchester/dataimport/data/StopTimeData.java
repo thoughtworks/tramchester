@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.data;
 
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
+
 import java.util.Optional;
 
 public class StopTimeData {

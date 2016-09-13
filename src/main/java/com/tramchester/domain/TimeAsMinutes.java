@@ -1,26 +1,30 @@
 package com.tramchester.domain;
 
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 
 public class TimeAsMinutes {
     public static final int SECONDS_IN_DAY = 24*60*60;
 
     public static int timeDiffMinutes(LocalTime arrivalTime, LocalTime departureTime) {
-        int depSecs = departureTime.toSecondOfDay();
+        int depSecs = toSecondOfDay(departureTime);
         int seconds;
         if (arrivalTime.isBefore(departureTime)) { // crosses midnight
             int secsBeforeMid = SECONDS_IN_DAY - depSecs;
-            int secsAfterMid = arrivalTime.toSecondOfDay();
+            int secsAfterMid = toSecondOfDay(arrivalTime);
             seconds = secsBeforeMid + secsAfterMid;
         } else {
-            seconds = arrivalTime.toSecondOfDay() - depSecs;
+            seconds = toSecondOfDay(arrivalTime) - depSecs;
         }
         return seconds / 60;
     }
 
+    private static int toSecondOfDay(LocalTime localTime) {
+        return localTime.getMillisOfDay()/1000;
+    }
+
     public static int getMinutes(LocalTime time) {
-        int hour = time.getHour();
-        int minute = time.getMinute();
+        int hour = time.getHourOfDay();
+        int minute = time.getMinuteOfHour();
         if(hour == 0){
             hour = 24;
         } else if(hour == 1){

@@ -3,6 +3,7 @@ package com.tramchester.dataimport;
 import com.tramchester.domain.*;
 import com.tramchester.repository.TransportData;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -35,7 +36,7 @@ public class TramTransportDataImporterTest {
 
         Stop stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
-        assertThat(stop.getArrivalTime().toString()).isEqualTo("06:41");
+        assertThat(stop.getArrivalTime()).isEqualTo(new LocalTime(06,41));
 
         FeedInfo feedInfo = transportData.getFeedInfo();
         assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");

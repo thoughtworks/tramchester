@@ -6,10 +6,10 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.mappers.TimeJsonSerializer;
+import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 import java.util.List;
 
 import static java.lang.String.format;

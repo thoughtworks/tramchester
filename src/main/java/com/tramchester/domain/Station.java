@@ -5,14 +5,18 @@ import com.tramchester.domain.presentation.LatLong;
 public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
 
-    private final String id;
-    private final String name;
+    private String id;
+    private String name;
     private LatLong latLong;
-    private final boolean isTram;
+    private boolean tram;
 
-    public Station(String id, String area, String stopName, LatLong latLong, boolean isTram) {
+    public Station () {
+        // deserialisation
+    }
+
+    public Station(String id, String area, String stopName, LatLong latLong, boolean tram) {
         this.id = id;
-        if (isTram) {
+        if (tram) {
             this.name = stopName;
         } else if (area.isEmpty()) {
             this.name = stopName;
@@ -20,14 +24,14 @@ public class Station implements Location {
             this.name = String.format("%s,%s", area, stopName);
         }
         this.latLong = latLong;
-        this.isTram = isTram;
+        this.tram = tram;
     }
 
     public Station(Station other) {
         this.id = other.id;
         this.name = other.name;
         this.latLong = other.latLong;
-        this.isTram = other.isTram;
+        this.tram = other.tram;
     }
 
     @Override
@@ -56,7 +60,7 @@ public class Station implements Location {
 
     @Override
     public boolean isTram() {
-        return isTram;
+        return tram;
     }
 
     @Override
@@ -80,7 +84,7 @@ public class Station implements Location {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
-                ", isTram=" + isTram +
+                ", tram=" + tram +
                 '}';
     }
 }

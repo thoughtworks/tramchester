@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.mappers.TimeJsonSerializer;
 import com.tramchester.services.DateTimeService;
-
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 
 public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime> {
     private final LocalTime leaveBegin;

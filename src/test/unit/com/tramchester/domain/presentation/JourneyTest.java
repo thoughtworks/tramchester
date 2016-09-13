@@ -3,9 +3,10 @@ package com.tramchester.domain.presentation;
 
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -16,8 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 public class JourneyTest {
 
-    private Journey journeyA = new Journey(createStages(LocalTime.of(10, 20)));
-    private Journey journeyB = new Journey(createStages(LocalTime.of(10, 25)));
+    private Journey journeyA = new Journey(createStages(new LocalTime(10, 20)));
+    private Journey journeyB = new Journey(createStages(new LocalTime(10, 25)));
     private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
     private Location stationB = new Station("stationB", "area", "nameA", new LatLong(-3, 1), false);
 
@@ -32,17 +33,17 @@ public class JourneyTest {
         SortedSet<Journey> set = new TreeSet<>();
         set.add(journeyB);
         set.add(journeyA);
-        assertEquals(LocalTime.of(10,20), set.first().getExpectedArrivalTime());
+        assertEquals(new LocalTime(10,20), set.first().getExpectedArrivalTime());
     }
 
     @Test
     public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() {
         SortedSet<Journey> set = new TreeSet<>();
-        set.add(new Journey(createStages(LocalTime.of(00, 10))));
-        set.add(new Journey(createStages(LocalTime.of(23, 50))));
+        set.add(new Journey(createStages(new LocalTime(00, 10))));
+        set.add(new Journey(createStages(new LocalTime(23, 50))));
 
-        assertEquals(LocalTime.of(23,50), set.first().getExpectedArrivalTime());
-        assertEquals(LocalTime.of(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
+        assertEquals(new LocalTime(23,50), set.first().getExpectedArrivalTime());
+        assertEquals(new LocalTime(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
     }
 
     @Test
@@ -131,6 +132,25 @@ public class JourneyTest {
         assertEquals("Tram and Walk with 2 changes - 12 minutes", journey.getHeading());
     }
 
+    @Test
+    @Ignore("Work in progress")
+    public void shouldCreateJourneyDTO() {
+        List<PresentableStage> stages = new LinkedList<>();
+        stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate));
+        Journey journey = new Journey(stages);
+
+        JourneyDTO dto = null; //journey.asDTO();
+
+        assertEquals(journey.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
+        assertEquals(journey.getBegin(), dto.getBegin());
+        assertEquals(journey.getFirstDepartureTime(), dto.getFirstDepartureTime());
+        assertEquals(journey.getEnd(), dto.getEnd());
+        assertEquals(journey.getHeading(), dto.getHeading());
+        assertEquals(journey.getSummary(), dto.getSummary());
+        assertEquals(journey.getStages(), dto.getStages());
+
+    }
+
     private List<PresentableStage> createThreeStages() {
         List<PresentableStage> stages = new LinkedList<>();
         stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook));
@@ -140,7 +160,7 @@ public class JourneyTest {
     }
 
     private VehicleStageWithTiming createStage(Location firstStation, TravelAction travelAction, Location lastStation) {
-        ServiceTime serviceTime = new ServiceTime(LocalTime.of(10, 8), LocalTime.of(10, 20), "svcId", "headSign", "tripId");
+        ServiceTime serviceTime = new ServiceTime(new LocalTime(10, 8), new LocalTime(10, 20), "svcId", "headSign", "tripId");
         RawVehicleStage rawVehicleStage = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass");
         rawVehicleStage.setLastStation(lastStation);
         rawVehicleStage.setCost(20-8); // 12 mins
@@ -151,7 +171,7 @@ public class JourneyTest {
         List<PresentableStage> stages = new LinkedList<>();
         RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass").
                 setLastStation(stationB).setCost(42);
-        ServiceTime serviceTime = new ServiceTime(LocalTime.of(10, 8), arrivesEnd, "svcId", "headSign", "tripId");
+        ServiceTime serviceTime = new ServiceTime(new LocalTime(10, 8), arrivesEnd, "svcId", "headSign", "tripId");
         stages.add(new VehicleStageWithTiming(rawTravelStage, serviceTime, TravelAction.Board));
         return stages;
     }

@@ -21,11 +21,9 @@ public class FeedInfoResourceTest {
 
     @Test
     public void shouldGetFeedinfoCorrectly() {
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:" + testRule.getLocalPort() + "/api/feedinfo");
-        Response responce = target.request().get();
+        String endPoint = "feedinfo";
 
-        assertEquals(200, responce.getStatus());
+        Response responce = IntegrationClient.getResponse(testRule, endPoint);
 
         FeedInfo result = responce.readEntity(FeedInfo.class);
 
@@ -36,8 +34,6 @@ public class FeedInfoResourceTest {
         assertEquals("20160809", result.getVersion());
         assertEquals(new LocalDate(2016,8,9), result.validFrom());
         assertEquals(new LocalDate(2016,10,9), result.validUntil());
-
     }
-
 
 }

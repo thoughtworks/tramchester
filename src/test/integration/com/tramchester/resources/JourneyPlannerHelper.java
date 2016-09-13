@@ -8,8 +8,8 @@ import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.PresentableStage;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
-import java.time.LocalTime;
 import java.util.Set;
 
 import static org.joda.time.DateTimeConstants.MONDAY;

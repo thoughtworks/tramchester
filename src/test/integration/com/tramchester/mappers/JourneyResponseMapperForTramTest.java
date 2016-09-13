@@ -8,6 +8,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.PresentableJourney;
 import com.tramchester.domain.presentation.PresentableStage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.resources.JourneyPlannerHelper;
@@ -18,7 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,8 +30,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
-    private LocalTime sevenAM = LocalTime.of(7, 0);
-    private LocalTime eightAM = LocalTime.of(8, 0);
+    private LocalTime sevenAM = new LocalTime(7, 0);
+    private LocalTime eightAM = new LocalTime(8, 0);
 
     private static Dependencies dependencies;
     private TramJourneyResponseMapper mapper;
@@ -69,7 +70,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         Journey journey = result.getJourneys().stream().findFirst().get();
         PresentableStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
-        assertTrue(stage.getFirstDepartureTime().isBefore(LocalTime.of(16,00)));
+        assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(16,00)));
     }
 
     @Test
@@ -88,7 +89,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertFalse(journey.getStages().isEmpty());
         PresentableStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
-        assertTrue(stage.getFirstDepartureTime().isBefore(LocalTime.of(22,55)));
+        assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(22,55)));
     }
 
     @Test
@@ -192,7 +193,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         Journey journey = result.getJourneys().stream().findFirst().get();
         assertEquals(3, journey.getStages().size());
         LocalTime arrivalTime = journey.getExpectedArrivalTime();
-        assertTrue(arrivalTime.isAfter(LocalTime.of(10,10)));
+        assertTrue(arrivalTime.isAfter(new LocalTime(10,10)));
 
         PresentableStage stage1 = journey.getStages().get(0);
         assertEquals("Board tram at",stage1.getPrompt());

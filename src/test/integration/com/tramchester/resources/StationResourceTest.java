@@ -1,14 +1,14 @@
 package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tramchester.Dependencies;
-import com.tramchester.IntegrationTramTestConfig;
-import com.tramchester.Stations;
+import com.tramchester.*;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.presentation.DisplayStation;
 import org.junit.*;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -18,29 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 public class StationResourceTest {
-    private static Dependencies dependencies;
-    private StationResource stationResource;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
-    }
-
-    @Before
-    public void beforeEachTestRuns() {
-        stationResource = dependencies.get(StationResource.class);
-    }
-
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
-    }
+    @ClassRule
+    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     @Test
     public void shouldGetNearestStations() throws Exception {
-        Response result = stationResource.getNearest(53.4804263d, -2.2392436d);
-        List<DisplayStation> stations = (List<DisplayStation>) result.getEntity();
+        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d);
 
         Map<String, Long> stationGroups = stations.stream()
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
@@ -55,8 +39,7 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetSpecialStationWithMyLocation() throws JsonProcessingException {
-        Response result = stationResource.getNearest(53.4804263d, -2.2392436d);
-        List<DisplayStation> stations = (List<DisplayStation>) result.getEntity();
+        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d);
 
         DisplayStation station = stations.get(0);
         assertEquals("Nearby", station.getProximityGroup());
@@ -68,17 +51,15 @@ public class StationResourceTest {
 
     @Test
     public void shouldNotGetSpecialStationWhenGettingAllStations() throws JsonProcessingException {
-        stationResource.getNearest(53.4804263d, -2.2392436d);
-        Response result = stationResource.getAll();
-        List<DisplayStation> stations = (List<DisplayStation>) result.getEntity();
+        getNearest(53.4804263d, -2.2392436d);
+        Collection<DisplayStation> stations = getAll();
 
         stations.forEach(station -> assertNotEquals("My Location", station.getName()));
     }
 
     @Test
     public void shouldNotGetClosedStations() throws Exception {
-        Response result = stationResource.getAll();
-        Collection<Location> stations = (Collection<Location>) result.getEntity();
+        Collection<DisplayStation> stations = getAll();
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
         assertThat(stations.stream().filter(station -> station.getName().equals(Stations.Altrincham.getName())).count()).isEqualTo(1);
@@ -86,12 +67,21 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetAllStationsWithRightOrderAndProxGroup() {
-        Response result = stationResource.getAll();
-        Collection<DisplayStation> stations = (Collection<DisplayStation>) result.getEntity();
+        Collection<DisplayStation> stations = getAll();
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
 
         stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo("All Stops"));
-
     }
+
+    private List<DisplayStation> getNearest(double lat, double lon) {
+        Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon));
+        return result.readEntity(new GenericType<List<DisplayStation>>(){});
+    }
+
+    private List<DisplayStation> getAll() {
+        Response result = IntegrationClient.getResponse(testRule, "stations");
+        return result.readEntity(new GenericType<ArrayList<DisplayStation>>(){});
+    }
+
 }

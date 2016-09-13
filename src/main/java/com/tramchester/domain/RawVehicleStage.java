@@ -1,10 +1,10 @@
 package com.tramchester.domain;
 
 public class RawVehicleStage implements TransportStage {
-    protected final Location firstStation;
-    protected final TransportMode mode;
-    protected final String routeName;
-    protected final String displayClass;
+    protected Location firstStation;
+    protected TransportMode mode;
+    protected String routeName;
+    protected String displayClass;
     protected int cost;
 
     protected String serviceId;
@@ -15,6 +15,10 @@ public class RawVehicleStage implements TransportStage {
         this.routeName = routeName;
         this.mode = mode;
         this.displayClass = displayClass;
+    }
+
+    public RawVehicleStage() {
+        // for deserialisation
     }
 
     public RawVehicleStage(RawVehicleStage other) {
