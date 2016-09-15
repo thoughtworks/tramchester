@@ -40,7 +40,7 @@ public class Stations {
 
     public static Location MarketStreet = createStation("9400ZZMAMKT", "Market Street Area", "Market Street");
 
-    public static String MediaCityUK = "9400ZZMAMCU";
+    public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
 
     public static List<Location> EndOfTheLineWest = Arrays.asList(new Location[]{
             Altrincham,

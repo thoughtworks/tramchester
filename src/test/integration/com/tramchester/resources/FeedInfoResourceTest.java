@@ -31,9 +31,9 @@ public class FeedInfoResourceTest {
         assertEquals("http://www.tfgm.com", result.getPublisherUrl());
         assertEquals("Europe/London", result.getTimezone());
         assertEquals("en", result.getLang());
-        assertEquals("20160809", result.getVersion());
-        assertEquals(new LocalDate(2016,8,9), result.validFrom());
-        assertEquals(new LocalDate(2016,10,9), result.validUntil());
+        assertEquals("20160914", result.getVersion());
+        assertEquals(new LocalDate(2016,9,14), result.validFrom());
+        assertEquals(new LocalDate(2016,11,14), result.validUntil());
     }
 
 }

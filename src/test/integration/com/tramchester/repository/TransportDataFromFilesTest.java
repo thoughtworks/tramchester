@@ -19,13 +19,13 @@ import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
     public static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(8 * 60, 45);
-    public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodes.ASH_TO_BURY});
+    public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodes.ASH_TO_ECCLES});
 
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
     // use TramJourneyPlannerTest.
-    private final String svcDeansgateToVic = "Serv002009";
+    private final String svcDeansgateToVic = "Serv001297";
     private Collection<Service> allServices;
 
     @BeforeClass
@@ -53,8 +53,8 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetRoute() {
-        Route result = transportData.getRoute(RouteCodes.ASH_TO_BURY);
-        assertEquals("Ashton-under-Lyne - Bury", result.getName());
+        Route result = transportData.getRoute(RouteCodes.ASH_TO_ECCLES);
+        assertEquals("Ashton-under-Lyne - MediaCityUK - Eccles", result.getName());
     }
 
     @Test
@@ -122,7 +122,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripsCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv005824");
+        Service svc = transportData.getServiceById("Serv004250");
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertTrue(trips.isPresent());
@@ -131,7 +131,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv005824");
+        Service svc = transportData.getServiceById("Serv004250");
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertTrue(trips.isPresent());
