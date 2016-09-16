@@ -42,23 +42,21 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
     private Optional<LocalTime> getDateTime(String time) {
         String[] split = time.split(":");
 
-        String hour = split[0];
-        if (hour.equals("24") || hour.equals("25")) {
-            hour = "00";
+        Integer hour = Integer.parseInt(split[0]);
+        if (hour==24 || hour==25) {
+            hour = 0;
         }
-        String minutes = split[1];
-        String string = "not set";
+        Integer minutes = Integer.parseInt(split[1]);
         try {
             if (split.length==3) {
-                string = format("%s:%s:%s",Integer.parseInt(hour), Integer.parseInt(minutes), Integer.parseInt(split[2]));
+                return Optional.of(new LocalTime(hour,minutes,
+                        Integer.parseInt(split[2])));
             } else {
-                string = format("%s:%s",Integer.parseInt(hour), Integer.parseInt(minutes));
+                return Optional.of(new LocalTime(hour,minutes));
             }
-            LocalTime parsedTime = LocalTime.parse(string);
-            return Optional.of(parsedTime);
         }
         catch (IllegalFieldValueException exception) {
-            logger.error("Caught Expection during creation of date. Unable to parse "+string, exception);
+            logger.error("Caught Expection during creation of date. Unable to parse "+time, exception);
             // can't catch and convert here due to the inherited interface
         }
         return Optional.empty();

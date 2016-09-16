@@ -15,28 +15,22 @@ public class GraphBuilderTestPerformance {
 
     private static Dependencies dependencies;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @Before
+    public void beforeEachTestRuns() throws Exception {
         dependencies = new Dependencies();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
-        dependencies.get(RouteCalculator.class);
-    }
-
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @After
+    public void afterEachTestRuns() {
         dependencies.close();
     }
 
     @Test
-    @Ignore("For performance testing only")
+    @Ignore("for performance testing")
     public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
+
         DateTime start = DateTime.now();
-
         dependencies.initialise(new PerformanceTestConfig());
-
         DateTime finished = DateTime.now();
 
         System.out.println("Initialisation took: " + finished.minus(start.getMillis()).getMillis());
@@ -51,12 +45,12 @@ public class GraphBuilderTestPerformance {
 
         @Override
         public Set<String> getAgencies() {
-            return new HashSet(Arrays.asList("MET", "GMS", "GMN"));
+            return new HashSet(Arrays.asList("MET")); // , "GMS", "GMN"));
         }
 
         @Override
         public boolean getCreateLocality() {
-            return true;
+            return false;
         }
 
         @Override
