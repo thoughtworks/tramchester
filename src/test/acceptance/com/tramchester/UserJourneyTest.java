@@ -130,15 +130,19 @@ public class UserJourneyTest extends UserJourneys {
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
-        List<String> headsSignNoChange = Arrays.asList("Piccadilly");
+        //List<String> deansgate = Arrays.asList(Stations.Deansgate.getName());
+
+        List<String> headsignPiccadilly = Arrays.asList("Piccadilly");
         List<String> headSignsBury = Arrays.asList("Bury");
 
-        RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, deansgate,
-                when, "10:15", noChanges, headsSignNoChange, false, expectedNumberJourneyResults, 0)
+        RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, this.deansgate,
+                when, "10:15", noChanges, headsignPiccadilly, false, expectedNumberJourneyResults, 0)
                 .backToRouteDetails();
-        routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges, headsSignNoChange, 1).backToRouteDetails();
-        List<String> traffordChange = Arrays.asList(Stations.TraffordBar.getName());
-        checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, traffordChange, headSignsBury, 2);
+
+        routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, this.deansgate, noChanges, headSignsBury, 1)
+                .backToRouteDetails();
+
+        checkJourneyDetailsPage(routeDetailsPage, altrincham, this.deansgate, noChanges, headsignPiccadilly, 2);
     }
 
     @Test
