@@ -81,6 +81,10 @@ public class UserJourneyTest extends UserJourneys {
                 when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
+        // check values remembered
+        assertEquals(altrincham,plannerPage.getFromStop());
+        assertEquals(Stations.Bury.getName(),plannerPage.getToStop());
+        assertEquals("10:15",plannerPage.getTime());
     }
 
     @Test

@@ -26,11 +26,10 @@ public class Page {
         return wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementId)));
     }
 
-    protected void setSelectorTo(String selector, String name) {
-        Select fromStop = new Select(driver.findElement(By.id(selector)));
-        fromStop.selectByVisibleText(name);
+    protected void setSelectorTo(String id, String name) {
+        Select selector = new Select(driver.findElement(By.id(id)));
+        selector.selectByVisibleText(name);
     }
-
 
     public WebElement findElementById(String id) {
         return driver.findElement(By.id(id));

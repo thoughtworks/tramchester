@@ -26,14 +26,36 @@ public class RoutePlannerPage extends Page {
         setSelectorTo(fromStop, name);
     }
 
+    public String getFromStop() {
+        return getSelected(fromStop);
+    }
+
     public void setToStop(String name) {
         setSelectorTo(toStop, name);
     }
 
+    public String getToStop() {
+        return  getSelected(toStop);
+    }
+
     public void setTime(String value) {
-        WebElement time = findElementById("hour");
+        WebElement time = getHourElement();
         time.clear();
         time.sendKeys(value);
+    }
+
+    public String getTime() {
+        return getHourElement().getAttribute("value");
+    }
+
+    private WebElement getHourElement() {
+        waitForElement("hour",timeoutInSeconds);
+        return findElementById("hour");
+    }
+
+    private String getSelected(String id) {
+        Select selector = new Select(driver.findElement(By.id(id)));
+        return selector.getFirstSelectedOption().getText();
     }
 
     public RouteDetailsPage submit() {
@@ -67,4 +89,5 @@ public class RoutePlannerPage extends Page {
         String input = value.toString("YYYY-MM-dd");
         date.sendKeys(input);
     }
+
 }

@@ -4,7 +4,7 @@ techLabApp.controller('RoutePlannerController',
     function RoutePlannerController($scope, transportStops, journeyPlanner, $location, journeyPlanService, feedinfoService) {
         $scope.selectedStop = null;
         $scope.departureTime = getCurrentTime(); // in model
-        $scope.departureDate = getCurrentTime(); // in model
+        $scope.departureDate = getCurrentDate(); // in model
         $scope.fromStop = journeyPlanService.getStart();
         $scope.toStop = journeyPlanService.getEnd();
 
@@ -81,9 +81,18 @@ techLabApp.controller('RoutePlannerController',
             });
         }
 
-        function getCurrentTime() {
+        function getCurrentDate() {
             var currentDate = new Date();
-            return  new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(),
+            return new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(),
                 currentDate.getHours(), currentDate.getMinutes(), 0, 0);
+        }
+
+        function getCurrentTime() {
+            var current = journeyPlanService.getDepartureTime();
+            if (current!=null) {
+                var previous = moment(current,"HH:mm");
+                return previous.toDate();
+            }
+            return getCurrentDate();
         }
     });
