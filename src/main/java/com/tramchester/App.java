@@ -39,10 +39,6 @@ public class App extends Application<AppConfiguration>  {
         new App().run(args);
     }
 
-    public Dependencies getDependencies() {
-        return dependencies;
-    }
-
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
         bootstrap.setConfigurationSourceProvider(

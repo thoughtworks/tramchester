@@ -1,16 +1,22 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.dataimport.TransportDataImporter;
+import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.repository.TransportDataFromFiles;
 import io.dropwizard.Application;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
 
     // if SERVER_URL env var not set then run against localhost
     private String serverUrl;
+    private FeedInfo feedinfo;
 
     public AcceptanceTestRun(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
                              ConfigOverride... configOverrides) {
@@ -44,8 +50,15 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     public FeedInfo feedinfo() {
-        App app = super.getApplication();
-        TransportDataFromFiles data = app.getDependencies().get(TransportDataFromFiles.class);
-        return data.getFeedInfo();
+        if (feedinfo==null) {
+            // can't get via the app as when we run in snap the app is not running locally
+            Path path = Paths.get("data/tram");
+            TransportDataReader reader = new TransportDataReader(path);
+            TransportDataImporter importer = new TransportDataImporter(reader);
+            TransportDataFromFiles data = importer.load();
+            feedinfo = data.getFeedInfo();
+        }
+        return feedinfo;
+
     }
 }

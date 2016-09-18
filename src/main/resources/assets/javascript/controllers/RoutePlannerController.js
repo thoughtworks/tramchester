@@ -1,12 +1,17 @@
 'use strict';
 
 techLabApp.controller('RoutePlannerController',
-    function RoutePlannerController($scope, transportStops, journeyPlanner, $location, journeyPlanService) {
+    function RoutePlannerController($scope, transportStops, journeyPlanner, $location, journeyPlanService, feedinfoService) {
         $scope.selectedStop = null;
         $scope.departureTime = getCurrentTime(); // in model
         $scope.departureDate = getCurrentTime(); // in model
         $scope.fromStop = journeyPlanService.getStart();
         $scope.toStop = journeyPlanService.getEnd();
+
+        feedinfoService.getFeedInfo(function(info){
+            $scope.validFrom = info.validFrom;
+            $scope.validUntil = info.validUntil;
+        });
 
         journeyPlanService.removePlan();
 
@@ -55,6 +60,7 @@ techLabApp.controller('RoutePlannerController',
             console.log("Unable to get current position");
             getAllStops();
         }
+
 
         function positionError(error) {
             console.log(error);

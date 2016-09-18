@@ -49,11 +49,14 @@
                                placeholder="HH:mm"
                                required
                                ng-model="departureTime">
+                        <label for="date">Departure Date</label>
                         <input id="date"
                                type="date"
                                class="tcr-date form-control input-lg"
                                placeholder="dd/MM/YYYY"
                                required
+                               min="{{validFrom}}"
+                               max="{{validUntil}}"
                                ng-model="departureDate">
                     </div>
                     <button type="submit" id="plan" class="btn btn-default btn-lg btn-block"

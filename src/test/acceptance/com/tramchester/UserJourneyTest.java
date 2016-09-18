@@ -210,11 +210,12 @@ public class UserJourneyTest extends UserJourneys {
         if (build==null) {
             build = "0";
         }
-        FeedInfo feedinfo = testRule.feedinfo();
 
         RoutePlannerPage page = new WelcomePage(driver).load(testRule.getUrl()).begin();
         String result = page.findElementById("build").getText();
         assertEquals("Build "+build,result);
+
+        FeedInfo feedinfo = testRule.feedinfo();
 
         String dataBegin = page.findElementById("validFrom").getText();
         assertEquals(" From: "+feedinfo.validFrom(), dataBegin);

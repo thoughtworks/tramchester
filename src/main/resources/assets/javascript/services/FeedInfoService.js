@@ -3,11 +3,15 @@
 techLabApp.factory('feedinfoService', function ($http, feedinfo) {
     var feedinfoService = {};
 
-    feedinfoService.getVersion = function () {
-        if (!feedinfoService.feedinfoService) {
-            feedinfoService.feedinfoService = feedinfo.get();
+    feedinfoService.getFeedInfo = function (callback) {
+        if (!feedinfoService.feedinfoDetails) {
+            var info = feedinfo.get(function() {
+                feedinfoService.feedinfoDetails = info;
+                callback(info);
+            });
+        } else {
+            callback(feedinfoService.feedinfoDetails);
         }
-        return feedinfoService.feedinfoService;
     };
 
     return feedinfoService;

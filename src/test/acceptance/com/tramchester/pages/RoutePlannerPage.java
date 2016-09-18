@@ -61,9 +61,6 @@ public class RoutePlannerPage extends Page {
     }
 
     public void setDate(LocalDate value) {
-        JavascriptExecutor jse = (JavascriptExecutor)driver;
-        // make the hidden date element visible so we can input text
-        jse.executeScript("document.getElementById('date').style.visibility='visible';");
 
         WebElement date = findElementById("date");
         date.clear();
