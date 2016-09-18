@@ -1,5 +1,6 @@
 'use strict';
 
+
 techLabApp.factory('feedinfoService', function ($http, feedinfo) {
     var feedinfoService = {};
 

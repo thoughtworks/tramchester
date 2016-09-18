@@ -206,7 +206,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldHaveBuildAndVersionNumberInFooter() throws InterruptedException {
-        String build = System.getenv("BUILD");
+        String build = System.getenv("SNAP_PIPELINE_COUNTER");
         if (build==null) {
             build = "0";
         }
