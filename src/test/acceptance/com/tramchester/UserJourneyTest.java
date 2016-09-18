@@ -1,7 +1,7 @@
 package com.tramchester;
 
-import com.tramchester.domain.FeedInfo;
 import com.tramchester.pages.*;
+import com.tramchester.resources.FeedInfoResourceTest;
 import com.tramchester.resources.JourneyPlannerHelper;
 import org.assertj.core.util.Lists;
 import org.joda.time.LocalDate;
@@ -10,7 +10,6 @@ import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -215,13 +214,11 @@ public class UserJourneyTest extends UserJourneys {
         String result = page.findElementById("build").getText();
         assertEquals("Build "+build,result);
 
-        FeedInfo feedinfo = testRule.feedinfo();
-
         String dataBegin = page.findElementById("validFrom").getText();
-        assertEquals(" From: "+feedinfo.validFrom(), dataBegin);
+        assertEquals(" From: "+ FeedInfoResourceTest.validFrom.toString("YYYY-MM-dd"), dataBegin);
 
         String dataEnd = page.findElementById("validUntil").getText();
-        assertEquals(" Until: "+feedinfo.validUntil(), dataEnd);
+        assertEquals(" Until: "+FeedInfoResourceTest.validUntil.toString("YYYY-MM-dd"), dataEnd);
 
     }
 
