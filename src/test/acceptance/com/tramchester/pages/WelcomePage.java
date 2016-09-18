@@ -12,8 +12,9 @@ public class WelcomePage extends Page {
         super(driver);
     }
 
-    public void load(String url) {
+    public WelcomePage load(String url) {
         driver.get(url);
+        return this;
     }
 
     public RoutePlannerPage begin() throws InterruptedException {

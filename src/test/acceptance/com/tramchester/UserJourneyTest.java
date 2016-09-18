@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.tramchester.domain.FeedInfo;
 import com.tramchester.pages.*;
 import com.tramchester.resources.JourneyPlannerHelper;
 import org.assertj.core.util.Lists;
@@ -9,6 +10,7 @@ import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -130,7 +132,6 @@ public class UserJourneyTest extends UserJourneys {
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
-        //List<String> deansgate = Arrays.asList(Stations.Deansgate.getName());
 
         List<String> headsignPiccadilly = Arrays.asList("Piccadilly");
         List<String> headSignsBury = Arrays.asList("Bury");
@@ -200,6 +201,27 @@ public class UserJourneyTest extends UserJourneys {
 
         checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),
                 when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0);
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldHaveBuildAndVersionNumberInFooter() throws InterruptedException {
+        String build = System.getenv("BUILD");
+        if (build==null) {
+            build = "0";
+        }
+        FeedInfo feedinfo = testRule.feedinfo();
+
+        RoutePlannerPage page = new WelcomePage(driver).load(testRule.getUrl()).begin();
+        String result = page.findElementById("build").getText();
+        assertEquals("Build "+build,result);
+
+        String dataBegin = page.findElementById("validFrom").getText();
+        assertEquals(" From: "+feedinfo.validFrom(), dataBegin);
+
+        String dataEnd = page.findElementById("validUntil").getText();
+        assertEquals(" Until: "+feedinfo.validUntil(), dataEnd);
+
     }
 
     @Test

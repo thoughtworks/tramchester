@@ -11,9 +11,14 @@
 
         <p>Contains public sector information licensed under the Open Government Licence v2.0 by<a
                 href="http://www.datagm.org.uk/" target="_blank">Data GM.</a></p>
-
-        Build {{version.buildNumber}}
-
-        <hr>
+        <div>
+            <div id="build">Build {{version.buildNumber}}</div>
+            <div>Data Valid
+                <div class="appInfo" id="validFrom">&nbsp;From: {{feedinfo.validFrom}}</div>
+                <div class="appInfo" id="validUntil">&nbsp;Until: {{feedinfo.validUntil}}</div>
+            </div>
+        </div>
     </div>
+    <hr>
+</div>
 </div>
