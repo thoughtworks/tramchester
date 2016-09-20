@@ -62,7 +62,10 @@ public class UserJourneyTest extends UserJourneys {
         welcomePage.load(testRule.getUrl());
         assertTrue(welcomePage.hasBeginLink());
 
-        // check cookie now present
+        assertTrue(driver.manage().getCookieNamed("tramchesterVisited")==null);
+        welcomePage.begin();
+
+        // cookie should now be set
         Cookie cookie = driver.manage().getCookieNamed("tramchesterVisited");
         String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
         assertEquals("{\"visited\":true}", cookieContents);
