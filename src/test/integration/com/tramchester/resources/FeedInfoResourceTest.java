@@ -13,6 +13,8 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 
 public class FeedInfoResourceTest {
@@ -26,7 +28,7 @@ public class FeedInfoResourceTest {
     public void shouldGetFeedinfoCorrectly() {
         String endPoint = "feedinfo";
 
-        Response responce = IntegrationClient.getResponse(testRule, endPoint);
+        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
 
         FeedInfo result = responce.readEntity(FeedInfo.class);
 

@@ -26,6 +26,7 @@ public class SpatialService extends StationIndexs {
     public static final String ALL_STOPS_PROX_GROUP = "All Stops";
     public static final String NEARBY = "Nearby";
     private static final String NEAREST_STOPS = "Nearest Stops";
+    public static final String RECENT_GROUP = "Recent";
 
     private GraphDatabaseService graphDatabaseService;
     private StationRepository stationRepository;

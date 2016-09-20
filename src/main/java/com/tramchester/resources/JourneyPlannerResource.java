@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +60,7 @@ public class JourneyPlannerResource {
         try {
             int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
             JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate, minutesFromMidnight);
-            Response response = Response.ok(planRepresentation).build();
+            Response response = Response.ok(planRepresentation).cookie(createRecentCookie(startId)).build();
             return response;
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);
@@ -68,6 +69,10 @@ public class JourneyPlannerResource {
         }
 
         return Response.serverError().build();
+    }
+
+    private NewCookie createRecentCookie(String fromId) {
+        return new NewCookie(StationResource.TRAMCHESTER_RECENT, fromId);
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId,

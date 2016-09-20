@@ -16,10 +16,8 @@ import com.tramchester.services.SpatialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.LinkedList;
@@ -32,6 +30,7 @@ import static java.lang.String.format;
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
+    public static final String TRAMCHESTER_RECENT = "tramchesterRecent";
 
     private List<Station> allStationsSorted;
     private final SpatialService spatialService;
@@ -52,11 +51,21 @@ public class StationResource {
 
     @GET
     @Timed
-    public Response getAll() {
+    public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info("Get all stations");
+
+        String recentId = (tranchesterRecent==null) ? "" : tranchesterRecent.getValue();
+
         List<DisplayStation> displayStations = getStations().stream().
+                filter(station -> !station.getId().equals(recentId)).
                 map(station -> new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP)).
                 collect(Collectors.toList());
+
+        if (!recentId.isEmpty()) {
+            Station recentStation = stationRepository.getStation(recentId);
+            displayStations.add(new DisplayStation(recentStation, SpatialService.RECENT_GROUP));
+        }
+
         Response response = Response.ok(displayStations).build();
         return response;
     }
@@ -98,11 +107,20 @@ public class StationResource {
     @GET
     @Timed
     @Path("/{lat}/{lon}")
-    public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
+    public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
+                               @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s ", lat, lon));
+
+        String recentId = (tranchesterRecent==null) ? "" : tranchesterRecent.getValue();
 
         LatLong latLong = new LatLong(lat,lon);
         List<DisplayStation> orderedStations = spatialService.reorderNearestStations(latLong, getStations());
+
+        if (!recentId.isEmpty()) {
+            Station recentStation = stationRepository.getStation(recentId);
+            orderedStations.remove(new DisplayStation(recentStation, SpatialService.ALL_STOPS_PROX_GROUP));
+            orderedStations.add(0, new DisplayStation(recentStation, SpatialService.RECENT_GROUP));
+        }
 
         if (config.getShowMyLocation()) {
             logger.info("Showing users location in stations list");

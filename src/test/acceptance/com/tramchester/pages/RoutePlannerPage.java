@@ -3,7 +3,6 @@ package com.tramchester.pages;
 
 import org.joda.time.LocalDate;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -27,7 +26,7 @@ public class RoutePlannerPage extends Page {
     }
 
     public String getFromStop() {
-        return getSelected(fromStop);
+        return getSelected(fromStop).getText();
     }
 
     public void setToStop(String name) {
@@ -35,7 +34,7 @@ public class RoutePlannerPage extends Page {
     }
 
     public String getToStop() {
-        return  getSelected(toStop);
+        return  getSelected(toStop).getText();
     }
 
     public void setTime(String value) {
@@ -53,9 +52,23 @@ public class RoutePlannerPage extends Page {
         return findElementById("hour");
     }
 
-    private String getSelected(String id) {
+    private WebElement getSelected(String id) {
         Select selector = new Select(driver.findElement(By.id(id)));
-        return selector.getFirstSelectedOption().getText();
+        return selector.getFirstSelectedOption();
+    }
+
+    public List<WebElement> getRecentFromStops() {
+        String expression = optionGroupExpression(fromStop);
+        return driver.findElements(By.xpath(expression));
+    }
+
+    private String optionGroupExpression(String id) {
+        return String.format("//select[@id='%s']/optgroup[@label='Recent']/option", id);
+    }
+
+    public List<WebElement> getRecentToStops() {
+        String expression = optionGroupExpression(toStop);
+        return driver.findElements(By.xpath(expression));
     }
 
     public RouteDetailsPage submit() {

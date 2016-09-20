@@ -6,12 +6,10 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.presentation.DisplayStation;
 import org.junit.*;
 
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +22,7 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetNearestStations() throws Exception {
-        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d);
+        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
         Map<String, Long> stationGroups = stations.stream()
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
@@ -39,7 +37,7 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetSpecialStationWithMyLocation() throws JsonProcessingException {
-        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d);
+        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
         DisplayStation station = stations.get(0);
         assertEquals("Nearby", station.getProximityGroup());
@@ -51,15 +49,15 @@ public class StationResourceTest {
 
     @Test
     public void shouldNotGetSpecialStationWhenGettingAllStations() throws JsonProcessingException {
-        getNearest(53.4804263d, -2.2392436d);
-        Collection<DisplayStation> stations = getAll();
+        getNearest(53.4804263d, -2.2392436d, Optional.empty());
+        Collection<DisplayStation> stations = getAll(Optional.empty());
 
         stations.forEach(station -> assertNotEquals("My Location", station.getName()));
     }
 
     @Test
     public void shouldNotGetClosedStations() throws Exception {
-        Collection<DisplayStation> stations = getAll();
+        Collection<DisplayStation> stations = getAll(Optional.empty());
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
         assertThat(stations.stream().filter(station -> station.getName().equals(Stations.Altrincham.getName())).count()).isEqualTo(1);
@@ -67,20 +65,38 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetAllStationsWithRightOrderAndProxGroup() {
-        Collection<DisplayStation> stations = getAll();
+        Collection<DisplayStation> stations = getAll(Optional.empty());
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
 
         stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo("All Stops"));
     }
 
-    private List<DisplayStation> getNearest(double lat, double lon) {
-        Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon));
+    @Test
+    public void shouldReturnRecentStationsGroupIfCookieSet() {
+        Location alty = Stations.Altrincham;
+        Optional<Cookie> cookie = Optional.of(new Cookie("tramchesterRecent",alty.getId()));
+
+        List<DisplayStation> stations = getAll(cookie);
+
+        stations.removeIf(station -> !station.getId().equals(alty.getId()));
+        assertEquals(1, stations.size());
+        assertEquals("Recent", stations.get(0).getProximityGroup());
+
+        stations = getNearest(53.4804263d, -2.2392436d, cookie);
+
+        stations.removeIf(station -> !station.getId().equals(alty.getId()));
+        assertEquals(1, stations.size());
+        assertEquals("Recent", stations.get(0).getProximityGroup());
+    }
+
+    private List<DisplayStation> getNearest(double lat, double lon, Optional<Cookie> cookie) {
+        Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie);
         return result.readEntity(new GenericType<List<DisplayStation>>(){});
     }
 
-    private List<DisplayStation> getAll() {
-        Response result = IntegrationClient.getResponse(testRule, "stations");
+    private List<DisplayStation> getAll(Optional<Cookie> cookie) {
+        Response result = IntegrationClient.getResponse(testRule, "stations", cookie);
         return result.readEntity(new GenericType<ArrayList<DisplayStation>>(){});
     }
 

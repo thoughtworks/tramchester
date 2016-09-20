@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 
 
@@ -21,7 +23,7 @@ public class VersionResourceTest {
     public void shouldGetVersion() {
         String endPoint = "version";
 
-        Response responce = IntegrationClient.getResponse(testRule, endPoint);
+        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
 
         Version version = responce.readEntity(Version.class);
 
