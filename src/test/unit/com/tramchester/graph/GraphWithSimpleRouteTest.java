@@ -70,7 +70,7 @@ public class GraphWithSimpleRouteTest {
         int minutesPastMidnight = (8 * 60) - 3;
         // note: trams only run at specific times so still only get one journey in results
         queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
-        firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION);
+        firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
     }
 
     @Test
@@ -114,7 +114,7 @@ public class GraphWithSimpleRouteTest {
         int walkCost = 1;
         List<StationWalk> startStations = Arrays.asList(new StationWalk[]{new StationWalk(firstStation, walkCost)});
 
-        Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION);
+        Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
         Set<RawJourney> journeys = calculator.calculateRoute(origin, startStations, endStation, queryTimes, queryDate);
         assertEquals(1, journeys.size());
     }

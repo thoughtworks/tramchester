@@ -58,12 +58,12 @@ public class LocationToLocationJourneyPlanner {
     private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<Integer> queryTimes,
                                               TramServiceDate queryDate) throws TramchesterException {
 
-        List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).collect(Collectors.toList());
+        List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id).get()).collect(Collectors.toList());
 
         List<StationWalk> toStarts = starts.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
-        Station end = stationRepository.getStation(endId);
+        Station end = stationRepository.getStation(endId).get();
         return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate);
     }
 

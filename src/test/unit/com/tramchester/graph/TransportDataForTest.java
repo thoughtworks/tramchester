@@ -115,7 +115,7 @@ public class TransportDataForTest implements TransportData, StationRepository {
     }
 
     @Override
-    public Station getStation(String stationId) {
-        return stationMap.get(stationId);
+    public Optional<Station> getStation(String stationId) {
+        return Optional.of(stationMap.get(stationId));
     }
 }

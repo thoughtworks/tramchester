@@ -43,9 +43,9 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         createSimpleRawJourney(7, 9, AM8);
 
-        EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
-        EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
-        EasyMock.expect(transportData.getStation("stationC")).andStubReturn(stationC);
+        EasyMock.expect(transportData.getStation("stationA")).andStubReturn(Optional.of(stationA));
+        EasyMock.expect(transportData.getStation("stationB")).andStubReturn(Optional.of(stationB));
+        EasyMock.expect(transportData.getStation("stationC")).andStubReturn(Optional.of(stationC));
 
         Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(new LocalTime(8,2), new LocalTime(8,9), "svcId",
                 "headSign", "tripIdA"));
@@ -80,9 +80,9 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         createSimpleRawJourney(4, 9, AM8);
 
-        EasyMock.expect(transportData.getStation("stationA")).andStubReturn(stationA);
-        EasyMock.expect(transportData.getStation("stationB")).andStubReturn(stationB);
-        EasyMock.expect(transportData.getStation("stationC")).andStubReturn(stationC);
+        EasyMock.expect(transportData.getStation("stationA")).andStubReturn(Optional.of(stationA));
+        EasyMock.expect(transportData.getStation("stationB")).andStubReturn(Optional.of(stationB));
+        EasyMock.expect(transportData.getStation("stationC")).andStubReturn(Optional.of(stationC));
 
         Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(new LocalTime(8,3), new LocalTime(8,7),
                 "svcId", "headSign", "tripIdA"));

@@ -68,7 +68,7 @@ public class MapTransportRelationshipsToStages {
                     String routeName = boardNode.getRouteName();
                     String routeId = boardNode.getRouteId();
                     String tramRouteClass = routeIdToClass.map(routeId);
-                    currentStage = new RawVehicleStage(stationRepository.getStation(firstStationId), routeName,
+                    currentStage = new RawVehicleStage(stationRepository.getStation(firstStationId).get(), routeName,
                             transportRelationship.getMode(), tramRouteClass);
                     currentStage.setServiceId(serviceId);
                 }
@@ -77,7 +77,7 @@ public class MapTransportRelationshipsToStages {
                 String stationName = secondNode.getName();
                 logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
                         elapsedTime));
-                currentStage.setLastStation(stationRepository.getStation(endNodeId));
+                currentStage.setLastStation(stationRepository.getStation(endNodeId).get());
                 currentStage.setCost(totalCost-serviceStart);
                 serviceStart = 0;
                 stages.add(currentStage);
@@ -90,11 +90,11 @@ public class MapTransportRelationshipsToStages {
                     QueryNode queryNode = (QueryNode) firstNode;
                     begin = new MyLocation(queryNode.getLatLon());
                 } else {
-                    begin = stationRepository.getStation(firstNode.getId());
+                    begin = stationRepository.getStation(firstNode.getId()).get();
                 }
 
                 StationNode dest = (StationNode) secondNode;
-                Location destStation = stationRepository.getStation(dest.getId());
+                Location destStation = stationRepository.getStation(dest.getId()).get();
                 RawWalkingStage walkingStage = new RawWalkingStage(begin, destStation, cost);
                 logger.info("Adding walk " + walkingStage);
                 stages.add(walkingStage);

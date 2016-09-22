@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -52,7 +53,7 @@ public class StationResource {
     @GET
     @Timed
     public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
-        logger.info("Get all stations");
+        logger.info("Get all stations with cookie " + tranchesterRecent);
 
         String recentId = (tranchesterRecent==null) ? "" : tranchesterRecent.getValue();
 
@@ -62,8 +63,10 @@ public class StationResource {
                 collect(Collectors.toList());
 
         if (!recentId.isEmpty()) {
-            Station recentStation = stationRepository.getStation(recentId);
-            displayStations.add(new DisplayStation(recentStation, SpatialService.RECENT_GROUP));
+            Optional<Station> recentStation = stationRepository.getStation(recentId);
+            recentStation.ifPresent(station -> {
+                displayStations.add(new DisplayStation(station, SpatialService.RECENT_GROUP));
+            });
         }
 
         Response response = Response.ok(displayStations).build();
@@ -95,9 +98,9 @@ public class StationResource {
     @Path("/{id}")
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
-        Location station = stationRepository.getStation(id);
-        if (station!=null) {
-            return Response.ok(station).build();
+        Optional<Station> station = stationRepository.getStation(id);
+        if (station.isPresent()) {
+            return Response.ok(station.get()).build();
         }
         else {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -109,17 +112,19 @@ public class StationResource {
     @Path("/{lat}/{lon}")
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
-        logger.info(format("Get station at %s,%s ", lat, lon));
-
-        String recentId = (tranchesterRecent==null) ? "" : tranchesterRecent.getValue();
+        logger.info(format("Get station at %s,%s with cookie ", lat, lon, tranchesterRecent));
 
         LatLong latLong = new LatLong(lat,lon);
         List<DisplayStation> orderedStations = spatialService.reorderNearestStations(latLong, getStations());
 
+        String recentId = (tranchesterRecent==null) ? "" : tranchesterRecent.getValue();
+
         if (!recentId.isEmpty()) {
-            Station recentStation = stationRepository.getStation(recentId);
-            orderedStations.remove(new DisplayStation(recentStation, SpatialService.ALL_STOPS_PROX_GROUP));
-            orderedStations.add(0, new DisplayStation(recentStation, SpatialService.RECENT_GROUP));
+            Optional<Station> recentStation = stationRepository.getStation(recentId);
+            recentStation.ifPresent(station -> {
+                orderedStations.remove(new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP));
+                orderedStations.add(0, new DisplayStation(station, SpatialService.RECENT_GROUP));
+            });
         }
 
         if (config.getShowMyLocation()) {

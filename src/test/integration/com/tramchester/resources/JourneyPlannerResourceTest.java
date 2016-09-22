@@ -43,4 +43,20 @@ public class JourneyPlannerResourceTest {
         assertEquals(start,recent.toCookie().getValue());
 
     }
+
+    @Test
+    public void shouldNotSetCookieForRecentJourneyFromMyLocation() {
+        String start = "%7B%22lat%22:53.3949553,%22lon%22:-2.3580997999999997%7D";
+        String end = Stations.ManAirport.getId();
+        String time = LocalTime.now().toString("HH:mm:00");
+        String date = LocalDate.now().toString("YYYY-MM-dd");
+        Response result = IntegrationClient.getResponse(testRule,
+                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
+                Optional.empty());
+
+        assertEquals(200, result.getStatus());
+        Map<String, NewCookie> cookies = result.getCookies();
+        NewCookie recent = cookies.get("tramchesterRecent");
+        assertTrue(recent==null);
+    }
 }

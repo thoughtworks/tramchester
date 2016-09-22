@@ -139,8 +139,9 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetStation() {
-        Location result = transportData.getStation(Stations.Altrincham.getId());
-        assertEquals("Altrincham", result.getName());
+        Optional<Station> result = transportData.getStation(Stations.Altrincham.getId());
+        assertTrue(result.isPresent());
+        assertEquals("Altrincham", result.get().getName());
     }
 
     @Test

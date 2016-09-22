@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SpatialService extends StationIndexs {
@@ -53,12 +54,12 @@ public class SpatialService extends StationIndexs {
             }
 
             for (String id : nearestStations) {
-                Station nearestStation = stationRepository.getStation(id);
-                if (nearestStation != null) {
+                Optional<Station> maybeNearestStation = stationRepository.getStation(id);
+                maybeNearestStation.ifPresent(nearestStation -> {
                     DisplayStation displayStation = new DisplayStation(nearestStation, NEAREST_STOPS);
                     reorderedStations.add(displayStation);
                     seen.add(nearestStation);
-                }
+                });
             }
 
             reorderedStations.addAll(sortedStations.stream().filter(station -> !seen.contains(station)).

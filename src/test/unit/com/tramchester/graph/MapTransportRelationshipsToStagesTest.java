@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -39,9 +40,9 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
     @Test
     public void shouldMapSimpleJourney() {
         EasyMock.expect(stationRepository.getStation("id1")).
-                andReturn(new Station("id1","area1","name1", new LatLong(0,0),true));
+                andReturn(Optional.of(new Station("id1","area1","name1", new LatLong(0,0),true)));
         EasyMock.expect(stationRepository.getStation("id6")).
-                andReturn(new Station("id6","area6","name6", new LatLong(0,0),true));
+                andReturn(Optional.of(new Station("id6","area6","name6", new LatLong(0,0),true)));
 
         List<TransportRelationship> relationships = new LinkedList<>();
         RouteStationNode boardingPoint = RouteStationNode.TestOnly("id2", "routeNameA", "routeIdA", "stationName1");

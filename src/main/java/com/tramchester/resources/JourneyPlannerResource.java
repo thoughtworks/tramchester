@@ -60,7 +60,11 @@ public class JourneyPlannerResource {
         try {
             int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
             JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate, minutesFromMidnight);
-            Response response = Response.ok(planRepresentation).cookie(createRecentCookie(startId)).build();
+            Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
+            if (!isFromMyLocation(startId)) {
+                responseBuilder.cookie(createRecentCookie(startId));
+            }
+            Response response = responseBuilder.build();
             return response;
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);

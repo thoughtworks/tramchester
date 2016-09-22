@@ -154,8 +154,13 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
     }
 
     @Override
-    public Station getStation(String stationId) {
-        return stations.get(stationId);
+    public Optional<Station> getStation(String stationId) {
+        if (stations.containsKey(stationId)) {
+            return Optional.of(stations.get(stationId));
+        } else {
+            logger.warn("Unable to find station with ID:"+stationId);
+            return Optional.empty();
+        }
     }
 
     public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation,
