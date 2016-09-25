@@ -60,5 +60,8 @@ public abstract class TramchesterConfig extends Configuration {
 
     // how often to query for trams into the future from initial query tie, i.e. every 6 minutes
     public abstract int getQueryInterval();
+
+    // how many stops show in Recent on the stations dropdowns
+    public abstract int getRecentStopsToShow();
 }
 

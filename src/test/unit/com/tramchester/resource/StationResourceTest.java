@@ -1,8 +1,10 @@
 package com.tramchester.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
+import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.resources.StationResource;
 import com.tramchester.services.SpatialService;
@@ -26,6 +28,7 @@ public class StationResourceTest {
     private static final TransportDataFromFiles transportData = new TransportDataBuilder().build();
     private static final SpatialService spatialService = mock(SpatialService.class);
     private static final List<String> closedStations = asList("St Peters Square");
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private static TramchesterConfig testConfig = new TestConfig() {
         @Override
@@ -33,31 +36,12 @@ public class StationResourceTest {
             return null;
         }
 
-        @Override
-        public String getGraphName() {
-            return null;
-        }
-
-        @Override
-        public Set<String> getAgencies() {
-            return null;
-        }
-
-        @Override
-        public boolean getAddWalkingRoutes() {
-            return true;
-        }
-
-        @Override
-        public boolean getCreateLocality() {
-            return false;
-        }
     };
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new StationResource(transportData, spatialService,
-                    new ClosedStations(closedStations), testConfig))
+                    new ClosedStations(closedStations), testConfig, new UpdateRecentJourneys(testConfig), objectMapper))
             .build();
 
     @Test

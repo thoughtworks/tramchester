@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -12,12 +13,9 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +24,8 @@ import static java.lang.String.format;
 
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
-public class JourneyPlannerResource {
+public class JourneyPlannerResource extends UsesRecentCookie{
+
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
     private final TramchesterConfig config;
     private LocationToLocationJourneyPlanner locToLocPlanner;
@@ -37,7 +36,9 @@ public class JourneyPlannerResource {
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
                                   JourneyResponseMapper journeyResponseMapper, TramchesterConfig config,
-                                  LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes) {
+                                  LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes,
+                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper) {
+        super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
         this.journeyResponseMapper = journeyResponseMapper;
@@ -51,7 +52,8 @@ public class JourneyPlannerResource {
     public Response quickestRoute(@QueryParam("start") String startId,
                                   @QueryParam("end") String endId,
                                   @QueryParam("departureTime") String departureTime,
-                                  @QueryParam("departureDate") String departureDate){
+                                  @QueryParam("departureDate") String departureDate,
+                                  @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie){
         logger.info(format("Plan journey from %s to %s at %s on %s", startId, endId,departureTime, departureDate));
 
         LocalDate date = new LocalDate(departureDate);
@@ -62,10 +64,10 @@ public class JourneyPlannerResource {
             JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate, minutesFromMidnight);
             Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
             if (!isFromMyLocation(startId)) {
-                responseBuilder.cookie(createRecentCookie(startId));
+                logger.info("Updating recent stations cookie with "+startId);
+                responseBuilder.cookie(createRecentCookie(startId,cookie));
             }
-            Response response = responseBuilder.build();
-            return response;
+            return responseBuilder.build();
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);
         } catch(Exception exception) {
@@ -73,10 +75,6 @@ public class JourneyPlannerResource {
         }
 
         return Response.serverError().build();
-    }
-
-    private NewCookie createRecentCookie(String fromId) {
-        return new NewCookie(StationResource.TRAMCHESTER_RECENT, fromId);
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId,

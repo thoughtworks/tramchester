@@ -1,6 +1,8 @@
 package com.tramchester;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.FetchInstanceMetadata;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
@@ -14,6 +16,7 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.CreateQueryTimes;
+import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -76,6 +79,10 @@ public class Dependencies {
         picoContainer.addComponent(TramJourneyResponseMapper.class);
 
         picoContainer.addComponent(RouteCodeToClassMapper.class);
+        picoContainer.addComponent(UpdateRecentJourneys.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        picoContainer.addComponent(objectMapper);
 
         TransportDataReader dataReader = new TransportDataReader(dataPath);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);

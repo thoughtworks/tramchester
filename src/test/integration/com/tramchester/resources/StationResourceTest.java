@@ -1,14 +1,22 @@
 package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.google.common.collect.Sets;
 import com.tramchester.*;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.RecentJourneys;
+import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.DisplayStation;
+import org.joda.time.DateTime;
 import org.junit.*;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +27,13 @@ public class StationResourceTest {
 
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+
+    ObjectMapper mapper = new ObjectMapper();
+
+    @Before
+    public void beforeEachTestRuns() {
+        mapper.registerModule(new JodaModule());
+    }
 
     @Test
     public void shouldGetNearestStations() throws Exception {
@@ -73,9 +88,13 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldReturnRecentStationsGroupIfCookieSet() {
+    public void shouldReturnRecentStationsGroupIfCookieSet() throws JsonProcessingException, UnsupportedEncodingException {
         Location alty = Stations.Altrincham;
-        Optional<Cookie> cookie = Optional.of(new Cookie("tramchesterRecent",alty.getId()));
+        RecentJourneys recentJourneys = new RecentJourneys();
+        recentJourneys.setTimestamps(Sets.newHashSet(new Timestamped(alty.getId(), DateTime.now())));
+
+        String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
+        Optional<Cookie> cookie = Optional.of(new Cookie("tramchesterRecent", recentAsString));
 
         List<DisplayStation> stations = getAll(cookie);
 

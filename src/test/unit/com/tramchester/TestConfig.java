@@ -101,4 +101,9 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public int getQueryInterval() { return 6; }
+
+    @Override
+    public int getRecentStopsToShow() {
+        return 3;
+    }
 }

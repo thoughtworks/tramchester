@@ -75,6 +75,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("queryInterval")
     private int queryInterval;
 
+    @JsonProperty("recentStopsToShow")
+    private int recentStopsToShow;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -102,6 +105,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getQueryInterval() {
         return queryInterval;
+    }
+
+    @Override
+    public int getRecentStopsToShow() {
+        return recentStopsToShow;
     }
 
     @Override

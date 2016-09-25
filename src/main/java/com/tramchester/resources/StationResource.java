@@ -5,8 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.Location;
+import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DisplayStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.StationClosureMessage;
@@ -29,24 +30,24 @@ import static java.lang.String.format;
 
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationResource {
+public class StationResource extends UsesRecentCookie {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
-    public static final String TRAMCHESTER_RECENT = "tramchesterRecent";
 
     private List<Station> allStationsSorted;
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
     private final TramchesterConfig config;
-    private final ObjectMapper mapper;
     private final StationRepository stationRepository;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
-                           ClosedStations closedStations, TramchesterConfig config) {
+                           ClosedStations closedStations, TramchesterConfig config,
+                           UpdateRecentJourneys updateRecentJourneys,
+                           ObjectMapper mapper) {
+        super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.config = config;
         this.stationRepository = transportData;
-        mapper = new ObjectMapper();
         allStationsSorted = new LinkedList<>();
     }
 
@@ -55,19 +56,18 @@ public class StationResource {
     public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info("Get all stations with cookie " + tranchesterRecent);
 
-        String recentId = (tranchesterRecent==null) ? "" : tranchesterRecent.getValue();
+        RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
         List<DisplayStation> displayStations = getStations().stream().
-                filter(station -> !station.getId().equals(recentId)).
+                filter(station -> !recentJourneys.contains(station.getId())).
                 map(station -> new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP)).
                 collect(Collectors.toList());
 
-        if (!recentId.isEmpty()) {
-            Optional<Station> recentStation = stationRepository.getStation(recentId);
-            recentStation.ifPresent(station -> {
-                displayStations.add(new DisplayStation(station, SpatialService.RECENT_GROUP));
-            });
-        }
+        recentJourneys.getFrom().forEach(recent -> {
+            logger.info("Adding recent station to list " + recent);
+            Optional<Station> recentStation = stationRepository.getStation(recent.getId());
+            recentStation.ifPresent(station -> displayStations.add(new DisplayStation(station, SpatialService.RECENT_GROUP)));
+        });
 
         Response response = Response.ok(displayStations).build();
         return response;
@@ -117,15 +117,16 @@ public class StationResource {
         LatLong latLong = new LatLong(lat,lon);
         List<DisplayStation> orderedStations = spatialService.reorderNearestStations(latLong, getStations());
 
-        String recentId = (tranchesterRecent==null) ? "" : tranchesterRecent.getValue();
+        RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
-        if (!recentId.isEmpty()) {
-            Optional<Station> recentStation = stationRepository.getStation(recentId);
+        recentJourneys.getFrom().forEach(recent -> {
+            Optional<Station> recentStation = stationRepository.getStation(recent.getId());
             recentStation.ifPresent(station -> {
                 orderedStations.remove(new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP));
                 orderedStations.add(0, new DisplayStation(station, SpatialService.RECENT_GROUP));
             });
-        }
+        });
+
 
         if (config.getShowMyLocation()) {
             logger.info("Showing users location in stations list");
@@ -141,4 +142,5 @@ public class StationResource {
     private String formId(double lat, double lon) throws JsonProcessingException {
         return mapper.writeValueAsString(new LatLong(lat, lon));
     }
+
 }
