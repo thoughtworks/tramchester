@@ -47,7 +47,9 @@ techLabApp.controller('RoutePlannerController',
         };
 
         $scope.groupFilter = function (item) {
-            return item.proximityGroup === 'Nearest Stops' || item.proximityGroup === 'All Stops';
+            return item.proximityGroup === 'Nearest Stops'
+                || item.proximityGroup === 'All Stops'
+                || item.proximityGroup === 'Recent';
         };
 
         if (navigator.geolocation) {

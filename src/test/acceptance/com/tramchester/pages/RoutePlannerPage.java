@@ -1,6 +1,7 @@
 package com.tramchester.pages;
 
 
+import com.tramchester.Stations;
 import org.joda.time.LocalDate;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoutePlannerPage extends Page {
-    long timeoutInSeconds = 30;
+    private long timeoutInSeconds = 30;
     private String toStop = "toStop";
     private String fromStop = "fromStop";
 
@@ -62,13 +63,13 @@ public class RoutePlannerPage extends Page {
         return driver.findElements(By.xpath(expression));
     }
 
-    private String optionGroupExpression(String id) {
-        return String.format("//select[@id='%s']/optgroup[@label='Recent']/option", id);
-    }
-
     public List<WebElement> getRecentToStops() {
         String expression = optionGroupExpression(toStop);
         return driver.findElements(By.xpath(expression));
+    }
+
+    private String optionGroupExpression(String id) {
+        return String.format("//select[@id='%s']/optgroup[@label='Recent']/option", id);
     }
 
     public RouteDetailsPage submit() {
@@ -81,7 +82,7 @@ public class RoutePlannerPage extends Page {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(fromStop)));
         WebElement fromStopElement = findElementById(fromStop);
-        wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, "Altrincham"));
+        wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.Altrincham.getName()));
     }
 
     public List<String> getToStops() {

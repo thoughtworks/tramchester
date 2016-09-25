@@ -89,15 +89,17 @@ public class UserJourneyTest extends UserJourneys {
         assertEquals(altrincham,plannerPage.getFromStop());
         assertEquals(Stations.Bury.getName(),plannerPage.getToStop());
         assertEquals("10:15",plannerPage.getTime());
+
         // check recents are set
         List<WebElement> recentFrom = plannerPage.getRecentFromStops();
         assertEquals(1, recentFrom.size());
         assertEquals(altrincham,recentFrom.get(0).getText());
         //
-        // TODO
-//        List<WebElement> recentTo = plannerPage.getRecentToStops();
-//        assertEquals(1, recentTo.size());
-//        assertEquals(altrincham,recentTo.get(0).getText());
+        // Need to select an element other than alty for 'from' recent stops to show in 'to'
+        plannerPage.setFromStop(Stations.Ashton.getName());
+        List<WebElement> recentTo = plannerPage.getRecentToStops();
+        assertEquals(1, recentTo.size());
+        assertEquals(altrincham,recentTo.get(0).getText());
     }
 
     @Test
