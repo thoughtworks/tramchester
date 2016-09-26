@@ -8,6 +8,7 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.JourneyPlanRepresentation;
 import com.tramchester.repository.TransportData;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.Timeout;
@@ -15,13 +16,14 @@ import org.junit.rules.Timeout;
 import java.io.IOException;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
 public class TramJourneyPlannerAllStationsTest extends JourneyPlannerHelper {
 
     private static Dependencies dependencies;
-    private TramServiceDate today;
+    private LocalDate when;
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10*60);
@@ -34,7 +36,7 @@ public class TramJourneyPlannerAllStationsTest extends JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
-        today = new TramServiceDate(LocalDate.now());
+        when = nextMonday();
         planner = dependencies.get(JourneyPlannerResource.class);
     }
 
@@ -54,7 +56,7 @@ public class TramJourneyPlannerAllStationsTest extends JourneyPlannerHelper {
                 String endCode = end.getId();
                 if (!startCode.equals(endCode)) {
                     JourneyPlanRepresentation results = planner.createJourneyPlan(startCode, endCode,
-                            today,12*60);
+                            new TramServiceDate(when),12*60);
                     assertTrue(results.getJourneys().size() > 0);
                 }
             }
