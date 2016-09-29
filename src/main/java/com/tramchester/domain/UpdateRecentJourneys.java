@@ -22,10 +22,10 @@ public class UpdateRecentJourneys {
         this.limit = config.getRecentStopsToShow();
     }
 
-    public RecentJourneys processFrom(RecentJourneys recentJourneys, String fromId) {
-        Timestamped timestamped = new Timestamped(fromId, DateTime.now());
+    public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, String stationId) {
+        Timestamped timestamped = new Timestamped(stationId, DateTime.now());
         Set<Timestamped> from = new HashSet<>();
-        from.addAll(recentJourneys.getFrom());
+        from.addAll(recentJourneys.getRecentIds());
         if (from.contains(timestamped)) {
             from.remove(timestamped);
         } else if (from.size()>=limit) {

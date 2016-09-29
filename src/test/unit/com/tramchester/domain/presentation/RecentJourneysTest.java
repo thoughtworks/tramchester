@@ -20,9 +20,9 @@ public class RecentJourneysTest {
         RecentJourneys recentJourneys = new RecentJourneys();
         Timestamped timestamped = new Timestamped("id", DateTime.now());
         HashSet<Timestamped> set = Sets.newHashSet(timestamped);
-        recentJourneys.setFrom(set);
+        recentJourneys.setRecentIds(set);
 
-        assertEquals(set, recentJourneys.getFrom());
+        assertEquals(set, recentJourneys.getRecentIds());
     }
 
     @Test
@@ -30,7 +30,7 @@ public class RecentJourneysTest {
         RecentJourneys recentJourneys = new RecentJourneys();
         Timestamped timestamped = new Timestamped("id", DateTime.now());
         HashSet<Timestamped> set = Sets.newHashSet(timestamped);
-        recentJourneys.setFrom(set);
+        recentJourneys.setRecentIds(set);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());

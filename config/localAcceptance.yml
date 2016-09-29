@@ -29,7 +29,7 @@ nearestStopRangeKM: 2
 numOfNearestStops: 5
 walkingMPH: 3
 addWalkingRoutes: false
-recentStopsToShow: 3
+recentStopsToShow: 5
 
 createLocality: false
 

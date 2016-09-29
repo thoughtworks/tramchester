@@ -13,6 +13,8 @@ import javax.ws.rs.core.NewCookie;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import static java.lang.String.format;
+
 public class UsesRecentCookie {
     private static final Logger logger = LoggerFactory.getLogger(UsesRecentCookie.class);
 
@@ -40,10 +42,18 @@ public class UsesRecentCookie {
         }
     }
 
-
-    protected NewCookie createRecentCookie(String fromId, Cookie cookie) throws UnsupportedEncodingException, JsonProcessingException {
+    protected NewCookie createRecentCookie(Cookie cookie, String fromId, String endId) throws UnsupportedEncodingException, JsonProcessingException {
+        logger.info(format("Updating recent stations cookie with %s and %s ",fromId, endId));
         RecentJourneys recentJourneys = recentFromCookie(cookie);
-        recentJourneys = updateRecentJourneys.processFrom(recentJourneys,fromId);
+        if (!isFromMyLocation(fromId)) {
+            recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, fromId);
+        }
+        recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys,endId);
         return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper,recentJourneys));
+    }
+
+    protected boolean isFromMyLocation(String startId) {
+        // euk!
+        return startId.startsWith("{") && startId.endsWith("}");
     }
 }

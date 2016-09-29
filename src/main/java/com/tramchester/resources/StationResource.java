@@ -63,7 +63,7 @@ public class StationResource extends UsesRecentCookie {
                 map(station -> new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP)).
                 collect(Collectors.toList());
 
-        recentJourneys.getFrom().forEach(recent -> {
+        recentJourneys.getRecentIds().forEach(recent -> {
             logger.info("Adding recent station to list " + recent);
             Optional<Station> recentStation = stationRepository.getStation(recent.getId());
             recentStation.ifPresent(station -> displayStations.add(new DisplayStation(station, SpatialService.RECENT_GROUP)));
@@ -119,7 +119,7 @@ public class StationResource extends UsesRecentCookie {
 
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
-        recentJourneys.getFrom().forEach(recent -> {
+        recentJourneys.getRecentIds().forEach(recent -> {
             Optional<Station> recentStation = stationRepository.getStation(recent.getId());
             recentStation.ifPresent(station -> {
                 orderedStations.remove(new DisplayStation(station, SpatialService.ALL_STOPS_PROX_GROUP));

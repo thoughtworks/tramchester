@@ -24,7 +24,7 @@ import static java.lang.String.format;
 
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
-public class JourneyPlannerResource extends UsesRecentCookie{
+public class JourneyPlannerResource extends UsesRecentCookie {
 
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
     private final TramchesterConfig config;
@@ -63,10 +63,7 @@ public class JourneyPlannerResource extends UsesRecentCookie{
             int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
             JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate, minutesFromMidnight);
             Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
-            if (!isFromMyLocation(startId)) {
-                logger.info("Updating recent stations cookie with "+startId);
-                responseBuilder.cookie(createRecentCookie(startId,cookie));
-            }
+            responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
             return responseBuilder.build();
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);
@@ -91,11 +88,6 @@ public class JourneyPlannerResource extends UsesRecentCookie{
         }
         logger.info("number of journeys: " + journeys.size());
         return journeyResponseMapper.map(journeys, config.getTimeWindow());
-    }
-
-    private boolean isFromMyLocation(String startId) {
-        // euk!
-        return startId.startsWith("{") && startId.endsWith("}");
     }
 
 }

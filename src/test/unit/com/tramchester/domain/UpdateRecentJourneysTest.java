@@ -28,9 +28,9 @@ public class UpdateRecentJourneysTest {
         RecentJourneys recentJourneys = new RecentJourneys();
         recentJourneys.setTimestamps(ts("id1","id2"));
 
-        RecentJourneys updated = updater.processFrom(recentJourneys, altyId);
+        RecentJourneys updated = updater.createNewJourneys(recentJourneys, altyId);
 
-        Set<Timestamped> from = updated.getFrom();
+        Set<Timestamped> from = updated.getRecentIds();
         assertEquals(3, from.size());
         assertTrue(from.containsAll(ts("id1","id2",altyId)));
     }
@@ -40,8 +40,8 @@ public class UpdateRecentJourneysTest {
         RecentJourneys recentJourneys = new RecentJourneys();
         recentJourneys.setTimestamps(ts("id1","id2","id3"));
 
-        RecentJourneys updated = updater.processFrom(recentJourneys, "id2");
-        Set<Timestamped> from = updated.getFrom();
+        RecentJourneys updated = updater.createNewJourneys(recentJourneys, "id2");
+        Set<Timestamped> from = updated.getRecentIds();
         assertEquals(3, from.size());
         assertTrue(from.containsAll(ts("id1","id2","id3")));
     }
@@ -50,24 +50,24 @@ public class UpdateRecentJourneysTest {
     public void shouldRemoveOldestWhenLimitReached() throws InterruptedException {
         RecentJourneys recentJourneys = new RecentJourneys();
         recentJourneys.setTimestamps(Sets.newHashSet());
-        RecentJourneys updated = updater.processFrom(recentJourneys, "id4");
+        RecentJourneys updated = updater.createNewJourneys(recentJourneys, "id4");
         Thread.sleep(2);
         updated = updateWithPause(updated, "id3");
         updated = updateWithPause(updated, "id2");
         updated = updateWithPause(updated, "id1");
 
-        Set<Timestamped> from = updated.getFrom();
+        Set<Timestamped> from = updated.getRecentIds();
         assertEquals(3, from.size());
         assertTrue(from.containsAll(ts("id1", "id2", "id3")));
 
         updated = updateWithPause(updated, "id5");
-        from = updated.getFrom();
+        from = updated.getRecentIds();
         assertEquals(3, from.size());
         assertTrue(from.containsAll(ts("id1", "id2", "id5")));
     }
 
     private RecentJourneys updateWithPause(RecentJourneys updated, String id1) throws InterruptedException {
-        updated = updater.processFrom(updated, id1);
+        updated = updater.createNewJourneys(updated, id1);
         Thread.sleep(2);
         return updated;
     }

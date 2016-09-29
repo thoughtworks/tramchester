@@ -31,15 +31,15 @@ public class RecentJourneys {
 
     @JsonIgnore
     public RecentJourneys setTimestamps(Set<Timestamped> timestamps) {
-        setFrom(timestamps);
+        setRecentIds(timestamps);
         return this;
     }
 
-    public void setFrom(Set<Timestamped> timestamps) {
+    public void setRecentIds(Set<Timestamped> timestamps) {
         this.timestamps = timestamps;
     }
 
-    public Set<Timestamped> getFrom() {
+    public Set<Timestamped> getRecentIds() {
         return timestamps;
     }
 
