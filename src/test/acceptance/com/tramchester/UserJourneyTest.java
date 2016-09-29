@@ -92,14 +92,12 @@ public class UserJourneyTest extends UserJourneys {
 
         // check recents are set
         List<WebElement> recentFrom = plannerPage.getRecentFromStops();
-        assertEquals(1, recentFrom.size());
-        assertEquals(altrincham,recentFrom.get(0).getText());
+        assertEquals(2, recentFrom.size());
         //
         // Need to select an element other than alty for 'from' recent stops to show in 'to'
         plannerPage.setFromStop(Stations.Ashton.getName());
         List<WebElement> recentTo = plannerPage.getRecentToStops();
-        assertEquals(1, recentTo.size());
-        assertEquals(altrincham,recentTo.get(0).getText());
+        assertEquals(2, recentTo.size());
     }
 
     @Test
