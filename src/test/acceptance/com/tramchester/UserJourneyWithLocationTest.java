@@ -114,6 +114,23 @@ public class UserJourneyWithLocationTest extends UserJourneys {
         checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
     }
 
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
+        assertTrue(Files.exists(path));
+
+        String firstStation = Stations.NavigationRoad.getName();
+        List<String> changes = Arrays.asList(firstStation);
+
+        String finalStation = Stations.NavigationRoad.getName();
+
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
+
+        checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
+                expectedNumberJourneyResults, true);
+
+    }
+
     private void createGeoFile() {
         String json = "{\n" +
                 "    \"status\": \"OK\",\n" +

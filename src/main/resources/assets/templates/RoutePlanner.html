@@ -15,7 +15,7 @@
                         <select id="fromStop"
                                 ng-model="fromStop"
                                 required
-                                ng-options="stop.id as stop.name group by stop.proximityGroup for stop in stops"
+                                ng-options="stop.id as stop.name group by stop.proximityGroup.name for stop in stops | orderBy:['proximityGroup.order']"
                                 ng-show="stops.length"
                                 class="form-control input-lg"
                                 ng-change="fromStopSelected()">
@@ -31,7 +31,7 @@
                         <select id="toStop"
                                 ng-model="toStop"
                                 required
-                                ng-options="stop.id as stop.name group by stop.proximityGroup for stop in endStops | filter: groupFilter"
+                                ng-options="stop.id as stop.name group by stop.proximityGroup.name for stop in endStops | filter: groupFilter | orderBy:['proximityGroup.order']"
                                 ng-show="endStops.length"
                                 class="form-control input-lg">
                             <option value="">- Please select stop -</option>

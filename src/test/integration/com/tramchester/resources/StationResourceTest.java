@@ -9,6 +9,7 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.DisplayStation;
+import com.tramchester.domain.presentation.ProximityGroup;
 import org.joda.time.DateTime;
 import org.junit.*;
 
@@ -16,7 +17,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,12 +39,12 @@ public class StationResourceTest {
     public void shouldGetNearestStations() throws Exception {
         List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
-        Map<String, Long> stationGroups = stations.stream()
+        Map<ProximityGroup, Long> stationGroups = stations.stream()
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
 
-        assertTrue(stationGroups.get("Nearest Stops") > 0);
+        assertTrue(stationGroups.get(ProximityGroup.NEAREST_STOPS) > 0);
         int ALL_STOPS_START = 7; // 6 + 1
-        assertEquals("All Stops", stations.get(ALL_STOPS_START).getProximityGroup());
+        assertEquals(ProximityGroup.ALL, stations.get(ALL_STOPS_START).getProximityGroup());
         assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
         assertEquals("Altrincham", stations.get(ALL_STOPS_START+1).getName());
 
@@ -55,11 +55,11 @@ public class StationResourceTest {
         List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
         DisplayStation station = stations.get(0);
-        assertEquals("Nearby", station.getProximityGroup());
+        assertEquals(ProximityGroup.MY_LOCATION, station.getProximityGroup());
         assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getId());
         assertEquals("My Location", station.getName());
         // the nearest stops show come next
-        assertEquals("Nearest Stops", stations.get(1).getProximityGroup());
+        assertEquals(ProximityGroup.NEAREST_STOPS, stations.get(1).getProximityGroup());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class StationResourceTest {
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
 
-        stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo("All Stops"));
+        stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo(ProximityGroup.ALL));
     }
 
     @Test
@@ -100,13 +100,13 @@ public class StationResourceTest {
 
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         assertEquals(1, stations.size());
-        assertEquals("Recent", stations.get(0).getProximityGroup());
+        assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
 
         stations = getNearest(53.4804263d, -2.2392436d, cookie);
 
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         assertEquals(1, stations.size());
-        assertEquals("Recent", stations.get(0).getProximityGroup());
+        assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
     }
 
     private List<DisplayStation> getNearest(double lat, double lon, Optional<Cookie> cookie) {

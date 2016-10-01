@@ -72,6 +72,18 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldGiveWalkingRouteFromMyLocationToNearbyStop() throws JsonProcessingException, TramchesterException {
+        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Altrincham.getId(), (22 * 60) + 9);
+        assertEquals(1, journeys.size());
+        Journey first = journeys.first();
+
+        List<PresentableStage> stages = first.getStages();
+        assertEquals(1, stages.size());
+        PresentableStage walkingStage = stages.get(0);
+        assertEquals(new LocalTime(22,9), walkingStage.getFirstDepartureTime());
+    }
+
+    @Test
     public void shouldFindStationsNearPiccGardensWalkingOnly() throws JsonProcessingException, TramchesterException {
         SortedSet<Journey> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadillyGardens.getId(), 9 * 60);
         assertEquals(1, journeys.size());

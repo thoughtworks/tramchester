@@ -173,7 +173,12 @@ public class Journey implements Comparable<Journey> {
 
     public Location getBegin() {
         if (firstStageIsWalk()) {
-            return allStages.get(1).getFirstStation();
+            if (allStages.size()>1) {
+                // the first station
+                return allStages.get(1).getFirstStation();
+            } else {
+                return allStages.get(0).getFirstStation();
+            }
         }
         return getFirstStage().getFirstStation();
     }

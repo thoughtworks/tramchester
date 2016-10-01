@@ -1,6 +1,9 @@
 package com.tramchester.domain.presentation;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import org.junit.Ignore;
@@ -130,6 +133,20 @@ public class JourneyTest {
 
         assertEquals("Change at Deansgate-Castlefield and Market Street", journey.getSummary());
         assertEquals("Tram and Walk with 2 changes - 12 minutes", journey.getHeading());
+    }
+
+    @Test
+    public void reproduceIssueWithJourneyWithJustWalking() throws JsonProcessingException {
+        List<PresentableStage> stages = new LinkedList<>();
+        MyLocation start = new MyLocation(new LatLong(1, 2));
+        RawWalkingStage rawWalkingStage = new RawWalkingStage(start, Stations.Altrincham, 8*60);
+        stages.add(new WalkingStage(rawWalkingStage, 8*60));
+        Journey journey = new Journey(stages);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+
+        objectMapper.writeValueAsString(journey);
     }
 
     @Test

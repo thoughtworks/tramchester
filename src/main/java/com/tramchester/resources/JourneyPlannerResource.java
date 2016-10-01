@@ -64,7 +64,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate, minutesFromMidnight);
             Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
             responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
-            return responseBuilder.build();
+            Response response = responseBuilder.build();
+            return response;
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);
         } catch(Exception exception) {

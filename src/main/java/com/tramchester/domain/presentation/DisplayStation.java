@@ -4,18 +4,18 @@ package com.tramchester.domain.presentation;
 import com.tramchester.domain.Station;
 
 public class DisplayStation extends Station {
-    private String proximityGroup;
+    private ProximityGroup proximityGroup;
 
     public DisplayStation() {
         // deserialization
     }
 
-    public DisplayStation(Station other, String proximityGroup) {
+    public DisplayStation(Station other, ProximityGroup proximityGroup) {
         super(other);
         this.proximityGroup = proximityGroup;
     }
 
-    public String getProximityGroup() {
+    public ProximityGroup getProximityGroup() {
         return proximityGroup;
     }
 
