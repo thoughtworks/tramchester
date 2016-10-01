@@ -68,19 +68,21 @@ public class UserJourneys {
         return capabilities;
     }
 
-    protected JourneyDetailsPage checkJourney(String url, String fromStop, String toStop, LocalDate date, String time, List<String> changes,
-                                              List<String> headSigns, boolean embeddedWalk, int expectedJourneys, int selectedJourney) throws InterruptedException {
+    protected JourneyDetailsPage checkJourney(String url, String fromStop, String toStop, LocalDate date, String time,
+                                              List<String> changes,
+                                              List<String> headSigns, boolean embeddedWalk, int expectedJourneys,
+                                              int selectedJourney, boolean onlyWalk) throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, fromStop, toStop, date, time);
-        checkDetailsAndJourneysPresent(routeDetailsPage, fromStop, toStop, changes, embeddedWalk, expectedJourneys, false);
+        checkDetailsAndJourneysPresent(routeDetailsPage, fromStop, toStop, changes, embeddedWalk, expectedJourneys, false, onlyWalk);
         return checkJourneyDetailsPage(routeDetailsPage, fromStop, toStop, changes, headSigns, selectedJourney);
 
     }
 
     protected void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, String fromStop, String toStop,
                                                   List<String> changes, boolean embeddedWalk,
-                                                  int expectedJourneys, boolean startsWithWalk) {
-        checkRoutes(routeDetailsPage, fromStop, toStop, changes, embeddedWalk, startsWithWalk);
+                                                  int expectedJourneys, boolean startsWithWalk, boolean onlyWalk) {
+        checkRoutes(routeDetailsPage, fromStop, toStop, changes, embeddedWalk, startsWithWalk, onlyWalk);
 
         for(int i=0;i<expectedJourneys; i++) {
             assertTrue("Check for journey "+i,routeDetailsPage.journeyPresent(i));
@@ -100,7 +102,7 @@ public class UserJourneys {
     }
 
     protected void checkRoutes(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
-                               boolean embeddedWalk, boolean startsWithWalk) {
+                               boolean embeddedWalk, boolean startsWithWalk, boolean onlyWalk) {
         assertTrue(routeDetailsPage.waitForRoutes());
         assertTrue(routeDetailsPage.journeyPresent(0));
 
@@ -108,7 +110,7 @@ public class UserJourneys {
         String end = routeDetailsPage.getJourneyEnd(0);
         String summary = routeDetailsPage.getSummary(0);
 
-        checkHeading(routeDetailsPage, changes, embeddedWalk, startsWithWalk);
+        checkHeading(routeDetailsPage, changes, embeddedWalk, startsWithWalk, onlyWalk);
 
         String fromStationText = " from " + fromStop;
         assertThat(begin, endsWith(fromStationText));
@@ -122,23 +124,28 @@ public class UserJourneys {
         }
     }
 
-    private void checkHeading(RouteDetailsPage routeDetailsPage, List<String> changes, boolean embeddedWalk, boolean startsWithWalk) {
+    private void checkHeading(RouteDetailsPage routeDetailsPage, List<String> changes, boolean embeddedWalk,
+                              boolean startsWithWalk, boolean onlyWalk) {
         String heading = routeDetailsPage.getJourneyHeading(0);
 
         String plural = (changes.size() == 1) ? "" : "s";
 
         String expectedHeading;
-        if (noChanges(changes, startsWithWalk)) {
-            expectedHeading = "Tram with No Changes - ";
+        if (onlyWalk) {
+            expectedHeading = "Walk with No Changes -";
         } else {
-            if (embeddedWalk) {
-                expectedHeading = format("Tram and Walk with %s change%s - ", changes.size(), plural);
+            if (noChanges(changes, startsWithWalk)) {
+                expectedHeading = "Tram with No Changes - ";
             } else {
-                expectedHeading = format("Tram with %s change%s - ", changes.size(), plural);
+                if (embeddedWalk) {
+                    expectedHeading = format("Tram and Walk with %s change%s - ", changes.size(), plural);
+                } else {
+                    expectedHeading = format("Tram with %s change%s - ", changes.size(), plural);
+                }
             }
-        }
-        if (startsWithWalk && !embeddedWalk) {
-            expectedHeading = "Walk and " + expectedHeading;
+            if (startsWithWalk && !embeddedWalk) {
+                expectedHeading = "Walk and " + expectedHeading;
+            }
         }
         assertThat(heading, startsWith(expectedHeading));
         assertThat(heading, endsWith(" minutes"));

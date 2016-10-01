@@ -82,7 +82,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Bury");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, altrincham, Stations.Bury.getName(),
-                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0);
+                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
         // check values remembered
@@ -127,7 +127,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headSigns = Arrays.asList("Cornbrook");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.ManAirport.getName(),
                 deansgate, when, "10:15", changes,
-                headSigns, false, expectedNumberJourneyResults, 0);
+                headSigns, false, expectedNumberJourneyResults, 0, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
     }
@@ -139,7 +139,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.Rochdale.getName(),
                 Stations.ManAirport.getName(), when, "10:15", changes,
-                headSigns, false, expectedNumberJourneyResults, 0);
+                headSigns, false, expectedNumberJourneyResults, 0, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
     }
@@ -153,7 +153,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headSignsBury = Arrays.asList("Bury");
 
         RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, this.deansgate,
-                when, "10:15", noChanges, headsignPiccadilly, false, expectedNumberJourneyResults, 0)
+                when, "10:15", noChanges, headsignPiccadilly, false, expectedNumberJourneyResults, 0, false)
                 .backToRouteDetails();
 
         routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, this.deansgate, noChanges, headSignsBury, 1)
@@ -172,7 +172,7 @@ public class UserJourneyTest extends UserJourneys {
         String piccadilly = Stations.PiccadillyGardens.getName();
 
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, ashton, piccadilly,
-                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0);
+                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
 
         assertTrue(journeyDetailsPage.laterTramEnabled());
         assertFalse(journeyDetailsPage.earlierTramEnabled());
@@ -216,7 +216,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headSigns = Arrays.asList("Bury");
 
         checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),
-                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0);
+                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
     }
 
     @Test
@@ -251,7 +251,7 @@ public class UserJourneyTest extends UserJourneys {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, fromStop, toStop, when, "10:15");
 
-        checkRoutes(routeDetailsPage, fromStop, toStop, changes, true, false);
+        checkRoutes(routeDetailsPage, fromStop, toStop, changes, true, false, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
 

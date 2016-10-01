@@ -76,7 +76,7 @@ public class UserJourneyWithLocationTest extends UserJourneys {
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
         checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
-                expectedNumberJourneyResults, true);
+                expectedNumberJourneyResults, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
         assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
@@ -106,7 +106,7 @@ public class UserJourneyWithLocationTest extends UserJourneys {
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
         checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
-                expectedNumberJourneyResults, true);
+                expectedNumberJourneyResults, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
         assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
@@ -119,15 +119,14 @@ public class UserJourneyWithLocationTest extends UserJourneys {
     public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
         assertTrue(Files.exists(path));
 
-        String firstStation = Stations.NavigationRoad.getName();
-        List<String> changes = Arrays.asList(firstStation);
+        List<String> changes = Arrays.asList();
 
         String finalStation = Stations.NavigationRoad.getName();
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
-        checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
-                expectedNumberJourneyResults, true);
+        checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
+                expectedNumberJourneyResults, true, true);
 
     }
 
