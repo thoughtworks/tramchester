@@ -18,8 +18,8 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 
 public class FeedInfoResourceTest {
-    public static LocalDate validFrom = new LocalDate(2016, 9, 14);
-    public static LocalDate validUntil = new LocalDate(2016,11,14);
+    public static LocalDate validFrom = new LocalDate(2016, 10, 6);
+    public static LocalDate validUntil = new LocalDate(2016,12,6);
 
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
@@ -36,7 +36,7 @@ public class FeedInfoResourceTest {
         assertEquals("http://www.tfgm.com", result.getPublisherUrl());
         assertEquals("Europe/London", result.getTimezone());
         assertEquals("en", result.getLang());
-        assertEquals("20160914", result.getVersion());
+        assertEquals(validFrom.toString("YYYYMMdd"), result.getVersion());
         assertEquals(validFrom, result.validFrom());
         assertEquals(validUntil, result.validUntil());
     }

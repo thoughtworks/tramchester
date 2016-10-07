@@ -25,7 +25,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use TramJourneyPlannerTest.
-    private final String svcDeansgateToVic = "Serv001297";
+    private final String svcDeansgateToVic = "Serv001333";
+    private String svcShawAndCrompton = "Serv004786";
+
     private Collection<Service> allServices;
 
     @BeforeClass
@@ -122,7 +124,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripsCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv004250");
+        Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertTrue(trips.isPresent());
@@ -131,7 +133,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTripCrossingMidnight() {
         // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById("Serv004250");
+        Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
         assertTrue(trips.isPresent());

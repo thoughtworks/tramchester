@@ -135,7 +135,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckRochdaleToAirportThreeStageJourney() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Victoria.getName(), "St Werburgh's Road");
+        List<String> changes = Arrays.asList("Freehold", "St Werburgh's Road");
         List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.Rochdale.getName(),
                 Stations.ManAirport.getName(), when, "10:15", changes,
