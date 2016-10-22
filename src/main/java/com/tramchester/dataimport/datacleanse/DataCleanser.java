@@ -71,6 +71,7 @@ public class DataCleanser {
                         calendarData.getEndDate().toString(DATE_FORMAT))));
 
         writer.close();
+        calendar.close();
         logger.info("**** End cleansing calendar.\n\n");
     }
 
@@ -105,6 +106,7 @@ public class DataCleanser {
                 });
 
         writer.close();
+        stopTimes.close();
         logger.info("**** End cleansing stop times.\n");
         return stopIds;
     }
@@ -127,6 +129,7 @@ public class DataCleanser {
             uniqueSvcIds.add(trip.getServiceId());
         });
         writer.close();
+        trips.close();
         logger.info("**** End cleansing trips.\n\n");
         return new ServicesAndTrips(uniqueSvcIds, tripIds);
     }
@@ -148,6 +151,7 @@ public class DataCleanser {
         });
 
         writer.close();
+        stops.close();
         logger.info("**** End cleansing stops.\n\n");
     }
 
@@ -168,6 +172,7 @@ public class DataCleanser {
                     addRoute(routeCodes, writer, route));
         }
         writer.close();
+        routes.close();
         logger.info("**** End cleansing routes.\n\n");
         return routeCodes;
     }
@@ -202,6 +207,7 @@ public class DataCleanser {
                 info.validUntil().toString(DATE_FORMAT),
                 info.getVersion())));
         writer.close();
+        feedInfo.close();
         logger.info("**** End cleansing feed info.");
 
     }

@@ -11,26 +11,42 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static org.apache.lucene.util.IOUtils.close;
 
 public class DataLoader<T> {
     private final String fileName;
     private final CSVEntryParser<T> parser;
     private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+    private Optional<Reader> reader;
+
 
     public DataLoader(String fileName, CSVEntryParser<T> parser) {
         this.fileName = fileName;
         this.parser = parser;
+        reader = Optional.empty();
     }
+
+    private void close() {
+        reader.ifPresent(r -> {
+            try {
+                r.close();
+            } catch (IOException e) {
+                logger.warn("could not close "+fileName, e);
+            }
+        });
+    }
+
 
     public Stream<T> loadAll() throws IOException {
         logger.info("Loading data from " + fileName + ".txt file.");
-        Reader reader;
         try {
-            reader = new FileReader(String.format("%s.txt", fileName));
+            reader = Optional.of(new FileReader(String.format("%s.txt", fileName)));
 
-            CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(reader)
+            CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(reader.get())
                     .entryParser(parser)
                     .strategy(CSVStrategy.UK_DEFAULT)
                     .build();
@@ -38,6 +54,8 @@ public class DataLoader<T> {
             logger.info("Finished loading data from " + fileName + ".txt file.");
 
             Stream<T> resultStream = StreamSupport.stream(csvPersonReader.spliterator(), false);
+            Runnable closeHandler = () -> close();
+            resultStream.onClose(closeHandler);
             return resultStream;
 
         } catch (FileNotFoundException e) {

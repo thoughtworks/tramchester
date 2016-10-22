@@ -26,8 +26,7 @@ public class DataCleanserTest implements TransportDataFetcher {
     private static String path = "testData";
     public static final Path INPUT = Paths.get(path, Dependencies.TFGM_UNZIP_DIR);
     public static final Path OUTPUT = Paths.get(path, "output");
-    private static String dataCleansePath = "data/testCleanse";
-    private IntegrationTramTestConfig integrationTramTestConfig;
+    private static Path dataCleansePath = Paths.get("data","testCleanse");
 
     @BeforeClass
     public static void beforeAllTestRuns() throws IOException {
@@ -49,34 +48,29 @@ public class DataCleanserTest implements TransportDataFetcher {
         if (directory.exists()) {
             FileUtils.cleanDirectory(directory);
         }
-        FileUtils.deleteDirectory(new File(dataCleansePath));
+        File dataCleanse = dataCleansePath.toFile();
+        if (dataCleanse.exists()) {
+            FileUtils.deleteDirectory(dataCleanse);
+        }
     }
 
     @Test
     @Ignore("Primarily for performance testing")
     public void shouldCleanseTramData() throws IOException {
         DataCleanser dataCleanser = getDataCleanser();
-        integrationTramTestConfig = new IntegrationTramTestConfig();
-        dataCleanser.run(integrationTramTestConfig.getAgencies());
-    }
-
-    @Test
-    @Ignore("Primarily for performance testing")
-    public void shouldCleanseBusData() throws IOException {
-        DataCleanser dataCleanser = getDataCleanser();
+        IntegrationTramTestConfig integrationTramTestConfig = new IntegrationTramTestConfig();
         dataCleanser.run(integrationTramTestConfig.getAgencies());
     }
 
     @Test
     public void cleanseCurrentDataWithNoErrors() throws IOException {
-        Path folder = new File(dataCleansePath).toPath();
 
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(folder, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(dataCleansePath, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
         fetcher.fetchData();
-        Dependencies dependences = new Dependencies();
+        Dependencies dependencies = new Dependencies();
         Set<String> agencies = new HashSet<>();
         agencies.add("MET");
-        dependences.cleanseData(agencies, folder, folder);
+        dependencies.cleanseData(agencies, dataCleansePath, dataCleansePath);
     }
 
     private DataCleanser getDataCleanser() throws IOException {

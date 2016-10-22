@@ -68,6 +68,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             FileOutputStream fos = new FileOutputStream(destination.toFile());
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             logger.info("Finished download");
+            fos.close();
         }
         catch(UnknownHostException unknownhost) {
             logger.error("Unable to download data from " + dataUrl,unknownhost);

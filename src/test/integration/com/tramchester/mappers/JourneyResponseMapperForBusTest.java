@@ -53,6 +53,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     @Test
     @Category({BusTest.class})
+    @Ignore("Work in progress")
     public void shouldMapStockportCircularJourney() throws TramchesterException {
         LocalDate now = LocalDate.now();
         int offset = now.getDayOfWeek()-MONDAY;
