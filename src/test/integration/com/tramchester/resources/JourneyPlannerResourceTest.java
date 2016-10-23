@@ -6,9 +6,11 @@ import com.google.common.collect.Sets;
 import com.tramchester.*;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -27,20 +29,36 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.fail;
 
-public class JourneyPlannerResourceTest {
+public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
+    private LocalDate when;
 
     @Before
     public void beforeEachTestRuns() {
+        when = nextMonday();
         mapper.registerModule(new JodaModule());
     }
 
+    @Test
+    public void shouldPlanSimpleJourneyFromAltyToCornbrook() {
+        String start = Stations.Altrincham.getId();
+        String end = Stations.Cornbrook.getId();
+        String time = "08:15:00";
+        String date = when.toString("YYYY-MM-dd");
+        Response result = getResponseForJourney(start, end, time, date);
 
-    // TODO need to make elements of JourneyPlanRepresentation deserialable before making all tests use this
-    // for now just check cookie behaviours
+        JourneyPlanRepresentation plan = result.readEntity(JourneyPlanRepresentation.class);
+        assertTrue(plan.getJourneys().size()>0);
+    }
+
+    private Response getResponseForJourney(String start, String end, String time, String date) {
+        return IntegrationClient.getResponse(testRule,
+                    String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
+                    Optional.empty());
+    }
 
     @Test
     public void shouldSetCookieForRecentJourney() throws IOException {
@@ -48,9 +66,7 @@ public class JourneyPlannerResourceTest {
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().toString("HH:mm:00");
         String date = LocalDate.now().toString("YYYY-MM-dd");
-        Response result = IntegrationClient.getResponse(testRule,
-                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
-                Optional.empty());
+        Response result = getResponseForJourney(start, end, time, date);
 
         assertEquals(200, result.getStatus());
 
@@ -97,9 +113,7 @@ public class JourneyPlannerResourceTest {
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().toString("HH:mm:00");
         String date = LocalDate.now().toString("YYYY-MM-dd");
-        Response response = IntegrationClient.getResponse(testRule,
-                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
-                Optional.empty());
+        Response response = getResponseForJourney(start, end, time, date);
 
         assertEquals(200, response.getStatus()
         );

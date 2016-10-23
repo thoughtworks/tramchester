@@ -47,7 +47,7 @@ public class RouteDetailsPage extends Page {
     }
 
     public boolean waitForError() {
-        return waitForElement("NoRoutes", 2*timeOut).isEnabled();
+        return waitForElement("NoRoutes", 4*timeOut).isEnabled();
     }
 
 }

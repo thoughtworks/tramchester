@@ -104,8 +104,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         assertEquals(1, journey.getStages().size());
         StageDTO stage = journey.getStages().get(0);
-        assertEquals(Stations.Altrincham,stage.getFirstStation());
-        assertEquals(Stations.Cornbrook,stage.getLastStation());
+        assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
+        assertEquals(Stations.Cornbrook.getId(),stage.getLastStation().getId());
         assertTrue(stage.getDuration()>0);
         assertTrue(stage.getFirstDepartureTime().isAfter(sevenAM));
         assertTrue(stage.getFirstDepartureTime().isBefore(eightAM));
@@ -136,12 +136,12 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(2, journey.getStages().size());
 
         StageDTO stage1 = journey.getStages().get(0);
-        assertEquals(begin,stage1.getFirstStation());
-        assertEquals(middle,stage1.getLastStation());
+        assertEquals(begin.getId(),stage1.getFirstStation().getId());
+        assertEquals(middle.getId(),stage1.getLastStation().getId());
 
         StageDTO stage2 = journey.getStages().get(1);
-        assertEquals(middle,stage2.getFirstStation());
-        assertEquals(end,stage2.getLastStation());
+        assertEquals(middle.getId(),stage2.getFirstStation().getId());
+        assertEquals(end.getId(),stage2.getLastStation().getId());
 
         assertEquals("Change tram at",stage2.getPrompt());
     }
@@ -162,8 +162,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(1, journey.getStages().size());
 
         StageDTO stage = journey.getStages().get(0);
-        assertEquals(Stations.Deansgate,stage.getFirstStation());
-        assertEquals(Stations.MarketStreet,stage.getLastStation());
+        assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
+        assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
 
         assertEquals("Walk to",stage.getPrompt());
     }
@@ -197,15 +197,15 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals("Board tram at",stage1.getPrompt());
 
         StageDTO stage2 = journey.getStages().get(1);
-        assertEquals(middleB,stage2.getActionStation());
-        assertEquals(middleB,stage2.getLastStation());
+        assertEquals(middleB.getId(),stage2.getActionStation().getId());
+        assertEquals(middleB.getId(),stage2.getLastStation().getId());
         assertEquals("Walk to",stage2.getPrompt());
         assertEquals(walkCost, stage2.getDuration());
 
         StageDTO stage3 = journey.getStages().get(2);
         assertEquals("Board tram at",stage3.getPrompt());
-        assertEquals(middleB,stage3.getFirstStation());
-        assertEquals(end,stage3.getLastStation());
+        assertEquals(middleB.getId(),stage3.getFirstStation().getId());
+        assertEquals(end.getId(),stage3.getLastStation().getId());
 
     }
 

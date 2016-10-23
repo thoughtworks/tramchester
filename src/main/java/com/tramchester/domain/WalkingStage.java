@@ -75,6 +75,11 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
+    public String getDisplayClass() {
+        return "RouteWalking";
+    }
+
+    @Override
     public StageDTO asDTO() {
         return new StageDTO(this);
     }

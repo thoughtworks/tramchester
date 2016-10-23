@@ -132,7 +132,7 @@ public class UserJourneyTest extends UserJourneys {
         routePlannerPage.waitForToStops();
         routePlannerPage.setFromStop(altrincham);
         routePlannerPage.setToStop(cornbrook);
-        routePlannerPage.setTime("0300");
+        routePlannerPage.setTime("03:00");
 
         RouteDetailsPage detailsPage = routePlannerPage.submit();
         assertTrue(detailsPage.waitForError());

@@ -91,7 +91,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         List<StageDTO> stages = first.getStages();
         assertEquals(new LocalTime(9,00), first.getFirstDepartureTime());
         assertEquals(new LocalTime(9,03), first.getExpectedArrivalTime());
-        assertEquals(Stations.PiccadillyGardens, first.getEnd());
+        assertEquals(Stations.PiccadillyGardens.getId(), first.getEnd().getId());
 
         assertEquals(1, stages.size());
         StageDTO stage = stages.get(0);
@@ -105,7 +105,7 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
                 Stations.Ashton.getId(), (19 * 60) +47);
 
         journeys.forEach(journey -> {
-            assertEquals(Stations.Ashton, journey.getEnd());
+            assertEquals(Stations.Ashton.getId(), journey.getEnd().getId());
             assertEquals(3, journey.getStages().size());
         });
     }

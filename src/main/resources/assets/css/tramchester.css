@@ -279,6 +279,10 @@ input[type="time"], input[type="datetime-local"] {
     -webkit-appearance: none;
 }
 
+.RouteWalking .panel-heading {
+    /* nothing yet */
+}
+
 /*! METROLINK COLOURS */
 
 .RouteClassA .panel-heading {
@@ -335,14 +339,6 @@ input[type="time"], input[type="datetime-local"] {
     background-color: #ccb200;
     color: #191c1f;
 }
-
-/*! MediaCityUK - Cornbrook */
-/*
-.m-c .panel-heading {
-    background-color: #a57036;
-    color: #ffffff;
-}
-*/
 
 /*! Tram stop */
 .stop .panel-heading {

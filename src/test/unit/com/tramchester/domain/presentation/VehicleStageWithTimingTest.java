@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
 
+import com.tramchester.Stations;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
@@ -33,15 +34,16 @@ public class VehicleStageWithTimingTest {
         ServiceTime serviceTime = new ServiceTime(new LocalTime(8, 00), new LocalTime(9, 15), "svcId", "headsign", tripId);
         VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, serviceTime, TravelAction.Board);
         stage.setCost(75);
+        stage.setLastStation(Stations.Bury);
 
         StageDTO dto = stage.asDTO();
         assertEquals(stage.getSummary(), dto.getSummary());
         assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
         assertEquals(stage.getHeadSign(), dto.getHeadSign());
-        assertEquals(stage.getActionStation(),dto.getActionStation());
+        assertEquals(stage.getActionStation().getId(),dto.getActionStation().getId());
         assertEquals(stage.getDuration(),dto.getDuration());
-        assertEquals(stage.getFirstStation(),dto.getFirstStation());
-        assertEquals(stage.getLastStation(), dto.getLastStation());
+        assertEquals(stage.getFirstStation().getId(),dto.getFirstStation().getId());
+        assertEquals(stage.getLastStation().getId(), dto.getLastStation().getId());
         assertEquals(stage.getIsAVehicle(),dto.getIsAVehicle());
         assertEquals(stage.getFirstDepartureTime(),dto.getFirstDepartureTime());
         assertEquals(stage.getPrompt(),dto.getPrompt());

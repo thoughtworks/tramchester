@@ -17,10 +17,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyDTOTest {
+    private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
+    private Location stationB = new Station("stationB", "area", "nameB", new LatLong(-3, 1), false);
+
     private JourneyDTO journeyA = new Journey(createStages(new LocalTime(10, 20))).asDTO();
     private JourneyDTO journeyB = new Journey(createStages(new LocalTime(10, 25))).asDTO();
-    private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
-    private Location stationB = new Station("stationB", "area", "nameA", new LatLong(-3, 1), false);
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {

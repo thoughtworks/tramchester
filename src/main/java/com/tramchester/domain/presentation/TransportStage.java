@@ -18,6 +18,7 @@ public interface TransportStage extends RawStage {
     LocalTime getExpectedArrivalTime();
 
     int getDuration();
+    String getDisplayClass();
 
     StageDTO asDTO();
 }

@@ -131,9 +131,9 @@ public class JourneyTest {
         JourneyDTO dto = journey.asDTO();
 
         assertEquals(journey.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
-        assertEquals(journey.getBegin(), dto.getBegin());
+        assertEquals(journey.getBegin().getId(), dto.getBegin().getId());
         assertEquals(journey.getFirstDepartureTime(), dto.getFirstDepartureTime());
-        assertEquals(journey.getEnd(), dto.getEnd());
+        assertEquals(journey.getEnd().getId(), dto.getEnd().getId());
         assertEquals(journey.getHeading(), dto.getHeading());
         assertEquals(journey.getSummary(), dto.getSummary());
         assertEquals(journey.getStages().size(), dto.getStages().size()); // see also asDTO tests for stages

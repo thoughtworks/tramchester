@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 public class JourneyDTO implements Comparable<JourneyDTO> {
 
     private LocalTime expectedArrivalTime;
-    private Location end;
-    private Location begin;
+    private LocationDTO end;
+    private LocationDTO begin;
     private LocalTime firstDepartureTime;
     private String summary;
     private String heading;
@@ -33,8 +33,8 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         this.heading = original.getHeading();
         this.firstDepartureTime = original.getFirstDepartureTime();
         this.expectedArrivalTime = original.getExpectedArrivalTime();
-        this.end = original.getEnd();
-        this.begin = original.getBegin();
+        this.end = new LocationDTO(original.getEnd());
+        this.begin = new LocationDTO(original.getBegin());
     }
 
     public List<StageDTO> getStages() {
