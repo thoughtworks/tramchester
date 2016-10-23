@@ -5,23 +5,18 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.JourneyPlannerHelper;
 import com.tramchester.services.DateTimeService;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -77,7 +72,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldFindRouteEachStationToEveryOther() throws TramchesterException {
+    public void shouldFindRouteEachStationToEveryOtherStream() throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(when);
         TransportData data = dependencies.get(TransportData.class);
         int time = 12 * 60;
@@ -85,13 +80,29 @@ public class RouteCalculatorTest {
         List<Integer> queryTimes = formQueryTimes(time);
 
         List<Station> allStations = data.getStations();
+        List<Pair<Location,Location>> combinations = new LinkedList<>();
+
         for (Location start : allStations) {
             for (Location end : allStations) {
                 if (!start.equals(end)) {
-                    Set<RawJourney> result = calculator.calculateRoute(start.getId(), end.getId(), queryTimes, queryDate);
-                    assertTrue(result.size() > 0);
+                    combinations.add(Pair.of(start,end));
                 }
             }
+        }
+
+        Boolean result = combinations.parallelStream().
+                map(pair -> calc(pair, queryTimes, queryDate)).
+                map(journeys -> journeys.size() > 0).
+                reduce(true, (a, b) -> a && b);
+        assertTrue(result);
+
+    }
+
+    private Set<RawJourney> calc(Pair<Location, Location> pair, List<Integer> queryTimes, TramServiceDate queryDate) {
+        try {
+            return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate);
+        } catch (TramchesterException e) {
+            return new HashSet<>();
         }
     }
 
@@ -99,10 +110,12 @@ public class RouteCalculatorTest {
     public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNext7Days(start, dest, when, 10*60);
+                checkRouteNext7Days(start, dest, when, 9*60);
             }
         }
     }
+
+
 
     @Test
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {

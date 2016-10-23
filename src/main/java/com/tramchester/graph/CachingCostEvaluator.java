@@ -6,6 +6,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class CachingCostEvaluator implements CostEvaluator<Double>{
@@ -14,7 +15,7 @@ public class CachingCostEvaluator implements CostEvaluator<Double>{
 
     public CachingCostEvaluator() {
         this.propertyName = GraphStaticKeys.COST;
-        idToCost = new HashMap<>();
+        idToCost = new ConcurrentHashMap<>();
     }
 
     @Override
