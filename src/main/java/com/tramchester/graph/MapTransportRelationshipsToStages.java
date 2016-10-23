@@ -26,14 +26,14 @@ public class MapTransportRelationshipsToStages {
         this.stationRepository = stationRepository;
     }
 
-    public List<TransportStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
+    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
         int totalCost = 0;
         int serviceStart = 0;
         RouteStationNode boardNode = null;
         RawVehicleStage currentStage = null;
         String firstStationId = null;
 
-        List<TransportStage> stages = new ArrayList<>();
+        List<RawStage> stages = new ArrayList<>();
 
         for (TransportRelationship transportRelationship : transportRelationships) {
             TramNode firstNode = transportRelationship.getStartNode();

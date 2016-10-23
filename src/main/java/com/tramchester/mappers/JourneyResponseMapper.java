@@ -3,6 +3,8 @@ package com.tramchester.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,22 +21,22 @@ public abstract class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    protected abstract Optional<Journey> createJourney(RawJourney rawJourney, int withinMins);
+    protected abstract Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins);
 
     public JourneyPlanRepresentation map(Set<RawJourney> journeys, int withinMins) throws TramchesterException {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
-        SortedSet<Journey> decoratedJourneys = decorateJourneys(journeys, withinMins);
+        SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(journeys, withinMins);
         return new JourneyPlanRepresentation(decoratedJourneys);
     }
 
-    protected SortedSet<Journey> decorateJourneys(Set<RawJourney> rawJourneys, int withinMins)
+    protected SortedSet<JourneyDTO> decorateJourneys(Set<RawJourney> rawJourneys, int withinMins)
             throws TramchesterException {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
-        SortedSet<Journey> journeys = new TreeSet<>();
+        SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
 
-            Optional<Journey> journey = createJourney(rawJourney, withinMins);
+            Optional<JourneyDTO> journey = createJourney(rawJourney, withinMins);
             if (journey.isPresent()) {
                 journeys.add(journey.get());
                 logger.info("Added journey " +journey);
@@ -46,7 +48,7 @@ public abstract class JourneyResponseMapper {
         return journeys;
     }
 
-    protected TravelAction decideAction(List<PresentableStage> stagesSoFar) {
+    protected TravelAction decideAction(List<TransportStage> stagesSoFar) {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }

@@ -6,6 +6,7 @@ import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import org.junit.Test;
 
 import org.joda.time.LocalTime;
@@ -25,6 +26,27 @@ public class VehicleStageWithTimingTest {
         stage.setCost(75);
 
         assertEquals(75, stage.getDuration());
+    }
+
+    @Test
+    public void shouldGetAsADTO() {
+        ServiceTime serviceTime = new ServiceTime(new LocalTime(8, 00), new LocalTime(9, 15), "svcId", "headsign", tripId);
+        VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, serviceTime, TravelAction.Board);
+        stage.setCost(75);
+
+        StageDTO dto = stage.asDTO();
+        assertEquals(stage.getSummary(), dto.getSummary());
+        assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
+        assertEquals(stage.getHeadSign(), dto.getHeadSign());
+        assertEquals(stage.getActionStation(),dto.getActionStation());
+        assertEquals(stage.getDuration(),dto.getDuration());
+        assertEquals(stage.getFirstStation(),dto.getFirstStation());
+        assertEquals(stage.getLastStation(), dto.getLastStation());
+        assertEquals(stage.getIsAVehicle(),dto.getIsAVehicle());
+        assertEquals(stage.getFirstDepartureTime(),dto.getFirstDepartureTime());
+        assertEquals(stage.getPrompt(),dto.getPrompt());
+        assertEquals(stage.isWalk(), dto.isWalk());
+        assertEquals(stage.getMode(), dto.getMode());
     }
 
     @Test

@@ -1,12 +1,12 @@
 package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.PresentableStage;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 
-public class WalkingStage implements PresentableStage {
+public class WalkingStage implements TransportStage {
     private RawWalkingStage rawWalkingStage;
     private int beginTimeMins;
     private int millisInMinute = 60 * 1000;
@@ -32,12 +32,12 @@ public class WalkingStage implements PresentableStage {
     }
 
     @Override
-    public String getSummary() throws TramchesterException {
+    public String getSummary() {
         return "Walking";
     }
 
     @Override
-    public String getPrompt() throws TramchesterException {
+    public String getPrompt()  {
         return "Walk to";
     }
 
@@ -72,6 +72,11 @@ public class WalkingStage implements PresentableStage {
     @Override
     public int getDuration() {
         return rawWalkingStage.getDuration();
+    }
+
+    @Override
+    public StageDTO asDTO() {
+        return new StageDTO(this);
     }
 
     @Override

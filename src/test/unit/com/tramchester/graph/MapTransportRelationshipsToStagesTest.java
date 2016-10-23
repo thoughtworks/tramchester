@@ -4,7 +4,7 @@ package com.tramchester.graph;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TransportStage;
+import com.tramchester.domain.RawStage;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
@@ -63,7 +63,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         relationships.add(DepartRelationship.TestOnly(2,"id5",departurePoint, StationNode.TestOnly("id6","name2")));
 
         replayAll();
-        List<TransportStage> result = mapper.mapStages(relationships, 7 * 60);
+        List<RawStage> result = mapper.mapStages(relationships, 7 * 60);
         verifyAll();
 
         assertEquals(1, result.size());

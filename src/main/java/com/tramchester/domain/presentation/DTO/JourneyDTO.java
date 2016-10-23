@@ -1,16 +1,19 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.domain.presentation.DTO;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.TimeAsMinutes;
+import com.tramchester.domain.presentation.Journey;
 import com.tramchester.mappers.TimeJsonDeserializer;
 import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class JourneyDTO implements PresentableJourney {
+public class JourneyDTO implements Comparable<JourneyDTO> {
 
     private LocalTime expectedArrivalTime;
     private Location end;
@@ -18,14 +21,14 @@ public class JourneyDTO implements PresentableJourney {
     private LocalTime firstDepartureTime;
     private String summary;
     private String heading;
-    private List<PresentableStage> stages;
+    private List<StageDTO> stages;
 
     public JourneyDTO() {
         // Deserialization
     }
 
     public JourneyDTO(Journey original) {
-        this.stages = original.getStages();
+        this.stages = original.getStages().stream().map(stage -> stage.asDTO()).collect(Collectors.toList());
         this.summary = original.getSummary();
         this.heading = original.getHeading();
         this.firstDepartureTime = original.getFirstDepartureTime();
@@ -34,42 +37,64 @@ public class JourneyDTO implements PresentableJourney {
         this.begin = original.getBegin();
     }
 
-    @Override
-    public List<PresentableStage> getStages() {
+    public List<StageDTO> getStages() {
         return stages;
     }
 
-    @Override
     public String getSummary() {
         return summary;
     }
 
-    @Override
     public String getHeading() {
         return heading;
     }
 
-    @Override
     @JsonSerialize(using = TimeJsonSerializer.class)
     @JsonDeserialize(using = TimeJsonDeserializer.class)
     public LocalTime getFirstDepartureTime() {
         return firstDepartureTime;
     }
 
-    @Override
     @JsonSerialize(using = TimeJsonSerializer.class)
     @JsonDeserialize(using = TimeJsonDeserializer.class)
     public LocalTime getExpectedArrivalTime() {
         return expectedArrivalTime;
     }
 
-    @Override
     public Location getBegin() {
         return begin;
     }
 
-    @Override
     public Location getEnd() {
         return end;
+    }
+
+
+    @Override
+    public int compareTo(JourneyDTO other) {
+        // arrival first
+        int compare = checkArrival(other);
+        // then departure time
+        if (compare==0) {
+            compare = checkDeparture(other);
+        }
+        // then number of stages
+        if (compare==0) {
+            // if arrival times match, put journeys with fewer stages first
+            if (this.stages.size()<other.stages.size()) {
+                compare = -1;
+            } else if (other.stages.size()>stages.size()) {
+                compare = 1;
+            }
+        }
+        return compare;
+    }
+
+    private int checkDeparture(JourneyDTO other) {
+        return TimeAsMinutes.compare(getFirstDepartureTime(),other.getFirstDepartureTime());
+    }
+
+    private int checkArrival(JourneyDTO other) {
+        return TimeAsMinutes.compare(getExpectedArrivalTime(), other.getExpectedArrivalTime());
     }
 }

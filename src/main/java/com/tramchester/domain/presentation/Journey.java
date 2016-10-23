@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.WalkingStage;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
@@ -14,13 +15,13 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class Journey implements Comparable<Journey> {
+public class Journey {
     private static final Logger logger = LoggerFactory.getLogger(Journey.class);
 
     private long embeddedWalk;
-    private List<PresentableStage> allStages;
+    private List<TransportStage> allStages;
 
-    public Journey(List<PresentableStage> allStages) {
+    public Journey(List<TransportStage> allStages) {
         this.allStages = allStages;
         embeddedWalk = allStages.stream().filter(stage -> (stage instanceof WalkingStage)).count();
         if (firstStageIsWalk()) {
@@ -29,7 +30,7 @@ public class Journey implements Comparable<Journey> {
     }
 
     // used front end
-    public List<PresentableStage> getStages() {
+    public List<TransportStage> getStages() {
         return allStages;
     }
 
@@ -45,7 +46,7 @@ public class Journey implements Comparable<Journey> {
 
         StringBuilder result = new StringBuilder();
         for(int index = 1; index< size; index++) {
-            PresentableStage stage = allStages.get(index);
+            TransportStage stage = allStages.get(index);
             if (index>1) {
                 if (index< size -1) {
                     result.append(", ");
@@ -121,12 +122,12 @@ public class Journey implements Comparable<Journey> {
         return getLastStage().getExpectedArrivalTime();
     }
 
-    private PresentableStage getLastStage() {
+    private TransportStage getLastStage() {
         int index = allStages.size()-1;
         return allStages.get(index);
     }
 
-    private PresentableStage getFirstStage() {
+    private TransportStage getFirstStage() {
         if (allStages.size()==1) {
             return allStages.get(0);
         }
@@ -141,34 +142,6 @@ public class Journey implements Comparable<Journey> {
         return  "Journey{" +
                 "stages= [" +allStages.size() +"] "+ allStages +
                 '}';
-    }
-
-    @Override
-    public int compareTo(Journey other) {
-        // arrival first
-        int compare = checkArrival(other);
-        // then departure time
-        if (compare==0) {
-            compare = checkDeparture(other);
-        }
-        // then number of stages
-        if (compare==0) {
-            // if arrival times match, put journeys with fewer stages first
-            if (this.allStages.size()<other.allStages.size()) {
-                compare = -1;
-            } else if (other.allStages.size()>allStages.size()) {
-                compare = 1;
-            }
-        }
-        return compare;
-    }
-
-    private int checkDeparture(Journey other) {
-        return TimeAsMinutes.compare(getFirstDepartureTime(),other.getFirstDepartureTime());
-    }
-
-    private int checkArrival(Journey other) {
-        return TimeAsMinutes.compare(getExpectedArrivalTime(), other.getExpectedArrivalTime());
     }
 
     public Location getBegin() {
@@ -187,4 +160,7 @@ public class Journey implements Comparable<Journey> {
         return getLastStage().getLastStation();
     }
 
+    public JourneyDTO asDTO() {
+        return new JourneyDTO(this);
+    }
 }

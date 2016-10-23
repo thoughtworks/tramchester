@@ -8,7 +8,7 @@ import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.UpdateRecentJourneys;
-import com.tramchester.domain.presentation.DisplayStation;
+import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.StationClosureMessage;
@@ -59,15 +59,15 @@ public class StationResource extends UsesRecentCookie {
 
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
-        List<DisplayStation> displayStations = getStations().stream().
+        List<StationDTO> displayStations = getStations().stream().
                 filter(station -> !recentJourneys.contains(station.getId())).
-                map(station -> new DisplayStation(station, ProximityGroup.ALL)).
+                map(station -> new StationDTO(station, ProximityGroup.ALL)).
                 collect(Collectors.toList());
 
         recentJourneys.getRecentIds().forEach(recent -> {
             logger.info("Adding recent station to list " + recent);
             Optional<Station> recentStation = stationRepository.getStation(recent.getId());
-            recentStation.ifPresent(station -> displayStations.add(new DisplayStation(station, ProximityGroup.RECENT)));
+            recentStation.ifPresent(station -> displayStations.add(new StationDTO(station, ProximityGroup.RECENT)));
         });
 
         Response response = Response.ok(displayStations).build();
@@ -116,15 +116,15 @@ public class StationResource extends UsesRecentCookie {
         logger.info(format("Get station at %s,%s with cookie ", lat, lon, tranchesterRecent));
 
         LatLong latLong = new LatLong(lat,lon);
-        List<DisplayStation> orderedStations = spatialService.reorderNearestStations(latLong, getStations());
+        List<StationDTO> orderedStations = spatialService.reorderNearestStations(latLong, getStations());
 
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
         recentJourneys.getRecentIds().forEach(recent -> {
             Optional<Station> recentStation = stationRepository.getStation(recent.getId());
             recentStation.ifPresent(station -> {
-                orderedStations.remove(new DisplayStation(station, ProximityGroup.ALL));
-                orderedStations.add(0, new DisplayStation(station, ProximityGroup.RECENT));
+                orderedStations.remove(new StationDTO(station, ProximityGroup.ALL));
+                orderedStations.add(0, new StationDTO(station, ProximityGroup.RECENT));
             });
         });
 
@@ -134,7 +134,7 @@ public class StationResource extends UsesRecentCookie {
 
             // TODO use MyLocation instead of Station
             Station myLocation = new Station(formId(lat,lon), "", "My Location", latLong, false);
-            orderedStations.add(0, new DisplayStation(myLocation, ProximityGroup.MY_LOCATION));
+            orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
         }
 
         return Response.ok(orderedStations).build();

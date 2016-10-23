@@ -6,20 +6,19 @@ import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.PresentableJourney;
-import com.tramchester.domain.presentation.PresentableStage;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.resources.JourneyPlannerHelper;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import org.joda.time.LocalTime;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     private static Dependencies dependencies;
     private TramJourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
-    private List<TransportStage> stages;
+    private List<RawStage> stages;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -67,8 +66,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         journeys.add(new RawJourney(stages, time));
         JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
-        Journey journey = result.getJourneys().stream().findFirst().get();
-        PresentableStage stage = journey.getStages().get(0);
+        JourneyDTO journey = result.getJourneys().stream().findFirst().get();
+        StageDTO stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(16,00)));
     }
@@ -76,7 +75,6 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     @Test
     public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() throws TramchesterException {
         int pm1044  = (22*60)+44;
-        int elapsedTime = pm1044 +1 ;
 
         RawVehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
                 pm1044, 42);
@@ -85,9 +83,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         journeys.add(new RawJourney(stages,pm1044));
         JourneyPlanRepresentation result = mapper.map(journeys, 60);
 
-        Journey journey = result.getJourneys().stream().findFirst().get();
+        JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         assertFalse(journey.getStages().isEmpty());
-        PresentableStage stage = journey.getStages().get(0);
+        StageDTO stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(22,55)));
     }
@@ -103,9 +101,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
         assertEquals(1,result.getJourneys().size());
-        Journey journey = result.getJourneys().stream().findFirst().get();
+        JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         assertEquals(1, journey.getStages().size());
-        PresentableStage stage = journey.getStages().get(0);
+        StageDTO stage = journey.getStages().get(0);
         assertEquals(Stations.Altrincham,stage.getFirstStation());
         assertEquals(Stations.Cornbrook,stage.getLastStation());
         assertTrue(stage.getDuration()>0);
@@ -133,15 +131,15 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         assertEquals(1,result.getJourneys().size());
 
-        Journey journey = result.getJourneys().stream().findFirst().get();
+        JourneyDTO journey = result.getJourneys().stream().findFirst().get();
 
         assertEquals(2, journey.getStages().size());
 
-        PresentableStage stage1 = journey.getStages().get(0);
+        StageDTO stage1 = journey.getStages().get(0);
         assertEquals(begin,stage1.getFirstStation());
         assertEquals(middle,stage1.getLastStation());
 
-        PresentableStage stage2 = journey.getStages().get(1);
+        StageDTO stage2 = journey.getStages().get(1);
         assertEquals(middle,stage2.getFirstStation());
         assertEquals(end,stage2.getLastStation());
 
@@ -160,10 +158,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         JourneyPlanRepresentation result = mapper.map(journeys, 30);
 
         assertEquals(1,result.getJourneys().size());
-        Journey journey = result.getJourneys().stream().findFirst().get();
+        JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         assertEquals(1, journey.getStages().size());
 
-        PresentableStage stage = journey.getStages().get(0);
+        StageDTO stage = journey.getStages().get(0);
         assertEquals(Stations.Deansgate,stage.getFirstStation());
         assertEquals(Stations.MarketStreet,stage.getLastStation());
 
@@ -190,21 +188,21 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         JourneyPlanRepresentation result = mapper.map(journeys, 30);
         assertEquals(1,result.getJourneys().size());
-        Journey journey = result.getJourneys().stream().findFirst().get();
+        JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         assertEquals(3, journey.getStages().size());
         LocalTime arrivalTime = journey.getExpectedArrivalTime();
         assertTrue(arrivalTime.isAfter(new LocalTime(10,10)));
 
-        PresentableStage stage1 = journey.getStages().get(0);
+        StageDTO stage1 = journey.getStages().get(0);
         assertEquals("Board tram at",stage1.getPrompt());
 
-        PresentableStage stage2 = journey.getStages().get(1);
+        StageDTO stage2 = journey.getStages().get(1);
         assertEquals(middleB,stage2.getActionStation());
         assertEquals(middleB,stage2.getLastStation());
         assertEquals("Walk to",stage2.getPrompt());
         assertEquals(walkCost, stage2.getDuration());
 
-        PresentableStage stage3 = journey.getStages().get(2);
+        StageDTO stage3 = journey.getStages().get(2);
         assertEquals("Board tram at",stage3.getPrompt());
         assertEquals(middleB,stage3.getFirstStation());
         assertEquals(end,stage3.getLastStation());

@@ -1,8 +1,9 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.PresentableStage;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.VehicleStageWithTiming;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -22,16 +23,16 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         super(transportData);
     }
 
-    protected Optional<Journey> createJourney(RawJourney rawJourney, int withinMins) {
-        List<PresentableStage> stages = new LinkedList<>();
-        List<TransportStage> rawJourneyStages = rawJourney.getStages();
+    protected Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins) {
+        List<TransportStage> stages = new LinkedList<>();
+        List<RawStage> rawJourneyStages = rawJourney.getStages();
         TimeWindow timeWindow = new TimeWindow(rawJourney.getQueryTime(), withinMins);
-        for (TransportStage rawStage : rawJourneyStages) {
+        for (RawStage rawStage : rawJourneyStages) {
             if (rawStage.getIsAVehicle()) {
                 timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
             } else if (rawStage.isWalk()) {
                 RawWalkingStage stage = (RawWalkingStage) rawStage;
-                PresentableStage walkingStage = new WalkingStage(stage, timeWindow.minsFromMidnight());
+                TransportStage walkingStage = new WalkingStage(stage, timeWindow.minsFromMidnight());
                 logger.info("Adding walking stage " + stage);
                 stages.add(walkingStage);
 
@@ -42,11 +43,12 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
             logger.error("Failed to create valid journey");
             return Optional.empty();
         }
-        return Optional.of(new Journey(stages));
+        Journey journey = new Journey(stages);
+        return Optional.of(journey.asDTO());
     }
 
-    private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<PresentableStage> stages,
-                                       TransportStage rawStage) {
+    private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<TransportStage> stages,
+                                       RawStage rawStage) {
         RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
         String serviceId = rawTravelStage.getServiceId();
         logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));

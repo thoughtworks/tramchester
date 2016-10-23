@@ -19,7 +19,7 @@ public class JourneyResponseMapperTest {
 
         Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when));
         RawJourney rawJourney = found.stream().findFirst().get();
-        TransportStage rawStage = rawJourney.getStages().get(0);
+        RawStage rawStage = rawJourney.getStages().get(0);
         assertEquals(RawVehicleStage.class, rawStage.getClass());
         return ((RawVehicleStage)rawStage).getServiceId();
     }

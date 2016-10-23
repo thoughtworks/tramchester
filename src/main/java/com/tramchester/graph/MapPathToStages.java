@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.TransportStage;
+import com.tramchester.domain.RawStage;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.WeightedPath;
@@ -17,7 +17,7 @@ public class MapPathToStages {
         this.mapTransportRelationshipsToStages = mapTransportRelationshipsToStages;
     }
 
-    public List<TransportStage> map(WeightedPath path, int minsPastMidnight) {
+    public List<RawStage> map(WeightedPath path, int minsPastMidnight) {
         List<TransportRelationship> relationships = pathToTransportRelationship.mapPath(path);
         return mapTransportRelationshipsToStages.mapStages(relationships, minsPastMidnight);
     }

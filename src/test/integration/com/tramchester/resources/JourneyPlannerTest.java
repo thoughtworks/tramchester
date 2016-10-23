@@ -11,6 +11,9 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
@@ -60,10 +63,10 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
                 Stations.PiccadillyGardens.getId(),
                 today, 9*60);
-        SortedSet<Journey> journeys = plan.getJourneys();
+        SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
-        Journey journey = journeys.first();
-        List<PresentableStage> stages = journey.getStages();
+        JourneyDTO journey = journeys.first();
+        List<StageDTO> stages = journey.getStages();
         stages.forEach(stage ->
                 assertEquals(TransportMode.Bus, stage.getMode())
         );

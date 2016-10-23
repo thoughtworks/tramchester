@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.services.DateTimeService;

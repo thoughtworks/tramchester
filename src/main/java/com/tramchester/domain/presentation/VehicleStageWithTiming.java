@@ -1,14 +1,12 @@
 package com.tramchester.domain.presentation;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.RawVehicleStage;
-import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import org.joda.time.LocalTime;
 
 import static java.lang.String.format;
 
-public class VehicleStageWithTiming extends RawVehicleStage implements PresentableStage {
+public class VehicleStageWithTiming extends RawVehicleStage implements TransportStage {
     private TravelAction action;
     private ServiceTime serviceTime;
 
@@ -18,22 +16,21 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
         this.serviceTime = serviceTime;
     }
 
-    public VehicleStageWithTiming() {
-        // deserialisation
-    }
-
-    @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
         return serviceTime.getArrivalTime();
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
        return serviceTime.getDepartureTime();
     }
 
     public int getDuration() {
         return cost;
+    }
+
+    @Override
+    public StageDTO asDTO() {
+        return new StageDTO(this);
     }
 
     public int findEarliestDepartureTime() {
@@ -48,7 +45,7 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
                 '}';
     }
 
-    public String getSummary() throws TramchesterException {
+    public String getSummary() {
         switch (mode) {
             case Bus : {
                 return format("%s Bus route", routeName);
@@ -57,11 +54,11 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
                 return format("%s Tram line", routeName);
             }
             default:
-                throw new TramchesterException("Unknown transport mode " + mode);
+                return "Unknown transport mode " + mode;
         }
     }
 
-    public String getPrompt() throws TramchesterException {
+    public String getPrompt() {
         String verb;
         switch (action) {
             case Board: verb = "Board";
@@ -71,7 +68,7 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
             case Change: verb = "Change";
                 break;
             default:
-                throw new TramchesterException("Unknown transport action " + action);
+                verb = "Unknown transport action " + action;
         }
 
         switch (mode) {
@@ -82,7 +79,7 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Presentab
                 return format("%s tram at", verb);
             }
             default:
-                throw new TramchesterException("Unknown transport mode " + mode);
+                return "Unknown transport mode " + mode;
         }
     }
 

@@ -120,6 +120,25 @@ public class UserJourneyTest extends UserJourneys {
         assertFalse(toStops.contains(cornbrook));
     }
 
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldShowNoRoutesMessage() throws InterruptedException {
+        WelcomePage welcomePage = new WelcomePage(driver);
+        welcomePage.load(testRule.getUrl());
+
+        RoutePlannerPage routePlannerPage = welcomePage.begin();
+
+        routePlannerPage.waitForToStops();
+        routePlannerPage.setFromStop(altrincham);
+        routePlannerPage.setToStop(cornbrook);
+        routePlannerPage.setTime("0300");
+
+        RouteDetailsPage detailsPage = routePlannerPage.submit();
+        assertTrue(detailsPage.waitForError());
+
+    }
+
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {

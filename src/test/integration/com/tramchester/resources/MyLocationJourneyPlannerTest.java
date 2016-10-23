@@ -7,10 +7,10 @@ import com.tramchester.Stations;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.PresentableStage;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.*;
@@ -57,13 +57,13 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void planRouteAllowingForWalkingTime() throws JsonProcessingException, TramchesterException {
-        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(), (22 * 60) + 9);
+        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(), (22 * 60) + 9);
         assertEquals(1, journeys.size());
-        Journey first = journeys.first();
+        JourneyDTO first = journeys.first();
 
-        List<PresentableStage> stages = first.getStages();
+        List<StageDTO> stages = first.getStages();
         assertEquals(2, stages.size());
-        PresentableStage walkingStage = stages.get(0);
+        StageDTO walkingStage = stages.get(0);
         assertEquals(new LocalTime(22,9), walkingStage.getFirstDepartureTime());
 
         LocalTime walkArrives = new LocalTime(22, 22);
@@ -73,35 +73,35 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldGiveWalkingRouteFromMyLocationToNearbyStop() throws JsonProcessingException, TramchesterException {
-        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Altrincham.getId(), (22 * 60) + 9);
+        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Altrincham.getId(), (22 * 60) + 9);
         assertEquals(1, journeys.size());
-        Journey first = journeys.first();
+        JourneyDTO first = journeys.first();
 
-        List<PresentableStage> stages = first.getStages();
+        List<StageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
-        PresentableStage walkingStage = stages.get(0);
+        StageDTO walkingStage = stages.get(0);
         assertEquals(new LocalTime(22,9), walkingStage.getFirstDepartureTime());
     }
 
     @Test
     public void shouldFindStationsNearPiccGardensWalkingOnly() throws JsonProcessingException, TramchesterException {
-        SortedSet<Journey> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadillyGardens.getId(), 9 * 60);
+        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadillyGardens.getId(), 9 * 60);
         assertEquals(1, journeys.size());
-        Journey first = journeys.first();
-        List<PresentableStage> stages = first.getStages();
+        JourneyDTO first = journeys.first();
+        List<StageDTO> stages = first.getStages();
         assertEquals(new LocalTime(9,00), first.getFirstDepartureTime());
         assertEquals(new LocalTime(9,03), first.getExpectedArrivalTime());
         assertEquals(Stations.PiccadillyGardens, first.getEnd());
 
         assertEquals(1, stages.size());
-        PresentableStage stage = stages.get(0);
+        StageDTO stage = stages.get(0);
         assertEquals(new LocalTime(9,00), stage.getFirstDepartureTime());
         assertEquals(new LocalTime(9,03), stage.getExpectedArrivalTime());
     }
 
     @Test
     public void reproduceIssueNearAltyToAshton() throws JsonProcessingException, TramchesterException {
-        SortedSet<Journey> journeys = validateJourneyFromLocation(nearAltrincham,
+        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham,
                 Stations.Ashton.getId(), (19 * 60) +47);
 
         journeys.forEach(journey -> {
@@ -123,13 +123,13 @@ public class MyLocationJourneyPlannerTest extends JourneyPlannerHelper {
         validateJourneyFromLocation(nearAltrincham, destination.getId(), queryTime);
     }
 
-    private SortedSet<Journey> validateJourneyFromLocation(LatLong location, String destination, int queryTime)
+    private SortedSet<JourneyDTO> validateJourneyFromLocation(LatLong location, String destination, int queryTime)
             throws JsonProcessingException, TramchesterException {
         String startId = JourneyPlannerTest.formId(location);
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId, destination, new TramServiceDate(when), queryTime);
-        SortedSet<Journey> journeys = plan.getJourneys();
+        SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
-        List<PresentableStage> stages = journeys.first().getStages();
+        List<StageDTO> stages = journeys.first().getStages();
         assertTrue(stages.size()>0);
         stages.forEach(stage -> assertTrue(stage.toString(),stage.getDuration()>0));
 

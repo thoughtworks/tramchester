@@ -8,7 +8,7 @@ import com.tramchester.*;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.presentation.DisplayStation;
+import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
 import org.joda.time.DateTime;
 import org.junit.*;
@@ -37,7 +37,7 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetNearestStations() throws Exception {
-        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
+        List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
         Map<ProximityGroup, Long> stationGroups = stations.stream()
                 .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
@@ -52,9 +52,9 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetSpecialStationWithMyLocation() throws JsonProcessingException {
-        List<DisplayStation> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
+        List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
-        DisplayStation station = stations.get(0);
+        StationDTO station = stations.get(0);
         assertEquals(ProximityGroup.MY_LOCATION, station.getProximityGroup());
         assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getId());
         assertEquals("My Location", station.getName());
@@ -65,14 +65,14 @@ public class StationResourceTest {
     @Test
     public void shouldNotGetSpecialStationWhenGettingAllStations() throws JsonProcessingException {
         getNearest(53.4804263d, -2.2392436d, Optional.empty());
-        Collection<DisplayStation> stations = getAll(Optional.empty());
+        Collection<StationDTO> stations = getAll(Optional.empty());
 
         stations.forEach(station -> assertNotEquals("My Location", station.getName()));
     }
 
     @Test
     public void shouldNotGetClosedStations() throws Exception {
-        Collection<DisplayStation> stations = getAll(Optional.empty());
+        Collection<StationDTO> stations = getAll(Optional.empty());
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
         assertThat(stations.stream().filter(station -> station.getName().equals(Stations.Altrincham.getName())).count()).isEqualTo(1);
@@ -80,7 +80,7 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetAllStationsWithRightOrderAndProxGroup() {
-        Collection<DisplayStation> stations = getAll(Optional.empty());
+        Collection<StationDTO> stations = getAll(Optional.empty());
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
 
@@ -96,7 +96,7 @@ public class StationResourceTest {
         String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
         Optional<Cookie> cookie = Optional.of(new Cookie("tramchesterRecent", recentAsString));
 
-        List<DisplayStation> stations = getAll(cookie);
+        List<StationDTO> stations = getAll(cookie);
 
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         assertEquals(1, stations.size());
@@ -109,14 +109,14 @@ public class StationResourceTest {
         assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
     }
 
-    private List<DisplayStation> getNearest(double lat, double lon, Optional<Cookie> cookie) {
+    private List<StationDTO> getNearest(double lat, double lon, Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie);
-        return result.readEntity(new GenericType<List<DisplayStation>>(){});
+        return result.readEntity(new GenericType<List<StationDTO>>(){});
     }
 
-    private List<DisplayStation> getAll(Optional<Cookie> cookie) {
+    private List<StationDTO> getAll(Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, "stations", cookie);
-        return result.readEntity(new GenericType<ArrayList<DisplayStation>>(){});
+        return result.readEntity(new GenericType<ArrayList<StationDTO>>(){});
     }
 
 }

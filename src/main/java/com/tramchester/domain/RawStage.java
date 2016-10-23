@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public interface TransportStage {
+public interface RawStage {
     TransportMode getMode();
     boolean getIsAVehicle();
     boolean isWalk();

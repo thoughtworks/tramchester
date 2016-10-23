@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public class RawWalkingStage implements TransportStage  {
+public class RawWalkingStage implements RawStage {
     private final Location start;
     private final Location destination;
     private int duration;

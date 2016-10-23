@@ -3,6 +3,9 @@ package com.tramchester.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -20,7 +23,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
     private TramJourneyResponseMapper mapper;
     private TransportDataFromFiles transportData;
     private Set<RawJourney> rawJourneys;
-    private List<TransportStage> stages;
+    private List<RawStage> stages;
     private Station stationA;
     private Station stationB;
     private Station stationC;
@@ -61,15 +64,15 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
 
-        Set<Journey> journeys = result.getJourneys();
+        Set<JourneyDTO> journeys = result.getJourneys();
         assertEquals(1, journeys.size());
 
-        Journey found = journeys.iterator().next();
+        JourneyDTO found = journeys.iterator().next();
 
         assertEquals(new LocalTime(8,18),found.getExpectedArrivalTime());
         assertEquals(new LocalTime(8,2),found.getFirstDepartureTime());
-        PresentableStage stageFirst = found.getStages().get(0);
-        PresentableStage stageSecond = found.getStages().get(1);
+        StageDTO stageFirst = found.getStages().get(0);
+        StageDTO stageSecond = found.getStages().get(1);
         assertEquals(7, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
         verifyAll();
@@ -98,15 +101,15 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         assertEquals(rawJourneys.size(), result.getJourneys().size());
 
-        Set<Journey> journeys = result.getJourneys();
+        Set<JourneyDTO> journeys = result.getJourneys();
         assertEquals(1, journeys.size());
 
-        Journey found = journeys.iterator().next();
+        JourneyDTO found = journeys.iterator().next();
 
         assertEquals(new LocalTime(8,16),found.getExpectedArrivalTime());
         assertEquals(new LocalTime(8,3),found.getFirstDepartureTime());
-        PresentableStage stageFirst = found.getStages().get(0);
-        PresentableStage stageSecond = found.getStages().get(1);
+        StageDTO stageFirst = found.getStages().get(0);
+        StageDTO stageSecond = found.getStages().get(1);
         assertEquals(4, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
         verifyAll();

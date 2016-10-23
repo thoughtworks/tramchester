@@ -4,9 +4,9 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.PresentableStage;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
@@ -20,10 +20,10 @@ import static org.junit.Assert.assertTrue;
 public class JourneyPlannerHelper {
     protected JourneyPlannerResource planner;
 
-    protected void checkDepartsAfterPreviousArrival(String message, Set<Journey> journeys) {
-        for(Journey journey: journeys) {
+    protected void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
+        for(JourneyDTO journey: journeys) {
             LocalTime previousArrive = null;
-            for(PresentableStage stage : journey.getStages()) {
+            for(StageDTO stage : journey.getStages()) {
                 if (previousArrive!=null) {
                     LocalTime firstDepartureTime = stage.getFirstDepartureTime();
                     String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
@@ -41,7 +41,7 @@ public class JourneyPlannerHelper {
                                                                   LocalDate date) throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(date);
         JourneyPlanRepresentation results = planner.createJourneyPlan(start.getId(), end.getId(), queryDate,minsPastMid);
-        Set<Journey> journeys = results.getJourneys();
+        Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);

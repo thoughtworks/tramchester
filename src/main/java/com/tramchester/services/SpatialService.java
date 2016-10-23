@@ -2,7 +2,7 @@ package com.tramchester.services;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.presentation.DisplayStation;
+import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.graph.GraphStaticKeys;
@@ -38,12 +38,12 @@ public class SpatialService extends StationIndexs {
         this.config = config;
     }
 
-    public List<DisplayStation> reorderNearestStations(LatLong latLong, List<Station> sortedStations) {
+    public List<StationDTO> reorderNearestStations(LatLong latLong, List<Station> sortedStations) {
         Transaction tx = graphDatabaseService.beginTx();
         List<Station> seen = new LinkedList<>();
         try {
             List<String> nearestStations = getNearestStationsToNoTransaction(latLong, config.getNumOfNearestStops());
-            List<DisplayStation> reorderedStations = new ArrayList<>();
+            List<StationDTO> reorderedStations = new ArrayList<>();
 
             if (nearestStations.size()==0) {
                 logger.warn("Unable to find stations close to " + latLong);
@@ -52,14 +52,14 @@ public class SpatialService extends StationIndexs {
             for (String id : nearestStations) {
                 Optional<Station> maybeNearestStation = stationRepository.getStation(id);
                 maybeNearestStation.ifPresent(nearestStation -> {
-                    DisplayStation displayStation = new DisplayStation(nearestStation, ProximityGroup.NEAREST_STOPS);
+                    StationDTO displayStation = new StationDTO(nearestStation, ProximityGroup.NEAREST_STOPS);
                     reorderedStations.add(displayStation);
                     seen.add(nearestStation);
                 });
             }
 
             reorderedStations.addAll(sortedStations.stream().filter(station -> !seen.contains(station)).
-                    map(station -> new DisplayStation(station, ProximityGroup.ALL)).
+                    map(station -> new StationDTO(station, ProximityGroup.ALL)).
                     collect(Collectors.toList()));
             tx.success();
             return reorderedStations;

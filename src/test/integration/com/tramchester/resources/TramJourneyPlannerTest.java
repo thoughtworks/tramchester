@@ -6,8 +6,8 @@ import com.tramchester.Stations;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.Timeout;
@@ -93,7 +93,7 @@ public class TramJourneyPlannerTest extends JourneyPlannerHelper {
 
         JourneyPlanRepresentation results = planner.createJourneyPlan(Stations.Altrincham.getId(),
                 Stations.ManAirport.getId(), new TramServiceDate(nextSunday), (11*60)+43);
-        Set<Journey> journeys = results.getJourneys();
+        Set<JourneyDTO> journeys = results.getJourneys();
 
         assertEquals(1, journeys.size());
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);

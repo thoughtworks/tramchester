@@ -5,7 +5,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import org.joda.time.LocalDate;
@@ -26,7 +26,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private static Dependencies dependencies;
     private JourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
-    private List<TransportStage> stages;
+    private List<RawStage> stages;
 
     private Location stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", new LatLong(1.5, 1.5), false);
     private Location stockportBridgefieldStreet = new Station("1800SG18471", "stockportArea", "Bridgefield Street",

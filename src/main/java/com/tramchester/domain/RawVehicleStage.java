@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public class RawVehicleStage implements TransportStage {
+public class RawVehicleStage implements RawStage {
     protected Location firstStation;
     protected TransportMode mode;
     protected String routeName;
