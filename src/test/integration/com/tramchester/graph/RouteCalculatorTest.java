@@ -4,18 +4,27 @@ import com.tramchester.Dependencies;
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.repository.TransportData;
+import com.tramchester.resources.JourneyPlannerHelper;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorTest {
@@ -24,6 +33,7 @@ public class RouteCalculatorTest {
 
     private RouteCalculator calculator;
     private DateTimeService dateTimeService;
+    private LocalDate when = JourneyPlannerHelper.nextMonday();
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -64,6 +74,93 @@ public class RouteCalculatorTest {
             assertEquals(Stations.ManAirport, secondStage.getLastStation());
             assertEquals(TransportMode.Tram, secondStage.getMode());
         }
+    }
+
+    @Test
+    public void shouldFindRouteEachStationToEveryOther() throws TramchesterException {
+        TramServiceDate queryDate = new TramServiceDate(when);
+        TransportData data = dependencies.get(TransportData.class);
+        int time = 12 * 60;
+
+        List<Integer> queryTimes = formQueryTimes(time);
+
+        List<Station> allStations = data.getStations();
+        for (Location start : allStations) {
+            for (Location end : allStations) {
+                if (!start.equals(end)) {
+                    Set<RawJourney> result = calculator.calculateRoute(start.getId(), end.getId(), queryTimes, queryDate);
+                    assertTrue(result.size() > 0);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
+        for (Location start : Stations.EndOfTheLine) {
+            for (Location dest : Stations.EndOfTheLine) {
+                checkRouteNext7Days(start, dest, when, 10*60);
+            }
+        }
+    }
+
+    @Test
+    public void shouldFindInterchangesToInterchanges() throws TramchesterException {
+        for (Location start :  Stations.getInterchanges()) {
+            for (Location dest : Stations.getInterchanges()) {
+                checkRouteNext7Days(start, dest, when, 9*60);
+            }
+        }
+    }
+
+    @Test
+    public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
+        for (Location start : Stations.EndOfTheLine) {
+            for (Location dest : Stations.getInterchanges()) {
+                checkRouteNext7Days(start, dest, when, 9*60);
+            }
+        }
+    }
+
+    @Test
+    public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
+        for (Location start : Stations.getInterchanges() ) {
+            for (Location dest : Stations.EndOfTheLine) {
+                checkRouteNext7Days(start,dest, when, 10*60);
+            }
+        }
+    }
+
+    @Test
+    public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() throws TramchesterException {
+        for(int i=0; i<60; i++) {
+            int time = (8*60)+i;
+            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, when);
+        }
+    }
+
+    protected void checkRouteNext7Days(Location start, Location dest, LocalDate date, int time) throws TramchesterException {
+        if (!dest.equals(start)) {
+            for(int day=0; day<7; day++) {
+                validateAtLeastOneJourney(start, dest, time, date.plusDays(day));
+            }
+        }
+    }
+
+    private void validateAtLeastOneJourney(Location start, Location dest, int minsPastMid, LocalDate date) throws TramchesterException {
+        TramServiceDate queryDate = new TramServiceDate(date);
+        Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), formQueryTimes(minsPastMid),
+                new TramServiceDate(date));
+
+        String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);
+        assertTrue("Unable to find journey " + message, journeys.size() > 0);
+        journeys.forEach(journey -> assertFalse("Missing stages for journey"+journey,journey.getStages().isEmpty()));
+    }
+
+    private List<Integer> formQueryTimes(int time) {
+        List<Integer> queryTimes = new ArrayList<>();
+        queryTimes.add(time);
+        return queryTimes;
     }
 
 }

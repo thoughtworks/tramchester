@@ -17,10 +17,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class JourneyPlannerHelper {
+public abstract class JourneyPlannerHelper {
     protected JourneyPlannerResource planner;
 
-    protected void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
+    public static void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
         for(JourneyDTO journey: journeys) {
             LocalTime previousArrive = null;
             for(StageDTO stage : journey.getStages()) {
@@ -40,7 +40,7 @@ public class JourneyPlannerHelper {
     protected JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, int minsPastMid,
                                                                   LocalDate date) throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(date);
-        JourneyPlanRepresentation results = planner.createJourneyPlan(start.getId(), end.getId(), queryDate,minsPastMid);
+        JourneyPlanRepresentation results = getJourneyPlan(start, end, minsPastMid, queryDate);
         Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, queryDate);
@@ -50,13 +50,11 @@ public class JourneyPlannerHelper {
         return results;
     }
 
-    protected void checkRouteNext7Days(Location start, Location dest, LocalDate date, int time) throws TramchesterException {
-        if (!dest.equals(start)) {
-            for(int day=0; day<7; day++) {
-                validateAtLeastOneJourney(start, dest, time, date.plusDays(day));
-            }
-        }
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, LocalDate queryDate) throws TramchesterException {
+        return getJourneyPlan(start, end, minsPastMid, new TramServiceDate(queryDate));
     }
+
+    protected abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, TramServiceDate queryDate) throws TramchesterException;
 
     public static LocalDate nextMonday() {
         LocalDate now = LocalDate.now();

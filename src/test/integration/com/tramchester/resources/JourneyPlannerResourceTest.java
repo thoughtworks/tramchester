@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.*;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -27,9 +31,12 @@ import java.util.Set;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.joda.time.DateTimeConstants.MONDAY;
+import static org.joda.time.DateTimeConstants.SUNDAY;
 import static org.junit.Assert.fail;
 
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
+
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
@@ -43,21 +50,104 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
-    public void shouldPlanSimpleJourneyFromAltyToCornbrook() {
-        String start = Stations.Altrincham.getId();
-        String end = Stations.Cornbrook.getId();
-        String time = "08:15:00";
-        String date = when.toString("YYYY-MM-dd");
-        Response result = getResponseForJourney(start, end, time, date);
+    public void shouldPlanSimpleJourneyFromAltyToCornbrook() throws TramchesterException {
 
-        JourneyPlanRepresentation plan = result.readEntity(JourneyPlanRepresentation.class);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, (8 * 60) + 15, new TramServiceDate(when));
+
         assertTrue(plan.getJourneys().size()>0);
     }
 
-    private Response getResponseForJourney(String start, String end, String time, String date) {
-        return IntegrationClient.getResponse(testRule,
-                    String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
-                    Optional.empty());
+    @Test
+    public void testAltyToManAirportHasRealisticTranferAtCornbrook() throws TramchesterException {
+        int offsetToSunday = SUNDAY- when.getDayOfWeek();
+        LocalDate nextSunday = when.plusDays(offsetToSunday);
+
+        JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,(11*60)+43, nextSunday);
+
+        Set<JourneyDTO> journeys = results.getJourneys();
+
+        Assert.assertEquals(1, journeys.size());
+        checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
+    }
+
+    @Test
+    public void shouldFindRouteVeloToEtihad() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Etihad, 8*60, when);
+    }
+
+    @Test
+    public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, (23*60)+34, when);
+    }
+
+    @Test
+    public void shouldFindRoutePiccadilyGardensToCornbrook() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Cornbrook, 23*60, when);
+    }
+
+    @Test
+    public void shouldFindRouteCornbrookToManAirport() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, (23*60)+20, when);
+    }
+
+    @Test
+    public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, (23*60)+41, when);
+    }
+
+    @Test
+    public void shouldFindRouteVeloToHoltTownAt8AM() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, 8*60, when);
+    }
+
+    @Test
+    public void shouldFindRouteVeloToEndOfLines() throws TramchesterException {
+        int offsetToMonday = MONDAY- when.getDayOfWeek();
+        LocalDate nextMonday = when.plusDays(offsetToMonday);
+
+        for (Location dest : Stations.EndOfTheLine) {
+            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, nextMonday);
+        }
+    }
+
+    @Test
+    public void shouldFindRouteVeloInterchanges() throws TramchesterException {
+        for (Location dest : Stations.getInterchanges()) {
+            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, when);
+        }
+    }
+
+    @Test
+    public void shouldFindRouteVeloToDeansgate() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Deansgate, 8*60, when);
+    }
+
+    @Test
+    public void shouldFindRouteVeloToBroadway() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Broadway, 8*60, when);
+    }
+
+    @Test
+    public void shouldFindRouteVeloToPomona() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, 8*60, when);
+    }
+
+    @Test
+    public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, 23*60, when);
+    }
+
+    @Test
+    public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, (22*60)+45, when);
+    }
+
+    @Test
+    public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
+        JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,
+                Stations.ManAirport, (23*60)+10, when);
+
+        Assert.assertTrue(results.getJourneys().size()>0);
     }
 
     @Test
@@ -66,7 +156,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().toString("HH:mm:00");
         String date = LocalDate.now().toString("YYYY-MM-dd");
-        Response result = getResponseForJourney(start, end, time, date);
+        Response result = getResponseForJourney(testRule, start, end, time, date);
 
         assertEquals(200, result.getStatus());
 
@@ -113,7 +203,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().toString("HH:mm:00");
         String date = LocalDate.now().toString("YYYY-MM-dd");
-        Response response = getResponseForJourney(start, end, time, date);
+        Response response = getResponseForJourney(testRule, start, end, time, date);
 
         assertEquals(200, response.getStatus()
         );
@@ -123,6 +213,11 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertTrue(recents.contains(new Timestamped(end, DateTime.now())));
     }
 
+    @Test
+    public void shouldReproduceIssueWithMissingRoutes() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, 10*60, when);
+    }
+
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {
         Map<String, NewCookie> cookies = response.getCookies();
         NewCookie recent = cookies.get("tramchesterRecent");
@@ -130,5 +225,20 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String value = recent.toCookie().getValue();
         RecentJourneys result = RecentJourneys.decodeCookie(mapper,value);
         return result;
+    }
+
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid,
+                                                       TramServiceDate queryDate) throws TramchesterException {
+        String date = queryDate.getDate().toString("YYYY-MM-dd");
+        String time = LocalTime.MIDNIGHT.plusMinutes(minsPastMid).toString("HH:mm:00");
+        Response response = getResponseForJourney(testRule, start.getId(), end.getId(), time, date);
+        Assert.assertEquals(200, response.getStatus());
+        return response.readEntity(JourneyPlanRepresentation.class);
+    }
+
+    public static Response getResponseForJourney(IntegrationTestRun rule, String start, String end, String time, String date) {
+        return IntegrationClient.getResponse(rule,
+                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
+                Optional.empty());
     }
 }

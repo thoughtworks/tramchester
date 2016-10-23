@@ -7,6 +7,7 @@ import com.tramchester.BusTest;
 import com.tramchester.Dependencies;
 import com.tramchester.IntegrationBusTestConfig;
 import com.tramchester.Stations;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -48,6 +49,10 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @AfterClass
     public static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
+    }
+
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, TramServiceDate queryDate) throws TramchesterException {
+        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate,minsPastMid);
     }
 
     @Test
