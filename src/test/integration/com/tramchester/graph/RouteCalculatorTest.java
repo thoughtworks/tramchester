@@ -115,8 +115,6 @@ public class RouteCalculatorTest {
         }
     }
 
-
-
     @Test
     public void shouldFindInterchangesToInterchanges() throws TramchesterException {
         for (Location start :  Stations.getInterchanges()) {

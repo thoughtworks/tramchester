@@ -34,6 +34,7 @@ public class GraphWithSimpleRouteTest {
     private List<Integer> queryTimes;
     private Station firstStation;
 
+    // TODO Use deependency init instead??
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
         File dbFile = new File(TMP_DB);
@@ -55,12 +56,12 @@ public class GraphWithSimpleRouteTest {
 
         CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
         TramchesterConfig configuration = new IntegrationTramTestConfig();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, configuration);
-        TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
+        //ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, configuration);
+        //TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
 
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
-                spatialDatabaseService, pathExpander, mapper, costEvaluator);
+                spatialDatabaseService, mapper, costEvaluator, configuration);
 
     }
 

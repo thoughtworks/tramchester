@@ -31,7 +31,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     }
 
     @Override
-    public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> state) {
+    public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> branchState) {
 
         Node endNode = path.endNode();
         Iterable<Relationship> relationships = endNode.getRelationships(Direction.OUTGOING);
@@ -53,7 +53,7 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
                 servicesOutbound++;
                 ServiceReason serviceReason = null;
                 try {
-                    serviceReason = serviceHeuristics.checkServiceHeuristics(state, incoming, goesToRelationship, path);
+                    serviceReason = serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesToRelationship, path);
                 } catch (TramchesterException e) {
                     logger.error("Unable to check service heuristics",e);
                 }

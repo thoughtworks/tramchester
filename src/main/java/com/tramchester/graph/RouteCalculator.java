@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
@@ -30,17 +31,18 @@ public class RouteCalculator extends StationIndexs {
     private String queryNodeName = "BEGIN";
 
     private NodeFactory nodeFactory;
-    private PathExpander pathExpander;
     private MapPathToStages pathToStages;
     private CostEvaluator<Double> costEvaluator;
+    private TramchesterConfig config;
 
     public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
-                           SpatialDatabaseService spatialDatabaseService, PathExpander pathExpander, MapPathToStages pathToStages, CostEvaluator<Double> costEvaluator) {
+                           SpatialDatabaseService spatialDatabaseService, MapPathToStages pathToStages,
+                           CostEvaluator<Double> costEvaluator, TramchesterConfig config) {
         super(db, relationshipFactory, spatialDatabaseService, true);
         this.nodeFactory = nodeFactory;
-        this.pathExpander = pathExpander;
         this.pathToStages = pathToStages;
         this.costEvaluator = costEvaluator;
+        this.config = config;
     }
 
     public Set<RawJourney> calculateRoute(String startStationId, String endStationId, List<Integer> queryTimes,
@@ -95,8 +97,11 @@ public class RouteCalculator extends StationIndexs {
 
     private void gatherJounerys(Node endNode, List<Integer> queryTimes, TramServiceDate queryDate, Set<RawJourney> journeys,
                                 Node startNode, int limit) throws TramchesterException {
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate);
+        PathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
+
         queryTimes.forEach(queryTime->{
-            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate);
+            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             mapStreamToJourneySet(journeys, paths, limit, queryTime);
         });
     }
@@ -121,7 +126,8 @@ public class RouteCalculator extends StationIndexs {
         return nodeFactory.getNode(node);
     }
 
-    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime, TramServiceDate queryDate) {
+    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime,
+                                                  TramServiceDate queryDate, PathExpander pathExpander) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));
@@ -138,6 +144,7 @@ public class RouteCalculator extends StationIndexs {
                 pathExpander,
                 stateFactory,
                 costEvaluator);
+//        PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(pathExpander, costEvaluator);
 
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
         return StreamSupport.stream(pathIterator.spliterator(), false);

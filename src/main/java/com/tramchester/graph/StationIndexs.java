@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
+    protected final RelationshipFactory relationshipFactory;
     private Map<String,Node> routeStationNodeCache;
     private Map<String,Node> stationNodeCache;
     private SimplePointLayer spatialLayer;
@@ -25,6 +26,7 @@ public class StationIndexs {
         this.graphDatabaseService = graphDatabaseService;
         graphQuery = new GraphQuery(graphDatabaseService, relationshipFactory, spatialDatabaseService);
         this.warnIfMissing = warnIfMissing;
+        this.relationshipFactory = relationshipFactory;
         routeStationNodeCache = new HashMap<>();
         stationNodeCache = new HashMap<>();
     }

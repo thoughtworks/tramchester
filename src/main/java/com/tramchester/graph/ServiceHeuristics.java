@@ -17,25 +17,31 @@ import static java.lang.String.format;
 
 public class ServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
+    private final TramServiceDate date;
+    private final DaysOfWeek day;
 
     private CostEvaluator<Double> costEvaluator;
     private int maxWaitMinutes;
 
-    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, TramchesterConfig config) {
+    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, TramchesterConfig config, TramServiceDate date) {
         this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = config.getMaxWait();
+        this.date = date;
+        this.day = date.getDay();
     }
 
     public ServiceReason checkServiceHeuristics(BranchState<GraphBranchState> branchState, TransportRelationship incoming,
                                                 GoesToRelationship tramGoesToRelationship, Path path) throws TramchesterException {
-        if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(),  branchState.getState().getDay())) {
-            return new ServiceReason.DoesNotRunOnDay(branchState.getState().getDay());
+        //GraphBranchState state = branchState.getState();
+
+        if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(),  day)) {
+            return new ServiceReason.DoesNotRunOnDay(day);
         }
         if (!noInFlightChangeOfService(incoming, tramGoesToRelationship)) {
             return ServiceReason.InflightChangeOfService;
         }
         if (!operatesOnQueryDate(tramGoesToRelationship.getStartDate(), tramGoesToRelationship.getEndDate(),
-                branchState.getState().getQueryDate()))
+                date))
         {
             return ServiceReason.DoesNotRunOnQueryDate;
         }
