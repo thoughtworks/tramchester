@@ -72,9 +72,11 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
 
         Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
-        EasyMock.expect(path.length()).andReturn(0);
         EasyMock.expect(path.endNode()).andReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
+        EasyMock.expect(path.length()).andReturn(0);
+        serviceHeuristics.clear();
+        EasyMock.expectLastCall();
 
         replayAll();
         PathExpander<GraphBranchState> pathExpander = new TimeBasedPathExpander(mockRelationshipFactory,
@@ -89,17 +91,22 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     public void shouldExpandPathsCorrectlyForMatchingPath() throws TramchesterException {
         Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
-        EasyMock.expect(path.length()).andReturn(1);
         EasyMock.expect(path.endNode()).andReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
+
+        EasyMock.expect(path.length()).andReturn(1);
+
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
         TransportRelationship incoming = createMock(TransportRelationship.class);
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
+
+        EasyMock.expect(incoming.isBoarding()).andReturn(false);
+
         GoesToRelationship goesTo = createMock(GoesToRelationship.class);
         EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo);
 
-        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo, path)).
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo, path)).
                 andReturn(ServiceReason.IsValid);
 
         replayAll();
@@ -115,17 +122,23 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     public void shouldExpandPathsCorrectlyForNonMatchingPath() throws TramchesterException {
         Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
-        EasyMock.expect(path.length()).andReturn(1);
         EasyMock.expect(path.endNode()).andReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
+        EasyMock.expect(path.length()).andStubReturn(1);
+
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
         TransportRelationship incoming = createMock(TransportRelationship.class);
+
+        EasyMock.expect(incoming.isBoarding()).andReturn(true);
+        serviceHeuristics.clear();
+        EasyMock.expectLastCall();
+
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
         GoesToRelationship goesTo = createMock(GoesToRelationship.class);
         EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo);
 
-        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo, path)).
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo, path)).
                 andReturn(ServiceReason.DoesNotRunOnQueryDate);
 
         TramNode tramNode = createMock(TramNode.class);
@@ -144,22 +157,29 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
     public void shouldExpandPathsCorrectlyForMixedMatchingPath() throws TramchesterException {
         Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, goesToB, departs);
 
-        EasyMock.expect(path.length()).andReturn(1);
         EasyMock.expect(path.endNode()).andReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
+
+        EasyMock.expect(path.length()).andStubReturn(1);
+
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
         TransportRelationship incoming = createMock(TransportRelationship.class);
+
+        EasyMock.expect(incoming.isBoarding()).andReturn(true);
+        serviceHeuristics.clear();
+        EasyMock.expectLastCall();
+
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
         GoesToRelationship goesTo1 = createMock(GoesToRelationship.class);
         EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo1);
         GoesToRelationship goesTo2 = createMock(GoesToRelationship.class);
         EasyMock.expect(mockRelationshipFactory.getRelationship(goesToB)).andReturn(goesTo2);
 
-        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo1, path)).
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo1, path)).
                 andReturn(ServiceReason.DoesNotRunOnQueryDate);
 
-        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(branchState, incoming, goesTo2, path)).
+        EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo2, path)).
                 andReturn(ServiceReason.IsValid);
 
         replayAll();

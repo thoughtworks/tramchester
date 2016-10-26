@@ -48,7 +48,15 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void testJourneyFromAltyToAirport() throws Exception {
+    public void shouldHaveSimpleJourney() throws TramchesterException {
+        List<Integer> minutes = Arrays.asList(new Integer[]{8*60});
+        Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
+                minutes, new TramServiceDate(when));
+        assertTrue(results.size()>0);
+    }
+
+    @Test
+    public void testJourneyFromAltyToAirport() throws TramchesterException {
         int minutesFromMidnight = dateTimeService.getMinutesFromMidnight("11:43:00");
         List<Integer> minutes = Arrays.asList(new Integer[]{minutesFromMidnight});
         TramServiceDate today = new TramServiceDate(LocalDate.now());

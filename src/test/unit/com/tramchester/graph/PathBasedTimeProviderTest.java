@@ -1,61 +1,48 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.traversal.BranchState;
 
 import java.util.LinkedList;
 
 import static org.junit.Assert.assertEquals;
 
-public class ProvidersElapsedTimeTest extends EasyMockSupport {
-
+public class PathBasedTimeProviderTest extends EasyMockSupport {
     public static final int QUERY_TIME = 11 * 60;
     public static final int START_TIME = QUERY_TIME+5;
 
-    private Path path;
     private LinkedList<Relationship> relationships;
-    private TramServiceDate queryDate;
     private CostEvaluator<Double> costEvaluator;
-    private BranchState<GraphBranchState> branchState = new BranchState<GraphBranchState>() {
-        public GraphBranchState actualState;
-
-        @Override
-        public GraphBranchState getState() {
-            return actualState;
-        }
-
-        @Override
-        public void setState(GraphBranchState graphBranchState) {
-            this.actualState = graphBranchState;
-        }
-    };
+    private Path path;
+    private PersistsBoardingTime persistsBoardingTime;
 
     @Before
     public void beforeEachTestRuns() throws TramchesterException {
         path = createMock(Path.class);
         relationships = new LinkedList<>();
-        queryDate = new TramServiceDate(LocalDate.now());
-        branchState.setState(new GraphBranchState(queryDate, QUERY_TIME));
+        persistsBoardingTime = createMock(PersistsBoardingTime.class);
         costEvaluator = new CachingCostEvaluator();
     }
 
     @Test
     public void shouldCalculateElapsedTimeCorrectly() throws TramchesterException {
         EasyMock.expect(path.relationships()).andStubReturn(relationships);
+        EasyMock.expect(persistsBoardingTime.isPresent()).andReturn(false);
+        persistsBoardingTime.save(START_TIME);
+        EasyMock.expectLastCall();
+        EasyMock.expect(persistsBoardingTime.isPresent()).andReturn(true);
+        EasyMock.expect(persistsBoardingTime.get()).andReturn(START_TIME);
 
         replayAll();
 
-        ProvidesElapsedTime provider = new ProvidesElapsedTime(path, branchState, costEvaluator);
+        ElapsedTime provider = new PathBasedTimeProvider(costEvaluator, path, persistsBoardingTime, QUERY_TIME);
 
         int result = provider.getElapsedTime();
         assertEquals(QUERY_TIME, result);
@@ -70,17 +57,22 @@ public class ProvidersElapsedTimeTest extends EasyMockSupport {
         addRelationship(5,5000);
         addRelationship(10, 5001);
         EasyMock.expect(path.relationships()).andStubReturn(relationships);
+        EasyMock.expect(persistsBoardingTime.isPresent()).andReturn(false);
+        persistsBoardingTime.save(START_TIME);
+        EasyMock.expectLastCall();
+        EasyMock.expect(persistsBoardingTime.isPresent()).andReturn(true);
+        EasyMock.expect(persistsBoardingTime.get()).andReturn(START_TIME);
 
         replayAll();
 
-        ProvidesElapsedTime provider = new ProvidesElapsedTime(path, branchState, costEvaluator);
+        ElapsedTime provider = new PathBasedTimeProvider(costEvaluator, path, persistsBoardingTime, QUERY_TIME);
 
         int result = provider.getElapsedTime();
-        assertEquals(QUERY_TIME +15, result);
+        assertEquals(QUERY_TIME +15, result); // start plus path
 
         provider.setJourneyStart(START_TIME);
         result = provider.getElapsedTime();
-        assertEquals(START_TIME +15, result);
+        assertEquals(START_TIME +15, result); // actual start time plus path
 
         verifyAll();
     }

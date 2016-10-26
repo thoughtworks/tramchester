@@ -6,35 +6,41 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
+import com.tramchester.graph.Relationships.InterchangeDepartsRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 import static java.lang.String.format;
 
-public class ServiceHeuristics {
+public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramServiceDate date;
     private final DaysOfWeek day;
+    private final int queryTime;
 
     private CostEvaluator<Double> costEvaluator;
+    private Optional<Integer> boardingTime;
     private int maxWaitMinutes;
 
-    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, TramchesterConfig config, TramServiceDate date) {
+    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, TramchesterConfig config, TramServiceDate date,
+                             int queryTime) {
         this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = config.getMaxWait();
         this.date = date;
         this.day = date.getDay();
+        this.queryTime = queryTime;
+        boardingTime = Optional.empty();
     }
 
-    public ServiceReason checkServiceHeuristics(BranchState<GraphBranchState> branchState, TransportRelationship incoming,
+    public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship tramGoesToRelationship, Path path) throws TramchesterException {
-        //GraphBranchState state = branchState.getState();
 
-        if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(),  day)) {
+        if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(), day)) {
             return new ServiceReason.DoesNotRunOnDay(day);
         }
         if (!noInFlightChangeOfService(incoming, tramGoesToRelationship)) {
@@ -46,7 +52,7 @@ public class ServiceHeuristics {
             return ServiceReason.DoesNotRunOnQueryDate;
         }
         // do this last, it is expensive
-        ProvidesElapsedTime elapsedTimeProvider = new ProvidesElapsedTime(path, branchState, costEvaluator);
+        ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
         if (!operatesOnTime(tramGoesToRelationship.getTimesTramRuns(), elapsedTimeProvider)) {
             return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
         }
@@ -56,7 +62,6 @@ public class ServiceHeuristics {
     public boolean operatesOnQueryDate(TramServiceDate startDate, TramServiceDate endDate, TramServiceDate queryDate) {
         return Service.operatesOn(startDate, endDate, queryDate.getDate());
     }
-
 
     public boolean operatesOnDayOnWeekday(boolean[] days, DaysOfWeek today) {
         boolean operates = false;
@@ -130,5 +135,25 @@ public class ServiceHeuristics {
             builder.append(time+" ");
         }
         return builder.toString();
+    }
+
+    @Override
+    public void save(int time) {
+        boardingTime = Optional.of(time);
+    }
+
+    @Override
+    public boolean isPresent() {
+        return boardingTime.isPresent();
+    }
+
+    @Override
+    public int get() {
+        return boardingTime.get();
+    }
+
+    @Override
+    public void clear() {
+        boardingTime = Optional.empty();
     }
 }

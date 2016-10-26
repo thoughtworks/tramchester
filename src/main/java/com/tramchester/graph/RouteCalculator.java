@@ -10,6 +10,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.*;
+import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
@@ -97,10 +98,9 @@ public class RouteCalculator extends StationIndexs {
 
     private void gatherJounerys(Node endNode, List<Integer> queryTimes, TramServiceDate queryDate, Set<RawJourney> journeys,
                                 Node startNode, int limit) throws TramchesterException {
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate);
-        PathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
-
         queryTimes.forEach(queryTime->{
+            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
+            PathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             mapStreamToJourneySet(journeys, paths, limit, queryTime);
         });
@@ -139,12 +139,13 @@ public class RouteCalculator extends StationIndexs {
             state.setStartTime(queryTime);
         }
 
-        InitialBranchState.State<GraphBranchState> stateFactory = new InitialBranchState.State<>(state, state);
-        PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
-                pathExpander,
-                stateFactory,
-                costEvaluator);
+//        InitialBranchState.State<GraphBranchState> stateFactory = new InitialBranchState.State<>(state, state);
+//        PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
+//                pathExpander,
+//                stateFactory,
+//                costEvaluator);
 //        PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(pathExpander, costEvaluator);
+        PathFinder<WeightedPath> pathFinder = new Dijkstra(pathExpander, costEvaluator);
 
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
         return StreamSupport.stream(pathIterator.spliterator(), false);
