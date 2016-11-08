@@ -24,6 +24,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +33,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.joda.time.DateTimeConstants.MONDAY;
+import static org.joda.time.DateTimeConstants.SATURDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
 import static org.junit.Assert.fail;
 
@@ -52,7 +54,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void shouldPlanSimpleJourneyFromAltyToCornbrook() throws TramchesterException {
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, (8 * 60) + 15, new TramServiceDate(when));
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, (8 * 60) + 15,
+                new TramServiceDate(when));
 
         assertTrue(plan.getJourneys().size()>0);
     }
@@ -71,8 +74,38 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldWarnOnSaturdayAndSundayJourney() throws TramchesterException {
+        int offsetToSunday = SUNDAY-when.getDayOfWeek();
+        LocalDate nextSunday = when.plusDays(offsetToSunday);
+
+        JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
+                (11*60)+43, nextSunday);
+
+        List<String> notes = results.getNotes();
+        assertEquals(1, notes.size());
+        String prefix = "At the weekend your journey may be effected by improvement works";
+        assertTrue(notes.get(0).startsWith(prefix));
+
+        int offsetToSaturday = SATURDAY-when.getDayOfWeek();
+        LocalDate nextSaturday = when.plusDays(offsetToSaturday);
+
+        results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
+                (11*60)+43, nextSaturday);
+
+        notes = results.getNotes();
+        assertEquals(1,notes.size());
+        assertTrue(notes.get(0).startsWith(prefix));
+
+        JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
+                (11*60)+43, nextSunday.plusDays(1));
+        notes = notWeekendResult.getNotes();
+        assertEquals(0,notes.size());
+    }
+
+    @Test
     public void shouldFindRouteVeloToEtihad() throws TramchesterException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Etihad, 8*60, when);
+
     }
 
     @Test

@@ -36,6 +36,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     private TramJourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
     private List<RawStage> stages;
+    private TramServiceDate queryDate;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -54,6 +55,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
+        queryDate = new TramServiceDate(LocalDate.now());
     }
 
     @Test
@@ -64,7 +66,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(vicToRoch);
         journeys.add(new RawJourney(stages, time));
-        JourneyPlanRepresentation result = mapper.map(journeys, 30);
+        JourneyPlanRepresentation result = mapper.map(journeys, 30, queryDate);
 
         JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         StageDTO stage = journey.getStages().get(0);
@@ -81,7 +83,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(rawStage);
         journeys.add(new RawJourney(stages,pm1044));
-        JourneyPlanRepresentation result = mapper.map(journeys, 60);
+        JourneyPlanRepresentation result = mapper.map(journeys, 60, queryDate);
 
         JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         assertFalse(journey.getStages().isEmpty());
@@ -98,7 +100,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(altToCorn);
         journeys.add(new RawJourney(stages,am7));
-        JourneyPlanRepresentation result = mapper.map(journeys, 30);
+        JourneyPlanRepresentation result = mapper.map(journeys, 30, queryDate);
 
         assertEquals(1,result.getJourneys().size());
         JourneyDTO journey = result.getJourneys().stream().findFirst().get();
@@ -127,7 +129,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageB);
         journeys.add(new RawJourney(stages, pm10));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, 30);
+        JourneyPlanRepresentation result = mapper.map(journeys, 30, queryDate);
 
         assertEquals(1,result.getJourneys().size());
 
@@ -155,7 +157,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(walkingStage);
         journeys.add(new RawJourney(stages,pm10));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, 30);
+        JourneyPlanRepresentation result = mapper.map(journeys, 30, queryDate);
 
         assertEquals(1,result.getJourneys().size());
         JourneyDTO journey = result.getJourneys().stream().findFirst().get();
@@ -186,7 +188,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(finalStage);
         journeys.add(new RawJourney(stages,am10));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, 30);
+        JourneyPlanRepresentation result = mapper.map(journeys, 30, queryDate);
         assertEquals(1,result.getJourneys().size());
         JourneyDTO journey = result.getJourneys().stream().findFirst().get();
         assertEquals(3, journey.getStages().size());
@@ -222,7 +224,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageB);
         journeys.add(new RawJourney(stages,startTime));
 
-        JourneyPlanRepresentation result = mapper.map(journeys, 30);
+        JourneyPlanRepresentation result = mapper.map(journeys, 30, queryDate);
 
         assertTrue(result.getJourneys().size()>0);
     }

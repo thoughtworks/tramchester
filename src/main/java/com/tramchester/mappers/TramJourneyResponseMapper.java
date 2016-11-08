@@ -19,8 +19,8 @@ import static java.lang.String.format;
 public class TramJourneyResponseMapper extends JourneyResponseMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyResponseMapper.class);
 
-    public TramJourneyResponseMapper(TransportDataFromFiles transportData) {
-        super(transportData);
+    public TramJourneyResponseMapper(TransportDataFromFiles transportData, ProvidesNotes providesNotes) {
+        super(transportData, providesNotes);
     }
 
     protected Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins) {

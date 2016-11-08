@@ -16,6 +16,7 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.CreateQueryTimes;
+import com.tramchester.domain.ProvidesNotes;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
@@ -76,6 +77,7 @@ public class Dependencies {
         picoContainer.addComponent(TimeBasedPathExpander.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(StationLocalityService.class);
+        picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(TramJourneyResponseMapper.class);
 
         picoContainer.addComponent(RouteCodeToClassMapper.class);

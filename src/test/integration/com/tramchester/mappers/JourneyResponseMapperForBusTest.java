@@ -62,13 +62,13 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         //String svcId = "Serv002953"; // use above when timetable changes to find new svc id
 
         JourneyPlanRepresentation result = getJourneyPlanRepresentation(stockportBusStation, stockportBridgefieldStreet,
-                svcId, 42, 571);
+                svcId, 42, 571, new TramServiceDate(when));
 
         assertEquals(1,result.getJourneys().size());
     }
 
     private JourneyPlanRepresentation getJourneyPlanRepresentation(Location begin, Location end, String svcId,
-                                                                   int cost, int minutesFromMidnight) throws TramchesterException {
+                                                                   int cost, int minutesFromMidnight, TramServiceDate queryDate) throws TramchesterException {
 
         RawVehicleStage busStage = new RawVehicleStage(begin, "route text", TransportMode.Bus, "cssClass");
         busStage.setServiceId(svcId);
@@ -78,6 +78,6 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         stages.add(busStage);
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
-        return mapper.map(journeys, 30);
+        return mapper.map(journeys, 30, queryDate);
     }
 }

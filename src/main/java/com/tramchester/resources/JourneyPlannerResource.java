@@ -88,7 +88,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, config.getTimeWindow());
+        return journeyResponseMapper.map(journeys, config.getTimeWindow(), queryDate);
     }
 
 }

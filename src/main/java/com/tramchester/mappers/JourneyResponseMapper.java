@@ -16,17 +16,20 @@ import static java.lang.String.format;
 public abstract class JourneyResponseMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyResponseMapper.class);
     protected TransportDataFromFiles transportData;
+    private ProvidesNotes providesNotes;
 
-    protected JourneyResponseMapper(TransportDataFromFiles transportData) {
+    protected JourneyResponseMapper(TransportDataFromFiles transportData, ProvidesNotes providesNotes) {
         this.transportData = transportData;
+        this.providesNotes = providesNotes;
     }
 
     protected abstract Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins);
 
-    public JourneyPlanRepresentation map(Set<RawJourney> journeys, int withinMins) throws TramchesterException {
+    public JourneyPlanRepresentation map(Set<RawJourney> journeys, int withinMins, TramServiceDate queryDate) throws TramchesterException {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
         SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(journeys, withinMins);
-        return new JourneyPlanRepresentation(decoratedJourneys);
+        List<String> notes = providesNotes.createNotesFor(queryDate);
+        return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }
 
     protected SortedSet<JourneyDTO> decorateJourneys(Set<RawJourney> rawJourneys, int withinMins)

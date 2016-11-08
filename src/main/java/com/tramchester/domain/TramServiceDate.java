@@ -49,4 +49,9 @@ public class TramServiceDate {
         }
         throw new RuntimeException(format("Cannot find day of week for %s on %s", dayOfWeek, date));
     }
+
+    public boolean isWeekend() {
+        int dayOfWeek = date.getDayOfWeek();
+        return (dayOfWeek==DateTimeConstants.SATURDAY) || (dayOfWeek==DateTimeConstants.SUNDAY);
+    }
 }
