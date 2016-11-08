@@ -25,8 +25,8 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use TramJourneyPlannerTest.
-    private final String svcDeansgateToVic = "Serv001333";
-    private String svcShawAndCrompton = "Serv004786";
+    private final String svcDeansgateToVic = "Serv002248";
+    private String svcShawAndCrompton = "Serv007312";
 
     private Collection<Service> allServices;
 

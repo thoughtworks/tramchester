@@ -105,7 +105,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void shouldFindRouteVeloToEtihad() throws TramchesterException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Etihad, 8*60, when);
-
     }
 
     @Test
