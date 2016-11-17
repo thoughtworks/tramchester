@@ -1,7 +1,7 @@
 'use strict';
 
 techLabApp.controller('RouteDetailsController',
-    function RouteDetailsController($scope, $routeParams, journeyPlanner, $location, journeyPlanService, transportStops) {
+    function RouteDetailsController($scope, $sce, $routeParams, journeyPlanner, $location, journeyPlanService, transportStops) {
         var start = $location.search().start;
         var end = $location.search().end;
         var departureTime = $location.search().departureTime;
@@ -17,6 +17,9 @@ techLabApp.controller('RouteDetailsController',
                 $scope.journeyPlan = journeyPlanService.getPlan();
                 if($scope.journeyPlan.journeys.length == 0){
                     $scope.NoRoutes = true;
+                }
+                if($scope.journeyPlan.notes.length != 0) {
+                    $scope.Notes = true;
                 }
             });
         }
@@ -34,6 +37,10 @@ techLabApp.controller('RouteDetailsController',
         $scope.goBack = function () {
             $location.url('/routePlanner/');
         };
+        
+        $scope.safeHtml = function(html) {
+            return $sce.trustAsHtml(html);
+        }
 
     }
 );

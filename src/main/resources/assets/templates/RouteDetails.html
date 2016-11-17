@@ -16,6 +16,14 @@
 </div>
 <div class="container">
     <div class="row">
+        <div ng-show="Notes" class="panel" id="Notes">
+            <div ng-show="Notes" class="panel-heading"><strong>Notes:</strong></div>
+            <div class="list-group">
+                <div ng-show="Notes" ng-repeat="note in journeyPlan.notes">
+                     <div id="note{{$index}}" class="list-group-item" ng-bind-html="safeHtml(note)"></div>
+                </div>
+            </div>
+        </div>
         <div ng-show="NoRoutes" class="panel" id="NoRoutes">
             <div ng-show="NoRoutes" class="panel-heading">No Results</div>
             <div ng-show="NoRoutes" class="list-group text-center">
@@ -51,7 +59,7 @@
                     </ul>
                 </div>
             </div>
-            <p><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
+            <p><a id="newJourney" href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
         </div>
     </div>
 </div>

@@ -1,8 +1,11 @@
 package com.tramchester.pages;
 
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
+import java.util.List;
 
 public class RouteDetailsPage extends Page {
 
@@ -50,4 +53,17 @@ public class RouteDetailsPage extends Page {
         return waitForElement("NoRoutes", 4*timeOut).isEnabled();
     }
 
+    public String getNote(int index) {
+        WebElement element = waitForElement("note" + index, timeOut);
+        return element.getText();
+    }
+
+    public RoutePlannerPage planNewJourney() throws InterruptedException {
+        findElementById("newJourney").click();
+        return new RoutePlannerPage(driver);
+    }
+
+    public boolean notesPresent() {
+        return driver.findElement(By.id("Notes")).isDisplayed();
+    }
 }

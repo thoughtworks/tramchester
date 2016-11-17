@@ -159,14 +159,17 @@ public class UserJourneys {
         return numChanges<=0;
     }
 
-    protected RouteDetailsPage enterRouteSelection(String url, String fromStop, String toStop, LocalDate date, String time) throws InterruptedException {
+    protected RouteDetailsPage enterRouteSelection(String url, String fromStop, String toStop, LocalDate date,
+                                                   String time) throws InterruptedException {
         WelcomePage welcomePage = new WelcomePage(driver);
         welcomePage.load(url);
-
         RoutePlannerPage routePlannerPage = welcomePage.begin();
+        return enterRouteSelection(routePlannerPage, fromStop, toStop, date, time);
+    }
 
+    protected RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, String fromStop, String toStop,
+                                                   LocalDate date, String time) {
         routePlannerPage.waitForToStops();
-
         routePlannerPage.setFromStop(fromStop);
         routePlannerPage.setToStop(toStop);
         routePlannerPage.setTime(time);

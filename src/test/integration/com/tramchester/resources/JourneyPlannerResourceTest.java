@@ -83,7 +83,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         List<String> notes = results.getNotes();
         assertEquals(1, notes.size());
-        String prefix = "At the weekend your journey may be effected by improvement works";
+        String prefix = "At the weekend your journey may be affected by improvement works";
         assertTrue(notes.get(0).startsWith(prefix));
 
         int offsetToSaturday = SATURDAY-when.getDayOfWeek();

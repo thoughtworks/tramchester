@@ -37,7 +37,7 @@ public class UserJourneyTest extends UserJourneys {
     private final String altrincham = Stations.Altrincham.getName();
     private final String deansgate = Stations.Deansgate.getName();
     private final String cornbrook = Stations.Cornbrook.getName();
-    private LocalDate when;
+    private LocalDate nextMonday;
     private String url;
 
     @Before
@@ -47,7 +47,7 @@ public class UserJourneyTest extends UserJourneys {
 
         driver = new FirefoxDriver(capabilities);
         driver.manage().deleteAllCookies();
-        when = JourneyPlannerHelper.nextMonday();
+        nextMonday = JourneyPlannerHelper.nextMonday();
     }
 
     @After
@@ -82,7 +82,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Bury");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, altrincham, Stations.Bury.getName(),
-                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
+                nextMonday, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
         // check values remembered
@@ -145,7 +145,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> changes = Arrays.asList(cornbrook);
         List<String> headSigns = Arrays.asList("Cornbrook");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.ManAirport.getName(),
-                deansgate, when, "10:15", changes,
+                deansgate, nextMonday, "10:15", changes,
                 headSigns, false, expectedNumberJourneyResults, 0, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
@@ -157,7 +157,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> changes = Arrays.asList("Freehold", "St Werburgh's Road");
         List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.Rochdale.getName(),
-                Stations.ManAirport.getName(), when, "10:15", changes,
+                Stations.ManAirport.getName(), nextMonday, "10:15", changes,
                 headSigns, false, expectedNumberJourneyResults, 0, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
@@ -172,13 +172,46 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headSignsBury = Arrays.asList("Bury");
 
         RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, this.deansgate,
-                when, "10:15", noChanges, headsignPiccadilly, false, expectedNumberJourneyResults, 0, false)
+                nextMonday, "10:15", noChanges, headsignPiccadilly, false, expectedNumberJourneyResults, 0, false)
                 .backToRouteDetails();
 
         routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, this.deansgate, noChanges, headSignsBury, 1)
                 .backToRouteDetails();
 
         checkJourneyDetailsPage(routeDetailsPage, altrincham, this.deansgate, noChanges, headsignPiccadilly, 2);
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldDisplayNotNotesOnWeekday() throws InterruptedException {
+
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, nextMonday, "10:00:00");
+        assertTrue(routeDetailsPage.waitForRoutes());
+        assertFalse(routeDetailsPage.notesPresent());
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldDisplayNotesOnSaturday() throws InterruptedException {
+        LocalDate aSaturday = nextMonday.minusDays(2);
+
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, aSaturday, "10:00:00");
+        checkForWeekendNotes(routeDetailsPage);
+    }
+
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldDisplayNotesOnSunday() throws InterruptedException {
+        LocalDate aSunday = nextMonday.minusDays(1);
+
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, aSunday, "10:00:00");
+        checkForWeekendNotes(routeDetailsPage);
+    }
+
+    private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {
+        assertTrue(routeDetailsPage.waitForRoutes());
+        String notes = routeDetailsPage.getNote(0);
+        assertTrue(notes.contains("At the weekend your journey may be affected by improvement works."));
     }
 
     @Test
@@ -191,7 +224,7 @@ public class UserJourneyTest extends UserJourneys {
         String piccadilly = Stations.PiccadillyGardens.getName();
 
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, ashton, piccadilly,
-                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
+                nextMonday, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
 
         assertTrue(journeyDetailsPage.laterTramEnabled());
         assertFalse(journeyDetailsPage.earlierTramEnabled());
@@ -210,6 +243,7 @@ public class UserJourneyTest extends UserJourneys {
         assertTrue(journeyDetailsPage.laterTramEnabled());
         assertFalse(journeyDetailsPage.earlierTramEnabled());
 
+        // cycle through all later journeys
         int count = 0;
         while(journeyDetailsPage.laterTramEnabled()) {
             LocalTime firstTime = journeyDetailsPage.getTime();
@@ -218,6 +252,7 @@ public class UserJourneyTest extends UserJourneys {
             count++;
         }
 
+        // back through all earlier joruneys
         while(journeyDetailsPage.earlierTramEnabled()) {
             LocalTime beforeTime = journeyDetailsPage.getTime();
             journeyDetailsPage.earlierTram();
@@ -235,7 +270,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headSigns = Arrays.asList("Bury");
 
         checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),
-                when, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
+                nextMonday, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
     }
 
     @Test
@@ -268,7 +303,7 @@ public class UserJourneyTest extends UserJourneys {
         String fromStop = altrincham;
         String toStop = Stations.Bury.getName();
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, fromStop, toStop, when, "10:15");
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, fromStop, toStop, nextMonday, "10:15");
 
         checkRoutes(routeDetailsPage, fromStop, toStop, changes, true, false, false);
 
