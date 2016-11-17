@@ -24,7 +24,6 @@ dataPath: data/tram
 timeWindow: 60
 maxWait: 25
 queryInterval: 6
-showMyLocation: true
 nearestStopRangeKM: 2
 numOfNearestStops: 5
 walkingMPH: 3

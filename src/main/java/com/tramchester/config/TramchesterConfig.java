@@ -34,16 +34,13 @@ public abstract class TramchesterConfig extends Configuration {
 
     public abstract int getTimeWindow();
 
-    // show users 'My Location' in stops list
-    public abstract boolean getShowMyLocation();
-
     // range to scan for nearby stations
     public abstract Double getNearestStopRangeKM();
     // limit on number of near stops to consider
     public abstract int getNumOfNearestStops();
     // an assumed mph for walking
     public abstract double getWalkingMPH();
-    // direct traffic from http to https
+    // direct traffic from http to https (not always true, is set false in deploys to dev)
     public abstract boolean getRedirectHTTP();
     // the secure host, the one the certificate matches
     public abstract String getSecureHost();

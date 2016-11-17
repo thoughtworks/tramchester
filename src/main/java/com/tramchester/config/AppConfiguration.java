@@ -133,11 +133,6 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public boolean getShowMyLocation() {
-        return showMyLocation;
-    }
-
-    @Override
     public Double getNearestStopRangeKM() {
         return nearestStopRangeKM;
     }

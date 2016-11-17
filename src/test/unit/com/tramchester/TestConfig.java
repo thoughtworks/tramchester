@@ -59,9 +59,6 @@ public abstract class TestConfig extends AppConfiguration {
     public int getTimeWindow() { return 60; }
 
     @Override
-    public boolean getShowMyLocation() { return true; }
-
-    @Override
     public Double getNearestStopRangeKM() {
         return 2D;
     }

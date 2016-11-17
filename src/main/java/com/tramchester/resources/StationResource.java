@@ -128,14 +128,9 @@ public class StationResource extends UsesRecentCookie {
             });
         });
 
-
-        if (config.getShowMyLocation()) {
-            logger.info("Showing users location in stations list");
-
-            // TODO use MyLocation instead of Station
-            Station myLocation = new Station(formId(lat,lon), "", "My Location", latLong, false);
-            orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
-        }
+        // TODO use MyLocation instead of Station
+        Station myLocation = new Station(formId(lat,lon), "", "My Location", latLong, false);
+        orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
 
         return Response.ok(orderedStations).build();
     }
