@@ -8,8 +8,9 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
@@ -22,7 +23,8 @@ public class StationIndexs {
     protected GraphQuery graphQuery;
     private boolean warnIfMissing;
 
-    public StationIndexs(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory, SpatialDatabaseService spatialDatabaseService, boolean warnIfMissing) {
+    public StationIndexs(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
+                         SpatialDatabaseService spatialDatabaseService, boolean warnIfMissing) {
         this.graphDatabaseService = graphDatabaseService;
         graphQuery = new GraphQuery(graphDatabaseService, relationshipFactory, spatialDatabaseService);
         this.warnIfMissing = warnIfMissing;
@@ -58,10 +60,16 @@ public class StationIndexs {
         return node;
     }
 
+    public Stream<Node> getAll(String routeName) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(graphQuery.getAllForRouteNoTx(routeName), Spliterator.ORDERED),
+            false);
+    }
+
     protected SimplePointLayer getSpatialLayer() {
         if (spatialLayer == null) {
             spatialLayer = graphQuery.getSpatialLayer();
         }
         return spatialLayer;
     }
+
 }

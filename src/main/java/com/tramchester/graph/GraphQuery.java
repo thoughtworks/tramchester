@@ -3,13 +3,11 @@ package com.tramchester.graph;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import org.neo4j.cypher.internal.compiler.v2_2.EmptyResourceIterator;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +46,12 @@ public class GraphQuery {
         return result;
     }
 
+
+    public ResourceIterator<Node> getAllForRouteNoTx(String routeName) {
+        return graphDatabaseService.findNodes(TransportGraphBuilder.Labels.ROUTE_STATION,
+                    GraphStaticKeys.RouteStation.ROUTE_NAME, routeName);
+    }
+
     public SimplePointLayer getSpatialLayer() {
         return (SimplePointLayer) spatialDatabaseService.getOrCreateLayer("stations",
                 SimplePointEncoder.class, SimplePointLayer.class);
@@ -67,15 +71,4 @@ public class GraphQuery {
         return result;
     }
 
-    public List<TransportRelationship> getStationRelationships(String routeStationId, Direction direction) {
-
-        Node stationNode = getStationNode(routeStationId);
-        List<TransportRelationship> result = new LinkedList<>();
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            stationNode.getRelationships(direction).forEach(relationship -> result.add(
-                    relationshipFactory.getRelationship(relationship)));
-            tx.success();
-        }
-        return result;
-    }
 }

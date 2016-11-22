@@ -5,10 +5,7 @@ import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.resources.FeedInfoResource;
-import com.tramchester.resources.JourneyPlannerResource;
-import com.tramchester.resources.StationResource;
-import com.tramchester.resources.VersionResource;
+import com.tramchester.resources.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -69,6 +66,7 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(VersionResource.class));
         environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
         environment.jersey().register(dependencies.get(FeedInfoResource.class));
+        environment.jersey().register(dependencies.get(RouteResource.class));
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
 
         MetricRegistry registry = environment.metrics();

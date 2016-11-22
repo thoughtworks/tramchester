@@ -20,6 +20,7 @@ import com.tramchester.domain.ProvidesNotes;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
+import com.tramchester.repository.RoutesRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -104,6 +105,8 @@ public class Dependencies {
         picoContainer.addComponent(SpatialDatabaseService.class);
         picoContainer.addComponent(TransportGraphAddWalkingRoutes.class);
         picoContainer.addComponent(FeedInfoResource.class);
+        picoContainer.addComponent(RoutesRepository.class);
+        picoContainer.addComponent(RouteResource.class);
 
         rebuildGraph(configuration);
 

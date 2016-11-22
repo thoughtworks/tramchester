@@ -139,12 +139,6 @@ public class RouteCalculator extends StationIndexs {
             state.setStartTime(queryTime);
         }
 
-//        InitialBranchState.State<GraphBranchState> stateFactory = new InitialBranchState.State<>(state, state);
-//        PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(
-//                pathExpander,
-//                stateFactory,
-//                costEvaluator);
-//        PathFinder<WeightedPath> pathFinder = GraphAlgoFactory.dijkstra(pathExpander, costEvaluator);
         PathFinder<WeightedPath> pathFinder = new Dijkstra(pathExpander, costEvaluator);
 
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
