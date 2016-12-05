@@ -109,4 +109,7 @@ public class Trip {
         return earliestTime;
     }
 
+    public String getHeadsign() {
+        return headSign;
+    }
 }

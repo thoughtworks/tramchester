@@ -57,6 +57,13 @@ public class TransportDataFromFilesTest {
     public void shouldGetRoute() {
         Route result = transportData.getRoute(RouteCodes.ASH_TO_ECCLES);
         assertEquals("Ashton-under-Lyne - MediaCityUK - Eccles", result.getName());
+        assertEquals("MET",result.getAgency());
+        assertEquals("MET:   E:O:",result.getId());
+        assertTrue(result.isTram());
+
+        Set<String> headsigns = result.getHeadsigns();
+        assertEquals(3, headsigns.size());
+        assertTrue(headsigns.contains("Eccles"));
     }
 
     @Test

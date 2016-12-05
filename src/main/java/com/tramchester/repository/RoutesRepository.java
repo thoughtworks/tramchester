@@ -35,15 +35,16 @@ public class RoutesRepository extends StationIndexs {
     public List<RouteDTO> getAllRoutes() {
         List<RouteDTO> results = new LinkedList<>();
         Collection<Route> routes = stationRepository.getRoutes();
-        routes.forEach(route-> populate(route.getName(),results));
+        routes.forEach(route-> populate(route,results));
         return results;
     }
 
-    private void populate(String routeName, List<RouteDTO> gather) {
+    private void populate(Route route, List<RouteDTO> gather) {
         List<StationDTO> stations = new LinkedList<>();
+        String routeName = route.getName();
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
-            Stream<Node> nodes = super.getAll(routeName);
+            Stream<Node> nodes = super.getAll(route);
             nodes.forEach(node -> {
                 Iterable<Relationship> departs = node.getRelationships(TransportRelationshipTypes.DEPART,
                         TransportRelationshipTypes.INTERCHANGE_DEPART);

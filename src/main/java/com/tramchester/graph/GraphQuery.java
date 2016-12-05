@@ -1,13 +1,14 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
-import org.neo4j.cypher.internal.compiler.v2_2.EmptyResourceIterator;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
 import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.traversal.Traverser;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -46,10 +47,12 @@ public class GraphQuery {
         return result;
     }
 
-
-    public ResourceIterator<Node> getAllForRouteNoTx(String routeName) {
-        return graphDatabaseService.findNodes(TransportGraphBuilder.Labels.ROUTE_STATION,
-                    GraphStaticKeys.RouteStation.ROUTE_NAME, routeName);
+    public ResourceIterable<Node> getAllForRouteNoTx(Route route) {
+        Traverser traversal = graphDatabaseService.traversalDescription().
+                depthFirst().
+                relationships(TransportRelationshipTypes.TRAM_GOES_TO, Direction.OUTGOING).
+                evaluator(new RouteEvaluator(route)).traverse();
+        return traversal.nodes();
     }
 
     public SimplePointLayer getSpatialLayer() {

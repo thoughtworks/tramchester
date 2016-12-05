@@ -92,6 +92,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
             if (route != null) {
                 service.addTrip(trip);
                 route.addService(service);
+                route.addHeadsign(trip.getHeadsign());
             }
         });
     }

@@ -24,4 +24,20 @@ public class RouteDTO {
     public List<StationDTO> getStations() {
         return stations;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RouteDTO routeDTO = (RouteDTO) o;
+
+        return routeName != null ? routeName.equals(routeDTO.routeName) : routeDTO.routeName == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return routeName != null ? routeName.hashCode() : 0;
+    }
 }

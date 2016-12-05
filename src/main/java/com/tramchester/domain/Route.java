@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Route {
@@ -11,6 +12,7 @@ public class Route {
     private String name;
     private String agency;
     private Set<Service> services = new HashSet<>();
+    private Set<String> headsigns = new HashSet<>();
 
     public Route(String id, String code, String name, String agency) {
         this.id = id;
@@ -39,6 +41,14 @@ public class Route {
         return agency;
     }
 
+    public Set<String> getHeadsigns() {
+        return headsigns;
+    }
+
+    public void addHeadsign(String headsign) {
+        headsigns.add(headsign);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -57,4 +67,6 @@ public class Route {
     public boolean isTram() {
         return agency.equals(METROLINK);
     }
+
+
 }

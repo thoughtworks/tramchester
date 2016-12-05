@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.Route;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
@@ -60,9 +61,10 @@ public class StationIndexs {
         return node;
     }
 
-    public Stream<Node> getAll(String routeName) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(graphQuery.getAllForRouteNoTx(routeName), Spliterator.ORDERED),
-            false);
+    public Stream<Node> getAll(Route route) {
+        return StreamSupport.stream(graphQuery.getAllForRouteNoTx(route).spliterator(),false);
+//        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(graphQuery.getAllForRouteNoTx(route), Spliterator.ORDERED),
+//            false);
     }
 
     protected SimplePointLayer getSpatialLayer() {

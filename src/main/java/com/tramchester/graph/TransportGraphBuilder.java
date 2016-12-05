@@ -19,7 +19,6 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 
-
 public class TransportGraphBuilder extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 

@@ -8,7 +8,8 @@ public class StationDTO extends LocationDTO {
     private ProximityGroup proximityGroup;
 
     public StationDTO(Station other, ProximityGroup proximityGroup) {
-       super(other);this.proximityGroup = proximityGroup;
+       super(other);
+        this.proximityGroup = proximityGroup;
 
     }
 
