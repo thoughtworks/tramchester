@@ -62,7 +62,7 @@ public class StationIndexs {
     }
 
     public Stream<Node> getAll(Route route) {
-        return StreamSupport.stream(graphQuery.getAllForRouteNoTx(route).spliterator(),false);
+        return StreamSupport.stream(graphQuery.getAllForRouteNoTx(route.getName()).spliterator(),false);
 //        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(graphQuery.getAllForRouteNoTx(route), Spliterator.ORDERED),
 //            false);
     }

@@ -11,10 +11,12 @@ public class RouteDTO {
     }
 
     private String routeName;
+    private String displayClass;
 
-    public RouteDTO(String routeName, List<StationDTO> stations) {
+    public RouteDTO(String routeName, List<StationDTO> stations, String displayClass) {
         this.stations = stations;
         this.routeName = routeName;
+        this.displayClass = displayClass;
     }
 
     public String getRouteName() {
@@ -39,5 +41,9 @@ public class RouteDTO {
     @Override
     public int hashCode() {
         return routeName != null ? routeName.hashCode() : 0;
+    }
+
+    public String getDisplayClass() {
+        return displayClass;
     }
 }

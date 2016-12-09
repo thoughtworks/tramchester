@@ -244,11 +244,4 @@ public class TramGraphBuilderTest {
 
     }
 
-    private void checkNumberOfServices(final String svcId, List<TransportRelationship> outbounds, int num) {
-        outbounds.removeIf(svc -> {
-            if (!(svc instanceof TramGoesToRelationship)) return true;
-            return !((TramGoesToRelationship)svc).getService().equals(svcId);
-        });
-        assertEquals(num, outbounds.size());
-    }
 }

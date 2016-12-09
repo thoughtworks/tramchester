@@ -26,6 +26,8 @@ public class RouteResourceTest {
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     ObjectMapper mapper = new ObjectMapper();
+    private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - MediaCityUK - Eccles",
+            new LinkedList<>(), "displayClass");
 
     @Before
     public void beforeEachTestRuns() {
@@ -33,7 +35,7 @@ public class RouteResourceTest {
     }
 
     @Test
-    @Ignore("Work in progress")
+    @Ignore("WIP")
     public void shouldGetAllRoutes() {
         Response result = IntegrationClient.getResponse(testRule, String.format("routes"), Optional.empty());
         List<RouteDTO> routes = result.readEntity(new GenericType<List<RouteDTO>>(){});
@@ -42,7 +44,7 @@ public class RouteResourceTest {
 
         routes.forEach(route -> assertFalse("Route no stations "+route.getRouteName(),route.getStations().isEmpty()));
 
-        int index = routes.indexOf(new RouteDTO("Ashton-under-Lyne - MediaCityUK - Eccles", new LinkedList<>()));
+        int index = routes.indexOf(ashtonEcclesRoute);
         assertTrue(index>0);
 
         RouteDTO ashtonRoute = routes.get(index);

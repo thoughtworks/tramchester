@@ -9,6 +9,7 @@ import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -24,12 +25,15 @@ import java.util.stream.Stream;
 public class RoutesRepository extends StationIndexs {
 
     private final StationRepository stationRepository;
+    private RouteCodeToClassMapper mapper;
 
     public RoutesRepository(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
                             SpatialDatabaseService spatialDatabaseService,
-                            StationRepository stationRepository) {
+                            StationRepository stationRepository,
+                            RouteCodeToClassMapper mapper) {
         super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
         this.stationRepository = stationRepository;
+        this.mapper = mapper;
     }
 
     public List<RouteDTO> getAllRoutes() {
@@ -56,7 +60,7 @@ public class RoutesRepository extends StationIndexs {
             tx.success();
         }
 
-        gather.add(new RouteDTO(routeName, stations));
+        gather.add(new RouteDTO(routeName, stations, mapper.map(route.getId())));
 
     }
 }

@@ -288,56 +288,67 @@ input[type="time"], input[type="datetime-local"] {
 .RouteClassA .panel-heading {
     background-color: #ea7d0e;
     color: #191c1f;
+    stroke: #ea7d0e;
 }
 
 .RouteClassB .panel-heading {
     background-color: #de3814;
     color: #ffffff;
+    stroke: #de3814;
 }
 
 .RouteClassC .panel-heading {
     background-color: #1d922f;
     color: #ffffff;
+    stroke: #1d922f;
 }
 
 .RouteClassD .panel-heading {
     background-color: #2389c9;
     color: #191c1f;
+    stroke: #2389c9;
 }
 
 .RouteClassE .panel-heading {
     background-color: #e36ea3;
     color: #191c1f;
+    stroke: #e36ea3;
 }
 
 .RouteClassF .panel-heading {
     background-color: #14447e;
     color: #ffffff;
+    stroke: #14447e;
 }
 
 .RouteClassG .panel-heading {
     background-color: #8b3581;
     color: #ffffff;
+    stroke: #8b3581;
 }
 
 .RouteClassH .panel-heading {
     background-color: #83b418;
     color: #191c1f;
+    stroke: #83b418;
 }
 
 .RouteClassI .panel-heading {
     background-color: #0f4947;
     color: #ffffff;
+    stroke: #0f4947;
 }
 
 .RouteClassJ .panel-heading {
     background-color: #db1776;
     color: #ffffff;
+    stroke: #db1776;
 }
 
 .RouteClassK .panel-heading {
     background-color: #ccb200;
     color: #191c1f;
+    stroke: #ccb200;
 }
 
 /*! Tram stop */

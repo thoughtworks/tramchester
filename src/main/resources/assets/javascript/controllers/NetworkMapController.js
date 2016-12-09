@@ -25,13 +25,19 @@ techLabApp.controller('NetworkMapController',
 
         function displayRoute(route) {
             var points = [];
+            var added = [];
 
             var stations = route.stations;
             for (var i = 0; i < stations.length; i++) {
                 var station = stations[i];
                 var latlng = station.latLong;
                 var place = [latlng.lat, latlng.lon];
-                L.marker(place, {title: station.name}).addTo(map);
+                if (added.indexOf(station.name)<0) {
+                    var marker = L.circleMarker(place, {opacity: 0.5});
+                    marker.addTo(map);
+                    marker.bindPopup(station.name);
+                    added.push(station.name);
+                }
                 points.push(place);
             }
             var line = new L.Polyline(points);

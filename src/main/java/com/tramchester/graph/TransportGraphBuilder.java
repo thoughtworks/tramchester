@@ -197,9 +197,9 @@ public class TransportGraphBuilder extends StationIndexs {
         Node routeStation = graphDatabaseService.createNode(Labels.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
+        routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_ID, route.getId());
-        routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
         return routeStation;
     }
 

@@ -34,19 +34,19 @@ public class GraphWithSimpleRouteTest {
     private List<Integer> queryTimes;
     private Station firstStation;
 
-    // TODO Use deependency init instead??
+    // TODO Use dependency init instead??
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
         File dbFile = new File(TMP_DB);
         FileUtils.deleteDirectory(dbFile);
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
         GraphDatabaseService graphDBService = graphDatabaseFactory.newEmbeddedDatabase(dbFile);
+        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
 
         NodeFactory nodeFactory = new NodeFactory();
         RelationshipFactory relationshipFactory = new RelationshipFactory(nodeFactory);
 
         transportData = new TransportDataForTest();
-        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory, spatialDatabaseService);
         builder.buildGraph();
 
@@ -56,8 +56,6 @@ public class GraphWithSimpleRouteTest {
 
         CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
         TramchesterConfig configuration = new IntegrationTramTestConfig();
-        //ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, configuration);
-        //TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
 
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
