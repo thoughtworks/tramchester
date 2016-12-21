@@ -1,7 +1,5 @@
 package com.tramchester.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.DateTime;
 
 public class Timestamped  {

@@ -7,7 +7,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;

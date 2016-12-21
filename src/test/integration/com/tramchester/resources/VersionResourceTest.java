@@ -9,7 +9,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
-
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;

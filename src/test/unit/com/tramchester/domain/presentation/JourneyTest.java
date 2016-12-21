@@ -7,14 +7,13 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
-import org.joda.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class JourneyTest {
 

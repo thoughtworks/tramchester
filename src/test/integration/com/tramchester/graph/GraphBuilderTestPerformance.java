@@ -3,7 +3,10 @@ package com.tramchester.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import org.joda.time.DateTime;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -2,11 +2,11 @@ package com.tramchester.domain;
 
 
 import com.tramchester.domain.presentation.LatLong;
+import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-import org.joda.time.LocalTime;
 
 import static org.junit.Assert.*;
 

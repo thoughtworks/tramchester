@@ -6,7 +6,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
-import com.tramchester.graph.Relationships.InterchangeDepartsRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Path;

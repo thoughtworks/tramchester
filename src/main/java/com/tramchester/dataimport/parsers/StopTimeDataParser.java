@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-import static java.lang.String.format;
-
 
 public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
     private static final Logger logger = LoggerFactory.getLogger(StopTimeDataParser.class);

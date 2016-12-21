@@ -16,23 +16,27 @@
 </div>
 <div class="container">
     <div class="row">
-        <div ng-show="Notes" class="panel" id="Notes">
-            <div ng-show="Notes" class="panel-heading"><strong>Notes:</strong></div>
-            <div class="list-group">
-                <div ng-show="Notes" ng-repeat="note in journeyPlan.notes">
-                     <div id="note{{$index}}" class="list-group-item" ng-bind-html="safeHtml(note)"></div>
+        <div class="col-12 col-sm-12 col-lg-">
+            <div ng-show="Notes" class="panel" id="Notes">
+                <div ng-show="Notes" class="panel-heading"><strong>Notes:</strong></div>
+                <div class="list-group" id="NotesList">
+                    <div ng-show="Notes" ng-repeat="note in journeyPlan.notes" id="NoteItem">
+                         <div id="note{{$index}}" class="list-group-item" ng-bind-html="safeHtml(note)"></div>
+                    </div>
+                </div>
+            </div>
+            <div ng-show="NoRoutes" class="panel" id="NoRoutes">
+                <div ng-show="NoRoutes" class="panel-heading">No Results</div>
+                <div ng-show="NoRoutes" class="list-group text-center">
+                    Unable to find any routes for the journey, please check the
+                    <a href="http://www.metrolink.co.uk/Pages/default.aspx"
+                       target="_blank">Metrolink Home page.</a>
                 </div>
             </div>
         </div>
-        <div ng-show="NoRoutes" class="panel" id="NoRoutes">
-            <div ng-show="NoRoutes" class="panel-heading">No Results</div>
-            <div ng-show="NoRoutes" class="list-group text-center">
-                Unable to find any routes for the journey, please check the
-                <a href="http://www.metrolink.co.uk/Pages/default.aspx"
-                   target="_blank">Metrolink Home page.</a>
-            </div>
-        </div>
+        <!--
         <p ng-show="NoRoutes"><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
+        -->
         <div class="col-12 col-sm-12 col-lg-" ng-hide="NoRoutes">
             <div id="routes" ng-show="!journeyPlan.journeys.length" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
@@ -59,7 +63,15 @@
                     </ul>
                 </div>
             </div>
-            <p><a id="newJourney" href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
+        </div>
+        <div  id="newJourneyPanel" class="col-12 col-sm-12 col-lg-">
+            <div class="panel">
+                <div class="panel-heading">Plan new journey</div>
+                    <div class="list-group">
+                        <a id="newJourney" href="/#/routePlanner" class="btn bt n-default btn-lg btn-block">Plan New Journey</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

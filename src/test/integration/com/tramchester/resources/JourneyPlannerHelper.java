@@ -5,8 +5,8 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 

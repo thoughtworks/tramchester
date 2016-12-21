@@ -5,8 +5,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import org.joda.time.LocalDate;
-
 import org.joda.time.LocalTime;
+
 import java.util.*;
 
 public class TransportDataForTest implements TransportData, StationRepository {

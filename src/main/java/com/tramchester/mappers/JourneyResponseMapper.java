@@ -1,10 +1,14 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.ProvidesNotes;
+import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

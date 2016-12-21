@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.tramchester.domain.ProvidesNotes;
 import com.tramchester.pages.*;
 import com.tramchester.resources.FeedInfoResourceTest;
 import com.tramchester.resources.JourneyPlannerHelper;
@@ -21,6 +22,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
@@ -208,10 +211,24 @@ public class UserJourneyTest extends UserJourneys {
         checkForWeekendNotes(routeDetailsPage);
     }
 
-    private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {
-        assertTrue(routeDetailsPage.waitForRoutes());
-        String notes = routeDetailsPage.getNote(0);
-        assertTrue(notes.contains("At the weekend your journey may be affected by improvement works."));
+    @Test
+    @Category({AcceptanceTest.class})
+    public void shouldDisplayMessageAboutChristmasServices2016() throws InterruptedException {
+        LocalDate date = new LocalDate(2016, 12, 23);
+        RouteDetailsPage page = enterRouteSelection(url, altrincham, deansgate, date, "10:00:00");
+
+        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
+
+        for(int offset=1; offset<11; offset++) {
+            RoutePlannerPage planner = page.planNewJourney();
+            LocalDate queryDate = date.plusDays(offset);
+            page = enterRouteSelection(planner, altrincham, deansgate, queryDate, "10:00:00");
+            checkForChristmasMessage(queryDate.toString(), page);
+        }
+
+        RoutePlannerPage planner = page.planNewJourney();
+        page = enterRouteSelection(planner, altrincham, deansgate, new LocalDate(2017, 1, 3), "10:00:00");
+        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
     }
 
     @Test
@@ -332,5 +349,19 @@ public class UserJourneyTest extends UserJourneys {
         checkDuration(journeyDetailsPage, stageIndex);
     }
 
+    private void checkForChristmasMessage(String msg, RouteDetailsPage routeDetailsPage) {
+        List<String> notes = getNotes(routeDetailsPage);
+        assertThat(msg, notes,
+                hasItem("There are changes to Metrolink services during Christmas and New Year.Please check TFGM for details."));
+    }
+
+    private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {
+        List<String> notes = getNotes(routeDetailsPage);
+        assertThat(notes,hasItem(ProvidesNotes.weekend));
+    }
+
+    private List<String> getNotes(RouteDetailsPage routeDetailsPage) {
+        return routeDetailsPage.getAllNotes();
+    }
 
 }

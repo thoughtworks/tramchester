@@ -2,8 +2,6 @@ package com.tramchester.domain;
 
 
 import org.joda.time.LocalDate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;

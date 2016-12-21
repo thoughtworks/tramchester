@@ -53,7 +53,9 @@ public class GraphQueryTest {
 
     @AfterClass
     public static void afterAllOfTheTestsHaveRun() throws IOException {
-        graphDBService.shutdown();
+        if (graphDBService!=null) {
+            graphDBService.shutdown();
+        }
         FileUtils.deleteDirectory(dbFile);
     }
 
@@ -61,7 +63,7 @@ public class GraphQueryTest {
     public void shouldHaveCorrectEndNodesForRoute() throws IOException {
 
         try (Transaction tx = graphDBService.beginTx()) {
-            ArrayList<Node> nodes = graphQuery.findEndNodesFor("routeA");
+            ArrayList<Node> nodes = graphQuery.findStartNodesFor("routeA");
             assertEquals(1, nodes.size());
             Node node = nodes.get(0);
 

@@ -2,7 +2,10 @@ package com.tramchester.graph;
 
 import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.Station;
+import com.tramchester.domain.StationWalk;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -20,7 +23,9 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 

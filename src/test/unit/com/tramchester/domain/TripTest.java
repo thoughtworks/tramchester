@@ -2,9 +2,9 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
-import org.joda.time.LocalTime;
 import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;

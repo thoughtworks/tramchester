@@ -11,7 +11,9 @@ import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
 import org.joda.time.DateTime;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;

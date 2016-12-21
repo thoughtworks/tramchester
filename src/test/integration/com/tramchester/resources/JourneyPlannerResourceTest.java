@@ -22,7 +22,6 @@ import org.junit.Test;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +31,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.joda.time.DateTimeConstants.MONDAY;
-import static org.joda.time.DateTimeConstants.SATURDAY;
-import static org.joda.time.DateTimeConstants.SUNDAY;
-import static org.junit.Assert.fail;
+import static org.joda.time.DateTimeConstants.*;
 
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 

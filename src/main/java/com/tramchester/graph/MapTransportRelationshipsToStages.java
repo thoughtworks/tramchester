@@ -1,7 +1,10 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
-import com.tramchester.graph.Nodes.*;
+import com.tramchester.graph.Nodes.QueryNode;
+import com.tramchester.graph.Nodes.RouteStationNode;
+import com.tramchester.graph.Nodes.StationNode;
+import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.StationRepository;

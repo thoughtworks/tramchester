@@ -3,27 +3,31 @@ package com.tramchester.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.tramchester.*;
+import com.tramchester.App;
+import com.tramchester.IntegrationTestRun;
+import com.tramchester.IntegrationTramTestConfig;
+import com.tramchester.Stations;
 import com.tramchester.domain.Location;
-import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.junit.*;
-import org.junit.rules.Timeout;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.SortedSet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MyLocationJourneyPlannerTest {
 

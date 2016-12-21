@@ -15,6 +15,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -23,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class RoutesRepository extends StationIndexs {
+    private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
     private final StationRepository stationRepository;
     private RouteCodeToClassMapper mapper;
@@ -37,22 +40,21 @@ public class RoutesRepository extends StationIndexs {
     }
 
     public List<RouteDTO> getAllRoutes() {
-        List<RouteDTO> results = new LinkedList<>();
+        List<RouteDTO> routeDTOs = new LinkedList<>();
         Collection<Route> routes = stationRepository.getRoutes();
-        routes.forEach(route-> populate(route,results));
-        return results;
+        routes.forEach(route-> populateDTOFor(route,routeDTOs));
+        logger.info(String.format("Found %s routes", routes.size()));
+        return routeDTOs;
     }
 
-    private void populate(Route route, List<RouteDTO> gather) {
+    private void populateDTOFor(Route route, List<RouteDTO> gather) {
         List<StationDTO> stations = new LinkedList<>();
         String routeName = route.getName();
+        logger.debug("Finding nodes for route "  + routeName);
         try (Transaction tx = graphDatabaseService.beginTx()) {
-
-            Stream<Node> nodes = super.getAll(route);
+            Stream<Node> nodes = super.getNodesFor(route);
             nodes.forEach(node -> {
-                Iterable<Relationship> departs = node.getRelationships(TransportRelationshipTypes.DEPART,
-                        TransportRelationshipTypes.INTERCHANGE_DEPART);
-                Node stationNode = departs.iterator().next().getEndNode();
+                Node stationNode = getTargetNode(node);
                 String id = (String) stationNode.getProperty(GraphStaticKeys.ID);
                 Optional<Station> station = stationRepository.getStation(id);
                 station.ifPresent(value -> stations.add(new StationDTO(value, ProximityGroup.ALL)));
@@ -61,6 +63,11 @@ public class RoutesRepository extends StationIndexs {
         }
 
         gather.add(new RouteDTO(routeName, stations, mapper.map(route.getId())));
+    }
 
+    private Node getTargetNode(Node node) {
+        Iterable<Relationship> departs = node.getRelationships(TransportRelationshipTypes.DEPART,
+                TransportRelationshipTypes.INTERCHANGE_DEPART);
+        return departs.iterator().next().getEndNode();
     }
 }

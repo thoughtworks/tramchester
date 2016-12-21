@@ -1,7 +1,6 @@
 package com.tramchester.domain;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Route {
@@ -68,5 +67,13 @@ public class Route {
         return agency.equals(METROLINK);
     }
 
-
+    @Override
+    public String toString() {
+        return "Route{" +
+                "id='" + id + '\'' +
+                ", code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", agency='" + agency + '\'' +
+                '}';
+    }
 }

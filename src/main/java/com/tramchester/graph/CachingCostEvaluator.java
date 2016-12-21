@@ -4,7 +4,6 @@ import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

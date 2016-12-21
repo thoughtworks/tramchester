@@ -1,18 +1,16 @@
 package com.tramchester.resources;
 
 
-import com.tramchester.*;
+import com.tramchester.App;
+import com.tramchester.IntegrationClient;
+import com.tramchester.IntegrationTestRun;
+import com.tramchester.IntegrationTramTestConfig;
 import com.tramchester.domain.FeedInfo;
-import io.dropwizard.testing.ConfigOverride;
-import org.assertj.core.internal.cglib.core.Local;
 import org.joda.time.LocalDate;
-import org.junit.*;
+import org.junit.ClassRule;
+import org.junit.Test;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;

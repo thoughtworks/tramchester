@@ -2,10 +2,13 @@ package com.tramchester.pages;
 
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RouteDetailsPage extends Page {
 
@@ -53,9 +56,18 @@ public class RouteDetailsPage extends Page {
         return waitForElement("NoRoutes", 4*timeOut).isEnabled();
     }
 
-    public String getNote(int index) {
-        WebElement element = waitForElement("note" + index, timeOut);
-        return element.getText();
+    public List<String> getAllNotes() {
+        WebElement listElement;
+        try {
+            listElement = waitForElement("NotesList", timeOut);
+            waitForElement("NoteItem", timeOut);
+        }
+        catch (TimeoutException timedOut) {
+            // legit, may not be any notes.....
+            return new ArrayList<>();
+        }
+        List<WebElement> listItems = listElement.findElements(By.id("NoteItem"));
+        return listItems.stream().map(WebElement::getText).collect(Collectors.toList());
     }
 
     public RoutePlannerPage planNewJourney() throws InterruptedException {

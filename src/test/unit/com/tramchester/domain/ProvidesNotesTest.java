@@ -6,11 +6,12 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 
 public class ProvidesNotesTest {
-    private String expected = "At the weekend your journey may be affected by improvement works." +
-            "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
     private ProvidesNotes provider;
 
     @Before
@@ -23,8 +24,8 @@ public class ProvidesNotesTest {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-29"));
         List<String> result = provider.createNotesFor(queryDate);
 
-        assertEquals(1,result.size());
-        assertEquals(expected,result.get(0));
+        assertThat(result, hasItem(ProvidesNotes.weekend));
+
     }
 
     @Test
@@ -32,8 +33,7 @@ public class ProvidesNotesTest {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-30"));
         List<String> result = provider.createNotesFor(queryDate);
 
-        assertEquals(1,result.size());
-        assertEquals(expected,result.get(0));
+        assertThat(result, hasItem(ProvidesNotes.weekend));
     }
 
     @Test
@@ -41,6 +41,24 @@ public class ProvidesNotesTest {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-31"));
         List<String> result = provider.createNotesFor(queryDate);
 
-        assertEquals(0,result.size());
+        assertThat(result, not(hasItem(ProvidesNotes.weekend)));
+    }
+
+    @Test
+    public void shouldHaveNoteForChristmasServices2016() {
+        LocalDate date = new LocalDate(2016, 12, 23);
+
+        List<String> result = provider.createNotesFor(new TramServiceDate(date));
+        assertThat(result, not(hasItem(ProvidesNotes.christmas)));
+
+        for(int offset=1; offset<11; offset++) {
+            TramServiceDate queryDate = new TramServiceDate(date.plusDays(offset));
+            result = provider.createNotesFor(queryDate);
+            assertThat(queryDate.toString(), result, hasItem(ProvidesNotes.christmas));
+        }
+
+        date = new LocalDate(2017, 1, 3);
+        result = provider.createNotesFor(new TramServiceDate(date));
+        assertThat(result, not(hasItem(ProvidesNotes.christmas)));
     }
 }

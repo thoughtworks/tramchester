@@ -16,7 +16,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,6 +1,9 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.RawStage;
+import com.tramchester.domain.RawVehicleStage;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.RouteCalculator;
 import org.joda.time.LocalDate;

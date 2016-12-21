@@ -1,10 +1,10 @@
 package com.tramchester.graph;
 
 
+import com.tramchester.domain.RawStage;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.RawStage;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;

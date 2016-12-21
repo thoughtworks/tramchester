@@ -8,9 +8,8 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.StageDTO;
-import org.junit.Test;
-
 import org.joda.time.LocalTime;
+import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 

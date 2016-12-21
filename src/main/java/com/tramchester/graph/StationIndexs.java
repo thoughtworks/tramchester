@@ -6,15 +6,18 @@ import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
+
     protected final RelationshipFactory relationshipFactory;
     private Map<String,Node> routeStationNodeCache;
     private Map<String,Node> stationNodeCache;
@@ -61,10 +64,10 @@ public class StationIndexs {
         return node;
     }
 
-    public Stream<Node> getAll(Route route) {
-        return StreamSupport.stream(graphQuery.getAllForRouteNoTx(route.getName()).spliterator(),false);
-//        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(graphQuery.getAllForRouteNoTx(route), Spliterator.ORDERED),
-//            false);
+    public Stream<Node> getNodesFor(Route route) {
+        logger.info("Find nodes for route " + route);
+        ResourceIterable<Node> iterable = graphQuery.getAllForRouteNoTx(route.getName());
+        return StreamSupport.stream(iterable.spliterator(),false);
     }
 
     protected SimplePointLayer getSpatialLayer() {

@@ -7,7 +7,6 @@ import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.GenericType;
@@ -16,9 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RouteResourceTest {
 
@@ -35,7 +32,6 @@ public class RouteResourceTest {
     }
 
     @Test
-    @Ignore("WIP")
     public void shouldGetAllRoutes() {
         Response result = IntegrationClient.getResponse(testRule, String.format("routes"), Optional.empty());
         List<RouteDTO> routes = result.readEntity(new GenericType<List<RouteDTO>>(){});

@@ -15,8 +15,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static org.apache.lucene.util.IOUtils.close;
-
 public class DataLoader<T> {
     private final String fileName;
     private final CSVEntryParser<T> parser;

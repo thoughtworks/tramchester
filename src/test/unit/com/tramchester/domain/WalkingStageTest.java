@@ -3,10 +3,9 @@ package com.tramchester.domain;
 
 import com.tramchester.Stations;
 import com.tramchester.domain.exceptions.TramchesterException;
+import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.joda.time.LocalTime;
 
 import static org.junit.Assert.assertEquals;
 

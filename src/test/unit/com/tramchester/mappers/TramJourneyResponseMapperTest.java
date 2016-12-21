@@ -2,10 +2,11 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;

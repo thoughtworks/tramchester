@@ -9,10 +9,11 @@ import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.graphalgo.*;
+import org.neo4j.graphalgo.CostEvaluator;
+import org.neo4j.graphalgo.PathFinder;
+import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

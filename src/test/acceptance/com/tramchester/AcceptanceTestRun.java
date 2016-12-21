@@ -1,7 +1,6 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.FeedInfo;
 import io.dropwizard.Application;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;

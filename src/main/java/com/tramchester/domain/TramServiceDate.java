@@ -54,4 +54,8 @@ public class TramServiceDate {
         int dayOfWeek = date.getDayOfWeek();
         return (dayOfWeek==DateTimeConstants.SATURDAY) || (dayOfWeek==DateTimeConstants.SUNDAY);
     }
+
+    public boolean isChristmasPeriod() {
+        return date.isAfter((new LocalDate(2016,12,23))) && (date.isBefore(new LocalDate(2017,1,3)));
+    }
 }

@@ -8,13 +8,13 @@ import com.tramchester.services.DateTimeService;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import org.joda.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 

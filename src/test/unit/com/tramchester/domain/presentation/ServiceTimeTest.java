@@ -1,8 +1,8 @@
 package com.tramchester.domain.presentation;
 
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
-import org.joda.time.LocalTime;
 import java.util.SortedSet;
 import java.util.TreeSet;
 

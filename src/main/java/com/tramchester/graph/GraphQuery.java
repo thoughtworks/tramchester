@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.google.common.collect.Lists;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
@@ -8,13 +7,14 @@ import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.*;
 import org.neo4j.graphdb.traversal.Traverser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-
 public class GraphQuery {
+    private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
     private RelationshipFactory relationshipFactory;
     private SpatialDatabaseService spatialDatabaseService;
@@ -48,15 +48,16 @@ public class GraphQuery {
     }
 
     public ResourceIterable<Node> getAllForRouteNoTx(String routeName) {
-        List<Node> ids = findEndNodesFor(routeName);
+        List<Node> ids = findStartNodesFor(routeName);
+        logger.info("Traverse route " +routeName);
         Traverser traversal = graphDatabaseService.traversalDescription().
                 depthFirst().
                 relationships(TransportRelationshipTypes.TRAM_GOES_TO, Direction.OUTGOING).
-                evaluator(new RouteEvaluator(routeName)).traverse(Lists.newArrayList(ids));
+                evaluator(new RouteEvaluator(routeName)).traverse(ids);
         return traversal.nodes();
     }
 
-    public ArrayList<Node> findEndNodesFor(String routeName) {
+    public ArrayList<Node> findStartNodesFor(String routeName) {
         ArrayList<Node> arrayList = new ArrayList<>();
 
         Map<String, Object> parameters = new HashMap<>();
@@ -69,6 +70,10 @@ public class GraphQuery {
         Result results = graphDatabaseService.execute(query,parameters);
         ResourceIterator<Node> nodes = results.columnAs("begin");
         nodes.forEachRemaining(n -> arrayList.add(n));
+        logger.debug(String.format("Found %s start nodes for route %s", arrayList.size(), routeName));
+        if (arrayList.size()>1) {
+            logger.warn(String.format("Found more than one (%s) start nodes for route %s", arrayList.size(), routeName));
+        }
         return arrayList;
     }
 
