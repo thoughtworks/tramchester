@@ -24,9 +24,9 @@ public class TransportDataFromFilesTest {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
-    // use TramJourneyPlannerTest.
-    private final String svcDeansgateToVic = "Serv002248";
-    private String svcShawAndCrompton = "Serv007312";
+    // use JourneyPlannerResourceTest.
+    private final String svcDeansgateToVic = "Serv003558";
+    private String svcShawAndCrompton = "Serv011321";
 
     private Collection<Service> allServices;
 
@@ -121,7 +121,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetTripsAfter() {
-        // use TramJourneyPlannerTest.shouldFindRouteDeansgateToVictoria
+        // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
                 new TimeWindow((23 * 60) +41,30));
@@ -130,7 +130,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetTripsCrossingMidnight() {
-        // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
+        // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));
@@ -139,7 +139,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetTripCrossingMidnight() {
-        // use TramJourneyPlannerTest.shouldFindRouteVicToShawAndCrompton to find svc Id
+        // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(((23 * 60) + 41), 30));

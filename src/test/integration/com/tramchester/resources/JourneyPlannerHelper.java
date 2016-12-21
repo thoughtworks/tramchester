@@ -59,7 +59,11 @@ public abstract class JourneyPlannerHelper {
     public static LocalDate nextMonday() {
         LocalDate now = LocalDate.now();
         int offset = now.getDayOfWeek()-MONDAY;
-        return now.minusDays(offset).plusWeeks(1);
+        LocalDate nextMonday = now.minusDays(offset).plusWeeks(1);
+        while (new TramServiceDate(nextMonday).isChristmasPeriod()) {
+            nextMonday = nextMonday.plusWeeks(1);
+        }
+        return nextMonday;
     }
 
 }

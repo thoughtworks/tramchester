@@ -54,7 +54,9 @@ public class GraphQueryTest {
     @AfterClass
     public static void afterAllOfTheTestsHaveRun() throws IOException {
         if (graphDBService!=null) {
-            graphDBService.shutdown();
+            if (graphDBService.isAvailable(1)) {
+                graphDBService.shutdown();
+            }
         }
         FileUtils.deleteDirectory(dbFile);
     }

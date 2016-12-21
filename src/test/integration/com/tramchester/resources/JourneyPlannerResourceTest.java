@@ -44,6 +44,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Before
     public void beforeEachTestRuns() {
         when = nextMonday();
+
         mapper.registerModule(new JodaModule());
     }
 

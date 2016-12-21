@@ -196,7 +196,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldDisplayNotesOnSaturday() throws InterruptedException {
-        LocalDate aSaturday = nextMonday.minusDays(2);
+        LocalDate aSaturday = nextMonday.plusDays(5);
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, aSaturday, "10:00:00");
         checkForWeekendNotes(routeDetailsPage);
@@ -205,7 +205,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldDisplayNotesOnSunday() throws InterruptedException {
-        LocalDate aSunday = nextMonday.minusDays(1);
+        LocalDate aSunday = nextMonday.plusDays(6);
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, aSunday, "10:00:00");
         checkForWeekendNotes(routeDetailsPage);
@@ -357,7 +357,7 @@ public class UserJourneyTest extends UserJourneys {
 
     private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {
         List<String> notes = getNotes(routeDetailsPage);
-        assertThat(notes,hasItem(ProvidesNotes.weekend));
+        assertThat(notes,hasItem("At the weekend your journey may be affected by improvement works.Please check TFGM for details."));
     }
 
     private List<String> getNotes(RouteDetailsPage routeDetailsPage) {
