@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 
 public class GraphQueryTest {
 
-    private static final String TMP_DB = "tmp.db";
+    private static final String TMP_DB = "graph_query_test.db";
     private static GraphQuery graphQuery;
     private static GraphDatabaseService graphDBService;
     private static File dbFile;
