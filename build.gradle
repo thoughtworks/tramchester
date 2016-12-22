@@ -123,7 +123,7 @@ task buses(type:JavaExec) {
 
 test {
     // t2.micro has 1gb
-    maxHeapSize = "2g"
+    maxHeapSize = '1500m'
     useJUnit {
         excludeCategories 'com.tramchester.BusTest', 'com.tramchester.AcceptanceTest'
     }
