@@ -24,9 +24,10 @@ public class TransportDataFromFilesTest {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
-    // use JourneyPlannerResourceTest.
-    private final String svcDeansgateToVic = "Serv003558";
-    private String svcShawAndCrompton = "Serv011321";
+    // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
+    private final String svcDeansgateToVic = "Serv001861";
+    // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
+    private String svcShawAndCrompton = "Serv005599";
 
     private Collection<Service> allServices;
 
