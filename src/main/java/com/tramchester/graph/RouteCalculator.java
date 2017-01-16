@@ -52,7 +52,6 @@ public class RouteCalculator extends StationIndexs {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         Node endNode = getStationNode(endStationId);
 
-
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = getStationNode(startStationId);
 

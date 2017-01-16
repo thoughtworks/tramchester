@@ -20,7 +20,6 @@ public class JourneyPlanRepresentation {
         return journeys;
     }
 
-
     public List<String> getNotes() {
         return notes;
     }

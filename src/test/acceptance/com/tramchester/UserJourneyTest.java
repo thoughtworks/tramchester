@@ -123,7 +123,6 @@ public class UserJourneyTest extends UserJourneys {
         assertFalse(toStops.contains(cornbrook));
     }
 
-
     @Test
     @Category({AcceptanceTest.class})
     public void shouldShowNoRoutesMessage() throws InterruptedException {
@@ -157,7 +156,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckRochdaleToAirportThreeStageJourney() throws InterruptedException {
-        List<String> changes = Arrays.asList("Freehold", "St Werburgh's Road");
+        List<String> changes = Arrays.asList("South Chadderton", "St Werburgh's Road");
         List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.Rochdale.getName(),
                 Stations.ManAirport.getName(), nextMonday, "10:15", changes,
@@ -174,14 +173,15 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headsignPiccadilly = Arrays.asList("Piccadilly");
         List<String> headSignsBury = Arrays.asList("Bury");
 
-        RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, this.deansgate,
+        RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, deansgate,
                 nextMonday, "10:15", noChanges, headsignPiccadilly, false, expectedNumberJourneyResults, 0, false)
                 .backToRouteDetails();
 
-        routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, this.deansgate, noChanges, headSignsBury, 1)
+        routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges, headsignPiccadilly, 1)
                 .backToRouteDetails();
 
-        checkJourneyDetailsPage(routeDetailsPage, altrincham, this.deansgate, noChanges, headsignPiccadilly, 2);
+        List<String> changeAtTrafford = Arrays.asList("Trafford Bar");
+        checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, changeAtTrafford, headSignsBury, 2);
     }
 
     @Test
@@ -211,25 +211,26 @@ public class UserJourneyTest extends UserJourneys {
         checkForWeekendNotes(routeDetailsPage);
     }
 
-    @Test
-    @Category({AcceptanceTest.class})
-    public void shouldDisplayMessageAboutChristmasServices2016() throws InterruptedException {
-        LocalDate date = new LocalDate(2016, 12, 23);
-        RouteDetailsPage page = enterRouteSelection(url, altrincham, deansgate, date, "10:00:00");
-
-        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
-
-        for(int offset=1; offset<11; offset++) {
-            RoutePlannerPage planner = page.planNewJourney();
-            LocalDate queryDate = date.plusDays(offset);
-            page = enterRouteSelection(planner, altrincham, deansgate, queryDate, "10:00:00");
-            checkForChristmasMessage(queryDate.toString(), page);
-        }
-
-        RoutePlannerPage planner = page.planNewJourney();
-        page = enterRouteSelection(planner, altrincham, deansgate, new LocalDate(2017, 1, 3), "10:00:00");
-        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
-    }
+    // saving for Christmas 2017....
+//    @Test
+//    @Category({AcceptanceTest.class})
+//    public void shouldDisplayMessageAboutChristmasServices2016() throws InterruptedException {
+//        LocalDate date = new LocalDate(2016, 12, 23);
+//        RouteDetailsPage page = enterRouteSelection(url, altrincham, deansgate, date, "10:00:00");
+//
+//        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
+//
+//        for(int offset=1; offset<11; offset++) {
+//            RoutePlannerPage planner = page.planNewJourney();
+//            LocalDate queryDate = date.plusDays(offset);
+//            page = enterRouteSelection(planner, altrincham, deansgate, queryDate, "10:00:00");
+//            checkForChristmasMessage(queryDate.toString(), page);
+//        }
+//
+//        RoutePlannerPage planner = page.planNewJourney();
+//        page = enterRouteSelection(planner, altrincham, deansgate, new LocalDate(2017, 1, 3), "10:00:00");
+//        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
+//    }
 
     @Test
     @Category({AcceptanceTest.class})
