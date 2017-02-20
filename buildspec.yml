@@ -4,6 +4,9 @@ phases:
   build:
     commands:
       - gradle compileJava
+  post_build:
+    commands:
+      - gradle test
 artifacts:
   files:
     - build
