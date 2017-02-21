@@ -163,7 +163,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, 23*60, when);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, (22*60)+56, when);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,
-                Stations.ManAirport, (23*60)+10, when);
+                Stations.ManAirport, (23*60)+5, when);
 
         Assert.assertTrue(results.getJourneys().size()>0);
     }

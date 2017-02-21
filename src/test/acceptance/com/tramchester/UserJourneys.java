@@ -36,6 +36,9 @@ public class UserJourneys {
     protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     protected void takeScreenShot(TestName testName) {
+        if (driver==null) {
+            return;
+        }
         try {
             TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
             byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
@@ -54,7 +57,9 @@ public class UserJourneys {
             LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
             logs.forEach(log -> System.out.println(log));
         } finally {
-            driver.close();
+            if (driver!=null) {
+                driver.close();
+            }
         }
     }
 

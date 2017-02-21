@@ -1,6 +1,5 @@
 package com.tramchester;
 
-import com.tramchester.domain.ProvidesNotes;
 import com.tramchester.pages.*;
 import com.tramchester.resources.FeedInfoResourceTest;
 import com.tramchester.resources.JourneyPlannerHelper;
@@ -23,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
