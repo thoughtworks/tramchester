@@ -45,6 +45,10 @@ public class UserJourneyTest extends UserJourneys {
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
         DesiredCapabilities capabilities = createCommonCapabilities(false);
+        String firefoxPath = System.getenv("FIREFOX_PATH");
+        if (firefoxPath!=null) {
+            System.setProperty("webdriver.firefox.bin", firefoxPath);
+        }
 
         driver = new FirefoxDriver(capabilities);
         driver.manage().deleteAllCookies();
@@ -142,8 +146,8 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
-        List<String> changes = Arrays.asList(cornbrook);
-        List<String> headSigns = Arrays.asList("Cornbrook");
+        List<String> changes = Lists.emptyList();
+        List<String> headSigns = Arrays.asList("Deansgate-Castlefield");
         JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.ManAirport.getName(),
                 deansgate, nextMonday, "10:15", changes,
                 headSigns, false, expectedNumberJourneyResults, 0, false);
@@ -151,16 +155,27 @@ public class UserJourneyTest extends UserJourneys {
         routeDetailsPage.waitForRoutes();
     }
 
+    // with second city crossing does not appear to be any three stage journeys
+//    @Test
+//    @Category({AcceptanceTest.class})
+//    public void shouldCheckRochdaleToAirportThreeStageJourney() throws InterruptedException {
+//        List<String> changes = Arrays.asList("South Chadderton", "St Werburgh's Road");
+//        List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
+//        JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.Rochdale.getName(),
+//                Stations.ManAirport.getName(), nextMonday, "10:15", changes,
+//                headSigns, false, expectedNumberJourneyResults, 0, false);
+//        RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
+//        routeDetailsPage.waitForRoutes();
+//    }
+
     @Test
     @Category({AcceptanceTest.class})
-    public void shouldCheckRochdaleToAirportThreeStageJourney() throws InterruptedException {
-        List<String> changes = Arrays.asList("South Chadderton", "St Werburgh's Road");
-        List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
-        JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.Rochdale.getName(),
-                Stations.ManAirport.getName(), nextMonday, "10:15", changes,
-                headSigns, false, expectedNumberJourneyResults, 0, false);
-        RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
-        routeDetailsPage.waitForRoutes();
+    public void shouldHaveSecondCityCrossingRoutes() throws InterruptedException {
+        List<String> noChanges = new LinkedList<>();
+        List<String> headsignRochdale = Arrays.asList("Rochdale Interchange");
+
+        checkJourney(url, Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
+                nextMonday, "10:15", noChanges, headsignRochdale, false, expectedNumberJourneyResults, 0, false);
     }
 
     @Test
@@ -168,18 +183,17 @@ public class UserJourneyTest extends UserJourneys {
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
 
-        List<String> headsignPiccadilly = Arrays.asList("Piccadilly");
+        List<String> headsignEtihadCampus = Arrays.asList("Etihad Campus");
         List<String> headSignsBury = Arrays.asList("Bury");
 
         RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, deansgate,
-                nextMonday, "10:15", noChanges, headsignPiccadilly, false, expectedNumberJourneyResults, 0, false)
+                nextMonday, "10:15", noChanges, headSignsBury, false, expectedNumberJourneyResults, 0, false)
                 .backToRouteDetails();
 
-        routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges, headsignPiccadilly, 1)
-                .backToRouteDetails();
+        routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges,
+                headsignEtihadCampus, 1).backToRouteDetails();
 
-        List<String> changeAtTrafford = Arrays.asList("Trafford Bar");
-        checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, changeAtTrafford, headSignsBury, 2);
+        checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges, headSignsBury, 2);
     }
 
     @Test
@@ -282,7 +296,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Victoria.getName());
+        List<String> changes = Arrays.asList(Stations.StPetersSquare.getName());
         List<String> headSigns = Arrays.asList("Bury");
 
         checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),
