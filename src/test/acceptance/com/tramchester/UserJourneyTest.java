@@ -45,10 +45,6 @@ public class UserJourneyTest extends UserJourneys {
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
         DesiredCapabilities capabilities = createCommonCapabilities(false);
-        String firefoxPath = System.getenv("FIREFOX_PATH");
-        if (firefoxPath!=null) {
-            System.setProperty("webdriver.firefox.bin", firefoxPath);
-        }
 
         driver = new FirefoxDriver(capabilities);
         driver.manage().deleteAllCookies();

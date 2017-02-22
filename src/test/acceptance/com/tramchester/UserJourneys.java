@@ -64,6 +64,11 @@ public class UserJourneys {
     }
 
     protected DesiredCapabilities createCommonCapabilities(boolean enableGeo) {
+        String firefoxPath = System.getenv("FIREFOX_PATH");
+        if (firefoxPath!=null) {
+            System.setProperty("webdriver.firefox.bin", firefoxPath);
+        }
+
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, enableGeo);
         capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.ACCEPT);
@@ -197,7 +202,9 @@ public class UserJourneys {
             assertThat("Changes", promptText, is("Change tram at " + changes.get(stageIndex - 1)));
         }
         checkDuration(journeyDetailsPage, stageIndex);
-        checkInstruction(journeyDetailsPage, stageIndex, headSigns);
+        if (!headSigns.isEmpty()) {
+            checkInstruction(journeyDetailsPage, stageIndex, headSigns);
+        }
 
         String arriveText = journeyDetailsPage.getArrive(stageIndex);
         if (stageIndex < changes.size()) {
