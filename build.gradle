@@ -82,6 +82,7 @@ task cfnassist << {
 }
 
 jar {
+    zip64 = true
     manifest {
         attributes(
                 "Manifest-Version": "1.0",
