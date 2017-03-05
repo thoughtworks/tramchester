@@ -15,6 +15,8 @@ import com.tramchester.domain.presentation.StationClosureMessage;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+@Api
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource extends UsesRecentCookie {
@@ -54,6 +57,7 @@ public class StationResource extends UsesRecentCookie {
 
     @GET
     @Timed
+    @ApiOperation(value = "Get all stations", response = StationDTO.class, responseContainer = "List")
     public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info("Get all stations with cookie " + tranchesterRecent);
 
@@ -88,6 +92,7 @@ public class StationResource extends UsesRecentCookie {
     @GET
     @Timed
     @Path("/closures")
+    @ApiOperation(value = "Get long term closed stations", response = StationClosureMessage.class)
     public Response getClosures() {
         logger.info("Get station closures");
         StationClosureMessage stationClosureMessage = new StationClosureMessage(closedStations);
@@ -97,6 +102,7 @@ public class StationResource extends UsesRecentCookie {
     @GET
     @Timed
     @Path("/{id}")
+    @ApiOperation(value = "Get station by id", response = StationDTO.class)
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
         Optional<Station> station = stationRepository.getStation(id);
@@ -111,6 +117,7 @@ public class StationResource extends UsesRecentCookie {
     @GET
     @Timed
     @Path("/{lat}/{lon}")
+    @ApiOperation(value = "Get geographically close stations", response = StationDTO.class, responseContainer = "List")
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s with cookie ", lat, lon, tranchesterRecent));

@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.codahale.metrics.MetricRegistry;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
@@ -12,6 +13,8 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.listing.ApiListingResource;
 import org.eclipse.jetty.servlet.FilterHolder;
 
 import javax.servlet.DispatcherType;
@@ -48,6 +51,8 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new AssetsBundle("/assets/images", "/images", null, "images"));
         bootstrap.addBundle(new AssetsBundle("/assets/javascript", "/javascript", null, "js"));
         bootstrap.addBundle(new AssetsBundle("/assets/views", "/views", null, "views"));
+
+        bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
     }
 
     @Override
@@ -69,10 +74,24 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(RouteResource.class));
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
 
+        // cloudwatch
         MetricRegistry registry = environment.metrics();
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry,
                 dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
+
+        // swagger ( at /api/swagger.json or /api/swagger.yaml)
+        environment.jersey().register(ApiListingResource.class);
+        // nulls in the Swagger JSON break SwaggerUI
+        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        BeanConfig config = new BeanConfig();
+        config.setTitle("Tramchester");
+        config.setVersion("1.0.0");
+        config.setResourcePackage("com.tramchester.resources");
+        config.setScan(true);
     }
+
+
 
 }
