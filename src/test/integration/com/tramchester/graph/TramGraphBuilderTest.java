@@ -77,7 +77,7 @@ public class TramGraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        assertEquals(12, svcsToMediaCity.size());
+        assertEquals(5, svcsToMediaCity.size());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws TramchesterException {
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.Deansgate.getId() + RouteCodes.EAST_DIDS_TO_DEANSGATE);
+                Stations.Deansgate.getId() + RouteCodes.ALTY_TO_BURY);
 
         List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet.getId());
 
