@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.repository.RoutesRepository;
+import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Api
 @Path("/routes")
@@ -30,7 +32,8 @@ public class RouteResource {
     @GET
     @Timed
     @ApiOperation(value = "Return all routes", response = RouteDTO.class, responseContainer = "List")
-            public Response getAll() {
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
+    public Response getAll() {
         logger.info("getAll routes");
         List<RouteDTO> routes = repository.getAllRoutes();
 

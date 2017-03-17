@@ -40,7 +40,7 @@ public class StationResourceTest {
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new StationResource(transportData, spatialService,
-                    new ClosedStations(closedStations), testConfig, new UpdateRecentJourneys(testConfig), objectMapper))
+                    new ClosedStations(closedStations), new UpdateRecentJourneys(testConfig), objectMapper))
             .build();
 
     @Test

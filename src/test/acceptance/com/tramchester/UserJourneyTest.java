@@ -31,6 +31,7 @@ public class UserJourneyTest extends UserJourneys {
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
+    private final String bury = Stations.Bury.getName();
 
     @Rule
     public TestName testName = new TestName();
@@ -48,6 +49,7 @@ public class UserJourneyTest extends UserJourneys {
 
         driver = new FirefoxDriver(capabilities);
         driver.manage().deleteAllCookies();
+
         nextMonday = JourneyPlannerHelper.nextMonday();
     }
 
@@ -82,13 +84,13 @@ public class UserJourneyTest extends UserJourneys {
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Bury");
-        JourneyDetailsPage journeyDetailsPage = checkJourney(url, altrincham, Stations.Bury.getName(),
+        JourneyDetailsPage journeyDetailsPage = checkJourney(url, altrincham, bury,
                 nextMonday, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
         // check values remembered
         assertEquals(altrincham,plannerPage.getFromStop());
-        assertEquals(Stations.Bury.getName(),plannerPage.getToStop());
+        assertEquals(bury,plannerPage.getToStop());
         assertEquals("10:15",plannerPage.getTime());
 
         // check recents are set
@@ -327,7 +329,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headSigns = Arrays.asList("Deansgate-Castlefield", "none", "Bury");
 
         String fromStop = altrincham;
-        String toStop = Stations.Bury.getName();
+        String toStop = bury;
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, fromStop, toStop, nextMonday, "10:15");
 

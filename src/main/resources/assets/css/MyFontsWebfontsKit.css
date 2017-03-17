@@ -23,5 +23,5 @@
 @import url("//hello.myfonts.net/count/27ed78");
 
   
-@font-face {font-family: 'StudioNeon';src: url('webfonts/27ED78_0_0.eot');src: url('webfonts/27ED78_0_0.eot?#iefix') format('embedded-opentype'),url('webfonts/27ED78_0_0.woff') format('woff'),url('webfonts/27ED78_0_0.ttf') format('truetype'),url('webfonts/27ED78_0_0.svg#wf') format('svg');}
+@font-face {font-family: 'StudioNeon';src: url('../webfonts/27ED78_0_0.eot');src: url('../webfonts/27ED78_0_0.eot?#iefix') format('embedded-opentype'),url('../webfonts/27ED78_0_0.woff') format('woff'),url('../webfonts/27ED78_0_0.ttf') format('truetype'),url('../webfonts/27ED78_0_0.svg#wf') format('svg');}
  

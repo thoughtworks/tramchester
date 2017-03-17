@@ -10,6 +10,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
@@ -31,7 +32,7 @@ import static org.junit.Assert.assertTrue;
 
 
 public class UserJourneys {
-    protected WebDriver driver;
+    protected FirefoxDriver driver;
     protected static final String configPath = "config/localAcceptance.yml";
     protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 

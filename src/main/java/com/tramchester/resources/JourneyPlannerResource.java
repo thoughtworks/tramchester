@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.services.DateTimeService;
+import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.joda.time.LocalDate;
@@ -24,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
@@ -56,6 +58,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     @GET
     @Timed
     @ApiOperation(value = "Find quickest route", response = JourneyPlanRepresentation.class)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response quickestRoute(@QueryParam("start") String startId,
                                   @QueryParam("end") String endId,
                                   @QueryParam("departureTime") String departureTime,

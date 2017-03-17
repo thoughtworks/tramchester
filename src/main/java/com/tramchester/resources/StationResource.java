@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.StationClosureMessage;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
+import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -40,17 +42,15 @@ public class StationResource extends UsesRecentCookie {
     private List<Station> allStationsSorted;
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
-    private final TramchesterConfig config;
     private final StationRepository stationRepository;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
-                           ClosedStations closedStations, TramchesterConfig config,
+                           ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
-        this.config = config;
         this.stationRepository = transportData;
         allStationsSorted = new LinkedList<>();
     }
@@ -58,6 +58,7 @@ public class StationResource extends UsesRecentCookie {
     @GET
     @Timed
     @ApiOperation(value = "Get all stations", response = StationDTO.class, responseContainer = "List")
+    @CacheControl(noCache = true)
     public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info("Get all stations with cookie " + tranchesterRecent);
 
@@ -93,6 +94,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/closures")
     @ApiOperation(value = "Get long term closed stations", response = StationClosureMessage.class)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response getClosures() {
         logger.info("Get station closures");
         StationClosureMessage stationClosureMessage = new StationClosureMessage(closedStations);
@@ -103,6 +105,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/{id}")
     @ApiOperation(value = "Get station by id", response = StationDTO.class)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
         Optional<Station> station = stationRepository.getStation(id);
@@ -118,6 +121,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/{lat}/{lon}")
     @ApiOperation(value = "Get geographically close stations", response = StationDTO.class, responseContainer = "List")
+    @CacheControl(noCache = true)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s with cookie ", lat, lon, tranchesterRecent));

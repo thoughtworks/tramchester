@@ -74,6 +74,8 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(RouteResource.class));
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
 
+        filtersForStaticContent(environment);
+
         // cloudwatch
         MetricRegistry registry = environment.metrics();
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry,
@@ -85,6 +87,7 @@ public class App extends Application<AppConfiguration>  {
         // nulls in the Swagger JSON break SwaggerUI
         environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
+        // for swagger
         BeanConfig config = new BeanConfig();
         config.setTitle("Tramchester");
         config.setVersion("1.0.0");
@@ -92,6 +95,22 @@ public class App extends Application<AppConfiguration>  {
         config.setScan(true);
     }
 
+    private void filtersForStaticContent(Environment environment) {
+        int lifeTime = 8 * 24 * 60 * 60;
+        StaticAssetFilter filter = new StaticAssetFilter(lifeTime);
+        setFilterFor(environment, filter, "javascript", "/javascript/*");
+        setFilterFor(environment, filter, "css", "/css/*");
+        setFilterFor(environment, filter, "templates", "*.html");
+        setFilterFor(environment, filter, "images", "/images/*");
+        setFilterFor(environment, filter, "fonts", "/fonts/*");
+        setFilterFor(environment, filter, "webfonts", "/webfonts/*");
+
+    }
+
+    private void setFilterFor(Environment environment, StaticAssetFilter filter, String name, String pattern) {
+        environment.servlets().addFilter(name, filter).
+                addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST),true, pattern);
+    }
 
 
 }

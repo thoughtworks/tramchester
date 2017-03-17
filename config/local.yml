@@ -6,6 +6,10 @@ server:
   connector:
     type: http
     port: 8080
+  gzip:
+    enabled: true
+    bufferSize: 8KiB
+    minimumEntitySize: 160B
 
 redirectHTTP: ${REDIRECTHTTP:- false}
 secureHost: tramchester.com
