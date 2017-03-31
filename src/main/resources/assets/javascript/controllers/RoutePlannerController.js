@@ -90,11 +90,11 @@ techLabApp.controller('RoutePlannerController',
         }
 
         function getCurrentTime() {
-            var current = journeyPlanService.getDepartureTime();
+            var current = journeyPlanService.getDepartureTime(); // as HH:mm
             if (current!=null) {
                 var previous = moment(current,"HH:mm");
                 return previous.toDate();
             }
-            return getCurrentDate();
+            return moment().second(0).millisecond(0).toDate(); // get time picker to display HH:mm
         }
     });
