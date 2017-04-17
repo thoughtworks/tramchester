@@ -6,15 +6,22 @@ server:
   connector:
     type: http
     port: 8080
+  gzip:
+    enabled: true
+    bufferSize: 8KiB
+    minimumEntitySize: 160B
 
+redirectHTTP: ${REDIRECTHTTP:- false}
+secureHost: tramchester.com
+
+rebuildGraph: ${TRAM_GRAPH:- true}
 pullData: ${TRAM_PULLDATA:- false}
 filterData: ${TRAM_FILTER:- true}
-rebuildGraph: ${TRAM_GRAPH:- true}
 graphName: buses.db
-closedStations:
-  - St Peters Square
+closedStations: []
 agencies:
-  - "*"
+  - MET
+  - GMS
 instanceDataUrl: http://169.254.169.254
 awsRegionName: eu-west-1
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
@@ -22,21 +29,19 @@ dataPath: data/bus
 timeWindow: 60
 maxWait: 25
 queryInterval: 6
-showMyLocation: true
 nearestStopRangeKM: 2
 numOfNearestStops: 6
 walkingMPH: 3
-
-redirectHTTP: ${REDIRECTHTTP:- false}
-secureHost: tramchester.com
+addWalkingRoutes: false
+recentStopsToShow: 5
 
 createLocality: true
 
 logging:
-  level: DEBUG
+  level: INFO
   loggers:
     root: INFO
-    com.tramchester: DEBUG
+    com.tramchester: INFO
     org.eclipse.jetty.servlet: INFO
     io.dropwizard.jersey.jackson: INFO
 
