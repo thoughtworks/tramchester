@@ -79,7 +79,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 (11*60)+43, nextSunday);
 
         List<String> notes = results.getNotes();
-        assertEquals(1, notes.size());
+        assertEquals(2, notes.size());
         String prefix = "At the weekend your journey may be affected by improvement works";
         assertTrue(notes.get(0).startsWith(prefix));
 
@@ -90,13 +90,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 (11*60)+43, nextSaturday);
 
         notes = results.getNotes();
-        assertEquals(1,notes.size());
+        assertEquals(2,notes.size());
         assertTrue(notes.get(0).startsWith(prefix));
 
         JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 (11*60)+43, nextSunday.plusDays(1));
         notes = notWeekendResult.getNotes();
-        assertEquals(0,notes.size());
+        assertEquals(1,notes.size());
     }
 
     @Test
