@@ -36,6 +36,7 @@ public class UserJourneyWithLocationTest extends UserJourneys {
     private LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
     private LocalDate when;
     private String url;
+    private AcceptanceTestHelper helper;
 
     @Before
     public void beforeEachTestRuns() {
@@ -53,6 +54,9 @@ public class UserJourneyWithLocationTest extends UserJourneys {
 
         driver = new FirefoxDriver(capabilities);
         driver.manage().deleteAllCookies();
+
+        helper = new AcceptanceTestHelper(driver);
+
         when = JourneyPlannerHelper.nextMonday();
     }
 
@@ -74,20 +78,20 @@ public class UserJourneyWithLocationTest extends UserJourneys {
         List<String> changes = Arrays.asList(firstStation, Stations.PiccadillyGardens.getName());
         List<String> headSignsA = Arrays.asList("","Etihad Campus",finalStation);
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
-        checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
         assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
-        checkInitialWalkingStage(journeyDetailsPage, firstStation, headSignsA);
-        checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSignsA, true);
-        checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSignsA, false);
+        helper.checkInitialWalkingStage(journeyDetailsPage, firstStation, headSignsA);
+        helper.checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSignsA, true);
+        helper.checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSignsA, false);
 
         while(journeyDetailsPage.laterTramEnabled()) {
             journeyDetailsPage.laterTram();
-            checkInitialWalkingStage(journeyDetailsPage, firstStation, headSignsA);
+            helper.checkInitialWalkingStage(journeyDetailsPage, firstStation, headSignsA);
             // these vary depending on timing of trams, key thing is to check walking stage is first
 //            checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSignsA, true);
 //            checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSignsA, false);
@@ -106,15 +110,15 @@ public class UserJourneyWithLocationTest extends UserJourneys {
 
         String finalStation = Stations.Deansgate.getName();
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
-        checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
         assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
-        checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
-        checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
+        helper.checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
+        helper.checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
     }
 
     @Test
@@ -126,9 +130,9 @@ public class UserJourneyWithLocationTest extends UserJourneys {
 
         String finalStation = Stations.NavigationRoad.getName();
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, myLocation, finalStation, when, "19:47");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when, "19:47");
 
-        checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, true);
 
     }

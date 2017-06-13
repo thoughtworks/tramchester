@@ -41,6 +41,7 @@ public class UserJourneyTest extends UserJourneys {
     private final String cornbrook = Stations.Cornbrook.getName();
     private LocalDate nextMonday;
     private String url;
+    private AcceptanceTestHelper helper;
 
     @Before
     public void beforeEachTestRuns() {
@@ -49,6 +50,8 @@ public class UserJourneyTest extends UserJourneys {
 
         driver = new FirefoxDriver(capabilities);
         driver.manage().deleteAllCookies();
+
+        helper = new AcceptanceTestHelper(driver);
 
         nextMonday = JourneyPlannerHelper.nextMonday();
     }
@@ -84,7 +87,7 @@ public class UserJourneyTest extends UserJourneys {
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Bury");
-        JourneyDetailsPage journeyDetailsPage = checkJourney(url, altrincham, bury,
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, altrincham, bury,
                 nextMonday, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
@@ -146,7 +149,7 @@ public class UserJourneyTest extends UserJourneys {
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Deansgate-Castlefield");
-        JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.ManAirport.getName(),
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, Stations.ManAirport.getName(),
                 deansgate, nextMonday, "10:15", changes,
                 headSigns, false, expectedNumberJourneyResults, 0, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
@@ -172,7 +175,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> noChanges = new LinkedList<>();
         List<String> headsignRochdale = Arrays.asList("Rochdale Interchange");
 
-        checkJourney(url, Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
+        helper.checkJourney(url, Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
                 nextMonday, "10:15", noChanges, headsignRochdale, false, expectedNumberJourneyResults, 0, false);
     }
 
@@ -184,21 +187,21 @@ public class UserJourneyTest extends UserJourneys {
         List<String> headsignEtihadCampus = Arrays.asList("Etihad Campus");
         List<String> headSignsBury = Arrays.asList("Bury");
 
-        RouteDetailsPage routeDetailsPage = checkJourney(url, altrincham, deansgate,
+        RouteDetailsPage routeDetailsPage = helper.checkJourney(url, altrincham, deansgate,
                 nextMonday, "10:15", noChanges, headSignsBury, false, expectedNumberJourneyResults, 0, false)
                 .backToRouteDetails();
 
-        routeDetailsPage = checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges,
+        routeDetailsPage = helper.checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges,
                 headsignEtihadCampus, 1).backToRouteDetails();
 
-        checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges, headSignsBury, 2);
+        helper.checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges, headSignsBury, 2);
     }
 
     @Test
     @Category({AcceptanceTest.class})
     public void shouldDisplayNotNotesOnWeekday() throws InterruptedException {
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, nextMonday, "10:00:00");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, altrincham, deansgate, nextMonday, "10:00:00");
         assertTrue(routeDetailsPage.waitForRoutes());
         assertFalse(routeDetailsPage.notesPresent());
     }
@@ -208,7 +211,7 @@ public class UserJourneyTest extends UserJourneys {
     public void shouldDisplayNotesOnSaturday() throws InterruptedException {
         LocalDate aSaturday = nextMonday.plusDays(5);
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, aSaturday, "10:00:00");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, altrincham, deansgate, aSaturday, "10:00:00");
         checkForWeekendNotes(routeDetailsPage);
     }
 
@@ -217,7 +220,7 @@ public class UserJourneyTest extends UserJourneys {
     public void shouldDisplayNotesOnSunday() throws InterruptedException {
         LocalDate aSunday = nextMonday.plusDays(6);
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, altrincham, deansgate, aSunday, "10:00:00");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, altrincham, deansgate, aSunday, "10:00:00");
         checkForWeekendNotes(routeDetailsPage);
     }
 
@@ -251,7 +254,7 @@ public class UserJourneyTest extends UserJourneys {
         String ashton = Stations.Ashton.getName();
         String piccadilly = Stations.PiccadillyGardens.getName();
 
-        JourneyDetailsPage journeyDetailsPage = checkJourney(url, ashton, piccadilly,
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, ashton, piccadilly,
                 nextMonday, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
 
         assertTrue(journeyDetailsPage.laterTramEnabled());
@@ -259,7 +262,7 @@ public class UserJourneyTest extends UserJourneys {
 
         assertThat(journeyDetailsPage.getSummary(), endsWith(ashton));
         for (int index = 0; index < headSigns.size(); index++) {
-            checkStage(journeyDetailsPage, index, ashton, piccadilly,
+            helper.checkStage(journeyDetailsPage, index, ashton, piccadilly,
                     changes, headSigns, false);
         }
 
@@ -297,7 +300,7 @@ public class UserJourneyTest extends UserJourneys {
         List<String> changes = Arrays.asList(Stations.StPetersSquare.getName());
         List<String> headSigns = Arrays.asList("Bury");
 
-        checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),
+        helper.checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),
                 nextMonday, "10:15", changes, headSigns, false, expectedNumberJourneyResults, 0, false);
     }
 
@@ -331,18 +334,18 @@ public class UserJourneyTest extends UserJourneys {
         String fromStop = altrincham;
         String toStop = bury;
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, fromStop, toStop, nextMonday, "10:15");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, fromStop, toStop, nextMonday, "10:15");
 
-        checkRoutes(routeDetailsPage, fromStop, toStop, changes, true, false, false);
+        helper.checkRoutes(routeDetailsPage, fromStop, toStop, changes, true, false, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
 
         String fromStationText = " from " + fromStop;
         assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
 
-        checkStage(journeyDetailsPage, 0, fromStop, toStop, changes, headSigns, false);
+        helper.checkStage(journeyDetailsPage, 0, fromStop, toStop, changes, headSigns, false);
         checkWalkingStage(1, journeyDetailsPage, fromStop, changes);
-        checkStage(journeyDetailsPage, 2, fromStop, toStop, changes, headSigns, true);
+        helper.checkStage(journeyDetailsPage, 2, fromStop, toStop, changes, headSigns, true);
 
         MapPage mapPage = journeyDetailsPage.clickOnMapLink(1);
 
@@ -357,14 +360,14 @@ public class UserJourneyTest extends UserJourneys {
         } else {
             assertThat("Changes", promptText, is("Walk to " + changes.get(stageIndex)));
         }
-        checkDuration(journeyDetailsPage, stageIndex);
+        helper.checkDuration(journeyDetailsPage, stageIndex);
     }
 
-    private void checkForChristmasMessage(String msg, RouteDetailsPage routeDetailsPage) {
-        List<String> notes = getNotes(routeDetailsPage);
-        assertThat(msg, notes,
-                hasItem("There are changes to Metrolink services during Christmas and New Year.Please check TFGM for details."));
-    }
+//    private void checkForChristmasMessage(String msg, RouteDetailsPage routeDetailsPage) {
+//        List<String> notes = getNotes(routeDetailsPage);
+//        assertThat(msg, notes,
+//                hasItem("There are changes to Metrolink services during Christmas and New Year.Please check TFGM for details."));
+//    }
 
     private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {
         List<String> notes = getNotes(routeDetailsPage);
