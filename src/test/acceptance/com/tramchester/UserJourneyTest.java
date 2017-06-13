@@ -11,8 +11,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -27,7 +25,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.*;
 
-public class UserJourneyTest extends UserJourneys {
+public class UserJourneyTest {
+    protected static final String configPath = "config/localAcceptance.yml";
+    protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
@@ -42,42 +42,41 @@ public class UserJourneyTest extends UserJourneys {
     private LocalDate nextMonday;
     private String url;
     private AcceptanceTestHelper helper;
+    private ProvidesDriver providesDriver;
 
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
-        DesiredCapabilities capabilities = createCommonCapabilities(false);
 
-        driver = new FirefoxDriver(capabilities);
-        driver.manage().deleteAllCookies();
-
-        helper = new AcceptanceTestHelper(driver);
+        providesDriver = new ProvidesDriver(false);
+        providesDriver.init();
+        helper = new AcceptanceTestHelper(providesDriver);
 
         nextMonday = JourneyPlannerHelper.nextMonday();
     }
 
     @After
     public void afterEachTestRuns() throws IOException {
-        commonAfter(testName);
+        providesDriver.commonAfter(testName);
     }
 
     @Test
     @Category({AcceptanceTest.class})
     public void shouldRedirectDirectToJourneyPageAfterFirstVisit() throws InterruptedException, UnsupportedEncodingException {
-        WelcomePage welcomePage = new WelcomePage(driver);
+        WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
         assertTrue(welcomePage.hasBeginLink());
 
-        assertTrue(driver.manage().getCookieNamed("tramchesterVisited")==null);
+        assertTrue(providesDriver.getCookieNamed("tramchesterVisited")==null);
         welcomePage.begin();
 
         // cookie should now be set
-        Cookie cookie = driver.manage().getCookieNamed("tramchesterVisited");
+        Cookie cookie = providesDriver.getCookieNamed("tramchesterVisited");
         String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
         assertEquals("{\"visited\":true}", cookieContents);
 
         // check redirect
-        RoutePlannerPage redirectedPage = new RoutePlannerPage(driver);
+        RoutePlannerPage redirectedPage = providesDriver.getRoutePlannerPage();
         redirectedPage.load(testRule.getUrl());
         redirectedPage.waitForToStops();
     }
@@ -109,7 +108,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldHideStationInToListWhenSelectedInFromList() throws InterruptedException {
-        WelcomePage welcomePage = new WelcomePage(driver);
+        WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
 
         RoutePlannerPage routePlannerPage = welcomePage.begin();
@@ -129,7 +128,7 @@ public class UserJourneyTest extends UserJourneys {
     @Test
     @Category({AcceptanceTest.class})
     public void shouldShowNoRoutesMessage() throws InterruptedException {
-        WelcomePage welcomePage = new WelcomePage(driver);
+        WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
 
         RoutePlannerPage routePlannerPage = welcomePage.begin();
@@ -312,7 +311,7 @@ public class UserJourneyTest extends UserJourneys {
             build = "0";
         }
 
-        RoutePlannerPage page = new WelcomePage(driver).load(testRule.getUrl()).begin();
+        RoutePlannerPage page = providesDriver.getWelcomePage().load(testRule.getUrl()).begin();
         String result = page.findElementById("build").getText();
         assertEquals("Build "+build,result);
 

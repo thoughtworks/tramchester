@@ -5,7 +5,6 @@ import com.tramchester.pages.JourneyDetailsPage;
 import com.tramchester.pages.RouteDetailsPage;
 import com.tramchester.resources.JourneyPlannerHelper;
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.util.Lists;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
@@ -23,7 +22,9 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 
-public class UserJourneyWithLocationTest extends UserJourneys {
+public class UserJourneyWithLocationTest {
+    protected static final String configPath = "config/localAcceptance.yml";
+    protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
@@ -37,25 +38,22 @@ public class UserJourneyWithLocationTest extends UserJourneys {
     private LocalDate when;
     private String url;
     private AcceptanceTestHelper helper;
+    private ProvidesDriver providesDriver;
 
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
-
-        DesiredCapabilities capabilities = createCommonCapabilities(true);
+        providesDriver = new ProvidesDriver(true);
 
         createGeoFile();
-
         FirefoxProfile profile = new FirefoxProfile();
         profile.setPreference("geo.prompt.testing", true);
         profile.setPreference("geo.prompt.testing.allow", true);
         profile.setPreference("geo.wifi.uri", "file://" + path.toAbsolutePath().toString());
-        capabilities.setCapability(FirefoxDriver.PROFILE, profile);
+        providesDriver.setProfile(profile);
 
-        driver = new FirefoxDriver(capabilities);
-        driver.manage().deleteAllCookies();
-
-        helper = new AcceptanceTestHelper(driver);
+        providesDriver.init();
+        helper = new AcceptanceTestHelper(providesDriver);
 
         when = JourneyPlannerHelper.nextMonday();
     }
@@ -63,7 +61,7 @@ public class UserJourneyWithLocationTest extends UserJourneys {
     @After
     public void afterEachTestRuns() throws IOException {
         Files.deleteIfExists(path);
-        commonAfter(testName);
+        providesDriver.commonAfter(testName);
     }
 
     @Test

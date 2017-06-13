@@ -5,8 +5,6 @@ import com.tramchester.pages.RouteDetailsPage;
 import com.tramchester.pages.RoutePlannerPage;
 import com.tramchester.pages.WelcomePage;
 import org.joda.time.LocalDate;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.util.List;
 
@@ -19,14 +17,14 @@ import static org.junit.Assert.assertTrue;
 
 public class AcceptanceTestHelper {
 
-    private WebDriver driver;
+    private ProvidesDriver driver;
 
-    public AcceptanceTestHelper(WebDriver driver) {
+    public AcceptanceTestHelper(ProvidesDriver driver) {
 
         this.driver = driver;
     }
 
-    protected JourneyDetailsPage checkJourney(String url, String fromStop, String toStop, LocalDate date, String time,
+    public JourneyDetailsPage checkJourney(String url, String fromStop, String toStop, LocalDate date, String time,
                                               List<String> changes,
                                               List<String> headSigns, boolean embeddedWalk, int expectedJourneys,
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
@@ -37,7 +35,7 @@ public class AcceptanceTestHelper {
 
     }
 
-    protected void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, String fromStop, String toStop,
+    public void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, String fromStop, String toStop,
                                                   List<String> changes, boolean embeddedWalk,
                                                   int expectedJourneys, boolean startsWithWalk, boolean onlyWalk) {
         checkRoutes(routeDetailsPage, fromStop, toStop, changes, embeddedWalk, startsWithWalk, onlyWalk);
@@ -48,7 +46,7 @@ public class AcceptanceTestHelper {
 
     }
 
-    protected JourneyDetailsPage checkJourneyDetailsPage(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
+    public JourneyDetailsPage checkJourneyDetailsPage(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
                                                          List<String> headSigns, int selectedJourney) {
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(selectedJourney);
         String fromStationText = " from " + fromStop;
@@ -59,7 +57,7 @@ public class AcceptanceTestHelper {
         return journeyDetailsPage;
     }
 
-    protected void checkRoutes(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
+    public void checkRoutes(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
                                boolean embeddedWalk, boolean startsWithWalk, boolean onlyWalk) {
         assertTrue(routeDetailsPage.waitForRoutes());
         assertTrue(routeDetailsPage.journeyPresent(0));
@@ -117,15 +115,15 @@ public class AcceptanceTestHelper {
         return numChanges<=0;
     }
 
-    protected RouteDetailsPage enterRouteSelection(String url, String fromStop, String toStop, LocalDate date,
+    public RouteDetailsPage enterRouteSelection(String url, String fromStop, String toStop, LocalDate date,
                                                    String time) throws InterruptedException {
-        WelcomePage welcomePage = new WelcomePage(driver);
+        WelcomePage welcomePage = driver.getWelcomePage();
         welcomePage.load(url);
         RoutePlannerPage routePlannerPage = welcomePage.begin();
         return enterRouteSelection(routePlannerPage, fromStop, toStop, date, time);
     }
 
-    protected RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, String fromStop, String toStop,
+    public RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, String fromStop, String toStop,
                                                    LocalDate date, String time) {
         routePlannerPage.waitForToStops();
         routePlannerPage.setFromStop(fromStop);
@@ -135,7 +133,7 @@ public class AcceptanceTestHelper {
         return routePlannerPage.submit();
     }
 
-    protected void checkStage(JourneyDetailsPage journeyDetailsPage, int stageIndex, String fromStop, String toStop,
+    public void checkStage(JourneyDetailsPage journeyDetailsPage, int stageIndex, String fromStop, String toStop,
                               List<String> changes, List<String> headSigns, boolean previousStageWasWalk) {
         String promptText = journeyDetailsPage.getPrompt(stageIndex);
         if (stageIndex == 0) {
@@ -165,7 +163,7 @@ public class AcceptanceTestHelper {
         }
     }
 
-    protected void checkInitialWalkingStage(JourneyDetailsPage journeyDetailsPage, String fromStop,
+    public void checkInitialWalkingStage(JourneyDetailsPage journeyDetailsPage, String fromStop,
                                             List<String> headSigns) {
 
         assertThat("Changes", journeyDetailsPage.getPrompt(0), is("Walk to " + fromStop));
