@@ -1,4 +1,4 @@
-package com.tramchester;
+package com.tramchester.infra;
 
 import com.tramchester.pages.JourneyDetailsPage;
 import com.tramchester.pages.RouteDetailsPage;
@@ -20,7 +20,6 @@ public class AcceptanceTestHelper {
     private ProvidesDriver driver;
 
     public AcceptanceTestHelper(ProvidesDriver driver) {
-
         this.driver = driver;
     }
 
@@ -186,7 +185,7 @@ public class AcceptanceTestHelper {
         }
     }
 
-    protected void checkDuration(JourneyDetailsPage journeyDetailsPage, int durIndex) {
+    public void checkDuration(JourneyDetailsPage journeyDetailsPage, int durIndex) {
         String durationText;
         durationText = journeyDetailsPage.getDuration(durIndex);
         assertThat(durationText, endsWith("min"));

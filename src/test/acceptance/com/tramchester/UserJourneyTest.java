@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.tramchester.infra.*;
 import com.tramchester.pages.*;
 import com.tramchester.resources.FeedInfoResourceTest;
 import com.tramchester.resources.JourneyPlannerHelper;
@@ -48,7 +49,8 @@ public class UserJourneyTest {
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
 
-        providesDriver = new ProvidesDriver(false);
+        providesDriver = new ProvidesFirefoxDriver(false);
+//        providesDriver = new ProvidesAppiumDriver();
         providesDriver.init();
         helper = new AcceptanceTestHelper(providesDriver);
 

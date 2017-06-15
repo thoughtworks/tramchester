@@ -1,19 +1,21 @@
-package com.tramchester;
+package com.tramchester.infra;
 
 import com.tramchester.config.AppConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 
+import java.util.Optional;
+
 public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
 
     // if SERVER_URL env var not set then run against localhost
-    private String serverUrl;
+    private Optional<String> serverUrl;
 
     public AcceptanceTestRun(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
                              ConfigOverride... configOverrides) {
         super(applicationClass, configPath, configOverrides);
-        serverUrl = System.getenv("SERVER_URL");
+        serverUrl = Optional.ofNullable(System.getenv("SERVER_URL"));
     }
 
     @Override
@@ -24,7 +26,7 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     private boolean localRun() {
-        return serverUrl==null;
+        return !serverUrl.isPresent();
     }
 
     @Override
@@ -35,10 +37,7 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     public String getUrl() {
-        if (localRun()) {
-            return "http://localhost:"+getLocalPort();
-        }
-        return serverUrl;
+        return serverUrl.orElse("http://localhost:"+getLocalPort());
     }
 
 }

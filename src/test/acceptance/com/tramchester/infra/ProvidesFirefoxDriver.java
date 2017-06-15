@@ -1,9 +1,12 @@
-package com.tramchester;
+package com.tramchester.infra;
 
 import com.tramchester.pages.RoutePlannerPage;
 import com.tramchester.pages.WelcomePage;
 import org.junit.rules.TestName;
-import org.openqa.selenium.*;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.logging.LogEntries;
@@ -18,19 +21,17 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 
-public class ProvidesDriver {
+public class ProvidesFirefoxDriver implements ProvidesDriver {
     private final DesiredCapabilities capabilities;
     protected FirefoxDriver driver;
 
-    public ProvidesDriver(boolean enableGeo) {
-        capabilities = createCommonCapabilities(enableGeo);
+    public ProvidesFirefoxDriver(boolean enableGeo) {
+        capabilities = createCapabilities(enableGeo);
     }
 
+    @Override
     public void init() {
         driver = new FirefoxDriver(capabilities);
         driver.manage().deleteAllCookies();
@@ -52,6 +53,7 @@ public class ProvidesDriver {
         }
     }
 
+    @Override
     public void commonAfter(TestName testName) {
         try {
             takeScreenShot(testName);
@@ -64,33 +66,35 @@ public class ProvidesDriver {
         }
     }
 
-    public DesiredCapabilities createCommonCapabilities(boolean enableGeo) {
+    private DesiredCapabilities createCapabilities(boolean enableGeo) {
+        DesiredCapabilities caps = new DesiredCapabilities();
         String firefoxPath = System.getenv("FIREFOX_PATH");
         if (firefoxPath!=null) {
             System.setProperty("webdriver.firefox.bin", firefoxPath);
         }
-
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, enableGeo);
-        capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.ACCEPT);
         LoggingPreferences loggingPrefs = new LoggingPreferences();
         loggingPrefs.enable(LogType.BROWSER, Level.FINE);
-        capabilities.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
-        return capabilities;
+        caps.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
+        caps.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, enableGeo);
+        caps.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.ACCEPT);
+        return caps;
     }
 
     public void setProfile(FirefoxProfile profile) {
         capabilities.setCapability(FirefoxDriver.PROFILE, profile);
     }
 
+    @Override
     public WelcomePage getWelcomePage() {
         return new WelcomePage(driver);
     }
 
+    @Override
     public Cookie getCookieNamed(String name) {
         return driver.manage().getCookieNamed(name);
     }
 
+    @Override
     public RoutePlannerPage getRoutePlannerPage() throws InterruptedException {
         return new RoutePlannerPage(driver);
     }

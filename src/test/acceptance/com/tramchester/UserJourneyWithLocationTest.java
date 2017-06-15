@@ -1,6 +1,9 @@
 package com.tramchester;
 
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.infra.AcceptanceTestHelper;
+import com.tramchester.infra.AcceptanceTestRun;
+import com.tramchester.infra.ProvidesFirefoxDriver;
 import com.tramchester.pages.JourneyDetailsPage;
 import com.tramchester.pages.RouteDetailsPage;
 import com.tramchester.resources.JourneyPlannerHelper;
@@ -9,9 +12,7 @@ import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,12 +39,12 @@ public class UserJourneyWithLocationTest {
     private LocalDate when;
     private String url;
     private AcceptanceTestHelper helper;
-    private ProvidesDriver providesDriver;
+    private ProvidesFirefoxDriver providesDriver;
 
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
-        providesDriver = new ProvidesDriver(true);
+        providesDriver = new ProvidesFirefoxDriver(true);
 
         createGeoFile();
         FirefoxProfile profile = new FirefoxProfile();
