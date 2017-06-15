@@ -13,7 +13,8 @@ public class WelcomePage extends Page {
     }
 
     public WelcomePage load(String url) {
-        driver.get(url);
+        driver.navigate().to(url);
+        //driver.get(url);
         return this;
     }
 

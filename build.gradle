@@ -171,6 +171,13 @@ task localAcceptance(type: Test) {
     }
 }
 
+task localAppium(type: Test) {
+    systemProperty 'appium', 'true'
+    useJUnit {
+        includeCategories 'com.tramchester.AcceptanceTest'
+    }
+}
+
 task acceptance(type: Test, dependsOn: whitelist) {
     logging.captureStandardOutput LogLevel.INFO
     useJUnit {

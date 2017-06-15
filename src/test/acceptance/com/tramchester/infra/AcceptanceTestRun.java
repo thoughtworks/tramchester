@@ -7,15 +7,30 @@ import io.dropwizard.testing.junit.DropwizardAppRule;
 
 import java.util.Optional;
 
+import static java.lang.String.format;
+
 public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
 
     // if SERVER_URL env var not set then run against localhost
-    private Optional<String> serverUrl;
+    private Optional<String> serverURLFromEnv;
+    private final String localRunHost;
 
     public AcceptanceTestRun(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
                              ConfigOverride... configOverrides) {
         super(applicationClass, configPath, configOverrides);
-        serverUrl = Optional.ofNullable(System.getenv("SERVER_URL"));
+        serverURLFromEnv = Optional.ofNullable(System.getenv("SERVER_URL"));
+        localRunHost = setHost();
+    }
+
+    private String setHost() {
+        Optional<String> appiumFlag = Optional.ofNullable(System.getProperty("appium"));
+
+        if (appiumFlag.isPresent()) {
+            if (appiumFlag.get().equals("true")) {
+                return "10.0.2.2";
+            }
+        }
+        return "localhost";
     }
 
     @Override
@@ -26,7 +41,7 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     private boolean localRun() {
-        return !serverUrl.isPresent();
+        return !serverURLFromEnv.isPresent();
     }
 
     @Override
@@ -37,7 +52,7 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     public String getUrl() {
-        return serverUrl.orElse("http://localhost:"+getLocalPort());
+        return serverURLFromEnv.orElse(format("http://%s:%s", localRunHost, getLocalPort()));
     }
 
 }

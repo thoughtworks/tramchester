@@ -18,6 +18,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.logging.Level;
 
 import static java.lang.String.format;
@@ -80,10 +81,6 @@ public class ProvidesFirefoxDriver implements ProvidesDriver {
         return caps;
     }
 
-    public void setProfile(FirefoxProfile profile) {
-        capabilities.setCapability(FirefoxDriver.PROFILE, profile);
-    }
-
     @Override
     public WelcomePage getWelcomePage() {
         return new WelcomePage(driver);
@@ -97,5 +94,14 @@ public class ProvidesFirefoxDriver implements ProvidesDriver {
     @Override
     public RoutePlannerPage getRoutePlannerPage() throws InterruptedException {
         return new RoutePlannerPage(driver);
+    }
+
+    @Override
+    public void setProfileForGeoFile(Path path) {
+        FirefoxProfile profile = new FirefoxProfile();
+        profile.setPreference("geo.prompt.testing", true);
+        profile.setPreference("geo.prompt.testing.allow", true);
+        profile.setPreference("geo.wifi.uri", "file://" + path.toAbsolutePath().toString());
+        capabilities.setCapability(FirefoxDriver.PROFILE, profile);
     }
 }

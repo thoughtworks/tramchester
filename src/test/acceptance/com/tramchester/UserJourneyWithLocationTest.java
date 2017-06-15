@@ -1,9 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.infra.AcceptanceTestHelper;
-import com.tramchester.infra.AcceptanceTestRun;
-import com.tramchester.infra.ProvidesFirefoxDriver;
+import com.tramchester.infra.*;
 import com.tramchester.pages.JourneyDetailsPage;
 import com.tramchester.pages.RouteDetailsPage;
 import com.tramchester.resources.JourneyPlannerHelper;
@@ -12,6 +10,7 @@ import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
 import java.io.IOException;
@@ -39,19 +38,15 @@ public class UserJourneyWithLocationTest {
     private LocalDate when;
     private String url;
     private AcceptanceTestHelper helper;
-    private ProvidesFirefoxDriver providesDriver;
+    private ProvidesDriver providesDriver;
 
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
-        providesDriver = new ProvidesFirefoxDriver(true);
+        providesDriver = DriverFactory.create(true);
 
         createGeoFile();
-        FirefoxProfile profile = new FirefoxProfile();
-        profile.setPreference("geo.prompt.testing", true);
-        profile.setPreference("geo.prompt.testing.allow", true);
-        profile.setPreference("geo.wifi.uri", "file://" + path.toAbsolutePath().toString());
-        providesDriver.setProfile(profile);
+        providesDriver.setProfileForGeoFile(path.toAbsolutePath());
 
         providesDriver.init();
         helper = new AcceptanceTestHelper(providesDriver);

@@ -49,8 +49,7 @@ public class UserJourneyTest {
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
 
-        providesDriver = new ProvidesFirefoxDriver(false);
-//        providesDriver = new ProvidesAppiumDriver();
+        providesDriver = DriverFactory.create(false);
         providesDriver.init();
         helper = new AcceptanceTestHelper(providesDriver);
 

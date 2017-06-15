@@ -5,6 +5,8 @@ import com.tramchester.pages.WelcomePage;
 import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
 
+import java.nio.file.Path;
+
 public interface ProvidesDriver {
     void init();
 
@@ -13,4 +15,5 @@ public interface ProvidesDriver {
     WelcomePage getWelcomePage();
     Cookie getCookieNamed(String name);
     RoutePlannerPage getRoutePlannerPage() throws InterruptedException;
+    void setProfileForGeoFile(Path fullPath);
 }
