@@ -7,9 +7,8 @@ import com.tramchester.domain.Station;
 import java.util.Collection;
 import java.util.List;
 
-public interface TransportData {
+public interface TransportData extends ProvidesFeedInfo {
     Collection<Route> getRoutes();
     Route getRoute(String routeId);
     List<Station> getStations();
-    FeedInfo getFeedInfo();
 }

@@ -4,6 +4,8 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TramServiceDateTest {
@@ -33,5 +35,19 @@ public class TramServiceDateTest {
 
         tramServiceDate = new TramServiceDate(new LocalDate(2017, 1, 1));
         assertThat(tramServiceDate.getDay()).isEqualTo(DaysOfWeek.Sunday);
+    }
+
+    @Test
+    public void shouldCheckBetween() {
+        LocalDate aDate = new LocalDate(2016, 6, 13);
+        TramServiceDate tramServiceDate = new TramServiceDate(aDate);
+
+        assertTrue(tramServiceDate.within(aDate, aDate.plusDays(1)));
+        assertTrue(tramServiceDate.within(aDate.minusDays(1), aDate));
+        assertTrue(tramServiceDate.within(aDate, aDate));
+        assertTrue(tramServiceDate.within(aDate.minusDays(1), aDate.plusDays(1)));
+        assertFalse(tramServiceDate.within(aDate.minusDays(2), aDate.minusDays(1)));
+        assertFalse(tramServiceDate.within(aDate.plusDays(1), aDate.plusDays(2)));
+
     }
 }

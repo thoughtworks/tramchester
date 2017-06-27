@@ -56,6 +56,18 @@ public class TramServiceDate {
     }
 
     public boolean isChristmasPeriod() {
-        return date.isAfter((new LocalDate(2016,12,23))) && (date.isBefore(new LocalDate(2017,1,3)));
+        LocalDate boxingDay = new LocalDate(2016, 12, 23);
+        LocalDate thridJanuary = new LocalDate(2017, 1, 3);
+        return date.isAfter(boxingDay) && (date.isBefore(thridJanuary));
+    }
+
+    public boolean within(LocalDate from, LocalDate until) {
+        if (date.isAfter(until)) {
+            return false;
+        }
+        if (date.isBefore(from)) {
+            return false;
+        }
+        return true;
     }
 }
