@@ -231,7 +231,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, int startTime, int cost) throws TramchesterException {
 
-        LocalDate when = JourneyPlannerHelper.nextMonday();
+        LocalDate when = JourneyPlannerHelper.nextMonday(0);
         String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
         RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass");
         rawVehicleStage.setCost(cost);

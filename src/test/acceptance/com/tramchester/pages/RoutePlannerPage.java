@@ -4,8 +4,10 @@ package com.tramchester.pages;
 import com.tramchester.Stations;
 import org.joda.time.LocalDate;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -40,8 +42,25 @@ public class RoutePlannerPage extends Page {
 
     public void setTime(String value) {
         WebElement time = getHourElement();
-        time.clear();
+
+        clearElementWithKeys(time);
+
+//        time.clear();
         time.sendKeys(value);
+    }
+
+    private void clearElementWithKeys(WebElement element) {
+        element.clear();
+//        int length = element.getAttribute("value").length();
+//        Actions action = new Actions(driver);
+//        for(int i = 0; i< length; i++) {
+//            action.sendKeys(Keys.ARROW_LEFT);
+//        }
+//        action.build().perform();
+//        for(int i = 0; i< length; i++) {
+//            action.sendKeys(Keys.DELETE);
+//        }
+//        action.build().perform();
     }
 
     public String getTime() {
@@ -96,11 +115,12 @@ public class RoutePlannerPage extends Page {
         driver.get(url);
     }
 
-    public void setDate(LocalDate value) {
+    public void setDate(LocalDate localDate) {
 
         WebElement date = findElementById("date");
-        date.clear();
-        String input = value.toString("YYYY-MM-dd");
+        //date.clear();
+        clearElementWithKeys(date);
+        String input = localDate.toString("YYYY-MM-dd");
         date.sendKeys(input);
     }
 

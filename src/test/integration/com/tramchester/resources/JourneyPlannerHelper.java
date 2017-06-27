@@ -56,8 +56,8 @@ public abstract class JourneyPlannerHelper {
 
     protected abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, TramServiceDate queryDate) throws TramchesterException;
 
-    public static LocalDate nextMonday() {
-        LocalDate now = LocalDate.now();
+    public static LocalDate nextMonday(int offsetDays) {
+        LocalDate now = LocalDate.now().minusDays(offsetDays);
         int offset = now.getDayOfWeek()-MONDAY;
         LocalDate nextMonday = now.minusDays(offset).plusWeeks(1);
         while (new TramServiceDate(nextMonday).isChristmasPeriod()) {

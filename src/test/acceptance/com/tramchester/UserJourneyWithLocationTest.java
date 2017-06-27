@@ -51,7 +51,8 @@ public class UserJourneyWithLocationTest {
         providesDriver.init();
         helper = new AcceptanceTestHelper(providesDriver);
 
-        when = JourneyPlannerHelper.nextMonday();
+        // TODO offset for when tfgm data is expiring
+        when = JourneyPlannerHelper.nextMonday(20);
     }
 
     @After

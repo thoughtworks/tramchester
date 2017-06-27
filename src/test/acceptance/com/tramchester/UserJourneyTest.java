@@ -10,6 +10,9 @@ import org.joda.time.LocalTime;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebElement;
 
@@ -26,6 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class UserJourneyTest {
     protected static final String configPath = "config/localAcceptance.yml";
     protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
@@ -45,21 +49,30 @@ public class UserJourneyTest {
     private AcceptanceTestHelper helper;
     private ProvidesDriver providesDriver;
 
+    @Parameters
+    public static Iterable<? extends Object> data() {
+        return Arrays.asList( "firefox");
+    }
+
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
 
-        providesDriver = DriverFactory.create(false);
+        providesDriver = DriverFactory.create(false, browserName);
         providesDriver.init();
         helper = new AcceptanceTestHelper(providesDriver);
 
-        nextMonday = JourneyPlannerHelper.nextMonday();
+        // TODO offset for when tfgm data is expiring
+        nextMonday = JourneyPlannerHelper.nextMonday(20);
     }
 
     @After
     public void afterEachTestRuns() throws IOException {
         providesDriver.commonAfter(testName);
     }
+
+    @Parameterized.Parameter
+    public String browserName;
 
     @Test
     @Category({AcceptanceTest.class})
@@ -155,19 +168,6 @@ public class UserJourneyTest {
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
     }
-
-    // with second city crossing does not appear to be any three stage journeys
-//    @Test
-//    @Category({AcceptanceTest.class})
-//    public void shouldCheckRochdaleToAirportThreeStageJourney() throws InterruptedException {
-//        List<String> changes = Arrays.asList("South Chadderton", "St Werburgh's Road");
-//        List<String> headSigns = Arrays.asList("Exchange Square","East Didsbury","Manchester Airport");
-//        JourneyDetailsPage journeyDetailsPage = checkJourney(url, Stations.Rochdale.getName(),
-//                Stations.ManAirport.getName(), nextMonday, "10:15", changes,
-//                headSigns, false, expectedNumberJourneyResults, 0, false);
-//        RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
-//        routeDetailsPage.waitForRoutes();
-//    }
 
     @Test
     @Category({AcceptanceTest.class})
