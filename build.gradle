@@ -139,6 +139,9 @@ task buses(type:JavaExec) {
 test {
     // t2.micro has 1gb
     maxHeapSize = '1500m'
+    testLogging {
+        events "passed", "skipped", "failed", "started"
+    }
     useJUnit {
         excludeCategories 'com.tramchester.BusTest', 'com.tramchester.AcceptanceTest'
     }
@@ -166,6 +169,9 @@ task blacklist(dependsOn: cfnassist) << {
 
 task localAcceptance(type: Test) {
     useJUnit {
+        testLogging {
+            events "passed", "skipped", "failed", "started"
+        }
         includeCategories 'com.tramchester.AcceptanceTest'
     }
 }
