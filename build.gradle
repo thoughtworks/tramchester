@@ -6,8 +6,7 @@ apply plugin: 'application'
 mainClassName = 'com.tramchester.App'
 
 def antBuild = new groovy.util.AntBuilder()
-def snapNumber = System.getenv("SNAP_PIPELINE_COUNTER") ?: "0"
-def buildNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: snapNumber
+def buildNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
 
 def environment = System.getenv("ENV") ?: "Dev"
 
