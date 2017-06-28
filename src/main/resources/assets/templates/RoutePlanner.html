@@ -56,7 +56,7 @@
                                placeholder="dd/MM/YYYY"
                                required
                                min="{{validFrom}}"
-                               max="{{validUntil}}"
+                               max="{{enforceExpiry && validUntil || '2020-11-30'}}"
                                ng-model="departureDate">
                     </div>
                     <button type="submit" id="plan" class="btn btn-default btn-lg btn-block"

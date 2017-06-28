@@ -11,6 +11,7 @@ techLabApp.controller('RoutePlannerController',
         feedinfoService.getFeedInfo(function(info){
             $scope.validFrom = info.validFrom;
             $scope.validUntil = info.validUntil;
+            $scope.enforceExpiry = false; // todo remove,this is a workaround due to bad metadata in feed_info.txt file
         });
 
         journeyPlanService.removePlan();
