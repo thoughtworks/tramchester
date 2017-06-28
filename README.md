@@ -1,7 +1,23 @@
 
 
-Initial check in of readme
+Tramchester
+===========
 
-More background here
+Tramchester was built by [ThoughtWorks](www.thoughtworks.com) in Manchester
 
-https://blog.snap-ci.com/blog/2015/12/15/tramchester-ian-cartwright/
+A Simple web app and server for planning journeys on Manchester's tram system.
+
+There is a short article on the application
+[here](https://www.thoughtworks.com/insights/blog/helping-people-navigate-public-tram-network)
+
+License
+-------
+See LICENSE.txt
+
+Data
+----
+
+"Contains public sector information licensed under the Open Government Licence v2.0 byData GM."
+
+
+
