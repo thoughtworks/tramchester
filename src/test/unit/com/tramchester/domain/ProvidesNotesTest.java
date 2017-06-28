@@ -15,26 +15,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ProvidesNotesTest {
     private ProvidesNotes provider;
 
-    private class StubProvidesFeedInfo implements ProvidesFeedInfo {
-        private LocalDate validFrom;
-        private LocalDate validUntil;
-
-        private StubProvidesFeedInfo(LocalDate validFrom, LocalDate validUntil) {
-            this.validFrom = validFrom;
-            this.validUntil = validUntil;
-        }
-
-        @Override
-        public FeedInfo getFeedInfo() {
-            return new FeedInfo("|publisherName", "publisherUrl", "timezone", "lang", validFrom,
-                    validUntil, "version");
-        }
-    }
-
     @Before
     public void beforeEachTestRuns() {
-        provider = new ProvidesNotes(new StubProvidesFeedInfo(new LocalDate(2016, 10, 1),
-                new LocalDate(2016, 11, 30)));
+        provider = new ProvidesNotes();
     }
 
     @Test
@@ -79,13 +62,4 @@ public class ProvidesNotesTest {
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
     }
 
-    @Test
-    public void shouldShowNoteIfDataForDateUnavailable() {
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2018-10-31"));
-
-        List<String> result = provider.createNotesFor(queryDate);
-
-        assertThat(result, hasItem(ProvidesNotes.noData));
-
-    }
 }
