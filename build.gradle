@@ -138,7 +138,7 @@ task buses(type:JavaExec) {
 
 test {
     // t2.micro has 1gb
-    maxHeapSize = '1500m'
+    //maxHeapSize = '1500m'
     testLogging {
         events "passed", "skipped", "failed", "started"
     }
