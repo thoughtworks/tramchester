@@ -1,0 +1,27 @@
+language: java
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
+jdk:
+- oraclejdk8
+sudo: false
+addons:
+  apt:
+    packages:
+    - oracle-java8-installer
+jobs:
+  include:
+  - stage: unit
+    script: ./gradlew test
+  - stage: upload
+    script: ./gradlew upload
+  - stage: deployDev
+    env:
+      - ENV=Dev
+    script: ./gradlew deploy updateLB tidy
+
+
