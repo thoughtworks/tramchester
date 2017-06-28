@@ -19,10 +19,10 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
                              ConfigOverride... configOverrides) {
         super(applicationClass, configPath, configOverrides);
         serverURLFromEnv = Optional.ofNullable(System.getenv("SERVER_URL"));
-        localRunHost = setHost();
+        localRunHost = createLocalURL();
     }
 
-    private String setHost() {
+    private String createLocalURL() {
         Optional<String> appiumFlag = Optional.ofNullable(System.getProperty("appium"));
 
         if (appiumFlag.isPresent()) {
@@ -52,7 +52,11 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     public String getUrl() {
-        return serverURLFromEnv.orElse(format("http://%s:%s", localRunHost, getLocalPort()));
+        if (serverURLFromEnv.isPresent()) {
+            return serverURLFromEnv.get();
+        } else {
+            return format("http://%s:%s", localRunHost, getLocalPort());
+        }
     }
 
 }
