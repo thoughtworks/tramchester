@@ -3,7 +3,7 @@
 Tramchester
 ===========
 
-Tramchester was built by [ThoughtWorks](www.thoughtworks.com) in Manchester
+Tramchester was built by [ThoughtWorks](http://www.thoughtworks.com) in Manchester
 
 A Simple web app and server for planning journeys on Manchester's tram system.
 
