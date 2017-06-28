@@ -22,7 +22,7 @@ public class StaticAssetFilter implements Filter {
 
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        seconds = 48 * 60 * 60;
+        seconds = 30 * 60; // 30 minutes
         httpServletResponse.setHeader("Cache-Control", "public, max-age=" + seconds);
 
         chain.doFilter(request,response);
