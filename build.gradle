@@ -138,9 +138,10 @@ task buses(type:JavaExec) {
 
 test {
     // t2.micro has 1gb
-    //maxHeapSize = '1500m'
+    maxHeapSize = '1800m'
     testLogging {
-        events "passed", "skipped", "failed", "started"
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started",  "standardError"
     }
     useJUnit {
         excludeCategories 'com.tramchester.BusTest', 'com.tramchester.AcceptanceTest'
