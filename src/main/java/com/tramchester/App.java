@@ -2,11 +2,11 @@ package com.tramchester;
 
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tramchester.cloud.CloudWatchReporter;
-import com.tramchester.cloud.ConfigFromInstanceUserData;
-import com.tramchester.cloud.SendMetricsToCloudWatch;
+import com.tramchester.integration.cloud.CloudWatchReporter;
+import com.tramchester.integration.cloud.ConfigFromInstanceUserData;
+import com.tramchester.integration.cloud.SendMetricsToCloudWatch;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.resources.*;
+import com.tramchester.integration.resources.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -91,7 +91,7 @@ public class App extends Application<AppConfiguration>  {
         BeanConfig config = new BeanConfig();
         config.setTitle("Tramchester");
         config.setVersion("1.0.0");
-        config.setResourcePackage("com.tramchester.resources");
+        config.setResourcePackage("com.tramchester.integration.resources");
         config.setScan(true);
     }
 

@@ -1,7 +1,5 @@
 package com.tramchester.domain;
 
-import com.tramchester.repository.ProvidesFeedInfo;
-
 import java.util.LinkedList;
 import java.util.List;
 

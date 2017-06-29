@@ -1,0 +1,111 @@
+package com.tramchester.integration.graph;
+
+import com.tramchester.domain.*;
+import com.tramchester.integration.graph.Nodes.QueryNode;
+import com.tramchester.integration.graph.Nodes.RouteStationNode;
+import com.tramchester.integration.graph.Nodes.StationNode;
+import com.tramchester.integration.graph.Nodes.TramNode;
+import com.tramchester.integration.graph.Relationships.GoesToRelationship;
+import com.tramchester.integration.graph.Relationships.TransportRelationship;
+import com.tramchester.integration.repository.StationRepository;
+import com.tramchester.integration.resources.RouteCodeToClassMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.String.format;
+
+public class MapTransportRelationshipsToStages {
+    private static final Logger logger = LoggerFactory.getLogger(MapTransportRelationshipsToStages.class);
+
+    private RouteCodeToClassMapper routeIdToClass;
+    private StationRepository stationRepository;
+
+    public MapTransportRelationshipsToStages(RouteCodeToClassMapper routeIdToClass,
+                                             StationRepository stationRepository) {
+        this.routeIdToClass = routeIdToClass;
+        this.stationRepository = stationRepository;
+    }
+
+    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
+        int totalCost = 0;
+        int serviceStart = 0;
+        RouteStationNode boardNode = null;
+        RawVehicleStage currentStage = null;
+        String firstStationId = null;
+
+        List<RawStage> stages = new ArrayList<>();
+
+        for (TransportRelationship transportRelationship : transportRelationships) {
+            TramNode firstNode = transportRelationship.getStartNode();
+            TramNode secondNode = transportRelationship.getEndNode();
+
+            String endNodeId = secondNode.getId();
+
+            int cost = transportRelationship.getCost();
+            totalCost += cost;
+
+            // todo refactor out first and subsequent stage handling
+            int elapsedTime = minsPastMidnight + totalCost;
+
+            if (transportRelationship.isBoarding()) {
+                // station -> route station
+                boardNode = (RouteStationNode) secondNode;
+                firstStationId = firstNode.getId();
+                serviceStart = totalCost;
+                logger.info(format("Board tram: at:'%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
+                if (currentStage!=null) {
+                    logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
+                            boardNode, currentStage));
+                }
+            } else if (transportRelationship.isGoesTo()) {
+                // routeStation -> routeStation
+                GoesToRelationship goesToRelationship = (GoesToRelationship) transportRelationship;
+                String serviceId = goesToRelationship.getService();
+                logger.info(format("Add stage goes to %s, service %s, elapsed %s", goesToRelationship.getDest(),
+                        serviceId, elapsedTime));
+
+                if (currentStage==null) {
+                    String routeName = boardNode.getRouteName();
+                    String routeId = boardNode.getRouteId();
+                    String tramRouteClass = routeIdToClass.map(routeId);
+                    currentStage = new RawVehicleStage(stationRepository.getStation(firstStationId).get(), routeName,
+                            transportRelationship.getMode(), tramRouteClass);
+                    currentStage.setServiceId(serviceId);
+                }
+            } else if (transportRelationship.isDepartTram()) {
+                // route station -> station
+                String stationName = secondNode.getName();
+                logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
+                        elapsedTime));
+                currentStage.setLastStation(stationRepository.getStation(endNodeId).get());
+                currentStage.setCost(totalCost-serviceStart);
+                serviceStart = 0;
+                stages.add(currentStage);
+                logger.info(format("Added stage: '%s' at time %s",currentStage, elapsedTime));
+                currentStage = null;
+            } else if (transportRelationship.isWalk()) {
+
+                Location begin;
+                if (firstNode.isQuery()) {
+                    QueryNode queryNode = (QueryNode) firstNode;
+                    begin = new MyLocation(queryNode.getLatLon());
+                } else {
+                    begin = stationRepository.getStation(firstNode.getId()).get();
+                }
+
+                StationNode dest = (StationNode) secondNode;
+                Location destStation = stationRepository.getStation(dest.getId()).get();
+                RawWalkingStage walkingStage = new RawWalkingStage(begin, destStation, cost);
+                logger.info("Adding walk " + walkingStage);
+                stages.add(walkingStage);
+            }
+        }
+        logger.info(format("Number of stages: %s Total cost:%s Finish: %s",stages.size(), totalCost,
+                totalCost+minsPastMidnight));
+        return stages;
+    }
+
+}

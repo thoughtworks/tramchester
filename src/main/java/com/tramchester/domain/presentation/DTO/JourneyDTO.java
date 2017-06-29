@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.presentation.Journey;
-import com.tramchester.mappers.TimeJsonDeserializer;
-import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.integration.mappers.TimeJsonDeserializer;
+import com.tramchester.integration.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 import java.util.List;

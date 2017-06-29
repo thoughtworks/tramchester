@@ -2,8 +2,8 @@ package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.mappers.LocalDateJsonDeserializer;
-import com.tramchester.mappers.LocalDateJsonSerializer;
+import com.tramchester.integration.mappers.LocalDateJsonDeserializer;
+import com.tramchester.integration.mappers.LocalDateJsonSerializer;
 import org.joda.time.LocalDate;
 
 public class FeedInfo {

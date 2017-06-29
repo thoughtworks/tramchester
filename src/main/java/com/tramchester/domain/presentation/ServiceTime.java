@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TimeAsMinutes;
-import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.integration.mappers.TimeJsonSerializer;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalTime;
 
