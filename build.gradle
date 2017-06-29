@@ -36,7 +36,7 @@ dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
-            'org.neo4j:neo4j:2.3.4',
+            'org.neo4j:neo4j:2.3.11',
             'org.neo4j:neo4j-spatial:0.15-neo4j-2.3.4',
             'joda-time:joda-time:2.4',
             'com.googlecode.jcsv:jcsv:1.4.0',
@@ -70,7 +70,7 @@ dependencies {
 sourceSets {
     test {
         java {
-            srcDirs = ['src/test/unit', 'src/test/integration', 'src/test/acceptance']
+            srcDirs = ['src/test']
         }
     }
 }
@@ -125,9 +125,23 @@ run {
 }
 
 task pullData(type:JavaExec) {
-    main = 'com.tramchester.dataimport.FetchDataFromUrl'
+    main = 'com.tramchester.integration.dataimport.FetchDataFromUrl'
     classpath = sourceSets.main.runtimeClasspath
     args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
+}
+
+task whitelist(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+        WhiteList(port: '80', tag:'web')
+        WhiteList(port: '443', tag:'web')
+    }
+}
+
+task blacklist(dependsOn: cfnassist) << {
+    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+        BlackList(port: '80', tag:'web')
+        BlackList(port: '443', tag:'web')
+    }
 }
 
 task buses(type:JavaExec) {
@@ -154,17 +168,27 @@ task busTest(type: Test) {
     }
 }
 
-task whitelist(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
-        WhiteList(port: '80', tag:'web')
-        WhiteList(port: '443', tag:'web')
+task unit(type: Test,dependsOn: compileJava) {
+    useJUnit {
+        filter {
+            includeTestsMatching "com.tramchester.unit.*"
+        }
+        testLogging {
+            exceptionFormat "full" // default is "short"
+            events "passed", "skipped", "failed", "started",  "standardError"
+        }
     }
 }
 
-task blacklist(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
-        BlackList(port: '80', tag:'web')
-        BlackList(port: '443', tag:'web')
+task integration(type: Test,dependsOn: compileJava) {
+    useJUnit {
+        filter {
+            includeTestsMatching "com.tramchester.integration.*"
+        }
+        testLogging {
+            exceptionFormat "full" // default is "short"
+            events "passed", "skipped", "failed", "started",  "standardError"
+        }
     }
 }
 
@@ -173,21 +197,33 @@ task localAcceptance(type: Test) {
         testLogging {
             events "passed", "skipped", "failed", "started"
         }
-        includeCategories 'com.tramchester.AcceptanceTest'
+        filter {
+            includeTestsMatching "com.tramchester.acceptance.*"
+        }
     }
 }
 
 task localAppium(type: Test) {
     systemProperty 'appium', 'true'
     useJUnit {
-        includeCategories 'com.tramchester.AcceptanceTest'
+        filter {
+            includeTestsMatching "com.tramchester.acceptance.*"
+        }
+        testLogging {
+            events "passed", "skipped", "failed", "started"
+        }
     }
 }
 
 task acceptance(type: Test, dependsOn: whitelist) {
     logging.captureStandardOutput LogLevel.INFO
     useJUnit {
-        includeCategories 'com.tramchester.AcceptanceTest'
+        filter {
+            includeTestsMatching "com.tramchester.acceptance.*"
+        }
+        testLogging {
+            events "passed", "skipped", "failed", "started"
+        }
     }
 }
 acceptance.finalizedBy blacklist
@@ -265,4 +301,6 @@ task blacklistUAT(dependsOn: cfnassist) << {
         BlackList(port: '443', tag:'web')
     }
 }
+
+
 

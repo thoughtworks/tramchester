@@ -16,7 +16,9 @@ addons:
 jobs:
   include:
   - stage: unit
-    script: travis_wait ./gradlew test
+    script: ./gradlew unit
+  - stage: integration
+    script: travis_wait ./gradlew integration
   - stage: upload
     script: ./gradlew upload
   - stage: deployDev
