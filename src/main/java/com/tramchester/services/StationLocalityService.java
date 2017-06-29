@@ -2,11 +2,11 @@ package com.tramchester.services;
 
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.integration.graph.GraphStaticKeys;
-import com.tramchester.integration.graph.Relationships.RelationshipFactory;
-import com.tramchester.integration.graph.StationIndexs;
-import com.tramchester.integration.graph.TransportRelationshipTypes;
-import com.tramchester.integration.repository.TransportData;
+import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.graph.StationIndexs;
+import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.repository.TransportData;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.pipes.GeoPipeFlow;

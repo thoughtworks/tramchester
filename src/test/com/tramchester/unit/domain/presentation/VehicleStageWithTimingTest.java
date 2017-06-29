@@ -1,13 +1,17 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.unit.domain.presentation;
 
 
-import com.tramchester.integration.Stations;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ServiceTime;
+import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.presentation.VehicleStageWithTiming;
+import com.tramchester.integration.Stations;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 

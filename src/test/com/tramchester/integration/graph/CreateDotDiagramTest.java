@@ -2,12 +2,14 @@ package com.tramchester.integration.graph;
 
 
 import com.tramchester.Dependencies;
+import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.Nodes.NodeFactory;
+import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import com.tramchester.integration.graph.Nodes.NodeFactory;
-import com.tramchester.integration.graph.Nodes.TramNode;
-import com.tramchester.integration.graph.Relationships.RelationshipFactory;
-import com.tramchester.integration.graph.Relationships.TransportRelationship;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

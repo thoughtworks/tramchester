@@ -1,5 +1,7 @@
 package com.tramchester.integration.cloud;
 
+import com.tramchester.cloud.ConfigFromInstanceUserData;
+import com.tramchester.cloud.SignalToCloudformationReady;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

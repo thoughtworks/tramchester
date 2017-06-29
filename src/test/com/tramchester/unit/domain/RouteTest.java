@@ -1,5 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.unit.domain;
 
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import org.junit.Test;
 
 import java.util.Set;

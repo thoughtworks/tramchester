@@ -6,8 +6,6 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.nio.file.Path;
 
-import static java.lang.String.format;
-
 
 public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     private final DesiredCapabilities capabilities;

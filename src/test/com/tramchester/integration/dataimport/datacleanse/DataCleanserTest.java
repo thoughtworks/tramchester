@@ -1,11 +1,13 @@
 package com.tramchester.integration.dataimport.datacleanse;
 
 import com.tramchester.Dependencies;
+import com.tramchester.dataimport.ErrorCount;
+import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.TransportDataFetcher;
+import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.datacleanse.DataCleanser;
+import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.dataimport.ErrorCount;
-import com.tramchester.integration.dataimport.FetchDataFromUrl;
-import com.tramchester.integration.dataimport.TransportDataFetcher;
-import com.tramchester.integration.dataimport.TransportDataReader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;

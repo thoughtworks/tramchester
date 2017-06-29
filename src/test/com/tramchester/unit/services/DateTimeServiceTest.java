@@ -1,5 +1,6 @@
-package com.tramchester.services;
+package com.tramchester.unit.services;
 
+import com.tramchester.services.DateTimeService;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

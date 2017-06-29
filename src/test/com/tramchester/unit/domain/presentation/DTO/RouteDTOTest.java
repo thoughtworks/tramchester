@@ -1,5 +1,7 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.unit.domain.presentation.DTO;
 
+import com.tramchester.domain.presentation.DTO.RouteDTO;
+import com.tramchester.domain.presentation.DTO.StationDTO;
 import org.junit.Test;
 
 import java.util.LinkedList;

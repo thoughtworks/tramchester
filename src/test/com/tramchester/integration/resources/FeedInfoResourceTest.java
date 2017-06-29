@@ -2,10 +2,10 @@ package com.tramchester.integration.resources;
 
 
 import com.tramchester.App;
+import com.tramchester.domain.FeedInfo;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.domain.FeedInfo;
 import org.joda.time.LocalDate;
 import org.junit.ClassRule;
 import org.junit.Test;

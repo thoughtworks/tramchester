@@ -2,15 +2,16 @@ package com.tramchester.integration.mappers;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.integration.graph.RouteCalculator;
+import com.tramchester.graph.RouteCalculator;
+import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
+import com.tramchester.mappers.TramJourneyResponseMapper;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.AfterClass;

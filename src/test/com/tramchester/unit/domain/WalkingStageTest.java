@@ -1,8 +1,12 @@
-package com.tramchester.domain;
+package com.tramchester.unit.domain;
 
 
-import com.tramchester.integration.Stations;
+import com.tramchester.domain.Location;
+import com.tramchester.domain.RawWalkingStage;
+import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.integration.Stations;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;

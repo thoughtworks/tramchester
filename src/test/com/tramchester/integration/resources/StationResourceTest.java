@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
-import com.tramchester.*;
+import com.tramchester.App;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Timestamped;

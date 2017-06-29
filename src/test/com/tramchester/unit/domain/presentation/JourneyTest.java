@@ -1,12 +1,13 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.unit.domain.presentation;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.tramchester.integration.Stations;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.*;
+import com.tramchester.integration.Stations;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 

@@ -1,7 +1,8 @@
-package com.tramchester.domain;
+package com.tramchester.unit.domain;
 
 
 import com.tramchester.TestConfig;
+import com.tramchester.domain.CreateQueryTimes;
 import org.junit.Test;
 
 import java.nio.file.Path;

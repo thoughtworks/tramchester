@@ -1,4 +1,4 @@
-package com.tramchester.integration.mappers;
+package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -7,7 +7,8 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.integration.repository.TransportDataFromFiles;
+import com.tramchester.mappers.TramJourneyResponseMapper;
+import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.LocalDate;

@@ -1,7 +1,8 @@
 package com.tramchester.integration.dataimport;
 
-import com.tramchester.integration.dataimport.data.*;
-import com.tramchester.integration.dataimport.parsers.*;
+import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.data.*;
+import com.tramchester.dataimport.parsers.*;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 

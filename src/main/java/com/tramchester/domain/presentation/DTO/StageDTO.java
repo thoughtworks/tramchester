@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.integration.mappers.TimeJsonDeserializer;
-import com.tramchester.integration.mappers.TimeJsonSerializer;
+import com.tramchester.mappers.TimeJsonDeserializer;
+import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 public class StageDTO {

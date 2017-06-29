@@ -1,5 +1,6 @@
 package com.tramchester.integration.cloud;
 
+import com.tramchester.cloud.FetchInstanceMetadata;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.junit.Before;
 import org.junit.Test;

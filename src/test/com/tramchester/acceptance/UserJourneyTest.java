@@ -1,12 +1,12 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.integration.Stations;
 import com.tramchester.acceptance.infra.AcceptanceTestHelper;
 import com.tramchester.acceptance.infra.AcceptanceTestRun;
 import com.tramchester.acceptance.infra.DriverFactory;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.*;
+import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.FeedInfoResourceTest;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
 import org.assertj.core.util.Lists;

@@ -1,5 +1,6 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.unit.domain.presentation;
 
+import com.tramchester.domain.presentation.ServiceTime;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 

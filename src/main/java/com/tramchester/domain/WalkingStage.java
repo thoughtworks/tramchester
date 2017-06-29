@@ -3,7 +3,7 @@ package com.tramchester.domain;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.integration.mappers.TimeJsonSerializer;
+import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 public class WalkingStage implements TransportStage {

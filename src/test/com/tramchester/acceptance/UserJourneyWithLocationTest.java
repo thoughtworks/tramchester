@@ -1,14 +1,14 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.integration.Stations;
 import com.tramchester.acceptance.infra.AcceptanceTestHelper;
 import com.tramchester.acceptance.infra.AcceptanceTestRun;
 import com.tramchester.acceptance.infra.DriverFactory;
 import com.tramchester.acceptance.infra.ProvidesDriver;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.acceptance.pages.JourneyDetailsPage;
 import com.tramchester.acceptance.pages.RouteDetailsPage;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDate;

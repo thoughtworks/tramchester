@@ -2,11 +2,11 @@ package com.tramchester;
 
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tramchester.integration.cloud.CloudWatchReporter;
-import com.tramchester.integration.cloud.ConfigFromInstanceUserData;
-import com.tramchester.integration.cloud.SendMetricsToCloudWatch;
+import com.tramchester.cloud.CloudWatchReporter;
+import com.tramchester.cloud.ConfigFromInstanceUserData;
+import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.integration.resources.*;
+import com.tramchester.resources.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;

@@ -1,9 +1,9 @@
-package com.tramchester.resource;
+package com.tramchester.unit.resource;
 
 
-import com.tramchester.integration.dataimport.data.*;
+import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.integration.repository.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFiles;
 
 import java.util.stream.Stream;
 

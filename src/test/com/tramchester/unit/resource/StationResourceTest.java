@@ -1,12 +1,12 @@
-package com.tramchester.resource;
+package com.tramchester.unit.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.UpdateRecentJourneys;
-import com.tramchester.integration.repository.TransportDataFromFiles;
-import com.tramchester.integration.resources.StationResource;
+import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.resources.StationResource;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.ClassRule;

@@ -1,4 +1,4 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.unit.domain.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;

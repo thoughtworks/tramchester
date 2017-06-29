@@ -5,7 +5,7 @@ import com.tramchester.domain.RawStage;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.integration.graph.RouteCalculator;
+import com.tramchester.graph.RouteCalculator;
 import org.joda.time.LocalDate;
 
 import java.util.Arrays;

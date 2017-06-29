@@ -1,6 +1,7 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.Station;
+import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import org.junit.Test;

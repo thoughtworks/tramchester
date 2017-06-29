@@ -1,7 +1,7 @@
-package com.tramchester.resource;
+package com.tramchester.unit.resource;
 
 
-import com.tramchester.integration.resources.RouteCodeToClassMapper;
+import com.tramchester.resources.RouteCodeToClassMapper;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

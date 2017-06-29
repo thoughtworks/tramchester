@@ -1,8 +1,11 @@
-package com.tramchester.domain;
+package com.tramchester.unit.domain;
 
 import com.google.common.collect.Sets;
-import com.tramchester.integration.Stations;
 import com.tramchester.TestConfig;
+import com.tramchester.domain.RecentJourneys;
+import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.integration.Stations;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

@@ -1,16 +1,17 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.RouteCodes;
-import com.tramchester.integration.Stations;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.Trip;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.integration.graph.Nodes.StationNode;
-import com.tramchester.integration.graph.Nodes.TramNode;
-import com.tramchester.integration.graph.Relationships.*;
-import com.tramchester.integration.repository.TransportDataFromFiles;
+import com.tramchester.graph.Nodes.StationNode;
+import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.Relationships.*;
+import com.tramchester.graph.RouteCalculator;
+import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.RouteCodes;
+import com.tramchester.integration.Stations;
+import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;

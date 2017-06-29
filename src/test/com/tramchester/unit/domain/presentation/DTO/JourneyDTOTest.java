@@ -1,9 +1,10 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.*;
 import org.joda.time.LocalTime;
 import org.junit.Test;

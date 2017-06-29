@@ -1,9 +1,10 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.unit.domain.presentation.DTO;
 
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.integration.Stations;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 
 
 public class LocationDTOTest {

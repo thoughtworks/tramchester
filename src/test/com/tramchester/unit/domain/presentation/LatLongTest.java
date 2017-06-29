@@ -1,7 +1,8 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.unit.domain.presentation;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.presentation.LatLong;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.junit.Test;
 

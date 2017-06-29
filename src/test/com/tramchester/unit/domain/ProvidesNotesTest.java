@@ -1,5 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.unit.domain;
 
+import com.tramchester.domain.ProvidesNotes;
+import com.tramchester.domain.TramServiceDate;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
