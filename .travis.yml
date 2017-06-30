@@ -18,7 +18,7 @@ jobs:
   - stage: unit
     script: ./gradlew unit
   - stage: integration
-    script: travis_wait ./gradlew integration
+    script: ./gradlew integration
   - stage: upload
     script: ./gradlew upload
   - stage: deployDev
