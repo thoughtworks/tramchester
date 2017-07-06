@@ -10,10 +10,7 @@ import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -49,6 +46,7 @@ public class CreateDotDiagramTest {
     }
 
     @Test
+    @Ignore
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
         try (Transaction tx = graphService.beginTx()) {
 
