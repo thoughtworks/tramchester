@@ -150,25 +150,13 @@ task buses(type:JavaExec) {
     args 'server', 'config/buses.yml'
 }
 
-test {
-    // t2.micro has 1gb
-    maxHeapSize = '2500m'
-    testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started",  "standardError"
-    }
-    useJUnit {
-        excludeCategories 'com.tramchester.BusTest', 'com.tramchester.AcceptanceTest'
-    }
-}
-
 task busTest(type: Test) {
     useJUnit {
         includeCategories 'com.tramchester.BusTest'
     }
 }
 
-task unit(type: Test,dependsOn: compileJava) {
+task unit(type: Test, dependsOn: compileJava) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.unit.*"
@@ -180,19 +168,20 @@ task unit(type: Test,dependsOn: compileJava) {
     }
 }
 
-task integration(type: Test,dependsOn: compileJava) {
+task integration(type: Test, dependsOn: compileJava) {
+    maxHeapSize = '2500m'
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
         }
         testLogging {
             exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started",  "standardError"
+            events "passed", "skipped", "failed", "started",  "standardError", "standardOut"
         }
     }
 }
 
-task localAcceptance(type: Test) {
+task localAcceptance(type: Test, dependsOn: compileJava) {
     useJUnit {
         testLogging {
             events "passed", "skipped", "failed", "started"
@@ -203,7 +192,7 @@ task localAcceptance(type: Test) {
     }
 }
 
-task localAppium(type: Test) {
+task localAppium(type: Test, dependsOn: compileJava) {
     systemProperty 'appium', 'true'
     useJUnit {
         filter {
