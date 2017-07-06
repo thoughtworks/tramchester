@@ -124,8 +124,8 @@ run {
     args 'server', 'config/local.yml'
 }
 
-task pullData(type:JavaExec) {
-    main = 'com.tramchester.integration.dataimport.FetchDataFromUrl'
+task pullData(type:JavaExec, dependsOn:classes) {
+    main = 'com.tramchester.dataimport.FetchDataFromUrl'
     classpath = sourceSets.main.runtimeClasspath
     args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
 }
