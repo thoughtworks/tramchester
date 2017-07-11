@@ -60,6 +60,9 @@ public class UserJourneyTest {
         return Arrays.asList( "firefox");
     }
 
+    @Parameterized.Parameter
+    public String browserName;
+
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
@@ -77,11 +80,7 @@ public class UserJourneyTest {
         providesDriver.commonAfter(testName);
     }
 
-    @Parameterized.Parameter
-    public String browserName;
-
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldRedirectDirectToJourneyPageAfterFirstVisit() throws InterruptedException, UnsupportedEncodingException {
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
@@ -102,7 +101,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Bury");
@@ -126,7 +124,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldHideStationInToListWhenSelectedInFromList() throws InterruptedException {
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
@@ -146,7 +143,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldShowNoRoutesMessage() throws InterruptedException {
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
@@ -165,7 +161,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Deansgate-Castlefield");
@@ -177,7 +172,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldHaveSecondCityCrossingRoutes() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
         List<String> headsignRochdale = Arrays.asList("Rochdale Interchange");
@@ -187,7 +181,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
 
@@ -205,7 +198,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldDisplayNotNotesOnWeekday() throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, altrincham, deansgate, testingDay, "10:00:00");
@@ -214,7 +206,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldDisplayNotesOnSaturday() throws InterruptedException {
         LocalDate aSaturday = testingDay.plusDays(5);
 
@@ -223,7 +214,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldDisplayNotesOnSunday() throws InterruptedException {
         LocalDate aSunday = testingDay.plusDays(6);
 
@@ -231,29 +221,7 @@ public class UserJourneyTest {
         checkForWeekendNotes(routeDetailsPage);
     }
 
-    // saving for Christmas 2017....
-//    @Test
-//    @Category({AcceptanceTest.class})
-//    public void shouldDisplayMessageAboutChristmasServices2016() throws InterruptedException {
-//        LocalDate date = new LocalDate(2016, 12, 23);
-//        RouteDetailsPage page = enterRouteSelection(url, altrincham, deansgate, date, "10:00:00");
-//
-//        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
-//
-//        for(int offset=1; offset<11; offset++) {
-//            RoutePlannerPage planner = page.planNewJourney();
-//            LocalDate queryDate = date.plusDays(offset);
-//            page = enterRouteSelection(planner, altrincham, deansgate, queryDate, "10:00:00");
-//            checkForChristmasMessage(queryDate.toString(), page);
-//        }
-//
-//        RoutePlannerPage planner = page.planNewJourney();
-//        page = enterRouteSelection(planner, altrincham, deansgate, new LocalDate(2017, 1, 3), "10:00:00");
-//        assertThat(getNotes(page),not(hasItem(ProvidesNotes.christmas)));
-//    }
-
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCheckAshtonToPiccadilyGardens() throws InterruptedException {
         List<String> changes = new LinkedList<>();
         List<String> headSigns = Arrays.asList("Eccles");
@@ -302,7 +270,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
         List<String> changes = Arrays.asList(Stations.StPetersSquare.getName());
         List<String> headSigns = Arrays.asList("Bury");
@@ -312,7 +279,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldHaveBuildAndVersionNumberInFooter() throws InterruptedException {
         String build = System.getenv("SNAP_PIPELINE_COUNTER");
         if (build==null) {
@@ -321,7 +287,7 @@ public class UserJourneyTest {
 
         RoutePlannerPage page = providesDriver.getWelcomePage().load(testRule.getUrl()).begin();
         String result = page.findElementById("build").getText();
-        assertEquals("Build "+build,result);
+        assertEquals("Build 1."+build, result);
 
         String dataBegin = page.findElementById("validFrom").getText();
         assertEquals(" From: "+ FeedInfoResourceTest.validFrom.toString("YYYY-MM-dd"), dataBegin);
@@ -332,7 +298,6 @@ public class UserJourneyTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     @Ignore("Walking routes disabled now St Peters Square is open again")
     public void shouldHaveWalkingRoutesAcrossCity() throws InterruptedException {
         List<String> changes = Arrays.asList(deansgate, Stations.MarketStreet.getName());
@@ -369,12 +334,6 @@ public class UserJourneyTest {
         }
         helper.checkDuration(journeyDetailsPage, stageIndex);
     }
-
-//    private void checkForChristmasMessage(String msg, RouteDetailsPage routeDetailsPage) {
-//        List<String> notes = getNotes(routeDetailsPage);
-//        assertThat(msg, notes,
-//                hasItem("There are changes to Metrolink services during Christmas and New Year.Please check TFGM for details."));
-//    }
 
     private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {
         List<String> notes = getNotes(routeDetailsPage);

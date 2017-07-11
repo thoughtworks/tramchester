@@ -23,10 +23,10 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     private String createLocalURL() {
-        Optional<String> appiumFlag = Optional.ofNullable(System.getProperty("appium"));
+        Optional<String> android = Optional.ofNullable(System.getProperty("android"));
 
-        if (appiumFlag.isPresent()) {
-            if (appiumFlag.get().equals("true")) {
+        if (android.isPresent()) {
+            if (android.get().equals("true")) {
                 return "10.0.2.2";
             }
         }

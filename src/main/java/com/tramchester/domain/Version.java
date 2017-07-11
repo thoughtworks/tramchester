@@ -1,6 +1,10 @@
 package com.tramchester.domain;
 
+import static java.lang.String.format;
+
 public class Version {
+    public static String MajorVersion = "1";
+
     private String buildNumber;
 
     public Version() {
@@ -13,6 +17,6 @@ public class Version {
 
     // from json
     public String getBuildNumber() {
-        return buildNumber;
+        return format("%s.%s", MajorVersion, buildNumber);
     }
 }

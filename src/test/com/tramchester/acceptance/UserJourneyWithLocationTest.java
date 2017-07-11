@@ -15,6 +15,8 @@ import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,15 +27,10 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 
+@RunWith(Parameterized.class)
 public class UserJourneyWithLocationTest {
     protected static final String configPath = "config/localAcceptance.yml";
     protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
-
-    @ClassRule
-    public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
-
-    @Rule
-    public TestName testName = new TestName();
 
     private Path path = Paths.get("geofile.json");
     private String myLocation = "My Location";
@@ -43,10 +40,26 @@ public class UserJourneyWithLocationTest {
     private AcceptanceTestHelper helper;
     private ProvidesDriver providesDriver;
 
+    @ClassRule
+    public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Parameterized.Parameters
+    public static Iterable<? extends Object> data() {
+        return Arrays.asList( "firefox");
+    }
+
+    @Parameterized.Parameter
+    public String browserName;
+
+
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
-        providesDriver = DriverFactory.create(true);
+
+        providesDriver = DriverFactory.create(true, browserName);
 
         createGeoFile();
         providesDriver.setProfileForGeoFile(path.toAbsolutePath());
@@ -65,7 +78,6 @@ public class UserJourneyWithLocationTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCheckNearAltrinchamToAshton() throws InterruptedException {
 
         assertTrue(Files.exists(path));
@@ -97,7 +109,6 @@ public class UserJourneyWithLocationTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCheckNearAltrinchamToCornbrook() throws InterruptedException {
 
         assertTrue(Files.exists(path));
@@ -120,7 +131,6 @@ public class UserJourneyWithLocationTest {
     }
 
     @Test
-    @Category({AcceptanceTest.class})
     public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
         assertTrue(Files.exists(path));
 

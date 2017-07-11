@@ -15,12 +15,12 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.nio.file.Path;
 
-public class ProvidesAppiumDriver extends ProvidesDriver {
+public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     private final boolean enableGeo;
     private AppiumDriver driver;
 
-    public ProvidesAppiumDriver(boolean enableGeo) {
+    public ProvidesChromeOnAndroid(boolean enableGeo) {
         this.enableGeo = enableGeo;
         // TODO - the non-geo tests won't pass until this is done
     }

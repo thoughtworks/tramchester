@@ -176,11 +176,12 @@ task integration(type: Test, dependsOn: compileJava) {
         }
         testLogging {
             exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started",  "standardError", "standardOut"
+            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
         }
     }
 }
 
+// deprecated, use localAppium
 task localAcceptance(type: Test, dependsOn: compileJava) {
     useJUnit {
         testLogging {
@@ -193,17 +194,32 @@ task localAcceptance(type: Test, dependsOn: compileJava) {
 }
 
 task localAppium(type: Test, dependsOn: compileJava) {
-    systemProperty 'appium', 'true'
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"
         }
         testLogging {
-            events "passed", "skipped", "failed", "started"
+            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
         }
     }
 }
 
+task appium(type: Test, dependsOn: whitelist) {
+    useJUnit {
+        filter {
+            includeTestsMatching "com.tramchester.acceptance.*"
+        }
+        testLogging {
+            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
+        }
+    }
+    finalizedBy {
+        blacklist
+    }
+}
+
+
+// deprecated, use appium
 task acceptance(type: Test, dependsOn: whitelist) {
     logging.captureStandardOutput LogLevel.INFO
     useJUnit {

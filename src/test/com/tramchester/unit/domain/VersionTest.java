@@ -11,6 +11,6 @@ public class VersionTest {
     @Test
     public void shouldReportCorrectVersion() {
         Version version = new Version("someNumber");
-        assertEquals("someNumber", version.getBuildNumber());
+        assertEquals("1.someNumber", version.getBuildNumber());
     }
 }

@@ -13,6 +13,7 @@ addons:
   apt:
     packages:
     - oracle-java8-installer
+  firefox: "45.6.0"
 jobs:
   include:
   - stage: unit
@@ -25,5 +26,9 @@ jobs:
     env:
       - ENV=Dev
     script: ./gradlew deploy updateLB tidy
+  - stage: acceptance
+    env:
+      - SERVER_URL=https://alpha.tramchester.com
+    script: ./gradlew appium
 
 
