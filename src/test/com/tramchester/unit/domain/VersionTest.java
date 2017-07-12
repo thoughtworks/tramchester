@@ -10,7 +10,7 @@ public class VersionTest {
 
     @Test
     public void shouldReportCorrectVersion() {
-        Version version = new Version("someNumber");
-        assertEquals("1.someNumber", version.getBuildNumber());
+        Version version = new Version("versionString");
+        assertEquals("versionString", version.getBuildNumber());
     }
 }

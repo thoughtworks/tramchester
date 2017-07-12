@@ -11,6 +11,7 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 
 
@@ -30,7 +31,7 @@ public class VersionResourceTest {
         if (build==null) {
             build = "0";
         }
-        assertEquals(build, version.getBuildNumber());
+        assertEquals(format("1.%s", build), version.getBuildNumber());
     }
 
 }

@@ -12,6 +12,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 @Api
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,8 +29,7 @@ public class VersionResource {
         if (StringUtils.isEmpty(build)) {
             build = "0";
         }
-        return new Version(build);
+        String version = format("%s.%s", Version.MajorVersion, build);
+        return new Version(version);
     }
-
-
 }
