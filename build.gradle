@@ -204,7 +204,7 @@ task localAppium(type: Test, dependsOn: compileJava) {
     }
 }
 
-task appium(type: Test, dependsOn: whitelist) {
+task appium(type: Test, dependsOn: ['whitelist' , 'compileJava']) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"
