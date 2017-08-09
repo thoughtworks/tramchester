@@ -29,8 +29,8 @@ import static junit.framework.TestCase.assertTrue;
 
 @RunWith(Parameterized.class)
 public class UserJourneyWithLocationTest {
-    protected static final String configPath = "config/localAcceptance.yml";
-    protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
+    private static final String configPath = "config/localAcceptance.yml";
+    private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     private Path path = Paths.get("geofile.json");
     private String myLocation = "My Location";
@@ -54,7 +54,6 @@ public class UserJourneyWithLocationTest {
     @Parameterized.Parameter
     public String browserName;
 
-
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
@@ -68,7 +67,7 @@ public class UserJourneyWithLocationTest {
         helper = new AcceptanceTestHelper(providesDriver);
 
         // TODO offset for when tfgm data is expiring
-        when = JourneyPlannerHelper.nextMonday(20);
+        when = JourneyPlannerHelper.nextMonday(0);
     }
 
     @After

@@ -36,8 +36,8 @@ import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class UserJourneyTest {
-    protected static final String configPath = "config/localAcceptance.yml";
-    protected int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
+    private static final String configPath = "config/localAcceptance.yml";
+    private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
@@ -72,7 +72,7 @@ public class UserJourneyTest {
         helper = new AcceptanceTestHelper(providesDriver);
 
         // TODO offset for when tfgm data is expiring
-        testingDay = JourneyPlannerHelper.nextMonday(20);
+        testingDay = JourneyPlannerHelper.nextMonday(0);
     }
 
     @After
