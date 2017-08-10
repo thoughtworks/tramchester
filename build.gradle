@@ -16,6 +16,7 @@ mainClassName = 'com.tramchester.App'
 
 def buildNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
 def environment = System.getenv("ENV") ?: "Dev"
+def console = System.console()
 
 // this is used in the generated dist zip filename
 version = 1.0
@@ -341,6 +342,22 @@ task blacklistUAT(dependsOn: cfnassist) {
             BlackList(port: '443', tag: 'web')
         }
     }
+}
+
+task release(dependsOn: cfnassist) {
+    doLast {
+        def releaseNumber = System.getenv("RELEASE_NUMBER")
+        if (releaseNumber) {
+            logger.warn('Switch ELB to release '+releaseNumber)
+            ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'ProdGreen', buildNumber: releaseNumber, sns: 'true') {
+                ELBUpdate(typeTag: 'web')
+            }
+        } else {
+            logger.error('Please set env variable RELEASE_NUMBER')
+        }
+
+    }
+
 }
 
 
