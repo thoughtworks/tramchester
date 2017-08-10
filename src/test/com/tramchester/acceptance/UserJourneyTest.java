@@ -280,7 +280,7 @@ public class UserJourneyTest {
 
     @Test
     public void shouldHaveBuildAndVersionNumberInFooter() throws InterruptedException {
-        String build = System.getenv("SNAP_PIPELINE_COUNTER");
+        String build = System.getenv("TRAVIS_BUILD_NUMBER");
         if (build==null) {
             build = "0";
         }
