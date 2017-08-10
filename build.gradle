@@ -8,16 +8,17 @@ buildscript {
 }
  
 apply plugin: 'org.owasp.dependencycheck'
-
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'application'
 
 mainClassName = 'com.tramchester.App'
 
-def antBuild = new groovy.util.AntBuilder()
 def buildNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
 def environment = System.getenv("ENV") ?: "Dev"
+
+// this is used in the generated dist zip filename
+version = 1.0
 
 project.ext {
     dropwizardVersion = '0.9.2'
@@ -82,10 +83,12 @@ sourceSets {
     }
 }
 
-task cfnassist << {
-    antBuild.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
-        classpath {
-            fileset(dir: 'lib/cfnassist-1.0.140/lib/', includes: 'cfnassist-all-1.0.140.jar')
+task cfnassist {
+    doLast {
+        ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
+            classpath {
+                fileset(dir: 'lib/cfnassist-1.0.140/lib/', includes: 'cfnassist-all-1.0.140.jar')
+            }
         }
     }
 }
@@ -137,17 +140,21 @@ task pullData(type:JavaExec, dependsOn:classes) {
     args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
 }
 
-task whitelist(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
-        WhiteList(port: '80', tag:'web')
-        WhiteList(port: '443', tag:'web')
+task whitelist(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+            WhiteList(port: '80', tag: 'web')
+            WhiteList(port: '443', tag: 'web')
+        }
     }
 }
 
-task blacklist(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
-        BlackList(port: '80', tag:'web')
-        BlackList(port: '443', tag:'web')
+task blacklist(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+            BlackList(port: '80', tag: 'web')
+            BlackList(port: '443', tag: 'web')
+        }
     }
 }
 
@@ -242,16 +249,20 @@ task acceptance(type: Test, dependsOn: whitelist) {
 }
 acceptance.finalizedBy blacklist
 
-task uploadData(dependsOn: ['cfnassist', 'pullData']) << {
-    antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
-        Artifact(name: 'data', value: 'data/tramData-1.0.zip')
-        S3Create()
+task uploadData(dependsOn: ['cfnassist', 'pullData']) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname: 'tramchester2dist') {
+            Artifact(name: 'data', value: 'data/tramData-1.0.zip')
+            S3Create()
+        }
     }
 }
 
-task diagrams(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1') {
-        Diagrams(target: '.')
+task diagrams(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1') {
+            Diagrams(target: '.')
+        }
     }
 }
 
@@ -261,58 +272,74 @@ distZip {
     }
 }
 
-task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  << {
-    antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
-		Artifact(name: 'package', value: 'build/distributions/tramchester-1.0.zip')
-		S3Create()
-	}
+task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname: 'tramchester2dist') {
+            Artifact(name: 'package', value: 'build/distributions/tramchester-1.0.zip')
+            S3Create()
+        }
+    }
 }
 
-task uploadSupportFiles(dependsOn: 'cfnassist')  << {
-    antBuild.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname:'tramchester2dist') {
-		Artifact(name: 'install', value: 'deploy/setupTramWebServer.sh')
-		Artifact(name: 'cloudinit', value: 'deploy/cloudInit.txt')
-		S3Create()
-	}
+task uploadSupportFiles(dependsOn: 'cfnassist') {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname: 'tramchester2dist') {
+            Artifact(name: 'install', value: 'deploy/setupTramWebServer.sh')
+            Artifact(name: 'cloudinit', value: 'deploy/cloudInit.txt')
+            S3Create()
+        }
+    }
 }
 
-task infra(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, sns: 'true') {
-		Templates(target: 'deploy/infra')
-	}
+task infra(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, sns: 'true') {
+            Templates(target: 'deploy/infra')
+        }
+    }
 }
 
 task upload(dependsOn: ['uploadData', 'uploadApp'])
 
-task deploy(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
-		Templates(target: 'deploy/servers.json')
-	}
-}
-
-task updateLB(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
-		ELBUpdate(typeTag: 'web')
-	}
-}
-
-task tidy(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
-		TidyStacks(target: 'deploy/servers.json', typeTag:'web')
-	}
-}
-
-task whitelistUAT(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
-        WhiteList(port: '80', tag:'web')
-        WhiteList(port: '443', tag:'web')
+task deploy(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
+            Templates(target: 'deploy/servers.json')
+        }
     }
 }
 
-task blacklistUAT(dependsOn: cfnassist) << {
-    antBuild.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
-        BlackList(port: '80', tag:'web')
-        BlackList(port: '443', tag:'web')
+task updateLB(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
+            ELBUpdate(typeTag: 'web')
+        }
+    }
+}
+
+task tidy(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+            TidyStacks(target: 'deploy/servers.json', typeTag: 'web')
+        }
+    }
+}
+
+task whitelistUAT(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
+            WhiteList(port: '80', tag: 'web')
+            WhiteList(port: '443', tag: 'web')
+        }
+    }
+}
+
+task blacklistUAT(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
+            BlackList(port: '80', tag: 'web')
+            BlackList(port: '443', tag: 'web')
+        }
     }
 }
 
