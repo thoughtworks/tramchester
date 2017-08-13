@@ -9,6 +9,8 @@ import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.resources.StationResource;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -19,13 +21,11 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-
-public class StationResourceTest {
+public class StationResourceTest extends EasyMockSupport {
 
     private static final TransportDataFromFiles transportData = new TransportDataBuilder().build();
-    private static final SpatialService spatialService = mock(SpatialService.class);
+    private static final SpatialService spatialService = EasyMock.createMock(SpatialService.class);
     private static final List<String> closedStations = asList("St Peters Square");
     private static ObjectMapper objectMapper = new ObjectMapper();
 

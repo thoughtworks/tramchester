@@ -27,7 +27,7 @@ public class SignalToCloudFormationReadyTest {
         assertThat(sentData).contains("\"Status\": \"SUCCESS\"");
         assertThat(sentData).contains("\"Reason\": \"Web Server started\"");
 
-        assertThat(stubbedServer.getContentHeader()).isNull(); // aws requires this header is empty or not set
+        assertThat(stubbedServer.getContentHeader()).isEmpty(); // aws requires this header is empty or not set
     }
 
     @Test
