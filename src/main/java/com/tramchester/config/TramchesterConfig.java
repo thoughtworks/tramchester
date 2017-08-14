@@ -1,6 +1,7 @@
 package com.tramchester.config;
 
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -60,5 +61,7 @@ public abstract class TramchesterConfig extends Configuration {
 
     // how many stops show in Recent on the stations dropdowns
     public abstract int getRecentStopsToShow();
+
+    public abstract SwaggerBundleConfiguration getSwaggerBundleConfiguration();
 }
 

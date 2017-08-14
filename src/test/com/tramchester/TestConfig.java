@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import static java.util.Arrays.asList;
 
 
 public abstract class TestConfig extends AppConfiguration {
+
     private List<String> closedStations = asList("St Peters Square");
 
     private Path zipFilePath = Paths.get("data.zip");
@@ -103,4 +105,12 @@ public abstract class TestConfig extends AppConfiguration {
     public int getRecentStopsToShow() {
         return 3;
     }
+
+    @Override
+    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+        SwaggerBundleConfiguration bundleConfiguration = new SwaggerBundleConfiguration();
+        bundleConfiguration.setResourcePackage("com.tramchester.resources");
+        return bundleConfiguration;
+    }
+
 }

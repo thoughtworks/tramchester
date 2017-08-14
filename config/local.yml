@@ -36,13 +36,11 @@ recentStopsToShow: 5
 
 createLocality: false
 
+swagger:
+  resourcePackage: com.tramchester.resources
+
 logging:
   level: INFO
-  loggers:
-    root: INFO
-    com.tramchester: INFO
-    org.eclipse.jetty.servlet: INFO
-    io.dropwizard.jersey.jackson: INFO
 
   appenders:
     - type: console

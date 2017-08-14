@@ -3,6 +3,7 @@ package com.tramchester.integration;
 import com.tramchester.TestConfig;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,9 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class IntegrationTramTestConfig extends TestConfig {
-
-    public IntegrationTramTestConfig() {
-    }
 
     @Override
     public String getGraphName() {

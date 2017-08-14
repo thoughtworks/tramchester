@@ -2,6 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -78,6 +79,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("recentStopsToShow")
     private int recentStopsToShow;
 
+    @JsonProperty("swagger")
+    private SwaggerBundleConfiguration swaggerBundleConfiguration;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -110,6 +114,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getRecentStopsToShow() {
         return recentStopsToShow;
+    }
+
+    @Override
+    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+        return swaggerBundleConfiguration;
     }
 
     @Override

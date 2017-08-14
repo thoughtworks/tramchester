@@ -32,6 +32,9 @@ recentStopsToShow: 5
 
 createLocality: false
 
+swagger:
+  resourcePackage: com.tramchester.resources
+
 logging:
   level: INFO
   loggers:
