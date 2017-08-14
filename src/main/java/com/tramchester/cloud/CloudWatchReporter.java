@@ -1,6 +1,5 @@
 package com.tramchester.cloud;
 
-
 import com.codahale.metrics.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

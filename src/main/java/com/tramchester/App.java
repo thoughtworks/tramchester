@@ -88,18 +88,6 @@ public class App extends Application<AppConfiguration>  {
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry,
                 dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
-
-//        // swagger ( at /api/swagger.json or /api/swagger.yaml)
-//        environment.jersey().register(ApiListingResource.class);
-//        // nulls in the Swagger JSON break SwaggerUI
-//        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-//
-//        // for swagger
-//        BeanConfig config = new BeanConfig();
-//        config.setTitle("Tramchester");
-//        config.setVersion("1.0.0");
-//        config.setResourcePackage("com.tramchester.integration.resources");
-//        config.setScan(true);
     }
 
     private void filtersForStaticContent(Environment environment) {
@@ -111,7 +99,6 @@ public class App extends Application<AppConfiguration>  {
         setFilterFor(environment, filter, "images", "/images/*");
         setFilterFor(environment, filter, "fonts", "/fonts/*");
         setFilterFor(environment, filter, "webfonts", "/webfonts/*");
-
     }
 
     private void setFilterFor(Environment environment, StaticAssetFilter filter, String name, String pattern) {

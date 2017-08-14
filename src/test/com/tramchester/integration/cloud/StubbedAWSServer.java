@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-
 public class StubbedAWSServer  {
     private String metadata;
     private String calledUrl;
