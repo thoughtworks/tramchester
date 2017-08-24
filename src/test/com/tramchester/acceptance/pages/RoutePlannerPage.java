@@ -43,7 +43,6 @@ public class RoutePlannerPage extends Page {
 
         clearElementWithKeys(time);
 
-//        time.clear();
         time.sendKeys(value);
     }
 
@@ -116,10 +115,16 @@ public class RoutePlannerPage extends Page {
     public void setDate(LocalDate localDate) {
 
         WebElement date = findElementById("date");
-        //date.clear();
         clearElementWithKeys(date);
         String input = localDate.toString("YYYY-MM-dd");
         date.sendKeys(input);
     }
 
+    public String getValidFrom() {
+        return waitForElement("validFrom", 2).getText();
+    }
+
+    public String getValidUntil() {
+        return waitForElement("validUntil", 2).getText();
+    }
 }

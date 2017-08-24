@@ -13,7 +13,6 @@ import org.assertj.core.util.Lists;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.*;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -289,11 +288,11 @@ public class UserJourneyTest {
         String result = page.findElementById("build").getText();
         assertEquals("Build 1."+build, result);
 
-        String dataBegin = page.findElementById("validFrom").getText();
+        String dataBegin = page.getValidFrom();
         assertEquals(" From: "+ FeedInfoResourceTest.validFrom.toString("YYYY-MM-dd"), dataBegin);
 
-        String dataEnd = page.findElementById("validUntil").getText();
-        assertEquals(" Until: "+FeedInfoResourceTest.validUntil.toString("YYYY-MM-dd"), dataEnd);
+        String dataEnd = page.getValidUntil();
+        assertEquals(" Until: " + FeedInfoResourceTest.validUntil.toString("YYYY-MM-dd"), dataEnd);
 
     }
 
