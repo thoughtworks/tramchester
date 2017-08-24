@@ -1,8 +1,12 @@
 package com.tramchester.acceptance.pages;
 
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 
 public class WelcomePage extends Page {
     public static final String ELEMENT_ID = "planJourney";
@@ -14,7 +18,10 @@ public class WelcomePage extends Page {
 
     public WelcomePage load(String url) {
         driver.navigate().to(url);
-        //driver.get(url);
+
+        WebDriverWait wait = new WebDriverWait(driver, 5);
+        wait.until(presenceOfElementLocated(By.id("welcome")));
+
         return this;
     }
 
