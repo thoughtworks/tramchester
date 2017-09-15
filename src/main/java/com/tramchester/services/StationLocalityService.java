@@ -21,7 +21,7 @@ import java.util.List;
 public class StationLocalityService extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationLocalityService.class);
     private TransportData transportData;
-    private double distanceInKM = 0.01;
+    private double distanceInKM = 0.2;
     private int assumedCost = 1;
 
     public StationLocalityService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,

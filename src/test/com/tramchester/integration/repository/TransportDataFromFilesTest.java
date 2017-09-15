@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodes;
@@ -26,9 +27,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv001146";
+    private final String svcDeansgateToVic = "Serv001493";
     // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv001122";
+    private String svcShawAndCrompton = "Serv001469";
 
     private Collection<Service> allServices;
 
@@ -119,6 +120,17 @@ public class TransportDataFromFilesTest {
         Optional<ServiceTime> tripsByTime = transportData.getFirstServiceTime(velopark8AMSvc.getServiceId(),
                 Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM);
         assertTrue(tripsByTime.isPresent());
+    }
+
+    @Test
+    public void shouldGetAreas() {
+        List<AreaDTO> results = transportData.getAreas();
+        assertTrue(results.size() > 0 );
+        AreaDTO area = new AreaDTO("Altrincham");
+        assertTrue(results.contains(area));
+        // only once
+        long count = results.stream().filter(item -> item.equals(area)).count();
+        assertEquals(1, count);
     }
 
     @Test

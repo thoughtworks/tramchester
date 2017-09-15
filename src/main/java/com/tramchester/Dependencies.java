@@ -107,6 +107,7 @@ public class Dependencies {
         picoContainer.addComponent(FeedInfoResource.class);
         picoContainer.addComponent(RoutesRepository.class);
         picoContainer.addComponent(RouteResource.class);
+        picoContainer.addComponent(AreaResource.class);
 
         rebuildGraph(configuration);
 

@@ -82,23 +82,6 @@ task cfnassist {
     }
 }
 
-//jar {
-//    zip64 = true
-//    manifest {
-//        attributes(
-//                "Manifest-Version": "1.0",
-//                "Class-Path": configurations.runtime.collect { it.getName() }.join(' '),
-//                "Main-Class": mainClassName
-//        )
-//    }
-//    baseName = project.name
-//    from({ configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }) {
-//        exclude "META-INF/*.SF"
-//        exclude "META-INF/*.DSA"
-//        exclude "META-INF/*.RSA"
-//    }
-//}
-
 task stage(dependsOn: ['clean', 'installApp'])
 
 clean {

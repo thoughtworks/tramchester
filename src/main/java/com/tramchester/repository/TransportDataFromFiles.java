@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,13 +10,14 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TransportDataFromFiles implements TransportData, StationRepository {
+public class TransportDataFromFiles implements TransportData, StationRepository, AreasRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private HashMap<String, Station> stations = new HashMap<>();  // station id -> station
     private HashMap<String, Service> services = new HashMap<>();  // service id -> service
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
+    private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
 
     public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
@@ -29,7 +31,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
             logger.warn("Did not find feedinfo");
         }
 
-        populateStops(stops);
+        populateStationsAndAreas(stops);
         populateRoutes(routes);
         populateTrips(trips);
         populateStopTimes(stopTimes);
@@ -104,7 +106,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
         });
     }
 
-    private void populateStops(Stream<StopData> stops) {
+    private void populateStationsAndAreas(Stream<StopData> stops) {
         stops.forEach((stop) -> {
             String stopId = stop.getId();
             String stationId = Station.formId(stopId);
@@ -113,6 +115,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
                         stop.getLatLong(), stop.isTram());
                 stations.put(stationId, station);
             }
+            areas.add(new AreaDTO(stop.getArea()));
         });
     }
 
@@ -203,4 +206,10 @@ public class TransportDataFromFiles implements TransportData, StationRepository 
     }
 
 
+    @Override
+    public List<AreaDTO> getAreas() {
+        List<AreaDTO> list =  new LinkedList<>();
+        list.addAll(areas);
+        return  list;
+    }
 }

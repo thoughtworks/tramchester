@@ -15,7 +15,7 @@ redirectHTTP: ${REDIRECTHTTP:- false}
 secureHost: tramchester.com
 
 rebuildGraph: ${TRAM_GRAPH:- true}
-pullData: ${TRAM_PULLDATA:- false}
+pullData: ${TRAM_PULLDATA:- true}
 filterData: ${TRAM_FILTER:- true}
 graphName: buses.db
 closedStations: []
@@ -37,16 +37,15 @@ recentStopsToShow: 5
 
 createLocality: true
 
+swagger:
+  resourcePackage: com.tramchester.resources
+
 logging:
   level: INFO
-  loggers:
-    root: INFO
-    com.tramchester: INFO
-    org.eclipse.jetty.servlet: INFO
-    io.dropwizard.jersey.jackson: INFO
 
   appenders:
     - type: console
+      threshold: WARN
     - type: syslog
       host: localhost
       port: 514
