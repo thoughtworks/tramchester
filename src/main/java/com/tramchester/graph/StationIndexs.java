@@ -64,6 +64,12 @@ public class StationIndexs {
         return node;
     }
 
+    public Node getAreaNode(String areaName) {
+        // TODO Cache
+        Node node = graphQuery.getAreaNode(areaName);
+        return node;
+    }
+
     public Stream<Node> getNodesFor(Route route) {
         logger.info("Find nodes for route " + route);
         ResourceIterable<Node> iterable = graphQuery.getAllForRouteNoTx(route.getName());

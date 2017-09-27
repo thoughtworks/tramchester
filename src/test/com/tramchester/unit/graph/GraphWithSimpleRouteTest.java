@@ -6,6 +6,7 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.StationWalk;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -16,6 +17,7 @@ import com.tramchester.resources.RouteCodeToClassMapper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
@@ -122,5 +124,16 @@ public class GraphWithSimpleRouteTest {
         Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
         Set<RawJourney> journeys = calculator.calculateRoute(origin, startStations, endStation, queryTimes, queryDate);
         assertEquals(1, journeys.size());
+    }
+
+    @Ignore("WIP")
+    @Test
+    public void shouldFindJourneyAreaToArea() throws TramchesterException {
+        AreaDTO areaA = new AreaDTO("areaA");
+        AreaDTO areaB = new AreaDTO("areaB");
+
+        Set<RawJourney> journeys =  calculator.calculateRoute(areaA, areaB, queryTimes, queryDate);
+        assertEquals(1, journeys.size());
+
     }
 }

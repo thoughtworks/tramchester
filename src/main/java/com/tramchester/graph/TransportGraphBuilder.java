@@ -32,7 +32,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, STATION
+        ROUTE_STATION, STATION, AREA
     }
 
     private Map<String,TransportRelationshipTypes> boardings;
@@ -113,23 +113,30 @@ public class TransportGraphBuilder extends StationIndexs {
 
         String id = station.getId();
         String stationName = station.getName();
-        Node node = getStationNode(id);
+        Node stationNode = getStationNode(id);
 
-        if (node == null) {
+        if (stationNode == null) {
             logger.info(format("Creating station node: %s ",station));
-            node = graphDatabaseService.createNode(Labels.STATION);
+            stationNode = graphDatabaseService.createNode(Labels.STATION);
 
-            node.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
-            node.setProperty(GraphStaticKeys.ID, id);
-            node.setProperty(GraphStaticKeys.Station.NAME, stationName);
+            stationNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
+            stationNode.setProperty(GraphStaticKeys.ID, id);
+            stationNode.setProperty(GraphStaticKeys.Station.NAME, stationName);
             LatLong latLong = station.getLatLong();
-            node.setProperty(GraphStaticKeys.Station.LAT, latLong.getLat());
-            node.setProperty(GraphStaticKeys.Station.LONG, latLong.getLon());
+            stationNode.setProperty(GraphStaticKeys.Station.LAT, latLong.getLat());
+            stationNode.setProperty(GraphStaticKeys.Station.LONG, latLong.getLon());
 
-            getSpatialLayer().add(node);
-            //getSpatialLayer().add(node, id, stationName);
+            getSpatialLayer().add(stationNode);
         }
-        return node;
+
+//        Node areaNode = getAreaNode(station.getArea());
+//        if (areaNode == null ) {
+//
+//        }
+
+
+
+        return stationNode;
     }
 
     private Node getOrCreateRouteStation(Location station, Route route, Service service) {

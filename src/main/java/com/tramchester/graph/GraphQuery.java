@@ -37,6 +37,17 @@ public class GraphQuery {
         return result;
     }
 
+
+    public Node getAreaNode(String areaName) {
+        Node result;
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.AREA,
+                    GraphStaticKeys.ID, areaName);
+            tx.success();
+        }
+        return result;
+    }
+
     public Node getRouteStationNode(String routeStationId) {
         Node result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
