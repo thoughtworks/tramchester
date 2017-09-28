@@ -2,6 +2,7 @@ package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
+import com.tramchester.domain.presentation.LatLong;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
@@ -35,16 +36,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
         capabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, 10);
         capabilities.setCapability(MobileCapabilityType.TAKES_SCREENSHOT, "true");
         capabilities.setCapability(MobileCapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.DISMISS);
-
-//        browserName: 'Chrome',
-//                appiumVersion: '1.6.4',
-//                platformName: 'android',
-//                platformVersion: '6.0',
-//                deviceName: 'Android Emulator',
-//                avd: 'Android_Phone',
-//                avdArgs: '-dns-server 8.8.8.8',
-//                waitforTimeout: 30000,
-//                commandTimeout: 30000
 
         driver = new AndroidDriver(capabilities);
     }
@@ -85,7 +76,7 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     }
 
     @Override
-    public void setProfileForGeoFile(Path fullPath) {
+    public void setStubbedLocation(LatLong location) {
         // TODO
     }
 }

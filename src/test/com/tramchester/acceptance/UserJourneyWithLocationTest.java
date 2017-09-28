@@ -10,18 +10,14 @@ import com.tramchester.acceptance.pages.RouteDetailsPage;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
-import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.*;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +28,6 @@ public class UserJourneyWithLocationTest {
     private static final String configPath = "config/localAcceptance.yml";
     private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
-    private Path path = Paths.get("geofile.json");
     private String myLocation = "My Location";
     private LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
     private LocalDate when;
@@ -48,20 +43,19 @@ public class UserJourneyWithLocationTest {
 
     @Parameterized.Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList( "firefox");
+        return Arrays.asList( "chrome");
     }
 
     @Parameterized.Parameter
     public String browserName;
 
     @Before
-    public void beforeEachTestRuns() {
+    public void beforeEachTestRuns() throws IOException {
         url = testRule.getUrl();
 
         providesDriver = DriverFactory.create(true, browserName);
 
-        createGeoFile();
-        providesDriver.setProfileForGeoFile(path.toAbsolutePath());
+        providesDriver.setStubbedLocation(nearAltrincham);
 
         providesDriver.init();
         helper = new AcceptanceTestHelper(providesDriver);
@@ -72,14 +66,11 @@ public class UserJourneyWithLocationTest {
 
     @After
     public void afterEachTestRuns() throws IOException {
-        Files.deleteIfExists(path);
         providesDriver.commonAfter(testName);
     }
 
     @Test
     public void shouldCheckNearAltrinchamToAshton() throws InterruptedException {
-
-        assertTrue(Files.exists(path));
 
         String finalStation = "Ashton-Under-Lyne";
         String firstStation = Stations.NavigationRoad.getName();
@@ -87,7 +78,8 @@ public class UserJourneyWithLocationTest {
         List<String> changes = Arrays.asList(firstStation, Stations.PiccadillyGardens.getName());
         List<String> headSignsA = Arrays.asList("","Etihad Campus",finalStation);
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when, "19:47");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,
+                LocalTime.parse("19:47"));
 
         helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, false);
@@ -110,15 +102,14 @@ public class UserJourneyWithLocationTest {
     @Test
     public void shouldCheckNearAltrinchamToCornbrook() throws InterruptedException {
 
-        assertTrue(Files.exists(path));
-
         String firstStation = Stations.NavigationRoad.getName();
         List<String> changes = Arrays.asList(firstStation);
         List<String> headSigns = Arrays.asList("","Etihad Campus");
 
         String finalStation = Stations.Deansgate.getName();
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when, "19:47");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,
+                LocalTime.parse("19:47"));
 
         helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, false);
@@ -131,33 +122,18 @@ public class UserJourneyWithLocationTest {
 
     @Test
     public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
-        assertTrue(Files.exists(path));
 
         List<String> changes = Arrays.asList();
 
         String finalStation = Stations.NavigationRoad.getName();
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when, "19:47");
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,
+                LocalTime.parse("19:47"));
 
         helper.checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, true);
 
     }
 
-    private void createGeoFile() {
-        String json = "{\n" +
-                "    \"status\": \"OK\",\n" +
-                "    \"accuracy\": 10.0,\n" +
-                "    \"location\": {\n" +
-                "        \"lat\": " +nearAltrincham.getLat() + ",\n" +
-                "        \"lng\": " +nearAltrincham.getLon()+"\n" +
-                "     }\n" +
-                "}";
 
-        try {
-            FileUtils.writeStringToFile(path.toFile(), json);
-        } catch (IOException e) {
-            // this is asserted later
-        }
-    }
 }

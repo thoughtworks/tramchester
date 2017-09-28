@@ -3,9 +3,12 @@ package com.tramchester.acceptance.pages;
 
 import com.tramchester.integration.Stations;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -38,26 +41,10 @@ public class RoutePlannerPage extends Page {
         return  getSelected(toStop).getText();
     }
 
-    public void setTime(String value) {
-        WebElement time = getHourElement();
-
-        clearElementWithKeys(time);
-
-        time.sendKeys(value);
-    }
-
-    private void clearElementWithKeys(WebElement element) {
-        element.clear();
-//        int length = element.getAttribute("value").length();
-//        Actions action = new Actions(driver);
-//        for(int i = 0; i< length; i++) {
-//            action.sendKeys(Keys.ARROW_LEFT);
-//        }
-//        action.build().perform();
-//        for(int i = 0; i< length; i++) {
-//            action.sendKeys(Keys.DELETE);
-//        }
-//        action.build().perform();
+    public void setTime(LocalTime time) {
+        WebElement element = getHourElement();
+        String value = time.toString("HHmm");
+        element.sendKeys(value);
     }
 
     public String getTime() {
@@ -114,10 +101,11 @@ public class RoutePlannerPage extends Page {
 
     public void setDate(LocalDate localDate) {
 
-        WebElement date = findElementById("date");
-        clearElementWithKeys(date);
-        String input = localDate.toString("YYYY-MM-dd");
-        date.sendKeys(input);
+        WebElement element = findElementById("date");
+        //clearElementWithKeys(element);
+        //String input = localDate.toString("YYYY-MM-dd");
+        String input = localDate.toString("ddMM");
+        element.sendKeys(input);
     }
 
     public String getValidFrom() {

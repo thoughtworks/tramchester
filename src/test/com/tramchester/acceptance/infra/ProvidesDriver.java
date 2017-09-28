@@ -2,6 +2,7 @@ package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
+import com.tramchester.domain.presentation.LatLong;
 import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.OutputType;
@@ -19,7 +20,7 @@ public abstract class ProvidesDriver {
     public abstract WelcomePage getWelcomePage();
     public abstract Cookie getCookieNamed(String name);
     public abstract RoutePlannerPage getRoutePlannerPage() throws InterruptedException;
-    public abstract void setProfileForGeoFile(Path fullPath);
+    public abstract void setStubbedLocation(LatLong place) throws IOException;
     public abstract void commonAfter(TestName testName);
 
     protected void takeScreenShot(TestName testName) {

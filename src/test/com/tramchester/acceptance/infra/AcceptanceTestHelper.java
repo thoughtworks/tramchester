@@ -5,6 +5,7 @@ import com.tramchester.acceptance.pages.RouteDetailsPage;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class AcceptanceTestHelper {
         this.driver = driver;
     }
 
-    public JourneyDetailsPage checkJourney(String url, String fromStop, String toStop, LocalDate date, String time,
+    public JourneyDetailsPage checkJourney(String url, String fromStop, String toStop, LocalDate date, LocalTime time,
                                               List<String> changes,
                                               List<String> headSigns, boolean embeddedWalk, int expectedJourneys,
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
@@ -115,7 +116,7 @@ public class AcceptanceTestHelper {
     }
 
     public RouteDetailsPage enterRouteSelection(String url, String fromStop, String toStop, LocalDate date,
-                                                   String time) throws InterruptedException {
+                                                   LocalTime time) throws InterruptedException {
         WelcomePage welcomePage = driver.getWelcomePage();
         welcomePage.load(url);
         RoutePlannerPage routePlannerPage = welcomePage.begin();
@@ -123,7 +124,7 @@ public class AcceptanceTestHelper {
     }
 
     public RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, String fromStop, String toStop,
-                                                   LocalDate date, String time) {
+                                                   LocalDate date, LocalTime time) {
         routePlannerPage.waitForToStops();
         routePlannerPage.setFromStop(fromStop);
         routePlannerPage.setToStop(toStop);
