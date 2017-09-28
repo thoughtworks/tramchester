@@ -33,6 +33,7 @@ jobs:
     before_script:
       - "export DISPLAY=:99.0"
       - "sh -e /etc/init.d/xvfb start"
+      - "dbus-uuidgen --ensure"
       - sleep 3 # give xvfb some time to start
     script: ./gradlew appium
   - stage: deployUAT
