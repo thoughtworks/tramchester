@@ -12,8 +12,10 @@ sudo: false
 install: true
 addons:
   apt:
+    sources:
+      - google-chrome
     packages:
-    - oracle-java8-installer
+      - oracle-java8-installer
     chrome: stable
 jobs:
   include:

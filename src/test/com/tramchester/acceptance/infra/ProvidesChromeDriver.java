@@ -11,7 +11,10 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     private LatLong location;
 
     public ProvidesChromeDriver(boolean enableGeo) {
-        System.setProperty("webdriver.chrome.driver","lib/chromedriver2.30");
+        String chromedriverPath = System.getenv("CHROMEDRIVER_PATH");
+        if (chromedriverPath!=null) {
+            System.setProperty("webdriver.chrome.driver",chromedriverPath);
+        }
         capabilities = createCapabilities(enableGeo);
     }
 
