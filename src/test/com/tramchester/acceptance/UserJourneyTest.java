@@ -147,16 +147,50 @@ public class UserJourneyTest {
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
 
+        LocalTime time = LocalTime.parse("03:00");
+
         RoutePlannerPage routePlannerPage = welcomePage.begin();
 
         routePlannerPage.waitForToStops();
         routePlannerPage.setFromStop(altrincham);
         routePlannerPage.setToStop(cornbrook);
-        routePlannerPage.setTime(LocalTime.parse("03:00"));
+        routePlannerPage.setTime(time);
         routePlannerPage.setDate(testingDay);
 
         RouteDetailsPage detailsPage = routePlannerPage.submit();
         assertTrue(detailsPage.waitForError());
+
+    }
+
+    @Test
+    public void shouldSetDateAndTimeCorrectly() throws InterruptedException {
+        WelcomePage welcomePage = providesDriver.getWelcomePage();
+        welcomePage.load(testRule.getUrl());
+
+        RoutePlannerPage routePlannerPage = welcomePage.begin();
+
+        routePlannerPage.waitForToStops();
+        routePlannerPage.setFromStop(altrincham);
+        routePlannerPage.setToStop(cornbrook);
+
+        LocalTime timeA = LocalTime.parse("03:15");
+        LocalTime timeB = LocalTime.parse("21:45");
+
+        routePlannerPage.setTime(timeA);
+        LocalTime setTime = LocalTime.parse(routePlannerPage.getTime());
+        assertEquals(timeA, setTime);
+        routePlannerPage.setTime(timeB);
+
+        setTime = LocalTime.parse(routePlannerPage.getTime());
+        assertEquals(timeB, setTime);
+
+        // date should initially be set to today
+        LocalDate setDate = LocalDate.parse(routePlannerPage.getDate());
+        assertEquals(LocalDate.now(),setDate);
+
+        routePlannerPage.setDate(testingDay);
+        setDate = LocalDate.parse(routePlannerPage.getDate());
+        assertEquals(testingDay,setDate);
 
     }
 

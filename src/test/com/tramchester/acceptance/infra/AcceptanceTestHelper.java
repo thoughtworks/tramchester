@@ -124,12 +124,13 @@ public class AcceptanceTestHelper {
     }
 
     public RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, String fromStop, String toStop,
-                                                   LocalDate date, LocalTime time) {
+                                                   LocalDate date, LocalTime time) throws InterruptedException {
         routePlannerPage.waitForToStops();
         routePlannerPage.setFromStop(fromStop);
         routePlannerPage.setToStop(toStop);
         routePlannerPage.setTime(time);
         routePlannerPage.setDate(date);
+
         return routePlannerPage.submit();
     }
 

@@ -41,19 +41,15 @@ public class RoutePlannerPage extends Page {
         return  getSelected(toStop).getText();
     }
 
-    public void setTime(LocalTime time) {
+    public void setTime(LocalTime time) throws InterruptedException {
         WebElement element = getHourElement();
         String value = time.toString("HHmm");
+        element.sendKeys(Keys.ARROW_LEFT);
         element.sendKeys(value);
     }
 
-    public String getTime() {
+    public String getTime() throws InterruptedException {
         return getHourElement().getAttribute("value");
-    }
-
-    private WebElement getHourElement() {
-        waitForElement("hour",timeoutInSeconds);
-        return findElementById("hour");
     }
 
     private WebElement getSelected(String id) {
@@ -101,11 +97,26 @@ public class RoutePlannerPage extends Page {
 
     public void setDate(LocalDate localDate) {
 
-        WebElement element = findElementById("date");
+        WebElement element = getDateElement();
         //clearElementWithKeys(element);
         //String input = localDate.toString("YYYY-MM-dd");
         String input = localDate.toString("ddMM");
+        element.sendKeys(Keys.ARROW_LEFT);
         element.sendKeys(input);
+    }
+
+    public String getDate() {
+        return getDateElement().getAttribute("value");
+    }
+
+    private WebElement getDateElement() {
+        waitForElement("date",timeoutInSeconds);
+        return findElementById("date");
+    }
+
+    private WebElement getHourElement() {
+        waitForElement("hour",timeoutInSeconds);
+        return findElementById("hour");
     }
 
     public String getValidFrom() {
@@ -115,4 +126,5 @@ public class RoutePlannerPage extends Page {
     public String getValidUntil() {
         return waitForElement("validUntil", 2).getText();
     }
+
 }
