@@ -1,7 +1,10 @@
 package com.tramchester.acceptance.infra;
 
 import com.tramchester.domain.presentation.LatLong;
+import org.json.simple.JSONObject;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.nio.file.Path;
@@ -25,13 +28,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         driver.manage().deleteAllCookies();
 
         if (location!=null) {
-            chromeDriver.executeScript("window.navigator.geolocation.getCurrentPosition = " +
-                    "function(success){" +
-                    "var position = {\"coords\" : { " +
-                    "\"latitude\": \"555\", " +
-                    "\"longitude\": \"999\" }" +
-                    "};" +
-                    "success(position);}");
+            chromeDriver.setLocation(new Location(location.getLat(),location.getLon(),0));
         }
     }
 

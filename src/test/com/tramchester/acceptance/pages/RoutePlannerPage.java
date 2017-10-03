@@ -4,6 +4,7 @@ package com.tramchester.acceptance.pages;
 import com.tramchester.integration.Stations;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -13,16 +14,20 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class RoutePlannerPage extends Page {
     private long timeoutInSeconds = 30;
     private String toStop = "toStop";
     private String fromStop = "fromStop";
+    Locale locale;
 
     public RoutePlannerPage(WebDriver driver) throws InterruptedException {
         super(driver);
+        locale = Locale.getDefault();
     }
 
     public void setFromStop(String name) {
@@ -43,9 +48,32 @@ public class RoutePlannerPage extends Page {
 
     public void setTime(LocalTime time) throws InterruptedException {
         WebElement element = getHourElement();
-        String value = time.toString("HHmm");
+
+        String formatter = DateTimeFormat.patternForStyle("-S", locale);
+
+        String input = time.toString(formatter).replaceAll(" ", "");
+
+        int chars = input.length();
+        Actions builder  = new Actions(driver);
+        while (chars-- > 0) {
+            builder.sendKeys(element, Keys.ARROW_LEFT);
+        }
+        builder.sendKeys(element, input);
+        builder.pause(Duration.ofMillis(50));
+        builder.build().perform();
+        Thread.sleep(1000); // yuck, but chrome seems to have a big lag on AM/PM changes....
+    }
+
+    public void setDate(LocalDate localDate) {
+        WebElement element = getDateElement();
+
+        String formatter = DateTimeFormat.patternForStyle("S-", locale);
+
+        // chrome does let user select year via keys
+
+        String input = localDate.toString(formatter.replaceAll("y","").replaceAll("Y",""));
         element.sendKeys(Keys.ARROW_LEFT);
-        element.sendKeys(value);
+        element.sendKeys(input);
     }
 
     public String getTime() throws InterruptedException {
@@ -93,16 +121,6 @@ public class RoutePlannerPage extends Page {
 
     public void load(String url) {
         driver.get(url);
-    }
-
-    public void setDate(LocalDate localDate) {
-
-        WebElement element = getDateElement();
-        //clearElementWithKeys(element);
-        //String input = localDate.toString("YYYY-MM-dd");
-        String input = localDate.toString("ddMM");
-        element.sendKeys(Keys.ARROW_LEFT);
-        element.sendKeys(input);
     }
 
     public String getDate() {

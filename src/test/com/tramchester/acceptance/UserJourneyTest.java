@@ -12,6 +12,8 @@ import com.tramchester.integration.resources.JourneyPlannerHelper;
 import org.assertj.core.util.Lists;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
@@ -19,14 +21,15 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
@@ -179,8 +182,8 @@ public class UserJourneyTest {
         routePlannerPage.setTime(timeA);
         LocalTime setTime = LocalTime.parse(routePlannerPage.getTime());
         assertEquals(timeA, setTime);
-        routePlannerPage.setTime(timeB);
 
+        routePlannerPage.setTime(timeB);
         setTime = LocalTime.parse(routePlannerPage.getTime());
         assertEquals(timeB, setTime);
 
