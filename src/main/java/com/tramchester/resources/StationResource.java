@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.Station;
@@ -46,7 +47,8 @@ public class StationResource extends UsesRecentCookie {
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
-                           ObjectMapper mapper) {
+                           ObjectMapper mapper,
+                           TramchesterConfig config) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;

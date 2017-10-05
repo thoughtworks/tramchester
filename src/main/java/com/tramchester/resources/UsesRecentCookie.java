@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.RecentJourneys;
 import com.tramchester.domain.UpdateRecentJourneys;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ public class UsesRecentCookie {
     private static final Logger logger = LoggerFactory.getLogger(UsesRecentCookie.class);
 
     public static final String TRAMCHESTER_RECENT = "tramchesterRecent";
+    public static final int VERSION = 1;
 
     private UpdateRecentJourneys updateRecentJourneys;
     protected final ObjectMapper mapper;
@@ -49,7 +51,11 @@ public class UsesRecentCookie {
             recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, fromId);
         }
         recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys,endId);
-        return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper,recentJourneys));
+
+        int maxAgeSecs = 60 * 60 * 24 * 100;
+        return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper,recentJourneys)
+            , null, null, VERSION,
+                "tramchester recent journeys", maxAgeSecs, false);
     }
 
     protected boolean isFromMyLocation(String startId) {
