@@ -21,13 +21,13 @@ public class SignalToCloudformationReady {
     public SignalToCloudformationReady(ConfigFromInstanceUserData providesConfig) {
         url = providesConfig.get("WAITURL");
         if (url!=null) {
-            logger.info("Have URL for cloud formation callback " + url);
+            logger.info("Have URL for cloud formation triggered " + url);
         }
     }
 
     public void send() {
         if (url==null) {
-            logger.info("Not sending cloud formation callback as URL is not set");
+            logger.info("Not sending cloud formation triggered as URL is not set");
             return;
         }
 
@@ -42,12 +42,12 @@ public class SignalToCloudformationReady {
             HttpResponse response = httpClient.execute(put);
             StatusLine statusLine = response.getStatusLine();
             if (statusLine.getStatusCode()!= HttpServletResponse.SC_OK) {
-                logger.error("Unexpected status for cloud formation callback " + statusLine.toString());
+                logger.error("Unexpected status for cloud formation triggered " + statusLine.toString());
             } else {
                 logger.info("cloud formation POST made OK");
             }
         } catch (IOException e) {
-            logger.error("Erroring sending cloud formation callback to " + url,e);
+            logger.error("Erroring sending cloud formation triggered to " + url,e);
         }
     }
 

@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.repository.ProvidesFeedInfo;
 import com.tramchester.repository.TransportDataFromFiles;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -21,7 +22,7 @@ public class FeedInfoResource {
 
     private FeedInfo feedInfo;
 
-    public FeedInfoResource(TransportDataFromFiles dataFromFiles) {
+    public FeedInfoResource(ProvidesFeedInfo dataFromFiles) {
         feedInfo = dataFromFiles.getFeedInfo();
     }
 
