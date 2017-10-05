@@ -35,6 +35,9 @@ walkingMPH: 3
 addWalkingRoutes: false
 recentStopsToShow: 5
 
+dataExpiryThreadhold: 3
+
+
 createLocality: true
 
 swagger:

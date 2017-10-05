@@ -82,6 +82,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("swagger")
     private SwaggerBundleConfiguration swaggerBundleConfiguration;
 
+    @JsonProperty("dataExpiryThreadhold")
+    private int dataExpiryThreadhold;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -119,6 +122,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
         return swaggerBundleConfiguration;
+    }
+
+    @Override
+    public int getDataExpiryThreadhold() {
+        return dataExpiryThreadhold;
     }
 
     @Override

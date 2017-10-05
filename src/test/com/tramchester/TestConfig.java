@@ -113,4 +113,7 @@ public abstract class TestConfig extends AppConfiguration {
         return bundleConfiguration;
     }
 
+    @Override
+    public int getDataExpiryThreadhold() { return 3; }
+
 }

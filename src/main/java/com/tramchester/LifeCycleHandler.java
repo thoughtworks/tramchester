@@ -4,14 +4,18 @@ import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 
 public class LifeCycleHandler implements LifeCycle.Listener {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
     private Dependencies dependencies;
+    private ScheduledExecutorService executor;
 
-    public LifeCycleHandler(Dependencies dependencies) {
+    public LifeCycleHandler(Dependencies dependencies, ScheduledExecutorService executor) {
         this.dependencies = dependencies;
+        this.executor = executor;
     }
 
     @Override
@@ -32,7 +36,10 @@ public class LifeCycleHandler implements LifeCycle.Listener {
     @Override
     public void lifeCycleStopping(LifeCycle event) {
         logger.info("Dropwizard stopping");
+        logger.info("Shutdown dependencies");
         dependencies.close();
+        logger.info("Stop scheduled tasks");
+        executor.shutdown();
         logger.info("Dependencies stopped");
     }
 

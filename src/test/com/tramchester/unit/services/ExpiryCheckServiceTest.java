@@ -1,6 +1,7 @@
 package com.tramchester.unit.services;
 
 
+import com.tramchester.TestConfig;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.repository.ProvidesFeedInfo;
 import com.tramchester.services.ExpiryCheckService;
@@ -10,6 +11,7 @@ import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertTrue;
@@ -27,9 +29,12 @@ public class ExpiryCheckServiceTest extends EasyMockSupport {
         FeedInfo feedInfo = createFeedInfo(LocalDate.now().minusDays(30), LocalDate.now().plusDays(3));
         EasyMock.expect(providesFeedInfo.getFeedInfo()).andReturn(feedInfo);
 
-        int threshhold = 3; //days
-
-        service = new ExpiryCheckService(providesFeedInfo, threshhold);
+        service = new ExpiryCheckService(providesFeedInfo, new TestConfig() {
+            @Override
+            public Path getDataFolder() {
+                return null;
+            }
+        });
     }
 
     @Test

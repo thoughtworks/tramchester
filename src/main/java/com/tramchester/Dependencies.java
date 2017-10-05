@@ -27,6 +27,7 @@ import com.tramchester.repository.RoutesRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.resources.*;
 import com.tramchester.services.DateTimeService;
+import com.tramchester.services.ExpiryCheckService;
 import com.tramchester.services.SpatialService;
 import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
@@ -108,6 +109,7 @@ public class Dependencies {
         picoContainer.addComponent(RoutesRepository.class);
         picoContainer.addComponent(RouteResource.class);
         picoContainer.addComponent(AreaResource.class);
+        picoContainer.addComponent(ExpiryCheckService.class);
 
         rebuildGraph(configuration);
 
