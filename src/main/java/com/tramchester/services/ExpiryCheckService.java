@@ -11,19 +11,20 @@ import static java.lang.String.format;
 public class ExpiryCheckService {
     private static final Logger logger = LoggerFactory.getLogger(ExpiryCheckService.class);
 
-    private final LocalDate validUntil;
+    private ProvidesFeedInfo providesFeedInfo;
     private int days;
 
     public ExpiryCheckService(ProvidesFeedInfo providesFeedInfo, TramchesterConfig config) {
+        this.providesFeedInfo = providesFeedInfo;
         this.days = config.getDataExpiryThreadhold();
-        this.validUntil = providesFeedInfo.getFeedInfo().validUntil();
 
-        logger.info(format("Will check for data expiring within %d days of %s", days, validUntil.toString()));
+        logger.info(format("Will check for data expiring within %d days ", days));
     }
 
     public void check(LocalDate currentDate, WhenCheckTriggered callback) {
-        logger.info("Checking if data is expired or will expire soon");
+        LocalDate validUntil = providesFeedInfo.getFeedInfo().validUntil();
 
+        logger.info(format("Checking if data is expired or will expire with %d days of %s", days, validUntil));
 
         if (currentDate.isAfter(validUntil) || currentDate.isEqual(validUntil)) {
            callback.triggered(true, validUntil);
