@@ -76,7 +76,7 @@ task cfnassist {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
-                fileset(dir: 'lib/cfnassist-1.0.140/lib/', includes: 'cfnassist-all-1.0.140.jar')
+                fileset(dir: 'lib/cfnassist-1.1.15/lib/', includes: 'cfnassist-all-1.1.15.jar')
             }
         }
     }
@@ -114,7 +114,7 @@ task pullData(type:JavaExec, dependsOn:classes) {
 
 task whitelist(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+        ant.cfnassist(project: 'tramchesterB', env: environment) {
             WhiteList(port: '80', tag: 'web')
             WhiteList(port: '443', tag: 'web')
         }
@@ -123,7 +123,7 @@ task whitelist(dependsOn: cfnassist) {
 
 task blacklist(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+        ant.cfnassist(project: 'tramchesterB', env: environment) {
             BlackList(port: '80', tag: 'web')
             BlackList(port: '443', tag: 'web')
         }
@@ -223,7 +223,7 @@ acceptance.finalizedBy blacklist
 
 task uploadData(dependsOn: ['cfnassist', 'pullData']) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname: 'tramchester2dist') {
+        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
             Artifact(name: 'data', value: 'data/tramData-1.0.zip')
             S3Create()
         }
@@ -232,7 +232,7 @@ task uploadData(dependsOn: ['cfnassist', 'pullData']) {
 
 task diagrams(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1') {
+        ant.cfnassist() {
             Diagrams(target: '.')
         }
     }
@@ -246,7 +246,7 @@ distZip {
 
 task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname: 'tramchester2dist') {
+        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
             Artifact(name: 'package', value: 'build/distributions/tramchester-1.0.zip')
             S3Create()
         }
@@ -255,7 +255,7 @@ task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
 
 task uploadSupportFiles(dependsOn: 'cfnassist') {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', buildNumber: buildNumber, bucketname: 'tramchester2dist') {
+        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
             Artifact(name: 'install', value: 'deploy/setupTramWebServer.sh')
             Artifact(name: 'cloudinit', value: 'deploy/cloudInit.txt')
             S3Create()
@@ -265,7 +265,7 @@ task uploadSupportFiles(dependsOn: 'cfnassist') {
 
 task infra(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, sns: 'true') {
+        ant.cfnassist(project: 'tramchesterB', env: environment, sns: 'true') {
             Templates(target: 'deploy/infra')
         }
     }
@@ -275,7 +275,7 @@ task upload(dependsOn: ['uploadData', 'uploadApp'])
 
 task deploy(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
+        ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             Templates(target: 'deploy/servers.json')
         }
     }
@@ -283,7 +283,7 @@ task deploy(dependsOn: cfnassist) {
 
 task updateLB(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
+        ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             ELBUpdate(typeTag: 'web')
         }
     }
@@ -291,7 +291,7 @@ task updateLB(dependsOn: cfnassist) {
 
 task tidy(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: environment) {
+        ant.cfnassist(project: 'tramchesterB', env: environment) {
             TidyStacks(target: 'deploy/servers.json', typeTag: 'web')
         }
     }
@@ -299,7 +299,7 @@ task tidy(dependsOn: cfnassist) {
 
 task whitelistUAT(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
+        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
             WhiteList(port: '80', tag: 'web')
             WhiteList(port: '443', tag: 'web')
         }
@@ -308,7 +308,7 @@ task whitelistUAT(dependsOn: cfnassist) {
 
 task blacklistUAT(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'UAT') {
+        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
             BlackList(port: '80', tag: 'web')
             BlackList(port: '443', tag: 'web')
         }
@@ -320,7 +320,7 @@ task release(dependsOn: cfnassist) {
         def releaseNumber = System.getenv("RELEASE_NUMBER")
         if (releaseNumber) {
             logger.warn('Switch ELB to release '+releaseNumber)
-            ant.cfnassist(region: 'eu-west-1', project: 'tramchesterB', env: 'ProdGreen', buildNumber: releaseNumber, sns: 'true') {
+            ant.cfnassist(project: 'tramchesterB', env: 'ProdGreen', buildNumber: releaseNumber, sns: 'true') {
                 ELBUpdate(typeTag: 'web')
             }
         } else {
