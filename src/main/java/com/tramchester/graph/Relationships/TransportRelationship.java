@@ -9,10 +9,10 @@ public interface TransportRelationship {
     boolean isDepartTram();
     boolean isInterchange();
     boolean isWalk();
+
     int getCost();
     String getId();
     TransportMode getMode();
-
     TramNode getStartNode();
     TramNode getEndNode();
 }

@@ -19,6 +19,7 @@ public class StationTest {
         assertEquals("id", tramStation.getId());
         assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         assertEquals(2.3, tramStation.getLatLong().getLon(),0);
+        assertEquals("area", tramStation.getArea());
         assertTrue(tramStation.isTram());
     }
 
@@ -30,6 +31,7 @@ public class StationTest {
         assertEquals("id", busStation.getId());
         assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         assertEquals(2.3, busStation.getLatLong().getLon(),0);
+        assertEquals("area", busStation.getArea());
         assertTrue(!busStation.isTram());
     }
 

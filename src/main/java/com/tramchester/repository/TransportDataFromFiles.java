@@ -78,9 +78,9 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
             if (!stations.containsKey(stationId)) {
                 logger.error("Cannot find station for Id " + stationId);
             }
-            Stop stop = new Stop(stations.get(stationId), stopTimeData.getArrivalTime(),
-                    stopTimeData.getDepartureTime()
-            );
+            Station station = stations.get(stationId);
+            Stop stop = new Stop(station, stopTimeData.getArrivalTime(),
+                    stopTimeData.getDepartureTime());
 
             trip.addStop(stop);
         });

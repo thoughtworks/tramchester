@@ -9,32 +9,22 @@ public class RelationshipFactory {
     private NodeFactory nodeFactory;
 
     public RelationshipFactory(NodeFactory nodeFactory) {
-
         this.nodeFactory = nodeFactory;
     }
 
     public TransportRelationship getRelationship(Relationship graphRelationship) {
-
-        TransportRelationship result;
-        String relationshipType = graphRelationship.getType().name();
-        if (relationshipType.equals(TransportRelationshipTypes.TRAM_GOES_TO.toString())) {
-            result = new TramGoesToRelationship(graphRelationship, nodeFactory);
-        } else if (relationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO.toString())) {
-                result = new BusGoesToRelationship(graphRelationship, nodeFactory);
-        } else if (relationshipType.equals(TransportRelationshipTypes.DEPART.toString())) {
-            result = new DepartRelationship(graphRelationship, nodeFactory);
-        }  else if (relationshipType.equals(TransportRelationshipTypes.BOARD.toString())) {
-            result = new BoardRelationship(graphRelationship, nodeFactory);
-        } else if (relationshipType.equals(TransportRelationshipTypes.INTERCHANGE_DEPART.toString())) {
-            result = new InterchangeDepartsRelationship(graphRelationship, nodeFactory);
-        } else if (relationshipType.equals(TransportRelationshipTypes.INTERCHANGE_BOARD.toString())) {
-            result = new InterchangeBoardsRelationship(graphRelationship, nodeFactory);
-        } else if (relationshipType.endsWith(TransportRelationshipTypes.WALKS_TO.toString())) {
-            result = new WalksToRelationship(graphRelationship, nodeFactory);
+        String name = graphRelationship.getType().name();
+        TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(name);
+        switch (relationshipType) {
+            case TRAM_GOES_TO: return new TramGoesToRelationship(graphRelationship, nodeFactory);
+            case BUS_GOES_TO: return new BusGoesToRelationship(graphRelationship, nodeFactory);
+            case DEPART: return new DepartRelationship(graphRelationship, nodeFactory);
+            case BOARD: return new BoardRelationship(graphRelationship, nodeFactory);
+            case INTERCHANGE_DEPART: return new InterchangeDepartsRelationship(graphRelationship, nodeFactory);
+            case INTERCHANGE_BOARD: return new InterchangeBoardsRelationship(graphRelationship, nodeFactory);
+            case WALKS_TO: return new WalksToRelationship(graphRelationship, nodeFactory);
+            default:
+                throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
         }
-        else {
-            throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
-        }
-        return result;
     }
 }

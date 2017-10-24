@@ -9,7 +9,7 @@ import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.*;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.RouteCodes;
+import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
@@ -65,10 +65,17 @@ public class TramGraphBuilderTest {
 //    }
 
     @Test
+    @Ignore("Work In Progress")
+    public void shouldHaveAnAreaWithStations() throws TramchesterException {
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.PiccadillyGardens.getId()
+                + RouteCodesForTesting.ALTY_TO_BURY);
+    }
+
+    @Test
     public void shouldHaveCorrectInboundsAtMediaCity() throws TramchesterException {
 
         List<TransportRelationship> inbounds = calculator.getInboundRouteStationRelationships(
-                Stations.MediaCityUK.getId() + RouteCodes.ECCLES_TO_ASH );
+                Stations.MediaCityUK.getId() + RouteCodesForTesting.ECCLES_TO_ASH );
 
         List<BoardRelationship> boards = new LinkedList<>();
         List<TramGoesToRelationship> svcsToMediaCity = new LinkedList<>();
@@ -98,7 +105,7 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldReproduceIssueWithDeansgateToVictoriaTrams() throws TramchesterException {
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.Deansgate.getId() + RouteCodes.ALTY_TO_BURY);
+                Stations.Deansgate.getId() + RouteCodesForTesting.ALTY_TO_BURY);
 
         List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet.getId());
 
@@ -134,7 +141,7 @@ public class TramGraphBuilderTest {
     public void shouldValidateGraphRepresentationMatchesTransportData() throws TramchesterException {
 
         String station = Stations.VeloPark.getId();
-        String route = RouteCodes.ASH_TO_ECCLES;
+        String route = RouteCodesForTesting.ASH_TO_ECCLES;
 
         List<TransportRelationship> relationships = calculator.getOutboundRouteStationRelationships(station + route);
 
@@ -172,7 +179,7 @@ public class TramGraphBuilderTest {
     public void shouldReportServicesAtHarbourCityWithTimes() throws TramchesterException {
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity.getId()
-                + RouteCodes.ECCLES_TO_ASH);
+                + RouteCodesForTesting.ECCLES_TO_ASH);
         reportServices(outbounds);
     }
 
@@ -180,7 +187,7 @@ public class TramGraphBuilderTest {
     public void shouldReportServicesCorrectlyAtVeloparkTimes() throws TramchesterException {
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.VeloPark.getId() + RouteCodes.ASH_TO_ECCLES);
+                Stations.VeloPark.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
         reportServices(outbounds);
     }
 
@@ -218,7 +225,7 @@ public class TramGraphBuilderTest {
     public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() throws TramchesterException {
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.VeloPark.getId() + RouteCodes.ASH_TO_ECCLES);
+                Stations.VeloPark.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
 
         List<TramGoesToRelationship> svcsFromVelopark = new LinkedList<>();
         outbounds.forEach(out -> {
@@ -229,7 +236,7 @@ public class TramGraphBuilderTest {
         svcsFromVelopark.removeIf(svc -> !svc.getDaysTramRuns()[0]); // monday
         assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(
-                svc.getService()).getRouteId().equals(RouteCodes.ASH_TO_ECCLES));
+                svc.getService()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
         assertTrue(!svcsFromVelopark.isEmpty());
 
         assertTrue(svcsFromVelopark.size() >=1 );

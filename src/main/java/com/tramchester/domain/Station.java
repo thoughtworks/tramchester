@@ -5,6 +5,7 @@ import com.tramchester.domain.presentation.LatLong;
 public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
 
+    private String area;
     private String id;
     private String name;
     private LatLong latLong;
@@ -25,6 +26,7 @@ public class Station implements Location {
         }
         this.latLong = latLong;
         this.tram = tram;
+        this.area = area;
     }
 
     public Station(Station other) {
@@ -64,6 +66,11 @@ public class Station implements Location {
     }
 
     @Override
+    public String getArea() {
+        return area;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -81,7 +88,8 @@ public class Station implements Location {
     @Override
     public String toString() {
         return "Station{" +
-                "id='" + id + '\'' +
+                "area='" + area + '\'' +
+                ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", tram=" + tram +

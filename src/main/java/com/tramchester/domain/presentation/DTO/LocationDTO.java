@@ -4,6 +4,7 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.presentation.LatLong;
 
 public class LocationDTO implements Location {
+    private String area;
     private String id;
     private String name;
     private LatLong latLong;
@@ -18,6 +19,7 @@ public class LocationDTO implements Location {
         this.name = other.getName();
         this.latLong = other.getLatLong();
         this.tram = other.isTram();
+        this.area = other.getArea();
     }
 
     @Override
@@ -38,6 +40,11 @@ public class LocationDTO implements Location {
     @Override
     public boolean isTram() {
         return tram;
+    }
+
+    @Override
+    public String getArea() {
+        return area;
     }
 
     @Override

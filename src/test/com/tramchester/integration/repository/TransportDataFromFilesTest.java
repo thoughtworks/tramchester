@@ -6,7 +6,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.RouteCodes;
+import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.AfterClass;
@@ -21,15 +21,15 @@ import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
     public static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(8 * 60, 45);
-    public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodes.ASH_TO_ECCLES});
+    public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodesForTesting.ASH_TO_ECCLES});
 
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv001493";
+    private final String svcDeansgateToVic = "Serv001260";
     // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv001469";
+    private String svcShawAndCrompton = "Serv001236";
 
     private Collection<Service> allServices;
 
@@ -58,7 +58,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetRoute() {
-        Route result = transportData.getRoute(RouteCodes.ASH_TO_ECCLES);
+        Route result = transportData.getRoute(RouteCodesForTesting.ASH_TO_ECCLES);
         assertEquals("Ashton-under-Lyne - MediaCityUK - Eccles", result.getName());
         assertEquals("MET",result.getAgency());
         assertEquals("MET:   E:O:",result.getId());

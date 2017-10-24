@@ -10,4 +10,6 @@ public interface Location {
     LatLong getLatLong();
 
     boolean isTram();
+
+    String getArea();
 }

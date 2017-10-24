@@ -36,4 +36,9 @@ public class MyLocation implements Location {
     public boolean isTram() {
         return false;
     }
+
+    @Override
+    public String getArea() {
+        return "My Area";
+    }
 }

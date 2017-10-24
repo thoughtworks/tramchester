@@ -50,7 +50,6 @@ public abstract class TransportCostRelationship implements TransportRelationship
     @Override
     public abstract TransportMode getMode();
 
-
     @Override
     public TramNode getStartNode() {
         if (startNode==null) {

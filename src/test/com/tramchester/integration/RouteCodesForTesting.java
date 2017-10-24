@@ -1,7 +1,7 @@
 package com.tramchester.integration;
 
 
-public class RouteCodes {
+public class RouteCodesForTesting {
 
     /// NAMES here are based on the network map and not the routes.txt file as that appears out of date
 
