@@ -76,4 +76,10 @@ public abstract class TramchesterConfig extends Configuration {
 
     // number of days before data expiry to start warning
     public abstract int getDataExpiryThreadhold();
+
+    // URL for live tram data
+    public abstract String getLiveDataUrl();
+
+    // access key for live data URL issued by TFGM
+    public abstract String getLiveDataSubscriptionKey();
 }

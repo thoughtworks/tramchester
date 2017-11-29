@@ -57,13 +57,6 @@ public class TramGraphBuilderTest {
         dependencies.close();
     }
 
-
-//    @Test
-//    public void shouldHaveZeroErrorCountOnImport() {
-//        ErrorCount errorCount = dependencies.get(ErrorCount.class);
-//        assertTrue(errorCount.noErrors());
-//    }
-
     @Test
     @Ignore("Work In Progress")
     public void shouldHaveAnAreaWithStations() throws TramchesterException {

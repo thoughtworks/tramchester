@@ -116,4 +116,14 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public int getDataExpiryThreadhold() { return 3; }
 
+    @Override
+    public String getLiveDataUrl() {
+        return "https://api.tfgm.com/odata/Metrolinks";
+    }
+
+    @Override
+    public String getLiveDataSubscriptionKey() {
+        return System.getenv("TFGM_API_KEY");
+    }
+
 }

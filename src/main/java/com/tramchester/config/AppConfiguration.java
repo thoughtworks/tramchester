@@ -3,6 +3,7 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.glassfish.jersey.server.JSONP;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -85,6 +86,12 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("dataExpiryThreadhold")
     private int dataExpiryThreadhold;
 
+    @JsonProperty("liveDataUrl")
+    private String liveDataUrl;
+
+    @JsonProperty("liveDataSubscriptionKey")
+    private String liveDataSubscriptionKey;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -128,6 +135,14 @@ public class AppConfiguration extends TramchesterConfig {
     public int getDataExpiryThreadhold() {
         return dataExpiryThreadhold;
     }
+
+    @Override
+    public String getLiveDataUrl() {
+        return liveDataUrl;
+    }
+
+    @Override
+    public String getLiveDataSubscriptionKey() { return liveDataSubscriptionKey; }
 
     @Override
     public boolean getRedirectHTTP() {
