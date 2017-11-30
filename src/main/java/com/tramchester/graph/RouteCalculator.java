@@ -86,7 +86,7 @@ public class RouteCalculator extends StationIndexs {
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
-            Node startNode = graphDatabaseService.createNode(DynamicLabel.label("QUERY_NODE"));
+            Node startNode = graphDatabaseService.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
             startNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
             startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
             startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);

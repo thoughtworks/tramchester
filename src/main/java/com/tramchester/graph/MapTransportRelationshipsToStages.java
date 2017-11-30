@@ -31,12 +31,7 @@ public class MapTransportRelationshipsToStages {
 
     public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
         int totalCost = 0;
-        int serviceStart = 0;
-        RouteStationNode boardNode = null;
-        RawVehicleStage currentStage = null;
-        String firstStationId = "";
-
-        List<RawStage> stages = new ArrayList<>();
+        MappingState state = new MappingState();
 
         for (TransportRelationship transportRelationship : transportRelationships) {
             TramNode firstNode = transportRelationship.getStartNode();
@@ -47,87 +42,167 @@ public class MapTransportRelationshipsToStages {
             int cost = transportRelationship.getCost();
             totalCost += cost;
 
-            // todo refactor out first and subsequent stage handling
             int elapsedTime = minsPastMidnight + totalCost;
 
+            String firstNodeId = firstNode.getId();
             if (transportRelationship.isBoarding()) {
-                // platform|station -> route station
-                boardNode = (RouteStationNode) secondNode;
-                if (firstStationId.isEmpty()) {
-                    // no platform
-                    firstStationId = firstNode.getId();
-                    if (firstNode.isPlatform()) {
-                        // boarding from platform
-                        firstStationId = Station.formId(firstStationId);
-                    }
-                }
-                serviceStart = totalCost;
                 logger.info(format("Board tram: at:'%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
-                if (currentStage!=null) {
-                    logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
-                            boardNode, currentStage));
-                }
+                recordBoarding(totalCost, state, firstNode, (RouteStationNode) secondNode, firstNodeId);
             } else if (transportRelationship.isEnterPlatform()) {
-                // to do capture platform in stages
-                logger.info(format("Cross to platfrom '%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
-                if (firstStationId.isEmpty()) {
-                    firstStationId = firstNode.getId();
-                }
+                recordEnterPlatform(state, firstNode, secondNode, elapsedTime, firstNodeId);
             } else if (transportRelationship.isGoesTo()) {
-                // routeStation -> routeStation
-                GoesToRelationship goesToRelationship = (GoesToRelationship) transportRelationship;
-                String serviceId = goesToRelationship.getService();
-                logger.info(format("Add stage goes to %s, service %s, elapsed %s", goesToRelationship.getDest(),
-                        serviceId, elapsedTime));
-
-                if (currentStage==null) {
-                    String routeName = boardNode.getRouteName();
-                    String routeId = boardNode.getRouteId();
-                    String tramRouteClass = routeIdToClass.map(routeId);
-                    Station firstStation = stationRepository.getStation(firstStationId).get();
-                    currentStage = new RawVehicleStage(firstStation, routeName,
-                            transportRelationship.getMode(), tramRouteClass);
-                    currentStage.setServiceId(serviceId);
-                }
+                recordGoesTo(state, transportRelationship, elapsedTime);
             } else if (transportRelationship.isDepartTram()) {
-                // route station  -> station
-                // only if not left tram to platform, i.e. not tram journey
-                String stationName = secondNode.getName();
-                logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNode.getId(), stationName, endNodeId,
-                        elapsedTime));
-                String stationId = endNodeId;
-                if (secondNode.isPlatform()) {
-                    stationId = Station.formId(endNodeId);
-                }
-                Station lastStation = stationRepository.getStation(stationId).get();
-                currentStage.setLastStation(lastStation);
-                currentStage.setCost(totalCost - serviceStart);
-                serviceStart = 0;
-                stages.add(currentStage);
-                logger.info(format("Added stage: '%s' at time %s", currentStage, elapsedTime));
-                currentStage = null;
-                firstStationId = "";
+                recordDepart(totalCost, state, secondNode, endNodeId, elapsedTime, firstNodeId);
             } else if (transportRelationship.isLeavePlatform()) {
-                logger.info(format("Depart platform %s %s",endNodeId, secondNode.getName()));
+                logger.info(format("Depart platform %s %s", endNodeId, secondNode.getName()));
             } else if (transportRelationship.isWalk()) {
-                Location begin;
-                if (firstNode.isQuery()) {
-                    QueryNode queryNode = (QueryNode) firstNode;
-                    begin = new MyLocation(queryNode.getLatLon());
-                } else {
-                    begin = stationRepository.getStation(firstNode.getId()).get();
-                }
-
-                StationNode dest = (StationNode) secondNode;
-                Location destStation = stationRepository.getStation(dest.getId()).get();
-                RawWalkingStage walkingStage = new RawWalkingStage(begin, destStation, cost);
-                logger.info("Adding walk " + walkingStage);
-                stages.add(walkingStage);
+                recordWalk(state, firstNode, (StationNode) secondNode, cost, firstNodeId);
             }
         }
-        logger.info(format("Number of stages: %s Total cost:%s Finish: %s",stages.size(), totalCost,
-                totalCost+minsPastMidnight));
+        List<RawStage> stages = state.getStages();
+        logger.info(format("Number of stages: %s Total cost:%s Finish: %s", stages.size(), totalCost, totalCost + minsPastMidnight));
         return stages;
+    }
+
+    private void recordWalk(MappingState state, TramNode firstNode, StationNode secondNode, int cost, String firstNodeId) {
+        Location begin;
+        if (firstNode.isQuery()) {
+            QueryNode queryNode = (QueryNode) firstNode;
+            begin = new MyLocation(queryNode.getLatLon());
+        } else {
+            begin = stationRepository.getStation(firstNodeId).get();
+        }
+        StationNode dest = secondNode;
+        state.addWalkingStage(begin, dest, cost);
+    }
+
+    private void recordDepart(int totalCost, MappingState state, TramNode secondNode, String endNodeId, int elapsedTime, String firstNodeId) {
+        // route station  -> station
+        String stationName = secondNode.getName();
+        logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNodeId, stationName, endNodeId, elapsedTime));
+        // are we leaving to a station or to a platform?
+        String stageId = endNodeId;
+        if (secondNode.isPlatform()) {
+            stageId = Station.formId(endNodeId);
+        }
+        state.departService(totalCost, stageId, elapsedTime);
+    }
+
+    private void recordGoesTo(MappingState state, TransportRelationship transportRelationship, int elapsedTime) {
+        // routeStation -> routeStation
+        GoesToRelationship goesToRelationship = (GoesToRelationship) transportRelationship;
+        String serviceId = goesToRelationship.getService();
+        logger.info(format("Add stage goes to %s, service %s, elapsed %s", goesToRelationship.getDest(), serviceId, elapsedTime));
+
+        if (!state.isOnService()) {
+            state.boardService(transportRelationship, serviceId);
+        }
+    }
+
+    private void recordEnterPlatform(MappingState state, TramNode firstNode, TramNode secondNode, int elapsedTime, String firstNodeId) {
+        logger.info(format("Cross to platfrom '%s' from '%s' at %s", secondNode, firstNode, elapsedTime));
+        if (!state.hasFirstStation()) {
+            state.setFirstStation(firstNodeId);
+        }
+    }
+
+    private void recordBoarding(int totalCost, MappingState state, TramNode firstNode, RouteStationNode secondNode, String firstNodeId) {
+        // platform|station -> route station
+        state.setBoardNode(secondNode);
+        if (!state.hasFirstStation()) {
+            // no platform seen
+            state.setFirstStation(firstNodeId);
+            if (firstNode.isPlatform()) {
+                // boarding from platform
+                state.setFirstStation(Station.formId(firstNodeId));
+            }
+        }
+        state.setServiceStart(totalCost);
+        if (state.isOnService()) {
+            logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
+                    state.getBoardNode(), state.getCurrentStage()));
+        }
+    }
+
+    private class MappingState {
+        List<RawStage> stages;
+        private int serviceStart;
+        private RouteStationNode boardNode;
+        private RawVehicleStage currentStage;
+        private String firstStationId;
+
+        public MappingState() {
+            serviceStart = 0;
+            boardNode = null;
+            currentStage = null;
+            firstStationId = "";
+            stages = new ArrayList<>();
+        }
+
+        public void setBoardNode(RouteStationNode boardNode) {
+            this.boardNode = boardNode;
+        }
+
+        public boolean hasFirstStation() {
+            return !firstStationId.isEmpty();
+        }
+
+        public void setFirstStation(String id) {
+            firstStationId = id;
+        }
+
+        public void setServiceStart(int serviceStart) {
+            this.serviceStart = serviceStart;
+        }
+
+        public boolean isOnService() {
+            return currentStage!=null;
+        }
+
+        public RouteStationNode getBoardNode() {
+            return boardNode;
+        }
+
+        public RawVehicleStage getCurrentStage() {
+            return currentStage;
+        }
+
+        public void boardService(TransportRelationship transportRelationship, String serviceId) {
+            String routeName = boardNode.getRouteName();
+            String routeId = boardNode.getRouteId();
+            String tramRouteClass = routeIdToClass.map(routeId);
+            Station firstStation = stationRepository.getStation(firstStationId).get();
+            currentStage = new RawVehicleStage(firstStation, routeName,
+                    transportRelationship.getMode(), tramRouteClass);
+            currentStage.setServiceId(serviceId);
+        }
+
+        public void departService(int totalCost, String stationId, int elapsedTime) {
+            Station lastStation = stationRepository.getStation(stationId).get();
+            currentStage.setLastStation(lastStation);
+            currentStage.setCost(totalCost - serviceStart);
+            logger.info(format("Added stage: '%s' at time %s", currentStage, elapsedTime));
+            stages.add(currentStage);
+            doReset();
+        }
+
+        private void doReset() {
+            serviceStart = 0;
+            currentStage = null;
+            firstStationId = "";
+        }
+
+        public List<RawStage> getStages() {
+            return stages;
+        }
+
+        public void addWalkingStage(Location begin, StationNode dest, int cost) {
+            Location destStation = stationRepository.getStation(dest.getId()).get();
+            RawWalkingStage walkingStage = new RawWalkingStage(begin, destStation, cost);
+            logger.info("Adding walk " + walkingStage);
+            stages.add(walkingStage);
+        }
     }
 
 }

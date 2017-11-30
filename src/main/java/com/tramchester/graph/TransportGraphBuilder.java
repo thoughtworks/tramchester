@@ -29,7 +29,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, STATION, AREA, PLATFORM
+        ROUTE_STATION, STATION, AREA, PLATFORM, QUERY_NODE
     }
 
     private Map<String,TransportRelationshipTypes> boardings;
