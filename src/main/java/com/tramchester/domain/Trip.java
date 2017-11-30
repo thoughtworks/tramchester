@@ -14,14 +14,17 @@ import static java.lang.String.format;
 public class Trip {
     private static final Logger logger = LoggerFactory.getLogger(Trip.class);
     private final String serviceId;
+    private final String routeId;
     private String tripId;
     private String headSign;
-    private Stops stops = new Stops();
+    private Stops stops;
 
-    public Trip(String tripId, String headSign, String serviceId) {
+    public Trip(String tripId, String headSign, String serviceId, String routeId) {
         this.tripId = tripId;
         this.headSign = headSign;
         this.serviceId = serviceId;
+        this.routeId = routeId;
+        stops = new Stops();
     }
 
     @Override
@@ -58,9 +61,10 @@ public class Trip {
     @Override
     public String toString() {
         return "Trip{" +
-                "tripId='" + tripId + '\'' +
+                "serviceId='" + serviceId + '\'' +
+                ", routeId='" + routeId + '\'' +
+                ", tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +
-                ", service='" + serviceId + '\'' +
                 ", stops=" + stops +
                 '}';
     }
@@ -111,5 +115,9 @@ public class Trip {
 
     public String getHeadsign() {
         return headSign;
+    }
+
+    public String getRouteId() {
+        return routeId;
     }
 }

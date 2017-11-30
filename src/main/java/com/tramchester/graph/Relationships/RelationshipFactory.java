@@ -23,6 +23,8 @@ public class RelationshipFactory {
             case INTERCHANGE_DEPART: return new InterchangeDepartsRelationship(graphRelationship, nodeFactory);
             case INTERCHANGE_BOARD: return new InterchangeBoardsRelationship(graphRelationship, nodeFactory);
             case WALKS_TO: return new WalksToRelationship(graphRelationship, nodeFactory);
+            case ENTER_PLATFORM: return new EnterPlatformRelationship(graphRelationship, nodeFactory);
+            case LEAVE_PLATFORM: return new LeavePlatformRelationship(graphRelationship, nodeFactory);
             default:
                 throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
         }

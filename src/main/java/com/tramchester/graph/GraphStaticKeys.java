@@ -7,6 +7,7 @@ public class GraphStaticKeys {
     // the three types
     public static final String STATION = "station";
     public static final String ROUTE_STATION = "route_station";
+    public static final String PLATFORM = "platform";
     public static final String QUERY = "query"; // a tmp node created during a compound (N to N) query
 
     // relationship properties

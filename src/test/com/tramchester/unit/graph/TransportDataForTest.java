@@ -8,6 +8,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class TransportDataForTest implements TransportData, StationRepository {
     private String serviceAId = "serviceAId";
@@ -47,55 +48,60 @@ public class TransportDataForTest implements TransportData, StationRepository {
         // 8*60=480
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip("trip1Id", "headSign", serviceAId);
+        Trip tripA = new Trip("trip1Id", "headSign", serviceAId, routeA.getId());
 
         double latitude = 180.00;
         double longitude = 270.0;
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area", "startStation", latLong, true);
         addStation(first);
-        tripA.addStop(createStop(first, createTime(8, 0), createTime(8, 0)));
+        tripA.addStop(createStop(first, createTime(8, 0), createTime(8, 0), routeA.getId(), serviceAId));
 
         Station second = new Station(SECOND_STATION, "area", "secondStation", latLong, true);
-        tripA.addStop(createStop(second, createTime(8, 11), createTime(8, 11)));
+        tripA.addStop(createStop(second, createTime(8, 11), createTime(8, 11), routeA.getId(), serviceAId));
         addStation(second);
 
         Station interchangeStation = new Station(INTERCHANGE, "area", "cornbrook", latLong, true);
-        tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 20)));
+        tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 20), routeA.getId(), serviceAId));
         addStation(interchangeStation);
 
         Station last = new Station(LAST_STATION, "area", "endStation", latLong, true);
         addStation(last);
-        tripA.addStop(createStop(last, createTime(8, 40), createTime(8, 40)));
+        tripA.addStop(createStop(last, createTime(8, 40), createTime(8, 40), routeA.getId(), serviceAId));
         // service
         serviceA.addTrip(tripA);
 
         // tripB: INTERCHANGE -> STATION_FOUR
-        Trip tripB = new Trip("trip2Id", "headSign", serviceBId);
-        tripB.addStop(createStop(interchangeStation, createTime(8, 26), createTime(8, 26)));
+        Trip tripB = new Trip("trip2Id", "headSign", serviceBId, routeB.getId());
+        tripB.addStop(createStop(interchangeStation, createTime(8, 26), createTime(8, 26), routeB.getId(), serviceBId));
 
         Station four = new Station(STATION_FOUR, "area", "stat4Station", new LatLong(170.00, 160.00), true);
         addStation(four);
-        tripB.addStop(createStop(four, createTime(8, 36), createTime(8, 36)));
+        tripB.addStop(createStop(four, createTime(8, 36), createTime(8, 36), routeB.getId(), serviceBId));
         // service
         serviceB.addTrip(tripB);
     }
 
-    private void addStation(Station first) {
-        stationMap.put(first.getId(), first);
+    private void addStation(Station station) {
+        stationMap.put(station.getId(), station);
     }
 
-    private LocalTime createTime(int hourOfDay, int minuteOfHour) {
-        return new LocalTime(hourOfDay, minuteOfHour, 00);
+    private LocalTime createTime(int hour, int min) {
+        return new LocalTime(hour, min, 00);
     }
 
-    private Stop createStop(Location startStation, LocalTime arrivalTime, LocalTime departureTime) {
-        return new Stop(startStation, arrivalTime, departureTime);
+    private Stop createStop(Location startStation, LocalTime arrivalTime, LocalTime departureTime, String routeId, String serviceId) {
+        return new Stop(startStation.getId()+"1", startStation, arrivalTime, departureTime, routeId, serviceId);
     }
 
     @Override
     public Collection<Route> getRoutes() {
         return routes;
+    }
+
+    @Override
+    public Stream<Trip> getTripsByRouteId(String routeId) {
+        return null;
     }
 
     @Override

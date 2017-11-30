@@ -16,6 +16,8 @@ public class NodeFactory {
             result = new RouteStationNode(node);
         } else if(type.equals(GraphStaticKeys.QUERY)) {
             result = new QueryNode(node);
+        } else if(type.equals(GraphStaticKeys.PLATFORM)) {
+            result = new PlatformNode(node);
         }
         return result;
     }

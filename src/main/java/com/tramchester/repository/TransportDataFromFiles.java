@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class TransportDataFromFiles implements TransportData, StationRepository, AreasRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
@@ -39,11 +41,11 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
 
         // update svcs where calendar data is missing
         services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
-            logger.warn(String.format("Service %s is missing calendar information", svc.getServiceId()));
+            logger.warn(format("Service %s is missing calendar information", svc.getServiceId()));
             svc.setDays(false, false, false, false, false, false, false);
         });
         services.values().stream().filter(svc -> !svc.getDays().values().contains(true)).forEach(
-                svc -> logger.warn(String.format("Service %s does not run on any days of the week", svc.getServiceId()))
+                svc -> logger.warn(format("Service %s does not run on any days of the week", svc.getServiceId()))
         );
 
         logger.info("Data load is complete");
@@ -75,26 +77,31 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
 
             String stopId = stopTimeData.getStopId();
             String stationId = Station.formId(stopId);
-            if (!stations.containsKey(stationId)) {
-                logger.error("Cannot find station for Id " + stationId);
+            if (stations.containsKey(stationId)) {
+                Station station = stations.get(stationId);
+                Stop stop = new Stop(stopId, station, stopTimeData.getArrivalTime(),
+                        stopTimeData.getDepartureTime(), trip.getRouteId() , trip.getServiceId());
+                trip.addStop(stop);
+            } else {
+                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));
             }
-            Station station = stations.get(stationId);
-            Stop stop = new Stop(station, stopTimeData.getArrivalTime(),
-                    stopTimeData.getDepartureTime());
-
-            trip.addStop(stop);
         });
     }
 
     private void populateTrips(Stream<TripData> trips) {
         trips.forEach((tripData) -> {
-            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), tripData.getServiceId());
-            Service service = getOrInsertService(tripData.getServiceId(), tripData.getRouteId());
-            Route route = this.routes.get(tripData.getRouteId());
+            String serviceId = tripData.getServiceId();
+            String routeId = tripData.getRouteId();
+
+            Service service = getOrInsertService(serviceId, routeId);
+            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), serviceId, routeId);
+            Route route = routes.get(routeId);
             if (route != null) {
                 service.addTrip(trip);
                 route.addService(service);
                 route.addHeadsign(trip.getHeadsign());
+            } else {
+                logger.warn(format("Unable to find RouteId '%s' for trip '%s", routeId, trip));
             }
         });
     }
@@ -119,9 +126,9 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         });
     }
 
-    private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId) {
+    private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId, String routeId) {
         if (!trips.keySet().contains(tripId)) {
-            trips.put(tripId, new Trip(tripId, tripHeadsign, serviceId));
+            trips.put(tripId, new Trip(tripId, tripHeadsign, serviceId, routeId));
         }
         return trips.get(tripId);
     }
@@ -135,6 +142,11 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
 
     public Collection<Route> getRoutes() {
         return Collections.unmodifiableCollection(routes.values());
+    }
+
+    @Override
+    public Stream<Trip> getTripsByRouteId(String routeId) {
+        return trips.values().stream().filter(t->t.getRouteId().equals(routeId));
     }
 
     @Override
@@ -169,7 +181,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
 
     public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation,
                                                      TimeWindow window) {
-        logger.info(String.format("Get first time for service %s from %s to %s with %s", serviceId, firstStation,
+        logger.info(format("Get first time for service %s from %s to %s with %s", serviceId, firstStation,
                 lastStation, window));
         String firstStationId = firstStation.getId();
         String lastStationId = lastStation.getId();

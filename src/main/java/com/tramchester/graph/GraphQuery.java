@@ -38,6 +38,16 @@ public class GraphQuery {
     }
 
 
+    public Node getPlatformNode(String id) {
+        Node result;
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.PLATFORM,
+                    GraphStaticKeys.ID, id);
+            tx.success();
+        }
+        return result;
+    }
+
     public Node getAreaNode(String areaName) {
         Node result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -56,16 +66,6 @@ public class GraphQuery {
             tx.success();
         }
         return result;
-    }
-
-    public ResourceIterable<Node> getAllForRouteNoTx(String routeName) {
-        List<Node> ids = findStartNodesFor(routeName);
-        logger.info("Traverse route " +routeName);
-        Traverser traversal = graphDatabaseService.traversalDescription().
-                depthFirst().
-                relationships(TransportRelationshipTypes.TRAM_GOES_TO, Direction.OUTGOING).
-                evaluator(new RouteEvaluator(routeName)).traverse(ids);
-        return traversal.nodes();
     }
 
     public ArrayList<Node> findStartNodesFor(String routeName) {

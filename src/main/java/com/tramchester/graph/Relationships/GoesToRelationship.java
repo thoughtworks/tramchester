@@ -78,26 +78,6 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
     }
 
     @Override
-    public boolean isBoarding() {
-        return false;
-    }
-
-    @Override
-    public boolean isDepartTram() {
-        return false;
-    }
-
-    @Override
-    public boolean isInterchange() {
-        return false;
-    }
-
-    @Override
-    public boolean isWalk() {
-        return false;
-    }
-
-    @Override
     public String toString() {
         return "TramGoesToRelationship{" +
                 "service='" + getService() + '\'' +

@@ -24,27 +24,12 @@ public class InterchangeDepartsRelationship extends TransportCostRelationship {
     }
 
     @Override
-    public boolean isGoesTo() {
-        return false;
-    }
-
-    @Override
-    public boolean isBoarding() {
-        return false;
-    }
-
-    @Override
     public boolean isDepartTram() {
         return true;
     }
 
     @Override
     public boolean isInterchange() { return true; }
-
-    @Override
-    public boolean isWalk() {
-        return false;
-    }
 
     @Override
     public String toString() {

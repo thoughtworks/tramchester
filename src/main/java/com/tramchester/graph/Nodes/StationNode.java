@@ -31,6 +31,15 @@ public class StationNode implements TramNode {
     }
 
     @Override
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public boolean isStation() {
         return true;
     }
@@ -41,17 +50,13 @@ public class StationNode implements TramNode {
     }
 
     @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
     public boolean isQuery() {
         return false;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public boolean isPlatform() {
+        return false;
     }
 
 }

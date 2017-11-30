@@ -6,4 +6,5 @@ public interface TramNode {
     String getId();
     boolean isQuery();
     String getName();
+    boolean isPlatform();
 }

@@ -4,19 +4,14 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.Nodes.NodeFactory;
 import org.neo4j.graphdb.Relationship;
 
-public class WalksToRelationship extends TransportCostRelationship {
-    public WalksToRelationship(Relationship graphRelationship, NodeFactory nodeFactory) {
+public class LeavePlatformRelationship extends TransportCostRelationship {
+    public LeavePlatformRelationship(Relationship graphRelationship, NodeFactory nodeFactory) {
         super(graphRelationship, nodeFactory);
     }
 
     @Override
-    public boolean isWalk() {
+    public boolean isLeavePlatform() {
         return true;
-    }
-
-    @Override
-    public String getId() {
-        return "noId";
     }
 
     @Override

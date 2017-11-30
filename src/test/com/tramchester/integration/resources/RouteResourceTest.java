@@ -3,8 +3,10 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -49,12 +51,8 @@ public class RouteResourceTest {
 
         RouteDTO ashtonRoute = routes.get(index);
         List<StationDTO> ashtonRouteStations = ashtonRoute.getStations();
-        StationDTO firstStation = ashtonRouteStations.get(0);
-        StationDTO lastStation = ashtonRouteStations.get(ashtonRouteStations.size()-1);
 
-        assertEquals(Stations.Ashton.getId(), firstStation.getId());
-        // TODO WIP
-        //assertEquals(Stations.Eccles.getId(), lastStation.getId());
+        assertTrue(ashtonRouteStations.contains(new StationDTO((Station)Stations.Ashton, ProximityGroup.ALL)));
+        assertTrue(ashtonRouteStations.contains(new StationDTO((Station)Stations.Eccles, ProximityGroup.ALL)));
     }
-
 }

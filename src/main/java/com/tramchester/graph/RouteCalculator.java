@@ -48,7 +48,7 @@ public class RouteCalculator extends StationIndexs {
         this.config = config;
     }
 
-    public Set<RawJourney> calculateRoute(String startStationId, String endStationId, List<Integer> queryTimes,
+    public Set<RawJourney>  calculateRoute(String startStationId, String endStationId, List<Integer> queryTimes,
                                           TramServiceDate queryDate) throws TramchesterException {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         Node endNode = getStationNode(endStationId);

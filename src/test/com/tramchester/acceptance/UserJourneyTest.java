@@ -307,7 +307,7 @@ public class UserJourneyTest {
 
     @Test
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.StPetersSquare.getName());
+        List<String> changes = Arrays.asList(Stations.Deansgate.getName());
         List<String> headSigns = Arrays.asList("Bury");
 
         helper.checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),

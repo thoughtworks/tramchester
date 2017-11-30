@@ -50,7 +50,38 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
         assertTrue(transportRelationship.isBoarding());
         assertFalse(transportRelationship.isWalk());
+        assertFalse(transportRelationship.isEnterPlatform());
         assertEquals(45, transportRelationship.getCost());
+        assertSame(startTramNode, transportRelationship.getStartNode());
+        assertSame(endTramNode, transportRelationship.getEndNode());
+        verifyAll();
+    }
+
+    @Test
+    public void shouldHaveEnterPlatformRelationship() {
+        setRelationshipExpectation(TransportRelationshipTypes.ENTER_PLATFORM, 0);
+
+        replayAll();
+        TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
+        assertFalse(transportRelationship.isBoarding());
+        assertFalse(transportRelationship.isWalk());
+        assertTrue(transportRelationship.isEnterPlatform());
+        assertEquals(0, transportRelationship.getCost());
+        assertSame(startTramNode, transportRelationship.getStartNode());
+        assertSame(endTramNode, transportRelationship.getEndNode());
+        verifyAll();
+    }
+
+    @Test
+    public void shouldHaveLeavePlatformRelationship() {
+        setRelationshipExpectation(TransportRelationshipTypes.LEAVE_PLATFORM, 0);
+
+        replayAll();
+        TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
+        assertFalse(transportRelationship.isBoarding());
+        assertFalse(transportRelationship.isWalk());
+        assertTrue(transportRelationship.isLeavePlatform());
+        assertEquals(0, transportRelationship.getCost());
         assertSame(startTramNode, transportRelationship.getStartNode());
         assertSame(endTramNode, transportRelationship.getEndNode());
         verifyAll();
@@ -64,6 +95,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         TransportRelationship transportRelationship = relationshipFactory.getRelationship(relationship);
         assertTrue(transportRelationship.isDepartTram());
         assertFalse(transportRelationship.isWalk());
+        assertFalse(transportRelationship.isEnterPlatform());
         assertEquals(43, transportRelationship.getCost());
         assertSame(startTramNode, transportRelationship.getStartNode());
         assertSame(endTramNode, transportRelationship.getEndNode());
@@ -81,6 +113,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertTrue(transportRelationship.isBoarding());
         assertFalse(transportRelationship.isDepartTram());
         assertFalse(transportRelationship.isWalk());
+        assertFalse(transportRelationship.isEnterPlatform());
         assertEquals(44, transportRelationship.getCost());
         assertSame(startTramNode, transportRelationship.getStartNode());
         assertSame(endTramNode, transportRelationship.getEndNode());
@@ -96,6 +129,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertFalse(transportRelationship.isInterchange());
         assertFalse(transportRelationship.isBoarding());
         assertFalse(transportRelationship.isDepartTram());
+        assertFalse(transportRelationship.isEnterPlatform());
         assertTrue(transportRelationship.isWalk());
         assertEquals(6, transportRelationship.getCost());
         assertSame(startTramNode, transportRelationship.getStartNode());
@@ -118,6 +152,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertTrue(transportRelationship.isInterchange());
         assertFalse(transportRelationship.isBoarding());
         assertTrue(transportRelationship.isDepartTram());
+        assertFalse(transportRelationship.isEnterPlatform());
         assertEquals(55, transportRelationship.getCost());
         assertFalse(transportRelationship.isWalk());
         assertSame(startTramNode, transportRelationship.getStartNode());
@@ -176,6 +211,11 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         @Override
         public String getName() {
             return null;
+        }
+
+        @Override
+        public boolean isPlatform() {
+            return false;
         }
     }
 }

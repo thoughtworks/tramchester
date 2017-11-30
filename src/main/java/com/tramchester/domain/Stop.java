@@ -6,11 +6,17 @@ public class Stop extends TimeAsMinutes {
     private final Location station;
     private final LocalTime arrivalTime;
     private final LocalTime departureTime;
+    private String stopId;
+    private String routeId;
+    private String serviceId;
 
-    public Stop(Location station, LocalTime arrivalTime, LocalTime departureTime) {
+    public Stop(String stopId, Location station, LocalTime arrivalTime, LocalTime departureTime, String routeId, String serviceId) {
+        this.stopId = stopId;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.station = station;
+        this.routeId = routeId;
+        this.serviceId = serviceId;
     }
 
     public LocalTime getArrivalTime() {
@@ -31,6 +37,9 @@ public class Stop extends TimeAsMinutes {
                 "station=" + station +
                 ", arrivalTime=" + arrivalTime +
                 ", departureTime=" + departureTime +
+                ", stopId='" + stopId + '\'' +
+                ", serviceId='" + serviceId + '\'' +
+                ", routeId='" + routeId + '\'' +
                 '}';
     }
 
@@ -40,5 +49,9 @@ public class Stop extends TimeAsMinutes {
 
     public int getArriveMinsFromMidnight() {
         return getMinutes(arrivalTime);
+    }
+
+    public String getId() {
+        return stopId;
     }
 }

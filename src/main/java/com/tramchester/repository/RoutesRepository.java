@@ -2,39 +2,25 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.Trip;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
-import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.StationIndexs;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.resources.RouteCodeToClassMapper;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
-public class RoutesRepository extends StationIndexs {
+public class RoutesRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
     private final StationRepository stationRepository;
     private RouteCodeToClassMapper mapper;
 
-    public RoutesRepository(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
-                            SpatialDatabaseService spatialDatabaseService,
-                            StationRepository stationRepository,
+    public RoutesRepository(StationRepository stationRepository,
                             RouteCodeToClassMapper mapper) {
-        super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
         this.stationRepository = stationRepository;
         this.mapper = mapper;
     }
@@ -48,26 +34,19 @@ public class RoutesRepository extends StationIndexs {
     }
 
     private void populateDTOFor(Route route, List<RouteDTO> gather) {
-        List<StationDTO> stations = new LinkedList<>();
+        Set<StationDTO> stations = new HashSet<>();
         String routeName = route.getName();
-        logger.debug("Finding nodes for route "  + routeName);
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            Stream<Node> nodes = super.getNodesFor(route);
-            nodes.forEach(node -> {
-                Node stationNode = getTargetNode(node);
-                String id = (String) stationNode.getProperty(GraphStaticKeys.ID);
-                Optional<Station> station = stationRepository.getStation(id);
-                station.ifPresent(value -> stations.add(new StationDTO(value, ProximityGroup.ALL)));
+        logger.debug("Finding stations for route "  + routeName);
+
+        Stream<Trip> trips = stationRepository.getTripsByRouteId(route.getId());
+
+        trips.forEach(trip -> {
+            trip.getStops().stream().forEach(stop -> {
+                stations.add(new StationDTO((Station) stop.getStation(), ProximityGroup.ALL));
             });
-            tx.success();
-        }
+        });
 
-        gather.add(new RouteDTO(routeName, stations, mapper.map(route.getId())));
+        gather.add(new RouteDTO(routeName, new LinkedList<>(stations), mapper.map(route.getId())));
     }
 
-    private Node getTargetNode(Node node) {
-        Iterable<Relationship> departs = node.getRelationships(TransportRelationshipTypes.DEPART,
-                TransportRelationshipTypes.INTERCHANGE_DEPART);
-        return departs.iterator().next().getEndNode();
-    }
 }

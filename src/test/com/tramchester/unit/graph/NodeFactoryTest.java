@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -51,6 +52,21 @@ public class NodeFactoryTest extends EasyMockSupport {
     }
 
     @Test
+    public void shouldGetNodeOfCorrectTypePlatform() {
+        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.PLATFORM);
+        EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("platformID");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn("platformName");
+
+        replayAll();
+        TramNode tramNode = factory.getNode(node);
+        assertTrue(tramNode.isPlatform());
+        assertEquals("platformName",tramNode.getName());
+        assertEquals("platformID",tramNode.getId());
+
+        verifyAll();
+    }
+
+    @Test
     public void shouldGetNodeOfCorrectTypeRouteStation() {
         EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.ROUTE_STATION);
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
@@ -65,7 +81,6 @@ public class NodeFactoryTest extends EasyMockSupport {
         assertFalse(tramNode.isQuery());
         verifyAll();
     }
-
 
     public static void createStationNode(Node node, String stationId, String stationName) {
         EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.STATION);

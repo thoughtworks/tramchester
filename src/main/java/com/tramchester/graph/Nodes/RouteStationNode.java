@@ -53,6 +53,11 @@ public class RouteStationNode implements TramNode {
     }
 
     @Override
+    public boolean isPlatform() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "RouteStationNode{" +
                 "id='" + id + '\'' +

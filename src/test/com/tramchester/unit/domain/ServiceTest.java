@@ -41,7 +41,7 @@ public class ServiceTest {
 
         Service service = new Service("", "");
 
-        Trip trip = new Trip("001", "Deansgate", "SVC002");
+        Trip trip = new Trip("001", "Deansgate", "SVC002", "");
         service.addTrip(trip);
 
         assertThat(service.getTrips()).hasSize(1);

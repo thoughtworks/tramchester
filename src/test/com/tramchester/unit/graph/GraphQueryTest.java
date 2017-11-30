@@ -77,20 +77,4 @@ public class GraphQueryTest {
         }
     }
 
-    @Test
-    public void shouldGetRouteStationsInCorrectOrder() {
-        try (Transaction tx = graphDBService.beginTx()) {
-            ResourceIterable<Node> nodes = graphQuery.getAllForRouteNoTx("routeA");
-            Stream<Node> stream = StreamSupport.stream(nodes.spliterator(),false);
-            List<String> list = stream.map(node -> node.getProperty(GraphStaticKeys.ID).toString()).collect(Collectors.toList());
-            assertEquals(4,list.size());
-            assertEquals(TransportDataForTest.FIRST_STATION+"routeAId", list.get(0));
-            assertEquals(TransportDataForTest.SECOND_STATION+"routeAId", list.get(1));
-            assertEquals(TransportDataForTest.INTERCHANGE+"routeAId", list.get(2));
-            assertEquals(TransportDataForTest.LAST_STATION+"routeAId", list.get(3));
-            tx.success();
-        }
-
-    }
-
 }

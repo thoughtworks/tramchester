@@ -66,4 +66,38 @@ public abstract class TransportCostRelationship implements TransportRelationship
         return endNode;
     }
 
+    @Override
+    public boolean isEnterPlatform() {
+        return false;
+    }
+
+    @Override
+    public boolean isLeavePlatform() { return false; }
+
+    @Override
+    public boolean isWalk() {
+        return false;
+    }
+
+    @Override
+    public boolean isGoesTo() {
+        return false;
+    }
+
+    @Override
+    public boolean isBoarding() {
+        return false;
+    }
+
+    @Override
+    public boolean isDepartTram() {
+        return false;
+    }
+
+    @Override
+    public boolean isInterchange() {
+        return false;
+    }
+
+
 }

@@ -14,14 +14,17 @@ public class TripTest {
 
     @Test
     public void shouldModelCircularTripsCorrectly() {
-        Trip trip = new Trip("tripId","headSign", "svcId");
+        Trip trip = new Trip("tripId","headSign", "svcId", "routeId");
 
         Location stationA = new Station("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), false);
         Location stationB = new Station("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
 
-        Stop firstStop = new Stop(stationA, new LocalTime(10, 00), new LocalTime(10, 01));
-        Stop secondStop = new Stop(stationB, new LocalTime(10, 05), new LocalTime(10, 06));
-        Stop thirdStop = new Stop(stationA, new LocalTime(10, 10), new LocalTime(10, 10));
+        String routeId = "routeId";
+        String serviceId = "serviceId";
+
+        Stop firstStop = new Stop("statA1", stationA, new LocalTime(10, 00), new LocalTime(10, 01), routeId, serviceId);
+        Stop secondStop = new Stop("statB1", stationB, new LocalTime(10, 05), new LocalTime(10, 06), routeId, serviceId);
+        Stop thirdStop = new Stop("statA1", stationA, new LocalTime(10, 10), new LocalTime(10, 10), routeId, serviceId);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);

@@ -32,10 +32,12 @@ public class StopsTest {
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        stopA = new Stop(stationA, new LocalTime(10, 00), new LocalTime(10, 01));
-        stopB = new Stop(stationB, new LocalTime(10, 02), new LocalTime(10, 03));
-        stopC = new Stop(stationC, new LocalTime(10, 10), new LocalTime(10, 10));
-        busStopD = new Stop(stationD, new LocalTime(10,10), new LocalTime(10,11));
+        String routeId = "routeID";
+        String serviceId = "serviceId";
+        stopA = new Stop("statA1", stationA, new LocalTime(10, 00), new LocalTime(10, 01), routeId, serviceId);
+        stopB = new Stop("statB1", stationB, new LocalTime(10, 02), new LocalTime(10, 03), routeId, serviceId);
+        stopC = new Stop("statC1", stationC, new LocalTime(10, 10), new LocalTime(10, 10), routeId, serviceId);
+        busStopD = new Stop("statD1", stationD, new LocalTime(10,10), new LocalTime(10,11), routeId, serviceId);
         am10Minutes = 10 * 60;
     }
 
@@ -88,7 +90,8 @@ public class StopsTest {
         stops.add(stopB);
         stops.add(stopC);
 
-        Stop stopD = new Stop(stationA, new LocalTime(10, 20), new LocalTime(10, 21));
+        Stop stopD = new Stop("stopA1", stationA, new LocalTime(10, 20),
+                new LocalTime(10, 21), "routeId", "serviceId");
         stops.add(stopD);
 
         assertTrue(stops.visitsStation(stationIdA));

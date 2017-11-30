@@ -21,6 +21,7 @@ public class StationIndexs {
     protected final RelationshipFactory relationshipFactory;
     private Map<String,Node> routeStationNodeCache;
     private Map<String,Node> stationNodeCache;
+    private Map<String,Node> platformNodeCache;
     private SimplePointLayer spatialLayer;
 
     protected GraphDatabaseService graphDatabaseService;
@@ -35,6 +36,7 @@ public class StationIndexs {
         this.relationshipFactory = relationshipFactory;
         routeStationNodeCache = new HashMap<>();
         stationNodeCache = new HashMap<>();
+        platformNodeCache = new HashMap<>();
     }
 
     protected Node getRouteStationNode(String routeStationId) {
@@ -64,16 +66,23 @@ public class StationIndexs {
         return node;
     }
 
+    public Node getPlatformNode(String id) {
+        if (platformNodeCache.containsKey(id)) {
+            return platformNodeCache.get(id);
+        }
+        Node node = graphQuery.getPlatformNode(id);
+        if (node!=null) {
+            platformNodeCache.put(id,node);
+        } else if (warnIfMissing) {
+            logger.warn("Could not find graph node for platform: " + id);
+        }
+        return node;
+    }
+
     public Node getAreaNode(String areaName) {
         // TODO Cache
         Node node = graphQuery.getAreaNode(areaName);
         return node;
-    }
-
-    public Stream<Node> getNodesFor(Route route) {
-        logger.info("Find nodes for route " + route);
-        ResourceIterable<Node> iterable = graphQuery.getAllForRouteNoTx(route.getName());
-        return StreamSupport.stream(iterable.spliterator(),false);
     }
 
     protected SimplePointLayer getSpatialLayer() {

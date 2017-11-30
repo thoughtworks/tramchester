@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.Station;
@@ -13,6 +14,7 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.Stations;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -38,6 +40,9 @@ public class GraphWithSimpleRouteTest {
 
     private static TransportDataForTest transportData;
     private static RouteCalculator calculator;
+    private static GraphDatabaseService graphDBService;
+    private static RelationshipFactory relationshipFactory;
+    private static NodeFactory nodeFactory;
     private TramServiceDate queryDate;
     private List<Integer> queryTimes;
     private Station firstStation;
@@ -45,16 +50,17 @@ public class GraphWithSimpleRouteTest {
     // TODO Use dependency init instead??
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
+        transportData = new TransportDataForTest();
+
         File dbFile = new File(TMP_DB);
         FileUtils.deleteDirectory(dbFile);
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
-        GraphDatabaseService graphDBService = graphDatabaseFactory.newEmbeddedDatabase(dbFile);
+        graphDBService = graphDatabaseFactory.newEmbeddedDatabase(dbFile);
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
 
-        NodeFactory nodeFactory = new NodeFactory();
-        RelationshipFactory relationshipFactory = new RelationshipFactory(nodeFactory);
+        nodeFactory = new NodeFactory();
+        relationshipFactory = new RelationshipFactory(nodeFactory);
 
-        transportData = new TransportDataForTest();
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory, spatialDatabaseService);
         builder.buildGraph();
 
@@ -68,7 +74,6 @@ public class GraphWithSimpleRouteTest {
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
                 spatialDatabaseService, mapper, costEvaluator, configuration);
-
     }
 
     @Before
@@ -76,8 +81,9 @@ public class GraphWithSimpleRouteTest {
         queryDate = new TramServiceDate("20140630");
         int minutesPastMidnight = (8 * 60) - 3;
         // note: trams only run at specific times so still only get one journey in results
-        queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
+        //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
+        queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight});
     }
 
     @Test
@@ -124,6 +130,12 @@ public class GraphWithSimpleRouteTest {
         Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
         Set<RawJourney> journeys = calculator.calculateRoute(origin, startStations, endStation, queryTimes, queryDate);
         assertEquals(1, journeys.size());
+    }
+
+    @Test
+    public void createDiagramOfTestNetwork() throws IOException {
+        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphDBService);
+        creator.create("test_network.dot", TransportDataForTest.FIRST_STATION);
     }
 
     @Ignore("WIP")

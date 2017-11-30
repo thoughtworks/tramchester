@@ -39,6 +39,11 @@ public class QueryNode implements TramNode {
         return "Your location";
     }
 
+    @Override
+    public boolean isPlatform() {
+        return false;
+    }
+
     public LatLong getLatLon() {
         return latLong;
     }
