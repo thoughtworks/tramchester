@@ -29,7 +29,8 @@ intelij/
 /*.db
 *.version
 log/
-diagram.dot
-diagram.dot.*
+manchester_trams.dot
+node_modules/
+test_network.dot
 testData/gtdf-out/
 testData/output/
