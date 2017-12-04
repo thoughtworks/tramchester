@@ -1,7 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.Nodes.RouteStationNode;
+import com.tramchester.graph.Nodes.BoardPointNode;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class RouteStationNodeTest extends EasyMockSupport {
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME)).andReturn("stationName");
 
         replayAll();
-        RouteStationNode stationNode = new RouteStationNode(node);
+        BoardPointNode stationNode = new BoardPointNode(node);
         assertEquals("stationId", stationNode.getId());
         assertEquals("routeName", stationNode.getRouteName());
         assertEquals("routeId", stationNode.getRouteId());

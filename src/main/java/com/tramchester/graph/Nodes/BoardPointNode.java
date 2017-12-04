@@ -3,24 +3,24 @@ package com.tramchester.graph.Nodes;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Node;
 
-public class RouteStationNode implements TramNode {
+public class BoardPointNode implements TramNode {
     private final String id;
     private final String routeName;
     private final String routeId;
     private final String name;
 
-    private RouteStationNode(String id, String routeName, String routeId, String name) {
+    private BoardPointNode(String id, String routeName, String routeId, String name) {
         this.id = id;
         this.routeName = routeName;
         this.routeId = routeId;
         this.name = name;
     }
 
-    public static RouteStationNode TestOnly(String id, String routeName, String routeId, String name) {
-        return new RouteStationNode(id, routeName, routeId, name);
+    public static BoardPointNode TestOnly(String id, String routeName, String routeId, String name) {
+        return new BoardPointNode(id, routeName, routeId, name);
     }
 
-    public RouteStationNode(Node node) {
+    public BoardPointNode(Node node) {
         this.id = node.getProperty(GraphStaticKeys.ID).toString();
         this.routeName = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME).toString();
         this.routeId = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID).toString();
@@ -59,7 +59,7 @@ public class RouteStationNode implements TramNode {
 
     @Override
     public String toString() {
-        return "RouteStationNode{" +
+        return "BoardPointNode{" +
                 "id='" + id + '\'' +
                 ", routeName='" + routeName + '\'' +
                 ", routeId='" + routeId + '\'' +

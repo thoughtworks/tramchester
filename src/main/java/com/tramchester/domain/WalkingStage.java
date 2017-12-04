@@ -6,6 +6,8 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 
+import java.util.Optional;
+
 public class WalkingStage implements TransportStage {
     private RawWalkingStage rawWalkingStage;
     private int beginTimeMins;
@@ -82,6 +84,11 @@ public class WalkingStage implements TransportStage {
     @Override
     public StageDTO asDTO() {
         return new StageDTO(this);
+    }
+
+    @Override
+    public Optional<Platform> getPlatform() {
+        return Optional.empty();
     }
 
     @Override

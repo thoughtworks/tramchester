@@ -2,8 +2,11 @@ package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import org.joda.time.LocalTime;
+
+import java.util.Optional;
 
 public interface TransportStage extends RawStage {
     String getSummary();
@@ -21,4 +24,5 @@ public interface TransportStage extends RawStage {
     String getDisplayClass();
 
     StageDTO asDTO();
+    Optional<Platform> getPlatform();
 }

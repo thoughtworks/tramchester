@@ -1,7 +1,9 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import org.joda.time.LocalDate;
@@ -10,22 +12,27 @@ import org.joda.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TransportDataForTest implements TransportData, StationRepository {
+import static com.tramchester.domain.Station.METROLINK_PREFIX;
+import static java.lang.String.format;
+
+public class TransportDataForTest implements TransportData, StationRepository, PlatformRepository {
     private String serviceAId = "serviceAId";
     private String serviceBId = "serviceBId";
 
-    public static final String FIRST_STATION = "9400ZZ_FIRST";
-    public static final String SECOND_STATION = "9400ZZ_SECOND";
-    public static final String LAST_STATION = "9400ZZ_LAST";
+    public static final String FIRST_STATION = METROLINK_PREFIX+"_FIRST";
+    public static final String SECOND_STATION = METROLINK_PREFIX+"_SECOND";
+    public static final String LAST_STATION = METROLINK_PREFIX+"_LAST";
     public static final String INTERCHANGE = Interchanges.CORNBROOK;
-    public static final String STATION_FOUR = "9400ZZ_FOUR";
+    public static final String STATION_FOUR = METROLINK_PREFIX+"_FOUR";
 
     Map<String, Station> stationMap = new HashMap<>();
 
     private Collection<Route> routes;
+    private Map<String,Platform> platforms;
 
     public TransportDataForTest() {
         routes = new LinkedList<>();
+        platforms = new HashMap<>();
         Route routeA = new Route("routeAId", "routeACode", "routeA", "MET");
         Route routeB = new Route("routeBId", "routeBCode", "routeB", "MET");
 
@@ -55,29 +62,35 @@ public class TransportDataForTest implements TransportData, StationRepository {
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area", "startStation", latLong, true);
         addStation(first);
-        tripA.addStop(createStop(first, createTime(8, 0), createTime(8, 0), routeA.getId(), serviceAId));
+        Stop stopA = createStop(first, createTime(8, 0), createTime(8, 0), routeA.getId(), serviceAId);
+        tripA.addStop(stopA);
 
         Station second = new Station(SECOND_STATION, "area", "secondStation", latLong, true);
-        tripA.addStop(createStop(second, createTime(8, 11), createTime(8, 11), routeA.getId(), serviceAId));
+        Stop stopB = createStop(second, createTime(8, 11), createTime(8, 11), routeA.getId(), serviceAId);
+        tripA.addStop(stopB);
         addStation(second);
 
         Station interchangeStation = new Station(INTERCHANGE, "area", "cornbrook", latLong, true);
-        tripA.addStop(createStop(interchangeStation, createTime(8, 20), createTime(8, 20), routeA.getId(), serviceAId));
+        Stop stopC = createStop(interchangeStation, createTime(8, 20), createTime(8, 20), routeA.getId(), serviceAId);
+        tripA.addStop(stopC);
         addStation(interchangeStation);
 
         Station last = new Station(LAST_STATION, "area", "endStation", latLong, true);
         addStation(last);
-        tripA.addStop(createStop(last, createTime(8, 40), createTime(8, 40), routeA.getId(), serviceAId));
+        Stop stopD = createStop(last, createTime(8, 40), createTime(8, 40), routeA.getId(), serviceAId);
+        tripA.addStop(stopD);
         // service
         serviceA.addTrip(tripA);
 
         // tripB: INTERCHANGE -> STATION_FOUR
         Trip tripB = new Trip("trip2Id", "headSign", serviceBId, routeB.getId());
-        tripB.addStop(createStop(interchangeStation, createTime(8, 26), createTime(8, 26), routeB.getId(), serviceBId));
+        Stop stopE = createStop(interchangeStation, createTime(8, 26), createTime(8, 26), routeB.getId(), serviceBId);
+        tripB.addStop(stopE);
 
         Station four = new Station(STATION_FOUR, "area", "stat4Station", new LatLong(170.00, 160.00), true);
         addStation(four);
-        tripB.addStop(createStop(four, createTime(8, 36), createTime(8, 36), routeB.getId(), serviceBId));
+        Stop stopF = createStop(four, createTime(8, 36), createTime(8, 36), routeB.getId(), serviceBId);
+        tripB.addStop(stopF);
         // service
         serviceB.addTrip(tripB);
     }
@@ -91,7 +104,9 @@ public class TransportDataForTest implements TransportData, StationRepository {
     }
 
     private Stop createStop(Location startStation, LocalTime arrivalTime, LocalTime departureTime, String routeId, String serviceId) {
-        return new Stop(startStation.getId()+"1", startStation, arrivalTime, departureTime, routeId, serviceId);
+        String platformId = startStation.getId() + "1";
+        platforms.put(platformId, new Platform(platformId, format("%s platform 1", startStation.getName())));
+        return new Stop(platformId, startStation, arrivalTime, departureTime, routeId, serviceId);
     }
 
     @Override
@@ -123,5 +138,10 @@ public class TransportDataForTest implements TransportData, StationRepository {
     @Override
     public Optional<Station> getStation(String stationId) {
         return Optional.of(stationMap.get(stationId));
+    }
+
+    @Override
+    public Optional<Platform> getPlatformById(String platformId) {
+        return Optional.ofNullable(platforms.get(platformId));
     }
 }

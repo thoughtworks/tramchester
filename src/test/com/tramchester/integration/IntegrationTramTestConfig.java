@@ -33,7 +33,7 @@ public class IntegrationTramTestConfig extends TestConfig {
         return Paths.get("data/tram");
     }
 
-    // just get one query time by doing this
+    // just getPlatformById one query time by doing this
     @Override
     public int getQueryInterval() { return getMaxWait()+1; }
 

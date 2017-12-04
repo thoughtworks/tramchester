@@ -4,6 +4,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
@@ -111,12 +112,12 @@ public class TransportDataFromFilesTest {
         // find one service id from trips
         String callingService = callingServices.get(0);
 
-        // check can now get service
+        // check can now getPlatformById service
         Service velopark8AMSvc = transportData.getServiceById(callingService);
 
         assertTrue(ashtonRoutes.contains(velopark8AMSvc.getRouteId()));
 
-        // now check can get trips using times instead
+        // now check can getPlatformById trips using times instead
         Optional<ServiceTime> tripsByTime = transportData.getFirstServiceTime(velopark8AMSvc.getServiceId(),
                 Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM);
         assertTrue(tripsByTime.isPresent());
@@ -165,6 +166,15 @@ public class TransportDataFromFilesTest {
         Optional<Station> result = transportData.getStation(Stations.Altrincham.getId());
         assertTrue(result.isPresent());
         assertEquals("Altrincham", result.get().getName());
+    }
+
+    @Test
+    public void shouldHavePlatform() {
+        Optional<Platform> result = transportData.getPlatformById(Stations.StPetersSquare.getId()+"3");
+        assertTrue(result.isPresent());
+        Platform platform = result.get();
+        assertEquals("St Peter's Square platform 3", platform.getName());
+        assertEquals(Stations.StPetersSquare.getId()+"3", platform.getId());
     }
 
     @Test

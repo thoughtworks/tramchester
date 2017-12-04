@@ -42,7 +42,7 @@ public class LiveDataFetcher {
         StatusLine statusLine = response.getStatusLine();
         logger.info(format("Get from %s reponse is %s", uri, statusLine));
         if (statusLine.getStatusCode()!=200) {
-            String msg = format("Unable to get from %s response was %s", uri, statusLine);
+            String msg = format("Unable to getPlatformById from %s response was %s", uri, statusLine);
             logger.warn(msg);
             throw new TramchesterException(msg);
         }

@@ -1,12 +1,13 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.graph.Nodes.BoardPointNode;
 import com.tramchester.graph.Nodes.QueryNode;
-import com.tramchester.graph.Nodes.RouteStationNode;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.slf4j.Logger;
@@ -21,15 +22,17 @@ public class MapTransportRelationshipsToStages {
 
     private RouteCodeToClassMapper routeIdToClass;
     private StationRepository stationRepository;
+    private PlatformRepository platformRepository;
 
     public MapTransportRelationshipsToStages(RouteCodeToClassMapper routeIdToClass,
-                                             StationRepository stationRepository) {
+                                             StationRepository stationRepository, PlatformRepository platformRepository) {
         this.routeIdToClass = routeIdToClass;
         this.stationRepository = stationRepository;
+        this.platformRepository = platformRepository;
     }
 
     public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
-        MappingState state = new MappingState(minsPastMidnight, routeIdToClass, stationRepository);
+        MappingState state = new MappingState(platformRepository, stationRepository, minsPastMidnight, routeIdToClass);
 
         for (TransportRelationship transportRelationship : transportRelationships) {
             TramNode firstNode = transportRelationship.getStartNode();
@@ -42,15 +45,15 @@ public class MapTransportRelationshipsToStages {
             state.incrementCost(currentStepCost);
 
             if (transportRelationship.isBoarding()) {
-                recordBoarding(state, firstNode, (RouteStationNode) secondNode, firstNodeId);
+                recordBoarding(state, firstNode, (BoardPointNode) secondNode);
             } else if (transportRelationship.isEnterPlatform()) {
-                recordEnterPlatform(state, firstNode, secondNode, firstNodeId);
+                recordEnterPlatform(state, firstNode, secondNode);
             } else if (transportRelationship.isGoesTo()) {
                 recordGoesTo(state, transportRelationship);
             } else if (transportRelationship.isDepartTram()) {
                 recordDepart(state, secondNode, endNodeId, firstNodeId);
             } else if (transportRelationship.isLeavePlatform()) {
-                logger.info(format("Depart platform %s %s", endNodeId, secondNode.getName()));
+                recordLeavePlatform(secondNode, endNodeId);
             } else if (transportRelationship.isWalk()) {
                 recordWalk(state, firstNode, (StationNode) secondNode, currentStepCost, firstNodeId);
             }
@@ -58,6 +61,10 @@ public class MapTransportRelationshipsToStages {
         List<RawStage> stages = state.getStages();
         logger.info(format("Number of stages: %s Total cost:%s Finish: %s", stages.size(), state.getTotalCost(), state.getElapsedTime()));
         return stages;
+    }
+
+    private void recordLeavePlatform(TramNode secondNode, String endNodeId) {
+        logger.info(format("Depart platform %s %s", endNodeId, secondNode.getName()));
     }
 
     private void recordWalk(MappingState state, TramNode firstNode, StationNode secondNode, int cost, String firstNodeId) {
@@ -95,28 +102,30 @@ public class MapTransportRelationshipsToStages {
         }
     }
 
-    private void recordEnterPlatform(MappingState state, TramNode firstNode, TramNode secondNode, String firstNodeId) {
-        logger.info(format("Cross to platfrom '%s' from '%s' at %s", secondNode, firstNode, state.getElapsedTime()));
+    private void recordEnterPlatform(MappingState state, TramNode stationNode, TramNode platformNode) {
+        logger.info(format("Cross to platfrom '%s' from '%s' at %s", platformNode, stationNode, state.getElapsedTime()));
         if (!state.hasFirstStation()) {
-            state.setFirstStation(firstNodeId);
+            state.setFirstStation(stationNode.getId());
+            state.setPlatform(platformNode.getId());
         }
     }
 
-    private void recordBoarding(MappingState state, TramNode firstNode, RouteStationNode secondNode, String firstNodeId) {
-        logger.info(format("Board tram: at:'%s' from '%s' at %s", secondNode, firstNode, state.getElapsedTime()));
+    private void recordBoarding(MappingState state, TramNode firstNode, BoardPointNode boardPointNode) {
+        logger.info(format("Board tram: at:'%s' from '%s' at %s", boardPointNode, firstNode, state.getElapsedTime()));
+        String firstNodeId = firstNode.getId();
         // platform|station -> route station
-        state.setBoardNode(secondNode);
+        state.setBoardingNode(boardPointNode);
         if (!state.hasFirstStation()) {
             state.setFirstStation(firstNodeId);
             if (firstNode.isPlatform()) {
-                // boarding from platform
+                // boarding from a platform
                 state.setFirstStation(Station.formId(firstNodeId));
             }
         }
         state.recordServiceStart();
         if (state.isOnService()) {
             logger.error(format("Encountered boarding (at %s) before having departed an existing stage %s",
-                    state.getBoardNode(), state.getCurrentStage()));
+                    state.getBoardingNode(), state.getCurrentStage()));
         }
     }
 

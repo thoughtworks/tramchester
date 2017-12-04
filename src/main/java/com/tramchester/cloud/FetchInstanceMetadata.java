@@ -40,7 +40,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
     }
 
     private String getDataFrom(URL url) {
-        logger.info("Attempt to get instance user data from " + url.toString());
+        logger.info("Attempt to getPlatformById instance user data from " + url.toString());
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url.toString());
         RequestConfig config = RequestConfig.custom()
@@ -59,7 +59,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
             return "";
         }
         catch (IOException e) {
-            logger.warn("Unable to get instance user data, likely not running in cloud", e);
+            logger.warn("Unable to getPlatformById instance user data, likely not running in cloud", e);
             return "";
         }
     }

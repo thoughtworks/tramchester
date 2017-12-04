@@ -75,7 +75,7 @@ public class UserJourneyWithLocationTest {
         String finalStation = "Ashton-Under-Lyne";
         String firstStation = Stations.NavigationRoad.getName();
 
-        List<String> changes = Arrays.asList(firstStation, Stations.PiccadillyGardens.getName());
+        List<String> changes = Arrays.asList(firstStation, Stations.Piccadilly.getName());
         List<String> headSignsA = Arrays.asList("","Etihad Campus",finalStation);
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,

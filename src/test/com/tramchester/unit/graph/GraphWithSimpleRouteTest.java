@@ -2,10 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.StationWalk;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
@@ -14,7 +11,6 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -66,7 +62,7 @@ public class GraphWithSimpleRouteTest {
 
         RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
         PathToTransportRelationship pathToRelationships  = new PathToTransportRelationship(relationshipFactory);
-        MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData);
+        MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData, transportData);
 
         CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
         TramchesterConfig configuration = new IntegrationTramTestConfig();
@@ -80,7 +76,7 @@ public class GraphWithSimpleRouteTest {
     public void beforeEachTestRuns() {
         queryDate = new TramServiceDate("20140630");
         int minutesPastMidnight = (8 * 60) - 3;
-        // note: trams only run at specific times so still only get one journey in results
+        // note: trams only run at specific times so still only getPlatformById one journey in results
         //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
         queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight});
@@ -91,6 +87,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.SECOND_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION);
     }
 
     @Test
@@ -98,6 +95,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.INTERCHANGE, queryTimes, queryDate);
         assertEquals(1, journeys.size());
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE);
     }
 
     @Test
@@ -112,6 +110,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.LAST_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION);
     }
 
     @Test
@@ -147,5 +146,13 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys =  calculator.calculateRoute(areaA, areaB, queryTimes, queryDate);
         assertEquals(1, journeys.size());
 
+    }
+
+    private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation) {
+        RawJourney journey = (RawJourney)journeys.toArray()[0];
+        List<RawStage> stages = journey.getStages();
+        RawVehicleStage vehicleStage = (RawVehicleStage) stages.get(0);
+        assertEquals(firstStation,vehicleStage.getFirstStation().getId());
+        assertEquals(secondStation,vehicleStage.getLastStation().getId());
     }
 }

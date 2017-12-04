@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class TransportDataFromFiles implements TransportData, StationRepository, AreasRepository {
+public class TransportDataFromFiles implements TransportData, StationRepository, AreasRepository, PlatformRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
@@ -20,6 +21,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
     private HashMap<String, Service> services = new HashMap<>();  // service id -> service
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
     private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
+    private HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
     private FeedInfo feedInfo = null;
 
     public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
@@ -116,6 +118,11 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
     private void populateStationsAndAreas(Stream<StopData> stops) {
         stops.forEach((stop) -> {
             String stopId = stop.getId();
+            if (stop.isTram()) {
+                if (!platforms.containsKey(stopId)) {
+                    platforms.put(stopId, formPlatform(stop));
+                }
+            }
             String stationId = Station.formId(stopId);
             if (!stations.keySet().contains(stationId)) {
                 Station station = new Station(stationId, stop.getArea(), stop.getName(),
@@ -124,6 +131,10 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
             }
             areas.add(new AreaDTO(stop.getArea()));
         });
+    }
+
+    private Platform formPlatform(StopData stop) {
+        return new Platform(stop.getId(), stop.getName());
     }
 
     private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId, String routeId) {
@@ -179,6 +190,14 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         }
     }
 
+    @Override
+    public Optional<Platform> getPlatformById(String platformId) {
+        if (platforms.containsKey(platformId)) {
+            return Optional.of(platforms.get(platformId));
+        }
+        return Optional.empty();
+    }
+
     public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation,
                                                      TimeWindow window) {
         logger.info(format("Get first time for service %s from %s to %s with %s", serviceId, firstStation,
@@ -224,4 +243,5 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         list.addAll(areas);
         return  list;
     }
+
 }

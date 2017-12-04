@@ -1,9 +1,11 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
-import com.tramchester.graph.Nodes.RouteStationNode;
+import com.tramchester.domain.Platform;
+import com.tramchester.graph.Nodes.BoardPointNode;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -19,29 +22,34 @@ public class MappingState {
 
     private RouteCodeToClassMapper routeIdToClass;
     private StationRepository stationRepository;
+    private PlatformRepository platformRepository;
     private final int minsPastMidnight;
 
     private List<RawStage> stages;
     private int serviceStart;
-    private RouteStationNode boardNode;
+    private BoardPointNode boardingNode;
     private RawVehicleStage currentStage;
     private String firstStationId;
     private int totalCost;
+    private Platform platform;
 
-    public MappingState(int minsPastMidnight, RouteCodeToClassMapper routeIdToClass, StationRepository stationRepository) {
+    public MappingState(PlatformRepository platformRepository, StationRepository stationRepository, int minsPastMidnight, RouteCodeToClassMapper routeIdToClass) {
+        this.platformRepository = platformRepository;
         this.minsPastMidnight = minsPastMidnight;
         this.routeIdToClass = routeIdToClass;
         this.stationRepository = stationRepository;
+        //
         serviceStart = 0;
-        boardNode = null;
+        totalCost = 0;
+        boardingNode = null;
         currentStage = null;
         firstStationId = "";
-        totalCost = 0;
+        platform = null;
         stages = new ArrayList<>();
     }
 
-    public void setBoardNode(RouteStationNode boardNode) {
-        this.boardNode = boardNode;
+    public void setBoardingNode(BoardPointNode boardingNode) {
+        this.boardingNode = boardingNode;
     }
 
     public boolean hasFirstStation() {
@@ -52,30 +60,33 @@ public class MappingState {
         firstStationId = id;
     }
 
-    public void recordServiceStart() {
-        this.serviceStart = totalCost;
-    }
-
     public boolean isOnService() {
         return currentStage!=null;
     }
 
-    public RouteStationNode getBoardNode() {
-        return boardNode;
+    public BoardPointNode getBoardingNode() {
+        return boardingNode;
     }
 
     public RawVehicleStage getCurrentStage() {
         return currentStage;
     }
 
+    public void recordServiceStart() {
+        this.serviceStart = totalCost;
+    }
+
     public void boardService(TransportRelationship transportRelationship, String serviceId) {
-        String routeName = boardNode.getRouteName();
-        String routeId = boardNode.getRouteId();
+        String routeName = boardingNode.getRouteName();
+        String routeId = boardingNode.getRouteId();
         String tramRouteClass = routeIdToClass.map(routeId);
         Station firstStation = stationRepository.getStation(firstStationId).get();
         currentStage = new RawVehicleStage(firstStation, routeName,
                 transportRelationship.getMode(), tramRouteClass);
         currentStage.setServiceId(serviceId);
+        if (platform!=null) {
+            currentStage.setPlatform(platform);
+        }
     }
 
     public void departService(String stationId) {
@@ -91,10 +102,7 @@ public class MappingState {
         serviceStart = 0;
         currentStage = null;
         firstStationId = "";
-    }
-
-    public List<RawStage> getStages() {
-        return stages;
+        platform = null;
     }
 
     public void addWalkingStage(Location begin, StationNode dest, int walkCost) {
@@ -115,5 +123,16 @@ public class MappingState {
 
     public int getTotalCost() {
         return totalCost;
+    }
+
+    public List<RawStage> getStages() {
+        return stages;
+    }
+
+    public void setPlatform(String platformId) {
+        Optional<Platform> result = platformRepository.getPlatformById(platformId);
+        if (result.isPresent()) {
+            platform = result.get();
+        }
     }
 }

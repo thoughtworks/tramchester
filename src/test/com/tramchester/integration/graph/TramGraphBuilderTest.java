@@ -147,7 +147,7 @@ public class TramGraphBuilderTest {
         });
 
         assertEquals(relationships.size()-1, (outbounds.size())); // rest should be tram services
-        assertEquals(1, departs.size()); // one way to get off the tram
+        assertEquals(1, departs.size()); // one way to getPlatformById off the tram
 
         Set<Trip> trips = transportData.getTripsFor(station);
         Set<String> fileSvcs = new HashSet<>(); // all trips both ways

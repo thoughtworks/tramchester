@@ -10,12 +10,15 @@ import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 public class StageDTO {
-    private String summary;
-    private String prompt;
-    private String headSign;
+    private PlatformDTO platform;
     private LocationDTO actionStation;
     private LocationDTO lastStation;
     private LocationDTO firstStation;
+
+    private String summary;
+    private String prompt;
+    private String headSign;
+
     private LocalTime firstDepartureTime;
     private LocalTime expectedArrivalTime;
     private int duration;
@@ -29,19 +32,24 @@ public class StageDTO {
     }
 
     public StageDTO(TransportStage source) {
-        this.summary = source.getSummary();
-        this.prompt = source.getPrompt();
-        this.headSign = source.getHeadSign();
         this.actionStation = new LocationDTO(source.getActionStation());
         this.lastStation = new LocationDTO(source.getLastStation());
         this.firstStation = new LocationDTO(source.getFirstStation());
+        source.getPlatform().ifPresent(p -> this.platform=new PlatformDTO(p));
+
+        this.summary = source.getSummary();
+        this.prompt = source.getPrompt();
+        this.headSign = source.getHeadSign();
+
         this.firstDepartureTime = source.getFirstDepartureTime();
         this.expectedArrivalTime = source.getExpectedArrivalTime();
         this.duration = source.getDuration();
+
         this.mode = source.getMode();
         this.walk = source.isWalk();
         this.isAVehicle = source.getIsAVehicle();
         this.displayClass = source.getDisplayClass();
+
     }
 
     public String getSummary() {
@@ -98,5 +106,9 @@ public class StageDTO {
 
     public String getDisplayClass() {
         return displayClass;
+    }
+
+    public PlatformDTO getPlatform() {
+        return platform;
     }
 }

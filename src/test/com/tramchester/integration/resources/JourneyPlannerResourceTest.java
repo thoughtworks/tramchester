@@ -11,6 +11,9 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -27,10 +30,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
@@ -58,7 +58,15 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, (8 * 60) + 15,
                 new TramServiceDate(when));
 
-        assertTrue(plan.getJourneys().size()>0);
+        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        assertTrue(journeys.size()>0);
+        JourneyDTO journey = journeys.first();
+        StageDTO firstStage = journey.getStages().get(0);
+        PlatformDTO platform = firstStage.getPlatform();
+
+        assertEquals("1", platform.getPlatformNumber());
+        assertEquals( "Altrincham platform 1", platform.getName());
+        assertEquals( Stations.Altrincham.getId()+"1", platform.getId());
     }
 
     @Test

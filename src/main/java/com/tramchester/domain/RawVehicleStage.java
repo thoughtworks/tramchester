@@ -1,5 +1,7 @@
 package com.tramchester.domain;
 
+import java.util.Optional;
+
 public class RawVehicleStage implements RawStage {
     protected Location firstStation;
     protected TransportMode mode;
@@ -9,12 +11,14 @@ public class RawVehicleStage implements RawStage {
 
     protected String serviceId;
     protected Location lastStation;
+    private Optional<Platform> platform;
 
     public RawVehicleStage(Location firstStation, String routeName, TransportMode mode, String displayClass) {
         this.firstStation = firstStation;
         this.routeName = routeName;
         this.mode = mode;
         this.displayClass = displayClass;
+        platform = Optional.empty();
     }
 
     public RawVehicleStage() {
@@ -29,6 +33,7 @@ public class RawVehicleStage implements RawStage {
         this.serviceId = other.serviceId;
         this.lastStation = other.lastStation;
         this.cost = other.cost;
+        this.platform = other.platform;
     }
 
     public String getServiceId() {
@@ -81,17 +86,27 @@ public class RawVehicleStage implements RawStage {
     @Override
     public String toString() {
         return "RawVehicleStage{" +
-                "firstStation='" + firstStation + '\'' +
-                ", mode='" + mode + '\'' +
+                "firstStation=" + firstStation +
+                ", mode=" + mode +
                 ", routeName='" + routeName + '\'' +
                 ", displayClass='" + displayClass + '\'' +
+                ", cost=" + cost +
                 ", serviceId='" + serviceId + '\'' +
-                ", lastStation='" + lastStation + '\'' +
+                ", lastStation=" + lastStation +
+                ", platform=" + platform +
                 '}';
     }
 
     public RawVehicleStage setCost(int cost) {
         this.cost = cost;
         return this;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = Optional.of(platform);
+    }
+
+    public Optional<Platform> getPlatform() {
+        return platform;
     }
 }

@@ -132,7 +132,7 @@ public class Journey {
             return allStages.get(0);
         }
 //        if (firstStageIsWalk()) {
-//            return allStages.get(1);
+//            return allStages.getPlatformById(1);
 //        }
         return allStages.get(0);
     }

@@ -13,7 +13,7 @@ public class NodeFactory {
         if (type.equals(GraphStaticKeys.STATION)) {
             result = new StationNode(node);
         } else if(type.equals(GraphStaticKeys.ROUTE_STATION)) {
-            result = new RouteStationNode(node);
+            result = new BoardPointNode(node);
         } else if(type.equals(GraphStaticKeys.QUERY)) {
             result = new QueryNode(node);
         } else if(type.equals(GraphStaticKeys.PLATFORM)) {
