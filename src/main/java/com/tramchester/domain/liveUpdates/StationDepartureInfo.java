@@ -1,5 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.liveUpdates;
 
+import com.tramchester.domain.liveUpdates.DueTram;
 import org.joda.time.DateTime;
 
 import java.util.LinkedList;

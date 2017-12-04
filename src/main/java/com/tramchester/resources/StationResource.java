@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.RecentJourneys;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.StationDTO;

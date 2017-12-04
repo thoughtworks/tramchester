@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.Trip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;

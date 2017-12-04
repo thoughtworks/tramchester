@@ -6,7 +6,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.Location;
-import com.tramchester.domain.RecentJourneys;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;

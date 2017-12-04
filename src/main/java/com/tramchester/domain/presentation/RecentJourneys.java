@@ -1,8 +1,9 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.Timestamped;
 import org.joda.time.DateTime;
 
 import java.io.IOException;

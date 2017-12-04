@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.Interchanges;
+import com.tramchester.domain.input.Interchanges;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;

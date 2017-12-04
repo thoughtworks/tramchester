@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
 
 public class Version {
     public static String MajorVersion = "1";

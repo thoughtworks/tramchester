@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.Trip;
+import com.tramchester.domain.input.Trip;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 

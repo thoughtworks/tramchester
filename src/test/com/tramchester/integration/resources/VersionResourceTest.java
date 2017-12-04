@@ -1,7 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.Version;
+import com.tramchester.domain.presentation.Version;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;

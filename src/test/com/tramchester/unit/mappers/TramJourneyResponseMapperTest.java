@@ -6,6 +6,7 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.TransportDataFromFiles;

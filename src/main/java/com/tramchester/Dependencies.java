@@ -16,7 +16,7 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.CreateQueryTimes;
-import com.tramchester.domain.ProvidesNotes;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;

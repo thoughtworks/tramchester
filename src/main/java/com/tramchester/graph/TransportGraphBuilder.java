@@ -2,6 +2,10 @@ package com.tramchester.graph;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.Interchanges;
+import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.Stops;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;

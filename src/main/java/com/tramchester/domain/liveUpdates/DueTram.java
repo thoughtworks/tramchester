@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.liveUpdates;
 
 public class DueTram {
     private final String status;

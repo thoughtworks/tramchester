@@ -1,5 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.domain.input;
 
+import com.tramchester.domain.Location;
+import com.tramchester.domain.TimeAsMinutes;
 import org.joda.time.LocalTime;
 
 public class Stop extends TimeAsMinutes {

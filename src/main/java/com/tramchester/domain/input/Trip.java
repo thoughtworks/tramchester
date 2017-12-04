@@ -1,5 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.input;
 
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

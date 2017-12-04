@@ -2,6 +2,8 @@ package com.tramchester.repository;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.ServiceTime;

@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.input.Trip;
 import org.joda.time.LocalDate;
 
 import java.util.HashMap;

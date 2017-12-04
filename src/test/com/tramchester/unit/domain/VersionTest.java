@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.domain.Version;
+import com.tramchester.domain.presentation.Version;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

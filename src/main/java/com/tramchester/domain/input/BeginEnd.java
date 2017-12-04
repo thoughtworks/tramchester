@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.input;
 
 
 public class BeginEnd {

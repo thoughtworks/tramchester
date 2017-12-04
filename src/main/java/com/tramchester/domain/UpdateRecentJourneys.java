@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.presentation.RecentJourneys;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

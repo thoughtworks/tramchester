@@ -1,6 +1,9 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.Interchanges;
+import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.PlatformRepository;

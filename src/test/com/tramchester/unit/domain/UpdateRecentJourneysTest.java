@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.google.common.collect.Sets;
 import com.tramchester.TestConfig;
-import com.tramchester.domain.RecentJourneys;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.integration.Stations;

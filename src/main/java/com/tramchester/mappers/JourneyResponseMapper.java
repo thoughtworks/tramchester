@@ -1,6 +1,6 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.ProvidesNotes;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.WalkingStage;

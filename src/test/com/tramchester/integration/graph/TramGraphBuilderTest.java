@@ -2,7 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.Trip;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;

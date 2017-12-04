@@ -1,6 +1,6 @@
 package com.tramchester.integration;
 
-import com.tramchester.domain.Interchanges;
+import com.tramchester.domain.input.Interchanges;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;

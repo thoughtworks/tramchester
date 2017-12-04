@@ -3,8 +3,7 @@ package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.RecentJourneys;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.UpdateRecentJourneys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

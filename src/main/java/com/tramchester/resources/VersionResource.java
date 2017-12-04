@@ -1,6 +1,6 @@
 package com.tramchester.resources;
 
-import com.tramchester.domain.Version;
+import com.tramchester.domain.presentation.Version;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

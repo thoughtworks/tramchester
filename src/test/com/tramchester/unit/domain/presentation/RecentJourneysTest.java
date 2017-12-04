@@ -3,7 +3,7 @@ package com.tramchester.unit.domain.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
-import com.tramchester.domain.RecentJourneys;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import org.joda.time.DateTime;
 import org.junit.Test;

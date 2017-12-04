@@ -1,7 +1,7 @@
 package com.tramchester.unit.mappers;
 
-import com.tramchester.domain.DueTram;
-import com.tramchester.domain.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.mappers.LiveDataMapper;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.ISOChronology;

@@ -1,7 +1,7 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.DueTram;
-import com.tramchester.domain.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import org.joda.time.DateTime;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

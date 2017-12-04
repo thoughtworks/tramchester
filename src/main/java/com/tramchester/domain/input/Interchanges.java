@@ -1,5 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.input;
 
+import com.tramchester.domain.Location;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.Arrays;

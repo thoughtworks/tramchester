@@ -3,6 +3,8 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.repository.TransportData;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;

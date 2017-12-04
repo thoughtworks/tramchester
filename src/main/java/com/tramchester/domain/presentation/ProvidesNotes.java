@@ -1,4 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.presentation;
+
+import com.tramchester.domain.TramServiceDate;
 
 import java.util.LinkedList;
 import java.util.List;
