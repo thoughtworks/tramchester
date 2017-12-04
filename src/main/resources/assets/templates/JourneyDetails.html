@@ -40,6 +40,9 @@
                             <div id="stageInstruction{{$index}}">
                             <strong>{{stage.firstDepartureTime}}</strong> Catch
                             {{stage.headSign}} {{stage.mode}}
+                                <span id="stagePlatformInstruction{{$index}}" ng-show="stage.hasPlatform">
+                                    from Platform {{stage.platform.platformNumber}}
+                                </span>
                             </div>
                         </li>
                         <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>

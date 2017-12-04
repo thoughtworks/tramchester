@@ -69,6 +69,31 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldPlanSimpleJourneyFromAltyToAshton() throws TramchesterException {
+
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, (17 * 60) + 45,
+                new TramServiceDate(when));
+
+        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        assertTrue(journeys.size()>0);
+        JourneyDTO journey = journeys.first();
+
+        StageDTO firstStage = journey.getStages().get(0);
+        PlatformDTO platform1 = firstStage.getPlatform();
+
+        assertEquals("1", platform1.getPlatformNumber());
+        assertEquals( "Altrincham platform 1", platform1.getName());
+        assertEquals( Stations.Altrincham.getId()+"1", platform1.getId());
+
+        StageDTO secondStage = journey.getStages().get(1);
+        PlatformDTO platform2 = secondStage.getPlatform();
+
+        assertEquals("1", platform2.getPlatformNumber());
+        assertEquals( "Piccadilly platform 1", platform2.getName());
+        assertEquals( Stations.Piccadilly.getId()+"1", platform2.getId());
+    }
+
+    @Test
     public void testAltyToManAirportHasRealisticTranferAtCornbrook() throws TramchesterException {
         int offsetToSunday = SUNDAY- when.getDayOfWeek();
         LocalDate nextSunday = when.plusDays(offsetToSunday);

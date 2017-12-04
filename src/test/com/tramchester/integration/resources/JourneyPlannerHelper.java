@@ -47,7 +47,7 @@ public abstract class JourneyPlannerHelper {
         String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
         checkDepartsAfterPreviousArrival(message, journeys);
-        journeys.forEach(journey -> assertFalse("Missing stages for journey"+journey,journey.getStages().isEmpty()));
+        journeys.forEach(journey -> assertFalse("Missing stages for journey"+journey, journey.getStages().isEmpty()));
         return results;
     }
 

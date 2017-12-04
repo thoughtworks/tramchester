@@ -9,6 +9,7 @@ import org.joda.time.LocalTime;
 
 import java.util.List;
 
+import static com.sun.jmx.snmp.ThreadContext.contains;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -178,12 +179,12 @@ public class AcceptanceTestHelper {
 
     private void checkInstruction(JourneyDetailsPage journeyDetailsPage, int stageIndex, List<String> headSigns) {
         String expectedHeadsign = headSigns.get(stageIndex);
+        String instruction = journeyDetailsPage.getInstruction(stageIndex);
         if (expectedHeadsign.isEmpty()) {
-            assertTrue(journeyDetailsPage.getInstruction(stageIndex).isEmpty());
+            assertTrue(instruction.isEmpty());
         }
         else {
-            assertThat(journeyDetailsPage.getInstruction(stageIndex),
-                    endsWith(format("Catch %s Tram", expectedHeadsign)));
+            assertTrue(instruction.contains(format("Catch %s Tram", expectedHeadsign)));
         }
     }
 

@@ -114,6 +114,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getFirstDepartureTime().isBefore(eightAM));
         assertTrue(stage.getExpectedArrivalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
+        assertTrue(stage.getHasPlatform());
+        assertEquals(Stations.Altrincham.getId()+"1", stage.getPlatform().getId());
     }
 
     @Test
@@ -141,10 +143,12 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         StageDTO stage1 = journey.getStages().get(0);
         assertEquals(begin.getId(),stage1.getFirstStation().getId());
         assertEquals(middle.getId(),stage1.getLastStation().getId());
+        assertEquals(begin.getId()+"1", stage1.getPlatform().getId());
 
         StageDTO stage2 = journey.getStages().get(1);
         assertEquals(middle.getId(),stage2.getFirstStation().getId());
         assertEquals(end.getId(),stage2.getLastStation().getId());
+        assertEquals(middle.getId()+"1", stage2.getPlatform().getId());
 
         assertEquals("Change tram at",stage2.getPrompt());
     }
@@ -198,17 +202,20 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         StageDTO stage1 = journey.getStages().get(0);
         assertEquals("Board tram at",stage1.getPrompt());
+        assertEquals(begin.getId()+"1", stage1.getPlatform().getId());
 
         StageDTO stage2 = journey.getStages().get(1);
         assertEquals(middleB.getId(),stage2.getActionStation().getId());
         assertEquals(middleB.getId(),stage2.getLastStation().getId());
         assertEquals("Walk to",stage2.getPrompt());
         assertEquals(walkCost, stage2.getDuration());
+        assertFalse(stage2.getHasPlatform());
 
         StageDTO stage3 = journey.getStages().get(2);
         assertEquals("Board tram at",stage3.getPrompt());
         assertEquals(middleB.getId(),stage3.getFirstStation().getId());
         assertEquals(end.getId(),stage3.getLastStation().getId());
+        assertEquals(middleB.getId()+"1", stage3.getPlatform().getId());
 
     }
 
@@ -238,6 +245,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         rawVehicleStage.setCost(cost);
         rawVehicleStage.setLastStation(finish);
         rawVehicleStage.setServiceId(svcId);
+        rawVehicleStage.setPlatform(new Platform(start.getId()+"1", "platform name"));
         return rawVehicleStage;
     }
 

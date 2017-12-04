@@ -209,8 +209,12 @@ public class UserJourneyTest {
         List<String> noChanges = new LinkedList<>();
         List<String> headsignRochdale = Arrays.asList("Rochdale Interchange");
 
-        helper.checkJourney(url, Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
-                nextMonday, LocalTime.parse("10:15"), noChanges, headsignRochdale, false, expectedNumberJourneyResults, 0, false);
+        JourneyDetailsPage detailsPage = helper.checkJourney(url, Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
+                nextMonday, LocalTime.parse("10:15"), noChanges, headsignRochdale, false,
+                expectedNumberJourneyResults, 0, false);
+        String instruction = detailsPage.getInstruction(0);
+        assertTrue(instruction.contains("Tram from Platform"));
+
     }
 
     @Test
@@ -332,45 +336,6 @@ public class UserJourneyTest {
         String dataEnd = page.getValidUntil();
         assertEquals(" Until: " + FeedInfoResourceTest.validUntil.toString("YYYY-MM-dd"), dataEnd);
 
-    }
-
-    @Test
-    @Ignore("Walking routes disabled now St Peters Square is open again")
-    public void shouldHaveWalkingRoutesAcrossCity() throws InterruptedException {
-        List<String> changes = Arrays.asList(deansgate, Stations.MarketStreet.getName());
-        List<String> headSigns = Arrays.asList("Deansgate-Castlefield", "none", "Bury");
-
-        String fromStop = altrincham;
-        String toStop = bury;
-
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, fromStop, toStop, nextMonday,
-                LocalTime.parse("10:15"));
-
-        helper.checkRoutes(routeDetailsPage, fromStop, toStop, changes, true, false, false);
-
-        JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
-
-        String fromStationText = " from " + fromStop;
-        assertThat(journeyDetailsPage.getSummary(), endsWith(fromStationText));
-
-        helper.checkStage(journeyDetailsPage, 0, fromStop, toStop, changes, headSigns, false);
-        checkWalkingStage(1, journeyDetailsPage, fromStop, changes);
-        helper.checkStage(journeyDetailsPage, 2, fromStop, toStop, changes, headSigns, true);
-
-        MapPage mapPage = journeyDetailsPage.clickOnMapLink(1);
-
-        assertEquals(Stations.MarketStreet.getName(), mapPage.getTitle());
-    }
-
-    private void checkWalkingStage(int stageIndex, JourneyDetailsPage journeyDetailsPage, String fromStop,
-                                   List<String> changes) {
-        String promptText = journeyDetailsPage.getPrompt(stageIndex);
-        if (stageIndex == 0) {
-            assertThat("Changes", promptText, is("Board tram at " + fromStop));
-        } else {
-            assertThat("Changes", promptText, is("Walk to " + changes.get(stageIndex)));
-        }
-        helper.checkDuration(journeyDetailsPage, stageIndex);
     }
 
     private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {

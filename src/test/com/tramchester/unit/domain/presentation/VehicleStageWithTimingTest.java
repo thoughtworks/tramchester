@@ -1,10 +1,7 @@
 package com.tramchester.unit.domain.presentation;
 
 
-import com.tramchester.domain.Location;
-import com.tramchester.domain.RawVehicleStage;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
@@ -16,6 +13,8 @@ import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class VehicleStageWithTimingTest {
 
@@ -38,6 +37,8 @@ public class VehicleStageWithTimingTest {
         VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, serviceTime, TravelAction.Board);
         stage.setCost(75);
         stage.setLastStation(Stations.Bury);
+        Platform platform = new Platform("platformA1", "station platform 1");
+        stage.setPlatform(platform);
 
         StageDTO dto = stage.asDTO();
         assertEquals(stage.getSummary(), dto.getSummary());
@@ -52,6 +53,11 @@ public class VehicleStageWithTimingTest {
         assertEquals(stage.getPrompt(),dto.getPrompt());
         assertEquals(stage.isWalk(), dto.isWalk());
         assertEquals(stage.getMode(), dto.getMode());
+        assertTrue(dto.getHasPlatform());
+        assertEquals(platform.getId(), dto.getPlatform().getId());
+        assertEquals(platform.getName(), dto.getPlatform().getName());
+        assertEquals(platform.getPlatformNumber(), dto.getPlatform().getPlatformNumber());
+
     }
 
     @Test

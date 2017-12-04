@@ -11,6 +11,7 @@ import org.joda.time.LocalTime;
 
 public class StageDTO {
     private PlatformDTO platform;
+    private boolean hasPlatform;
     private LocationDTO actionStation;
     private LocationDTO lastStation;
     private LocationDTO firstStation;
@@ -35,7 +36,8 @@ public class StageDTO {
         this.actionStation = new LocationDTO(source.getActionStation());
         this.lastStation = new LocationDTO(source.getLastStation());
         this.firstStation = new LocationDTO(source.getFirstStation());
-        source.getPlatform().ifPresent(p -> this.platform=new PlatformDTO(p));
+        hasPlatform = source.getPlatform().isPresent();
+        source.getPlatform().ifPresent(platform -> this.platform=new PlatformDTO(platform));
 
         this.summary = source.getSummary();
         this.prompt = source.getPrompt();
@@ -49,7 +51,6 @@ public class StageDTO {
         this.walk = source.isWalk();
         this.isAVehicle = source.getIsAVehicle();
         this.displayClass = source.getDisplayClass();
-
     }
 
     public String getSummary() {
@@ -110,5 +111,9 @@ public class StageDTO {
 
     public PlatformDTO getPlatform() {
         return platform;
+    }
+
+    public boolean getHasPlatform() {
+        return hasPlatform;
     }
 }

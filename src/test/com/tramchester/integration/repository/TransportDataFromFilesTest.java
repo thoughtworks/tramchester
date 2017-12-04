@@ -164,6 +164,16 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
+    public void shouldHaveAtLeastOnePlatformForEveryStation() {
+        List<Station> stations = transportData.getStations();
+        List<Platform> found = new LinkedList<>();
+        stations.forEach(station->{
+            transportData.getPlatformById(station.getId()+"1").ifPresent(platform->found.add(platform));
+        });
+        assertEquals(stations.size(),found.size());
+    }
+
+    @Test
     public void shouldGetStation() {
         Optional<Station> result = transportData.getStation(Stations.Altrincham.getId());
         assertTrue(result.isPresent());

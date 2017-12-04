@@ -1,12 +1,10 @@
 package com.tramchester.domain.presentation;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +27,10 @@ public class Journey {
         }
     }
 
-    // used front end
     public List<TransportStage> getStages() {
         return allStages;
     }
 
-    // used front end
     public String getSummary() {
         int size = allStages.size();
         // Direct first
@@ -101,7 +97,6 @@ public class Journey {
         return format("%s changes", allStages.size() -1);
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
         if (allStages.size() == 0) {
             return LocalTime.MIDNIGHT;
@@ -114,7 +109,6 @@ public class Journey {
         return getFirstStage().getFirstDepartureTime();
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
         if (allStages.size() == 0) {
             return LocalTime.MIDNIGHT;

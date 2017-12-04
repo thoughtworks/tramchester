@@ -116,10 +116,12 @@ public class MapTransportRelationshipsToStages {
         // platform|station -> route station
         state.setBoardingNode(boardPointNode);
         if (!state.hasFirstStation()) {
-            state.setFirstStation(firstNodeId);
             if (firstNode.isPlatform()) {
                 // boarding from a platform
                 state.setFirstStation(Station.formId(firstNodeId));
+                state.setPlatform(firstNodeId);
+            } else {
+                state.setFirstStation(firstNodeId);
             }
         }
         state.recordServiceStart();
