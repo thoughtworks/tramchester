@@ -132,7 +132,7 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void createDiagramOfTestNetwork() throws IOException {
+    public void createDiagramOfTestNetwork() throws IOException, TramchesterException {
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphDBService);
         creator.create("test_network.dot", TransportDataForTest.FIRST_STATION);
     }

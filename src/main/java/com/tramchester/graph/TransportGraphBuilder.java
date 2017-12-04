@@ -122,7 +122,7 @@ public class TransportGraphBuilder extends StationIndexs {
             logger.info(format("Creating station node: %s ",station));
             stationNode = graphDatabaseService.createNode(Labels.STATION);
 
-            stationNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
+            //stationNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
             stationNode.setProperty(GraphStaticKeys.ID, id);
             stationNode.setProperty(GraphStaticKeys.Station.NAME, stationName);
             LatLong latLong = station.getLatLong();
@@ -147,7 +147,6 @@ public class TransportGraphBuilder extends StationIndexs {
         if (platformNode==null) {
             platformNode = graphDatabaseService.createNode(Labels.PLATFORM);
             platformNode.setProperty(GraphStaticKeys.ID, id);
-            platformNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.PLATFORM);
             String platformName = id.substring(id.length()-1); // the final digit of the ID
             platformNode.setProperty(GraphStaticKeys.Station.NAME, format("%s Platform %s",stop.getStation().getName(),platformName));
         }
@@ -252,7 +251,6 @@ public class TransportGraphBuilder extends StationIndexs {
         logger.info(format("Creating route station %s route %s service %s", station.getId(),route.getId(),
                 service.getServiceId()));
         Node routeStation = graphDatabaseService.createNode(Labels.ROUTE_STATION);
-        routeStation.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
@@ -313,7 +311,7 @@ public class TransportGraphBuilder extends StationIndexs {
             relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
             relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
             relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
-            relationship.setProperty(GraphStaticKeys.ROUTE_STATION, dest);
+            relationship.setProperty(GraphStaticKeys.DESTINATION, dest);
             relationship.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
             relationship.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
         }

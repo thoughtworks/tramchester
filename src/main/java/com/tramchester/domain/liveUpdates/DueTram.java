@@ -1,13 +1,16 @@
 package com.tramchester.domain.liveUpdates;
 
 public class DueTram {
-    private final String status;
+    private String status;
     private String destination;
     private int wait;
     private String carriages;
 
-    public DueTram(String destination, String status, int wait, String carriages) {
+    public DueTram() {
+        // deserialisation
+    }
 
+    public DueTram(String destination, String status, int wait, String carriages) {
         this.destination = destination;
         this.status = status;
         this.wait = wait;

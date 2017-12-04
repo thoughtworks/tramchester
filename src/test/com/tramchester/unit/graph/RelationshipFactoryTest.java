@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -26,7 +27,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     private StubNode endTramNode;
 
     @Before
-    public void beforeEachTestRuns() {
+    public void beforeEachTestRuns() throws TramchesterException {
         NodeFactory nodeFactory = createMock(NodeFactory.class);
         relationshipFactory = new RelationshipFactory(nodeFactory);
 
@@ -43,7 +44,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveBoradingRelationship() {
+    public void shouldHaveBoradingRelationship() throws TramchesterException {
         setRelationshipExpectation(TransportRelationshipTypes.BOARD, 45);
 
         replayAll();
@@ -58,7 +59,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveEnterPlatformRelationship() {
+    public void shouldHaveEnterPlatformRelationship() throws TramchesterException {
         setRelationshipExpectation(TransportRelationshipTypes.ENTER_PLATFORM, 0);
 
         replayAll();
@@ -73,7 +74,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveLeavePlatformRelationship() {
+    public void shouldHaveLeavePlatformRelationship() throws TramchesterException {
         setRelationshipExpectation(TransportRelationshipTypes.LEAVE_PLATFORM, 0);
 
         replayAll();
@@ -88,7 +89,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveDepartRelationship() {
+    public void shouldHaveDepartRelationship() throws TramchesterException {
         setRelationshipExpectation(TransportRelationshipTypes.DEPART, 43);
 
         replayAll();
@@ -103,7 +104,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveInterchangeBoardRelationship() {
+    public void shouldHaveInterchangeBoardRelationship() throws TramchesterException {
 
         setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_BOARD, 44);
 
@@ -121,7 +122,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveWalkToRelationship() {
+    public void shouldHaveWalkToRelationship() throws TramchesterException {
         setRelationshipExpectation(TransportRelationshipTypes.WALKS_TO, 6);
 
         replayAll();
@@ -144,7 +145,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveInterchangeDepartsRelationship() {
+    public void shouldHaveInterchangeDepartsRelationship() throws TramchesterException {
         setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_DEPART, 55);
 
         replayAll();
@@ -161,7 +162,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveGoesToRelationshipWithCostAndService() {
+    public void shouldHaveGoesToRelationshipWithCostAndService() throws TramchesterException {
         boolean[] days = new boolean[]{true, false, true, false};
         int[] times = new int[]{10, 20, 30, 40};
 
@@ -169,7 +170,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("service99");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.DAYS)).andReturn(days);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.TIMES)).andReturn(times);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.ROUTE_STATION)).andReturn("dest");
+        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DESTINATION)).andReturn("dest");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_START_DATE)).andReturn("20151025");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andReturn("20161124");
 

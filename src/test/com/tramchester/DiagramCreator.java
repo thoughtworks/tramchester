@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -30,7 +31,7 @@ public class DiagramCreator {
         this.graphDatabaseService = graphDatabaseService;
     }
 
-    public void create(String fileName, String startPoint) throws IOException {
+    public void create(String fileName, String startPoint) throws IOException, TramchesterException {
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
             Node startNode = graphDatabaseService.findNode(TransportGraphBuilder.Labels.STATION,
@@ -51,7 +52,7 @@ public class DiagramCreator {
         }
     }
 
-    private void visit(Node rawNode, StringBuilder builder, List<String> seen) {
+    private void visit(Node rawNode, StringBuilder builder, List<String> seen) throws TramchesterException {
         TramNode startNode = nodeFactory.getNode(rawNode);
         final String startNodeId = startNode.getId().replace(" ","");
 
@@ -65,32 +66,37 @@ public class DiagramCreator {
         rawNode.getRelationships(Direction.OUTGOING).forEach(relationship -> {
             TransportRelationship tramRelat = relationshipFactory.getRelationship(relationship);
             Node rawEndNode = relationship.getEndNode();
-            TramNode endNode = nodeFactory.getNode(rawEndNode);
-            String endNodeId = endNode.getId().replace(" ","");
-            // add node
-            String prefix = selectPrefixFor(startNode);
-            addLine(builder, format("\"%s\" [label=\"%s%s\n%s\"];\n", startNodeId,
-                    prefix, startNode.getName(), startNodeId));
-            // add links
-            if (tramRelat.isGoesTo()) {
-                if (!services.contains(endNodeId)) {
-                    services.add(endNodeId);
+            try {
+                TramNode endNode = nodeFactory.getNode(rawEndNode);
+                String endNodeId = endNode.getId().replace(" ", "");
+                // add node
+                String prefix = selectPrefixFor(startNode);
+                addLine(builder, format("\"%s\" [label=\"%s%s\n%s\"];\n", startNodeId,
+                        prefix, startNode.getName(), startNodeId));
+                // add links
+                if (tramRelat.isGoesTo()) {
+                    if (!services.contains(endNodeId)) {
+                        services.add(endNodeId);
+                    }
+                } else if (tramRelat.isEnterPlatform()) {
+                    addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "E"));
+                } else if (tramRelat.isLeavePlatform()) {
+                    addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L"));
+                } else {
+                    // boarding and depart
+                    String label = tramRelat.isInterchange() ? "X" : "";
+                    if (tramRelat.isBoarding()) {
+                        label += "B";
+                    } else if (tramRelat.isDepartTram()) {
+                        label += "D";
+                    }
+                    addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, label));
                 }
-            } else if (tramRelat.isEnterPlatform()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "E"));
-            } else if (tramRelat.isLeavePlatform()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L"));
-            } else {
-                // boarding and depart
-                String label = tramRelat.isInterchange()?"X":"";
-                if (tramRelat.isBoarding()) {
-                    label += "B";
-                } else if (tramRelat.isDepartTram()) {
-                    label += "D";
-                }
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, label));
+                visit(rawEndNode, builder, seen);
             }
-            visit(rawEndNode, builder, seen);
+            catch (TramchesterException exception) {
+                System.console().writer().println("Unable to visit node " + exception);
+            }
         });
 
         // add services for this node

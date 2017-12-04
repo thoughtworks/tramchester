@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.TramServiceDate;
@@ -66,6 +67,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertEquals("1", platform.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platform.getName());
         assertEquals( Stations.Altrincham.getId()+"1", platform.getId());
+        StationDepartureInfo departInfo = platform.getStationDepartureInfo();
+        assertEquals(Stations.Altrincham.getId()+"1",departInfo.getStationPlatform());
     }
 
     @Test

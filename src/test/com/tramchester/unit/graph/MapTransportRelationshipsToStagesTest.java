@@ -2,6 +2,7 @@ package com.tramchester.unit.graph;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.MapTransportRelationshipsToStages;
 import com.tramchester.graph.Nodes.PlatformNode;
@@ -68,7 +69,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldMapSimpleJourney() {
+    public void shouldMapSimpleJourney() throws TramchesterException {
 
         boolean[] daysRunning = new boolean[1];
         int[] timesRunning = new int[1];
@@ -100,7 +101,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldMapSimpleJourneyWithPlatform() {
+    public void shouldMapSimpleJourneyWithPlatform() throws TramchesterException {
         String enterPlatformId = stationA.getId() + "1";
         String leavePlatformId = stationB.getId() + "2";
 

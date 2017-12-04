@@ -5,6 +5,8 @@ import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.resources.*;
 import com.tramchester.services.ExpiryCheckService;
 import io.dropwizard.Application;
@@ -19,10 +21,13 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -98,6 +103,10 @@ public class App extends Application<AppConfiguration>  {
 
         filtersForStaticContent(environment);
 
+        // initial load of live data
+        LiveDataRepository liveDateRepository = dependencies.get(LiveDataRepository.class);
+        liveDateRepository.refreshRespository();
+
         // cloudwatch
         MetricRegistry registry = environment.metrics();
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry,
@@ -113,6 +122,15 @@ public class App extends Application<AppConfiguration>  {
                 logger.error("Tram data will expire on " + validUntil.toString());
             }
         }), 1, 60, TimeUnit.MINUTES);
+
+        // refresh live data
+        executor.scheduleAtFixedRate(() -> {
+            try {
+                liveDateRepository.refreshRespository();
+            } catch (Exception exeception) {
+                logger.error("Unable to refresh live data", exeception);
+            }
+        }, 1,1,TimeUnit.MINUTES);
 
     }
 

@@ -54,7 +54,7 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
 
     public String getDest() {
         if (dest==null) {
-            dest = graphRelationship.getProperty(GraphStaticKeys.ROUTE_STATION).toString();
+            dest = graphRelationship.getProperty(GraphStaticKeys.DESTINATION).toString();
         }
         return dest; }
 

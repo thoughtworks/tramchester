@@ -3,6 +3,7 @@ package com.tramchester.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,12 @@ import static java.lang.String.format;
 
 public class TramJourneyResponseMapper extends JourneyResponseMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyResponseMapper.class);
+    private LiveDataRepository liveDataRepository;
 
-    public TramJourneyResponseMapper(TransportDataFromFiles transportData, ProvidesNotes providesNotes) {
+    public TramJourneyResponseMapper(TransportDataFromFiles transportData, ProvidesNotes providesNotes,
+                                     LiveDataRepository liveDataRepository) {
         super(transportData, providesNotes);
+        this.liveDataRepository = liveDataRepository;
     }
 
     protected Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins) {
@@ -61,6 +65,10 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         } else {
             logger.info(format("Found time %s for service id %s", time.get(), serviceId));
             VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time.get(), decideAction(stages));
+            if (stage.getPlatform().isPresent()) {
+                Platform platform = stage.getPlatform().get();
+                liveDataRepository.enrich(platform);
+            }
             stages.add(stage);
 
             int departsAtMinutes = stage.findEarliestDepartureTime();

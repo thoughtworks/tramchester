@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.mappers.TramJourneyResponseMapper;
+import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -33,6 +34,9 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
     private Station stationC;
     private ProvidesNotes providesNotes;
     private TramServiceDate queryDate;
+    private LiveDataRepository liveDataRepository;
+    private Platform platformA;
+    private Platform platformB;
 
     @Before
     public void beforeEachTestRuns() {
@@ -43,9 +47,13 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         stationB = new Station("stationB", "area", "nameA", new LatLong(-3, 1), false);
         stationC = new Station("stationC", "area", "nameA", new LatLong(-4, 2), false);
 
+        platformA = new Platform(stationA.getId() + "1", "platform 1");
+        platformB = new Platform(stationB.getId() + "1", "platform 2");
+
         transportData = createMock(TransportDataFromFiles.class);
         providesNotes = createMock(ProvidesNotes.class);
-        mapper = new TramJourneyResponseMapper(transportData, providesNotes);
+        liveDataRepository = createMock(LiveDataRepository.class);
+        mapper = new TramJourneyResponseMapper(transportData, providesNotes, liveDataRepository);
         queryDate = new TramServiceDate(LocalDate.now());
     }
 
@@ -65,9 +73,13 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
                 "svcId", "headSign", "tripIdA"));
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).
+                andReturn(timesLeg2);
         List<String> notes = new LinkedList<>();
         EasyMock.expect(providesNotes.createNotesFor(queryDate)).andReturn(notes);
+
+        liveDataRepository.enrich(platformA);
+        liveDataRepository.enrich(platformB);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.map(rawJourneys, 30, queryDate);
@@ -109,6 +121,9 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         notes.add("somenote");
         EasyMock.expect(providesNotes.createNotesFor(queryDate)).andReturn(notes);
 
+        liveDataRepository.enrich(platformA);
+        liveDataRepository.enrich(platformB);
+
         replayAll();
         JourneyPlanRepresentation result = mapper.map(rawJourneys, 30, queryDate);
 
@@ -137,8 +152,10 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
     private void createSimpleRawJourney(int costA, int costB, int queryTime) {
         RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA").
                 setLastStation(stationB).setServiceId("svcId").setCost(costA);
+        rawTravelStage1.setPlatform(platformA);
         RawVehicleStage rawTravelStage2 = new RawVehicleStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA").
                 setLastStation(stationC).setServiceId("svcId").setCost(costB);
+        rawTravelStage2.setPlatform(platformB);
         stages.add(rawTravelStage1);
         stages.add(rawTravelStage2);
 

@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -37,7 +38,7 @@ public class CreateDotDiagramTest {
     }
 
     @Test
-    public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
+    public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException, TramchesterException {
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService);
         creator.create("manchester_trams.dot", Stations.VeloPark.getId());
     }

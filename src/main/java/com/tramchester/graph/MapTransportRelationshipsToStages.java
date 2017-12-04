@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.BoardPointNode;
 import com.tramchester.graph.Nodes.QueryNode;
 import com.tramchester.graph.Nodes.StationNode;
@@ -31,7 +32,7 @@ public class MapTransportRelationshipsToStages {
         this.platformRepository = platformRepository;
     }
 
-    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) {
+    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) throws TramchesterException {
         MappingState state = new MappingState(platformRepository, stationRepository, minsPastMidnight, routeIdToClass);
 
         for (TransportRelationship transportRelationship : transportRelationships) {

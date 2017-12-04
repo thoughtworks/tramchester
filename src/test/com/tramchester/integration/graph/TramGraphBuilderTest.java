@@ -82,7 +82,7 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldHaveHarbourCityStation() {
+    public void shouldHaveHarbourCityStation() throws TramchesterException {
 
         TramNode tramNode = calculator.getStation(Stations.HarbourCity.getId());
 

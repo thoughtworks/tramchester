@@ -77,8 +77,12 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
 
         // all filtered out
         if ((servicesOutbound>0) && (servicesFilteredOut.size()==servicesOutbound)) {
-            TramNode currentNode = nodeFactory.getNode(endNode);
-            reportFilterReasons(currentNode, servicesFilteredOut, incoming);
+            try {
+                TramNode currentNode = nodeFactory.getNode(endNode);
+                reportFilterReasons(currentNode, servicesFilteredOut, incoming);
+            } catch (TramchesterException e) {
+                logger.error("Unable to find node " +endNode,e);
+            }
         }
 
         return results;

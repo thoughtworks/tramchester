@@ -2,6 +2,7 @@ package com.tramchester.graph.Relationships;
 
 
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -51,7 +52,7 @@ public abstract class TransportCostRelationship implements TransportRelationship
     public abstract TransportMode getMode();
 
     @Override
-    public TramNode getStartNode() {
+    public TramNode getStartNode() throws TramchesterException {
         if (startNode==null) {
             startNode = nodeFactory.getNode(graphRelationship.getStartNode());
         }
@@ -59,7 +60,7 @@ public abstract class TransportCostRelationship implements TransportRelationship
     }
 
     @Override
-    public TramNode getEndNode() {
+    public TramNode getEndNode() throws TramchesterException {
         if (endNode==null) {
             endNode = nodeFactory.getNode(graphRelationship.getEndNode());
         }

@@ -90,7 +90,6 @@ public class RouteCalculator extends StationIndexs {
             startNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
             startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
             startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
-            startNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.QUERY);
             logger.info(format("Added start node at %s as node %s", origin, startNode));
 
             startStations.forEach(stationWalk -> {
@@ -126,9 +125,13 @@ public class RouteCalculator extends StationIndexs {
                                        int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path -> {
             logger.info(format("map graph path of length %s with limit of %s ", path.length(), limit));
-            List<RawStage> stages = pathToStages.map(path, minsPathMidnight);
-            RawJourney journey = new RawJourney(stages, minsPathMidnight);
-            journeys.add(journey);
+            try {
+                List<RawStage> stages = pathToStages.map(path, minsPathMidnight);
+                RawJourney journey = new RawJourney(stages, minsPathMidnight);
+                journeys.add(journey);
+            } catch (TramchesterException exception) {
+                logger.error("Failed to map paths to a journey",exception);
+            }
         });
         paths.close();
         if (journeys.size() < 1) {
@@ -137,8 +140,8 @@ public class RouteCalculator extends StationIndexs {
         }
     }
 
-    public TramNode getStation(String id) {
-        Node node = getStationNode(id);
+    public TramNode getStation(String stationId) throws TramchesterException {
+        Node node = getStationNode(stationId);
         return nodeFactory.getNode(node);
     }
 

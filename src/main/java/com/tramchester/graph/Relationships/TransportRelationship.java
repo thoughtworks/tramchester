@@ -1,6 +1,7 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.TramNode;
 
 public interface TransportRelationship {
@@ -15,7 +16,7 @@ public interface TransportRelationship {
     int getCost();
     String getId();
     TransportMode getMode();
-    TramNode getStartNode();
-    TramNode getEndNode();
+    TramNode getStartNode() throws TramchesterException;
+    TramNode getEndNode() throws TramchesterException;
 
 }

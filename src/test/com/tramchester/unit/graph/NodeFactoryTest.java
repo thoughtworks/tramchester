@@ -1,14 +1,20 @@
 package com.tramchester.unit.graph;
 
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.TransportGraphBuilder;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -26,7 +32,7 @@ public class NodeFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetNodeOfCorrectTypeStation() {
+    public void shouldGetNodeOfCorrectTypeStation() throws TramchesterException {
         createStationNode(node, "stationId", "stationName");
 
         replayAll();
@@ -38,8 +44,10 @@ public class NodeFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetNodeOfCorrectTypeQuery() {
-        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.QUERY);
+    public void shouldGetNodeOfCorrectTypeQuery() throws TramchesterException {
+        expectLabels(node, TransportGraphBuilder.Labels.QUERY_NODE);
+
+        //EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.QUERY);
         EasyMock.expect(node.getProperty(GraphStaticKeys.Station.LAT)).andReturn(-2);
         EasyMock.expect(node.getProperty(GraphStaticKeys.Station.LONG)).andReturn(1);
 
@@ -52,8 +60,9 @@ public class NodeFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetNodeOfCorrectTypePlatform() {
-        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.PLATFORM);
+    public void shouldGetNodeOfCorrectTypePlatform() throws TramchesterException {
+        expectLabels(node, TransportGraphBuilder.Labels.PLATFORM);
+
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("platformID");
         EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn("platformName");
 
@@ -67,8 +76,9 @@ public class NodeFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetNodeOfCorrectTypeRouteStation() {
-        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.ROUTE_STATION);
+    public void shouldGetNodeOfCorrectTypeRouteStation() throws TramchesterException {
+        expectLabels(node, TransportGraphBuilder.Labels.ROUTE_STATION);
+
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME)).andReturn("routeName");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID)).andReturn("routeId");
@@ -82,9 +92,17 @@ public class NodeFactoryTest extends EasyMockSupport {
         verifyAll();
     }
 
-    public static void createStationNode(Node node, String stationId, String stationName) {
-        EasyMock.expect(node.getProperty(GraphStaticKeys.STATION_TYPE)).andReturn(GraphStaticKeys.STATION);
+    public void createStationNode(Node node, String stationId, String stationName) {
+
+        expectLabels(node, TransportGraphBuilder.Labels.STATION);
+
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn(stationId);
         EasyMock.expect(node.getProperty(GraphStaticKeys.Station.NAME)).andReturn(stationName);
+    }
+
+    private void expectLabels(Node node, TransportGraphBuilder.Labels label) {
+        List<Label> stationLabels = new LinkedList<>();
+        stationLabels.add(label);
+        EasyMock.expect(node.getLabels()).andReturn(stationLabels);
     }
 }
