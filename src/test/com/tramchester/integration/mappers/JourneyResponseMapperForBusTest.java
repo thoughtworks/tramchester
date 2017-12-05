@@ -80,7 +80,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         stages.add(busStage);
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
-        SortedSet<JourneyDTO> mapped = mapper.map(journeys, 30);
+        SortedSet<JourneyDTO> mapped = mapper.map(queryDate, journeys, 30);
         return new JourneyPlanRepresentation(mapped, notes);
     }
 }

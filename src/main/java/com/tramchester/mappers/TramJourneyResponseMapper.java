@@ -24,13 +24,14 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         this.liveDataRepository = liveDataRepository;
     }
 
-    protected Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins) {
+    protected Optional<JourneyDTO> createJourney(TramServiceDate queryDate, RawJourney rawJourney, int withinMins) {
         List<TransportStage> stages = new LinkedList<>();
         List<RawStage> rawJourneyStages = rawJourney.getStages();
-        TimeWindow timeWindow = new TimeWindow(rawJourney.getQueryTime(), withinMins);
+        int queryTime = rawJourney.getQueryTime();
+        TimeWindow timeWindow = new TimeWindow(queryTime, withinMins);
         for (RawStage rawStage : rawJourneyStages) {
             if (rawStage.getIsAVehicle()) {
-                timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
+                timeWindow = mapVehicleStage(timeWindow, stages, rawStage, queryDate, queryTime);
             } else if (rawStage.isWalk()) {
                 RawWalkingStage stage = (RawWalkingStage) rawStage;
                 TransportStage walkingStage = new WalkingStage(stage, timeWindow.minsFromMidnight());
@@ -49,7 +50,7 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
     }
 
     private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<TransportStage> stages,
-                                       RawStage rawStage) {
+                                       RawStage rawStage, TramServiceDate queryDate, int queryTime) {
         RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
         String serviceId = rawTravelStage.getServiceId();
         logger.info(format("ServiceId: %s Journey clock is now %s ", serviceId, timeWindow));
@@ -67,7 +68,8 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
             VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time.get(), decideAction(stages));
             if (stage.getPlatform().isPresent()) {
                 Platform platform = stage.getPlatform().get();
-                liveDataRepository.enrich(platform);
+
+                liveDataRepository.enrich(queryDate, platform, queryTime);
             }
             stages.add(stage);
 

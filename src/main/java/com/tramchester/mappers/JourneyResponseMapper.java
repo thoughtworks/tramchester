@@ -1,6 +1,5 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.WalkingStage;
@@ -24,22 +23,22 @@ public abstract class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    protected abstract Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins);
+    protected abstract Optional<JourneyDTO> createJourney(TramServiceDate queryDate, RawJourney rawJourney, int withinMins);
 
-    public SortedSet<JourneyDTO> map(Set<RawJourney> journeys, int withinMins) throws TramchesterException {
+    public SortedSet<JourneyDTO> map(TramServiceDate queryDate, Set<RawJourney> journeys, int withinMins) throws TramchesterException {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
-        SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(journeys, withinMins);
+        SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(queryDate, journeys, withinMins);
         return decoratedJourneys;
     }
 
-    protected SortedSet<JourneyDTO> decorateJourneys(Set<RawJourney> rawJourneys, int withinMins)
+    protected SortedSet<JourneyDTO> decorateJourneys(TramServiceDate queryDate, Set<RawJourney> rawJourneys, int withinMins)
             throws TramchesterException {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
 
-            Optional<JourneyDTO> journey = createJourney(rawJourney, withinMins);
+            Optional<JourneyDTO> journey = createJourney(queryDate, rawJourney, withinMins);
             if (journey.isPresent()) {
                 journeys.add(journey.get());
                 logger.info("Added journey " +journey);

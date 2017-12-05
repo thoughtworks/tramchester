@@ -67,6 +67,22 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertEquals("1", platform.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platform.getName());
         assertEquals( Stations.Altrincham.getId()+"1", platform.getId());
+    }
+
+    @Test
+    public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() throws TramchesterException {
+        DateTime now = DateTime.now();
+
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, now.getMinuteOfDay(),
+                new TramServiceDate(now.toLocalDate()));
+
+        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        assertTrue(journeys.size()>0);
+        JourneyDTO journey = journeys.first();
+        StageDTO firstStage = journey.getStages().get(0);
+        PlatformDTO platform = firstStage.getPlatform();
+
+        // depends on up to date departure info and current query time
         StationDepartureInfo departInfo = platform.getStationDepartureInfo();
         assertNotNull(departInfo);
         assertEquals(Stations.Altrincham.getId()+"1",departInfo.getStationPlatform());

@@ -5,7 +5,6 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -34,6 +33,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     private TramJourneyResponseMapper mapper;
     private Set<RawJourney> journeys;
     private List<RawStage> stages;
+    private TramServiceDate queryDate;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -52,6 +52,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
+        queryDate = new TramServiceDate(LocalDate.now());
     }
 
     @Test
@@ -62,7 +63,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(vicToRoch);
         journeys.add(new RawJourney(stages, time));
-        SortedSet<JourneyDTO> result = mapper.map(journeys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, journeys, 30);
 
         JourneyDTO journey = result.stream().findFirst().get();
         StageDTO stage = journey.getStages().get(0);
@@ -79,7 +80,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(rawStage);
         journeys.add(new RawJourney(stages,pm1044));
-        SortedSet<JourneyDTO> result = mapper.map(journeys, 60);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, journeys, 60);
 
         JourneyDTO journey = result.stream().findFirst().get();
         assertFalse(journey.getStages().isEmpty());
@@ -96,7 +97,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(altToCorn);
         journeys.add(new RawJourney(stages,am7));
-        SortedSet<JourneyDTO> result = mapper.map(journeys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, journeys, 30);
 
         assertEquals(1,result.size());
         JourneyDTO journey = result.stream().findFirst().get();
@@ -127,7 +128,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageB);
         journeys.add(new RawJourney(stages, pm10));
 
-        SortedSet<JourneyDTO> result = mapper.map(journeys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, journeys, 30);
 
         assertEquals(1,result.size());
 
@@ -157,7 +158,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(walkingStage);
         journeys.add(new RawJourney(stages,pm10));
 
-        SortedSet<JourneyDTO> result = mapper.map(journeys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, journeys, 30);
 
         assertEquals(1,result.size());
         JourneyDTO journey = result.stream().findFirst().get();
@@ -188,7 +189,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(finalStage);
         journeys.add(new RawJourney(stages,am10));
 
-        SortedSet<JourneyDTO> result = mapper.map(journeys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, journeys, 30);
         assertEquals(1,result.size());
         JourneyDTO journey = result.stream().findFirst().get();
         assertEquals(3, journey.getStages().size());
@@ -227,7 +228,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageB);
         journeys.add(new RawJourney(stages,startTime));
 
-        SortedSet<JourneyDTO> result = mapper.map(journeys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, journeys, 30);
 
         assertTrue(result.size()>0);
     }

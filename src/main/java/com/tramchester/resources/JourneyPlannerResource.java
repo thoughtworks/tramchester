@@ -103,7 +103,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        SortedSet<JourneyDTO> decoratedJourneys = journeyResponseMapper.map(journeys, config.getTimeWindow());
+        SortedSet<JourneyDTO> decoratedJourneys = journeyResponseMapper.map(queryDate, journeys, config.getTimeWindow());
         List<String> notes = providesNotes.createNotesFor(queryDate, decoratedJourneys);
         return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }

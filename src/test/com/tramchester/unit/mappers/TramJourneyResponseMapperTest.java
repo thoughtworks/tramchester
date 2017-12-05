@@ -5,7 +5,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.LiveDataRepository;
@@ -74,11 +73,11 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).
                 andReturn(timesLeg2);
 
-        liveDataRepository.enrich(platformA);
-        liveDataRepository.enrich(platformB);
+        liveDataRepository.enrich(queryDate, platformA, AM8);
+        liveDataRepository.enrich(queryDate, platformB, AM8);
 
         replayAll();
-        SortedSet<JourneyDTO> result = mapper.map(rawJourneys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, rawJourneys, 30);
 
         assertEquals(rawJourneys.size(), result.size());
 
@@ -113,11 +112,11 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
 
-        liveDataRepository.enrich(platformA);
-        liveDataRepository.enrich(platformB);
+        liveDataRepository.enrich(queryDate, platformA, AM8);
+        liveDataRepository.enrich(queryDate, platformB, AM8);
 
         replayAll();
-        SortedSet<JourneyDTO> result = mapper.map(rawJourneys, 30);
+        SortedSet<JourneyDTO> result = mapper.map(queryDate, rawJourneys, 30);
 
         assertEquals(rawJourneys.size(), result.size());
 

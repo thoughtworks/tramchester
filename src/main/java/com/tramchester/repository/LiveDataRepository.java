@@ -1,31 +1,35 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.TimeAsMinutes;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataMapper;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 
 public class LiveDataRepository {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
+    public static final int TIME_LIMIT = 5; // only enrich if data is within this many minutes
 
     private HashMap<String,StationDepartureInfo> map;
 
     private LiveDataFetcher fetcher;
     private LiveDataMapper mapper;
+    private DateTime lastRefresh;
 
     public LiveDataRepository(LiveDataFetcher fetcher, LiveDataMapper mapper) {
         this.fetcher = fetcher;
         this.mapper = mapper;
         map = new HashMap<>();
+        lastRefresh = DateTime.now();
     }
 
     public void refreshRespository()  {
@@ -51,17 +55,43 @@ public class LiveDataRepository {
             logger.info("Refreshed live data, count is: " + newMap.size());
         }
         map = newMap;
+        lastRefresh = DateTime.now();
     }
 
-    public void enrich(Platform platform) {
+    public void enrich(TramServiceDate tramServiceDate, Platform platform, int queryMins) {
+        LocalDate queryDate = tramServiceDate.getDate();
+        if (!lastRefresh.toLocalDate().equals(queryDate)) {
+            logger.info("no data for date, not querying for departure info " + queryDate);
+            return;
+        }
+
         String idToFind = platform.getId();
         if (map.containsKey(idToFind)) {
-            logger.info("Found live data for " + platform.getId());
-            StationDepartureInfo info = map.get(idToFind);
-            platform.setDepartureInfo(info);
+            enrichPlatformIfTimeMatches(platform, queryDate, queryMins);
         } else {
             logger.error("Unable to find live data for platform " + platform.getId());
         }
+    }
 
+    private void enrichPlatformIfTimeMatches(Platform platform, LocalDate queryDate, int queryMins) {
+        String platformId = platform.getId();
+        logger.info("Found live data for " + platformId);
+        StationDepartureInfo info = map.get(platformId);
+
+        DateTime infoLastUpdate = info.getLastUpdate();
+
+        LocalDate lastUpdateDate = infoLastUpdate.toLocalDate();
+        if (!lastUpdateDate.equals(queryDate)) {
+            logger.info("Not adding departure info as dates do not match");
+            return;
+        }
+
+        int updateMins = TimeAsMinutes.getMinutes(infoLastUpdate.toLocalTime());
+
+        if (Math.abs(queryMins-updateMins) < TIME_LIMIT) {
+            platform.setDepartureInfo(info);
+        } else {
+            logger.info("Not adding departure into as not within time range");
+        }
     }
 }
