@@ -123,7 +123,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public String getLiveDataSubscriptionKey() {
-        return System.getenv("TFGM_API_KEY");
+        return System.getenv("TFGMAPIKEY");
     }
 
 }
