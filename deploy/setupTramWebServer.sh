@@ -6,7 +6,7 @@ export ENV=`ec2metadata --user-data| grep ENV | cut -d = -f 2-`
 export BUILD=`ec2metadata --user-data| grep BUILD | cut -d = -f 2-`
 export ARTIFACTSURL=`ec2metadata --user-data| grep ARTIFACTSURL | cut -d = -f 2-`
 export REDIRECTHTTP=`ec2metadata --user-data| grep REDIRECTHTTP | cut -d = -f 2-`
-export TFGM_API_KEY=`ec2metadata --user-data| grep TFGM_API_KEY | cut -d = -f 2-`
+export TFGMAPIKEY=`ec2metadata --user-data| grep TFGMAPIKEY | cut -d = -f 2-`
 
 if [ "$BUILD" == '' ]; then
         echo 'BUILD missing'
