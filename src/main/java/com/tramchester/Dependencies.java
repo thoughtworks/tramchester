@@ -121,9 +121,6 @@ public class Dependencies {
 
         picoContainer.addComponent(GraphHealthCheck.class);
 
-        logger.info("Prepare to signal cloud formation if running in cloud");
-        SignalToCloudformationReady signaller = picoContainer.getComponent(SignalToCloudformationReady.class);
-        signaller.send();
     }
 
     public ErrorCount cleanseData(Set<String> agencies, Path inputPath, Path outputPath) throws IOException {

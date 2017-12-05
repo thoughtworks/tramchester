@@ -36,7 +36,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldPopulateRepository() throws TramchesterException, IOException, URISyntaxException, ParseException {
+    public void shouldPopulateRepository() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
@@ -48,7 +48,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldEnrichAPlatform() throws TramchesterException, IOException, URISyntaxException, ParseException {
+    public void shouldEnrichAPlatform() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("lineName", "platformId", "some message", DateTime.now());

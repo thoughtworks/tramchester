@@ -28,21 +28,27 @@ public class LiveDataRepository {
         map = new HashMap<>();
     }
 
-    public void refreshRespository() throws TramchesterException, IOException, URISyntaxException, ParseException {
+    public void refreshRespository()  {
         logger.info("Refresh repository");
         HashMap<String,StationDepartureInfo> newMap = new HashMap<>();
         String payload  = fetcher.fetch();
-        List<StationDepartureInfo> infos = mapper.map(payload);
-        infos.forEach(info -> {
-            String platformId = info.getStationPlatform();
-            if (!newMap.containsKey(platformId)) {
-                newMap.put(platformId, info);
+        if (payload.length()>0) {
+            try {
+                List<StationDepartureInfo> infos = mapper.map(payload);
+                infos.forEach(info -> {
+                    String platformId = info.getStationPlatform();
+                    if (!newMap.containsKey(platformId)) {
+                        newMap.put(platformId, info);
+                    }
+                });
+            } catch (ParseException exception) {
+                logger.error("Unable to parse received JSON: " + payload, exception);
             }
-        });
+        }
         if (newMap.isEmpty()) {
-            logger.error("Unable to refresh live data from payload " + payload);
+            logger.error("Unable to refresh live data from payload: " + payload);
         } else {
-            logger.info("Refreshed live data, count is " + newMap.size());
+            logger.info("Refreshed live data, count is: " + newMap.size());
         }
         map = newMap;
     }
