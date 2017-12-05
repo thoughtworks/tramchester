@@ -117,12 +117,12 @@ public class RouteCalculator extends StationIndexs {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
             PathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
-            mapStreamToJourneySet(journeys, paths, limit, queryTime, queryDate);
+            mapStreamToJourneySet(journeys, paths, limit, queryTime);
         });
     }
 
     private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
-                                       int limit, int minsPathMidnight, TramServiceDate queryDate) {
+                                       int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path -> {
             logger.info(format("map graph path of length %s with limit of %s ", path.length(), limit));
             try {

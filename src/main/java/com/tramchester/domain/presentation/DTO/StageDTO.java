@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.livedata.EnrichPlatform;
 import com.tramchester.mappers.TimeJsonDeserializer;
 import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
@@ -32,12 +33,16 @@ public class StageDTO {
         // deserialisation
     }
 
-    public StageDTO(TransportStage source) {
+    public StageDTO(TransportStage source, EnrichPlatform liveDataEnricher) {
         this.actionStation = new LocationDTO(source.getActionStation());
         this.lastStation = new LocationDTO(source.getLastStation());
         this.firstStation = new LocationDTO(source.getFirstStation());
         hasPlatform = source.getPlatform().isPresent();
-        source.getPlatform().ifPresent(platform -> this.platform=new PlatformDTO(platform));
+
+        source.getPlatform().ifPresent(sourcePlatform -> {
+            this.platform=new PlatformDTO(sourcePlatform);
+            liveDataEnricher.enrich(platform);
+        });
 
         this.summary = source.getSummary();
         this.prompt = source.getPrompt();

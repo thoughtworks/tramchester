@@ -1,12 +1,12 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.livedata.EnrichPlatform;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,22 +23,23 @@ public abstract class JourneyResponseMapper {
         this.transportData = transportData;
     }
 
-    protected abstract Optional<JourneyDTO> createJourney(TramServiceDate queryDate, RawJourney rawJourney, int withinMins);
+    // todo is queryDate needed
+    protected abstract Optional<JourneyDTO> createJourney(EnrichPlatform liveDataEnricher, RawJourney rawJourney, int withinMins);
 
-    public SortedSet<JourneyDTO> map(TramServiceDate queryDate, Set<RawJourney> journeys, int withinMins) throws TramchesterException {
+    public SortedSet<JourneyDTO> map(EnrichPlatform liveDataEnricher, Set<RawJourney> journeys, int withinMins) throws TramchesterException {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
-        SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(queryDate, journeys, withinMins);
+        SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(liveDataEnricher, journeys, withinMins);
         return decoratedJourneys;
     }
 
-    protected SortedSet<JourneyDTO> decorateJourneys(TramServiceDate queryDate, Set<RawJourney> rawJourneys, int withinMins)
+    protected SortedSet<JourneyDTO> decorateJourneys(EnrichPlatform liveDataEnricher, Set<RawJourney> rawJourneys, int withinMins)
             throws TramchesterException {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
 
-            Optional<JourneyDTO> journey = createJourney(queryDate, rawJourney, withinMins);
+            Optional<JourneyDTO> journey = createJourney(liveDataEnricher, rawJourney, withinMins);
             if (journey.isPresent()) {
                 journeys.add(journey.get());
                 logger.info("Added journey " +journey);

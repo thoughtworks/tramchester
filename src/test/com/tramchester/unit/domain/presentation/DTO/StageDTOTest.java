@@ -5,12 +5,14 @@ import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.RawWalkingStage;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.presentation.VehicleStageWithTiming;
 import com.tramchester.integration.Stations;
+import com.tramchester.livedata.EnrichPlatform;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -40,7 +42,10 @@ public class StageDTOTest {
     }
 
     private void checkValues(TransportStage stage) {
-        StageDTO dto = new StageDTO(stage);
+        EnrichPlatform enricher = platform -> {
+            // tested elsewhere
+        };
+        StageDTO dto = new StageDTO(stage, enricher);
         assertEquals(stage.getActionStation().getId(), dto.getActionStation().getId());
         assertEquals(stage.isWalk(), dto.isWalk());
         assertEquals(stage.getMode(), dto.getMode());

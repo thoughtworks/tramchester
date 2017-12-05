@@ -4,6 +4,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataMapper;
 import org.joda.time.DateTime;
@@ -58,7 +59,7 @@ public class LiveDataRepository {
         lastRefresh = DateTime.now();
     }
 
-    public void enrich(TramServiceDate tramServiceDate, Platform platform, int queryMins) {
+    public void enrich(TramServiceDate tramServiceDate, PlatformDTO platform, int queryMins) {
         LocalDate queryDate = tramServiceDate.getDate();
         if (!lastRefresh.toLocalDate().equals(queryDate)) {
             logger.info("no data for date, not querying for departure info " + queryDate);
@@ -73,7 +74,7 @@ public class LiveDataRepository {
         }
     }
 
-    private void enrichPlatformIfTimeMatches(Platform platform, LocalDate queryDate, int queryMins) {
+    private void enrichPlatformIfTimeMatches(PlatformDTO platform, LocalDate queryDate, int queryMins) {
         String platformId = platform.getId();
         logger.info("Found live data for " + platformId);
         StationDepartureInfo info = map.get(platformId);

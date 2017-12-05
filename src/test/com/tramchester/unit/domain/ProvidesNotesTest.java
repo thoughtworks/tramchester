@@ -5,9 +5,11 @@ import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.integration.Stations;
+import com.tramchester.livedata.EnrichPlatform;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -82,14 +85,31 @@ public class ProvidesNotesTest {
     public void shouldAddNotesBasedOnLiveDataIfPresent() {
         List<TransportStage> stages = new LinkedList<>();
 
-        stages.add(createStage("Some long message", TransportMode.Tram));
-        stages.add(createStage("Some long message", TransportMode.Tram));
-        stages.add(createStage("Some Other Long message", TransportMode.Tram));
-        stages.add(createStage("Not a tram message", TransportMode.Walk));
+        VehicleStageWithTiming stageA = createStage(TransportMode.Tram, "platformIdA");
+        VehicleStageWithTiming stageB = createStage(TransportMode.Tram, "platformIdB");
+        VehicleStageWithTiming stageC = createStage(TransportMode.Tram, "platformIdC");
+        VehicleStageWithTiming stageD = createStage(TransportMode.Walk, "platformIdD");
+
+        stages.add(stageA);
+        stages.add(stageB);
+        stages.add(stageC);
+        stages.add(stageD);
 
         Journey journey = new Journey(stages);
 
-        decoratedJourneys.add(new JourneyDTO(journey));
+        EnrichPlatform enricher = platform -> {
+            switch (platform.getId()) {
+                case "platformIdA": platform.setDepartureInfo(getStationDepartureInfo(platform, "Some long message"));
+                    break;
+                case "platformIdB": platform.setDepartureInfo(getStationDepartureInfo(platform, "Some long message"));
+                    break;
+                case "platformIdC": platform.setDepartureInfo(getStationDepartureInfo(platform, "Some Other Long message"));
+                    break;
+                case "platformIdD": platform.setDepartureInfo(getStationDepartureInfo(platform, "Not a tram message"));
+                    break;
+            }
+        };
+        decoratedJourneys.add(new JourneyDTO(journey, enricher));
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
         List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
@@ -98,16 +118,21 @@ public class ProvidesNotesTest {
         assertTrue(notes.contains("Some Other Long message"));
     }
 
-    private VehicleStageWithTiming createStage(String message, TransportMode transportMode) {
+    private StationDepartureInfo getStationDepartureInfo(PlatformDTO platform, String message) {
+        return new StationDepartureInfo("lineName",
+                platform.getId(), message, DateTime.now() );
+    }
+
+    private VehicleStageWithTiming createStage(TransportMode transportMode, String platformId) {
         RawVehicleStage rawStage = new RawVehicleStage(Stations.Ashton, "routeName",
                 transportMode, "displayClass");
         rawStage.setLastStation(Stations.PiccadillyGardens);
-        Platform platform = new Platform("platformId", "platformName");
-        platform.setDepartureInfo(new StationDepartureInfo("lineName", "platformId",
-                message, DateTime.now()));
+        Platform platform = new Platform(platformId, "platformName");
+
         rawStage.setPlatform(platform);
         ServiceTime serviceTime = new ServiceTime(LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, "svcId", "headsign", "tripId");
         return new VehicleStageWithTiming(rawStage, serviceTime, TravelAction.Board);
+
     }
 
 }

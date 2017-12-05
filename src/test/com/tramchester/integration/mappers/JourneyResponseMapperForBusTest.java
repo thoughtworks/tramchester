@@ -9,8 +9,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.BusTest;
 import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.mappers.TramJourneyResponseMapper;
+import com.tramchester.repository.LiveDataRepository;
 import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
@@ -32,6 +34,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private Location stockportBridgefieldStreet = new Station("1800SG18471", "stockportArea", "Bridgefield Street",
             new LatLong(1.5, 1.5), false);
     private List<String> notes;
+    private LiveDataRepository liveDataRepository;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -49,6 +52,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         notes = new LinkedList<>();
         mapper = dependencies.get(TramJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
+        liveDataRepository = dependencies.get(LiveDataRepository.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
     }
@@ -80,7 +84,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         stages.add(busStage);
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
-        SortedSet<JourneyDTO> mapped = mapper.map(queryDate, journeys, 30);
+        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate, minutesFromMidnight);
+        SortedSet<JourneyDTO> mapped = mapper.map(liveDataEnricher, journeys, 30);
         return new JourneyPlanRepresentation(mapped, notes);
     }
 }

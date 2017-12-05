@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.presentation.Journey;
+import com.tramchester.livedata.EnrichPlatform;
 import com.tramchester.mappers.TimeJsonDeserializer;
 import com.tramchester.mappers.TimeJsonSerializer;
 import org.joda.time.LocalTime;
@@ -27,8 +28,9 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         // Deserialization
     }
 
-    public JourneyDTO(Journey original) {
-        this.stages = original.getStages().stream().map(stage -> stage.asDTO()).collect(Collectors.toList());
+    // TODO should this care about enrichment, use constructor that takes List<StageDTO> stages instead?
+    public JourneyDTO(Journey original, EnrichPlatform liveDataEnricher) {
+        this.stages = original.getStages().stream().map(stage -> stage.asDTO(liveDataEnricher)).collect(Collectors.toList());
         this.summary = original.getSummary();
         this.heading = original.getHeading();
         this.firstDepartureTime = original.getFirstDepartureTime();
@@ -68,7 +70,6 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     public Location getEnd() {
         return end;
     }
-
 
     @Override
     public int compareTo(JourneyDTO other) {

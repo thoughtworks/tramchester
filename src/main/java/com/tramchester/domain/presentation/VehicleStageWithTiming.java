@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.livedata.EnrichPlatform;
 import org.joda.time.LocalTime;
 
 import static java.lang.String.format;
@@ -29,8 +30,8 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
     }
 
     @Override
-    public StageDTO asDTO() {
-        return new StageDTO(this);
+    public StageDTO asDTO(EnrichPlatform liveDataEnricher) {
+        return new StageDTO(this, liveDataEnricher);
     }
 
     public int findEarliestDepartureTime() {

@@ -14,11 +14,35 @@ public class PlatformDTO {
         // for deserialisation
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlatformDTO that = (PlatformDTO) o;
+
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "PlatformDTO{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", platformNumber='" + platformNumber + '\'' +
+                ", stationDepartureInfo=" + stationDepartureInfo +
+                '}';
+    }
+
     public PlatformDTO(Platform original) {
         this.id = original.getId();
         this.name = original.getName();
         this.platformNumber = original.getPlatformNumber();
-        this.stationDepartureInfo = original.getDepartureInfo();
     }
 
     public String getId() {
@@ -35,5 +59,9 @@ public class PlatformDTO {
 
     public StationDepartureInfo getStationDepartureInfo() {
         return stationDepartureInfo;
+    }
+
+    public void setDepartureInfo(StationDepartureInfo stationDepartureInfo) {
+        this.stationDepartureInfo = stationDepartureInfo;
     }
 }

@@ -6,6 +6,8 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.livedata.EnrichPlatform;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -21,8 +23,12 @@ public class JourneyDTOTest {
     private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
     private Location stationB = new Station("stationB", "area", "nameB", new LatLong(-3, 1), false);
 
-    private JourneyDTO journeyA = new Journey(createStages(new LocalTime(10, 20))).asDTO();
-    private JourneyDTO journeyB = new Journey(createStages(new LocalTime(10, 25))).asDTO();
+    private EnrichPlatform liveDataEnricher = platform -> {
+        // noop
+    };
+
+    private JourneyDTO journeyA = new Journey(createStages(new LocalTime(10, 20))).asDTO(liveDataEnricher);
+    private JourneyDTO journeyB = new Journey(createStages(new LocalTime(10, 25))).asDTO(liveDataEnricher);
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
@@ -41,8 +47,8 @@ public class JourneyDTOTest {
     @Test
     public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() {
         SortedSet<JourneyDTO> set = new TreeSet<>();
-        set.add(new Journey(createStages(new LocalTime(00, 10))).asDTO());
-        set.add(new Journey(createStages(new LocalTime(23, 50))).asDTO());
+        set.add(new Journey(createStages(new LocalTime(00, 10))).asDTO(liveDataEnricher));
+        set.add(new Journey(createStages(new LocalTime(23, 50))).asDTO(liveDataEnricher));
 
         assertEquals(new LocalTime(23,50), set.first().getExpectedArrivalTime());
         assertEquals(new LocalTime(23,50), set.stream().findFirst().get().getExpectedArrivalTime());

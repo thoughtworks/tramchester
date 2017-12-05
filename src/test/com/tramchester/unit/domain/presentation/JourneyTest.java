@@ -7,7 +7,10 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.integration.Stations;
+import com.tramchester.livedata.EnrichPlatform;
+import com.tramchester.livedata.LiveDataEnricher;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -128,7 +131,10 @@ public class JourneyTest {
         stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate));
         Journey journey = new Journey(stages);
 
-        JourneyDTO dto = journey.asDTO();
+        EnrichPlatform liveDataEnricher = platform -> {
+            // noop
+        };
+        JourneyDTO dto = journey.asDTO(liveDataEnricher);
 
         assertEquals(journey.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
         assertEquals(journey.getBegin().getId(), dto.getBegin().getId());

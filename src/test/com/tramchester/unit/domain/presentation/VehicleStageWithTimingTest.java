@@ -3,12 +3,16 @@ package com.tramchester.unit.domain.presentation;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.presentation.VehicleStageWithTiming;
 import com.tramchester.integration.Stations;
+import com.tramchester.livedata.EnrichPlatform;
+import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -40,7 +44,13 @@ public class VehicleStageWithTimingTest {
         Platform platform = new Platform("platformA1", "station platform 1");
         stage.setPlatform(platform);
 
-        StageDTO dto = stage.asDTO();
+        StationDepartureInfo departureInfo = new StationDepartureInfo("lineName","stationPlatform",
+                "message", DateTime.now());
+
+        EnrichPlatform liveDataEnricher = aPlatform -> {
+            aPlatform.setDepartureInfo(departureInfo);
+        };
+        StageDTO dto = stage.asDTO(liveDataEnricher);
         assertEquals(stage.getSummary(), dto.getSummary());
         assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
         assertEquals(stage.getHeadSign(), dto.getHeadSign());
@@ -57,7 +67,7 @@ public class VehicleStageWithTimingTest {
         assertEquals(platform.getId(), dto.getPlatform().getId());
         assertEquals(platform.getName(), dto.getPlatform().getName());
         assertEquals(platform.getPlatformNumber(), dto.getPlatform().getPlatformNumber());
-
+        assertEquals(departureInfo.getMessage(), dto.getPlatform().getStationDepartureInfo().getMessage());
     }
 
     @Test

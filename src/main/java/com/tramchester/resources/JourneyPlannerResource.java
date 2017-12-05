@@ -12,7 +12,9 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.RouteCalculator;
+import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.mappers.JourneyResponseMapper;
+import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.services.DateTimeService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -45,11 +47,12 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private JourneyResponseMapper journeyResponseMapper;
     private CreateQueryTimes createQueryTimes;
     private ProvidesNotes providesNotes;
+    private LiveDataRepository liveDataRepositoy;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
                                   JourneyResponseMapper journeyResponseMapper, TramchesterConfig config,
                                   LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes,
-                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper, ProvidesNotes providesNotes) {
+                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper, ProvidesNotes providesNotes, LiveDataRepository liveDataRepositoy) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
@@ -58,6 +61,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         this.locToLocPlanner = locToLocPlanner;
         this.createQueryTimes = createQueryTimes;
         this.providesNotes = providesNotes;
+        this.liveDataRepositoy = liveDataRepositoy;
     }
 
     @GET
@@ -103,7 +107,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        SortedSet<JourneyDTO> decoratedJourneys = journeyResponseMapper.map(queryDate, journeys, config.getTimeWindow());
+        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepositoy, queryDate, initialQueryTime);
+        SortedSet<JourneyDTO> decoratedJourneys = journeyResponseMapper.map(liveDataEnricher, journeys, config.getTimeWindow());
         List<String> notes = providesNotes.createNotesFor(queryDate, decoratedJourneys);
         return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }

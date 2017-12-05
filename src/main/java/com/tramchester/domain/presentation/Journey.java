@@ -5,6 +5,8 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.livedata.EnrichPlatform;
+import com.tramchester.livedata.LiveDataEnricher;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,7 +156,7 @@ public class Journey {
         return getLastStage().getLastStation();
     }
 
-    public JourneyDTO asDTO() {
-        return new JourneyDTO(this);
+    public JourneyDTO asDTO(EnrichPlatform liveDataEnricher) {
+        return new JourneyDTO(this, liveDataEnricher);
     }
 }
