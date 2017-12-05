@@ -6,7 +6,6 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -20,20 +19,17 @@ import static java.lang.String.format;
 public abstract class JourneyResponseMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyResponseMapper.class);
     protected TransportDataFromFiles transportData;
-    private ProvidesNotes providesNotes;
 
-    protected JourneyResponseMapper(TransportDataFromFiles transportData, ProvidesNotes providesNotes) {
+    protected JourneyResponseMapper(TransportDataFromFiles transportData) {
         this.transportData = transportData;
-        this.providesNotes = providesNotes;
     }
 
     protected abstract Optional<JourneyDTO> createJourney(RawJourney rawJourney, int withinMins);
 
-    public JourneyPlanRepresentation map(Set<RawJourney> journeys, int withinMins, TramServiceDate queryDate) throws TramchesterException {
+    public SortedSet<JourneyDTO> map(Set<RawJourney> journeys, int withinMins) throws TramchesterException {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
         SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(journeys, withinMins);
-        List<String> notes = providesNotes.createNotesFor(queryDate);
-        return new JourneyPlanRepresentation(decoratedJourneys, notes);
+        return decoratedJourneys;
     }
 
     protected SortedSet<JourneyDTO> decorateJourneys(Set<RawJourney> rawJourneys, int withinMins)

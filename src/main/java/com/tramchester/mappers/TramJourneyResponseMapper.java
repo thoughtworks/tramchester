@@ -18,9 +18,9 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyResponseMapper.class);
     private LiveDataRepository liveDataRepository;
 
-    public TramJourneyResponseMapper(TransportDataFromFiles transportData, ProvidesNotes providesNotes,
+    public TramJourneyResponseMapper(TransportDataFromFiles transportData,
                                      LiveDataRepository liveDataRepository) {
-        super(transportData, providesNotes);
+        super(transportData);
         this.liveDataRepository = liveDataRepository;
     }
 

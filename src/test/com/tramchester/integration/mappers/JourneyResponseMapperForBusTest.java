@@ -3,6 +3,7 @@ package com.tramchester.integration.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
@@ -15,10 +16,7 @@ import org.junit.*;
 import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.joda.time.DateTimeConstants.MONDAY;
@@ -33,6 +31,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private Location stockportBusStation = new Station("1800STBS001", "stockportArea", "Bus station", new LatLong(1.5, 1.5), false);
     private Location stockportBridgefieldStreet = new Station("1800SG18471", "stockportArea", "Bridgefield Street",
             new LatLong(1.5, 1.5), false);
+    private List<String> notes;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -47,6 +46,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     @Before
     public void beforeEachTestRuns() {
+        notes = new LinkedList<>();
         mapper = dependencies.get(TramJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         journeys = new HashSet<>();
@@ -80,6 +80,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         stages.add(busStage);
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
-        return mapper.map(journeys, 30, queryDate);
+        SortedSet<JourneyDTO> mapped = mapper.map(journeys, 30);
+        return new JourneyPlanRepresentation(mapped, notes);
     }
 }

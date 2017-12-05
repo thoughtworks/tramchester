@@ -68,6 +68,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertEquals( "Altrincham platform 1", platform.getName());
         assertEquals( Stations.Altrincham.getId()+"1", platform.getId());
         StationDepartureInfo departInfo = platform.getStationDepartureInfo();
+        assertNotNull(departInfo);
         assertEquals(Stations.Altrincham.getId()+"1",departInfo.getStationPlatform());
     }
 

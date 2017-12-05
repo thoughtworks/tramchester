@@ -8,7 +8,9 @@ import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.mappers.JourneyResponseMapper;
 import com.tramchester.services.DateTimeService;
@@ -25,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -41,11 +44,12 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private DateTimeService dateTimeService;
     private JourneyResponseMapper journeyResponseMapper;
     private CreateQueryTimes createQueryTimes;
+    private ProvidesNotes providesNotes;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
                                   JourneyResponseMapper journeyResponseMapper, TramchesterConfig config,
                                   LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes,
-                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper) {
+                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper, ProvidesNotes providesNotes) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
@@ -53,6 +57,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
         this.createQueryTimes = createQueryTimes;
+        this.providesNotes = providesNotes;
     }
 
     @GET
@@ -98,7 +103,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        return journeyResponseMapper.map(journeys, config.getTimeWindow(), queryDate);
+        SortedSet<JourneyDTO> decoratedJourneys = journeyResponseMapper.map(journeys, config.getTimeWindow());
+        List<String> notes = providesNotes.createNotesFor(queryDate, decoratedJourneys);
+        return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }
 
 }

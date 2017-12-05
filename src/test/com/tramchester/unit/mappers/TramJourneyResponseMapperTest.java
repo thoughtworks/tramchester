@@ -3,7 +3,6 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
@@ -20,6 +19,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 
 public class TramJourneyResponseMapperTest extends EasyMockSupport {
@@ -32,7 +32,6 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
     private Station stationA;
     private Station stationB;
     private Station stationC;
-    private ProvidesNotes providesNotes;
     private TramServiceDate queryDate;
     private LiveDataRepository liveDataRepository;
     private Platform platformA;
@@ -51,9 +50,8 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         platformB = new Platform(stationB.getId() + "1", "platform 2");
 
         transportData = createMock(TransportDataFromFiles.class);
-        providesNotes = createMock(ProvidesNotes.class);
         liveDataRepository = createMock(LiveDataRepository.class);
-        mapper = new TramJourneyResponseMapper(transportData, providesNotes, liveDataRepository);
+        mapper = new TramJourneyResponseMapper(transportData, liveDataRepository);
         queryDate = new TramServiceDate(LocalDate.now());
     }
 
@@ -75,21 +73,18 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).
                 andReturn(timesLeg2);
-        List<String> notes = new LinkedList<>();
-        EasyMock.expect(providesNotes.createNotesFor(queryDate)).andReturn(notes);
 
         liveDataRepository.enrich(platformA);
         liveDataRepository.enrich(platformB);
 
         replayAll();
-        JourneyPlanRepresentation result = mapper.map(rawJourneys, 30, queryDate);
+        SortedSet<JourneyDTO> result = mapper.map(rawJourneys, 30);
 
-        assertEquals(rawJourneys.size(), result.getJourneys().size());
+        assertEquals(rawJourneys.size(), result.size());
 
-        Set<JourneyDTO> journeys = result.getJourneys();
-        assertEquals(1, journeys.size());
+        assertEquals(1, result.size());
 
-        JourneyDTO found = journeys.iterator().next();
+        JourneyDTO found = result.iterator().next();
 
         assertEquals(new LocalTime(8,18),found.getExpectedArrivalTime());
         assertEquals(new LocalTime(8,2),found.getFirstDepartureTime());
@@ -117,22 +112,18 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
-        List<String> notes = new LinkedList<>();
-        notes.add("somenote");
-        EasyMock.expect(providesNotes.createNotesFor(queryDate)).andReturn(notes);
 
         liveDataRepository.enrich(platformA);
         liveDataRepository.enrich(platformB);
 
         replayAll();
-        JourneyPlanRepresentation result = mapper.map(rawJourneys, 30, queryDate);
+        SortedSet<JourneyDTO> result = mapper.map(rawJourneys, 30);
 
-        assertEquals(rawJourneys.size(), result.getJourneys().size());
+        assertEquals(rawJourneys.size(), result.size());
 
-        Set<JourneyDTO> journeys = result.getJourneys();
-        assertEquals(1, journeys.size());
+        assertEquals(1, result.size());
 
-        JourneyDTO found = journeys.iterator().next();
+        JourneyDTO found = result.iterator().next();
 
         assertEquals(new LocalTime(8,16),found.getExpectedArrivalTime());
         assertEquals(new LocalTime(8,3),found.getFirstDepartureTime());
@@ -144,9 +135,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         assertEquals("Board bus at", stageFirst.getPrompt());
         assertEquals("Change bus at", stageSecond.getPrompt());
-        List<String> resultNotes = result.getNotes();
-        assertEquals(1, resultNotes.size());
-        assertEquals("somenote", resultNotes.get(0));
+
     }
 
     private void createSimpleRawJourney(int costA, int costB, int queryTime) {
