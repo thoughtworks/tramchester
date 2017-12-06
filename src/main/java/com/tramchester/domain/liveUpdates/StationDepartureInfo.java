@@ -1,10 +1,6 @@
 package com.tramchester.domain.liveUpdates;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.mappers.LocalDateJsonDeserializer;
-import com.tramchester.mappers.LocalDateJsonSerializer;
 import org.joda.time.DateTime;
 
 import java.util.LinkedList;
@@ -17,8 +13,10 @@ public class StationDepartureInfo {
     private String message;
     private List<DueTram> dueTrams;
     private DateTime lastUpdate;
+    private String displayId;
 
-    public StationDepartureInfo(String lineName, String stationPlatform, String message, DateTime lastUpdate) {
+    public StationDepartureInfo(String displayId, String lineName, String stationPlatform, String message, DateTime lastUpdate) {
+        this.displayId = displayId;
         this.lineName = lineName;
         this.stationPlatform = stationPlatform;
         this.message = message;
@@ -46,8 +44,6 @@ public class StationDepartureInfo {
         return dueTrams;
     }
 
-   // @JsonSerialize(using = LocalDateJsonSerializer.class)
-   // @JsonDeserialize(using = LocalDateJsonDeserializer.class)
     public DateTime getLastUpdate() {
         return lastUpdate;
     }
@@ -55,5 +51,21 @@ public class StationDepartureInfo {
     @JsonIgnore
     public void addDueTram(DueTram dueTram) {
         dueTrams.add(dueTram);
+    }
+
+    @Override
+    public String toString() {
+        return "StationDepartureInfo{" +
+                "lineName='" + lineName + '\'' +
+                ", stationPlatform='" + stationPlatform + '\'' +
+                ", message='" + message + '\'' +
+                ", dueTrams=" + dueTrams +
+                ", lastUpdate=" + lastUpdate +
+                ", displayId=" + displayId +
+                '}';
+    }
+
+    public String getDisplayId() {
+        return displayId;
     }
 }

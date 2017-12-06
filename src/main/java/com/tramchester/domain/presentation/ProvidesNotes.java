@@ -5,12 +5,12 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
+import java.util.*;
 
 public class ProvidesNotes {
+
+    // some displays don't show normal messages, just info on next trams to altrincham, so exclude those
+    List<String> displaysToExclude = Arrays.asList("303","304","461");
 
     public static final String website = "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
 
@@ -42,7 +42,7 @@ public class ProvidesNotes {
                     forEach(tramStage -> {
                         StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
                         if (info!=null) {
-                            if (!result.contains(info.getMessage())) {
+                            if (!(result.contains(info.getMessage()) || displaysToExclude.contains(info.getDisplayId()))) {
                                 result.add(info.getMessage());
                             }
                         }

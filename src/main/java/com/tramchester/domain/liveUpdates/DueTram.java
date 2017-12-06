@@ -32,4 +32,14 @@ public class DueTram {
     public String getCarriages() {
         return carriages;
     }
+
+    @Override
+    public String toString() {
+        return "DueTram{" +
+                "status='" + status + '\'' +
+                ", destination='" + destination + '\'' +
+                ", wait=" + wait +
+                ", carriages='" + carriages + '\'' +
+                '}';
+    }
 }

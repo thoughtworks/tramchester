@@ -15,21 +15,6 @@ public class PlatformDTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PlatformDTO that = (PlatformDTO) o;
-
-        return id.equals(that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
-
-    @Override
     public String toString() {
         return "PlatformDTO{" +
                 "id='" + id + '\'' +
@@ -64,4 +49,20 @@ public class PlatformDTO {
     public void setDepartureInfo(StationDepartureInfo stationDepartureInfo) {
         this.stationDepartureInfo = stationDepartureInfo;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlatformDTO that = (PlatformDTO) o;
+
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
 }

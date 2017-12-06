@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -15,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
+
+import static java.lang.String.format;
 
 public class LiveDataRepository {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
@@ -68,28 +69,23 @@ public class LiveDataRepository {
 
         String idToFind = platform.getId();
         if (map.containsKey(idToFind)) {
-            enrichPlatformIfTimeMatches(platform, queryDate, queryMins);
+            enrichPlatformIfTimeMatches(platform, queryMins);
         } else {
             logger.error("Unable to find live data for platform " + platform.getId());
         }
     }
 
-    private void enrichPlatformIfTimeMatches(PlatformDTO platform, LocalDate queryDate, int queryMins) {
+    private void enrichPlatformIfTimeMatches(PlatformDTO platform, int queryMins) {
         String platformId = platform.getId();
         logger.info("Found live data for " + platformId);
         StationDepartureInfo info = map.get(platformId);
 
         DateTime infoLastUpdate = info.getLastUpdate();
 
-        LocalDate lastUpdateDate = infoLastUpdate.toLocalDate();
-        if (!lastUpdateDate.equals(queryDate)) {
-            logger.info("Not adding departure info as dates do not match");
-            return;
-        }
-
         int updateMins = TimeAsMinutes.getMinutes(infoLastUpdate.toLocalTime());
 
         if (Math.abs(queryMins-updateMins) < TIME_LIMIT) {
+            logger.info(format("Adding departure info '%s' for platform %s",info, platform));
             platform.setDepartureInfo(info);
         } else {
             logger.info("Not adding departure into as not within time range");

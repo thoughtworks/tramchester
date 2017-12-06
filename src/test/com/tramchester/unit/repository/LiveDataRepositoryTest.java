@@ -123,7 +123,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     private StationDepartureInfo createStationDepartureInfo(List<StationDepartureInfo> info, DateTime lastUpdate) {
-        StationDepartureInfo departureInfo = new StationDepartureInfo("lineName", "platformId",
+        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
                 "some message", lastUpdate);
         info.add(departureInfo);
         departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single"));

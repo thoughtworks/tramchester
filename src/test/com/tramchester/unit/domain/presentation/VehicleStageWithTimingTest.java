@@ -4,7 +4,6 @@ package com.tramchester.unit.domain.presentation;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
@@ -44,7 +43,7 @@ public class VehicleStageWithTimingTest {
         Platform platform = new Platform("platformA1", "station platform 1");
         stage.setPlatform(platform);
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo("lineName","stationPlatform",
+        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName","stationPlatform",
                 "message", DateTime.now());
 
         EnrichPlatform liveDataEnricher = aPlatform -> {

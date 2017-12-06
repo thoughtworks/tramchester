@@ -89,11 +89,13 @@ public class ProvidesNotesTest {
         VehicleStageWithTiming stageB = createStage(TransportMode.Tram, "platformIdB");
         VehicleStageWithTiming stageC = createStage(TransportMode.Tram, "platformIdC");
         VehicleStageWithTiming stageD = createStage(TransportMode.Walk, "platformIdD");
+        VehicleStageWithTiming stageE = createStage(TransportMode.Tram, "platformIdE");
 
         stages.add(stageA);
         stages.add(stageB);
         stages.add(stageC);
         stages.add(stageD);
+        stages.add(stageE);
 
         Journey journey = new Journey(stages);
 
@@ -107,6 +109,9 @@ public class ProvidesNotesTest {
                     break;
                 case "platformIdD": platform.setDepartureInfo(getStationDepartureInfo(platform, "Not a tram message"));
                     break;
+                case "platformIdE": platform.setDepartureInfo(new StationDepartureInfo("303", "lineName",
+                        platform.getId(), "some be excluded due to ID", DateTime.now() ));
+                    break;
             }
         };
         decoratedJourneys.add(new JourneyDTO(journey, enricher));
@@ -119,7 +124,7 @@ public class ProvidesNotesTest {
     }
 
     private StationDepartureInfo getStationDepartureInfo(PlatformDTO platform, String message) {
-        return new StationDepartureInfo("lineName",
+        return new StationDepartureInfo("displayId", "lineName",
                 platform.getId(), message, DateTime.now() );
     }
 

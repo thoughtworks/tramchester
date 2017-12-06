@@ -32,12 +32,13 @@ public class LiveDataMapper {
     }
 
     private StationDepartureInfo parseItem(JSONObject jsonObject) {
+        Long displayId = (Long) jsonObject.get("Id");
         String lineName = (String) jsonObject.get("Line");
         String stationPlatform = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
         DateTime lastUpdate = DateTime.parse(dateString);
-        StationDepartureInfo departureInfo = new StationDepartureInfo(lineName, stationPlatform, message, lastUpdate);
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, stationPlatform, message, lastUpdate);
         parseDueTrams(jsonObject,departureInfo);
         return departureInfo;
     }
