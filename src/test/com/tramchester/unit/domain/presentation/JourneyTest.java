@@ -125,25 +125,25 @@ public class JourneyTest {
         objectMapper.writeValueAsString(journey);
     }
 
-    @Test
-    public void shouldCreateJourneyDTO() {
-        List<TransportStage> stages = new LinkedList<>();
-        stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate));
-        Journey journey = new Journey(stages);
-
-        EnrichPlatform liveDataEnricher = platform -> {
-            // noop
-        };
-        JourneyDTO dto = journey.asDTO(liveDataEnricher);
-
-        assertEquals(journey.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
-        assertEquals(journey.getBegin().getId(), dto.getBegin().getId());
-        assertEquals(journey.getFirstDepartureTime(), dto.getFirstDepartureTime());
-        assertEquals(journey.getEnd().getId(), dto.getEnd().getId());
-        assertEquals(journey.getHeading(), dto.getHeading());
-        assertEquals(journey.getSummary(), dto.getSummary());
-        assertEquals(journey.getStages().size(), dto.getStages().size()); // see also asDTO tests for stages
-    }
+//    @Test
+//    public void shouldCreateJourneyDTO() {
+//        List<TransportStage> stages = new LinkedList<>();
+//        stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate));
+//        Journey journey = new Journey(stages);
+//
+//        EnrichPlatform liveDataEnricher = platform -> {
+//            // noop
+//        };
+//        JourneyDTO dto = journey.asDTO(liveDataEnricher);
+//
+//        assertEquals(journey.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
+//        assertEquals(journey.getBegin().getId(), dto.getBegin().getId());
+//        assertEquals(journey.getFirstDepartureTime(), dto.getFirstDepartureTime());
+//        assertEquals(journey.getEnd().getId(), dto.getEnd().getId());
+//        assertEquals(journey.getHeading(), dto.getHeading());
+//        assertEquals(journey.getSummary(), dto.getSummary());
+//        assertEquals(journey.getStages().size(), dto.getStages().size()); // see also asDTO tests for stages
+//    }
 
     private List<TransportStage> createThreeStages() {
         List<TransportStage> stages = new LinkedList<>();

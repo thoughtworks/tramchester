@@ -156,7 +156,7 @@ public class Journey {
         return getLastStage().getLastStation();
     }
 
-    public JourneyDTO asDTO(EnrichPlatform liveDataEnricher) {
-        return new JourneyDTO(this, liveDataEnricher);
-    }
+//    public JourneyDTO asDTO(EnrichPlatform liveDataEnricher) {
+//        return new JourneyDTO(this, liveDataEnricher);
+//    }
 }

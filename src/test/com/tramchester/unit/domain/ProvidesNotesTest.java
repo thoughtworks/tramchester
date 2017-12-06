@@ -1,15 +1,15 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.integration.Stations;
-import com.tramchester.livedata.EnrichPlatform;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -83,13 +82,13 @@ public class ProvidesNotesTest {
 
     @Test
     public void shouldAddNotesBasedOnLiveDataIfPresent() {
-        List<TransportStage> stages = new LinkedList<>();
+        List<StageDTO> stages = new LinkedList<>();
 
-        VehicleStageWithTiming stageA = createStage(TransportMode.Tram, "platformIdA");
-        VehicleStageWithTiming stageB = createStage(TransportMode.Tram, "platformIdB");
-        VehicleStageWithTiming stageC = createStage(TransportMode.Tram, "platformIdC");
-        VehicleStageWithTiming stageD = createStage(TransportMode.Walk, "platformIdD");
-        VehicleStageWithTiming stageE = createStage(TransportMode.Tram, "platformIdE");
+        StageDTO stageA = createStage(TransportMode.Tram, "platformIdA", "Some long message", "displayUnitId");
+        StageDTO stageB = createStage(TransportMode.Tram, "platformIdB", "Some long message", "displayUnitId");
+        StageDTO stageC = createStage(TransportMode.Tram, "platformIdC", "Some Other Long message", "displayUnitId");
+        StageDTO stageD = createStage(TransportMode.Walk, "platformIdD", "Not a tram message", "displayUnitId");
+        StageDTO stageE = createStage(TransportMode.Tram, "platformIdE", "excluded due to display ID", "303");
 
         stages.add(stageA);
         stages.add(stageB);
@@ -97,30 +96,16 @@ public class ProvidesNotesTest {
         stages.add(stageD);
         stages.add(stageE);
 
-        Journey journey = new Journey(stages);
-
-        EnrichPlatform enricher = platform -> {
-            switch (platform.getId()) {
-                case "platformIdA": platform.setDepartureInfo(getStationDepartureInfo(platform, "Some long message"));
-                    break;
-                case "platformIdB": platform.setDepartureInfo(getStationDepartureInfo(platform, "Some long message"));
-                    break;
-                case "platformIdC": platform.setDepartureInfo(getStationDepartureInfo(platform, "Some Other Long message"));
-                    break;
-                case "platformIdD": platform.setDepartureInfo(getStationDepartureInfo(platform, "Not a tram message"));
-                    break;
-                case "platformIdE": platform.setDepartureInfo(new StationDepartureInfo("303", "lineName",
-                        platform.getId(), "some be excluded due to ID", DateTime.now() ));
-                    break;
-            }
-        };
-        decoratedJourneys.add(new JourneyDTO(journey, enricher));
+        decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
+                , stages, LocalTime.now(), LocalTime.now(), "summary", "heading"));
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
+
         List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
+
         assertEquals(2, notes.size());
-        assertTrue(notes.contains("Some long message"));
-        assertTrue(notes.contains("Some Other Long message"));
+        assertTrue(notes.contains("'Some long message' - Metrolink"));
+        assertTrue(notes.contains("'Some Other Long message' - Metrolink"));
     }
 
     private StationDepartureInfo getStationDepartureInfo(PlatformDTO platform, String message) {
@@ -128,16 +113,25 @@ public class ProvidesNotesTest {
                 platform.getId(), message, DateTime.now() );
     }
 
-    private VehicleStageWithTiming createStage(TransportMode transportMode, String platformId) {
-        RawVehicleStage rawStage = new RawVehicleStage(Stations.Ashton, "routeName",
-                transportMode, "displayClass");
-        rawStage.setLastStation(Stations.PiccadillyGardens);
+    private StageDTO createStage(TransportMode transportMode, String platformId, String message, String displayUnitId) {
+        boolean isWalk = transportMode.equals(TransportMode.Walk);
         Platform platform = new Platform(platformId, "platformName");
+        PlatformDTO platformDTO = new PlatformDTO(platform);
 
-        rawStage.setPlatform(platform);
-        ServiceTime serviceTime = new ServiceTime(LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, "svcId", "headsign", "tripId");
-        return new VehicleStageWithTiming(rawStage, serviceTime, TravelAction.Board);
+        platformDTO.setDepartureInfo(createDepartureInfo(message, displayUnitId));
+        return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
+                new LocationDTO(Stations.PiccadillyGardens), true,
+                platformDTO, LocalTime.now(), LocalTime.now(), 42,
+                "summary", "prompt", "headSign", transportMode, isWalk,
+                !isWalk, "displayClass");
+    }
 
+    private StationDepartureInfo createDepartureInfo(String message, String displayUnitId) {
+        return new StationDepartureInfo(displayUnitId,
+        "lineName",
+        "stationPlatform",
+        message,
+        DateTime.now());
     }
 
 }

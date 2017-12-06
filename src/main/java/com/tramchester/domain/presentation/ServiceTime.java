@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TimeAsMinutes;
-import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.mappers.LocalTimeJsonSerializer;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalTime;
 
@@ -21,12 +21,12 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
         this.tripId = tripId;
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
     public LocalTime getDepartureTime() {
         return leaveBegin;
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
     public LocalTime getArrivalTime() {
         return arrivesEnd;
     }

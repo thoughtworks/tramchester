@@ -5,38 +5,36 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.livedata.EnrichPlatform;
-import com.tramchester.mappers.TimeJsonDeserializer;
-import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.mappers.LocalTimeJsonDeserializer;
+import com.tramchester.mappers.LocalTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class JourneyDTO implements Comparable<JourneyDTO> {
 
-    private LocalTime expectedArrivalTime;
-    private LocationDTO end;
     private LocationDTO begin;
+    private LocationDTO end;
+    private List<StageDTO> stages;
+    private LocalTime expectedArrivalTime;
     private LocalTime firstDepartureTime;
     private String summary;
     private String heading;
-    private List<StageDTO> stages;
 
     public JourneyDTO() {
         // Deserialization
     }
 
-    // TODO should this care about enrichment, use constructor that takes List<StageDTO> stages instead?
-    public JourneyDTO(Journey original, EnrichPlatform liveDataEnricher) {
-        this.stages = original.getStages().stream().map(stage -> stage.asDTO(liveDataEnricher)).collect(Collectors.toList());
-        this.summary = original.getSummary();
-        this.heading = original.getHeading();
-        this.firstDepartureTime = original.getFirstDepartureTime();
-        this.expectedArrivalTime = original.getExpectedArrivalTime();
-        this.end = new LocationDTO(original.getEnd());
-        this.begin = new LocationDTO(original.getBegin());
+    public JourneyDTO(LocationDTO begin, LocationDTO end, List<StageDTO> stages,
+                      LocalTime expectedArrivalTime, LocalTime firstDepartureTime,
+                      String summary, String heading) {
+        this.begin = begin;
+        this.end = end;
+        this.stages = stages;
+        this.expectedArrivalTime = expectedArrivalTime;
+        this.firstDepartureTime = firstDepartureTime;
+        this.summary = summary;
+        this.heading = heading;
     }
 
     public List<StageDTO> getStages() {
@@ -51,14 +49,14 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         return heading;
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
-    @JsonDeserialize(using = TimeJsonDeserializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
     public LocalTime getFirstDepartureTime() {
         return firstDepartureTime;
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
-    @JsonDeserialize(using = TimeJsonDeserializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
     public LocalTime getExpectedArrivalTime() {
         return expectedArrivalTime;
     }

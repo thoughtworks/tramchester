@@ -5,12 +5,14 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.BusTest;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.livedata.LiveDataEnricher;
-import com.tramchester.mappers.JourneyResponseMapper;
+import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.LiveDataRepository;
 import org.joda.time.LocalDate;
@@ -26,7 +28,7 @@ import static org.joda.time.DateTimeConstants.MONDAY;
 public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
     private static Dependencies dependencies;
-    private JourneyResponseMapper mapper;
+    private JourneysMapper mapper;
     private Set<RawJourney> journeys;
     private List<RawStage> stages;
 
@@ -50,7 +52,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     @Before
     public void beforeEachTestRuns() {
         notes = new LinkedList<>();
-        mapper = dependencies.get(TramJourneyResponseMapper.class);
+        mapper = dependencies.get(JourneysMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         liveDataRepository = dependencies.get(LiveDataRepository.class);
         journeys = new HashSet<>();
@@ -85,7 +87,9 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
         LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate, minutesFromMidnight);
-        SortedSet<JourneyDTO> mapped = mapper.map(liveDataEnricher, journeys, 30);
+        StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
+        JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory);
+        SortedSet<JourneyDTO> mapped = mapper.map(factory, journeys, 30);
         return new JourneyPlanRepresentation(mapped, notes);
     }
 }

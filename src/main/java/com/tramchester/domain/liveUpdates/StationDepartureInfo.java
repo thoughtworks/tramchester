@@ -1,6 +1,11 @@
 package com.tramchester.domain.liveUpdates;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.mappers.DateTimeJsonDeserializer;
+import com.tramchester.mappers.DateTimeJsonSerializer;
+import com.tramchester.mappers.LocalTimeJsonSerializer;
 import org.joda.time.DateTime;
 
 import java.util.LinkedList;
@@ -44,6 +49,8 @@ public class StationDepartureInfo {
         return dueTrams;
     }
 
+    @JsonSerialize(using = DateTimeJsonSerializer.class)
+    @JsonDeserialize(using = DateTimeJsonDeserializer.class)
     public DateTime getLastUpdate() {
         return lastUpdate;
     }
@@ -51,6 +58,10 @@ public class StationDepartureInfo {
     @JsonIgnore
     public void addDueTram(DueTram dueTram) {
         dueTrams.add(dueTram);
+    }
+
+    public String getDisplayId() {
+        return displayId;
     }
 
     @Override
@@ -65,7 +76,4 @@ public class StationDepartureInfo {
                 '}';
     }
 
-    public String getDisplayId() {
-        return displayId;
-    }
 }

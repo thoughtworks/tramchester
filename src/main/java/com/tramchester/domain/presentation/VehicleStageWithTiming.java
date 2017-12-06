@@ -29,11 +29,6 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
         return cost;
     }
 
-    @Override
-    public StageDTO asDTO(EnrichPlatform liveDataEnricher) {
-        return new StageDTO(this, liveDataEnricher);
-    }
-
     public int findEarliestDepartureTime() {
         return serviceTime.getFromMidnightLeaves();
     }

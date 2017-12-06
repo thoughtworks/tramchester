@@ -1,13 +1,15 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
-import com.tramchester.domain.Location;
 import com.tramchester.domain.RawVehicleStage;
-import com.tramchester.domain.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.*;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.livedata.EnrichPlatform;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.ServiceTime;
+import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.presentation.VehicleStageWithTiming;
+import com.tramchester.integration.Stations;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -20,15 +22,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyDTOTest {
-    private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
-    private Location stationB = new Station("stationB", "area", "nameB", new LatLong(-3, 1), false);
+    private LocationDTO stationA = new LocationDTO(Stations.Deansgate);
+    private LocationDTO stationB = new LocationDTO(Stations.VeloPark);
 
-    private EnrichPlatform liveDataEnricher = platform -> {
-        // noop
-    };
+    private JourneyDTO journeyA = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
+            new LocalTime(10, 20), new LocalTime(10, 8),
+            "summary", "heading");
 
-    private JourneyDTO journeyA = new Journey(createStages(new LocalTime(10, 20))).asDTO(liveDataEnricher);
-    private JourneyDTO journeyB = new Journey(createStages(new LocalTime(10, 25))).asDTO(liveDataEnricher);
+    private JourneyDTO journeyB = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
+            new LocalTime(10, 25), new LocalTime(10, 8),
+            "summary", "heading");
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
@@ -46,9 +49,19 @@ public class JourneyDTOTest {
 
     @Test
     public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() {
+        JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
+                new LocalTime(23, 50), new LocalTime(10, 8),
+                "summary", "heading");
+
+        JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
+                new LocalTime(00, 10), new LocalTime(10, 8),
+                "summary", "heading");
+
         SortedSet<JourneyDTO> set = new TreeSet<>();
-        set.add(new Journey(createStages(new LocalTime(00, 10))).asDTO(liveDataEnricher));
-        set.add(new Journey(createStages(new LocalTime(23, 50))).asDTO(liveDataEnricher));
+        set.add(afterMidnight);
+        set.add(beforeMidnight);
+//        set.add(new Journey(createStages(new LocalTime(00, 10))).asDTO(liveDataEnricher));
+//        set.add(new Journey(createStages(new LocalTime(23, 50))).asDTO(liveDataEnricher));
 
         assertEquals(new LocalTime(23,50), set.first().getExpectedArrivalTime());
         assertEquals(new LocalTime(23,50), set.stream().findFirst().get().getExpectedArrivalTime());

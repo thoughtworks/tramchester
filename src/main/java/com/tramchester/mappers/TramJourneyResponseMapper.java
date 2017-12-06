@@ -1,13 +1,8 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.presentation.VehicleStageWithTiming;
-import com.tramchester.livedata.EnrichPlatform;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.domain.presentation.*;
+import com.tramchester.repository.ServiceTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,18 +12,21 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 
-public class TramJourneyResponseMapper extends JourneyResponseMapper {
+public class TramJourneyResponseMapper implements SingleJourneyMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyResponseMapper.class);
 
-    public TramJourneyResponseMapper(TransportDataFromFiles transportData) {
-        super(transportData);
+    private ServiceTimes serviceTimes;
+
+    public TramJourneyResponseMapper(ServiceTimes serviceTimes) {
+        this.serviceTimes = serviceTimes;
     }
 
-    protected Optional<JourneyDTO> createJourney(EnrichPlatform liveDataEnricher, RawJourney rawJourney, int withinMins) {
-        List<TransportStage> stages = new LinkedList<>();
+    public Optional<Journey> createJourney(RawJourney rawJourney, int withinMins) {
         List<RawStage> rawJourneyStages = rawJourney.getStages();
+        List<TransportStage> stages = new LinkedList<>();
         int queryTime = rawJourney.getQueryTime();
         TimeWindow timeWindow = new TimeWindow(queryTime, withinMins);
+
         for (RawStage rawStage : rawJourneyStages) {
             if (rawStage.getIsAVehicle()) {
                 timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
@@ -41,12 +39,13 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
                 timeWindow = timeWindow.next(TimeAsMinutes.getMinutes(walkingStage.getExpectedArrivalTime()));
             }
         }
+
         if (rawJourneyStages.size()!=stages.size()) {
             logger.error("Failed to create valid journey");
             return Optional.empty();
         }
         Journey journey = new Journey(stages);
-        return Optional.of(journey.asDTO(liveDataEnricher));
+        return Optional.of(journey);
     }
 
     private TimeWindow mapVehicleStage(TimeWindow timeWindow, List<TransportStage> stages, RawStage rawStage) {
@@ -57,7 +56,7 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
         Location firstStation = rawTravelStage.getFirstStation();
         Location lastStation = rawTravelStage.getLastStation();
 
-        Optional<ServiceTime> time = transportData.getFirstServiceTime(serviceId, firstStation, lastStation, timeWindow);
+        Optional<ServiceTime> time = serviceTimes.getFirstServiceTime(serviceId, firstStation, lastStation, timeWindow);
         if (!time.isPresent()) {
             String message = format("Cannot complete journey. stage '%s' service '%s' clock '%s'",
                     rawStage, serviceId, timeWindow);
@@ -74,6 +73,16 @@ public class TramJourneyResponseMapper extends JourneyResponseMapper {
                     duration, departsAtMinutes, timeWindow));
         }
         return timeWindow;
+    }
+
+    protected TravelAction decideAction(List<TransportStage> stagesSoFar) {
+        if (stagesSoFar.isEmpty()) {
+            return TravelAction.Board;
+        }
+        if ((stagesSoFar.get(stagesSoFar.size()-1) instanceof WalkingStage)) {
+            return TravelAction.Board;
+        }
+        return TravelAction.Change;
     }
 
 

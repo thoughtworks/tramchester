@@ -395,6 +395,19 @@ input[type="time"], input[type="datetime-local"] {
     display: none;
 }
 
+.dueTrams {
+    border-width:1px;
+    border-style:solid;
+    border-color:grey;
+    margin-left: 10px;
+}
+
+.dueTram {
+    font-size: 12px;
+    margin-left: 20px;
+    text-align: left;
+}
+
 .list-group p {
     padding: 10px;
     padding-left: 15px;

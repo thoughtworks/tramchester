@@ -7,6 +7,8 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 
 import java.util.*;
 
+import static java.lang.String.format;
+
 public class ProvidesNotes {
 
     // some displays don't show normal messages, just info on next trams to altrincham, so exclude those
@@ -42,8 +44,9 @@ public class ProvidesNotes {
                     forEach(tramStage -> {
                         StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
                         if (info!=null) {
-                            if (!(result.contains(info.getMessage()) || displaysToExclude.contains(info.getDisplayId()))) {
-                                result.add(info.getMessage());
+                            String message = format("'%s' - Metrolink",info.getMessage());
+                            if (!(result.contains(message) || displaysToExclude.contains(info.getDisplayId()))) {
+                                result.add(message);
                             }
                         }
                     });

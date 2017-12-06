@@ -10,10 +10,12 @@ import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.livedata.LiveDataEnricher;
-import com.tramchester.mappers.JourneyResponseMapper;
+import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.services.DateTimeService;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -44,19 +46,19 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private LocationToLocationJourneyPlanner locToLocPlanner;
     private RouteCalculator routeCalculator;
     private DateTimeService dateTimeService;
-    private JourneyResponseMapper journeyResponseMapper;
+    private JourneysMapper journeysMapper;
     private CreateQueryTimes createQueryTimes;
     private ProvidesNotes providesNotes;
     private LiveDataRepository liveDataRepositoy;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, DateTimeService dateTimeService,
-                                  JourneyResponseMapper journeyResponseMapper, TramchesterConfig config,
+                                  JourneysMapper journeysMapper, TramchesterConfig config,
                                   LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes,
                                   UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper, ProvidesNotes providesNotes, LiveDataRepository liveDataRepositoy) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;
         this.dateTimeService = dateTimeService;
-        this.journeyResponseMapper = journeyResponseMapper;
+        this.journeysMapper = journeysMapper;
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
         this.createQueryTimes = createQueryTimes;
@@ -107,10 +109,17 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
         }
         logger.info("number of journeys: " + journeys.size());
-        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepositoy, queryDate, initialQueryTime);
-        SortedSet<JourneyDTO> decoratedJourneys = journeyResponseMapper.map(liveDataEnricher, journeys, config.getTimeWindow());
+        JourneyDTOFactory factory = createJourneyDTOFactory(queryDate, initialQueryTime);
+        SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(factory, journeys, config.getTimeWindow());
         List<String> notes = providesNotes.createNotesFor(queryDate, decoratedJourneys);
         return new JourneyPlanRepresentation(decoratedJourneys, notes);
+    }
+
+    private JourneyDTOFactory createJourneyDTOFactory(TramServiceDate queryDate, int initialQueryTime) {
+        // as query time and contents of live data changes need to create new factory each time
+        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepositoy, queryDate, initialQueryTime);
+        StageDTOFactory stageDTOFactory = new StageDTOFactory(liveDataEnricher);
+        return new JourneyDTOFactory(stageDTOFactory);
     }
 
 }

@@ -29,7 +29,7 @@
                         <a id="showMap{{$index}}" ng-click="showMap(stage)" class="list-group-item">
                             <h4>
                                 <div id="stagePrompt{{$index}}">{{stage.prompt}} <strong>{{stage.actionStation.name}}</strong>
-                                <span ng-class-odd="'glyphicon glyphicon-chevron-right pull-right'"
+                                <span ng-class-odd="'glyphicon glyphicon-map-marker pull-right'"
                                     ng-class-even="'glyphicon glyphicon-map-marker pull-right'"></span>
                                 </div>
                             </h4>
@@ -43,6 +43,14 @@
                                 <span id="stagePlatformInstruction{{$index}}" ng-show="stage.hasPlatform">
                                     from Platform {{stage.platform.platformNumber}}
                                 </span>
+                            </div>
+                        </li>
+                        <li ng-show="stage.hasPlatform && stage.platform.stationDepartureInfo.dueTrams" class="list-group-item">
+                            <div class="dueTrams">
+                                <span>{{stage.platform.name}} at {{stage.platform.stationDepartureInfo.lastUpdate}}</span>
+                                <div ng-repeat="tram in stage.platform.stationDepartureInfo.dueTrams">
+                                    <span class="dueTram">{{tram.destination}} {{tram.carriages}} tram {{tram.status}} {{tram.wait}} minutes</span>
+                                </div>
                             </div>
                         </li>
                         <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>

@@ -24,6 +24,5 @@ public interface TransportStage extends RawStage {
     int getDuration();
     String getDisplayClass();
 
-    StageDTO asDTO(EnrichPlatform liveDataEnricher);
     Optional<Platform> getPlatform();
 }

@@ -4,58 +4,54 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.livedata.EnrichPlatform;
-import com.tramchester.mappers.TimeJsonDeserializer;
-import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.mappers.LocalTimeJsonDeserializer;
+import com.tramchester.mappers.LocalTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 public class StageDTO {
-    private PlatformDTO platform;
-    private boolean hasPlatform;
-    private LocationDTO actionStation;
-    private LocationDTO lastStation;
     private LocationDTO firstStation;
+    private LocationDTO lastStation;
+    private LocationDTO actionStation;
+
+    private boolean hasPlatform;
+    private PlatformDTO platform;
+
+    private LocalTime firstDepartureTime;
+    private LocalTime expectedArrivalTime;
+    private int duration;
 
     private String summary;
     private String prompt;
     private String headSign;
 
-    private LocalTime firstDepartureTime;
-    private LocalTime expectedArrivalTime;
-    private int duration;
     private TransportMode mode;
     private boolean walk;
     private boolean isAVehicle;
     private String displayClass;
 
-    public StageDTO() {
-        // deserialisation
+    public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
+                    PlatformDTO platform, LocalTime firstDepartureTime, LocalTime expectedArrivalTime, int duration,
+                    String summary, String prompt, String headSign, TransportMode mode, boolean walk,
+                    boolean isAVehicle, String displayClass) {
+        this.firstStation = firstStation;
+        this.lastStation = lastStation;
+        this.actionStation = actionStation;
+        this.hasPlatform = hasPlatform;
+        this.platform = platform;
+        this.firstDepartureTime = firstDepartureTime;
+        this.expectedArrivalTime = expectedArrivalTime;
+        this.duration = duration;
+        this.summary = summary;
+        this.prompt = prompt;
+        this.headSign = headSign;
+        this.mode = mode;
+        this.walk = walk;
+        this.isAVehicle = isAVehicle;
+        this.displayClass = displayClass;
     }
 
-    public StageDTO(TransportStage source, EnrichPlatform liveDataEnricher) {
-        this.actionStation = new LocationDTO(source.getActionStation());
-        this.lastStation = new LocationDTO(source.getLastStation());
-        this.firstStation = new LocationDTO(source.getFirstStation());
-        hasPlatform = source.getPlatform().isPresent();
-
-        source.getPlatform().ifPresent(sourcePlatform -> {
-            this.platform=new PlatformDTO(sourcePlatform);
-            liveDataEnricher.enrich(platform);
-        });
-
-        this.summary = source.getSummary();
-        this.prompt = source.getPrompt();
-        this.headSign = source.getHeadSign();
-
-        this.firstDepartureTime = source.getFirstDepartureTime();
-        this.expectedArrivalTime = source.getExpectedArrivalTime();
-        this.duration = source.getDuration();
-
-        this.mode = source.getMode();
-        this.walk = source.isWalk();
-        this.isAVehicle = source.getIsAVehicle();
-        this.displayClass = source.getDisplayClass();
+    public StageDTO() {
+        // deserialisation
     }
 
     public String getSummary() {
@@ -82,14 +78,14 @@ public class StageDTO {
         return firstStation;
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
-    @JsonDeserialize(using = TimeJsonDeserializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
     public LocalTime getFirstDepartureTime() {
         return firstDepartureTime;
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
-    @JsonDeserialize(using = TimeJsonDeserializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
     public LocalTime getExpectedArrivalTime() {
         return expectedArrivalTime;
     }

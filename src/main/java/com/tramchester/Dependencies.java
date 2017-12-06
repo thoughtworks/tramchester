@@ -23,6 +23,7 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.livedata.LiveDataFetcher;
+import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.mappers.LiveDataMapper;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.LiveDataRepository;
@@ -83,6 +84,7 @@ public class Dependencies {
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
+        picoContainer.addComponent(JourneysMapper.class);
         picoContainer.addComponent(TramJourneyResponseMapper.class);
 
         picoContainer.addComponent(RouteCodeToClassMapper.class);

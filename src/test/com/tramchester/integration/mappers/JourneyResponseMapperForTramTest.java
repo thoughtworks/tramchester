@@ -4,15 +4,12 @@ package com.tramchester.integration.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.Journey;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
-import com.tramchester.livedata.EnrichPlatform;
-import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -22,7 +19,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,9 +33,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     private static Dependencies dependencies;
     private TramJourneyResponseMapper mapper;
-    private Set<RawJourney> journeys;
     private List<RawStage> stages;
-    private EnrichPlatform liveDataEnricher;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -53,11 +50,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     public void beforeEachTestRuns() {
         mapper = dependencies.get(TramJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
-        journeys = new HashSet<>();
         stages = new LinkedList<>();
-        liveDataEnricher = platform -> {
-            // noop
-        };
     }
 
     @Test
@@ -65,13 +58,13 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         int time = 930;
 
         RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42);
-
         stages.add(vicToRoch);
-        journeys.add(new RawJourney(stages, time));
-        SortedSet<JourneyDTO> result = mapper.map(liveDataEnricher, journeys, 30);
 
-        JourneyDTO journey = result.stream().findFirst().get();
-        StageDTO stage = journey.getStages().get(0);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages, time), 30);
+
+        assertTrue(result.isPresent());
+        Journey journey = result.get();
+        TransportStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(16,00)));
     }
@@ -84,12 +77,12 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
                 pm1044, 42);
 
         stages.add(rawStage);
-        journeys.add(new RawJourney(stages,pm1044));
-        SortedSet<JourneyDTO> result = mapper.map(liveDataEnricher, journeys, 60);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,pm1044), 60);
 
-        JourneyDTO journey = result.stream().findFirst().get();
+        assertTrue(result.isPresent());
+        Journey journey = result.get();
         assertFalse(journey.getStages().isEmpty());
-        StageDTO stage = journey.getStages().get(0);
+        TransportStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(22,55)));
     }
@@ -101,13 +94,12 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42);
 
         stages.add(altToCorn);
-        journeys.add(new RawJourney(stages,am7));
-        SortedSet<JourneyDTO> result = mapper.map(liveDataEnricher, journeys, 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,am7), 30);
 
-        assertEquals(1,result.size());
-        JourneyDTO journey = result.stream().findFirst().get();
+        assertTrue(result.isPresent());
+        Journey journey = result.get();
         assertEquals(1, journey.getStages().size());
-        StageDTO stage = journey.getStages().get(0);
+        TransportStage stage = journey.getStages().get(0);
         assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
         assertEquals(Stations.Cornbrook.getId(),stage.getLastStation().getId());
         assertTrue(stage.getDuration()>0);
@@ -115,8 +107,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getFirstDepartureTime().isBefore(eightAM));
         assertTrue(stage.getExpectedArrivalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
-        assertTrue(stage.getHasPlatform());
-        assertEquals(Stations.Altrincham.getId()+"1", stage.getPlatform().getId());
+        assertTrue(stage.getPlatform().isPresent());
+        assertEquals(Stations.Altrincham.getId()+"1", stage.getPlatform().get().getId());
     }
 
     @Test
@@ -128,30 +120,29 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         RawVehicleStage rawStageA = getRawVehicleStage(begin, middle, "route text", pm10, 42);
         RawVehicleStage rawStageB = getRawVehicleStage(middle, end, "route2 text", pm10+42, 20);
-
         stages.add(rawStageA);
         stages.add(rawStageB);
-        journeys.add(new RawJourney(stages, pm10));
 
-        SortedSet<JourneyDTO> result = mapper.map(liveDataEnricher, journeys, 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages, pm10), 30);
 
-        assertEquals(1,result.size());
-
-        JourneyDTO journey = result.stream().findFirst().get();
+        assertTrue(result.isPresent());
+        Journey journey = result.get();
 
         assertEquals(2, journey.getStages().size());
 
-        StageDTO stage1 = journey.getStages().get(0);
+        TransportStage stage1 = journey.getStages().get(0);
         assertEquals(begin.getId(),stage1.getFirstStation().getId());
         assertEquals(middle.getId(),stage1.getLastStation().getId());
-        assertEquals(begin.getId()+"1", stage1.getPlatform().getId());
+        assertTrue(stage1.getPlatform().isPresent());
+        assertEquals(begin.getId()+"1", stage1.getPlatform().get().getId());
 
-        StageDTO stage2 = journey.getStages().get(1);
+        TransportStage stage2 = journey.getStages().get(1);
         assertEquals(middle.getId(),stage2.getFirstStation().getId());
         assertEquals(end.getId(),stage2.getLastStation().getId());
-        assertEquals(middle.getId()+"1", stage2.getPlatform().getId());
+        assertTrue(stage2.getPlatform().isPresent());
+        assertEquals(middle.getId()+"1", stage2.getPlatform().get().getId());
 
-        assertEquals("Change tram at",stage2.getPrompt());
+        assertEquals("Change tram at", stage2.getPrompt());
     }
 
     @Test
@@ -159,17 +150,15 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         int pm10 = 22 * 60;
 
         RawWalkingStage walkingStage = new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 10);
-
         stages.add(walkingStage);
-        journeys.add(new RawJourney(stages,pm10));
 
-        SortedSet<JourneyDTO> result = mapper.map(liveDataEnricher, journeys, 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,pm10), 30);
 
-        assertEquals(1,result.size());
-        JourneyDTO journey = result.stream().findFirst().get();
+        assertTrue(result.isPresent());
+        Journey journey = result.get();
         assertEquals(1, journey.getStages().size());
 
-        StageDTO stage = journey.getStages().get(0);
+        TransportStage stage = journey.getStages().get(0);
         assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
         assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
 
@@ -192,32 +181,33 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageA);
         stages.add(walkingStage);
         stages.add(finalStage);
-        journeys.add(new RawJourney(stages,am10));
 
-        SortedSet<JourneyDTO> result = mapper.map(liveDataEnricher, journeys, 30);
-        assertEquals(1,result.size());
-        JourneyDTO journey = result.stream().findFirst().get();
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,am10), 30);
+
+        assertTrue(result.isPresent());
+        Journey journey = result.get();
         assertEquals(3, journey.getStages().size());
         LocalTime arrivalTime = journey.getExpectedArrivalTime();
         assertTrue(arrivalTime.isAfter(new LocalTime(10,10)));
 
-        StageDTO stage1 = journey.getStages().get(0);
+        TransportStage stage1 = journey.getStages().get(0);
         assertEquals("Board tram at",stage1.getPrompt());
-        assertEquals(begin.getId()+"1", stage1.getPlatform().getId());
+        assertTrue(stage1.getPlatform().isPresent());
+        assertEquals(begin.getId()+"1", stage1.getPlatform().get().getId());
 
-        StageDTO stage2 = journey.getStages().get(1);
+        TransportStage stage2 = journey.getStages().get(1);
         assertEquals(middleB.getId(),stage2.getActionStation().getId());
         assertEquals(middleB.getId(),stage2.getLastStation().getId());
         assertEquals("Walk to",stage2.getPrompt());
         assertEquals(walkCost, stage2.getDuration());
-        assertFalse(stage2.getHasPlatform());
+        assertFalse(stage2.getPlatform().isPresent());
 
-        StageDTO stage3 = journey.getStages().get(2);
+        TransportStage stage3 = journey.getStages().get(2);
         assertEquals("Board tram at",stage3.getPrompt());
         assertEquals(middleB.getId(),stage3.getFirstStation().getId());
         assertEquals(end.getId(),stage3.getLastStation().getId());
-        assertEquals(middleB.getId()+"1", stage3.getPlatform().getId());
-
+        assertTrue(stage3.getPlatform().isPresent());
+        assertEquals(middleB.getId()+"1", stage3.getPlatform().get().getId());
     }
 
     @Test
@@ -231,11 +221,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         stages.add(rawStageA);
         stages.add(rawStageB);
-        journeys.add(new RawJourney(stages,startTime));
 
-        SortedSet<JourneyDTO> result = mapper.map(liveDataEnricher, journeys, 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,startTime), 30);
 
-        assertTrue(result.size()>0);
+        assertTrue(result.isPresent());
     }
 
     private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, int startTime, int cost) throws TramchesterException {

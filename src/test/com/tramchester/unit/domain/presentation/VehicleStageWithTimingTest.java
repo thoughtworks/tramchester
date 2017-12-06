@@ -35,41 +35,6 @@ public class VehicleStageWithTimingTest {
     }
 
     @Test
-    public void shouldGetAsADTO() {
-        ServiceTime serviceTime = new ServiceTime(new LocalTime(8, 00), new LocalTime(9, 15), "svcId", "headsign", tripId);
-        VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, serviceTime, TravelAction.Board);
-        stage.setCost(75);
-        stage.setLastStation(Stations.Bury);
-        Platform platform = new Platform("platformA1", "station platform 1");
-        stage.setPlatform(platform);
-
-        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName","stationPlatform",
-                "message", DateTime.now());
-
-        EnrichPlatform liveDataEnricher = aPlatform -> {
-            aPlatform.setDepartureInfo(departureInfo);
-        };
-        StageDTO dto = stage.asDTO(liveDataEnricher);
-        assertEquals(stage.getSummary(), dto.getSummary());
-        assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
-        assertEquals(stage.getHeadSign(), dto.getHeadSign());
-        assertEquals(stage.getActionStation().getId(),dto.getActionStation().getId());
-        assertEquals(stage.getDuration(),dto.getDuration());
-        assertEquals(stage.getFirstStation().getId(),dto.getFirstStation().getId());
-        assertEquals(stage.getLastStation().getId(), dto.getLastStation().getId());
-        assertEquals(stage.getIsAVehicle(),dto.getIsAVehicle());
-        assertEquals(stage.getFirstDepartureTime(),dto.getFirstDepartureTime());
-        assertEquals(stage.getPrompt(),dto.getPrompt());
-        assertEquals(stage.isWalk(), dto.isWalk());
-        assertEquals(stage.getMode(), dto.getMode());
-        assertTrue(dto.getHasPlatform());
-        assertEquals(platform.getId(), dto.getPlatform().getId());
-        assertEquals(platform.getName(), dto.getPlatform().getName());
-        assertEquals(platform.getPlatformNumber(), dto.getPlatform().getPlatformNumber());
-        assertEquals(departureInfo.getMessage(), dto.getPlatform().getStationDepartureInfo().getMessage());
-    }
-
-    @Test
     public void shouldGetFirstDepartureAndFirstArrival() {
         ServiceTime serviceTimeA = new ServiceTime(new LocalTime(8, 00), new LocalTime(9, 15), "svcId", "headsign", tripId);
 

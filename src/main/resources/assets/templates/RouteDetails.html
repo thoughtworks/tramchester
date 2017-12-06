@@ -34,9 +34,7 @@
                 </div>
             </div>
         </div>
-        <!--
-        <p ng-show="NoRoutes"><a href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
-        -->
+
         <div class="col-12 col-sm-12 col-lg-" ng-hide="NoRoutes">
             <div id="routes" ng-show="!journeyPlan.journeys.length" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
@@ -48,7 +46,7 @@
                     <div class="list-group">
                         <a ng-click="showJourneyDetails($index)" class="list-group-item" id="journeyBegin{{$index}}">
                             <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.begin.name}}</strong>
-                            <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                            <span class="glyphicon glyphicon-info-sign pull-right"></span>
                         </a></div>
                     <ul class="list-group" id="journeySummary{{$index}}">
                         <li class="list-group-item">

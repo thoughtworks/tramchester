@@ -1,10 +1,8 @@
 package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.livedata.EnrichPlatform;
-import com.tramchester.mappers.TimeJsonSerializer;
+import com.tramchester.mappers.LocalTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 import java.util.Optional;
@@ -62,12 +60,12 @@ public class WalkingStage implements TransportStage {
     @Override
     public Location getFirstStation() { return rawWalkingStage.getStart(); }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
     public LocalTime getFirstDepartureTime() {
         return LocalTime.fromMillisOfDay(beginTimeMins * millisInMinute);
     }
 
-    @JsonSerialize(using = TimeJsonSerializer.class)
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
     public LocalTime getExpectedArrivalTime() {
         return LocalTime.fromMillisOfDay((beginTimeMins+getDuration()) * millisInMinute);
     }
@@ -80,11 +78,6 @@ public class WalkingStage implements TransportStage {
     @Override
     public String getDisplayClass() {
         return "RouteWalking";
-    }
-
-    @Override
-    public StageDTO asDTO(EnrichPlatform liveDataEnricher) {
-        return new StageDTO(this, liveDataEnricher);
     }
 
     @Override
