@@ -77,12 +77,12 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         assertTrue(result.isPresent());
         Journey found = result.get();
 
-        assertEquals(new LocalTime(8,18),found.getExpectedArrivalTime());
-        assertEquals(new LocalTime(8,2),found.getFirstDepartureTime());
         TransportStage stageFirst = found.getStages().get(0);
         TransportStage stageSecond = found.getStages().get(1);
         assertEquals(7, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
+        assertEquals(new LocalTime(8,18),stageSecond.getExpectedArrivalTime());
+        assertEquals(new LocalTime(8,2),stageFirst.getFirstDepartureTime());
     }
 
     @Test
@@ -110,16 +110,16 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
         Journey found = result.get();
 
-        assertEquals(new LocalTime(8,16),found.getExpectedArrivalTime());
-        assertEquals(new LocalTime(8,3),found.getFirstDepartureTime());
         TransportStage stageFirst = found.getStages().get(0);
         TransportStage stageSecond = found.getStages().get(1);
         assertEquals(4, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
 
+        assertEquals(new LocalTime(8,16),stageSecond.getExpectedArrivalTime());
+        assertEquals(new LocalTime(8,3),stageFirst.getFirstDepartureTime());
+
         assertEquals("Board bus at", stageFirst.getPrompt());
         assertEquals("Change bus at", stageSecond.getPrompt());
-
     }
 
     private RawJourney createSimpleRawJourney(int costA, int costB, int queryTime) {

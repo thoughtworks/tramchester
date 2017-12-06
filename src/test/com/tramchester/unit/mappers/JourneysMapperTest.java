@@ -4,7 +4,6 @@ import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.integration.Stations;
@@ -13,11 +12,9 @@ import com.tramchester.mappers.SingleJourneyMapper;
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.unsafe.impl.batchimport.stats.Stat;
 
 import java.util.*;
 

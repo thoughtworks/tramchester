@@ -187,8 +187,6 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(result.isPresent());
         Journey journey = result.get();
         assertEquals(3, journey.getStages().size());
-        LocalTime arrivalTime = journey.getExpectedArrivalTime();
-        assertTrue(arrivalTime.isAfter(new LocalTime(10,10)));
 
         TransportStage stage1 = journey.getStages().get(0);
         assertEquals("Board tram at",stage1.getPrompt());
@@ -208,6 +206,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(end.getId(),stage3.getLastStation().getId());
         assertTrue(stage3.getPlatform().isPresent());
         assertEquals(middleB.getId()+"1", stage3.getPlatform().get().getId());
+
+        LocalTime arrivalTime = stage3.getExpectedArrivalTime();
+        assertTrue(arrivalTime.isAfter(new LocalTime(10,10)));
+
     }
 
     @Test

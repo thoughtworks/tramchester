@@ -45,7 +45,7 @@
                                 </span>
                             </div>
                         </li>
-                        <li ng-show="stage.hasPlatform && stage.platform.stationDepartureInfo.dueTrams" class="list-group-item">
+                        <li ng-show="stage.hasPlatform && (stage.platform.stationDepartureInfo.dueTrams.length >0)" class="list-group-item">
                             <div class="dueTrams">
                                 <span>{{stage.platform.name}} at {{stage.platform.stationDepartureInfo.lastUpdate}}</span>
                                 <div ng-repeat="tram in stage.platform.stationDepartureInfo.dueTrams">
