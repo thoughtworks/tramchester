@@ -10,7 +10,6 @@ public class StationDTO extends LocationDTO {
     public StationDTO(Station other, ProximityGroup proximityGroup) {
        super(other);
        this.proximityGroup = proximityGroup;
-
     }
 
     public StationDTO() {

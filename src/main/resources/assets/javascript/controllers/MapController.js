@@ -5,6 +5,7 @@ techLabApp.controller('MapController',
         $scope.journey = journeyPlanService.getJourney($routeParams.journeyIndex);
         $scope.stage = $scope.journey.stages[$routeParams.stageIndex];
         $scope.dest = $scope.stage.lastStation;
+        $scope.title = $scope.stage.actionStation.name;
         
         var map, dir;
 

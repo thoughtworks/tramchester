@@ -19,6 +19,7 @@ import static java.lang.String.format;
 
 public class LiveDataRepository {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
+
     public static final int TIME_LIMIT = 5; // only enrich if data is within this many minutes
 
     private HashMap<String,StationDepartureInfo> map;

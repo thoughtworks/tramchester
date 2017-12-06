@@ -20,6 +20,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     private LocalTime firstDepartureTime;
     private String summary;
     private String heading;
+    private String dueTram;
 
     public JourneyDTO() {
         // Deserialization
@@ -95,5 +96,13 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
 
     private int checkArrival(JourneyDTO other) {
         return TimeAsMinutes.compare(getExpectedArrivalTime(), other.getExpectedArrivalTime());
+    }
+
+    public String getDueTram() {
+        return dueTram;
+    }
+
+    public void setDueTram(String dueTram) {
+        this.dueTram = dueTram;
     }
 }

@@ -47,7 +47,14 @@
                         <a ng-click="showJourneyDetails($index)" class="list-group-item" id="journeyBegin{{$index}}">
                             <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.begin.name}}</strong>
                             <span class="glyphicon glyphicon-info-sign pull-right"></span>
-                        </a></div>
+                        </a>
+                    </div>
+                    <ul class="list-group" id="dueTram{{$index}}" ng-show="journey.dueTram">
+                        <li class="list-group-item">
+                            <span class="glyphicon glyphicon glyphicon-time pull-right"></span>
+                            {{journey.dueTram}}
+                        </li>
+                    </ul>
                     <ul class="list-group" id="journeySummary{{$index}}">
                         <li class="list-group-item">
                             <span class="glyphicon glyphicon-random pull-right"></span>

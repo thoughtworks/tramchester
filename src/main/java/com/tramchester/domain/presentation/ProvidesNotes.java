@@ -10,7 +10,6 @@ import java.util.*;
 import static java.lang.String.format;
 
 public class ProvidesNotes {
-
     // some displays don't show normal messages, just info on next trams to altrincham, so exclude those
     List<String> displaysToExclude = Arrays.asList("303","304","461");
 

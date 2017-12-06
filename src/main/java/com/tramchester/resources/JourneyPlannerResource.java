@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.livedata.LiveDataEnricher;
+import com.tramchester.mappers.HeadsignMapper;
 import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.services.DateTimeService;
@@ -119,7 +120,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         // as query time and contents of live data changes need to create new factory each time
         LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepositoy, queryDate, initialQueryTime);
         StageDTOFactory stageDTOFactory = new StageDTOFactory(liveDataEnricher);
-        return new JourneyDTOFactory(stageDTOFactory);
+        HeadsignMapper headsignMapper = new HeadsignMapper();
+        return new JourneyDTOFactory(stageDTOFactory, headsignMapper);
     }
 
 }

@@ -4,14 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.domain.*;
+import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.*;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.integration.Stations;
+import com.tramchester.mappers.HeadsignMapper;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNull;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 
@@ -32,13 +36,13 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     @Before
     public void beforeEachTestRuns() {
         stageFactory = createMock(StageDTOFactory.class);
-        factory = new JourneyDTOFactory(stageFactory);
+        factory = new JourneyDTOFactory(stageFactory, new HeadsignMapper());
     }
 
     @Test
-    public void shouldCreateJourneyDTODeprecated() {
+    public void shouldCreateJourneyDTO() {
 
-        TransportStage transportStage = createStage(new LocalTime(10, 20));
+        TransportStage transportStage = createStage(new LocalTime(10, 8), new LocalTime(10, 20));
         Journey journey = new Journey(Arrays.asList(transportStage));
 
         StageDTO stageDTO = new StageDTO();
@@ -57,6 +61,61 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
 
         assertEquals(journey.getStages().size(),journeyDTO.getStages().size());
         assertEquals(stageDTO, journeyDTO.getStages().get(0));
+    }
+
+    @Test
+    public void shouldCreateJourneyDTOWithDueTram() {
+        DateTime when = new DateTime(2017,11,30,18,41);
+
+        TransportStage transportStage = createStage(when.plusMinutes(1).toLocalTime(), new LocalTime(19, 00));
+        Journey journey = new Journey(Arrays.asList(transportStage));
+
+        StageDTO stageDTO = createStageDTOWithDueTram("headSign", when, 5);
+
+        EasyMock.expect(stageFactory.build(transportStage)).andReturn(stageDTO);
+
+        replayAll();
+        JourneyDTO journeyDTO = factory.build(journey);
+        verifyAll();
+
+        assertEquals("Double tram Due at 18:46", journeyDTO.getDueTram());
+    }
+
+    @Test
+    public void shouldCreateJourneyDTOWithDueTramTimeOutOfRange() {
+
+        TransportStage transportStage = createStage(new LocalTime(10, 8), new LocalTime(10, 20));
+        Journey journey = new Journey(Arrays.asList(transportStage));
+
+        DateTime dateTime = new DateTime(2017,11,30,18,41);
+        StageDTO stageDTO = createStageDTOWithDueTram("headSign", dateTime, 15);
+
+        EasyMock.expect(stageFactory.build(transportStage)).andReturn(stageDTO);
+
+        replayAll();
+        JourneyDTO journeyDTO = factory.build(journey);
+        verifyAll();
+
+        assertNull(journeyDTO.getDueTram());
+    }
+
+    @Test
+    public void shouldCreateJourneyDTOWithLaterDueTramMatching() {
+        DateTime when = new DateTime(2017,11,30,18,41);
+
+        TransportStage transportStage = createStage(when.plusMinutes(9).toLocalTime(), new LocalTime(19, 00));
+        Journey journey = new Journey(Arrays.asList(transportStage));
+
+        StageDTO stageDTO = createStageDTOWithDueTram("headSign", when, 5);
+
+        EasyMock.expect(stageFactory.build(transportStage)).andReturn(stageDTO);
+
+        replayAll();
+        JourneyDTO journeyDTO = factory.build(journey);
+        verifyAll();
+
+        // select due tram that is closer to stage departure when more than one available
+        assertEquals("Double tram Due at 18:48", journeyDTO.getDueTram());
     }
 
     @Test
@@ -204,12 +263,35 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         return new VehicleStageWithTiming(rawVehicleStage, serviceTime, travelAction);
     }
 
-    private TransportStage createStage(LocalTime arrivesEnd) {
+    private TransportStage createStage(LocalTime departs, LocalTime arrivesEnd) {
         RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass").
                 setLastStation(stationB).setCost(42);
-        ServiceTime serviceTime = new ServiceTime(new LocalTime(10, 8), arrivesEnd, "svcId",
+        ServiceTime serviceTime = new ServiceTime(departs, arrivesEnd, "svcId",
                 "headSign", "tripId");
         VehicleStageWithTiming vehicleStageWithTiming = new VehicleStageWithTiming(rawTravelStage, serviceTime, TravelAction.Board);
         return vehicleStageWithTiming;
+    }
+
+
+    private StageDTO createStageDTOWithDueTram(String matchingHeadsign, DateTime when, int wait) {
+        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
+                "platform",
+                "message", when);
+        departureInfo.addDueTram(new DueTram("other", "Due", 10, "Single", when));
+        departureInfo.addDueTram(new DueTram(matchingHeadsign, "Departed", 0, "Single",when));
+        departureInfo.addDueTram(new DueTram(matchingHeadsign, "Due", wait, "Double",when));
+        departureInfo.addDueTram(new DueTram(matchingHeadsign, "Due", wait+2, "Double",when));
+
+        PlatformDTO platform = new PlatformDTO(new Platform("platformId", "platformName"));
+        platform.setDepartureInfo(departureInfo);
+
+        int durationOfStage = 15;
+        return new StageDTO(new LocationDTO(stationA),
+                new LocationDTO(stationB), new LocationDTO(stationB),
+                true, platform, when.toLocalTime().plusMinutes(1),
+                when.toLocalTime().plusMinutes(durationOfStage),
+                durationOfStage, "summary", "prompt",
+                matchingHeadsign, TransportMode.Tram,
+                false, true, "displayClass");
     }
 }

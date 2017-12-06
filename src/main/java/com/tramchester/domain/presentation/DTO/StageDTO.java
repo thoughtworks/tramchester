@@ -114,6 +114,7 @@ public class StageDTO {
         return platform;
     }
 
+    // web site
     public boolean getHasPlatform() {
         return hasPlatform;
     }

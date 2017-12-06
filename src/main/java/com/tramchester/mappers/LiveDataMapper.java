@@ -51,7 +51,7 @@ public class LiveDataMapper {
                 String waitString = getField(jsonObject, i, "Wait");
                 int wait = Integer.parseInt(waitString);
                 String carriages = getField(jsonObject, i, "Carriages");
-                DueTram dueTram = new DueTram(dest, status, wait, carriages);
+                DueTram dueTram = new DueTram(dest, status, wait, carriages, departureInfo.getLastUpdate());
                 departureInfo.addDueTram(dueTram);
             }
         }

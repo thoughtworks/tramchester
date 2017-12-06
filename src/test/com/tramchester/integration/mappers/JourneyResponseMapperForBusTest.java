@@ -12,6 +12,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.BusTest;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.livedata.LiveDataEnricher;
+import com.tramchester.mappers.HeadsignMapper;
 import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.LiveDataRepository;
@@ -88,7 +89,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
         LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate, minutesFromMidnight);
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
-        JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory);
+        HeadsignMapper headsignMapper = new HeadsignMapper();
+        JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory, headsignMapper);
         SortedSet<JourneyDTO> mapped = mapper.map(factory, journeys, 30);
         return new JourneyPlanRepresentation(mapped, notes);
     }

@@ -2,17 +2,24 @@ package com.tramchester.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
+import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.mappers.HeadsignMapper;
+import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -20,10 +27,14 @@ import static java.lang.String.format;
 public class JourneyDTOFactory {
     private static final Logger logger = LoggerFactory.getLogger(JourneyDTOFactory.class);
 
-    private StageDTOFactory stageDTOFactory;
+    public static int TIME_LIMIT = 15;
 
-    public JourneyDTOFactory(StageDTOFactory stageDTOFactory) {
+    private StageDTOFactory stageDTOFactory;
+    private HeadsignMapper headsignMapper;
+
+    public JourneyDTOFactory(StageDTOFactory stageDTOFactory, HeadsignMapper headsignMapper) {
         this.stageDTOFactory = stageDTOFactory;
+        this.headsignMapper = headsignMapper;
     }
 
     public JourneyDTO build(Journey journey) {
@@ -39,10 +50,59 @@ public class JourneyDTOFactory {
 
         LocationDTO begin = new LocationDTO(getBegin(transportStages));
         LocationDTO end = new LocationDTO(getEnd(transportStages));
+
         JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(transportStages),
                 getFirstDepartureTime(transportStages), summary,
                 heading);
+
+        addDueTramIfPresent(journeyDTO);
+
         return journeyDTO;
+    }
+
+    private void addDueTramIfPresent(JourneyDTO journeyDTO) {
+        Optional<StageDTO> maybeFirstTram = journeyDTO.getStages().stream().
+                filter(stage -> TransportMode.Tram.equals(stage.getMode())).
+                findFirst();
+        if (!maybeFirstTram.isPresent()) {
+            return;
+        }
+
+        StageDTO firstTramStage = maybeFirstTram.get();
+        StationDepartureInfo departInfo = firstTramStage.getPlatform().getStationDepartureInfo();
+        if (departInfo==null) {
+            return;
+        }
+
+        LocalTime firstDepartTime = journeyDTO.getFirstDepartureTime();
+        String headsign = headsignMapper.mapToDestination(firstTramStage.getHeadSign());
+
+        Comparator<? super DueTram> nearestMatchByDueTime = createDueTramComparator(firstDepartTime);
+        Optional<DueTram> maybeDueTram = departInfo.getDueTrams().stream().
+                filter(dueTram -> filterDueTram(headsign, dueTram, firstDepartTime)).
+                sorted(nearestMatchByDueTime).findFirst();
+        if (maybeDueTram.isPresent()) {
+            DueTram dueTram = maybeDueTram.get();
+            DateTime when = dueTram.getWhen();
+            journeyDTO.setDueTram(format("%s tram %s at %s", dueTram.getCarriages(), dueTram.getStatus(),
+                    when.toString("HH:mm")));
+        }
+    }
+
+    private Comparator<DueTram> createDueTramComparator(LocalTime firstDepartTime) {
+        return (a, b) -> {
+            int gapA = Math.abs(a.getWhen().getMillisOfDay() - firstDepartTime.getMillisOfDay());
+            int gapB = Math.abs(b.getWhen().getMillisOfDay() - firstDepartTime.getMillisOfDay());
+            return Integer.compare(gapA,gapB);
+        };
+    }
+
+    private boolean filterDueTram(String headsign, DueTram dueTram, LocalTime firstDepartTime) {
+        int dueAsMins = TimeAsMinutes.getMinutes(dueTram.getWhen().toLocalTime());
+        int departAsMins = TimeAsMinutes.getMinutes(firstDepartTime);
+        return headsign.equals(dueTram.getDestination()) &&
+                ("Due".equals(dueTram.getStatus()) &&
+                        (Math.abs(dueAsMins-departAsMins)< TIME_LIMIT));
     }
 
     private Location getBegin(List<TransportStage> allStages) {

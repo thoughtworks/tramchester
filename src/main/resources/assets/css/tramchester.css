@@ -396,9 +396,6 @@ input[type="time"], input[type="datetime-local"] {
 }
 
 .dueTrams {
-    border-width:1px;
-    border-style:solid;
-    border-color:grey;
     margin-left: 10px;
 }
 
