@@ -141,7 +141,7 @@ public class App extends Application<AppConfiguration>  {
     }
 
     private void filtersForStaticContent(Environment environment) {
-        int lifeTime = 8 * 24 * 60 * 60;
+        int lifeTime = 1 * 24 * 60 * 60;
         StaticAssetFilter filter = new StaticAssetFilter(lifeTime);
         setFilterFor(environment, filter, "javascript", "/javascript/*");
         setFilterFor(environment, filter, "css", "/css/*");

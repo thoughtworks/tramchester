@@ -10,6 +10,7 @@ var techLabApp = angular.module('techLabApp', ['ngResource','ngRoute', 'ngCookie
             when('/map/:journeyIndex/:stageIndex', {templateUrl: 'templates/map.html', controller: 'MapController'}).
             when('/networkMap', {templateUrl: 'templates/networkMap.html', controller: 'NetworkMapController'}).
             when('/about', {templateUrl: 'templates/about.html', controller: 'AboutController'}).
+            when('/livenearme', {templateUrl: 'templates/liveNearMe.html', controller: 'LiveNearMeController'}).
             when('/journeyDetails/:journeyIndex', { templateUrl: 'templates/JourneyDetails.html',
                 controller: 'JourneyDetailsController' })
     }).directive('ngModel', function( $filter ) {

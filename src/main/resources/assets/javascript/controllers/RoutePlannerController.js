@@ -16,6 +16,10 @@ techLabApp.controller('RoutePlannerController',
 
         journeyPlanService.removePlan();
 
+        $scope.nearMe = function() {
+            $location.url('/livenearme');
+        };
+
         $scope.findRoute = function (fromStop, toStop, departureTime, departureDate, journeyPlanForm) {
             if (journeyPlanForm.$valid) {
                 var time = moment(departureTime).format('HH:mm');
@@ -63,7 +67,6 @@ techLabApp.controller('RoutePlannerController',
             console.log("Unable to get current position");
             getAllStops();
         }
-
 
         function positionError(error) {
             console.log(error);

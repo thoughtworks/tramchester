@@ -1,0 +1,36 @@
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <a id="backToRouteDetails" class="navbar-button" ng-click="goBack(journey)">
+            <span class="glyphicon glyphicon-chevron-left">Journeys</span>
+        </a>
+        <h5 class="navbar-title">Stations Near Me</h5>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" >
+            <div id="notYet" ng-show="!stations.length" class="text-center">
+                <img src="images/loader.gif" class="medium-loading"/>
+            </div>
+            <div class="panel" ng-hide='!stations.length'>
+                <div ng-repeat="station in stations">
+                    <div class="panel-heading">{{station.name}}</div>
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div ng-repeat="platform in station.platforms">
+                                <span>Platform:{{platform.name}}</span>
+                                <div class="dueTrams list-group-item">
+                                    <div ng-repeat="tram in platform.stationDepartureInfo.dueTrams">
+                                        <span class="dueTram">{{tram.destination}} {{tram.carriages}} tram {{tram.status}} at {{tram.when}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>
