@@ -75,7 +75,7 @@ public class JourneyDTOFactory {
         }
 
         LocalTime firstDepartTime = journeyDTO.getFirstDepartureTime();
-        String headsign = headsignMapper.mapToDestination(firstTramStage.getHeadSign());
+        String headsign = headsignMapper.mapToDestination(firstTramStage.getHeadSign()).toLowerCase();
 
         Comparator<? super DueTram> nearestMatchByDueTime = createDueTramComparator(firstDepartTime);
         Optional<DueTram> maybeDueTram = departInfo.getDueTrams().stream().
@@ -100,7 +100,9 @@ public class JourneyDTOFactory {
     private boolean filterDueTram(String headsign, DueTram dueTram, LocalTime firstDepartTime) {
         int dueAsMins = TimeAsMinutes.getMinutes(dueTram.getWhen().toLocalTime());
         int departAsMins = TimeAsMinutes.getMinutes(firstDepartTime);
-        return headsign.equals(dueTram.getDestination()) &&
+        String destination = dueTram.getDestination().toLowerCase();
+        
+        return headsign.equals(destination) &&
                 ("Due".equals(dueTram.getStatus()) &&
                         (Math.abs(dueAsMins-departAsMins)< TIME_LIMIT));
     }
