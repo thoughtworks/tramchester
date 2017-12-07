@@ -24,5 +24,5 @@ public interface TransportStage extends RawStage {
     int getDuration();
     String getDisplayClass();
 
-    Optional<Platform> getPlatform();
+    Optional<Platform> getBoardingPlatform();
 }

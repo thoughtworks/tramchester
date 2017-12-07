@@ -27,11 +27,11 @@ public class JourneyDTOTest {
 
     private JourneyDTO journeyA = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
             new LocalTime(10, 20), new LocalTime(10, 8),
-            "summary", "heading");
+            "summary", "heading", false);
 
     private JourneyDTO journeyB = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
             new LocalTime(10, 25), new LocalTime(10, 8),
-            "summary", "heading");
+            "summary", "heading", false);
 
     @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
@@ -51,11 +51,11 @@ public class JourneyDTOTest {
     public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() {
         JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
                 new LocalTime(23, 50), new LocalTime(10, 8),
-                "summary", "heading");
+                "summary", "heading", false);
 
         JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<StageDTO>(),
                 new LocalTime(00, 10), new LocalTime(10, 8),
-                "summary", "heading");
+                "summary", "heading", false);
 
         SortedSet<JourneyDTO> set = new TreeSet<>();
         set.add(afterMidnight);
@@ -69,8 +69,8 @@ public class JourneyDTOTest {
 
     private List<TransportStage> createStages(LocalTime arrivesEnd) {
         List<TransportStage> stages = new LinkedList<>();
-        RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass").
-                setLastStation(stationB).setCost(42);
+        RawVehicleStage rawTravelStage = new RawVehicleStage(Stations.Deansgate, "routeName", TransportMode.Bus, "cssClass").
+                setLastStation(Stations.VeloPark).setCost(42);
         ServiceTime serviceTime = new ServiceTime(new LocalTime(10, 8), arrivesEnd, "svcId", "headSign", "tripId");
         stages.add(new VehicleStageWithTiming(rawTravelStage, serviceTime, TravelAction.Board));
         return stages;

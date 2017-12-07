@@ -81,7 +81,7 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
-    public Optional<Platform> getPlatform() {
+    public Optional<Platform> getBoardingPlatform() {
         return Optional.empty();
     }
 

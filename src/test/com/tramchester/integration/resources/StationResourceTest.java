@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.DTO.StationDTO;
@@ -26,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
@@ -42,6 +44,24 @@ public class StationResourceTest {
     }
 
     @Test
+    public void shouldGetSingleStationWithPlatforms() {
+        String id = Stations.StPetersSquare.getId();
+        String endPoint = "stations/" + id;
+        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
+        assertEquals(200,response.getStatus());
+        StationDTO result = response.readEntity(StationDTO.class);
+
+        assertEquals(id, result.getId());
+
+        List<PlatformDTO> platforms = result.getPlatforms();
+        assertEquals(4, platforms.size());
+        assertEquals(id+"1", platforms.get(0).getId());
+        assertEquals(id+"2", platforms.get(1).getId());
+        assertEquals(id+"3", platforms.get(2).getId());
+        assertEquals(id+"4", platforms.get(3).getId());
+    }
+
+    @Test
     public void shouldGetNearestStations() throws Exception {
         List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
@@ -52,8 +72,15 @@ public class StationResourceTest {
         int ALL_STOPS_START = 7; // 6 + 1
         assertEquals(ProximityGroup.ALL, stations.get(ALL_STOPS_START).getProximityGroup());
         assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
-        assertEquals("Altrincham", stations.get(ALL_STOPS_START+1).getName());
+        StationDTO stationDTO = stations.get(ALL_STOPS_START + 1);
+        assertEquals("Altrincham", stationDTO.getName());
 
+        List<PlatformDTO> platforms = stationDTO.getPlatforms();
+        assertEquals(1, platforms.size());
+        PlatformDTO platformDTO = platforms.get(0);
+        assertEquals("1", platformDTO.getPlatformNumber());
+        assertEquals("Altrincham platform 1", platformDTO.getName());
+        assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());
     }
 
     @Test
@@ -89,7 +116,6 @@ public class StationResourceTest {
         Collection<StationDTO> stations = getAll(Optional.empty());
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
-
         stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo(ProximityGroup.ALL));
     }
 
@@ -117,11 +143,13 @@ public class StationResourceTest {
 
     private List<StationDTO> getNearest(double lat, double lon, Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie);
+        assertEquals(200,result.getStatus());
         return result.readEntity(new GenericType<List<StationDTO>>(){});
     }
 
     private List<StationDTO> getAll(Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, "stations", cookie);
+        assertEquals(200,result.getStatus());
         return result.readEntity(new GenericType<ArrayList<StationDTO>>(){});
     }
 

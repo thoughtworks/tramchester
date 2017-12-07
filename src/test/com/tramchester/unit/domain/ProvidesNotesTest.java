@@ -97,7 +97,7 @@ public class ProvidesNotesTest {
         stages.add(stageE);
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, LocalTime.now(), LocalTime.now(), "summary", "heading"));
+                , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
 

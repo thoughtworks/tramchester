@@ -107,8 +107,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage.getFirstDepartureTime().isBefore(eightAM));
         assertTrue(stage.getExpectedArrivalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().isBefore(eightAM));
-        assertTrue(stage.getPlatform().isPresent());
-        assertEquals(Stations.Altrincham.getId()+"1", stage.getPlatform().get().getId());
+        assertTrue(stage.getBoardingPlatform().isPresent());
+        assertEquals(Stations.Altrincham.getId()+"1", stage.getBoardingPlatform().get().getId());
     }
 
     @Test
@@ -133,14 +133,14 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         TransportStage stage1 = journey.getStages().get(0);
         assertEquals(begin.getId(),stage1.getFirstStation().getId());
         assertEquals(middle.getId(),stage1.getLastStation().getId());
-        assertTrue(stage1.getPlatform().isPresent());
-        assertEquals(begin.getId()+"1", stage1.getPlatform().get().getId());
+        assertTrue(stage1.getBoardingPlatform().isPresent());
+        assertEquals(begin.getId()+"1", stage1.getBoardingPlatform().get().getId());
 
         TransportStage stage2 = journey.getStages().get(1);
         assertEquals(middle.getId(),stage2.getFirstStation().getId());
         assertEquals(end.getId(),stage2.getLastStation().getId());
-        assertTrue(stage2.getPlatform().isPresent());
-        assertEquals(middle.getId()+"1", stage2.getPlatform().get().getId());
+        assertTrue(stage2.getBoardingPlatform().isPresent());
+        assertEquals(middle.getId()+"1", stage2.getBoardingPlatform().get().getId());
 
         assertEquals("Change tram at", stage2.getPrompt());
     }
@@ -190,22 +190,22 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
         TransportStage stage1 = journey.getStages().get(0);
         assertEquals("Board tram at",stage1.getPrompt());
-        assertTrue(stage1.getPlatform().isPresent());
-        assertEquals(begin.getId()+"1", stage1.getPlatform().get().getId());
+        assertTrue(stage1.getBoardingPlatform().isPresent());
+        assertEquals(begin.getId()+"1", stage1.getBoardingPlatform().get().getId());
 
         TransportStage stage2 = journey.getStages().get(1);
         assertEquals(middleB.getId(),stage2.getActionStation().getId());
         assertEquals(middleB.getId(),stage2.getLastStation().getId());
         assertEquals("Walk to",stage2.getPrompt());
         assertEquals(walkCost, stage2.getDuration());
-        assertFalse(stage2.getPlatform().isPresent());
+        assertFalse(stage2.getBoardingPlatform().isPresent());
 
         TransportStage stage3 = journey.getStages().get(2);
         assertEquals("Board tram at",stage3.getPrompt());
         assertEquals(middleB.getId(),stage3.getFirstStation().getId());
         assertEquals(end.getId(),stage3.getLastStation().getId());
-        assertTrue(stage3.getPlatform().isPresent());
-        assertEquals(middleB.getId()+"1", stage3.getPlatform().get().getId());
+        assertTrue(stage3.getBoardingPlatform().isPresent());
+        assertEquals(middleB.getId()+"1", stage3.getBoardingPlatform().get().getId());
 
         LocalTime arrivalTime = stage3.getExpectedArrivalTime();
         assertTrue(arrivalTime.isAfter(new LocalTime(10,10)));

@@ -122,7 +122,6 @@ public class TransportGraphBuilder extends StationIndexs {
             logger.info(format("Creating station node: %s ",station));
             stationNode = graphDatabaseService.createNode(Labels.STATION);
 
-            //stationNode.setProperty(GraphStaticKeys.STATION_TYPE, GraphStaticKeys.STATION);
             stationNode.setProperty(GraphStaticKeys.ID, id);
             stationNode.setProperty(GraphStaticKeys.Station.NAME, stationName);
             LatLong latLong = station.getLatLong();
@@ -183,36 +182,37 @@ public class TransportGraphBuilder extends StationIndexs {
         String stationId = station.getId();
 
         Node platformNode = stationNode;
-        String platformId = stationId;
+
+        String stationOrPlatformID = stationId;
         if (station.isTram()) {
             // add a platform node between station and calling points
             platformNode = getOrCreatePlatform(stop);
-            platformId = stop.getId();
+            stationOrPlatformID = stop.getId();
             // station -> platform & platform -> station
-            if (!hasPlatform(stationId, platformId)) {
+            if (!hasPlatform(stationId, stationOrPlatformID)) {
                 Relationship crossToPlatform = stationNode.createRelationshipTo(platformNode, TransportRelationshipTypes.ENTER_PLATFORM);
                 crossToPlatform.setProperty(GraphStaticKeys.COST, 0);
                 Relationship crossFromPlatform = platformNode.createRelationshipTo(stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
                 crossFromPlatform.setProperty(GraphStaticKeys.COST, 0);
                 // always create together
-                platforms.add(stationId + platformId);
+                platforms.add(stationId + stationOrPlatformID);
             }
         }
 
-        // boarding: platform ->  callingPoint
-        if (!hasBoarding(platformId, callingPointId, boardType)) {
+        // boarding: platform/station ->  callingPoint
+        if (!hasBoarding(stationOrPlatformID, callingPointId, boardType)) {
             Relationship interchangeRelationshipTo = platformNode.createRelationshipTo( callingPoint, boardType);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, boardCost);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, callingPointId);
-            boardings.put(boardKey(callingPointId, platformId), boardType);
+            boardings.put(boardKey(callingPointId, stationOrPlatformID), boardType);
         }
 
-        // leave: route station -> station
-        if (!hasDeparting(callingPointId, platformId, departType)) {
+        // leave: route station -> platform/station
+        if (!hasDeparting(callingPointId, stationOrPlatformID, departType)) {
             Relationship departRelationship =  callingPoint.createRelationshipTo(platformNode, departType);
             departRelationship.setProperty(GraphStaticKeys.COST, departCost);
             departRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
-            departs.put(departKey(callingPointId, platformId), departType);
+            departs.put(departKey(callingPointId, stationOrPlatformID), departType);
         }
 
         return  callingPoint;

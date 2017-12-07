@@ -2,6 +2,9 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.LatLong;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
 
@@ -10,6 +13,7 @@ public class Station implements Location {
     private String name;
     private LatLong latLong;
     private boolean tram;
+    private List<Platform> platforms;
 
     public Station () {
         // deserialisation
@@ -27,6 +31,7 @@ public class Station implements Location {
         this.latLong = latLong;
         this.tram = tram;
         this.area = area;
+        platforms = new LinkedList<>();
     }
 
     public Station(Station other) {
@@ -71,6 +76,16 @@ public class Station implements Location {
     }
 
     @Override
+    public boolean hasPlatforms() {
+        return !platforms.isEmpty();
+    }
+
+    @Override
+    public List<Platform> getPlatforms() {
+        return platforms;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -94,5 +109,11 @@ public class Station implements Location {
                 ", latLong=" + latLong +
                 ", tram=" + tram +
                 '}';
+    }
+
+    public void addPlatform(Platform platform) {
+        if (!platforms.contains(platform)) {
+            platforms.add(platform);
+        }
     }
 }

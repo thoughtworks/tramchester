@@ -64,7 +64,7 @@ public class Stations {
         return ids.stream().map(id -> createStation(id, "area", "name")).collect(Collectors.toList());
     }
 
-    private static Station createStation(String id, String area, String name) {
+    public static Station createStation(String id, String area, String name) {
         return new Station(id, area, name, position, true);
     }
 

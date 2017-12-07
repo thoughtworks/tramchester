@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.UpdateRecentJourneys;
@@ -111,7 +112,7 @@ public class StationResource extends UsesRecentCookie {
         logger.info("Get station " + id);
         Optional<Station> station = stationRepository.getStation(id);
         if (station.isPresent()) {
-            return Response.ok(station.get()).build();
+            return Response.ok(new LocationDTO(station.get())).build();
         }
         else {
             return Response.status(Response.Status.NOT_FOUND).build();

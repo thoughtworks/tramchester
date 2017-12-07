@@ -45,6 +45,7 @@ public class JourneyDTOFactory {
         if (firstStageIsWalk(transportStages)) {
             embeddedWalk -= 1;
         }
+        boolean isDirect = isDirect(transportStages);
         String summary = getSummary(transportStages);
         String heading = getHeading(transportStages, embeddedWalk);
 
@@ -53,7 +54,7 @@ public class JourneyDTOFactory {
 
         JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(transportStages),
                 getFirstDepartureTime(transportStages), summary,
-                heading);
+                heading, isDirect);
 
         addDueTramIfPresent(journeyDTO);
 
@@ -123,15 +124,24 @@ public class JourneyDTOFactory {
         return getLastStage(allStages).getLastStation();
     }
 
-    private String getSummary(List<TransportStage> allStages) {
+    private boolean isDirect(List<TransportStage> allStages) {
         int size = allStages.size();
         // Direct first
         if (size == 1) {
-            return "Direct";
-        } else if (size == 2 && firstStageIsWalk(allStages)) {
+            return true;
+        }
+        if (size == 2 && firstStageIsWalk(allStages)) {
+            return true;
+        }
+        return false;
+    }
+
+    private String getSummary(List<TransportStage> allStages) {
+        if (isDirect(allStages)) {
             return "Direct";
         }
 
+        int size = allStages.size();
         StringBuilder result = new StringBuilder();
         for(int index = 1; index< size; index++) {
             TransportStage stage = allStages.get(index);

@@ -177,7 +177,16 @@ public class TransportDataFromFilesTest {
     public void shouldGetStation() {
         Optional<Station> result = transportData.getStation(Stations.Altrincham.getId());
         assertTrue(result.isPresent());
-        assertEquals("Altrincham", result.get().getName());
+        Station station = result.get();
+        assertEquals("Altrincham", station.getName());
+
+        assertTrue(station.hasPlatforms());
+        // only one platform at alty, well according to the timetable anyway....
+        assertEquals(1, station.getPlatforms().size());
+        Platform platformOne = station.getPlatforms().get(0);
+        assertEquals( Stations.Altrincham.getId()+"1", platformOne.getId());
+        assertEquals( "1", platformOne.getPlatformNumber());
+        assertEquals( "Altrincham platform 1", platformOne.getName());
     }
 
     @Test

@@ -31,7 +31,7 @@ public class MappingState {
     private RawVehicleStage currentStage;
     private String firstStationId;
     private int totalCost;
-    private Platform platform;
+    private Platform boardingPlatform;
 
     public MappingState(PlatformRepository platformRepository, StationRepository stationRepository, int minsPastMidnight, RouteCodeToClassMapper routeIdToClass) {
         this.platformRepository = platformRepository;
@@ -44,7 +44,7 @@ public class MappingState {
         boardingNode = null;
         currentStage = null;
         firstStationId = "";
-        platform = null;
+        boardingPlatform = null;
         stages = new ArrayList<>();
     }
 
@@ -84,8 +84,8 @@ public class MappingState {
         currentStage = new RawVehicleStage(firstStation, routeName,
                 transportRelationship.getMode(), tramRouteClass);
         currentStage.setServiceId(serviceId);
-        if (platform!=null) {
-            currentStage.setPlatform(platform);
+        if (boardingPlatform !=null) {
+            currentStage.setPlatform(boardingPlatform);
         }
     }
 
@@ -102,7 +102,7 @@ public class MappingState {
         serviceStart = 0;
         currentStage = null;
         firstStationId = "";
-        platform = null;
+        boardingPlatform = null;
     }
 
     public void addWalkingStage(Location begin, StationNode dest, int walkCost) {
@@ -132,7 +132,7 @@ public class MappingState {
     public void setPlatform(String platformId) {
         Optional<Platform> result = platformRepository.getPlatformById(platformId);
         if (result.isPresent()) {
-            platform = result.get();
+            boardingPlatform = result.get();
         }
     }
 }

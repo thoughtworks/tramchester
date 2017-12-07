@@ -3,7 +3,6 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.mappers.LocalTimeJsonDeserializer;
 import com.tramchester.mappers.LocalTimeJsonSerializer;
@@ -21,6 +20,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     private String summary;
     private String heading;
     private String dueTram;
+    private boolean isDirect;
 
     public JourneyDTO() {
         // Deserialization
@@ -28,7 +28,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
 
     public JourneyDTO(LocationDTO begin, LocationDTO end, List<StageDTO> stages,
                       LocalTime expectedArrivalTime, LocalTime firstDepartureTime,
-                      String summary, String heading) {
+                      String summary, String heading, boolean isDirect) {
         this.begin = begin;
         this.end = end;
         this.stages = stages;
@@ -36,6 +36,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         this.firstDepartureTime = firstDepartureTime;
         this.summary = summary;
         this.heading = heading;
+        this.isDirect = isDirect;
     }
 
     public List<StageDTO> getStages() {
@@ -62,11 +63,11 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         return expectedArrivalTime;
     }
 
-    public Location getBegin() {
+    public LocationDTO getBegin() {
         return begin;
     }
 
-    public Location getEnd() {
+    public LocationDTO getEnd() {
         return end;
     }
 
@@ -104,5 +105,9 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
 
     public void setDueTram(String dueTram) {
         this.dueTram = dueTram;
+    }
+
+    public boolean getIsDirect() {
+        return isDirect;
     }
 }

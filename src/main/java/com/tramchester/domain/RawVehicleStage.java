@@ -106,7 +106,7 @@ public class RawVehicleStage implements RawStage {
         this.platform = Optional.of(platform);
     }
 
-    public Optional<Platform> getPlatform() {
+    public Optional<Platform> getBoardingPlatform() {
         return platform;
     }
 }

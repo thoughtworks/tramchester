@@ -24,8 +24,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertTrue;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class JourneyDTOFactoryTest extends EasyMockSupport {
     private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
@@ -133,6 +135,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals("Direct", journey.getSummary());
+        assertTrue(journey.getIsDirect());
         assertEquals("Walk and Tram with No Changes - 20 minutes", journey.getHeading());
     }
 
@@ -149,6 +152,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals("Change at Cornbrook", journey.getSummary());
+        assertFalse(journey.getIsDirect());
         assertEquals("Tram with 1 change - 12 minutes", journey.getHeading());
     }
 

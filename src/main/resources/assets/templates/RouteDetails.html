@@ -1,6 +1,7 @@
 <div class="navbar tcr-navbar">
     <div class="container">
-        <a class="navbar-button" ng-click="goBack()"><span class="glyphicon glyphicon-chevron-left"></span>
+        <a class="navbar-button" ng-click="goBack()">
+            <span class="glyphicon glyphicon-chevron-left">New Journey</span>
         </a>
         <h5 class="navbar-title">Select Route</h5>
     </div>
@@ -44,9 +45,11 @@
                     <div class="panel-heading" id="journeyHeading{{$index}}">{{journey.heading}}</div>
                     <!-- List group -->
                     <div class="list-group">
-                        <a ng-click="showJourneyDetails($index)" class="list-group-item" id="journeyBegin{{$index}}">
-                            <strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.begin.name}}</strong>
-                            <span class="glyphicon glyphicon-info-sign pull-right"></span>
+                        <a ng-click="showJourneyDetails($index)" class="list-group-item" >
+                            <span>
+                                <span id="journeyBegin{{$index}}"><strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.begin.name}}</strong></span>
+                                <button class="pull-right" >Details</button>
+                            </span>
                         </a>
                     </div>
                     <ul class="list-group" id="dueTram{{$index}}" ng-show="journey.dueTram">
@@ -57,7 +60,8 @@
                     </ul>
                     <ul class="list-group" id="journeySummary{{$index}}">
                         <li class="list-group-item">
-                            <span class="glyphicon glyphicon-random pull-right"></span>
+                            <span  ng-show="journey.isDirect" class="glyphicon glyphicon-arrow-right pull-right"></span>
+                            <span  ng-show="!journey.isDirect" class="glyphicon glyphicon-random pull-right"></span>
                             {{journey.summary}}
                         </li>
                     </ul>

@@ -1,7 +1,7 @@
 <div class="navbar tcr-navbar">
     <div class="container">
         <a id="backToRouteDetails" class="navbar-button" ng-click="goBack(journey)">
-            <span class="glyphicon glyphicon-chevron-left"></span>
+            <span class="glyphicon glyphicon-chevron-left">Journeys</span>
         </a>
         <h5 class="navbar-title">Directions</h5>
     </div>
@@ -28,10 +28,10 @@
                     <div class="list-group">
                         <a id="showMap{{$index}}" ng-click="showMap(stage)" class="list-group-item">
                             <h4>
-                                <div id="stagePrompt{{$index}}">{{stage.prompt}} <strong>{{stage.actionStation.name}}</strong>
-                                <span ng-class-odd="'glyphicon glyphicon-map-marker pull-right'"
-                                    ng-class-even="'glyphicon glyphicon-map-marker pull-right'"></span>
-                                </div>
+                                <span>
+                                    <span id="stagePrompt{{$index}}">{{stage.prompt}} <strong>{{stage.actionStation.name}}</strong></span>
+                                    <button class="pull-right">Map</button>
+                                </span>
                             </h4>
                         </a>
                     </div>

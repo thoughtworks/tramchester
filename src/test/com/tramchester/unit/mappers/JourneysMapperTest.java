@@ -52,10 +52,10 @@ public class JourneysMapperTest extends EasyMockSupport{
         LocationDTO begin = new LocationDTO(Stations.Altrincham);
         LocationDTO end = new LocationDTO(Stations.Victoria);
         JourneyDTO journeyDTOA = new JourneyDTO(begin, end, new LinkedList<>(), LocalTime.now(), LocalTime.now(),
-                "summaryA", "headingA");
+                "summaryA", "headingA", false);
         JourneyDTO journeyDTOB = new JourneyDTO(begin, end, new LinkedList<>(), LocalTime.now().plusMinutes(1),
                 LocalTime.now().plusMinutes(1),
-                "summaryB", "headingB");
+                "summaryB", "headingB", false);
 
         EasyMock.expect(mapper.createJourney(rawJourneyA, 42)).andReturn(Optional.of(journeyA));
         EasyMock.expect(factory.build(journeyA)).andReturn(journeyDTOA);

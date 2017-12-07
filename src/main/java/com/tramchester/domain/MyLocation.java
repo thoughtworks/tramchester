@@ -2,6 +2,8 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.LatLong;
 
+import java.util.List;
+
 public class MyLocation implements Location {
 
     private LatLong latLong;
@@ -40,5 +42,15 @@ public class MyLocation implements Location {
     @Override
     public String getArea() {
         return "My Area";
+    }
+
+    @Override
+    public boolean hasPlatforms() {
+        return false;
+    }
+
+    @Override
+    public List<Platform> getPlatforms() {
+        return null;
     }
 }

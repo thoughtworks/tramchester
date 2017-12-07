@@ -120,18 +120,33 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
     private void populateStationsAndAreas(Stream<StopData> stops) {
         stops.forEach((stop) -> {
             String stopId = stop.getId();
-            if (stop.isTram()) {
-                if (!platforms.containsKey(stopId)) {
-                    platforms.put(stopId, formPlatform(stop));
-                }
-            }
+            Station station;
             String stationId = Station.formId(stopId);
+
             if (!stations.keySet().contains(stationId)) {
-                Station station = new Station(stationId, stop.getArea(), stop.getName(),
+                station = new Station(stationId, stop.getArea(), stop.getName(),
                         stop.getLatLong(), stop.isTram());
                 stations.put(stationId, station);
+            } else {
+                station = stations.get(stationId);
             }
-            areas.add(new AreaDTO(stop.getArea()));
+
+            if (stop.isTram()) {
+                Platform platform;
+                if (!platforms.containsKey(stopId)) {
+                    platform = formPlatform(stop);
+                    platforms.put(stopId, platform);
+                } else {
+                    platform = platforms.get(stopId);
+                }
+                if (!station.getPlatforms().contains(platform)) {
+                    station.addPlatform(platform);
+                }
+            }
+            AreaDTO areaDTO = new AreaDTO(stop.getArea());
+            if (!areas.contains(areaDTO)) {
+                areas.add(areaDTO);
+            }
         });
     }
 

@@ -2,6 +2,8 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.LatLong;
 
+import java.util.List;
+
 public interface Location {
     String getId();
 
@@ -12,4 +14,8 @@ public interface Location {
     boolean isTram();
 
     String getArea();
+
+    boolean hasPlatforms();
+
+    List<Platform> getPlatforms();
 }

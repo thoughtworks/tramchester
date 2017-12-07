@@ -175,9 +175,7 @@ html {
 }
 
 .tcr-footer, .tcr-footer a {
-    color: #ccc;
     text-align: center;
-    text-shadow: 0px 2px 2px #fff;
 }
 
 .tcr-footer hr {
@@ -185,7 +183,7 @@ html {
     border-bottom: 1px solid #fff;
 }
 
-.tcr-splash .tcr-footer, .tcr-splash .tcr-footer a {
+.tcr-splash .tcr-footer, .tcr-splash {
     color: #bfa900;
     text-align: center;
     text-shadow: 0px 2px 2px #fffbb3;

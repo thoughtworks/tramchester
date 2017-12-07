@@ -2,7 +2,6 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.Location;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.mappers.LocalTimeJsonDeserializer;
 import com.tramchester.mappers.LocalTimeJsonSerializer;
@@ -66,15 +65,15 @@ public class StageDTO {
         return headSign;
     }
 
-    public Location getActionStation() {
+    public LocationDTO getActionStation() {
         return actionStation;
     }
 
-    public Location getLastStation() {
+    public LocationDTO getLastStation() {
         return lastStation;
     }
 
-    public Location getFirstStation() {
+    public LocationDTO getFirstStation() {
         return firstStation;
     }
 

@@ -3,48 +3,55 @@ package com.tramchester.domain.presentation.DTO;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.presentation.LatLong;
 
-public class LocationDTO implements Location {
+import java.util.LinkedList;
+import java.util.List;
+
+public class LocationDTO {
     private String area;
     private String id;
     private String name;
     private LatLong latLong;
     private boolean tram;
+    private List<PlatformDTO> platforms;
 
     public LocationDTO() {
         // deserialisation
     }
 
-    public LocationDTO(Location other) {
-        this.id = other.getId();
-        this.name = other.getName();
-        this.latLong = other.getLatLong();
-        this.tram = other.isTram();
-        this.area = other.getArea();
+    public LocationDTO(Location source) {
+        this.id = source.getId();
+        this.name = source.getName();
+        this.latLong = source.getLatLong();
+        this.tram = source.isTram();
+        this.area = source.getArea();
+        platforms = new LinkedList<>();
+        if (source.hasPlatforms()) {
+            source.getPlatforms().forEach(platform -> platforms.add(new PlatformDTO(platform)));
+        }
     }
 
-    @Override
     public String getId() {
         return id;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public LatLong getLatLong() {
         return latLong;
     }
 
-    @Override
     public boolean isTram() {
         return tram;
     }
 
-    @Override
     public String getArea() {
         return area;
+    }
+
+    public boolean hasPlatforms() {
+        return !platforms.isEmpty();
     }
 
     @Override
@@ -60,5 +67,9 @@ public class LocationDTO implements Location {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public List<PlatformDTO> getPlatforms() {
+        return platforms;
     }
 }

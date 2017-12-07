@@ -21,7 +21,7 @@ public class StageDTOFactory {
         return new StageDTO(new LocationDTO(source.getFirstStation()),
                 new LocationDTO(source.getLastStation()),
                 new LocationDTO(source.getActionStation()),
-                source.getPlatform().isPresent(), createPlatform(source.getPlatform()),
+                source.getBoardingPlatform().isPresent(), createPlatform(source.getBoardingPlatform()),
                 source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
                 source.getDuration(), source.getSummary(),source.getPrompt(), source.getHeadSign(),
                 source.getMode(), source.isWalk(), source.getIsAVehicle(), source.getDisplayClass());
