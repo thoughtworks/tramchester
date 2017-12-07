@@ -38,6 +38,17 @@ public class SpatialService extends StationIndexs {
         this.config = config;
     }
 
+
+    public List<StationDTO> getNearestStations(LatLong latLong) {
+        List<StationDTO> results = new LinkedList<>();
+        List<String> ids = getNearestStationsTo(latLong, config.getNumOfNearestStops());
+        ids.forEach(id -> {
+            stationRepository.getStation(id).ifPresent(station ->
+                    results.add(new StationDTO(station, ProximityGroup.NEAREST_STOPS)));
+        });
+        return results;
+    }
+
     public List<StationDTO> reorderNearestStations(LatLong latLong, List<Station> sortedStations) {
         Transaction tx = graphDatabaseService.beginTx();
         List<Station> seen = new LinkedList<>();
@@ -58,9 +69,11 @@ public class SpatialService extends StationIndexs {
                 });
             }
 
-            reorderedStations.addAll(sortedStations.stream().filter(station -> !seen.contains(station)).
+            List<StationDTO> remainingStations = sortedStations.stream().filter(station -> !seen.contains(station)).
                     map(station -> new StationDTO(station, ProximityGroup.ALL)).
-                    collect(Collectors.toList()));
+                    collect(Collectors.toList());
+
+            reorderedStations.addAll(remainingStations);
             tx.success();
             return reorderedStations;
         } finally {
@@ -90,4 +103,5 @@ public class SpatialService extends StationIndexs {
 
         return ids;
     }
+
 }

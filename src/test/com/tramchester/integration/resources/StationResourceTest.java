@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
@@ -62,6 +63,23 @@ public class StationResourceTest {
     }
 
     @Test
+    public void shouldGetSingleStationWithLiveData() {
+        String id = Stations.StPetersSquare.getId();
+        String endPoint = "stations/live/" + id;
+        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
+        assertEquals(200,response.getStatus());
+        StationDTO result = response.readEntity(StationDTO.class);
+
+        assertEquals(id, result.getId());
+
+        List<PlatformDTO> platforms = result.getPlatforms();
+        assertEquals(4, platforms.size());
+        StationDepartureInfo info = platforms.get(0).getStationDepartureInfo();
+        assertNotNull(info);
+        assertEquals("471", info.getDisplayId());
+    }
+
+    @Test
     public void shouldGetNearestStations() throws Exception {
         List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
@@ -81,6 +99,27 @@ public class StationResourceTest {
         assertEquals("1", platformDTO.getPlatformNumber());
         assertEquals("Altrincham platform 1", platformDTO.getName());
         assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());
+    }
+
+    @Test
+    public void shouldGetNearestStationsWithLiveData() throws Exception {
+        double lat = 53.4804263d;
+        double lon = -2.2392436d;
+
+        Response response = IntegrationClient.getResponse(testRule, String.format("stations/live/%s/%s", lat, lon),
+                Optional.empty());
+        assertEquals(200,response.getStatus());
+        List<StationDTO> stations =  response.readEntity(new GenericType<List<StationDTO>>(){});
+
+        assertEquals(6, stations.size());
+
+        stations.forEach(stationDTO -> {
+            assertTrue(stationDTO.getName(), stationDTO.hasPlatforms());
+            stationDTO.getPlatforms().forEach(platformDTO -> {
+                StationDepartureInfo info = platformDTO.getStationDepartureInfo();
+                assertNotNull(stationDTO.getName(), info);
+            });
+        });
     }
 
     @Test

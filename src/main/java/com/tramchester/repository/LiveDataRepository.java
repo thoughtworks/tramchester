@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataMapper;
@@ -61,7 +62,7 @@ public class LiveDataRepository {
         lastRefresh = DateTime.now();
     }
 
-    public void enrich(TramServiceDate tramServiceDate, PlatformDTO platform, int queryMins) {
+    public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, int queryMins) {
         LocalDate queryDate = tramServiceDate.getDate();
         if (!lastRefresh.toLocalDate().equals(queryDate)) {
             logger.info("no data for date, not querying for departure info " + queryDate);
@@ -91,5 +92,28 @@ public class LiveDataRepository {
         } else {
             logger.info("Not adding departure into as not within time range");
         }
+    }
+
+    public void enrich(LocationDTO locationDTO, DateTime now) {
+        if (!locationDTO.hasPlatforms()) {
+            return;
+        }
+
+        if (!now.toLocalDate().equals(lastRefresh.toLocalDate())) {
+            logger.info("no data for date, not querying for departure info " + now.toLocalDate());
+            return;
+        }
+
+        int minutes = TimeAsMinutes.getMinutes(now.toLocalTime());
+
+        locationDTO.getPlatforms().forEach(platformDTO -> {
+            String idToFind = platformDTO.getId();
+            if (map.containsKey(idToFind)) {
+                enrichPlatformIfTimeMatches(platformDTO, minutes);
+            } else {
+                logger.error("Unable to find live data for platform " + platformDTO.getId());
+            }
+        });
+
     }
 }

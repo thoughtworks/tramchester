@@ -16,6 +16,6 @@ public class LiveDataEnricher implements EnrichPlatform {
     }
 
     public void enrich(PlatformDTO platform) {
-        repository.enrich(tramServiceDate, platform, queryMins);
+        repository.enrich(platform, tramServiceDate, queryMins);
     }
 }

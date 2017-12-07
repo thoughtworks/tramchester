@@ -13,12 +13,15 @@ import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.StationClosureMessage;
+import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,16 +47,18 @@ public class StationResource extends UsesRecentCookie {
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
     private final StationRepository stationRepository;
+    private final LiveDataRepository liveDataRepository;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
-                           TramchesterConfig config) {
+                           TramchesterConfig config, LiveDataRepository liveDataRepository) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
+        this.liveDataRepository = liveDataRepository;
         allStationsSorted = new LinkedList<>();
     }
 
@@ -117,6 +122,39 @@ public class StationResource extends UsesRecentCookie {
         else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+    }
+
+    @GET
+    @Timed
+    @Path("/live/{id}")
+    @ApiOperation(value = "Get station by id enriched with live data", response = StationDTO.class)
+    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
+    public Response getLive(@PathParam("id") String id) {
+        logger.info("Get station " + id);
+        Optional<Station> station = stationRepository.getStation(id);
+        if (station.isPresent()) {
+            LocationDTO locationDTO = new LocationDTO(station.get());
+            liveDataRepository.enrich(locationDTO, DateTime.now());
+            return Response.ok(locationDTO).build();
+        }
+        else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @GET
+    @Timed
+    @Path("/live/{lat}/{lon}")
+    @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationDTO.class, responseContainer = "List")
+    @CacheControl(noCache = true)
+    public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
+        DateTime time = DateTime.now();
+
+        LatLong latLong = new LatLong(lat,lon);
+        List<StationDTO> stations = spatialService.getNearestStations(latLong);
+        stations.forEach(station -> liveDataRepository.enrich(station, time));
+
+        return Response.ok(stations).build();
     }
 
     @GET
