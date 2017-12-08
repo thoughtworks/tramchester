@@ -82,6 +82,12 @@ task cfnassist {
     }
 }
 
+tasks.withType(JavaCompile) {
+    options.deprecation = true
+    options.compilerArgs.addAll(['-Xlint'])
+}
+
+
 task stage(dependsOn: ['clean', 'installApp'])
 
 clean {

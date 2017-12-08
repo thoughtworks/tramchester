@@ -10,6 +10,8 @@ import java.util.*;
 import static java.lang.String.format;
 
 public class ProvidesNotes {
+    private static final String EMPTY = "<no message>";
+
     // some displays don't show normal messages, just info on next trams to altrincham, so exclude those
     List<String> displaysToExclude = Arrays.asList("303","304","461");
 
@@ -42,10 +44,11 @@ public class ProvidesNotes {
                     filter(stageDTO -> stageDTO.getMode().equals(TransportMode.Tram)).
                     forEach(tramStage -> {
                         StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
-                        if (info!=null) {
-                            String message = format("'%s' - Metrolink",info.getMessage());
-                            if (!message.isEmpty()) {
-                                if (!(result.contains(message) || displaysToExclude.contains(info.getDisplayId()))) {
+                        if (! (info==null || displaysToExclude.contains(info.getDisplayId())) ) {
+                            String rawMessage = info.getMessage();
+                            if (! (rawMessage.isEmpty() || EMPTY.equals(rawMessage)) ) {
+                                String message = format("'%s' - Metrolink", rawMessage);
+                                if (!result.contains(message)) {
                                     result.add(message);
                                 }
                             }

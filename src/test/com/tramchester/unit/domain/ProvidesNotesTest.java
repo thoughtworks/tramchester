@@ -81,6 +81,25 @@ public class ProvidesNotesTest {
     }
 
     @Test
+    public void shouldNoAddNoMessageMessage() {
+        List<StageDTO> stages = new LinkedList<>();
+
+        String text = "<no message>";
+        StageDTO stageA = createStage(TransportMode.Tram, "platformIdA", text, "displayUnitId");
+
+        stages.add(stageA);
+
+        decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
+                , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
+
+        TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
+
+        List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
+
+        assertEquals(0, notes.size());
+    }
+
+    @Test
     public void shouldAddNotesBasedOnLiveDataIfPresent() {
         List<StageDTO> stages = new LinkedList<>();
 
