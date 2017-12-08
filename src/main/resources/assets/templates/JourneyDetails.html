@@ -27,19 +27,19 @@
                     <!-- List group -->
                     <div class="list-group">
                         <a id="showMap{{$index}}" ng-click="showMap(stage)" class="list-group-item">
-                            <h4>
-                                <span>
+                            <span>
+                                <h4>
                                     <span id="stagePrompt{{$index}}">{{stage.prompt}} <strong>{{stage.actionStation.name}}</strong></span>
-                                    <button class="pull-right">Map</button>
-                                </span>
-                            </h4>
+                                </h4>
+                                <button class="pull-right tcr-button">Map</button>
+                            </span>
                         </a>
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item" ng-show="stage.isAVehicle">
                             <div id="stageInstruction{{$index}}">
-                            <strong>{{stage.firstDepartureTime}}</strong> Catch
-                            {{stage.headSign}} {{stage.mode}}
+                                <strong>{{stage.firstDepartureTime}}</strong> Catch
+                                {{stage.headSign}} {{stage.mode}}
                                 <span id="stagePlatformInstruction{{$index}}" ng-show="stage.hasPlatform">
                                     from Platform {{stage.platform.platformNumber}}
                                 </span>
@@ -57,7 +57,7 @@
                         </li>
                         <li class="list-group-item" ng-show="stage.isAVehicle">
                             <div id="stageArrive{{$index}}">
-                            <strong>{{stage.expectedArrivalTime}}</strong> Arrive at {{stage.lastStation.name}}</div>
+                                <strong>{{stage.expectedArrivalTime}}</strong> Arrive at {{stage.lastStation.name}}</div>
                         </li>
                     </ul>
                 </div>

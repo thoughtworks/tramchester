@@ -57,6 +57,10 @@ html {
     border: 2px solid #191c1f;
 }
 
+.tcr-button {
+    font-size: 12px;
+}
+
 .tcr-splash {
     background-color: #ffe100;
     position: absolute;
