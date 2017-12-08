@@ -96,6 +96,8 @@ public class RoutePlannerPage extends Page {
     }
 
     private String optionGroupExpression(String id) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(id)));
         return String.format("//select[@id='%s']/optgroup[@label='Recent']/option", id);
     }
 

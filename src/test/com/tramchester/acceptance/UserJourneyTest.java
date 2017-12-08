@@ -106,7 +106,8 @@ public class UserJourneyTest {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Bury");
         JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, altrincham, bury,
-                nextMonday, LocalTime.parse("10:15"), changes, headSigns, false, expectedNumberJourneyResults, 0, false);
+                nextMonday, LocalTime.parse("10:15"), changes, headSigns, false,
+                expectedNumberJourneyResults, 0, false);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
         // check values remembered

@@ -161,7 +161,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/{lat}/{lon}")
     @ApiOperation(value = "Get geographically close stations", response = StationDTO.class, responseContainer = "List")
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    @CacheControl(noCache = true)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s with cookie ", lat, lon, tranchesterRecent));
