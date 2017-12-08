@@ -30,6 +30,7 @@ public class StationLocalityService extends StationIndexs {
         this.transportData = transportData;
     }
 
+
     public void populateLocality() {
 
         logger.info("Populating bus stop locallity information");
@@ -42,7 +43,6 @@ public class StationLocalityService extends StationIndexs {
                     addNearbyStops(busStop, results);
                 }
             });
-            tx.close();
         }
         logger.info("Finished adding locality information");
     }

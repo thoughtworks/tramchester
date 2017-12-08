@@ -7,6 +7,7 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +55,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
                 "}";
 
         try {
-            FileUtils.writeStringToFile(locationStubJSON.toFile(), json);
+            FileUtils.writeStringToFile(locationStubJSON.toFile(), json, Charset.defaultCharset());
         } catch (IOException e) {
             // this is asserted later
         }

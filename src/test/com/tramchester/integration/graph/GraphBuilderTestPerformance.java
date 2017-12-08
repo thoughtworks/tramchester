@@ -48,7 +48,8 @@ public class GraphBuilderTestPerformance {
 
         @Override
         public Set<String> getAgencies() {
-            return new HashSet(Arrays.asList("MET")); // , "GMS", "GMN"));
+
+            return new HashSet<>(Arrays.asList("MET")); // , "GMS", "GMN"));
         }
 
         @Override

@@ -22,8 +22,8 @@ public class VersionResource {
     }
 
     @GET
-    @ApiOperation(value = "Return all routes", response = Version.class)
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
+    @ApiOperation(value = "Return version of server code", response = Version.class)
+    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Version version() {
         String build = System.getenv("BUILD");
         if (StringUtils.isEmpty(build)) {

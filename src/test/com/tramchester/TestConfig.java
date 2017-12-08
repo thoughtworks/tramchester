@@ -78,11 +78,6 @@ public abstract class TestConfig extends AppConfiguration {
     public abstract Path getDataFolder();
 
     @Override
-    public String getAwsRegionName() {
-        return "eu-west-1";
-    }
-
-    @Override
     public boolean getRedirectHTTP() { return false; }
 
     @Override

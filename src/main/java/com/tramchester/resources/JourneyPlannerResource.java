@@ -70,7 +70,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     @GET
     @Timed
     @ApiOperation(value = "Find quickest route", response = JourneyPlanRepresentation.class)
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response quickestRoute(@QueryParam("start") String startId,
                                   @QueryParam("end") String endId,
                                   @QueryParam("departureTime") String departureTime,

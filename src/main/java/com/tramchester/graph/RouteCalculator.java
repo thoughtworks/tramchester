@@ -104,9 +104,6 @@ public class RouteCalculator extends StationIndexs {
             gatherJounerys(endNode, queryTimes, queryDate, journeys, startNode, limit);
 
             startNode.delete();
-
-            // no commit
-            tx.close();
         }
         return journeys;
     }
@@ -115,7 +112,7 @@ public class RouteCalculator extends StationIndexs {
                                 Node startNode, int limit) throws TramchesterException {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
-            PathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
+            TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             mapStreamToJourneySet(journeys, paths, limit, queryTime);
         });
@@ -146,7 +143,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime,
-                                                  TramServiceDate queryDate, PathExpander pathExpander) {
+                                                  TramServiceDate queryDate, TimeBasedPathExpander pathExpander) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));

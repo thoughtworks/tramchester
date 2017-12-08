@@ -22,7 +22,6 @@ closedStations: []
 agencies:
   - MET
 instanceDataUrl: http://169.254.169.254
-awsRegionName: eu-west-1
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}

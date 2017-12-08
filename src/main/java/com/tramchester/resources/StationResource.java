@@ -128,7 +128,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/live/{id}")
     @ApiOperation(value = "Get station by id enriched with live data", response = StationDTO.class)
-    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
+    @CacheControl(maxAge = 4, maxAgeUnit = TimeUnit.MINUTES)
     public Response getLive(@PathParam("id") String id) {
         logger.info("Get station " + id);
         Optional<Station> station = stationRepository.getStation(id);
@@ -146,7 +146,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/live/{lat}/{lon}")
     @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationDTO.class, responseContainer = "List")
-    @CacheControl(noCache = true)
+    @CacheControl(maxAge = 4, maxAgeUnit = TimeUnit.MINUTES)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
         DateTime time = DateTime.now();
 
@@ -161,7 +161,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/{lat}/{lon}")
     @ApiOperation(value = "Get geographically close stations", response = StationDTO.class, responseContainer = "List")
-    @CacheControl(noCache = true)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
         logger.info(format("Get station at %s,%s with cookie ", lat, lon, tranchesterRecent));

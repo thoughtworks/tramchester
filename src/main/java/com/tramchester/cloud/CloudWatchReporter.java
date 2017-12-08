@@ -13,7 +13,7 @@ public class CloudWatchReporter extends ScheduledReporter {
     private final SendMetricsToCloudWatch client;
     private ConfigFromInstanceUserData providesConfig;
 
-    String PREFIX = "com.tramchester";
+    private String PREFIX = "com.tramchester";
 
     protected CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
                                  TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
@@ -22,6 +22,7 @@ public class CloudWatchReporter extends ScheduledReporter {
         this.client = client;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
         SortedMap<String, Timer> toSubmit = new TreeMap<>();

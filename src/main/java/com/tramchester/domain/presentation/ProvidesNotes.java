@@ -44,8 +44,10 @@ public class ProvidesNotes {
                         StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
                         if (info!=null) {
                             String message = format("'%s' - Metrolink",info.getMessage());
-                            if (!(result.contains(message) || displaysToExclude.contains(info.getDisplayId()))) {
-                                result.add(message);
+                            if (!message.isEmpty()) {
+                                if (!(result.contains(message) || displaysToExclude.contains(info.getDisplayId()))) {
+                                    result.add(message);
+                                }
                             }
                         }
                     });

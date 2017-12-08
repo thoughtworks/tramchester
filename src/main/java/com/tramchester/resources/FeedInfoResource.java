@@ -31,7 +31,7 @@ public class FeedInfoResource {
     @ApiOperation(value = "Information about version of the data",
             notes = "Extracted from the feed_info.txt file provided by tfgm",
             response = FeedInfo.class)
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
+    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
 
         return Response.ok(feedInfo).build();

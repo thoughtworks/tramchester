@@ -9,7 +9,6 @@ import org.joda.time.LocalTime;
 
 import java.util.List;
 
-import static com.sun.jmx.snmp.ThreadContext.contains;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

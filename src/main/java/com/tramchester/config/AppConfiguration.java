@@ -59,9 +59,6 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("createLocality")
     private boolean createLocality;
 
-    @JsonProperty("awsRegionName")
-    private String awsRegionName;
-
     @JsonProperty("redirectHTTP")
     private boolean redirectHTTP;
 
@@ -94,11 +91,6 @@ public class AppConfiguration extends TramchesterConfig {
 
     public String getInstanceDataUrl() {
         return instanceDataUrl;
-    }
-
-    @Override
-    public String getAwsRegionName() {
-        return awsRegionName;
     }
 
     @Override

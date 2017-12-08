@@ -3,8 +3,11 @@ package com.tramchester.cloud;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.regions.DefaultAwsRegionProviderChain;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
@@ -22,15 +25,13 @@ import java.util.SortedMap;
 public class SendMetricsToCloudWatch {
     private static final Logger logger = LoggerFactory.getLogger(SendMetricsToCloudWatch.class);
 
-    private AmazonCloudWatchClient client;
+    private AmazonCloudWatch client;
 
-    public SendMetricsToCloudWatch(TramchesterConfig config) {
-        DefaultAWSCredentialsProviderChain provider = new DefaultAWSCredentialsProviderChain();
-        client = new AmazonCloudWatchClient(provider);
+    public SendMetricsToCloudWatch() {
 
-        // this will silently default to US East if not set
-        Regions region = Regions.fromName(config.getAwsRegionName());
-        client.setRegion(com.amazonaws.regions.Region.getRegion(region));
+        // see http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html
+        // For local dev best to set AWS_REGION env var
+        client = AmazonCloudWatchClientBuilder.defaultClient();
     }
 
     private MetricDatum createDatum(String name, Timer timer) {

@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Api
 @Path("/areas")
@@ -30,7 +31,7 @@ public class AreaResource {
     @GET
     @Timed
     @ApiOperation(value = "Get all areas", response = AreaDTO.class, responseContainer = "List")
-    @CacheControl(noCache = true)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response getAll() {
         List<AreaDTO> areas = repository.getAreas();
 

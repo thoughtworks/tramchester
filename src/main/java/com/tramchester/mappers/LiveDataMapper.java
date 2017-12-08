@@ -24,9 +24,11 @@ public class LiveDataMapper {
         JSONObject parsed = (JSONObject)jsonParser.parse(rawJson);
         JSONArray infoList = (JSONArray) parsed.get("value");
 
-        infoList.forEach(item -> {
-            result.add(parseItem((JSONObject) item));
-        });
+        if (infoList!=null) {
+            for (int i = 0; i < infoList.size(); i++) {
+                result.add(parseItem((JSONObject) infoList.get(i)));
+            }
+        }
 
         return result;
     }

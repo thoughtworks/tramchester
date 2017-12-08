@@ -30,6 +30,11 @@ public class RecentJourneys {
         return this.timestamps.equals(other.timestamps);
     }
 
+    @Override
+    public int hashCode() {
+        return timestamps != null ? timestamps.hashCode() : 0;
+    }
+
     @JsonIgnore
     public RecentJourneys setTimestamps(Set<Timestamped> timestamps) {
         setRecentIds(timestamps);
@@ -62,4 +67,5 @@ public class RecentJourneys {
         String json = objectMapper.writeValueAsString(recentJourneys);
         return URLEncoder.encode(json, "UTF-8");
     }
+
 }

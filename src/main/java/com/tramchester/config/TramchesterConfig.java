@@ -29,9 +29,6 @@ public abstract class TramchesterConfig extends Configuration {
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
 
-    // AWS Region to use for cloudwatch metrics
-    public abstract String getAwsRegionName();
-
     // url to load timetable data from
     public abstract String getTramDataUrl();
 
