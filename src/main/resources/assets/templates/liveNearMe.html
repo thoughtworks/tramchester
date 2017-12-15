@@ -14,13 +14,13 @@
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
             <div class="information" ng-hide='!stations.length'>
-                <div ng-repeat="station in stations">
+                <div ng-repeat="station in stations" class="panel">
                     <div class="heading">{{station.name}}</div>
                     <div class="list-group">
                         <div class="list-group-item">
                             <div ng-repeat="platform in station.platforms">
-                                <span>Platform:{{platform.name}}</span>
-                                <div class="dueTrams" ng-show="stationDepartureInfo.dueTrams.length >0">
+                                <div class="dueTrams" ng-show="platform.stationDepartureInfo.dueTrams.length >0">
+                                    <span>Platform {{platform.platformNumber}}</span>
                                     <div ng-repeat="tram in platform.stationDepartureInfo.dueTrams">
                                         <span class="dueTram">{{tram.destination}} {{tram.carriages}} tram {{tram.status}} at {{tram.when}}</span>
                                     </div>
