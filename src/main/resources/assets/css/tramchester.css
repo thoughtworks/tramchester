@@ -146,7 +146,7 @@ html {
     color: #191c1f;
 }
 
-    .tcr .panel {
+.tcr .panel {
     -moz-box-shadow: 4px 4px 2px #ccc;
     -webkit-box-shadow: 4px 4px 2px #ccc;
     box-shadow: 4px 4px 2px #ccc;
@@ -405,6 +405,14 @@ input[type="time"], input[type="datetime-local"] {
     font-size: 12px;
     margin-left: 20px;
     text-align: left;
+}
+
+.nearMeTram {
+    font-size: 14px;
+}
+
+nearMePlatform {
+    font-size: 10px;
 }
 
 .list-group p {
