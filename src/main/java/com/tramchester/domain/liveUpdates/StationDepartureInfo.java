@@ -76,4 +76,7 @@ public class StationDepartureInfo {
                 '}';
     }
 
+    public void clearMessage() {
+        message="";
+    }
 }

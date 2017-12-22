@@ -13,6 +13,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,6 +23,9 @@ public class LiveDataRepository {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
 
     public static final int TIME_LIMIT = 5; // only enrich if data is within this many minutes
+
+    // some displays don't show normal messages in MessageBoard but instead a list of due trams
+    List<String> messagesToExclude = Arrays.asList("303","304","461");
 
     private HashMap<String,StationDepartureInfo> map;
 
@@ -46,6 +50,9 @@ public class LiveDataRepository {
                 infos.forEach(info -> {
                     String platformId = info.getStationPlatform();
                     if (!newMap.containsKey(platformId)) {
+                        if (messagesToExclude.contains(info.getDisplayId())) {
+                            info.clearMessage();
+                        }
                         newMap.put(platformId, info);
                     }
                 });
@@ -77,6 +84,29 @@ public class LiveDataRepository {
         }
     }
 
+    public void enrich(LocationDTO locationDTO, DateTime now) {
+        if (!locationDTO.hasPlatforms()) {
+            return;
+        }
+
+        if (!now.toLocalDate().equals(lastRefresh.toLocalDate())) {
+            logger.warn("no data for date, not querying for departure info " + now.toLocalDate());
+            return;
+        }
+
+        int minutes = TimeAsMinutes.getMinutes(now.toLocalTime());
+
+        locationDTO.getPlatforms().forEach(platformDTO -> {
+            String idToFind = platformDTO.getId();
+            if (map.containsKey(idToFind)) {
+                enrichPlatformIfTimeMatches(platformDTO, minutes);
+            } else {
+                logger.error("Unable to find live data for platform " + platformDTO.getId());
+            }
+        });
+
+    }
+
     private void enrichPlatformIfTimeMatches(PlatformDTO platform, int queryMins) {
         String platformId = platform.getId();
         logger.info("Found live data for " + platformId);
@@ -94,26 +124,7 @@ public class LiveDataRepository {
         }
     }
 
-    public void enrich(LocationDTO locationDTO, DateTime now) {
-        if (!locationDTO.hasPlatforms()) {
-            return;
-        }
-
-        if (!now.toLocalDate().equals(lastRefresh.toLocalDate())) {
-            logger.info("no data for date, not querying for departure info " + now.toLocalDate());
-            return;
-        }
-
-        int minutes = TimeAsMinutes.getMinutes(now.toLocalTime());
-
-        locationDTO.getPlatforms().forEach(platformDTO -> {
-            String idToFind = platformDTO.getId();
-            if (map.containsKey(idToFind)) {
-                enrichPlatformIfTimeMatches(platformDTO, minutes);
-            } else {
-                logger.error("Unable to find live data for platform " + platformDTO.getId());
-            }
-        });
-
+    public int count() {
+        return map.size();
     }
 }

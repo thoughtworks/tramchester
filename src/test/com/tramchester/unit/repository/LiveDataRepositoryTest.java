@@ -9,7 +9,6 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.integration.Stations;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataMapper;
 import com.tramchester.repository.LiveDataRepository;
@@ -44,8 +43,11 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldPopulateRepository() throws ParseException {
+    public void shouldPopulateRepositoryAndExcludeSomeDisplays() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
+
+        addStationInfo(info, DateTime.now(), "yyy", "platformId1");
+        addStationInfo(info, DateTime.now(), "303", "platformId2");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.map("someData")).andReturn(info);
@@ -53,6 +55,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.refreshRespository();
         verifyAll();
+
+        assertEquals(1,repository.count());
     }
 
     @Test
@@ -60,7 +64,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
-        StationDepartureInfo departureInfo = createStationDepartureInfo(info, lastUpdate);
+        StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.map("someData")).andReturn(info);
@@ -81,7 +85,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
-        createStationDepartureInfo(info, lastUpdate);
+        addStationInfo(info, lastUpdate, "displayId", "platformId");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
         EasyMock.expect(mapper.map("someData")).andStubReturn(info);
@@ -107,7 +111,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
-        createStationDepartureInfo(info, lastUpdate);
+        addStationInfo(info, lastUpdate, "displayId", "platformId");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
         EasyMock.expect(mapper.map("someData")).andStubReturn(info);
@@ -137,7 +141,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         LocationDTO locationDTO = new LocationDTO(station);
 
         DateTime lastUpdate = DateTime.now();
-        StationDepartureInfo departureInfo = createStationDepartureInfo(info, lastUpdate);
+        StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.map("someData")).andReturn(info);
@@ -152,8 +156,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(departureInfo, result);
     }
 
-    private StationDepartureInfo createStationDepartureInfo(List<StationDepartureInfo> info, DateTime lastUpdate) {
-        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
+    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate, String displayId, String platformId) {
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
                 "some message", lastUpdate);
         info.add(departureInfo);
         departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single", lastUpdate));

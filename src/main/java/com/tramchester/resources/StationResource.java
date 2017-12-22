@@ -128,7 +128,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/live/{id}")
     @ApiOperation(value = "Get station by id enriched with live data", response = StationDTO.class)
-    @CacheControl(maxAge = 4, maxAgeUnit = TimeUnit.MINUTES)
+    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getLive(@PathParam("id") String id) {
         logger.info("Get station " + id);
         Optional<Station> station = stationRepository.getStation(id);
@@ -146,7 +146,7 @@ public class StationResource extends UsesRecentCookie {
     @Timed
     @Path("/live/{lat}/{lon}")
     @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationDTO.class, responseContainer = "List")
-    @CacheControl(maxAge = 4, maxAgeUnit = TimeUnit.MINUTES)
+    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) throws JsonProcessingException {
         DateTime time = DateTime.now();
 

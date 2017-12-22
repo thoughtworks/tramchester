@@ -107,13 +107,11 @@ public class ProvidesNotesTest {
         StageDTO stageB = createStage(TransportMode.Tram, "platformIdB", "Some long message", "displayUnitId");
         StageDTO stageC = createStage(TransportMode.Tram, "platformIdC", "Some Other Long message", "displayUnitId");
         StageDTO stageD = createStage(TransportMode.Walk, "platformIdD", "Not a tram message", "displayUnitId");
-        StageDTO stageE = createStage(TransportMode.Tram, "platformIdE", "excluded due to display ID", "303");
 
         stages.add(stageA);
         stages.add(stageB);
         stages.add(stageC);
         stages.add(stageD);
-        stages.add(stageE);
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
                 , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
