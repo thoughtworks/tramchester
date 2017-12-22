@@ -43,11 +43,15 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldPopulateRepositoryAndExcludeSomeDisplays() throws ParseException {
+    public void shouldExcludeMessageBoardTextForSomeDisplays() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        addStationInfo(info, DateTime.now(), "yyy", "platformId1");
-        addStationInfo(info, DateTime.now(), "303", "platformId2");
+        PlatformDTO platformA = new PlatformDTO(new Platform("platformIdA", "Platform name"));
+        PlatformDTO platformB = new PlatformDTO(new Platform("platformIdB", "Platform name"));
+
+        DateTime lastUpdate = DateTime.now();
+        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message");
+        addStationInfo(info, lastUpdate, "303", "platformIdB", "exclude message");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.map("someData")).andReturn(info);
@@ -56,7 +60,13 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(1,repository.count());
+        assertEquals(2,repository.count());
+        TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate());
+        repository.enrich(platformA, queryDate, TimeAsMinutes.getMinutes(lastUpdate.toLocalTime()));
+        repository.enrich(platformB, queryDate, TimeAsMinutes.getMinutes(lastUpdate.toLocalTime()));
+
+        assertEquals("some message", platformA.getStationDepartureInfo().getMessage());
+        assertEquals("", platformB.getStationDepartureInfo().getMessage());
     }
 
     @Test
@@ -64,7 +74,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
-        StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId");
+        StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId", "some message");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.map("someData")).andReturn(info);
@@ -85,7 +95,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
-        addStationInfo(info, lastUpdate, "displayId", "platformId");
+        addStationInfo(info, lastUpdate, "displayId", "platformId", "some message");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
         EasyMock.expect(mapper.map("someData")).andStubReturn(info);
@@ -111,7 +121,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
-        addStationInfo(info, lastUpdate, "displayId", "platformId");
+        addStationInfo(info, lastUpdate, "displayId", "platformId", "some message");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
         EasyMock.expect(mapper.map("someData")).andStubReturn(info);
@@ -141,7 +151,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         LocationDTO locationDTO = new LocationDTO(station);
 
         DateTime lastUpdate = DateTime.now();
-        StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId");
+        StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId", "some message");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.map("someData")).andReturn(info);
@@ -156,9 +166,9 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(departureInfo, result);
     }
 
-    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate, String displayId, String platformId) {
+    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate, String displayId, String platformId, String message) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
-                "some message", lastUpdate);
+                message, lastUpdate);
         info.add(departureInfo);
         departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single", lastUpdate));
         return departureInfo;
