@@ -131,7 +131,7 @@ public class App extends Application<AppConfiguration>  {
             } catch (Exception exeception) {
                 logger.error("Unable to refresh live data", exeception);
             }
-        }, 1,1,TimeUnit.SECONDS);
+        }, 10,10,TimeUnit.SECONDS);
 
         // ready to serve traffic
         logger.info("Prepare to signal cloud formation if running in cloud");
