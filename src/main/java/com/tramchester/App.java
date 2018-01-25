@@ -138,6 +138,7 @@ public class App extends Application<AppConfiguration>  {
         SignalToCloudformationReady signaller = dependencies.get(SignalToCloudformationReady.class);
         signaller.send();
 
+        logger.warn("Now running");
     }
 
     private void filtersForStaticContent(Environment environment) {

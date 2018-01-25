@@ -183,7 +183,8 @@ public class AcceptanceTestHelper {
             assertTrue(instruction.isEmpty());
         }
         else {
-            assertTrue(instruction.contains(format("Catch %s Tram", expectedHeadsign)));
+            assertTrue(format("%s not in %s ",expectedHeadsign, instruction),
+                    instruction.contains(format("Catch %s Tram", expectedHeadsign)));
         }
     }
 

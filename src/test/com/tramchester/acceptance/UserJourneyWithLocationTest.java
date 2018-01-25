@@ -76,7 +76,7 @@ public class UserJourneyWithLocationTest {
         String firstStation = Stations.NavigationRoad.getName();
 
         List<String> changes = Arrays.asList(firstStation, Stations.Piccadilly.getName());
-        List<String> headSignsA = Arrays.asList("","Etihad Campus",finalStation);
+        List<String> headSignsA = Arrays.asList("","Piccadilly",finalStation);
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,
                 LocalTime.parse("19:47"));
@@ -104,7 +104,7 @@ public class UserJourneyWithLocationTest {
 
         String firstStation = Stations.NavigationRoad.getName();
         List<String> changes = Arrays.asList(firstStation);
-        List<String> headSigns = Arrays.asList("","Etihad Campus");
+        List<String> headSigns = Arrays.asList("","Piccadilly");
 
         String finalStation = Stations.Deansgate.getName();
 

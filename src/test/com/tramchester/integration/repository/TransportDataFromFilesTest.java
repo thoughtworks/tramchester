@@ -30,9 +30,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv001341";
+    private final String svcDeansgateToVic = "Serv005395";
     // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv001317";
+    private String svcShawAndCrompton = "Serv005392";
 
     private Collection<Service> allServices;
 
@@ -76,7 +76,9 @@ public class TransportDataFromFilesTest {
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
-        assertEquals(16, tramRoutes);
+        //assertEquals(16, tramRoutes);
+        // assuming the 30 is a transition situation due to route revamp due on 28/1/2018
+        assertEquals(30, tramRoutes);
     }
 
     @Test

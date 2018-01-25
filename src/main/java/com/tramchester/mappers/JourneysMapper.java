@@ -21,14 +21,13 @@ public class JourneysMapper {
         this.mapper = mapper;
     }
 
-    public SortedSet<JourneyDTO> map(JourneyDTOFactory factory, Set<RawJourney> journeys, int withinMins) throws TramchesterException {
+    public SortedSet<JourneyDTO> map(JourneyDTOFactory factory, Set<RawJourney> journeys, int withinMins) {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
         SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(factory, journeys, withinMins);
         return decoratedJourneys;
     }
 
-    protected SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys, int withinMins)
-            throws TramchesterException {
+    protected SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys, int withinMins) {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {

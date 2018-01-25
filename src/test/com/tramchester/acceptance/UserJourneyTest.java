@@ -199,7 +199,7 @@ public class UserJourneyTest {
     @Test
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
         List<String> changes = Lists.emptyList();
-        List<String> headSigns = Arrays.asList("Deansgate-Castlefield");
+        List<String> headSigns = Arrays.asList("Victoria");
         JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, Stations.ManAirport.getName(),
                 deansgate, nextMonday, LocalTime.parse("10:15"), changes,
                 headSigns, false, expectedNumberJourneyResults, 0, false);
@@ -210,7 +210,7 @@ public class UserJourneyTest {
     @Test
     public void shouldHaveSecondCityCrossingRoutes() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
-        List<String> headsignRochdale = Arrays.asList("Rochdale Interchange");
+        List<String> headsignRochdale = Arrays.asList("Shaw and Crompton");
 
         JourneyDetailsPage detailsPage = helper.checkJourney(url, Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
                 nextMonday, LocalTime.parse("10:15"), noChanges, headsignRochdale, false,
@@ -224,7 +224,7 @@ public class UserJourneyTest {
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
         List<String> noChanges = new LinkedList<>();
 
-        List<String> headsignEtihadCampus = Arrays.asList("Etihad Campus");
+        List<String> headsignEtihadCampus = Arrays.asList("Piccadilly");
         List<String> headSignsBury = Arrays.asList("Bury");
 
         RouteDetailsPage routeDetailsPage = helper.checkJourney(url, altrincham, deansgate,

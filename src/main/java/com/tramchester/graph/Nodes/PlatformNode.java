@@ -50,4 +50,12 @@ public class PlatformNode implements TramNode {
     public boolean isPlatform() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "PlatformNode{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
