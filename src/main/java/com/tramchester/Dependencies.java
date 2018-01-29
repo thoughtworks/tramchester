@@ -93,7 +93,7 @@ public class Dependencies {
         objectMapper.registerModule(new JodaModule());
         picoContainer.addComponent(objectMapper);
 
-        TransportDataReader dataReader = new TransportDataReader(dataPath);
+        TransportDataReader dataReader = new TransportDataReader(dataPath, false);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
 
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
@@ -127,7 +127,7 @@ public class Dependencies {
 
     public ErrorCount cleanseData(Set<String> agencies, Path inputPath, Path outputPath) throws IOException {
         Path inputDir = inputPath.resolve(TFGM_UNZIP_DIR);
-        TransportDataReader reader = new TransportDataReader(inputDir);
+        TransportDataReader reader = new TransportDataReader(inputDir, true);
         TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(outputPath);
 
         ErrorCount count = new ErrorCount();

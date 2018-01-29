@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.StringTokenizer;
 
 
 public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
@@ -38,7 +39,7 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
 
 
     private Optional<LocalTime> getDateTime(String time) {
-        String[] split = time.split(":");
+        String[] split = time.split(":",3);
 
         Integer hour = Integer.parseInt(split[0]);
         if (hour==24 || hour==25) {
@@ -46,12 +47,15 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         }
         Integer minutes = Integer.parseInt(split[1]);
         try {
-            if (split.length==3) {
-                return Optional.of(new LocalTime(hour,minutes,
-                        Integer.parseInt(split[2])));
-            } else {
-                return Optional.of(new LocalTime(hour,minutes));
-            }
+            return Optional.of(new LocalTime(hour,minutes));
+
+            // times only at hours, minutes resolution, seconds always 00 in current data sets
+//            if (split.length==3) {
+//                return Optional.of(new LocalTime(hour,minutes,
+//                        Integer.parseInt(split[2])));
+//            } else {
+//                return Optional.of(new LocalTime(hour,minutes));
+//            }
         }
         catch (IllegalFieldValueException exception) {
             logger.error("Caught Expection during creation of date. Unable to parse "+time, exception);

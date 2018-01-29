@@ -39,14 +39,23 @@ public class DataLoader<T> {
     }
 
 
-    public Stream<T> loadAll() throws IOException {
+    public Stream<T> loadAll(boolean skipHeader) {
         logger.info("Loading data from " + fileName + ".txt file.");
         try {
-            reader = Optional.of(new FileReader(String.format("%s.txt", fileName)));
+            FileReader theReader = new FileReader(String.format("%s.txt", fileName));
+            reader = Optional.of(theReader);
 
-            CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(reader.get())
+            CSVStrategy csvStrategy;
+            if (skipHeader) {
+                csvStrategy = new CSVStrategy(',', '"', '#', true, true);
+            } else
+            {
+                csvStrategy = CSVStrategy.UK_DEFAULT;
+            }
+
+            CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(theReader)
                     .entryParser(parser)
-                    .strategy(CSVStrategy.UK_DEFAULT)
+                    .strategy(csvStrategy)
                     .build();
 
             logger.info("Finished loading data from " + fileName + ".txt file.");

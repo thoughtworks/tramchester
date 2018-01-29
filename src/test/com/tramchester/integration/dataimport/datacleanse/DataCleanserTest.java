@@ -77,7 +77,7 @@ public class DataCleanserTest implements TransportDataFetcher {
 
     private DataCleanser getDataCleanser() throws IOException {
         fetchData();
-        TransportDataReader reader = new TransportDataReader(INPUT);
+        TransportDataReader reader = new TransportDataReader(INPUT, false);
         TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
         return new DataCleanser(reader, writeFactory, new ErrorCount());
     }

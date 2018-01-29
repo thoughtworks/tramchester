@@ -188,17 +188,15 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     @Test
-    public void shoudRemoveHeaderFromFeedInfo() throws IOException {
+    public void shouldLeaveFeedInfoLinesUntouched() throws IOException {
 
         FeedInfo lineA = new FeedInfo("pubA", "urlA", "tzA", "landA", new LocalDate(2016,11,29),
                 new LocalDate(2016,11,30), "versionA");
-        FeedInfo lineB = new FeedInfo("pubB", "urlB", "tzB", "landB", new LocalDate(2016,12,29),
-                new LocalDate(2016,12,30), "versionB");
 
-        Stream<FeedInfo> feedInfo = Stream.of(lineA, lineB);
-        EasyMock.expect(reader.getFeedInfo()).andReturn(feedInfo);
-        validateWriter("feed_info",  "pubB,urlB,tzB,landB,20161229,20161230,versionB");
-        EasyMock.expectLastCall();
+        Stream<FeedInfo> feedInfoStream = Stream.of(lineA);
+
+        EasyMock.expect(reader.getFeedInfo()).andReturn(feedInfoStream);
+        validateWriter("feed_info",  "pubA,urlA,tzA,landA,20161129,20161130,versionA");
 
         replayAll();
         cleanser.cleanFeedInfo();

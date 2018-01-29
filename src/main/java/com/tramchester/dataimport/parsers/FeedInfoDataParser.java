@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import static java.lang.String.format;
 
 public class FeedInfoDataParser implements CSVEntryParser<FeedInfo> {
-    private static final Logger logger = LoggerFactory.getLogger(StopTimeDataParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(FeedInfoDataParser.class);
 
     private static org.joda.time.format.DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYYMMdd");
 

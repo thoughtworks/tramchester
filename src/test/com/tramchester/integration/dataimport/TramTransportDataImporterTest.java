@@ -19,7 +19,7 @@ public class TramTransportDataImporterTest {
 
     @Test
     public void shouldLoadTransportData() {
-        TransportDataReader transportDataReader = new TransportDataReader(Paths.get(PATH));
+        TransportDataReader transportDataReader = new TransportDataReader(Paths.get(PATH), false);
         TransportDataImporter transportDataImporter = new TransportDataImporter(transportDataReader);
 
         TransportData transportData = transportDataImporter.load();

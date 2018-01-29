@@ -198,7 +198,7 @@ public class DataCleanser {
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("feed_info");
 
-        feedInfo.skip(1).forEach(info -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
+        feedInfo.forEach(info -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
                 info.getPublisherName(),
                 info.getPublisherUrl(),
                 info.getTimezone(),

@@ -13,13 +13,14 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TramDataLoaderTest {
+    private boolean skipHeader = false;
 
     // the test data files currently manually maintained, copy over from data/tram as needed
 
     @Test
     public void shouldLoadRouteData() throws Exception {
         DataLoader<RouteData> dataLoader = new DataLoader<>("data/test/routes", new RouteDataParser());
-        List<RouteData> routeData = dataLoader.loadAll().collect(Collectors.toList());
+        List<RouteData> routeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);
         RouteData theRoute = routeData.get(0);
@@ -32,7 +33,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadAgencyData() throws IOException {
         DataLoader<AgencyData> dataLoader = new DataLoader<>("data/test/agency", new AgencyDataParser());
-        List<AgencyData> agencyData = dataLoader.loadAll().collect(Collectors.toList());
+        List<AgencyData> agencyData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(agencyData).hasSize(43);
         agencyData.removeIf(agent -> !agent.getId().equals("MET"));
@@ -45,7 +46,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadCalendarData() throws Exception {
         DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar", new CalendarDataParser());
-        List<CalendarData> calendarData = dataLoader.loadAll().collect(Collectors.toList());
+        List<CalendarData> calendarData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(12);
         assertThat(calendarData.get(0).getServiceId()).isEqualTo("Serv000001");
@@ -56,7 +57,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadStopData() throws Exception {
         DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops", new StopDataParser());
-        List<StopData> stopData = dataLoader.loadAll().collect(Collectors.toList());
+        List<StopData> stopData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(stopData).hasSize(178);
         StopData theStop = stopData.get(0);
@@ -70,7 +71,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadStopTimeData() throws Exception {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times", new StopTimeDataParser());
-        List<StopTimeData> stopTimeData = dataLoader.loadAll().collect(Collectors.toList());
+        List<StopTimeData> stopTimeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(20);
         StopTimeData stopTime = stopTimeData.get(0);
@@ -85,7 +86,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadTripData() throws Exception {
         DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips", new TripDataParser());
-        List<TripData> tripData = dataLoader.loadAll().collect(Collectors.toList());
+        List<TripData> tripData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(tripData).hasSize(20);
         TripData theTrip = tripData.get(0);
