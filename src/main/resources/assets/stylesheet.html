@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html ng-app="techLabApp">
+
+<head>
+    <title>Tramchester</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <!-- iPhone (Retina) -->
+    <link href="apple-touch-startup-image-640x920.png" media="(device-width: 320px) and (device-height: 480px)
+	         and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <!-- 57 x 57 Android and iPhone 3 icon -->
+    <link rel="apple-touch-icon" href="icon57x57.png" sizes="57x57">
+    <link rel="apple-touch-icon" href="icon144x144.png" sizes="144x144">
+    <link rel="apple-touch-icon" href="icon114x114.png" sizes="114x114">
+    <link rel="apple-touch-icon" href="icon72x72.png" sizes="72x72">
+    <link rel="shortcut icon" href="icon57x57.png">
+    <link rel="stylesheet" type="text/css" href="css/MyFontsWebfontsKit.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
+    <link href="css/tramchester.css" rel="stylesheet" media="screen">
+    <link href="css/leaflet.css" rel="stylesheet"  />
+</head>
+<body class="tcr">
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <h5 class="navbar-title">Nav Bat Text</h5>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" id="route-planner">
+            <form name="journeyPlanForm">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="fromStop">From Group Text</label>
+                        <select id="fromStop"
+                                required
+                                class="form-control input-lg">
+                            <option value="">Select a Stop Text</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="toStop">To Group Text</label>
+                        <select id="toStop"
+                                required
+                                class="form-control input-lg">
+                            <option value="">Select a Stop Text</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="hour">Departure Time Text</label>
+                        <input id="hour"
+                               type="time"
+                               class="form-control input-lg"
+                               required/>
+                        <label for="date">Departure Date</label>
+                        <input id="date"
+                               type="date"
+                               class="tcr-date form-control input-lg"
+                               placeholder="dd/MM/YYYY"
+                               required
+                               min="{{validFrom}}"
+                               max="{{enforceExpiry && validUntil || '2020-11-30'}}"/>
+                    </div>
+                    <button type="submit" id="plan" class="btn btn-default btn-lg btn-block">
+                        Find Routes Button Text
+                    </button>
+
+                </fieldset>
+            </form>
+        </div>
+        <div class="col-12 col-sm-12 col-lg-" >
+            <button name="nearby" type="submit" id="nearby" class="btn btn-default btn-lg btn-block"
+                    ng-click="nearMe()">
+                Stops Near Me Text
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-">
+            <div class="panel" id="Notes">
+                <div class="panel-heading"><strong>Notes Text:</strong></div>
+                <div class="list-group" id="NotesList">
+                    <div id="NoteItem">
+                        <div class="list-group-item" >Some Note Text A</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel" id="NoRoutes">
+                <div class="panel-heading">No Results</div>
+                <div class="list-group text-center">
+                    Unable to find any routes for the journey, please check the
+                    <a href="http://www.metrolink.co.uk/Pages/default.aspx"
+                       target="_blank">Metrolink Home page.</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-lg-">
+
+            <div ng-repeat="journey in journeyPlan.journeys" ng-click="showJourneyDetails($index)">
+                <div class="panel" id="journeyPanel1">
+                    <div class="panel-heading" id="journeyHeading1">Heading Text</div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        <a class="list-group-item" >
+                            <span>
+                                <span id="journeyBegin1"><strong>10:10</strong> from <strong>Start</strong></span>
+                                <button class="pull-right tcr-button">Details</button>
+                            </span>
+                        </a>
+                    </div>
+                    <ul class="list-group" id="dueTram1">
+                        <li class="list-group-item">
+                            <span class="glyphicon glyphicon glyphicon-time pull-right"></span>
+                            Due tram
+                        </li>
+                    </ul>
+                    <ul class="list-group" id="journeySummary1">
+                        <li class="list-group-item">
+                            <span  ng-show="journey.isDirect" class="glyphicon glyphicon-arrow-right pull-right"></span>
+                            <!--<span  ng-show="!journey.isDirect" class="glyphicon glyphicon-random pull-right"></span>-->
+                            Journey Summary Here
+                        </li>
+                    </ul>
+                    <ul class="list-group">
+                        <li class="list-group-item" id="journeyEnd1">
+                            <strong>12:02</strong> Arrive at
+                            <strong>End</strong>
+                    </ul>
+                </div>
+                <div class="panel" id="journeyPanel2">
+                    <div class="panel-heading" id="journeyHeading2">Heading Text 2</div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        <a class="list-group-item" >
+                            <span>
+                                <span id="journeyBegin2"><strong>11:10</strong> from <strong>Start</strong></span>
+                                <button class="pull-right tcr-button">Details</button>
+                            </span>
+                        </a>
+                    </div>
+                    <ul class="list-group" id="journeySummary2">
+                        <li class="list-group-item">
+                            <span class="glyphicon glyphicon-random pull-right"></span>
+                            Journey Summary Here
+                        </li>
+                    </ul>
+                    <ul class="list-group">
+                        <li class="list-group-item" id="journeyEnd2">
+                            <strong>13:02</strong> Arrive at
+                            <strong>End</strong>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div  id="newJourneyPanel" class="col-12 col-sm-12 col-lg-">
+            <div class="panel">
+                <div class="panel-heading">Plan new journey</div>
+                <div class="list-group">
+                    <a id="newJourney" href="/#/routePlanner" class="btn bt n-default btn-lg btn-block">Plan New Journey</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" >
+            <button id="earlierTram" class="btn btn-default btn-sm pull-left">
+                <span>Earlier </span><span class="glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button id="laterTram" class="btn btn-default btn-sm pull-right">
+                <span class="glyphicon glyphicon-chevron-right"> Later</span>
+            </button>
+
+            <h4 id="journeyHeader" class="heading">Initial
+                from
+                SomePlace</h4>
+            <!-- repeats -->
+            <div>
+                <div class="panel RouteClass1">
+                    <div id="stageSummary1" class="panel-heading">Stage Summary</div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        <a id="showMap1" class="list-group-item">
+                            <span>
+                                <h4>
+                                    <span style="display: inline-block; width: 85%;" id="stagePrompt1">stage prompt <strong>stage actionStation name</strong></span>
+                                    <button class="pull-right tcr-button">Map</button>
+                                </h4>
+                            </span>
+                        </a>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item" >
+                            <div id="stageInstruction1">
+                                <strong>08:45</strong> Catch
+                                Headsign tram
+                                <span id="stagePlatformInstruction1">
+                                    from Platform One
+                                </span>
+                            </div>
+                        </li>
+                        <li  class="list-group-item">
+                            <div class="dueTrams">
+                                <span>Trams from this station</span>
+                                <div>
+                                    <span class="dueTram">Bury Double tram Due at 09:44</span>
+                                </div>
+                                <div>
+                                    <span class="dueTram">Piccadily Single tram Due at 09:48</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>
+                            <div id="stageDuration1">Duration <strong>42 min</strong></div>
+                        </li>
+                        <li class="list-group-item" >
+                            <div id="stageArrive1">
+                                <strong>10:23</strong> Arrive at Destination</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tcr-change" >
+                    <div id="change1">
+                        <span class="glyphicon glyphicon-random"></span>
+                        <span class="trc-change-text" ng-show="stage.isAVehicle">Change Tram</span>
+                    </div>
+                </div>
+            </div>
+            <p><a id="newJourney2" href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

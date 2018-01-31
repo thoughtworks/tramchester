@@ -51,12 +51,6 @@ html {
     border-radius: 0px;
 }
 
-.btn-tcr {
-    background-color: #ffe100;
-    color: #191c1f;
-    border: 2px solid #191c1f;
-}
-
 .tcr-button {
     font-size: 12px;
 }
@@ -334,19 +328,19 @@ input[type="time"], input[type="datetime-local"] {
 }
 
 /*! Line interchange */
-.line {
-    background-color: #000000;
-}
+/*.line {*/
+    /*background-color: #000000;*/
+/*}*/
 
 /*! Park + Ride / Cycle Hub */
-.ride {
-    background-color: #009bc9;
-}
+/*.ride {*/
+    /*background-color: #009bc9;*/
+/*}*/
 
 /*! City Centre / Generic Grey */
-.cc {
-    background-color: #e8e8e3;
-}
+/*.cc {*/
+    /*background-color: #e8e8e3;*/
+/*}*/
 
 .tcr .panel-heading.news {
     margin-bottom: -16px;
@@ -385,8 +379,8 @@ input[type="time"], input[type="datetime-local"] {
     font-size: 14px;
 }
 
-nearMePlatform {
-    font-size: 10px;
+.nearMePlatform {
+    font-size: 12px;
 }
 
 .list-group p {
