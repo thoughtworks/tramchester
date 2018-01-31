@@ -141,7 +141,6 @@ html {
 }
 
 .tcr .panel {
-    -moz-box-shadow: 4px 4px 2px #ccc;
     -webkit-box-shadow: 4px 4px 2px #ccc;
     box-shadow: 4px 4px 2px #ccc;
     border-color: #999;
@@ -166,8 +165,6 @@ html {
 
 .tcr .well {
     background-color: #ffffff;
-    -moz-box-shadow: 4px 4px 2px #ccc;
-    -webkit-box-shadow: 4px 4px 2px #ccc;
     box-shadow: 4px 4px 2px #ccc;
     border-color: #999;
 }
@@ -192,8 +189,8 @@ html {
     border-bottom: 1px solid #fffbb3;
 }
 
-.tcr-date {
-}
+/*.tcr-date {*/
+/*}*/
 
 /*! Directions */
 
@@ -270,7 +267,6 @@ html {
 }
 
 /* iOS form inputs */
-
 input[type="time"], input[type="datetime-local"] {
     -webkit-appearance: none;
 }
@@ -326,21 +322,6 @@ input[type="time"], input[type="datetime-local"] {
     background-color: #81725e;
     color: #ffffff;
 }
-
-/*! Line interchange */
-/*.line {*/
-    /*background-color: #000000;*/
-/*}*/
-
-/*! Park + Ride / Cycle Hub */
-/*.ride {*/
-    /*background-color: #009bc9;*/
-/*}*/
-
-/*! City Centre / Generic Grey */
-/*.cc {*/
-    /*background-color: #e8e8e3;*/
-/*}*/
 
 .tcr .panel-heading.news {
     margin-bottom: -16px;
