@@ -1,7 +1,5 @@
 package com.tramchester.domain;
 
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-
 import static java.lang.String.format;
 
 public class Platform {

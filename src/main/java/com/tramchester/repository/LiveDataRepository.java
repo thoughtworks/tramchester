@@ -28,7 +28,7 @@ public class LiveDataRepository {
     List<String> displaysToExclude = Arrays.asList("303","304","461");
 
     // platformId -> StationDepartureInfo
-    private HashMap<String,StationDepartureInfo> map;
+    private HashMap<String,StationDepartureInfo> stationInformation;
 
     private LiveDataFetcher fetcher;
     private LiveDataParser parser;
@@ -37,7 +37,7 @@ public class LiveDataRepository {
     public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser) {
         this.fetcher = fetcher;
         this.parser = parser;
-        map = new HashMap<>();
+        stationInformation = new HashMap<>();
         lastRefresh = DateTime.now();
     }
 
@@ -66,7 +66,7 @@ public class LiveDataRepository {
         } else {
             logger.info("Refreshed live data, count is: " + newMap.size());
         }
-        map = newMap;
+        stationInformation = newMap;
         lastRefresh = DateTime.now();
     }
 
@@ -77,8 +77,8 @@ public class LiveDataRepository {
             return;
         }
 
-        String idToFind = platform.getId();
-        if (map.containsKey(idToFind)) {
+        String platformId = platform.getId();
+        if (stationInformation.containsKey(platformId)) {
             enrichPlatformIfTimeMatches(platform, queryMins);
         } else {
             logger.error("Unable to find live data for platform " + platform.getId());
@@ -99,7 +99,7 @@ public class LiveDataRepository {
 
         locationDTO.getPlatforms().forEach(platformDTO -> {
             String idToFind = platformDTO.getId();
-            if (map.containsKey(idToFind)) {
+            if (stationInformation.containsKey(idToFind)) {
                 enrichPlatformIfTimeMatches(platformDTO, minutes);
             } else {
                 logger.error("Unable to find live data for platform " + platformDTO.getId());
@@ -111,7 +111,7 @@ public class LiveDataRepository {
     private void enrichPlatformIfTimeMatches(PlatformDTO platform, int queryMins) {
         String platformId = platform.getId();
         logger.info("Found live data for " + platformId);
-        StationDepartureInfo info = map.get(platformId);
+        StationDepartureInfo info = stationInformation.get(platformId);
 
         DateTime infoLastUpdate = info.getLastUpdate();
 
@@ -126,6 +126,6 @@ public class LiveDataRepository {
     }
 
     public int count() {
-        return map.size();
+        return stationInformation.size();
     }
 }

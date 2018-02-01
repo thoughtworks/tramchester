@@ -11,6 +11,8 @@ public class DueTram {
     private String destination;
     private int wait;
     private String carriages;
+
+    // TODO: LocalTime
     private DateTime when;
 
     public DueTram() {

@@ -23,6 +23,7 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.livedata.LiveDataFetcher;
+import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.mappers.TramJourneyResponseMapper;
@@ -72,6 +73,8 @@ public class Dependencies {
         // caching is on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(StationResource.class);
+        picoContainer.addComponent(DeparturesResource.class);
+        picoContainer.addComponent(DeparturesMapper.class);
         picoContainer.addComponent(ClosedStations.class);
         picoContainer.addComponent(VersionResource.class);
         picoContainer.addComponent(CreateQueryTimes.class);
