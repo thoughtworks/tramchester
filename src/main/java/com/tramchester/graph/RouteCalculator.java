@@ -121,13 +121,13 @@ public class RouteCalculator extends StationIndexs {
     private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
                                        int limit, int minsPathMidnight) {
         paths.limit(limit).forEach(path -> {
-            logger.info(format("map graph path of length %s with limit of %s ", path.length(), limit));
+            logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
             try {
                 List<RawStage> stages = pathToStages.map(path, minsPathMidnight);
                 RawJourney journey = new RawJourney(stages, minsPathMidnight);
                 journeys.add(journey);
             } catch (TramchesterException exception) {
-                logger.error("Failed to map paths to a journey",exception);
+                logger.error("Failed to parse paths to a journey",exception);
             }
         });
         paths.close();

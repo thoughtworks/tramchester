@@ -10,7 +10,7 @@ import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.livedata.LiveDataFetcher;
-import com.tramchester.mappers.LiveDataMapper;
+import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.LiveDataRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -30,14 +30,14 @@ import static junit.framework.TestCase.assertTrue;
 public class LiveDataRepositoryTest extends EasyMockSupport {
 
     private LiveDataFetcher fetcher;
-    private LiveDataMapper mapper;
+    private LiveDataParser mapper;
     private LiveDataRepository repository;
     private PlatformDTO platform;
 
     @Before
     public void beforeEachTestRuns() {
         fetcher = createMock(LiveDataFetcher.class);
-        mapper = createMock(LiveDataMapper.class);
+        mapper = createMock(LiveDataParser.class);
         repository = new LiveDataRepository(fetcher, mapper);
         platform = new PlatformDTO(new Platform("platformId", "Platform name"));
     }
@@ -54,7 +54,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         addStationInfo(info, lastUpdate, "303", "platformIdB", "exclude message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
-        EasyMock.expect(mapper.map("someData")).andReturn(info);
+        EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
         replayAll();
         repository.refreshRespository();
@@ -78,7 +78,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
                 "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
-        EasyMock.expect(mapper.map("someData")).andReturn(info);
+        EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
         replayAll();
         repository.refreshRespository();
@@ -99,7 +99,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
-        EasyMock.expect(mapper.map("someData")).andStubReturn(info);
+        EasyMock.expect(mapper.parse("someData")).andStubReturn(info);
 
         TramServiceDate queryDateA = new TramServiceDate(LocalDate.now().minusDays(1));
         TramServiceDate queryDateB = new TramServiceDate(LocalDate.now().plusDays(1));
@@ -125,7 +125,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
-        EasyMock.expect(mapper.map("someData")).andStubReturn(info);
+        EasyMock.expect(mapper.parse("someData")).andStubReturn(info);
 
         TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
 
@@ -156,7 +156,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
                 "platformId", "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
-        EasyMock.expect(mapper.map("someData")).andReturn(info);
+        EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
         replayAll();
         repository.refreshRespository();

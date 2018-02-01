@@ -4,6 +4,8 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import org.apache.commons.collections4.map.HashedMap;
 
 import java.util.*;
 
@@ -34,26 +36,51 @@ public class ProvidesNotes {
         return notes;
     }
 
-    private List<String> createNotesFor(SortedSet<JourneyDTO> decoratedJourneys) {
-        List<String> result = new LinkedList<>();
+    private Set<String> createNotesFor(SortedSet<JourneyDTO> decoratedJourneys) {
+        // Map: Message -> Location
+        Map<String,String> messageMap = new HashedMap<>();
+
         decoratedJourneys.stream().forEach(journeyDTO -> journeyDTO.getStages().stream().
                 filter(stageDTO -> stageDTO.getMode().equals(TransportMode.Tram)).
-                forEach(tramStage -> {
-                    StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
-                    if (info!=null) {
-                        String rawMessage = info.getMessage();
-                        if (haveMessageForPlatform(rawMessage)) {
-                            String message = format("'%s' - Metrolink", rawMessage);
-                            if (!result.contains(message)) {
-                                result.add(message);
-                            }
-                        }
-                    }
-                }));
-        return result;
+                forEach(tramStage -> addRelevantMessage(messageMap, tramStage))
+        );
+
+        return createMessageList(messageMap);
     }
 
-    private boolean haveMessageForPlatform(String rawMessage) {
+    private Set<String> createMessageList(Map<String, String> messageMap) {
+        Set<String> messages = new HashSet<>();
+        messageMap.forEach((rawMessage,location) -> {
+            if (location.isEmpty()) {
+                messages.add(format("'%s' - Metrolink", rawMessage));
+            } else {
+                messages.add(format("'%s' - %s, Metrolink", rawMessage, location));
+            }
+        });
+
+        return messages;
+    }
+
+    private void addRelevantMessage(Map<String,String> messageMap, StageDTO tramStage) {
+        StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
+        if (info==null) {
+            return;
+        }
+
+        String rawMessage = info.getMessage();
+        if (usefulMessage(rawMessage)) {
+            if (messageMap.containsKey(rawMessage)) {
+                String existingLocation = messageMap.get(rawMessage);
+                if (!existingLocation.equals(info.getLocation())) {
+                    messageMap.put(rawMessage, ""); // must be shown at multiple locations, not specific
+                }
+            } else {
+                messageMap.put(rawMessage, info.getLocation()); // initially specific to one location only
+            }
+        }
+    }
+
+    private boolean usefulMessage(String rawMessage) {
         return ! (rawMessage.isEmpty() || EMPTY.equals(rawMessage));
     }
 }

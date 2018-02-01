@@ -13,11 +13,11 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class LiveDataMapper {
+public class LiveDataParser {
 
     private int MAX_DUE_TRAMS = 4;
 
-    public List<StationDepartureInfo> map(String rawJson) throws ParseException {
+    public List<StationDepartureInfo> parse(String rawJson) throws ParseException {
         List<StationDepartureInfo> result = new LinkedList<>();
 
         JSONParser jsonParser = new JSONParser();
@@ -49,19 +49,19 @@ public class LiveDataMapper {
 
     private void parseDueTrams(JSONObject jsonObject, StationDepartureInfo departureInfo) {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
-            String dest = getField(jsonObject, i, "Dest");
+            String dest = getNumberedField(jsonObject, "Dest", i);
             if (dest.length()>0) {
-                String status = getField(jsonObject, i, "Status");
-                String waitString = getField(jsonObject, i, "Wait");
+                String status = getNumberedField(jsonObject, "Status", i);
+                String waitString = getNumberedField(jsonObject, "Wait", i);
                 int wait = Integer.parseInt(waitString);
-                String carriages = getField(jsonObject, i, "Carriages");
+                String carriages = getNumberedField(jsonObject, "Carriages", i);
                 DueTram dueTram = new DueTram(dest, status, wait, carriages, departureInfo.getLastUpdate());
                 departureInfo.addDueTram(dueTram);
             }
         }
     }
 
-    private String getField(JSONObject jsonObject, int i, String name) {
+    private String getNumberedField(JSONObject jsonObject, String name, int i) {
         String destKey = format("%s%d", name, i);
         return (String) jsonObject.get(destKey);
     }

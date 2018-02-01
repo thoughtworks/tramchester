@@ -6,7 +6,7 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.livedata.LiveDataFetcher;
-import com.tramchester.mappers.LiveDataMapper;
+import com.tramchester.mappers.LiveDataParser;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.json.simple.parser.ParseException;
@@ -25,17 +25,18 @@ public class LiveDataRepository {
     public static final int TIME_LIMIT = 5; // only enrich if data is within this many minutes
 
     // some displays don't show normal messages in MessageBoard but instead a list of due trams
-    List<String> messagesToExclude = Arrays.asList("303","304","461");
+    List<String> displaysToExclude = Arrays.asList("303","304","461");
 
+    // platformId -> StationDepartureInfo
     private HashMap<String,StationDepartureInfo> map;
 
     private LiveDataFetcher fetcher;
-    private LiveDataMapper mapper;
+    private LiveDataParser parser;
     private DateTime lastRefresh;
 
-    public LiveDataRepository(LiveDataFetcher fetcher, LiveDataMapper mapper) {
+    public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser) {
         this.fetcher = fetcher;
-        this.mapper = mapper;
+        this.parser = parser;
         map = new HashMap<>();
         lastRefresh = DateTime.now();
     }
@@ -46,11 +47,11 @@ public class LiveDataRepository {
         String payload  = fetcher.fetch();
         if (payload.length()>0) {
             try {
-                List<StationDepartureInfo> infos = mapper.map(payload);
+                List<StationDepartureInfo> infos = parser.parse(payload);
                 infos.forEach(info -> {
                     String platformId = info.getStationPlatform();
                     if (!newMap.containsKey(platformId)) {
-                        if (messagesToExclude.contains(info.getDisplayId())) {
+                        if (displaysToExclude.contains(info.getDisplayId())) {
                             info.clearMessage();
                         }
                         newMap.put(platformId, info);

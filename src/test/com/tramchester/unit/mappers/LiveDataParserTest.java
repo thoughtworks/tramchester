@@ -2,7 +2,7 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.mappers.LiveDataMapper;
+import com.tramchester.mappers.LiveDataParser;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.ISOChronology;
 import org.json.simple.parser.ParseException;
@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class LiveDataMapperTest {
+public class LiveDataParserTest {
 
     public static String exampleData = "{\n" +
             "  \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n" +
@@ -25,9 +25,9 @@ public class LiveDataMapperTest {
 
     @Test
     public void shouldMapLiveDataToStationInfo() throws ParseException {
-        LiveDataMapper mapper = new LiveDataMapper();
+        LiveDataParser mapper = new LiveDataParser();
 
-        List<StationDepartureInfo> info = mapper.map(exampleData);
+        List<StationDepartureInfo> info = mapper.parse(exampleData);
 
         assertEquals(2, info.size());
 

@@ -38,7 +38,7 @@ public class JourneysMapper {
                 journeys.add(factory.build(journey.get()));
                 logger.info("Added journey " +journey);
             } else {
-                logger.warn(format("Unable to map %s to journey", rawJourney));
+                logger.warn(format("Unable to parse %s to journey", rawJourney));
             }
         });
 

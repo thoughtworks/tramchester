@@ -24,7 +24,7 @@ import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.mappers.LiveDataMapper;
+import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.RoutesRepository;
@@ -116,7 +116,7 @@ public class Dependencies {
         picoContainer.addComponent(AreaResource.class);
         picoContainer.addComponent(ExpiryCheckService.class);
         picoContainer.addComponent(LiveDataFetcher.class);
-        picoContainer.addComponent(LiveDataMapper.class);
+        picoContainer.addComponent(LiveDataParser.class);
         picoContainer.addComponent(LiveDataRepository.class);
 
         rebuildGraph(configuration);

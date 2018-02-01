@@ -86,7 +86,7 @@ public class ProvidesNotesTest {
         List<StageDTO> stages = new LinkedList<>();
 
         String text = "<no message>";
-        StageDTO stageA = createStage(TransportMode.Tram, "platformIdA", text, "displayUnitId");
+        StageDTO stageA = createStage(TransportMode.Tram, "platformLocation", "platformIdA", text, "displayUnitId");
 
         stages.add(stageA);
 
@@ -104,15 +104,17 @@ public class ProvidesNotesTest {
     public void shouldAddNotesBasedOnLiveDataIfPresent() {
         List<StageDTO> stages = new LinkedList<>();
 
-        StageDTO stageA = createStage(TransportMode.Tram, "platformIdA", "Some long message", "displayUnitId");
-        StageDTO stageB = createStage(TransportMode.Tram, "platformIdB", "Some long message", "displayUnitId");
-        StageDTO stageC = createStage(TransportMode.Tram, "platformIdC", "Some Other Long message", "displayUnitId");
-        StageDTO stageD = createStage(TransportMode.Walk, "platformIdD", "Not a tram message", "displayUnitId");
+        StageDTO stageA = createStage(TransportMode.Tram, "platformLocation1", "platformIdA", "Some long message", "displayUnitId1");
+        StageDTO stageB = createStage(TransportMode.Tram, "platformLocation2", "platformIdB", "Some long message", "displayUnitId2");
+        StageDTO stageC = createStage(TransportMode.Tram, "platformLocation2", "platformIdC", "Some Location Long message", "displayUnitId3");
+        StageDTO stageD = createStage(TransportMode.Walk, "platformLocationX", "platformIdD", "Not a tram message", "displayUnitId4");
+        StageDTO stageE = createStage(TransportMode.Tram, "platformLocation2", "platformIdE", "Some Location Long message", "displayUnitId5");
 
         stages.add(stageA);
         stages.add(stageB);
         stages.add(stageC);
         stages.add(stageD);
+        stages.add(stageE);
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
                 , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
@@ -122,16 +124,16 @@ public class ProvidesNotesTest {
         List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
 
         assertEquals(2, notes.size());
-        assertTrue(notes.contains("'Some long message' - Metrolink"));
-        assertTrue(notes.contains("'Some Other Long message' - Metrolink"));
+        assertTrue(notes.toString(), notes.contains("'Some long message' - Metrolink"));
+        assertTrue(notes.toString(), notes.contains("'Some Location Long message' - platformLocation2, Metrolink"));
     }
 
-    private StageDTO createStage(TransportMode transportMode, String platformId, String message, String displayUnitId) {
+    private StageDTO createStage(TransportMode transportMode, String platformLocation, String platformId, String message, String displayUnitId) {
         boolean isWalk = transportMode.equals(TransportMode.Walk);
         Platform platform = new Platform(platformId, "platformName");
         PlatformDTO platformDTO = new PlatformDTO(platform);
 
-        platformDTO.setDepartureInfo(createDepartureInfo("platformLocation", message, displayUnitId));
+        platformDTO.setDepartureInfo(createDepartureInfo(platformLocation, message, displayUnitId));
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
                 platformDTO, LocalTime.now(), LocalTime.now(), 42,

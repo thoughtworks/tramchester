@@ -4,7 +4,7 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.livedata.LiveDataFetcher;
-import com.tramchester.mappers.LiveDataMapper;
+import com.tramchester.mappers.LiveDataParser;
 import org.joda.time.DateTime;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
@@ -24,8 +24,8 @@ public class LiveDataFetcherTest {
 
         String payload = liveDataFetcher.fetch();
 
-        LiveDataMapper mapper = new LiveDataMapper();
-        List<StationDepartureInfo> result = mapper.map(payload);
+        LiveDataParser mapper = new LiveDataParser();
+        List<StationDepartureInfo> result = mapper.parse(payload);
 
         assertTrue(result.size()>0);
 

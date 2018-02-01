@@ -3,7 +3,7 @@ package com.tramchester.integration;
 
 public class RouteCodesForTesting {
 
-    /// NAMES here are based on the network map and not the routes.txt file as that appears out of date
+    /// NAMES here are based on the network parse and not the routes.txt file as that appears out of date
 
     //public static final String ASH_TO_VICTORIA = "MET:   J:I:";
     public static final String ASH_TO_ECCLES = "MET:   E:O:";

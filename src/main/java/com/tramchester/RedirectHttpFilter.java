@@ -54,7 +54,7 @@ public class RedirectHttpFilter implements Filter {
             }
         }
         catch(URISyntaxException unableToMap) {
-            logger.error("Unable to map the URL, redirecting to the secure host");
+            logger.error("Unable to parse the URL, redirecting to the secure host");
             ((HttpServletResponse) response).sendRedirect("https://"+config.getSecureHost());
         }
         chain.doFilter(request, response);
