@@ -29,29 +29,31 @@ public class ProvidesNotes {
             notes.add(christmas);
         }
 
-        notes.addAll(addNotesFor(decoratedJourneys));
+        notes.addAll(createNotesFor(decoratedJourneys));
 
         return notes;
     }
 
-    private List<String> addNotesFor(SortedSet<JourneyDTO> decoratedJourneys) {
+    private List<String> createNotesFor(SortedSet<JourneyDTO> decoratedJourneys) {
         List<String> result = new LinkedList<>();
-        decoratedJourneys.stream().forEach(journeyDTO -> {
-            journeyDTO.getStages().stream().
-                    filter(stageDTO -> stageDTO.getMode().equals(TransportMode.Tram)).
-                    forEach(tramStage -> {
-                        StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
-                        if (info!=null) {
-                            String rawMessage = info.getMessage();
-                            if (! (rawMessage.isEmpty() || EMPTY.equals(rawMessage)) ) {
-                                String message = format("'%s' - Metrolink", rawMessage);
-                                if (!result.contains(message)) {
-                                    result.add(message);
-                                }
+        decoratedJourneys.stream().forEach(journeyDTO -> journeyDTO.getStages().stream().
+                filter(stageDTO -> stageDTO.getMode().equals(TransportMode.Tram)).
+                forEach(tramStage -> {
+                    StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
+                    if (info!=null) {
+                        String rawMessage = info.getMessage();
+                        if (haveMessageForPlatform(rawMessage)) {
+                            String message = format("'%s' - Metrolink", rawMessage);
+                            if (!result.contains(message)) {
+                                result.add(message);
                             }
                         }
-                    });
-        });
+                    }
+                }));
         return result;
+    }
+
+    private boolean haveMessageForPlatform(String rawMessage) {
+        return ! (rawMessage.isEmpty() || EMPTY.equals(rawMessage));
     }
 }

@@ -63,8 +63,9 @@ public class ProvidesNotesTest {
     }
 
     @Test
-    public void shouldHaveNoteForChristmasServices2016() {
-        LocalDate date = new LocalDate(2016, 12, 23);
+    public void shouldHaveNoteForChristmasServices() {
+        int year = 2018;
+        LocalDate date = new LocalDate(year, 12, 23);
 
         List<String> result = provider.createNotesFor(new TramServiceDate(date), decoratedJourneys);
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
@@ -75,13 +76,13 @@ public class ProvidesNotesTest {
             assertThat(queryDate.toString(), result, hasItem(ProvidesNotes.christmas));
         }
 
-        date = new LocalDate(2017, 1, 3);
+        date = new LocalDate(year+1, 1, 3);
         result = provider.createNotesFor(new TramServiceDate(date), decoratedJourneys);
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
     }
 
     @Test
-    public void shouldNoAddNoMessageMessage() {
+    public void shouldNoAddNoMessage() {
         List<StageDTO> stages = new LinkedList<>();
 
         String text = "<no message>";
@@ -125,17 +126,12 @@ public class ProvidesNotesTest {
         assertTrue(notes.contains("'Some Other Long message' - Metrolink"));
     }
 
-    private StationDepartureInfo getStationDepartureInfo(PlatformDTO platform, String message) {
-        return new StationDepartureInfo("displayId", "lineName",
-                platform.getId(), message, DateTime.now() );
-    }
-
     private StageDTO createStage(TransportMode transportMode, String platformId, String message, String displayUnitId) {
         boolean isWalk = transportMode.equals(TransportMode.Walk);
         Platform platform = new Platform(platformId, "platformName");
         PlatformDTO platformDTO = new PlatformDTO(platform);
 
-        platformDTO.setDepartureInfo(createDepartureInfo(message, displayUnitId));
+        platformDTO.setDepartureInfo(createDepartureInfo("platformLocation", message, displayUnitId));
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
                 platformDTO, LocalTime.now(), LocalTime.now(), 42,
@@ -143,10 +139,11 @@ public class ProvidesNotesTest {
                 !isWalk, "displayClass");
     }
 
-    private StationDepartureInfo createDepartureInfo(String message, String displayUnitId) {
+    private StationDepartureInfo createDepartureInfo(String platformLocation, String message, String displayUnitId) {
         return new StationDepartureInfo(displayUnitId,
         "lineName",
         "stationPlatform",
+        platformLocation,
         message,
         DateTime.now());
     }

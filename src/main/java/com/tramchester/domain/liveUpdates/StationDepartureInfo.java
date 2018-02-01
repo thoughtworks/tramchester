@@ -19,11 +19,14 @@ public class StationDepartureInfo {
     private List<DueTram> dueTrams;
     private DateTime lastUpdate;
     private String displayId;
+    private String location;
 
-    public StationDepartureInfo(String displayId, String lineName, String stationPlatform, String message, DateTime lastUpdate) {
+    public StationDepartureInfo(String displayId, String lineName, String stationPlatform, String location,
+                                String message, DateTime lastUpdate) {
         this.displayId = displayId;
         this.lineName = lineName;
         this.stationPlatform = stationPlatform;
+        this.location = location;
         this.message = message;
         this.lastUpdate = lastUpdate;
         dueTrams = new LinkedList<>();
@@ -72,11 +75,16 @@ public class StationDepartureInfo {
                 ", message='" + message + '\'' +
                 ", dueTrams=" + dueTrams +
                 ", lastUpdate=" + lastUpdate +
-                ", displayId=" + displayId +
+                ", displayId='" + displayId + '\'' +
+                ", location='" + location + '\'' +
                 '}';
     }
 
     public void clearMessage() {
         message="";
+    }
+
+    public String getLocation() {
+        return location;
     }
 }

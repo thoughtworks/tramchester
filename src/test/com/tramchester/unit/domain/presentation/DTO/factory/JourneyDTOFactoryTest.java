@@ -279,8 +279,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
 
     private StageDTO createStageDTOWithDueTram(String matchingHeadsign, DateTime when, int wait) {
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
-                "platform",
-                "message", when);
+                "platform", "platformLocation", "message", when);
         departureInfo.addDueTram(new DueTram("other", "Due", 10, "Single", when));
         departureInfo.addDueTram(new DueTram(matchingHeadsign, "Departed", 0, "Single",when));
         departureInfo.addDueTram(new DueTram(matchingHeadsign, "Due", wait, "Double",when));

@@ -39,8 +39,10 @@ public class LiveDataMapper {
         String stationPlatform = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
+        String location = (String)jsonObject.get("StationLocation");
         DateTime lastUpdate = DateTime.parse(dateString);
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, stationPlatform, message, lastUpdate);
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, stationPlatform,
+                location, message, lastUpdate);
         parseDueTrams(jsonObject,departureInfo);
         return departureInfo;
     }

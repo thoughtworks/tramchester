@@ -56,9 +56,16 @@ public class TramServiceDate {
     }
 
     public boolean isChristmasPeriod() {
-        LocalDate boxingDay = new LocalDate(2016, 12, 23);
-        LocalDate thridJanuary = new LocalDate(2017, 1, 3);
-        return date.isAfter(boxingDay) && (date.isBefore(thridJanuary));
+        int month = date.getMonthOfYear();
+        int day = date.getDayOfMonth();
+
+        if (month==12 && day>23) {
+            return true;
+        }
+        if (month==1 && day<3) {
+            return true;
+        }
+        return false;
     }
 
     public boolean within(LocalDate from, LocalDate until) {
