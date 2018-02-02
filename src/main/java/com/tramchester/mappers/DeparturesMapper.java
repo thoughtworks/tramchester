@@ -11,9 +11,10 @@ import java.util.TreeSet;
 public class DeparturesMapper {
     private static String DUE = "Due";
 
-    SortedSet<DepartureDTO> departs = new TreeSet<>();
 
     public SortedSet<DepartureDTO> fromStations(List<StationDTO> enrichedStations) {
+        SortedSet<DepartureDTO> departs = new TreeSet<>();
+
         enrichedStations.forEach(stationDTO -> stationDTO.getPlatforms().forEach(platformDTO -> {
             StationDepartureInfo info = platformDTO.getStationDepartureInfo();
             if (info!=null) {

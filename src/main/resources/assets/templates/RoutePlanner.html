@@ -56,22 +56,19 @@
                                max="{{enforceExpiry && validUntil || '2020-11-30'}}"
                                ng-model="departureDate">
                     </div>
-                    <button type="submit" id="plan" class="btn btn-default btn-lg btn-block"
+                    <button type="submit" id="plan" class="btn btn-default btn-lg btn-block panel"
                             ng-click="findRoute(fromStop, toStop, departureTime, departureDate, journeyPlanForm)">
                         Find Routes
                     </button>
-                    <!--
-                    <div id="liveNearMeDiv" class="btn btn-default btn-lg btn-block">
-                        <a id="liveNearMe" href="/#/livenearme">Stops Near Me</a>
-                    </div>
-                    -->
                 </fieldset>
             </form>
         </div>
-        <div class="col-12 col-sm-12 col-lg-" >
+    </div>
+    <div class="col-12 col-sm-12 col-lg-" >
+        <div class="list-group">
             <button name="nearby" type="submit" id="nearby" class="btn btn-default btn-lg btn-block"
                     ng-click="nearMe()">
-                Stops Near Me
+                Trams Near Me
             </button>
         </div>
     </div>
