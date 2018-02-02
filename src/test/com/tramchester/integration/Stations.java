@@ -42,13 +42,13 @@ public class Stations {
 
     public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
 
-    public static List<Location> EndOfTheLineWest = Arrays.asList(new Location[]{
+    private static List<Location> EndOfTheLineWest = Arrays.asList(new Location[]{
             Altrincham,
             ManAirport,
             Eccles,
             EastDidsbury});
 
-    public static List<Location> EndOfTheLineEast = Arrays.asList(new Location[]{
+    private static List<Location> EndOfTheLineEast = Arrays.asList(new Location[]{
             Ashton,
             Rochdale,
             Bury,

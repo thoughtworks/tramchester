@@ -16,6 +16,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
@@ -43,10 +44,10 @@ public class DeparturesResourceTest {
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s", lat, lon),
                 Optional.empty());
         assertEquals(200,response.getStatus());
-        List<DepartureDTO> departures =  response.readEntity(new GenericType<List<DepartureDTO>>(){});
+        SortedSet<DepartureDTO> departures =  response.readEntity(new GenericType<SortedSet<DepartureDTO>>(){});
 
         assertFalse(departures.isEmpty());
-        DepartureDTO departureDTO = departures.get(0);
+        DepartureDTO departureDTO = departures.first();
         LocalTime when = departureDTO.getWhen();
         assertTrue(when.isAfter(queryTime) );
         assertEquals("Piccadilly Gardens", departureDTO.getFrom());

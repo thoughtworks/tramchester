@@ -7,7 +7,7 @@ import com.tramchester.mappers.LocalTimeJsonDeserializer;
 import com.tramchester.mappers.LocalTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
-public class DepartureDTO {
+public class DepartureDTO implements Comparable<DepartureDTO> {
 
     private String from;
     private LocalTime when;
@@ -47,5 +47,10 @@ public class DepartureDTO {
 
     public String getDestination() {
         return destination;
+    }
+
+    @Override
+    public int compareTo(DepartureDTO other) {
+        return when.compareTo(other.when);
     }
 }

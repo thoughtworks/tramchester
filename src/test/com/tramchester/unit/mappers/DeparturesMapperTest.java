@@ -15,11 +15,11 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
 
 public class DeparturesMapperTest {
-
 
     @Test
     public void shouldConvertOneStationWithDateToDepartuesList() {
@@ -32,6 +32,7 @@ public class DeparturesMapperTest {
                 "locationName", "message", lastUpdate);
         int wait = 42;
         departureInfo.addDueTram(new DueTram("tramDest", "Due", wait, "Single", lastUpdate));
+        departureInfo.addDueTram(new DueTram("tramDest", "NOTDue", wait, "Single", lastUpdate));
 
         List<StationDTO> sourceStations = new LinkedList<>();
         StationDTO stationDTO = new StationDTO(new Station("id", "area", "|stopName", latLong, true), ProximityGroup.ALL);
@@ -40,11 +41,11 @@ public class DeparturesMapperTest {
         platformDTO.setDepartureInfo(departureInfo);
         stationDTO.getPlatforms().add(platformDTO);
 
-        List<DepartureDTO> results = mapper.fromStations(sourceStations);
+        SortedSet<DepartureDTO> results = mapper.fromStations(sourceStations);
 
         assertEquals(1, results.size());
 
-        DepartureDTO departureDTO = results.get(0);
+        DepartureDTO departureDTO = results.first();
         assertEquals(lastUpdate.plusMinutes(wait).toLocalTime(), departureDTO.getWhen());
         assertEquals("locationName", departureDTO.getFrom());
         assertEquals("Single", departureDTO.getCarriages());

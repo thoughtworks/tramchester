@@ -1,17 +1,25 @@
 <div class="navbar tcr-navbar">
     <div class="container">
-        <h5 class="navbar-title">Stops Near Me</h5>
+        <h5 class="navbar-title">Trams Near Me</h5>
     </div>
 </div>
 
 <div class="container">
+    <div class="col-12 col-sm-12 col-lg-" >
+        <div class="list-group">
+            <button type="submit" id="switchView" class="btn btn-default btn-lg btn-block" ng-click="switchView()">
+                <div ng-show="flag">Show Departures</div>
+                <div ng-show="!flag">Show Stations</div>
+            </button>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12 col-sm-12 col-lg-" >
-            <div id="notYet" ng-show="!stations.length" class="text-center">
+            <div id="notYet" ng-hide="(stations.length >0)  || (departures.length >0)" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
-            <div class="information" ng-hide='!stations.length'>
-                <div ng-repeat="station in stations" class="panel">
+            <div class="information" >
+                <div class="panel" ng-repeat="station in stations" id="stationsList" ng-hide='!stations.length'>
                     <h4 class="heading">{{station.name}}</h4>
                     <div class="list-group">
                         <div class="list-group-item">
@@ -21,6 +29,20 @@
                                     <div ng-repeat="tram in platform.stationDepartureInfo.dueTrams">
                                         <span class="nearMeTram"><strong>{{tram.when}} {{tram.destination}}</strong> {{tram.carriages}} {{tram.status}}</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel" id="departuresList" ng-hide='!departures.length'>
+                    <h4 class="heading">Departures</h4>
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div ng-repeat="departure in departures">
+                                <div>
+                                    <span class="nearMeTram"><strong>{{departure.when}}
+                                        {{departure.destination}}</strong> {{departure.carriages}} {{departure.status}}
+                                    from {{departure.from}}</span>
                                 </div>
                             </div>
                         </div>

@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
 
 @Api
@@ -51,7 +52,7 @@ public class DeparturesResource {
 
         nearbyStations.forEach(station -> liveDataRepository.enrich(station, time));
 
-        List<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
+        SortedSet<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
 
         return Response.ok(departuresDTO).build();
     }

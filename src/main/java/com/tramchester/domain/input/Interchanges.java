@@ -22,9 +22,9 @@ public class Interchanges {
     public static final String SHAW_AND_CROMPTON = "9400ZZMASHA";
 
 
-    public static List<String> eastInterchanges = Arrays.asList(PIC_GARDENS, VICTORIA, SHAW_AND_CROMPTON, PICCADILLY);
+    private static List<String> eastInterchanges = Arrays.asList(PIC_GARDENS, VICTORIA, SHAW_AND_CROMPTON, PICCADILLY);
 
-    public static List<String> westInterchanges = Arrays.asList(CORNBROOK, TRAF_BAR, ST_WS_ROAD, HARBOURCITY,
+    private static List<String> westInterchanges = Arrays.asList(CORNBROOK, TRAF_BAR, ST_WS_ROAD, HARBOURCITY,
             DEANSGATE, ST_PETERS_SQUARE);
 
     // the split into east and west was to make the st peters square closure tests easier to maintain
