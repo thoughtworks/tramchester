@@ -7,6 +7,7 @@ import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.Stations;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -34,6 +35,8 @@ public class DeparturesResourceTest {
         mapper.registerModule(new JodaModule());
     }
 
+
+    // NOTE: will fail if API key not available in env var TFGMAPIKEY
     @Test
     public void shouldGetNearbyDepartures() {
         double lat = 53.4804263d;
@@ -50,7 +53,8 @@ public class DeparturesResourceTest {
         DepartureDTO departureDTO = departures.first();
         LocalTime when = departureDTO.getWhen();
         assertTrue(when.isAfter(queryTime) );
-        assertEquals("Piccadilly Gardens", departureDTO.getFrom());
+        String nextDepart = departureDTO.getFrom();
+        assertTrue(nextDepart.equals(Stations.PiccadillyGardens.getName()) || nextDepart.equals(Stations.StPetersSquare.getName()));
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
 
