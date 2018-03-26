@@ -11,7 +11,7 @@ techLabApp.controller('RoutePlannerController',
         feedinfoService.getFeedInfo(function(info){
             $scope.validFrom = info.validFrom;
             $scope.validUntil = info.validUntil;
-            $scope.enforceExpiry = true; // set false only if need to workaround bad metadata in feed_info.txt
+            $scope.enforceExpiry = false; // set false only if need to workaround bad metadata in feed_info.txt
         });
 
         journeyPlanService.removePlan();
