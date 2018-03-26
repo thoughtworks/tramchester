@@ -21,6 +21,7 @@ import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,6 +50,7 @@ public class StationResource extends UsesRecentCookie {
     private final ClosedStations closedStations;
     private final StationRepository stationRepository;
     private final LiveDataRepository liveDataRepository;
+    private DateTimeZone timeZone;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
@@ -60,6 +63,7 @@ public class StationResource extends UsesRecentCookie {
         this.stationRepository = transportData;
         this.liveDataRepository = liveDataRepository;
         allStationsSorted = new LinkedList<>();
+        timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
     }
 
     @GET
@@ -134,7 +138,7 @@ public class StationResource extends UsesRecentCookie {
         Optional<Station> station = stationRepository.getStation(id);
         if (station.isPresent()) {
             LocationDTO locationDTO = new LocationDTO(station.get());
-            liveDataRepository.enrich(locationDTO, DateTime.now());
+            liveDataRepository.enrich(locationDTO, DateTime.now(timeZone));
             return Response.ok(locationDTO).build();
         }
         else {
@@ -148,7 +152,7 @@ public class StationResource extends UsesRecentCookie {
     @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        DateTime time = DateTime.now();
+        DateTime time = DateTime.now(timeZone);
 
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> stations = spatialService.getNearestStations(latLong);

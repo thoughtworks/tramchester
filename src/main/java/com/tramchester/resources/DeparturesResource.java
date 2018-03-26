@@ -12,6 +12,7 @@ import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,6 +23,7 @@ import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 @Api
@@ -32,11 +34,13 @@ public class DeparturesResource {
     private final SpatialService spatialService;
     private final LiveDataRepository liveDataRepository;
     private final DeparturesMapper departuresMapper;
+    private final DateTimeZone timeZone;
 
     public DeparturesResource(SpatialService spatialService, LiveDataRepository liveDataRepository, DeparturesMapper departuresMapper) {
         this.spatialService = spatialService;
         this.liveDataRepository = liveDataRepository;
         this.departuresMapper = departuresMapper;
+        timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
     }
 
     @GET
@@ -45,7 +49,7 @@ public class DeparturesResource {
     @ApiOperation(value = "Get geographically close departures", response = DepartureDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        DateTime time = DateTime.now();
+        DateTime time = DateTime.now(timeZone);
 
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> nearbyStations = spatialService.getNearestStations(latLong);
