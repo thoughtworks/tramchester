@@ -19,6 +19,7 @@ import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
@@ -44,11 +45,12 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     private ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
+    private DateTimeZone timeZone;
 
     @Before
     public void beforeEachTestRuns() {
+        timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
         when = nextMonday(0);
-
         mapper.registerModule(new JodaModule());
     }
 
@@ -71,7 +73,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() throws TramchesterException {
-        DateTime now = DateTime.now();
+        DateTime now = DateTime.now(timeZone);
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, now.getMinuteOfDay(),
                 new TramServiceDate(now.toLocalDate()));
