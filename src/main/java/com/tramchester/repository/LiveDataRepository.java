@@ -121,7 +121,8 @@ public class LiveDataRepository {
             logger.info(format("Adding departure info '%s' for platform %s",info, platform));
             platform.setDepartureInfo(info);
         } else {
-            logger.info("Not adding departure into as not within time range");
+            logger.info(format("Not adding departure info as not within time range, query at %s, update at %s (%s)",
+                    queryMins, updateMins, infoLastUpdate));
         }
     }
 
