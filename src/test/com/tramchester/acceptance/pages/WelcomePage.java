@@ -10,7 +10,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElemen
 
 public class WelcomePage extends Page {
     public static final String ELEMENT_ID = "planJourney";
-    long timeOutSeconds = 10; // initial page load is slow on ci
+    long timeOutSeconds = 15; // initial page load is slow on ci
     private ProvidesDateInput providesDateInput;
 
     public WelcomePage(WebDriver driver, ProvidesDateInput providesDateInput) {
@@ -21,7 +21,7 @@ public class WelcomePage extends Page {
     public WelcomePage load(String url) {
         driver.navigate().to(url);
 
-        WebDriverWait wait = new WebDriverWait(driver, 5);
+        WebDriverWait wait = new WebDriverWait(driver, timeOutSeconds);
         wait.until(presenceOfElementLocated(By.id("welcome")));
 
         return this;
