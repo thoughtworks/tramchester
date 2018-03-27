@@ -76,7 +76,7 @@ task cfnassist {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
-                fileset(dir: 'lib/cfnassist-1.1.15/lib/', includes: 'cfnassist-all-1.1.15.jar')
+                fileset(dir: 'lib/cfnassist-1.1.18/lib/', includes: 'cfnassist-all-1.1.18.jar')
             }
         }
     }
@@ -118,20 +118,20 @@ task pullData(type:JavaExec, dependsOn:classes) {
     args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
 }
 
-task whitelist(dependsOn: cfnassist) {
+task allowhost(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
-            WhiteList(port: '80', tag: 'web')
-            WhiteList(port: '443', tag: 'web')
+//            Allowhost(port: '80', tag: 'web', host: 'nat.travisci.net')
+            Allowhost(port: '443', tag: 'web', host: 'nat.travisci.net')
         }
     }
 }
 
-task blacklist(dependsOn: cfnassist) {
+task blockhost(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
-            BlackList(port: '80', tag: 'web')
-            BlackList(port: '443', tag: 'web')
+//            Blockhost(port: '80', tag: 'web', host: 'nat.travisci.net')
+            Blockhost(port: '443', tag: 'web', host: 'nat.travisci.net')
         }
     }
 }
@@ -174,7 +174,7 @@ task integration(type: Test, dependsOn: compileJava) {
 }
 
 task appium(type: Test) {
-    dependsOn 'whitelist'
+    dependsOn 'allowhost'
     dependsOn 'compileJava'
     useJUnit {
         filter {
@@ -186,19 +186,7 @@ task appium(type: Test) {
         }
     }
     finalizedBy {
-        blacklist
-    }
-}
-
-// deprecated, use localAppium
-task localAcceptance(type: Test, dependsOn: compileJava) {
-    useJUnit {
-        testLogging {
-            events "passed", "skipped", "failed", "started"
-        }
-        filter {
-            includeTestsMatching "com.tramchester.acceptance.*"
-        }
+        blockhost
     }
 }
 
@@ -212,20 +200,6 @@ task localAppium(type: Test, dependsOn: compileJava) {
         }
     }
 }
-
-// deprecated, use appium
-task acceptance(type: Test, dependsOn: whitelist) {
-    logging.captureStandardOutput LogLevel.INFO
-    useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.acceptance.*"
-        }
-        testLogging {
-            events "passed", "skipped", "failed", "started"
-        }
-    }
-}
-acceptance.finalizedBy blacklist
 
 task uploadData(dependsOn: ['cfnassist', 'pullData']) {
     doLast {

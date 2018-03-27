@@ -24,10 +24,7 @@ public class ConnectivityTest {
 
         boolean https = isReachable(host, 443);
         assertTrue(https);
-
-        boolean http = isReachable(host, 80);
-        assertTrue(http);
-
+        
     }
 
     private boolean isReachable(String host, int port) {
