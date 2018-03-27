@@ -10,10 +10,12 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElemen
 
 public class WelcomePage extends Page {
     public static final String ELEMENT_ID = "planJourney";
-    long timeOutSeconds = 10; // initial page load is slow on snap ci
+    long timeOutSeconds = 10; // initial page load is slow on ci
+    private ProvidesDateInput providesDateInput;
 
-    public WelcomePage(WebDriver driver) {
+    public WelcomePage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
+        this.providesDateInput = providesDateInput;
     }
 
     public WelcomePage load(String url) {
@@ -25,10 +27,10 @@ public class WelcomePage extends Page {
         return this;
     }
 
-    public RoutePlannerPage begin() throws InterruptedException {
+    public RoutePlannerPage begin() {
         WebElement beginLink = waitForElement(ELEMENT_ID, timeOutSeconds);
         beginLink.click();
-        return new RoutePlannerPage(driver);
+        return new RoutePlannerPage(driver, providesDateInput);
     }
 
     public boolean hasBeginLink() {

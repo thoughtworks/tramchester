@@ -20,13 +20,15 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class RoutePlannerPage extends Page {
+    private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 30;
     private String toStop = "toStop";
     private String fromStop = "fromStop";
-    Locale locale;
+    private Locale locale;
 
-    public RoutePlannerPage(WebDriver driver) throws InterruptedException {
+    public RoutePlannerPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
+        this.providesDateInput = providesDateInput;
         locale = Locale.getDefault();
     }
 
@@ -67,16 +69,14 @@ public class RoutePlannerPage extends Page {
     public void setDate(LocalDate localDate) {
         WebElement element = getDateElement();
 
-        String formatter = DateTimeFormat.patternForStyle("S-", locale);
+        String input = providesDateInput.createDateInput(localDate);
 
-        // chrome does let user select year via keys
-
-        String input = localDate.toString(formatter.replaceAll("y","").replaceAll("Y",""));
+        element.click();
         element.sendKeys(Keys.ARROW_LEFT);
         element.sendKeys(input);
     }
 
-    public String getTime() throws InterruptedException {
+    public String getTime() {
         return getHourElement().getAttribute("value");
     }
 
@@ -104,7 +104,7 @@ public class RoutePlannerPage extends Page {
     public RouteDetailsPage submit() {
         WebElement plan = findElementById("plan");
         plan.click();
-        return new RouteDetailsPage(driver);
+        return new RouteDetailsPage(driver, providesDateInput);
     }
 
     public void waitForToStops() {

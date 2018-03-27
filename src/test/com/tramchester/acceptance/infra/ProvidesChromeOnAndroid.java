@@ -1,5 +1,6 @@
 package com.tramchester.acceptance.infra;
 
+import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
@@ -14,12 +15,11 @@ import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import java.nio.file.Path;
-
 public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     private final boolean enableGeo;
     private AppiumDriver driver;
+    private ProvidesDateInput providesDateInput;
 
     public ProvidesChromeOnAndroid(boolean enableGeo) {
         this.enableGeo = enableGeo;
@@ -28,6 +28,9 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     @Override
     public void init() {
+
+        providesDateInput = new ProvidesChromeDateInput();
+
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
         //capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "4.4");
@@ -62,7 +65,7 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     @Override
     public WelcomePage getWelcomePage() {
-        return new WelcomePage(driver);
+        return new WelcomePage(driver, providesDateInput);
     }
 
     @Override
@@ -71,8 +74,8 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     }
 
     @Override
-    public RoutePlannerPage getRoutePlannerPage() throws InterruptedException {
-        return new RoutePlannerPage(driver);
+    public RoutePlannerPage getRoutePlannerPage() {
+        return new RoutePlannerPage(driver, providesDateInput);
     }
 
     @Override

@@ -11,7 +11,6 @@ public class Page {
     protected WebDriver driver;
     protected long timeOut = 4;
 
-
     public Page(WebDriver driver) {
         this.driver = driver;
     }

@@ -1,4 +1,10 @@
 package com.tramchester.acceptance.pages;
 
-public class ProvidesDateInput {
+import org.joda.time.LocalDate;
+
+public interface ProvidesDateInput {
+
+    String createDateInput(LocalDate localDate);
+
+
 }

@@ -6,8 +6,11 @@ import org.openqa.selenium.WebElement;
 
 public class JourneyDetailsPage extends Page {
 
-    public JourneyDetailsPage(WebDriver driver) {
+    private ProvidesDateInput providesDateInput;
+
+    public JourneyDetailsPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
+        this.providesDateInput = providesDateInput;
     }
 
     public String getSummary() {
@@ -34,19 +37,14 @@ public class JourneyDetailsPage extends Page {
         return getTextFor("change", index);
     }
 
-    public RoutePlannerPage planNewJourney() throws InterruptedException {
+    public RoutePlannerPage planNewJourney() {
         findElementById("newJourney").click();
-        return new RoutePlannerPage(driver);
+        return new RoutePlannerPage(driver, providesDateInput);
     }
 
     public RouteDetailsPage backToRouteDetails() {
         findElementById("backToRouteDetails").click();
-        return new RouteDetailsPage(driver);
-    }
-
-    public MapPage clickOnMapLink(int index) {
-        findElementById("showMap"+index).click();
-        return new MapPage(driver);
+        return new RouteDetailsPage(driver, providesDateInput);
     }
 
     public boolean laterTramEnabled() {
@@ -58,7 +56,6 @@ public class JourneyDetailsPage extends Page {
         return getEarlierTram().isEnabled();
     }
 
-
     public void laterTram() {
         getLaterTram().click();
         waitForPage();
@@ -66,9 +63,8 @@ public class JourneyDetailsPage extends Page {
 
     private JourneyDetailsPage waitForPage() {
         waitForElement("journeyHeader", timeOut);
-        return new JourneyDetailsPage(driver);
+        return new JourneyDetailsPage(driver, providesDateInput);
     }
-
 
     public void earlierTram() {
         getEarlierTram().click();

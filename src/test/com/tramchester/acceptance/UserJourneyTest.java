@@ -58,8 +58,11 @@ public class UserJourneyTest {
 
     @Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList( "chrome");
+        return Arrays.asList("chrome");
     }
+//    public static Iterable<? extends Object> data() {
+//        return Arrays.asList( "firefox", "chrome");
+//    }
 
     @Parameterized.Parameter
     public String browserName;
@@ -77,7 +80,7 @@ public class UserJourneyTest {
     }
 
     @After
-    public void afterEachTestRuns() throws IOException {
+    public void afterEachTestRuns() {
         providesDriver.commonAfter(testName);
     }
 
@@ -126,7 +129,7 @@ public class UserJourneyTest {
     }
 
     @Test
-    public void shouldHideStationInToListWhenSelectedInFromList() throws InterruptedException {
+    public void shouldHideStationInToListWhenSelectedInFromList() {
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
 
@@ -322,7 +325,7 @@ public class UserJourneyTest {
     }
 
     @Test
-    public void shouldHaveBuildAndVersionNumberInFooter() throws InterruptedException {
+    public void shouldHaveBuildAndVersionNumberInFooter() {
         String build = System.getenv("TRAVIS_BUILD_NUMBER");
         if (build==null) {
             build = "0";

@@ -19,7 +19,7 @@ public abstract class ProvidesDriver {
     public abstract void init();
     public abstract WelcomePage getWelcomePage();
     public abstract Cookie getCookieNamed(String name);
-    public abstract RoutePlannerPage getRoutePlannerPage() throws InterruptedException;
+    public abstract RoutePlannerPage getRoutePlannerPage();
     public abstract void setStubbedLocation(LatLong place) throws IOException;
     public abstract void commonAfter(TestName testName);
 

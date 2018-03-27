@@ -13,8 +13,11 @@ import java.util.stream.Collectors;
 public class RouteDetailsPage extends Page {
 
 
-    public RouteDetailsPage(WebDriver driver) {
+    private ProvidesDateInput providesDateInput;
+
+    public RouteDetailsPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
+        this.providesDateInput = providesDateInput;
     }
 
     public String getJourneyHeading(int index) {
@@ -45,7 +48,7 @@ public class RouteDetailsPage extends Page {
         WebElement panel = findElementById(formJourneyPanelId(index));
         panel.click();
         waitForElement("journeyHeader", timeOut);
-        return new JourneyDetailsPage(driver);
+        return new JourneyDetailsPage(driver, providesDateInput);
     }
 
     private String formJourneyPanelId(int index) {
@@ -68,11 +71,6 @@ public class RouteDetailsPage extends Page {
         }
         List<WebElement> listItems = listElement.findElements(By.id("NoteItem"));
         return listItems.stream().map(WebElement::getText).collect(Collectors.toList());
-    }
-
-    public RoutePlannerPage planNewJourney() throws InterruptedException {
-        findElementById("newJourney").click();
-        return new RoutePlannerPage(driver);
     }
 
     public boolean notesPresent() {
