@@ -26,6 +26,8 @@ addons:
 jobs:
   include:
   - stage: unit
+    env:
+        - SERVER_URL=https://alpha.tramchester.com
     script: ./gradlew unit
   - stage: integration
     script: ./gradlew integration
