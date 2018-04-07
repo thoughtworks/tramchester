@@ -155,6 +155,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         assertTrue(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
                 new TramServiceDate(new LocalDate(2016, 6, 15))));
+        assertTrue(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
+                new TramServiceDate(new LocalDate(2016, 6, 1))));
+        serviceHeuristics.operatesOnQueryDate(startDate, endDate,
+                new TramServiceDate(new LocalDate(2016, 6, 29)));
         assertFalse(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
                 new TramServiceDate(new LocalDate(2016, 12, 15))));
 

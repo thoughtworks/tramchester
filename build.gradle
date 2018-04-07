@@ -121,7 +121,6 @@ task pullData(type:JavaExec, dependsOn:classes) {
 task allowhost(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
-//            Allowhost(port: '80', tag: 'web', host: 'nat.travisci.net')
             Allowhost(port: '443', tag: 'web', host: 'nat.travisci.net')
         }
     }
@@ -130,7 +129,6 @@ task allowhost(dependsOn: cfnassist) {
 task blockhost(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
-//            Blockhost(port: '80', tag: 'web', host: 'nat.travisci.net')
             Blockhost(port: '443', tag: 'web', host: 'nat.travisci.net')
         }
     }

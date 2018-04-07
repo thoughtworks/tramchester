@@ -28,7 +28,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
-    private final LocalDate nextMonday = JourneyPlannerHelper.nextMonday(0);
+    private final LocalDate nextMonday = JourneyPlannerHelper.nextTuesday(0);
     private LocalTime sevenAM = new LocalTime(7, 0);
     private LocalTime eightAM = new LocalTime(8, 0);
 

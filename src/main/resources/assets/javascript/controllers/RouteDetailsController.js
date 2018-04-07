@@ -12,8 +12,8 @@ techLabApp.controller('RouteDetailsController',
         });
 
         if (journeyPlanService.getPlan() == null) {
-            journeyPlanner.quickestRoute(start, end, departureTime,departureDate).get(function (journeyPlan) {
-                journeyPlanService.setPlan(journeyPlan, start, end, departureTime);
+            journeyPlanner.quickestRoute(start, end, departureTime, departureDate).get(function (journeyPlan) {
+                journeyPlanService.setPlan(journeyPlan, start, end, departureTime, departureDate);
                 $scope.journeyPlan = journeyPlanService.getPlan();
                 if($scope.journeyPlan.journeys.length == 0){
                     $scope.NoRoutes = true;

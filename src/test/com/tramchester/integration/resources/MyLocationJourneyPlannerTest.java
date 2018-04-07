@@ -42,7 +42,7 @@ public class MyLocationJourneyPlannerTest {
 
     @Before
     public void beforeEachTestRuns() {
-        when = JourneyPlannerHelper.nextMonday(0);
+        when = JourneyPlannerHelper.nextTuesday(0);
         mapper.registerModule(new JodaModule());
         nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
         nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);

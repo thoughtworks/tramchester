@@ -14,6 +14,7 @@ import org.joda.time.LocalTime;
 import java.util.Set;
 
 import static org.joda.time.DateTimeConstants.MONDAY;
+import static org.joda.time.DateTimeConstants.TUESDAY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -57,9 +58,9 @@ public abstract class JourneyPlannerHelper {
 
     protected abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, TramServiceDate queryDate) throws TramchesterException;
 
-    public static LocalDate nextMonday(int offsetDays) {
+    public static LocalDate nextTuesday(int offsetDays) {
         LocalDate now = LocalDate.now().minusDays(offsetDays);
-        int offset = now.getDayOfWeek()-MONDAY;
+        int offset = now.getDayOfWeek()-TUESDAY;
         LocalDate nextMonday = now.minusDays(offset).plusWeeks(1);
         while (new TramServiceDate(nextMonday).isChristmasPeriod()) {
             nextMonday = nextMonday.plusWeeks(1);

@@ -3,20 +3,26 @@
 techLabApp.factory('journeyPlanService', function () {
     var journeyPlanCache = null;
     var departureTimeCache = null;
+    var departureDateCache = null;
     var startCache = null;
     var endCache = null;
 
     return  {
 
-        setPlan: function (journeyPlan, start, end, departureTime) {
+        setPlan: function (journeyPlan, start, end, departureTime, departureDate) {
             journeyPlanCache = journeyPlan;
             departureTimeCache = departureTime;
+            departureDateCache = departureDate;
             startCache = start;
             endCache = end;
         },
 
         getDepartureTime: function () {
             return departureTimeCache;
+        },
+
+        getDepartureDate: function () {
+            return departureDateCache;
         },
 
         getPlan: function () {

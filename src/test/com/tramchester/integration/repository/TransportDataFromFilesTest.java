@@ -30,9 +30,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv005457";
+    private final String svcDeansgateToVic = "Serv005315";
     // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv005454";
+    private String svcShawAndCrompton = "Serv005312";
 
     private Collection<Service> allServices;
 
@@ -62,9 +62,9 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetRoute() {
         Route result = transportData.getRoute(RouteCodesForTesting.ASH_TO_ECCLES);
-        assertEquals("Ashton-under-Lyne - MediaCityUK - Eccles", result.getName());
+        assertEquals("Ashton-under-Lyne - Eccles", result.getName());
         assertEquals("MET",result.getAgency());
-        assertEquals("MET:   E:O:",result.getId());
+        assertEquals("MET:   3:I:",result.getId());
         assertTrue(result.isTram());
 
         Set<String> headsigns = result.getHeadsigns();
@@ -76,9 +76,8 @@ public class TransportDataFromFilesTest {
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
-        //assertEquals(16, tramRoutes);
-        // assuming the 30 is a transition situation due to route revamp due on 28/1/2018
-        assertEquals(30, tramRoutes);
+
+        assertEquals(14, tramRoutes);
     }
 
     @Test

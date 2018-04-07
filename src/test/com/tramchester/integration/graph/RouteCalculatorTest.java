@@ -26,7 +26,7 @@ public class RouteCalculatorTest {
 
     private RouteCalculator calculator;
     private DateTimeService dateTimeService;
-    private LocalDate when = JourneyPlannerHelper.nextMonday(0);
+    private LocalDate when = JourneyPlannerHelper.nextTuesday(0);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {

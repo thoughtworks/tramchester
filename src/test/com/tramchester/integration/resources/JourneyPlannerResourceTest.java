@@ -50,7 +50,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Before
     public void beforeEachTestRuns() {
         timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
-        when = nextMonday(0);
+        when = nextTuesday(0);
         mapper.registerModule(new JodaModule());
     }
 
@@ -117,10 +117,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void testAltyToManAirportHasRealisticTranferAtCornbrook() throws TramchesterException {
-        int offsetToSunday = SUNDAY- when.getDayOfWeek();
-        LocalDate nextSunday = when.plusDays(offsetToSunday);
+        int offsetToSunday = SUNDAY - when.getDayOfWeek();
+        LocalDate nextSunday = when.plusDays(offsetToSunday).plusWeeks(1);
 
-        JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,(11*60)+43, nextSunday);
+        JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,(11*60), nextSunday);
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
@@ -189,11 +189,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteVeloToEndOfLines() throws TramchesterException {
-        int offsetToMonday = MONDAY- when.getDayOfWeek();
-        LocalDate nextMonday = when.plusDays(offsetToMonday);
+        LocalDate weekOnTuesday = when.plusWeeks(1);
 
         for (Location dest : Stations.EndOfTheLine) {
-            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, nextMonday);
+            validateAtLeastOneJourney(Stations.VeloPark, dest, 8*60, weekOnTuesday);
         }
     }
 

@@ -88,6 +88,11 @@ techLabApp.controller('RoutePlannerController',
         }
 
         function getCurrentDate() {
+            var current = journeyPlanService.getDepartureDate();
+            if (current!=null) {
+                var previous = moment(current,"YYYY-MM-DD");
+                return previous.toDate();
+            }
             var currentDate = new Date();
             return new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(),
                 currentDate.getHours(), currentDate.getMinutes(), 0, 0);

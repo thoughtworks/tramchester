@@ -29,7 +29,7 @@ public class RouteResourceTest {
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     ObjectMapper mapper = new ObjectMapper();
-    private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - MediaCityUK - Eccles",
+    private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Eccles",
             new LinkedList<>(), "displayClass");
 
     @Before
@@ -42,8 +42,7 @@ public class RouteResourceTest {
         Response result = IntegrationClient.getResponse(testRule, String.format("routes"), Optional.empty());
         List<RouteDTO> routes = result.readEntity(new GenericType<List<RouteDTO>>(){});
 
-        // 30 may be an interim situation due to changes to routes due 28/1/2018
-        assertEquals(30, routes.size());
+        assertEquals(14, routes.size());
 
         routes.forEach(route -> assertFalse("Route no stations "+route.getRouteName(),route.getStations().isEmpty()));
 

@@ -79,7 +79,7 @@ public class GraphWithSimpleRouteTest {
         // note: trams only run at specific times so still only getPlatformById one journey in results
         //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
-        queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight});
+        queryTimes = Arrays.asList(minutesPastMidnight);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, Arrays.asList(new Integer[]{9*60}), queryDate);
+                TransportDataForTest.INTERCHANGE, Arrays.asList(9*60), queryDate);
         assertEquals(0, journeys.size());
     }
 
@@ -124,7 +124,7 @@ public class GraphWithSimpleRouteTest {
     public void shouldTestJourneyWithLocationBasedStart() throws TramchesterException {
         LatLong origin = new LatLong(180.001, 270.001);
         int walkCost = 1;
-        List<StationWalk> startStations = Arrays.asList(new StationWalk[]{new StationWalk(firstStation, walkCost)});
+        List<StationWalk> startStations = Arrays.asList(new StationWalk(firstStation, walkCost));
 
         Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
         Set<RawJourney> journeys = calculator.calculateRoute(origin, startStations, endStation, queryTimes, queryDate);

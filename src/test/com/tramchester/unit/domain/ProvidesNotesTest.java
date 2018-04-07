@@ -24,6 +24,8 @@ import java.util.TreeSet;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.joda.time.DateTimeConstants.SATURDAY;
+import static org.joda.time.DateTimeConstants.SUNDAY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -82,7 +84,7 @@ public class ProvidesNotesTest {
     }
 
     @Test
-    public void shouldNoAddNoMessage() {
+    public void shouldAddNoMessage() {
         List<StageDTO> stages = new LinkedList<>();
 
         String text = "<no message>";
@@ -93,7 +95,11 @@ public class ProvidesNotesTest {
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
                 , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
 
-        TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
+        LocalDate date = LocalDate.now();
+        if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
+            date = date.plusDays(3);
+        }
+        TramServiceDate serviceDate = new TramServiceDate(date);
 
         List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
 
@@ -123,7 +129,14 @@ public class ProvidesNotesTest {
 
         List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
 
-        assertEquals(2, notes.size());
+        int expected = 2;
+
+        if (serviceDate.isWeekend()) {
+            // can't change date as need live data to be available, so update expectations instead
+            expected++;
+        }
+
+        assertEquals(expected, notes.size());
         assertTrue(notes.toString(), notes.contains("'Some long message' - Metrolink"));
         assertTrue(notes.toString(), notes.contains("'Some Location Long message' - platformLocation2, Metrolink"));
     }
