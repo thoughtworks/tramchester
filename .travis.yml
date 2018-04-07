@@ -27,6 +27,7 @@ jobs:
   include:
   - stage: unit
     env:
+        - ENV=Dev
         - SERVER_URL=https://alpha.tramchester.com
     script: ./gradlew unit
   - stage: integration

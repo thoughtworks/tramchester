@@ -158,6 +158,23 @@ task unit(type: Test, dependsOn: compileJava) {
     }
 }
 
+task ci_unit(type: Test) {
+    dependsOn 'allowhost'
+    dependsOn 'compileJava'
+    useJUnit {
+        filter {
+            includeTestsMatching "com.tramchester.unit.*"
+        }
+        testLogging {
+            exceptionFormat "full" // default is "short"
+            events "passed", "skipped", "failed", "started",  "standardError"
+        }
+    }
+    finalizedBy {
+        blockhost
+    }
+}
+
 task integration(type: Test, dependsOn: compileJava) {
     maxHeapSize = '2500m'
     useJUnit {
