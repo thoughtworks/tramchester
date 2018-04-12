@@ -24,14 +24,15 @@ public class AcceptanceTestHelper {
         this.driver = driver;
     }
 
-    public JourneyDetailsPage checkJourney(String url, String fromStop, String toStop, LocalDate date, LocalTime time,
+    public JourneyDetailsPage checkJourney(String url, TramJourney tramJourney,
                                               List<String> changes,
                                               List<String> headSigns, boolean embeddedWalk, int expectedJourneys,
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, fromStop, toStop, date, time);
-        checkDetailsAndJourneysPresent(routeDetailsPage, fromStop, toStop, changes, embeddedWalk, expectedJourneys, false, onlyWalk);
-        return checkJourneyDetailsPage(routeDetailsPage, fromStop, toStop, changes, headSigns, selectedJourney);
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney.fromStop,
+                tramJourney.toStop, tramJourney.date, tramJourney.time);
+        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, embeddedWalk, expectedJourneys, false, onlyWalk);
+        return checkJourneyDetailsPage(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, headSigns, selectedJourney);
 
     }
 

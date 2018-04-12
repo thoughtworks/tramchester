@@ -1,0 +1,4 @@
+package com.tramchester.acceptance.infra;
+
+public class TramJourneyExpectations {
+}

@@ -1,10 +1,7 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.acceptance.infra.AcceptanceTestHelper;
-import com.tramchester.acceptance.infra.AcceptanceTestRun;
-import com.tramchester.acceptance.infra.DriverFactory;
-import com.tramchester.acceptance.infra.ProvidesDriver;
+import com.tramchester.acceptance.infra.*;
 import com.tramchester.acceptance.pages.JourneyDetailsPage;
 import com.tramchester.acceptance.pages.RouteDetailsPage;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
@@ -105,8 +102,8 @@ public class UserJourneyTest {
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Bury");
-        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, altrincham, bury,
-                nextTuesday, LocalTime.parse("10:15"), changes, headSigns, false,
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, new TramJourney(altrincham, bury,
+                nextTuesday, LocalTime.parse("10:15")), changes, headSigns, false,
                 expectedNumberJourneyResults, 0, false);
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
@@ -200,8 +197,8 @@ public class UserJourneyTest {
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
         List<String> changes = Lists.emptyList();
         List<String> headSigns = Arrays.asList("Victoria");
-        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, Stations.ManAirport.getName(),
-                deansgate, nextTuesday, LocalTime.parse("10:15"), changes,
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, new TramJourney(Stations.ManAirport.getName(),
+                deansgate, nextTuesday, LocalTime.parse("10:15")), changes,
                 headSigns, false, expectedNumberJourneyResults, 0, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
@@ -212,8 +209,8 @@ public class UserJourneyTest {
         List<String> noChanges = new LinkedList<>();
         List<String> headsignRochdale = Arrays.asList("Shaw and Crompton");
 
-        JourneyDetailsPage detailsPage = helper.checkJourney(url, Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
-                nextTuesday, LocalTime.parse("10:15"), noChanges, headsignRochdale, false,
+        JourneyDetailsPage detailsPage = helper.checkJourney(url, new TramJourney(Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
+                nextTuesday, LocalTime.parse("10:15")), noChanges, headsignRochdale, false,
                 expectedNumberJourneyResults, 0, false);
         String instruction = detailsPage.getInstruction(0);
         assertTrue(instruction.contains("Tram from Platform"));
@@ -227,8 +224,8 @@ public class UserJourneyTest {
         List<String> headsignEtihadCampus = Arrays.asList("Piccadilly");
         List<String> headSignsBury = Arrays.asList("Bury");
 
-        RouteDetailsPage routeDetailsPage = helper.checkJourney(url, altrincham, deansgate,
-                nextTuesday, LocalTime.parse("10:15"), noChanges, headSignsBury, false, expectedNumberJourneyResults, 0, false)
+        RouteDetailsPage routeDetailsPage = helper.checkJourney(url, new TramJourney(altrincham, deansgate,
+                nextTuesday, LocalTime.parse("10:15")), noChanges, headSignsBury, false, expectedNumberJourneyResults, 0, false)
                 .backToRouteDetails();
 
         routeDetailsPage = helper.checkJourneyDetailsPage(routeDetailsPage, altrincham, deansgate, noChanges,
@@ -272,8 +269,8 @@ public class UserJourneyTest {
         String ashton = Stations.Ashton.getName();
         String piccadilly = Stations.PiccadillyGardens.getName();
 
-        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, ashton, piccadilly,
-                nextTuesday, LocalTime.parse("10:15"), changes, headSigns, false, expectedNumberJourneyResults, 0, false);
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, new TramJourney(ashton, piccadilly,
+                nextTuesday, LocalTime.parse("10:15")), changes, headSigns, false, expectedNumberJourneyResults, 0, false);
 
         assertTrue(journeyDetailsPage.laterTramEnabled());
         assertFalse(journeyDetailsPage.earlierTramEnabled());
@@ -317,8 +314,8 @@ public class UserJourneyTest {
         List<String> changes = Arrays.asList(Stations.Deansgate.getName());
         List<String> headSigns = Arrays.asList("Bury");
 
-        helper.checkJourney(url, altrincham, Stations.ExchangeSquare.getName(),
-                nextTuesday, LocalTime.parse("10:15"), changes, headSigns, false, expectedNumberJourneyResults, 0, false);
+        helper.checkJourney(url, new TramJourney(altrincham, Stations.ExchangeSquare.getName(),
+                nextTuesday, LocalTime.parse("10:15")), changes, headSigns, false, expectedNumberJourneyResults, 0, false);
     }
 
     @Test
