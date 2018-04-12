@@ -25,11 +25,12 @@ public class AcceptanceTestHelper {
     }
 
     public JourneyDetailsPage checkJourney(String url, TramJourney tramJourney,
-                                              TramJourneyExpectations tramJourneyExpectations, boolean embeddedWalk, int expectedJourneys,
+                                              TramJourneyExpectations tramJourneyExpectations,
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney);
-        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations.changes, embeddedWalk, expectedJourneys, false, onlyWalk);
+        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations.changes,
+                tramJourneyExpectations.embeddedWalk, tramJourneyExpectations.expectedJourneys, false, onlyWalk);
         return checkJourneyDetailsPage(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop,
                 tramJourneyExpectations.changes, tramJourneyExpectations.headSigns, selectedJourney);
 
