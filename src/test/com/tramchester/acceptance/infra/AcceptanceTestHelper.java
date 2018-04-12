@@ -29,8 +29,7 @@ public class AcceptanceTestHelper {
                                               List<String> headSigns, boolean embeddedWalk, int expectedJourneys,
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
 
-        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney.fromStop,
-                tramJourney.toStop, tramJourney.date, tramJourney.time);
+        RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney);
         checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, embeddedWalk, expectedJourneys, false, onlyWalk);
         return checkJourneyDetailsPage(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, headSigns, selectedJourney);
 
@@ -116,21 +115,19 @@ public class AcceptanceTestHelper {
         return numChanges<=0;
     }
 
-    public RouteDetailsPage enterRouteSelection(String url, String fromStop, String toStop, LocalDate date,
-                                                   LocalTime time) throws InterruptedException {
+    public RouteDetailsPage enterRouteSelection(String url, TramJourney tramJourney) throws InterruptedException {
         WelcomePage welcomePage = driver.getWelcomePage();
         welcomePage.load(url);
         RoutePlannerPage routePlannerPage = welcomePage.begin();
-        return enterRouteSelection(routePlannerPage, fromStop, toStop, date, time);
+        return enterRouteSelection(routePlannerPage, tramJourney);
     }
 
-    public RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, String fromStop, String toStop,
-                                                   LocalDate date, LocalTime time) throws InterruptedException {
+    public RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, TramJourney tramJourney) throws InterruptedException {
         routePlannerPage.waitForToStops();
-        routePlannerPage.setFromStop(fromStop);
-        routePlannerPage.setToStop(toStop);
-        routePlannerPage.setTime(time);
-        routePlannerPage.setDate(date);
+        routePlannerPage.setFromStop(tramJourney.fromStop);
+        routePlannerPage.setToStop(tramJourney.toStop);
+        routePlannerPage.setTime(tramJourney.time);
+        routePlannerPage.setDate(tramJourney.date);
 
         return routePlannerPage.submit();
     }

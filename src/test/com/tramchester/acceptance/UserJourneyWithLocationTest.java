@@ -1,10 +1,7 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.acceptance.infra.AcceptanceTestHelper;
-import com.tramchester.acceptance.infra.AcceptanceTestRun;
-import com.tramchester.acceptance.infra.DriverFactory;
-import com.tramchester.acceptance.infra.ProvidesDriver;
+import com.tramchester.acceptance.infra.*;
 import com.tramchester.acceptance.pages.JourneyDetailsPage;
 import com.tramchester.acceptance.pages.RouteDetailsPage;
 import com.tramchester.domain.presentation.LatLong;
@@ -78,8 +75,8 @@ public class UserJourneyWithLocationTest {
         List<String> changes = Arrays.asList(firstStation, Stations.Piccadilly.getName());
         List<String> headSignsA = Arrays.asList("","Piccadilly",finalStation);
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,
-                LocalTime.parse("19:47"));
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(myLocation, finalStation, when,
+                LocalTime.parse("19:47")));
 
         helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, false);
@@ -108,8 +105,8 @@ public class UserJourneyWithLocationTest {
 
         String finalStation = Stations.Deansgate.getName();
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,
-                LocalTime.parse("19:47"));
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(myLocation, finalStation, when,
+                LocalTime.parse("19:47")));
 
         helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, false);
@@ -127,8 +124,8 @@ public class UserJourneyWithLocationTest {
 
         String finalStation = Stations.NavigationRoad.getName();
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, myLocation, finalStation, when,
-                LocalTime.parse("19:47"));
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(myLocation, finalStation, when,
+                LocalTime.parse("19:47")));
 
         helper.checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
                 expectedNumberJourneyResults, true, true);

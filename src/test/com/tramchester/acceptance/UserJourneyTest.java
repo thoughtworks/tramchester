@@ -237,8 +237,8 @@ public class UserJourneyTest {
     @Test
     public void shouldDisplayNotNotesOnWeekday() throws InterruptedException {
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, altrincham, deansgate, nextTuesday,
-                LocalTime.parse("10:00"));
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, nextTuesday,
+                LocalTime.parse("10:00")));
         assertTrue(routeDetailsPage.waitForRoutes());
         assertFalse(routeDetailsPage.notesPresent());
     }
@@ -247,8 +247,8 @@ public class UserJourneyTest {
     public void shouldDisplayNotesOnSaturday() throws InterruptedException {
         LocalDate aSaturday = nextTuesday.minusDays(3);
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, altrincham, deansgate, aSaturday,
-                LocalTime.parse("10:00"));
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, aSaturday,
+                LocalTime.parse("10:00")));
         checkForWeekendNotes(routeDetailsPage);
     }
 
@@ -256,8 +256,8 @@ public class UserJourneyTest {
     public void shouldDisplayNotesOnSunday() throws InterruptedException {
         LocalDate aSunday = nextTuesday.minusDays(2);
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, altrincham, deansgate, aSunday,
-                LocalTime.parse("10:00"));
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, aSunday,
+                LocalTime.parse("10:00")));
         checkForWeekendNotes(routeDetailsPage);
     }
 
