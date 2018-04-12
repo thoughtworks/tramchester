@@ -75,11 +75,13 @@ public class UserJourneyWithLocationTest {
         List<String> changes = Arrays.asList(firstStation, Stations.Piccadilly.getName());
         List<String> headSignsA = Arrays.asList("","Piccadilly",finalStation);
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(myLocation, finalStation, when,
-                LocalTime.parse("19:47")));
+        LocalTime time = LocalTime.parse("19:47");
+        TramJourney tramJourney = new TramJourney(myLocation, finalStation, when,
+                time);
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, tramJourney);
 
-        helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
-                expectedNumberJourneyResults, true, false);
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, new TramJourney(firstStation,finalStation,when, time),
+                changes, false, expectedNumberJourneyResults, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
         assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
@@ -105,10 +107,12 @@ public class UserJourneyWithLocationTest {
 
         String finalStation = Stations.Deansgate.getName();
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(myLocation, finalStation, when,
-                LocalTime.parse("19:47")));
+        LocalTime time = LocalTime.parse("19:47");
+        TramJourney tramJourney = new TramJourney(myLocation, finalStation, when,
+                time);
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, tramJourney);
 
-        helper.checkDetailsAndJourneysPresent(routeDetailsPage, firstStation, finalStation, changes, false,
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, new TramJourney(firstStation, finalStation, when, time), changes, false,
                 expectedNumberJourneyResults, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
@@ -124,10 +128,11 @@ public class UserJourneyWithLocationTest {
 
         String finalStation = Stations.NavigationRoad.getName();
 
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(myLocation, finalStation, when,
-                LocalTime.parse("19:47")));
+        TramJourney tramJourney = new TramJourney(myLocation, finalStation, when,
+                LocalTime.parse("19:47"));
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, tramJourney);
 
-        helper.checkDetailsAndJourneysPresent(routeDetailsPage, myLocation, finalStation, changes, false,
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, changes, false,
                 expectedNumberJourneyResults, true, true);
 
     }

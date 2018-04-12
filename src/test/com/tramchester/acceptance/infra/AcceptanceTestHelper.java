@@ -25,20 +25,20 @@ public class AcceptanceTestHelper {
     }
 
     public JourneyDetailsPage checkJourney(String url, TramJourney tramJourney,
-                                              List<String> changes,
-                                              List<String> headSigns, boolean embeddedWalk, int expectedJourneys,
+                                              TramJourneyExpectations tramJourneyExpectations, boolean embeddedWalk, int expectedJourneys,
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney);
-        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, embeddedWalk, expectedJourneys, false, onlyWalk);
-        return checkJourneyDetailsPage(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, headSigns, selectedJourney);
+        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations.changes, embeddedWalk, expectedJourneys, false, onlyWalk);
+        return checkJourneyDetailsPage(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop,
+                tramJourneyExpectations.changes, tramJourneyExpectations.headSigns, selectedJourney);
 
     }
 
-    public void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, String fromStop, String toStop,
+    public void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, TramJourney tramJourney,
                                                   List<String> changes, boolean embeddedWalk,
                                                   int expectedJourneys, boolean startsWithWalk, boolean onlyWalk) {
-        checkRoutes(routeDetailsPage, fromStop, toStop, changes, embeddedWalk, startsWithWalk, onlyWalk);
+        checkRoutes(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, embeddedWalk, startsWithWalk, onlyWalk);
 
         for(int i=0;i<expectedJourneys; i++) {
             assertTrue("Check for journey "+i,routeDetailsPage.journeyPresent(i));
