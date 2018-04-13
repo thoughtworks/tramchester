@@ -4,8 +4,6 @@ import com.tramchester.acceptance.pages.JourneyDetailsPage;
 import com.tramchester.acceptance.pages.RouteDetailsPage;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class AcceptanceTestHelper {
     public void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, TramJourney tramJourney,
                                                TramJourneyExpectations expectations,
                                                boolean startsWithWalk, boolean onlyWalk) {
-        checkRoutes(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, expectations.changes, expectations.embeddedWalk, startsWithWalk, onlyWalk);
+        checkRoutes(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, expectations.changes, startsWithWalk, onlyWalk);
 
         for(int i=0;i<expectations.expectedJourneys; i++) {
             assertTrue("Check for journey "+i,routeDetailsPage.journeyPresent(i));
@@ -59,7 +57,7 @@ public class AcceptanceTestHelper {
     }
 
     public void checkRoutes(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
-                               boolean embeddedWalk, boolean startsWithWalk, boolean onlyWalk) {
+                            boolean startsWithWalk, boolean onlyWalk) {
         assertTrue(routeDetailsPage.waitForRoutes());
         assertTrue(routeDetailsPage.journeyPresent(0));
 
@@ -67,7 +65,7 @@ public class AcceptanceTestHelper {
         String end = routeDetailsPage.getJourneyEnd(0);
         String summary = routeDetailsPage.getSummary(0);
 
-        checkHeading(routeDetailsPage, changes, embeddedWalk, startsWithWalk, onlyWalk);
+        checkHeading(routeDetailsPage, changes, startsWithWalk, onlyWalk);
 
         String fromStationText = " from " + fromStop;
         assertThat(begin, endsWith(fromStationText));
@@ -81,7 +79,7 @@ public class AcceptanceTestHelper {
         }
     }
 
-    private void checkHeading(RouteDetailsPage routeDetailsPage, List<String> changes, boolean embeddedWalk,
+    private void checkHeading(RouteDetailsPage routeDetailsPage, List<String> changes,
                               boolean startsWithWalk, boolean onlyWalk) {
         String heading = routeDetailsPage.getJourneyHeading(0);
 
@@ -94,13 +92,15 @@ public class AcceptanceTestHelper {
             if (noChanges(changes, startsWithWalk)) {
                 expectedHeading = "Tram with No Changes - ";
             } else {
-                if (embeddedWalk) {
-                    expectedHeading = format("Tram and Walk with %s change%s - ", changes.size(), plural);
-                } else {
-                    expectedHeading = format("Tram with %s change%s - ", changes.size(), plural);
-                }
+                expectedHeading = format("Tram with %s change%s - ", changes.size(), plural);
+
+//                if (embeddedWalk) {
+//                    expectedHeading = format("Tram and Walk with %s change%s - ", changes.size(), plural);
+//                } else {
+//                    expectedHeading = format("Tram with %s change%s - ", changes.size(), plural);
+//                }
             }
-            if (startsWithWalk && !embeddedWalk) {
+            if (startsWithWalk) {
                 expectedHeading = "Walk and " + expectedHeading;
             }
         }
