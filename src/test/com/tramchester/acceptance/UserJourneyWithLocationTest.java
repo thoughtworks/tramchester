@@ -16,6 +16,7 @@ import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
@@ -76,12 +77,13 @@ public class UserJourneyWithLocationTest {
         List<String> headSignsA = Arrays.asList("","Piccadilly",finalStation);
 
         LocalTime time = LocalTime.parse("19:47");
-        TramJourney tramJourney = new TramJourney(myLocation, finalStation, when,
-                time);
-        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, tramJourney);
+        TramJourney wholeJoruney = new TramJourney(myLocation, finalStation, when, time);
+        RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, wholeJoruney);
 
-        helper.checkDetailsAndJourneysPresent(routeDetailsPage, new TramJourney(firstStation,finalStation,when, time),
-                changes, false, expectedNumberJourneyResults, true, false);
+        TramJourney tramJourney = new TramJourney(firstStation, finalStation, when, time);
+        TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(changes, headSignsA, expectedNumberJourneyResults);
+
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
         assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
@@ -108,12 +110,12 @@ public class UserJourneyWithLocationTest {
         String finalStation = Stations.Deansgate.getName();
 
         LocalTime time = LocalTime.parse("19:47");
-        TramJourney tramJourney = new TramJourney(myLocation, finalStation, when,
-                time);
+        TramJourney tramJourney = new TramJourney(myLocation, finalStation, when, time);
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, tramJourney);
 
-        helper.checkDetailsAndJourneysPresent(routeDetailsPage, new TramJourney(firstStation, finalStation, when, time), changes, false,
-                expectedNumberJourneyResults, true, false);
+        TramJourneyExpectations expectations = new TramJourneyExpectations(changes, headSigns, expectedNumberJourneyResults);
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, new TramJourney(firstStation, finalStation, when, time),
+                expectations, true, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
         assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
@@ -124,7 +126,7 @@ public class UserJourneyWithLocationTest {
     @Test
     public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
 
-        List<String> changes = Arrays.asList();
+        List<String> changes = new LinkedList<>();
 
         String finalStation = Stations.NavigationRoad.getName();
 
@@ -132,8 +134,10 @@ public class UserJourneyWithLocationTest {
                 LocalTime.parse("19:47"));
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, tramJourney);
 
-        helper.checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, changes, false,
-                expectedNumberJourneyResults, true, true);
+        List<String> headsigns = new LinkedList<>();
+        TramJourneyExpectations expectations = new TramJourneyExpectations(changes, headsigns, expectedNumberJourneyResults);
+
+        helper.checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, expectations, true, true);
 
     }
 

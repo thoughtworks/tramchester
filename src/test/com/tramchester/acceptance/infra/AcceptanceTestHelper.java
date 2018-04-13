@@ -29,19 +29,19 @@ public class AcceptanceTestHelper {
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney);
-        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations.changes,
-                tramJourneyExpectations.embeddedWalk, tramJourneyExpectations.expectedJourneys, false, onlyWalk);
+        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations, false, onlyWalk);
+
         return checkJourneyDetailsPage(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop,
                 tramJourneyExpectations.changes, tramJourneyExpectations.headSigns, selectedJourney);
 
     }
 
     public void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, TramJourney tramJourney,
-                                                  List<String> changes, boolean embeddedWalk,
-                                                  int expectedJourneys, boolean startsWithWalk, boolean onlyWalk) {
-        checkRoutes(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, changes, embeddedWalk, startsWithWalk, onlyWalk);
+                                               TramJourneyExpectations expectations,
+                                               boolean startsWithWalk, boolean onlyWalk) {
+        checkRoutes(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, expectations.changes, expectations.embeddedWalk, startsWithWalk, onlyWalk);
 
-        for(int i=0;i<expectedJourneys; i++) {
+        for(int i=0;i<expectations.expectedJourneys; i++) {
             assertTrue("Check for journey "+i,routeDetailsPage.journeyPresent(i));
         }
 
