@@ -17,9 +17,8 @@ install:
   - sudo chmod +x /usr/local/share/chromedriver
   - sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
   - wget -N https://github.com/mozilla/geckodriver/releases/download/v0.20.0/geckodriver-v0.20.0-linux64.tar.gz -P ~/
-  - tar xvzf ~/geckodriver-v0.20.0-linux64.tar.gz
+  - tar xvzf ~/geckodriver-v0.20.0-linux64.tar.gz -C ~/
   - rm ~/geckodriver-v0.20.0-linux64.tar.gz
-  - ls -la
   - sudo mv -f ~/geckodriver /usr/local/share/
   - sudo chmod +x /usr/local/share/geckodriver
   - sudo ln -s /usr/local/share/geckodriver /usr/local/bin/geckodriver
