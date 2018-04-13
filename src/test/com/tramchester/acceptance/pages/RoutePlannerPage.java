@@ -52,18 +52,11 @@ public class RoutePlannerPage extends Page {
         WebElement element = getHourElement();
 
         String formatter = DateTimeFormat.patternForStyle("-S", locale);
-
         String input = time.toString(formatter).replaceAll(" ", "");
 
-        int chars = input.length();
         Actions builder  = new Actions(driver);
-        while (chars-- > 0) {
-            builder.sendKeys(element, Keys.ARROW_LEFT);
-        }
-        builder.sendKeys(element, input);
-        builder.pause(Duration.ofMillis(50));
-        builder.build().perform();
-        Thread.sleep(1000); // yuck, but chrome seems to have a big lag on AM/PM changes....
+        providesDateInput.setTime(builder, element, input);
+
     }
 
     public void setDate(LocalDate localDate) {
@@ -74,6 +67,7 @@ public class RoutePlannerPage extends Page {
         element.click();
         element.sendKeys(Keys.ARROW_LEFT);
         element.sendKeys(input);
+
     }
 
     public String getTime() {
@@ -118,7 +112,7 @@ public class RoutePlannerPage extends Page {
         WebElement list = findElementById(toStop);
         Select select = new Select(list);
         List<WebElement> options = select.getOptions();
-        return options.stream().map(option -> option.getText()).collect(Collectors.toList());
+        return options.stream().map(WebElement::getText).collect(Collectors.toList());
     }
 
     public void load(String url) {

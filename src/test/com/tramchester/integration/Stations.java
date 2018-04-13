@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Stations {
 
-    public static LatLong position = new LatLong(1,1);
+    private static LatLong position = new LatLong(1,1);
 
     public static Location Altrincham = createStation("9400ZZMAALT", "Altrincham area", "Altrincham");
     public static Location Ashton = createStation("9400ZZMAAUL", "Ashton area", "Ashton-Under-Lyne");
@@ -42,17 +42,15 @@ public class Stations {
 
     public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
 
-    private static List<Location> EndOfTheLineWest = Arrays.asList(new Location[]{
-            Altrincham,
+    private static List<Location> EndOfTheLineWest = Arrays.asList(Altrincham,
             ManAirport,
             Eccles,
-            EastDidsbury});
+            EastDidsbury);
 
-    private static List<Location> EndOfTheLineEast = Arrays.asList(new Location[]{
-            Ashton,
+    private static List<Location> EndOfTheLineEast = Arrays.asList(Ashton,
             Rochdale,
             Bury,
-            ExchangeSquare});
+            ExchangeSquare);
 
     public static List<Location> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 

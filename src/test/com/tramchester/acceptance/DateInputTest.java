@@ -18,8 +18,8 @@ public class DateInputTest {
         LocalDate date = new LocalDate(2019, 11, 30);
         String result = providesDateInput.createDateInput(date);
 
-        // actual ordering is locale specific, which is needed to support browser running in other locals i.e. on CI box
-        assertEquals(8, result.length());
+        // UK is 2019-11-30
+        assertEquals(10, result.length());
         assertTrue(result.contains("30"));
         assertTrue(result.contains("11"));
         assertTrue(result.contains("2019"));

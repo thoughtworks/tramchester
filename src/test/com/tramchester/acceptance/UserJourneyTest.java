@@ -42,23 +42,21 @@ public class UserJourneyTest {
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
 
     private final String bury = Stations.Bury.getName();
-
-    @Rule
-    public TestName testName = new TestName();
-
     private final String altrincham = Stations.Altrincham.getName();
     private final String deansgate = Stations.Deansgate.getName();
     private final String cornbrook = Stations.Cornbrook.getName();
+
+    @Rule
+    public TestName testName = new TestName();
 
     private LocalDate nextTuesday;
     private String url;
     private AcceptanceTestHelper helper;
     private ProvidesDriver providesDriver;
 
-    // TOOD add firefox back in here
     @Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList("chrome");
+        return Arrays.asList("firefox", "chrome");
     }
 
     @Parameterized.Parameter
@@ -103,18 +101,20 @@ public class UserJourneyTest {
 
     @Test
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
-        List<String> headSigns = Arrays.asList(Stations.Bury.getName());
+        List<String> headSigns = Collections.singletonList(bury);
+
         TramJourney tramJourney = new TramJourney(altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
+
         TramJourneyExpectations expectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults, false);
 
-        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney,
-                expectations, 0, false);
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney, expectations, 0, false);
+
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
         // check values remembered
-        assertEquals(altrincham,plannerPage.getFromStop());
-        assertEquals(bury,plannerPage.getToStop());
-        assertEquals("10:15",plannerPage.getTime());
+        assertEquals(altrincham, plannerPage.getFromStop());
+        assertEquals(bury, plannerPage.getToStop());
+        assertEquals("10:15", plannerPage.getTime());
 
         // check recents are set
         List<WebElement> recentFrom = plannerPage.getRecentFromStops();
@@ -228,7 +228,8 @@ public class UserJourneyTest {
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
 
         List<String> headsignEtihadCampus = Collections.singletonList(Stations.Piccadilly.getName());
-        List<String> headSignsBury = Collections.singletonList(Stations.Bury.getName());
+        List<String> headSignsBury = Collections.singletonList(bury);
+
         TramJourney tramJourney = new TramJourney(altrincham, deansgate, nextTuesday, LocalTime.parse("10:15"));
 
         RouteDetailsPage routeDetailsPage = helper.checkJourney(url, tramJourney,
@@ -321,8 +322,8 @@ public class UserJourneyTest {
 
     @Test
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        List<String> changes = Collections.singletonList(Stations.Deansgate.getName());
-        List<String> headSigns = Collections.singletonList(Stations.Bury.getName());
+        List<String> changes = Collections.singletonList(deansgate);
+        List<String> headSigns = Collections.singletonList(bury);
 
         TramJourney tramJourney = new TramJourney(altrincham, Stations.ExchangeSquare.getName(), nextTuesday,
                 LocalTime.parse("10:15"));
@@ -334,10 +335,7 @@ public class UserJourneyTest {
 
     @Test
     public void shouldHaveBuildAndVersionNumberInFooter() {
-        String build = System.getenv("TRAVIS_BUILD_NUMBER");
-        if (build==null) {
-            build = "0";
-        }
+        String build = selectBuildNumber();
 
         RoutePlannerPage page = providesDriver.getWelcomePage().load(testRule.getUrl()).begin();
 
@@ -349,7 +347,6 @@ public class UserJourneyTest {
 
         String dataEnd = page.getValidUntil();
         assertEquals(" Until: " + FeedInfoResourceTest.validUntil.toString("YYYY-MM-dd"), dataEnd);
-
     }
 
     private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {
@@ -359,6 +356,14 @@ public class UserJourneyTest {
 
     private List<String> getNotes(RouteDetailsPage routeDetailsPage) {
         return routeDetailsPage.getAllNotes();
+    }
+
+    private String selectBuildNumber() {
+        String build = System.getenv("TRAVIS_BUILD_NUMBER");
+        if (build==null) {
+            build = "0";
+        }
+        return build;
     }
 
 }
