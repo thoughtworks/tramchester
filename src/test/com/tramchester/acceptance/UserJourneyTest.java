@@ -1,5 +1,6 @@
 package com.tramchester.acceptance;
 
+import com.google.common.collect.ImmutableList;
 import com.tramchester.App;
 import com.tramchester.acceptance.infra.*;
 import com.tramchester.acceptance.pages.JourneyDetailsPage;
@@ -23,6 +24,7 @@ import org.openqa.selenium.WebElement;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -101,9 +103,9 @@ public class UserJourneyTest {
 
     @Test
     public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
-        List<String> headSigns = Arrays.asList("Bury");
+        List<String> headSigns = Arrays.asList(Stations.Bury.getName());
         TramJourney tramJourney = new TramJourney(altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
-        TramJourneyExpectations expectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults);
+        TramJourneyExpectations expectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults, false);
 
         JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney,
                 expectations, 0, false);
@@ -197,10 +199,9 @@ public class UserJourneyTest {
 
     @Test
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
-        List<String> headSigns = Arrays.asList("Victoria");
-        TramJourney tramJourney = new TramJourney(Stations.ManAirport.getName(), deansgate, nextTuesday,
-                LocalTime.parse("10:15"));
-        TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults);
+        List<String> headSigns = Collections.singletonList(Stations.Victoria.getName());
+        TramJourney tramJourney = new TramJourney(Stations.ManAirport.getName(), deansgate, nextTuesday, LocalTime.parse("10:15"));
+        TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults, false);
 
         JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney,
                 tramJourneyExpectations,
@@ -211,11 +212,11 @@ public class UserJourneyTest {
 
     @Test
     public void shouldHaveSecondCityCrossingRoutes() throws InterruptedException {
-        List<String> headsignRochdale = Arrays.asList("Shaw and Crompton");
+        List<String> headsignRochdale = ImmutableList.of(Stations.ShawAndCrompton.getName());
 
         TramJourney tramJourney = new TramJourney(Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
                 nextTuesday, LocalTime.parse("10:15"));
-        TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(headsignRochdale, expectedNumberJourneyResults);
+        TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(headsignRochdale, expectedNumberJourneyResults, false);
 
         JourneyDetailsPage detailsPage = helper.checkJourney(url, tramJourney, tramJourneyExpectations, 0, false);
         String instruction = detailsPage.getInstruction(0);
@@ -226,12 +227,12 @@ public class UserJourneyTest {
     @Test
     public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
 
-        List<String> headsignEtihadCampus = Arrays.asList("Piccadilly");
-        List<String> headSignsBury = Arrays.asList("Bury");
+        List<String> headsignEtihadCampus = Collections.singletonList(Stations.Piccadilly.getName());
+        List<String> headSignsBury = Collections.singletonList(Stations.Bury.getName());
         TramJourney tramJourney = new TramJourney(altrincham, deansgate, nextTuesday, LocalTime.parse("10:15"));
 
         RouteDetailsPage routeDetailsPage = helper.checkJourney(url, tramJourney,
-                new TramJourneyExpectations(headSignsBury, expectedNumberJourneyResults), 0, false)
+                new TramJourneyExpectations(headSignsBury, expectedNumberJourneyResults, false), 0, false)
                 .backToRouteDetails();
 
         List<String> noChanges = new LinkedList<>();
@@ -270,15 +271,16 @@ public class UserJourneyTest {
 
     @Test
     public void shouldCheckAshtonToPiccadilyGardens() throws InterruptedException {
-        List<String> changes = new LinkedList<>();
-        List<String> headSigns = Arrays.asList("Eccles");
+        List<String> noChanges = new LinkedList<>();
+        List<String> headSigns = Collections.singletonList(Stations.Eccles.getName());
 
         String ashton = Stations.Ashton.getName();
         String piccadilly = Stations.PiccadillyGardens.getName();
         TramJourney tramJourney = new TramJourney(ashton, piccadilly, nextTuesday, LocalTime.parse("10:15"));
 
-        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney,
-                new TramJourneyExpectations(changes,headSigns, expectedNumberJourneyResults), 0, false);
+        TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(noChanges, headSigns,
+                expectedNumberJourneyResults, false);
+        JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney, tramJourneyExpectations, 0, false);
 
         assertTrue(journeyDetailsPage.laterTramEnabled());
         assertFalse(journeyDetailsPage.earlierTramEnabled());
@@ -286,7 +288,7 @@ public class UserJourneyTest {
         assertThat(journeyDetailsPage.getSummary(), endsWith(ashton));
         for (int index = 0; index < headSigns.size(); index++) {
             helper.checkStage(journeyDetailsPage, index, ashton, piccadilly,
-                    changes, headSigns, false);
+                    noChanges, headSigns, false);
         }
 
         journeyDetailsPage.laterTram();
@@ -319,12 +321,13 @@ public class UserJourneyTest {
 
     @Test
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        List<String> changes = Arrays.asList(Stations.Deansgate.getName());
-        List<String> headSigns = Arrays.asList("Bury");
+        List<String> changes = Collections.singletonList(Stations.Deansgate.getName());
+        List<String> headSigns = Collections.singletonList(Stations.Bury.getName());
 
         TramJourney tramJourney = new TramJourney(altrincham, Stations.ExchangeSquare.getName(), nextTuesday,
                 LocalTime.parse("10:15"));
-        TramJourneyExpectations expectations = new TramJourneyExpectations(changes, headSigns, expectedNumberJourneyResults);
+        TramJourneyExpectations expectations =
+                new TramJourneyExpectations(changes, headSigns, expectedNumberJourneyResults, false);
 
         helper.checkJourney(url, tramJourney, expectations, 0, false);
     }

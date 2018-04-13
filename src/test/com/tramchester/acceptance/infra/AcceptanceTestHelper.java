@@ -27,17 +27,16 @@ public class AcceptanceTestHelper {
                                               int selectedJourney, boolean onlyWalk) throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney);
-        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations, false, onlyWalk);
-
+        checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations, onlyWalk);
         return checkJourneyDetailsPage(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop,
                 tramJourneyExpectations.changes, tramJourneyExpectations.headSigns, selectedJourney);
 
     }
 
     public void checkDetailsAndJourneysPresent(RouteDetailsPage routeDetailsPage, TramJourney tramJourney,
-                                               TramJourneyExpectations expectations,
-                                               boolean startsWithWalk, boolean onlyWalk) {
-        checkRoutes(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, expectations.changes, startsWithWalk, onlyWalk);
+                                               TramJourneyExpectations expectations, boolean onlyWalk) {
+        checkRoutes(routeDetailsPage, tramJourney.fromStop, tramJourney.toStop, expectations.changes,
+                expectations.startsWithWalk, onlyWalk);
 
         for(int i=0;i<expectations.expectedJourneys; i++) {
             assertTrue("Check for journey "+i,routeDetailsPage.journeyPresent(i));
@@ -56,8 +55,8 @@ public class AcceptanceTestHelper {
         return journeyDetailsPage;
     }
 
-    public void checkRoutes(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
-                            boolean startsWithWalk, boolean onlyWalk) {
+    private void checkRoutes(RouteDetailsPage routeDetailsPage, String fromStop, String toStop, List<String> changes,
+                             boolean startsWithWalk, boolean onlyWalk) {
         assertTrue(routeDetailsPage.waitForRoutes());
         assertTrue(routeDetailsPage.journeyPresent(0));
 
@@ -93,12 +92,6 @@ public class AcceptanceTestHelper {
                 expectedHeading = "Tram with No Changes - ";
             } else {
                 expectedHeading = format("Tram with %s change%s - ", changes.size(), plural);
-
-//                if (embeddedWalk) {
-//                    expectedHeading = format("Tram and Walk with %s change%s - ", changes.size(), plural);
-//                } else {
-//                    expectedHeading = format("Tram with %s change%s - ", changes.size(), plural);
-//                }
             }
             if (startsWithWalk) {
                 expectedHeading = "Walk and " + expectedHeading;
@@ -123,7 +116,7 @@ public class AcceptanceTestHelper {
         return enterRouteSelection(routePlannerPage, tramJourney);
     }
 
-    public RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, TramJourney tramJourney) throws InterruptedException {
+    private RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, TramJourney tramJourney) throws InterruptedException {
         routePlannerPage.waitForToStops();
         routePlannerPage.setFromStop(tramJourney.fromStop);
         routePlannerPage.setToStop(tramJourney.toStop);
@@ -187,7 +180,7 @@ public class AcceptanceTestHelper {
         }
     }
 
-    public void checkDuration(JourneyDetailsPage journeyDetailsPage, int durIndex) {
+    private void checkDuration(JourneyDetailsPage journeyDetailsPage, int durIndex) {
         String durationText;
         durationText = journeyDetailsPage.getDuration(durIndex);
         assertThat(durationText, endsWith("min"));
