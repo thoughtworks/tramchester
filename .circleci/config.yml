@@ -39,4 +39,9 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # run tests!
-      - run: gradle unit
+      - run: gradle ci_unit
+        name: Unit Tests
+        environment:
+          ENV=Dev
+            SERVER_URL: https://alpha.tramchester.com
+            ENV: Dev
