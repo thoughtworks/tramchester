@@ -42,6 +42,5 @@ jobs:
       - run: gradle ci_unit
         name: Unit Tests
         environment:
-          ENV=Dev
             SERVER_URL: https://alpha.tramchester.com
             ENV: Dev
