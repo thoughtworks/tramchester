@@ -40,7 +40,7 @@ jobs:
 
       # run tests!
       - run: gradle ci_unit
-        name: Unit Tests
-        environment:
+          name: Unit Tests
+          environment:
             SERVER_URL: https://alpha.tramchester.com
             ENV: Dev
