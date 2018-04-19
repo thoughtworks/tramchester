@@ -45,10 +45,10 @@ jobs:
           command: |
             echo $AWS_REGION
             gradle ci_unit
-          name: Unit Tests
+          name: ci_unit
           environment:
             SERVER_URL: https://alpha.tramchester.com
             ENV: Dev
             AWS_REGION: eu-west-1
           store_test_results:
-            path: ~/repo/build/reports/tests/
+            path: ~/repo/build/test-results
