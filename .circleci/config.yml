@@ -51,4 +51,4 @@ jobs:
             ENV: Dev
             AWS_REGION: eu-west-1
           store_test_results:
-            path: build/test-results/
+            path: ~/repo/build/reports/tests/
