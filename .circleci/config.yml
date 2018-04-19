@@ -50,5 +50,5 @@ jobs:
             SERVER_URL: https://alpha.tramchester.com
             ENV: Dev
             AWS_REGION: eu-west-1
-          store_test_results:
-            path: ~/repo/build/test-results
+      - store_test_results:
+        path: ~/repo/build/test-results
