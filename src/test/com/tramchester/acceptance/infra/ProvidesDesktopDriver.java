@@ -25,9 +25,9 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
         caps.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
 
         // not working with geckodriver
-        caps.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, enableGeo);
+        //caps.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, enableGeo);
         // ACCEPT OR DISMISS?
-        caps.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.DISMISS);
+        //caps.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.DISMISS);
         return caps;
     }
 

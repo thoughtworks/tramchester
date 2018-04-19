@@ -42,7 +42,7 @@ public class UserJourneyWithLocationTest {
 
     @Parameterized.Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList( "chrome");
+        return Arrays.asList( "chrome", "firefox");
     }
 
     @Parameterized.Parameter

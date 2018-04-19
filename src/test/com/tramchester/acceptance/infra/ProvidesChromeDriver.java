@@ -27,15 +27,12 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         capabilities = createCapabilities(enableGeo);
 
         chromeOptions = new ChromeOptions();
-        if (!enableGeo) {
-            // geolocation in headless doesn't seem to work
-            chromeOptions.addArguments("--headless");
-        }
 
-        if (!enableGeo) {
-            chromeOptions.addArguments("--disable-geolocation");
-        } else {
+        if (enableGeo) {
             chromeOptions.addArguments("--enable-geolocation");
+        } else {
+            chromeOptions.addArguments("--disable-geolocation");
+            chromeOptions.addArguments("--headless");
         }
 
         providesDateInput = new ProvidesChromeDateInput();

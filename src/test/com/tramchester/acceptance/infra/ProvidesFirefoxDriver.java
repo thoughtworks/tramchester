@@ -7,6 +7,7 @@ import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TestName;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -18,13 +19,16 @@ import java.nio.file.Paths;
 
 
 public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
+    private final boolean enableGeo;
     private Path locationStubJSON = Paths.get("geofile.json");
 
     private final DesiredCapabilities capabilities;
     private ProvidesDateInput providesDateInput;
 
     public ProvidesFirefoxDriver(boolean enableGeo) {
+
         capabilities = createCapabilities(enableGeo);
+        this.enableGeo = enableGeo;
     }
 
     @Override
@@ -55,16 +59,22 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
             System.setProperty("webdriver.gecko.driver", geckoDriver);
         }
 
-        FirefoxProfile geoDisabled = new FirefoxProfile();
-        geoDisabled.setPreference("geo.enabled", false);
-        geoDisabled.setPreference("geo.provider.use_corelocation", false);
-        geoDisabled.setPreference("geo.prompt.testing", false);
-        geoDisabled.setPreference("geo.prompt.testing.allow", false);
-        capabilities.setCapability(FirefoxDriver.PROFILE, geoDisabled);
+        if (!enableGeo) {
+            FirefoxProfile geoDisabled = new FirefoxProfile();
+            geoDisabled.setPreference("geo.enabled", false);
+            geoDisabled.setPreference("geo.provider.use_corelocation", false);
+            geoDisabled.setPreference("geo.prompt.testing", false);
+            geoDisabled.setPreference("geo.prompt.testing.allow", false);
 
+            capabilities.setCapability(FirefoxDriver.PROFILE, geoDisabled);
+        }
         capabilities.setCapability("log","trace");
 
-        driver = new FirefoxDriver(capabilities);
+        FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
+        firefoxOptions.setHeadless(true);
+        //firefoxOptions.headless -- TODO newer version of selenium
+
+        driver = new FirefoxDriver(firefoxOptions);
         driver.manage().deleteAllCookies();
     }
 
@@ -78,18 +88,17 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         return new WelcomePage(driver, providesDateInput);
     }
 
-
     @Override
     public void setStubbedLocation(LatLong location) throws IOException {
         createGeoFile(location);
 
-        //FirefoxProfile profile = new FirefoxProfile();
-        //profile.setPreference("geo.prompt.testing", true);
-        //profile.setPreference("geo.prompt.testing.allow", true);
-        //profile.setPreference("geo.wifi.uri", "file://" + locationStubJSON.toAbsolutePath().toString());
+        FirefoxProfile profile = new FirefoxProfile();
+        profile.setPreference("geo.prompt.testing", true);
+        profile.setPreference("geo.prompt.testing.allow", true);
+        profile.setPreference("geo.wifi.uri", "file://" + locationStubJSON.toAbsolutePath().toString());
         capabilities.setBrowserName("firefox");
 
-        //capabilities.setCapability(FirefoxDriver.PROFILE, profile);
+        capabilities.setCapability(FirefoxDriver.PROFILE, profile);
     }
 
     private void createGeoFile(LatLong place) throws IOException {

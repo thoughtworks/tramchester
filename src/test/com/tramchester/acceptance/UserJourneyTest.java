@@ -10,7 +10,6 @@ import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.FeedInfoResourceTest;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
-import org.assertj.core.util.Lists;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.*;
@@ -56,7 +55,7 @@ public class UserJourneyTest {
 
     @Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList("firefox", "chrome");
+        return Arrays.asList("chrome","firefox");
     }
 
     @Parameterized.Parameter
