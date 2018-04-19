@@ -23,6 +23,9 @@ jobs:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
 
+    - store_test_results:
+        path: build/test-results/
+
     steps:
       - checkout
 
