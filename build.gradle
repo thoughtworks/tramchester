@@ -121,7 +121,7 @@ task pullData(type:JavaExec, dependsOn:classes) {
 task allowhost(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
-            Allowhost(port: '443', tag: 'web', host: 'nat.travisci.net')
+            WhiteList(port: '443', tag: 'web')
         }
     }
 }
@@ -129,7 +129,7 @@ task allowhost(dependsOn: cfnassist) {
 task blockhost(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
-            Blockhost(port: '443', tag: 'web', host: 'nat.travisci.net')
+            BlackList(port: '443', tag: 'web')
         }
     }
 }
@@ -154,6 +154,10 @@ task unit(type: Test, dependsOn: compileJava) {
         testLogging {
             exceptionFormat "full" // default is "short"
             events "passed", "skipped", "failed", "started",  "standardError"
+        }
+        reports {
+            junitXml.enabled = true
+            html.enabled = true
         }
     }
 }
@@ -292,11 +296,26 @@ task tidy(dependsOn: cfnassist) {
     }
 }
 
+task allowHostDev(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
+            WhiteList(port: '443', tag: 'web')
+        }
+    }
+}
+
+task blockHostDev(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
+            BlackList(port: '443', tag: 'web')
+        }
+    }
+}
+
 task whitelistUAT(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
-            WhiteList(port: '80', tag: 'web')
-            WhiteList(port: '443', tag: 'web')
+            BlackList(port: '443', tag: 'web')
         }
     }
 }
@@ -304,7 +323,6 @@ task whitelistUAT(dependsOn: cfnassist) {
 task blacklistUAT(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
-            BlackList(port: '80', tag: 'web')
             BlackList(port: '443', tag: 'web')
         }
     }
