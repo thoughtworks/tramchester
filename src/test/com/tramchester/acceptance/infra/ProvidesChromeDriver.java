@@ -28,7 +28,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         if (chromedriverPath!=null) {
             System.setProperty(CHROME_DRIVER_EXE_PROPERTY,chromedriverPath);
         }
-        System.setProperty(CHROME_DRIVER_VERBOSE_LOG_PROPERTY,"true");
+        System.setProperty(CHROME_DRIVER_VERBOSE_LOG_PROPERTY,"false");
 
         capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
@@ -56,8 +56,6 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         } finally {
             if (driver!=null) {
                 driver.close();
-                // TODO move into AfterClass?
-                driver.quit();
             }
         }
     }

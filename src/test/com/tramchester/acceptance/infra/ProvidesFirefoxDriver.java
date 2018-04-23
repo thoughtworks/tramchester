@@ -36,14 +36,10 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         try {
             if (driver!=null) {
                 takeScreenShot(testName);
-                // not supported with geckodriver, sigh
-//                LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-//                logs.forEach(log -> System.out.println(log));
             }
         } finally {
             if (driver!=null) {
                 driver.close();
-                driver.quit();
             }
         }
     }
@@ -69,7 +65,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
             capabilities.setCapability(FirefoxDriver.PROFILE, geoDisabled);
         }
-        capabilities.setCapability("log","trace");
+        //capabilities.setCapability("log","trace");
 
         FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
         firefoxOptions.setHeadless(true);
