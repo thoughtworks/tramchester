@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
@@ -15,6 +16,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -29,6 +31,12 @@ public class DeparturesResourceTest {
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     ObjectMapper mapper = new ObjectMapper();
+
+    private List<String> nearby = Arrays.asList(new String[]{
+            Stations.PiccadillyGardens.getName(),
+            Stations.StPetersSquare.getName(),
+            Stations.Piccadilly.getName()
+        });
 
     @Before
     public void beforeEachTestRuns() {
@@ -54,7 +62,7 @@ public class DeparturesResourceTest {
         LocalTime when = departureDTO.getWhen();
         assertTrue(when.isAfter(queryTime) );
         String nextDepart = departureDTO.getFrom();
-        assertTrue(nextDepart.equals(Stations.PiccadillyGardens.getName()) || nextDepart.equals(Stations.StPetersSquare.getName()));
+        assertTrue(nextDepart.toString(),nearby.contains(nextDepart));
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
 
