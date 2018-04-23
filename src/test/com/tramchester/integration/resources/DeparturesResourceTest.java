@@ -35,7 +35,8 @@ public class DeparturesResourceTest {
     private List<String> nearby = Arrays.asList(new String[]{
             Stations.PiccadillyGardens.getName(),
             Stations.StPetersSquare.getName(),
-            Stations.Piccadilly.getName()
+            Stations.Piccadilly.getName(),
+            "Shudehill"
         });
 
     @Before
