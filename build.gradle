@@ -14,7 +14,8 @@ apply plugin: 'application'
 
 mainClassName = 'com.tramchester.App'
 
-def buildNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
+def candidateNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
+def buildNumber = System.getenv("CIRCLE_BUILD_NUM") ?: candidateNumber
 def environment = System.getenv("ENV") ?: "Dev"
 
 // this is used in the generated dist zip filename
