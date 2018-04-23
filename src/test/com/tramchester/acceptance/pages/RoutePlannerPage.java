@@ -141,4 +141,8 @@ public class RoutePlannerPage extends Page {
         return waitForElement("validUntil", 2).getText();
     }
 
+    public String getBuild() {
+        WebElement webElement = waitForElement("build", 3);
+        return webElement.getText();
+    }
 }

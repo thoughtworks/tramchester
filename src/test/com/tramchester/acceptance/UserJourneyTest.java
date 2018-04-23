@@ -338,7 +338,7 @@ public class UserJourneyTest {
 
         RoutePlannerPage page = providesDriver.getWelcomePage().load(testRule.getUrl()).begin();
 
-        String result = page.findElementById("build").getText();
+        String result = page.getBuild();
         assertEquals("Build 1."+build, result);
 
         String dataBegin = page.getValidFrom();

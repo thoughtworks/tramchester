@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
 public class UserJourneyWithLocationTest {
@@ -69,14 +70,21 @@ public class UserJourneyWithLocationTest {
         providesDriver.commonAfter(testName);
     }
 
+
+    private boolean isChrome() {
+        // workaround for chrome headless not working with geolocation
+        return browserName=="chrome";
+    }
+
     @Test
     public void shouldCheckNearAltrinchamToAshton() throws InterruptedException {
+        assumeTrue(!isChrome());
 
         String finalStation = Stations.Ashton.getName();
         String firstStation = Stations.NavigationRoad.getName();
 
         List<String> changes = Arrays.asList(firstStation, Stations.Piccadilly.getName());
-        List<String> headSigns = Arrays.asList("",Stations.Piccadilly.getName(),finalStation);
+        List<String> headSigns = Arrays.asList("", Stations.Piccadilly.getName(), finalStation);
 
         LocalTime time = LocalTime.parse("19:47");
         TramJourney wholeJoruney = new TramJourney(myLocation, finalStation, when, time);
@@ -89,22 +97,25 @@ public class UserJourneyWithLocationTest {
         helper.checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations, false);
 
         JourneyDetailsPage journeyDetailsPage = routeDetailsPage.getDetailsFor(0);
-        assertTrue(journeyDetailsPage.getSummary().endsWith(" from "+firstStation));
+        assertTrue(journeyDetailsPage.getSummary().endsWith(" from " + firstStation));
         helper.checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
         helper.checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSigns, true);
         helper.checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSigns, false);
 
-        while(journeyDetailsPage.laterTramEnabled()) {
+        while (journeyDetailsPage.laterTramEnabled()) {
             journeyDetailsPage.laterTram();
             helper.checkInitialWalkingStage(journeyDetailsPage, firstStation, headSigns);
             // these vary depending on timing of trams, key thing is to check walking stage is first
 //            checkStage(journeyDetailsPage, 1, firstStation, finalStation, changes, headSignsA, true);
 //            checkStage(journeyDetailsPage, 2, firstStation, finalStation, changes, headSignsA, false);
         }
+
     }
+
 
     @Test
     public void shouldCheckNearAltrinchamToCornbrook() throws InterruptedException {
+        assumeTrue(!isChrome());
 
         String firstStation = Stations.NavigationRoad.getName();
         List<String> changes = Collections.singletonList(firstStation);
@@ -129,6 +140,7 @@ public class UserJourneyWithLocationTest {
 
     @Test
     public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
+        assumeTrue(!isChrome());
 
         List<String> changes = new LinkedList<>();
 

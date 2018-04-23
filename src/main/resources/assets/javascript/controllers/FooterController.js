@@ -1,6 +1,8 @@
 techLabApp.controller('FooterController',
     function FooterController($scope, versionService, feedinfoService) {
-        $scope.version = versionService.getVersion();
+        versionService.getVersion(function (version) {
+            $scope.version = version;
+        });
         feedinfoService.getFeedInfo(function(info){
             $scope.feedinfo = info;
         });
