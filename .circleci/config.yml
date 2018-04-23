@@ -64,7 +64,7 @@ jobs:
             mkdir -p ~/drivers
             wget -N https://github.com/mozilla/geckodriver/releases/download/v0.20.0/geckodriver-v0.20.0-linux64.tar.gz -P ~/drivers
             tar xvzf ~/drivers/geckodriver-v0.20.0-linux64.tar.gz -C ~/drivers
-            cp ~/drivers/geckodriver /usr/local/bin/
+            sudo cp ~/drivers/geckodriver /usr/local/bin/
             gradle appium
           environment:
             SERVER_URL: https://alpha.tramchester.com
