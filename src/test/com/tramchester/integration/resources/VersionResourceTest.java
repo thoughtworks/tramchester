@@ -31,7 +31,7 @@ public class VersionResourceTest {
         if (build==null) {
             build = "0";
         }
-        assertEquals(format("1.%s", build), version.getBuildNumber());
+        assertEquals(format("2.%s", build), version.getBuildNumber());
     }
 
 }

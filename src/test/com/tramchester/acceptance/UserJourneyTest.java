@@ -339,7 +339,7 @@ public class UserJourneyTest {
         RoutePlannerPage page = providesDriver.getWelcomePage().load(testRule.getUrl()).begin();
 
         String result = page.getBuild();
-        assertEquals("Build 1."+build, result);
+        assertEquals("Build 2."+build, result);
 
         String dataBegin = page.getValidFrom();
         assertEquals(" From: "+ FeedInfoResourceTest.validFrom.toString("YYYY-MM-dd"), dataBegin);
@@ -358,7 +358,7 @@ public class UserJourneyTest {
     }
 
     private String selectBuildNumber() {
-        String build = System.getenv("TRAVIS_BUILD_NUMBER");
+        String build = System.getenv("CIRCLE_BUILD_NUM");
         if (build==null) {
             build = "0";
         }

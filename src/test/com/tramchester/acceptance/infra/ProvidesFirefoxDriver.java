@@ -43,6 +43,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         } finally {
             if (driver!=null) {
                 driver.close();
+                driver.quit();
             }
         }
     }

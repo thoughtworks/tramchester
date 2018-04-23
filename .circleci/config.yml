@@ -58,5 +58,10 @@ jobs:
           command: gradle deploy updateLB tidy
           environment:
             ENV: Dev
+      - run:
+          name: acceptance
+          command: gradle appium
+          environment:
+            SERVER_URL=https://alpha.tramchester.com
       - store_test_results:
           path: ~/repo/build/test-results
