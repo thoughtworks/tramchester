@@ -1,10 +1,8 @@
 package com.tramchester.acceptance.infra;
 
 
-import com.tramchester.acceptance.pages.WelcomePage;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
@@ -17,17 +15,16 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
 
     protected WebDriver driver;
 
-    protected DesiredCapabilities createCapabilities(boolean enableGeo) {
+    protected DesiredCapabilities createCapabilities() {
         DesiredCapabilities caps = new DesiredCapabilities();
 
         LoggingPreferences loggingPrefs = new LoggingPreferences();
-        loggingPrefs.enable(LogType.BROWSER, Level.FINE);
+        loggingPrefs.enable(LogType.BROWSER, Level.ALL);
+
+        loggingPrefs.enable(LogType.DRIVER, Level.ALL);
+
         caps.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
 
-        // not working with geckodriver
-        //caps.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, enableGeo);
-        // ACCEPT OR DISMISS?
-        //caps.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.DISMISS);
         return caps;
     }
 

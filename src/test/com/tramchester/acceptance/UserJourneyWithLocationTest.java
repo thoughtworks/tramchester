@@ -57,6 +57,7 @@ public class UserJourneyWithLocationTest {
         providesDriver.setStubbedLocation(nearAltrincham);
 
         providesDriver.init();
+
         helper = new AcceptanceTestHelper(providesDriver);
 
         // TODO offset for when tfgm data is expiring

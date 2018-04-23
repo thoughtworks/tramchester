@@ -12,6 +12,11 @@ import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import java.util.logging.Level;
+
+import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY;
+import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_VERBOSE_LOG_PROPERTY;
+
 public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     private final DesiredCapabilities capabilities;
     private final ChromeOptions chromeOptions;
@@ -21,13 +26,15 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public ProvidesChromeDriver(boolean enableGeo) {
         String chromedriverPath = System.getenv("CHROMEDRIVER_PATH");
         if (chromedriverPath!=null) {
-            System.setProperty("webdriver.chrome.driver",chromedriverPath);
+            System.setProperty(CHROME_DRIVER_EXE_PROPERTY,chromedriverPath);
         }
+        System.setProperty(CHROME_DRIVER_VERBOSE_LOG_PROPERTY,"true");
 
-        capabilities = createCapabilities(enableGeo);
-
+        capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
+        // geolocation fails on headless, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
+//        chromeOptions.addArguments("--headless");
         if (enableGeo) {
             chromeOptions.addArguments("--enable-geolocation");
         } else {
@@ -49,6 +56,8 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         } finally {
             if (driver!=null) {
                 driver.close();
+                // TODO move into AfterClass?
+                driver.quit();
             }
         }
     }
@@ -56,8 +65,11 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     @Override
     public void init() {
 
-        capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
-        ChromeDriver chromeDriver = new ChromeDriver(capabilities);
+        chromeOptions.merge(capabilities);
+
+        ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
+        chromeDriver.setLogLevel(Level.SEVERE);
+
         driver = chromeDriver;
         driver.manage().deleteAllCookies();
 

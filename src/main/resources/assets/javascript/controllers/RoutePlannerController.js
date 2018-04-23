@@ -64,12 +64,13 @@ techLabApp.controller('RoutePlannerController',
                 });
         } else {
             // can't get position
-            console.log("Unable to get current position");
+            console.warn("Unable to get current position");
             getAllStops();
         }
 
-        function positionError(error) {
-            console.log(error);
+        function positionError(positionError) {
+            console.warn("Unable to get current position")
+            console.warn(positionError.message);
             getAllStops();
         }
 

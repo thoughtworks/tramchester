@@ -27,7 +27,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
     public ProvidesFirefoxDriver(boolean enableGeo) {
 
-        capabilities = createCapabilities(enableGeo);
+        capabilities = createCapabilities();
         this.enableGeo = enableGeo;
     }
 
