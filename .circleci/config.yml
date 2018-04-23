@@ -57,6 +57,6 @@ jobs:
           name: deployDev
           command: gradle deploy updateLB tidy
           environment:
-            ENV=Dev
+            ENV: Dev
       - store_test_results:
           path: ~/repo/build/test-results
