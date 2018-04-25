@@ -70,3 +70,5 @@ jobs:
             SERVER_URL: https://alpha.tramchester.com
       - store_test_results:
           path: ~/repo/build/test-results
+      - store_artifacts:
+          path: ~/repo/build/reports/tests
