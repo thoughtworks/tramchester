@@ -66,7 +66,7 @@ jobs:
             tar xvzf ~/drivers/geckodriver-v0.20.0-linux64.tar.gz -C ~/drivers
             sudo cp ~/drivers/geckodriver /usr/local/bin/
             sudo apt-get remove firefox-mozilla-build &&
-            sudo apt install firefox-esr &&
+            sudo apt install firefox &&
             firefox --version
             gradle appium
           environment:
