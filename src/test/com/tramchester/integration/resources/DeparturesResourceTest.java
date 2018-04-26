@@ -36,6 +36,7 @@ public class DeparturesResourceTest {
             Stations.PiccadillyGardens.getName(),
             Stations.StPetersSquare.getName(),
             Stations.Piccadilly.getName(),
+            Stations.MarketStreet.getName(),
             "Shudehill"
         });
 
