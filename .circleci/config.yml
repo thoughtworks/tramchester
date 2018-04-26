@@ -65,11 +65,10 @@ jobs:
             wget -N https://github.com/mozilla/geckodriver/releases/download/v0.20.0/geckodriver-v0.20.0-linux64.tar.gz -P ~/drivers
             tar xvzf ~/drivers/geckodriver-v0.20.0-linux64.tar.gz -C ~/drivers
             sudo cp ~/drivers/geckodriver /usr/local/bin/
-            sudo apt-get remove firefox-mozilla-build 
-            sudo apt-get update
-            sudo apt-get install libpango1.0-0
-            sudo apt-get install firefox
-            sudo ln -sf /usr/lib/firefox/firefox /usr/bin/firefox
+            sudo apt-get remove firefox-mozilla-build
+            wget "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US" -O firefox-latest.tar.bz2
+            tar xjf firefox-latest.tar.bz2
+            sudo ln -sf ~/firefox/firefox /usr/bin/firefox
             firefox --version
             gradle appium
           environment:
