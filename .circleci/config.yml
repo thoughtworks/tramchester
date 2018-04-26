@@ -65,6 +65,9 @@ jobs:
             wget -N https://github.com/mozilla/geckodriver/releases/download/v0.20.0/geckodriver-v0.20.0-linux64.tar.gz -P ~/drivers
             tar xvzf ~/drivers/geckodriver-v0.20.0-linux64.tar.gz -C ~/drivers
             sudo cp ~/drivers/geckodriver /usr/local/bin/
+            sudo apt-get remove firefox-mozilla-build &&
+            sudo apt install firefox-esr &&
+            firefox --version
             gradle appium
           environment:
             SERVER_URL: https://alpha.tramchester.com
