@@ -10,7 +10,6 @@ jobs:
       - image: circleci/openjdk:8-jdk-browsers
         environment:
           AWS_REGION: eu-west-1
-          LC_TIME: "en_GB.UTF-8"
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -74,6 +73,7 @@ jobs:
             gradle appium
           environment:
             SERVER_URL: https://alpha.tramchester.com
+            LC_TIME: "en_GB.UTF-8"
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
