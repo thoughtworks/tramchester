@@ -51,11 +51,20 @@ public class RoutePlannerPage extends Page {
     public void setTime(LocalTime time) throws InterruptedException {
         WebElement element = getHourElement();
 
-        String formatter = DateTimeFormat.patternForStyle("-S", locale);
-        String input = time.toString(formatter).replaceAll(" ", "");
+//        String formatter = DateTimeFormat.patternForStyle("-S", locale);
+//        String input = time.toString(formatter).replaceAll(" ", "");
 
         Actions builder  = new Actions(driver);
-        providesDateInput.setTime(builder, element, input);
+        String input = providesDateInput.createTimeFormat(time);
+        int chars = input.length();
+
+        while (chars-- > 0) {
+            builder.sendKeys(element, Keys.ARROW_LEFT);
+        }
+        builder.sendKeys(element, input);
+        builder.pause(Duration.ofMillis(50));
+        builder.build().perform();
+        //Thread.sleep(1000);
 
     }
 

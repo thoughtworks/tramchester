@@ -80,7 +80,7 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldGetNearestStations() throws Exception {
+    public void shouldGetNearestStations() {
         List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
         Map<ProximityGroup, Long> stationGroups = stations.stream()
@@ -102,7 +102,7 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldGetNearestStationsWithLiveData() throws Exception {
+    public void shouldGetNearestStationsWithLiveData() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
@@ -123,7 +123,7 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldGetSpecialStationWithMyLocation() throws JsonProcessingException {
+    public void shouldGetSpecialStationWithMyLocation() {
         List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty());
 
         StationDTO station = stations.get(0);
@@ -135,7 +135,7 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldNotGetSpecialStationWhenGettingAllStations() throws JsonProcessingException {
+    public void shouldNotGetSpecialStationWhenGettingAllStations() {
         getNearest(53.4804263d, -2.2392436d, Optional.empty());
         Collection<StationDTO> stations = getAll(Optional.empty());
 
@@ -143,7 +143,7 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldNotGetClosedStations() throws Exception {
+    public void shouldNotGetClosedStations() {
         Collection<StationDTO> stations = getAll(Optional.empty());
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
