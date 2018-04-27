@@ -48,16 +48,16 @@ public class TimeBasedPathExpanderTest extends EasyMockSupport {
         new NodeFactory();
 
         departs = createMock(Relationship.class);
-        EasyMock.expect(departs.getType()).andStubReturn(TransportRelationshipTypes.DEPART);
+        EasyMock.expect(departs.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(false);
 
         boards = createMock(Relationship.class);
-        EasyMock.expect(boards.getType()).andStubReturn(TransportRelationshipTypes.BOARD);
+        EasyMock.expect(boards.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(false);
 
         goesToA = createMock(Relationship.class);
-        EasyMock.expect(goesToA.getType()).andStubReturn(TransportRelationshipTypes.TRAM_GOES_TO);
+        EasyMock.expect(goesToA.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(true);
 
         goesToB = createMock(Relationship.class);
-        EasyMock.expect(goesToB.getType()).andStubReturn(TransportRelationshipTypes.TRAM_GOES_TO);
+        EasyMock.expect(goesToB.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(true);
 
         mockNodeFactory = createMock(NodeFactory.class);
         mockRelationshipFactory = createMock(RelationshipFactory.class);

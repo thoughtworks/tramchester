@@ -92,8 +92,6 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
 
     private boolean isGoesTo(Relationship graphRelationship) {
         return graphRelationship.isType(TRAM_GOES_TO);
-//        String relationshipType = graphRelationship.getType().name();
-//        return relationshipType.equals(TRAM_GOES_TO.toString());
     }
 
     private void reportFilterReasons(TramNode currentNode,
