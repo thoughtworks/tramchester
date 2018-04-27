@@ -78,7 +78,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldFindRouteEachStationToEveryOtherStream() throws TramchesterException {
+    public void shouldFindRouteEachStationToEveryOtherStream() {
         TramServiceDate queryDate = new TramServiceDate(when);
         TransportData data = dependencies.get(TransportData.class);
         int time = 12 * 60;
