@@ -4,15 +4,32 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class RelationshipFactory {
+
+    private Map<Long,TransportRelationship> cache;
 
     private NodeFactory nodeFactory;
 
     public RelationshipFactory(NodeFactory nodeFactory) {
+        cache = new HashMap<>();
         this.nodeFactory = nodeFactory;
     }
 
     public TransportRelationship getRelationship(Relationship graphRelationship) {
+        long id = graphRelationship.getId();
+        if (cache.containsKey(id)) {
+            return cache.get(id);
+        }
+
+        TransportRelationship result = createRelationship(graphRelationship);
+        cache.put(id,result);
+        return result;
+    }
+
+    private TransportRelationship createRelationship(Relationship graphRelationship) {
         String name = graphRelationship.getType().name();
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(name);
         switch (relationshipType) {

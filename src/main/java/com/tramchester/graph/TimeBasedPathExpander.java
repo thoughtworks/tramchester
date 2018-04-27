@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.graph.TransportRelationshipTypes.TRAM_GOES_TO;
+
 public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private static final Logger logger = LoggerFactory.getLogger(TimeBasedPathExpander.class);
 
@@ -89,8 +91,9 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
     }
 
     private boolean isGoesTo(Relationship graphRelationship) {
-        String relationshipType = graphRelationship.getType().name();
-        return relationshipType.equals(TransportRelationshipTypes.TRAM_GOES_TO.toString());
+        return graphRelationship.isType(TRAM_GOES_TO);
+//        String relationshipType = graphRelationship.getType().name();
+//        return relationshipType.equals(TRAM_GOES_TO.toString());
     }
 
     private void reportFilterReasons(TramNode currentNode,
