@@ -45,8 +45,8 @@ dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
-            'org.neo4j:neo4j:3.1.1',
-            'org.neo4j:neo4j-spatial:0.24-neo4j-3.1.1',
+            'org.neo4j:neo4j:3.2.11',
+            'org.neo4j:neo4j-spatial:0.25.4-neo4j-3.2.8',
             'joda-time:joda-time:2.4',
             'com.googlecode.jcsv:jcsv:1.4.0',
             'net.lingala.zip4j:zip4j:1.2.3',
@@ -181,7 +181,7 @@ task ci_unit(type: Test) {
 }
 
 task integration(type: Test, dependsOn: compileJava) {
-    maxHeapSize = '2900m'
+//    maxHeapSize = '2900m'
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
