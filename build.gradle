@@ -181,7 +181,7 @@ task ci_unit(type: Test) {
 }
 
 task integration(type: Test, dependsOn: compileJava) {
-    maxHeapSize = '3000m'
+    maxHeapSize = '2900m'
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
