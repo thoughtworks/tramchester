@@ -33,6 +33,17 @@ public class TimeAsMinutes {
         return (hour * 60) + minute;
     }
 
+    public static int getMinutes(TramTime time) {
+        int hour = time.getHourOfDay();
+        int minute = time.getMinuteOfHour();
+        if(hour == 0){
+            hour = 24;
+        } else if(hour == 1){
+            hour = 25;
+        }
+        return (hour * 60) + minute;
+    }
+
     public static int compare(LocalTime first, LocalTime second) {
         return getMinutes(first)-getMinutes(second);
     }

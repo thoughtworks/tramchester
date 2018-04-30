@@ -9,7 +9,7 @@ public class AreaDTO {
 
     public AreaDTO(String areaName) {
 
-        this.areaName = areaName;
+        this.areaName = areaName.intern();
     }
 
     public String getAreaName() {

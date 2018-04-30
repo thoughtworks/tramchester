@@ -14,16 +14,17 @@ import static com.tramchester.domain.DaysOfWeek.*;
 public class Service {
 
     private final String routeId;
-    private String serviceId;
-    private Set<Trip> trips = new LinkedHashSet<>();
+    private final String serviceId;
+    private final Set<Trip> trips;
 
     private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 
     public Service(String serviceId, String routeId) {
-        this.serviceId = serviceId;
-        this.routeId = routeId;
+        this.serviceId = serviceId.intern();
+        this.routeId = routeId.intern();
+        this.trips = new LinkedHashSet<>();
     }
 
     public String getServiceId() {

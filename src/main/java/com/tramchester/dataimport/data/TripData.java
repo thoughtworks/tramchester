@@ -7,10 +7,10 @@ public class TripData {
     private String tripHeadsign;
 
     public TripData(String routeId, String serviceId, String tripId, String tripHeadsign) {
-        this.routeId = routeId;
-        this.serviceId = serviceId;
-        this.tripId = tripId;
-        this.tripHeadsign = tripHeadsign;
+        this.routeId = routeId.intern();
+        this.serviceId = serviceId.intern();
+        this.tripId = tripId.intern();
+        this.tripHeadsign = tripHeadsign.intern();
     }
 
     public String getRouteId() {

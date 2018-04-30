@@ -2,6 +2,8 @@ package com.tramchester.dataimport.data;
 
 import com.tramchester.domain.presentation.LatLong;
 
+import java.util.Objects;
+
 public class StopData {
     private String id;
     private String code;
@@ -13,10 +15,10 @@ public class StopData {
 
     public StopData(String id, String code, String area, String name, double latitude, double longitude,
                     boolean isTram) {
-        this.id = id;
-        this.code = code;
-        this.area = area;
-        this.name = name;
+        this.id = id.intern();
+        this.code = code.intern();
+        this.area = area.intern();
+        this.name = name.intern();
         this.latitude = latitude;
         this.longitude = longitude;
         this.isTram = isTram;
@@ -52,5 +54,19 @@ public class StopData {
 
     public LatLong getLatLong() {
         return new LatLong(latitude, longitude);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StopData stopData = (StopData) o;
+        return Objects.equals(id, stopData.id);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id);
     }
 }

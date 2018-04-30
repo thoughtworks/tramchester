@@ -1,5 +1,7 @@
 package com.tramchester.dataimport.data;
 
+import java.util.Objects;
+
 public class RouteData {
     private String id;
     private String code;
@@ -7,7 +9,7 @@ public class RouteData {
     private String agency;
 
     public RouteData(String id, String code, String name, String agency) {
-        this.id = id;
+        this.id = id.intern();
         this.code = code;
         this.name = name;
         this.agency = agency;
@@ -30,4 +32,17 @@ public class RouteData {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RouteData routeData = (RouteData) o;
+        return Objects.equals(id, routeData.id);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id);
+    }
 }

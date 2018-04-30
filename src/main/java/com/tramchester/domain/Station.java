@@ -20,11 +20,11 @@ public class Station implements Location {
     }
 
     public Station(String id, String area, String stopName, LatLong latLong, boolean tram) {
-        this.id = id;
+        this.id = id.intern();
         if (tram) {
-            this.name = stopName;
+            this.name = stopName.intern();
         } else if (area.isEmpty()) {
-            this.name = stopName;
+            this.name = stopName.intern();
         } else {
             this.name = String.format("%s,%s", area, stopName);
         }
@@ -32,13 +32,6 @@ public class Station implements Location {
         this.tram = tram;
         this.area = area;
         platforms = new LinkedList<>();
-    }
-
-    public Station(Station other) {
-        this.id = other.id;
-        this.name = other.name;
-        this.latLong = other.latLong;
-        this.tram = other.tram;
     }
 
     @Override

@@ -6,18 +6,21 @@ import java.util.Set;
 public class Route {
     public static final String METROLINK = "MET";
 
-    private String id;
-    private String code;
-    private String name;
-    private String agency;
-    private Set<Service> services = new HashSet<>();
-    private Set<String> headsigns = new HashSet<>();
+    private final String id;
+    private final String code;
+    private final String name;
+    private final String agency;
+
+    private final Set<Service> services;
+    private final Set<String> headsigns;
 
     public Route(String id, String code, String name, String agency) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.agency = agency;
+        this.id = id.intern();
+        this.code = code.intern();
+        this.name = name.intern();
+        this.agency = agency.intern();
+        services = new HashSet<>();
+        headsigns = new HashSet<>();
     }
 
     public String getId() {

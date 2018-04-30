@@ -17,7 +17,7 @@ public class CalendarData {
     public CalendarData(String serviceId, boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
                         boolean friday, boolean saturday, boolean sunday, LocalDate start, LocalDate end) {
 
-        this.serviceId = serviceId;
+        this.serviceId = serviceId.intern();
         this.monday = monday;
         this.tuesday = tuesday;
         this.wednesday = wednesday;

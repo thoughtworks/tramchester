@@ -14,8 +14,8 @@ public class Platform {
     private String platformNumber;
 
     public Platform(String id, String name) {
-        this.id = id;
-        this.name = name;
+        this.id = id.intern();
+        this.name = name.intern();
         platformNumber = id.substring(id.length()-1);
     }
 

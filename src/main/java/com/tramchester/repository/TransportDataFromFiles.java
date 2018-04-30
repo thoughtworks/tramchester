@@ -124,8 +124,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
             String stationId = Station.formId(stopId);
 
             if (!stations.keySet().contains(stationId)) {
-                station = new Station(stationId, stop.getArea(), stop.getName(),
-                        stop.getLatLong(), stop.isTram());
+                station = new Station(stationId, stop.getArea(), stop.getName(), stop.getLatLong(), stop.isTram());
                 stations.put(stationId, station);
             } else {
                 station = stations.get(stationId);

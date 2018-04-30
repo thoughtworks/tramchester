@@ -14,17 +14,18 @@ import static java.lang.String.format;
 
 public class Trip {
     private static final Logger logger = LoggerFactory.getLogger(Trip.class);
+
     private final String serviceId;
     private final String routeId;
-    private String tripId;
-    private String headSign;
-    private Stops stops;
+    private final String tripId;
+    private final String headSign;
+    private final Stops stops;
 
     public Trip(String tripId, String headSign, String serviceId, String routeId) {
-        this.tripId = tripId;
-        this.headSign = headSign;
-        this.serviceId = serviceId;
-        this.routeId = routeId;
+        this.tripId = tripId.intern();
+        this.headSign = headSign.intern();
+        this.serviceId = serviceId.intern();
+        this.routeId = routeId.intern();
         stops = new Stops();
     }
 

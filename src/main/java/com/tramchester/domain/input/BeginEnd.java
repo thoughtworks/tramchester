@@ -2,8 +2,8 @@ package com.tramchester.domain.input;
 
 
 public class BeginEnd {
-    private Stop begin;
-    private Stop end;
+    private final Stop begin;
+    private final Stop end;
 
     public BeginEnd(Stop begin, Stop end) {
         this.begin = begin;

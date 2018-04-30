@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 public class Stops  implements Iterable<Stop> {
     private static final Logger logger = LoggerFactory.getLogger(Stops.class);
 
-    private ArrayList<Stop> stops;
-    private Map<String, List<Integer>> stations;
+    private final ArrayList<Stop> stops;
+    private final Map<String, List<Integer>> stations;
 
     public Stops() {
         stops = new ArrayList<>();

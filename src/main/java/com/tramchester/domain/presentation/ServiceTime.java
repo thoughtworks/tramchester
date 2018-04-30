@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TimeAsMinutes;
+import com.tramchester.domain.TramTime;
 import com.tramchester.mappers.LocalTimeJsonSerializer;
 import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalTime;
@@ -16,6 +17,14 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
     public ServiceTime(LocalTime leaveBegin, LocalTime arrivesEnd, String serviceId, String headSign, String tripId) {
         this.leaveBegin = leaveBegin;
         this.arrivesEnd = arrivesEnd;
+        this.serviceId = serviceId;
+        this.headSign = headSign;
+        this.tripId = tripId;
+    }
+
+    public ServiceTime(TramTime leaveBegin, TramTime arrivesEnd, String serviceId, String headSign, String tripId) {
+        this.leaveBegin = new LocalTime(leaveBegin.getHourOfDay(), leaveBegin.getMinuteOfHour());
+        this.arrivesEnd = new LocalTime(arrivesEnd.getHourOfDay(), arrivesEnd.getMinuteOfHour());
         this.serviceId = serviceId;
         this.headSign = headSign;
         this.tripId = tripId;

@@ -38,6 +38,7 @@ import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
@@ -148,6 +149,9 @@ public class Dependencies {
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
 
         File graphFile = new File(graphName);
+        GraphDatabaseBuilder builder = graphDatabaseFactory.
+                newEmbeddedDatabaseBuilder(graphFile).
+                loadPropertiesFromFile("config/neo4j.conf");
 
         if (configuration.getRebuildGraph()) {
             logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
@@ -157,12 +161,12 @@ public class Dependencies {
                 logger.error("Error deleting the graph!",e);
                 throw e;
             }
-            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphFile));
+            picoContainer.addComponent(GraphDatabaseService.class, builder.newGraphDatabase());
             picoContainer.getComponent(TransportGraphBuilder.class).buildGraph();
             logger.info("Graph rebuild is finished for " + graphName);
         } else {
             logger.info("Not rebuilding graph " + graphFile.getAbsolutePath() + ". Loading graph");
-            picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseFactory.newEmbeddedDatabase(graphFile));
+            picoContainer.addComponent(GraphDatabaseService.class, builder.newGraphDatabase());
         }
 
         if (configuration.getCreateLocality()) {
