@@ -79,6 +79,16 @@ jobs:
             gradle appium --no-daemon
           environment:
             SERVER_URL: https://alpha.tramchester.com
+      - run:
+          name: deployUAT
+          environment:
+            ENV: UAT
+          command: ./gradlew deploy updateLB tidy --no-daemon
+      - run:
+          name: deployProd
+          environment:
+            ENV: ProdGreen
+          command: ./gradlew deploy --no-daemon
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
