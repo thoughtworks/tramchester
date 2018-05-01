@@ -59,6 +59,12 @@ jobs:
           environment:
             ENV: Dev
       - run:
+          name: setupLocale
+          command: |
+            sudo sh -c 'echo en_GB.UTF-8 UTF-8 >> /etc/locale.gen'
+            sudo locale-gen en_GB.UTF-8
+            sudo update-locale en_GB.UTF-8
+      - run:
           name: acceptance
           command: |
             mkdir -p ~/drivers
@@ -69,11 +75,10 @@ jobs:
             wget "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US" -O ~/firefox-latest.tar.bz2
             tar xjf ~/firefox-latest.tar.bz2 -C ~/
             sudo ln -sfv ~/firefox/firefox /usr/bin/firefox
-            firefox --version
+            export LANG="en_GB.UTF-8"
             gradle appium --no-daemon
           environment:
             SERVER_URL: https://alpha.tramchester.com
-            LC_TIME: "en_GB.UTF-8"
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
