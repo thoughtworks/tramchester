@@ -191,7 +191,7 @@ task integration(type: Test, dependsOn: compileJava) {
             exceptionFormat "full" // default is "short"
             events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
         }
-        forkEvery 1
+//        forkEvery 1
     }
 }
 

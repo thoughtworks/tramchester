@@ -33,7 +33,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: gradle dependencies
+      - run: gradle dependencies --no-daemon
 
       - save_cache:
           paths:
@@ -42,20 +42,20 @@ jobs:
 
       # run unit tests
       - run:
-          command: gradle ci_unit
+          command: gradle ci_unit --no-daemon
           name: ci_unit
           environment:
             SERVER_URL: https://alpha.tramchester.com
             ENV: Dev
       - run:
-          command: gradle integration
+          command: gradle integration --no-daemon
           name: integration
       - run:
-          command: gradle upload
+          command: gradle upload --no-daemon
           name: upload
       - run:
           name: deployDev
-          command: gradle deploy updateLB tidy
+          command: gradle deploy updateLB tidy --no-daemon
           environment:
             ENV: Dev
       - run:
@@ -70,7 +70,7 @@ jobs:
             tar xjf ~/firefox-latest.tar.bz2 -C ~/
             sudo ln -sfv ~/firefox/firefox /usr/bin/firefox
             firefox --version
-            gradle appium
+            gradle appium --no-daemon
           environment:
             SERVER_URL: https://alpha.tramchester.com
             LC_TIME: "en_GB.UTF-8"
