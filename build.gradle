@@ -57,7 +57,7 @@ dependencies {
             'com.amazonaws:aws-java-sdk-cloudwatch:1.11.177',
             'com.smoketurner:dropwizard-swagger:1.1.1-1'
 
-    testCompile 'junit:junit:4.11',
+    testCompile 'junit:junit:4.12',
             'org.assertj:assertj-core:1.2.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:3.4',
@@ -181,15 +181,17 @@ task ci_unit(type: Test) {
 }
 
 task integration(type: Test, dependsOn: compileJava) {
-    maxHeapSize = '2750m'
+//    maxHeapSize = '2000m'
+//    jvmArgs "-XX:MaxMetaspaceSize=256m"
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
         }
         testLogging {
             exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
+            events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
         }
+        forkEvery 1
     }
 }
 
