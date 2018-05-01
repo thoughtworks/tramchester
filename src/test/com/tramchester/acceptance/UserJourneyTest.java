@@ -53,9 +53,19 @@ public class UserJourneyTest {
     private AcceptanceTestHelper helper;
     private ProvidesDriver providesDriver;
 
+    public static List<String> getBrowserList() {
+        if (System.getenv("CIRCLECI")==null) {
+            return Arrays.asList( "chrome", "firefox");
+        } else {
+            // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
+            // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
+            return Arrays.asList("firefox");
+        }
+    }
+
     @Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList("chrome","firefox");
+        return getBrowserList();
     }
 
     @Parameterized.Parameter
@@ -175,7 +185,7 @@ public class UserJourneyTest {
         routePlannerPage.setFromStop(altrincham);
         routePlannerPage.setToStop(cornbrook);
 
-        LocalTime timeA = LocalTime.parse("03:15");
+        LocalTime timeA = LocalTime.parse("03:55");
         LocalTime timeB = LocalTime.parse("21:45");
 
         routePlannerPage.setTime(timeA);
@@ -243,7 +253,7 @@ public class UserJourneyTest {
     }
 
     @Test
-    public void shouldDisplayNotNotesOnWeekday() throws InterruptedException {
+    public void shouldNotDisplayNotesOnWeekday() throws InterruptedException {
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, nextTuesday,
                 LocalTime.parse("10:00")));

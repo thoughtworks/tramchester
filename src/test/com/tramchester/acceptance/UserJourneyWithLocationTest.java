@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.acceptance.UserJourneyTest.getBrowserList;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -42,8 +43,7 @@ public class UserJourneyWithLocationTest {
     public TestName testName = new TestName();
 
     @Parameterized.Parameters
-    public static Iterable<? extends Object> data() {
-        return Arrays.asList( "chrome", "firefox");
+    public static Iterable<? extends Object> data() { return getBrowserList();
     }
 
     @Parameterized.Parameter
@@ -70,15 +70,8 @@ public class UserJourneyWithLocationTest {
         providesDriver.commonAfter(testName);
     }
 
-
-    private boolean isChrome() {
-        // workaround for chrome headless not working with geolocation
-        return browserName=="chrome";
-    }
-
     @Test
     public void shouldCheckNearAltrinchamToAshton() throws InterruptedException {
-        assumeTrue(!isChrome());
 
         String finalStation = Stations.Ashton.getName();
         String firstStation = Stations.NavigationRoad.getName();
@@ -115,7 +108,6 @@ public class UserJourneyWithLocationTest {
 
     @Test
     public void shouldCheckNearAltrinchamToCornbrook() throws InterruptedException {
-        assumeTrue(!isChrome());
 
         String firstStation = Stations.NavigationRoad.getName();
         List<String> changes = Collections.singletonList(firstStation);
@@ -140,7 +132,6 @@ public class UserJourneyWithLocationTest {
 
     @Test
     public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
-        assumeTrue(!isChrome());
 
         List<String> changes = new LinkedList<>();
 

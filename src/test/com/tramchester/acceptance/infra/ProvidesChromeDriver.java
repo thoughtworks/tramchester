@@ -33,13 +33,13 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
-        // geolocation fails on headless, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
-        chromeOptions.addArguments("--headless");
+
         if (enableGeo) {
+            // geolocation fails on headless chrome, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
             chromeOptions.addArguments("--enable-geolocation");
         } else {
             chromeOptions.addArguments("--disable-geolocation");
-//            chromeOptions.addArguments("--headless");
+            chromeOptions.addArguments("--headless");
         }
 
         providesDateInput = new ProvidesChromeDateInput();
