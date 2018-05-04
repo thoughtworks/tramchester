@@ -318,7 +318,7 @@ task blockHostDev(dependsOn: cfnassist) {
 task whitelistUAT(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
-            BlackList(port: '443', tag: 'web')
+            WhiteList(port: '443', tag: 'web')
         }
     }
 }

@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.TramServiceDate;
@@ -35,6 +36,12 @@ import java.util.*;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.is;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Every.everyItem;
 import static org.joda.time.DateTimeConstants.*;
 import static org.junit.Assert.assertEquals;
 
@@ -137,9 +144,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 (11*60)+43, nextSunday);
 
         List<String> notes = results.getNotes();
-        assertEquals(1, notes.size());
-        String prefix = "At the weekend your journey may be affected by improvement works";
-        assertTrue(notes.get(0).startsWith(prefix));
+        assertEquals(2, notes.size()); // include station closure message
+        String prefix = "At the weekend your journey may be affected by improvement works."+ProvidesNotes.website;
+        assertThat(notes, hasItem(prefix));
 
         int offsetToSaturday = SATURDAY-when.getDayOfWeek();
         LocalDate nextSaturday = when.plusDays(offsetToSaturday);
@@ -148,13 +155,14 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 (11*60)+43, nextSaturday);
 
         notes = results.getNotes();
-        assertEquals(1,notes.size());
-        assertTrue(notes.get(0).startsWith(prefix));
+        assertEquals(2,notes.size());
+        assertThat(notes, hasItem(prefix));
 
         JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 (11*60)+43, nextSunday.plusDays(1));
         notes = notWeekendResult.getNotes();
-        assertEquals(0,notes.size());
+        assertEquals(1,notes.size());
+        assertThat(notes, not(hasItem(prefix)));
     }
 
     @Test

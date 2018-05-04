@@ -68,6 +68,9 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new AssetsBundle("/assets/javascript", "/javascript", null, "js"));
         bootstrap.addBundle(new AssetsBundle("/assets/views", "/views", null, "views"));
 
+        // WIP PWA
+        bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
+
         // api/swagger.json and api/swagger
         bootstrap.addBundle(new SwaggerBundle<AppConfiguration>() {
             @Override

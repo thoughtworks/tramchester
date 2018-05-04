@@ -40,7 +40,6 @@ public class AreaResourceTest {
         assertTrue(results.contains(area));
     }
 
-
     private List<AreaDTO> getAll() {
         Response result = IntegrationClient.getResponse(testRule, "areas", Optional.empty());
         return result.readEntity(new GenericType<ArrayList<AreaDTO>>(){});

@@ -7,10 +7,6 @@ techLabApp.controller('RouteDetailsController',
         var departureTime = $location.search().departureTime;
         var departureDate = $location.search().departureDate;
 
-        transportStops.getClosures().get(function(closure){
-           $scope.closure = closure;
-        });
-
         if (journeyPlanService.getPlan() == null) {
             journeyPlanner.quickestRoute(start, end, departureTime, departureDate).get(function (journeyPlan) {
                 journeyPlanService.setPlan(journeyPlan, start, end, departureTime, departureDate);

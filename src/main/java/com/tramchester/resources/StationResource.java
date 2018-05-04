@@ -12,7 +12,6 @@ import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
-import com.tramchester.domain.presentation.StationClosureMessage;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -22,7 +21,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,17 +97,6 @@ public class StationResource extends UsesRecentCookie {
                     collect(Collectors.toList());
         }
         return allStationsSorted;
-    }
-
-    @GET
-    @Timed
-    @Path("/closures")
-    @ApiOperation(value = "Get long term closed stations", response = StationClosureMessage.class)
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
-    public Response getClosures() {
-        logger.info("Get station closures");
-        StationClosureMessage stationClosureMessage = new StationClosureMessage(closedStations);
-        return Response.ok(stationClosureMessage).build();
     }
 
     @GET

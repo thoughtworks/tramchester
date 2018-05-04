@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -12,6 +13,8 @@ import java.util.*;
 import static java.lang.String.format;
 
 public class ProvidesNotes {
+    private final TramchesterConfig config;
+
     private static final String EMPTY = "<no message>";
 
     public static final String website = "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
@@ -19,6 +22,10 @@ public class ProvidesNotes {
     public static String weekend = "At the weekend your journey may be affected by improvement works." + website;
 
     public static String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
+
+    public ProvidesNotes(TramchesterConfig config) {
+        this.config = config;
+    }
 
     public List<String> createNotesFor(TramServiceDate queryDate, SortedSet<JourneyDTO> decoratedJourneys) {
         List<String> notes = new LinkedList<>();
@@ -31,9 +38,19 @@ public class ProvidesNotes {
             notes.add(christmas);
         }
 
+        notes.addAll(createNotesFor(config.getClosedStations()));
+
         notes.addAll(createNotesFor(decoratedJourneys));
 
         return notes;
+    }
+
+    private Set<String>  createNotesFor(List<String> closedStations) {
+        Set<String> messages = new HashSet<>();
+        closedStations.forEach(stationName -> {
+            messages.add(format("%s is currently closed. %s", stationName, website));
+        } );
+        return messages;
     }
 
     private Set<String> createNotesFor(SortedSet<JourneyDTO> decoratedJourneys) {

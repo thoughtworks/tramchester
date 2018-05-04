@@ -8,10 +8,6 @@ techLabApp.factory('transportStops', function ($resource) {
 
         getNearStops: function (lat, lon) {
             return $resource('/api/stations/' + lat + '/' + lon, {});
-        },
-
-        getClosures: function () {
-            return $resource('/api/stations/closures/', {});
         }
     };
 });

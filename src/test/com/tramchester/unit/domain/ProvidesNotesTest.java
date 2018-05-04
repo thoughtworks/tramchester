@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.TestConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
@@ -16,6 +17,7 @@ import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -37,7 +39,20 @@ public class ProvidesNotesTest {
     @Before
     public void beforeEachTestRuns() {
         decoratedJourneys = new TreeSet<>();
-        provider = new ProvidesNotes();
+        provider = new ProvidesNotes(new TestConfig() {
+            @Override
+            public Path getDataFolder() {
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void shouldAddNotesForClosedStations() {
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-29"));
+        List<String> result = provider.createNotesFor(queryDate, decoratedJourneys);
+
+        assertThat(result, hasItem("St Peters Square is currently closed. "+ProvidesNotes.website));
     }
 
     @Test
@@ -84,7 +99,7 @@ public class ProvidesNotesTest {
     }
 
     @Test
-    public void shouldAddNoMessage() {
+    public void shouldNotAddMessageIfNotMessageForJourney() {
         List<StageDTO> stages = new LinkedList<>();
 
         String text = "<no message>";
@@ -103,7 +118,8 @@ public class ProvidesNotesTest {
 
         List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
 
-        assertEquals(0, notes.size());
+        // 1 is for the closure
+        assertEquals(1, notes.size());
     }
 
     @Test
@@ -129,7 +145,7 @@ public class ProvidesNotesTest {
 
         List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
 
-        int expected = 2;
+        int expected = 3; // +1 for station closure
 
         if (serviceDate.isWeekend()) {
             // can't change date as need live data to be available, so update expectations instead

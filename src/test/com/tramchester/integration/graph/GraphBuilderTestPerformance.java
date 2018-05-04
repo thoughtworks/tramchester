@@ -19,7 +19,7 @@ public class GraphBuilderTestPerformance {
     private static Dependencies dependencies;
 
     @Before
-    public void beforeEachTestRuns() throws Exception {
+    public void beforeEachTestRuns() {
         dependencies = new Dependencies();
     }
 
