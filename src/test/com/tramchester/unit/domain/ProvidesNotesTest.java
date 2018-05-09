@@ -50,7 +50,7 @@ public class ProvidesNotesTest {
     @Test
     public void shouldAddNotesForClosedStations() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-29"));
-        List<String> result = provider.createNotesFor(queryDate, decoratedJourneys);
+        List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem("St Peters Square is currently closed. "+ProvidesNotes.website));
     }
@@ -58,7 +58,7 @@ public class ProvidesNotesTest {
     @Test
     public void shouldAddNotesForSaturdayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-29"));
-        List<String> result = provider.createNotesFor(queryDate, decoratedJourneys);
+        List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem(ProvidesNotes.weekend));
     }
@@ -66,7 +66,7 @@ public class ProvidesNotesTest {
     @Test
     public void shouldAddNotesForSundayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-30"));
-        List<String> result = provider.createNotesFor(queryDate, decoratedJourneys);
+        List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem(ProvidesNotes.weekend));
     }
@@ -74,7 +74,7 @@ public class ProvidesNotesTest {
     @Test
     public void shouldNotShowNotesOnOtherDay() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-31"));
-        List<String> result = provider.createNotesFor(queryDate, decoratedJourneys);
+        List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, not(hasItem(ProvidesNotes.weekend)));
     }
@@ -84,17 +84,17 @@ public class ProvidesNotesTest {
         int year = 2018;
         LocalDate date = new LocalDate(year, 12, 23);
 
-        List<String> result = provider.createNotesFor(new TramServiceDate(date), decoratedJourneys);
+        List<String> result = provider.createNotesForJourneys(new TramServiceDate(date), decoratedJourneys);
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
 
         for(int offset=1; offset<11; offset++) {
             TramServiceDate queryDate = new TramServiceDate(date.plusDays(offset));
-            result = provider.createNotesFor(queryDate, decoratedJourneys);
+            result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
             assertThat(queryDate.toString(), result, hasItem(ProvidesNotes.christmas));
         }
 
         date = new LocalDate(year+1, 1, 3);
-        result = provider.createNotesFor(new TramServiceDate(date), decoratedJourneys);
+        result = provider.createNotesForJourneys(new TramServiceDate(date), decoratedJourneys);
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
     }
 
@@ -116,7 +116,7 @@ public class ProvidesNotesTest {
         }
         TramServiceDate serviceDate = new TramServiceDate(date);
 
-        List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
+        List<String> notes = provider.createNotesForJourneys(serviceDate, decoratedJourneys);
 
         // 1 is for the closure
         assertEquals(1, notes.size());
@@ -143,7 +143,7 @@ public class ProvidesNotesTest {
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
 
-        List<String> notes = provider.createNotesFor(serviceDate, decoratedJourneys);
+        List<String> notes = provider.createNotesForJourneys(serviceDate, decoratedJourneys);
 
         int expected = 3; // +1 for station closure
 

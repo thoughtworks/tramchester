@@ -1,7 +1,7 @@
 'use strict';
 
 techLabApp.controller('LiveNearMeController',
-    function LiveNearMeController($scope, nearby, journeyPlanService) {
+    function LiveNearMeController($scope, $sce, nearby) {
 
         $scope.flag = true; // true = stations, false = departures
         refresh();
@@ -23,6 +23,10 @@ techLabApp.controller('LiveNearMeController',
             refresh();
         };
 
+        $scope.safeHtml = function(html) {
+            return $sce.trustAsHtml(html);
+        };
+
         function queryForData(position) {
             if ($scope.flag) {
                 getNearStops(position);
@@ -34,15 +38,18 @@ techLabApp.controller('LiveNearMeController',
         function getNearStops(position) {
             nearby.getNearStops(position.coords.latitude, position.coords.longitude).get(function (stationList) {
                 $scope.stations = stationList.stations;
+                $scope.notes = stationList.notes;
+                $scope.Notes = ($scope.notes.length != 0);
                 $scope.departures = [];
             });
         }
 
         function getNearDepartures(position) {
-            nearby.getNearDepartures(position.coords.latitude, position.coords.longitude).get(function (departures) {
+            nearby.getNearDepartures(position.coords.latitude, position.coords.longitude).query(function (departures) {
                 $scope.departures = departures;
                 $scope.stations = [];
-
+                $scope.notes = [];
+                $scope.Notes = ($scope.notes.length != 0);
             });
         }
 

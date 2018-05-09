@@ -112,7 +112,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info("number of journeys: " + journeys.size());
         JourneyDTOFactory factory = createJourneyDTOFactory(queryDate, initialQueryTime);
         SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(factory, journeys, config.getTimeWindow());
-        List<String> notes = providesNotes.createNotesFor(queryDate, decoratedJourneys);
+        List<String> notes = providesNotes.createNotesForJourneys(queryDate, decoratedJourneys);
         return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }
 

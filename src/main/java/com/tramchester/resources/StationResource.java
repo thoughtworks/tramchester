@@ -3,16 +3,16 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.StationListDTO;
-import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -49,25 +49,28 @@ public class StationResource extends UsesRecentCookie {
     private final ClosedStations closedStations;
     private final StationRepository stationRepository;
     private final LiveDataRepository liveDataRepository;
+    private ProvidesNotes providesNotes;
     private DateTimeZone timeZone;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
-                           TramchesterConfig config, LiveDataRepository liveDataRepository) {
+                           LiveDataRepository liveDataRepository,
+                           ProvidesNotes providesNotes) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
         this.liveDataRepository = liveDataRepository;
+        this.providesNotes = providesNotes;
         allStationsSorted = new LinkedList<>();
         timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
     }
 
     @GET
     @Timed
-    @ApiOperation(value = "Get all stations", response = StationListDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all stations", response = StationListDTO.class)
     @CacheControl(noCache = true)
     public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info("Get all stations with cookie " + tranchesterRecent);
@@ -137,7 +140,7 @@ public class StationResource extends UsesRecentCookie {
     @GET
     @Timed
     @Path("/live/{lat}/{lon}")
-    @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationListDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
         DateTime time = DateTime.now(timeZone);
@@ -145,14 +148,15 @@ public class StationResource extends UsesRecentCookie {
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> stations = spatialService.getNearestStations(latLong);
         stations.forEach(station -> liveDataRepository.enrich(station, time));
+        List<String> notes = providesNotes.createNotesForStations(stations);
 
-        return Response.ok(new StationListDTO(stations)).build();
+        return Response.ok(new StationListDTO(stations,notes)).build();
     }
 
     @GET
     @Timed
     @Path("/{lat}/{lon}")
-    @ApiOperation(value = "Get geographically close stations", response = StationListDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get geographically close stations", response = StationListDTO.class)
     @CacheControl(noCache = true)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {

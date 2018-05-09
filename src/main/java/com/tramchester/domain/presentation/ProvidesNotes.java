@@ -5,8 +5,10 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.StationDTO;
 import org.apache.commons.collections4.map.HashedMap;
+import org.joda.time.LocalDate;
 
 import java.util.*;
 
@@ -27,9 +29,38 @@ public class ProvidesNotes {
         this.config = config;
     }
 
-    public List<String> createNotesFor(TramServiceDate queryDate, SortedSet<JourneyDTO> decoratedJourneys) {
+    public List<String> createNotesForJourneys(TramServiceDate queryDate, SortedSet<JourneyDTO> decoratedJourneys) {
         List<String> notes = new LinkedList<>();
 
+        AddNonLiveDataNotes(queryDate, notes);
+
+        notes.addAll(addNotesForJourneys(decoratedJourneys));
+
+        return notes;
+    }
+
+    public List<String> createNotesForStations(List<StationDTO> stations) {
+        List<String> notes = new LinkedList<>();
+
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
+        AddNonLiveDataNotes(queryDate, notes);
+
+        notes.addAll(addLiveMessagesFor(stations));
+
+        return notes;
+    }
+
+    private Set<String> addLiveMessagesFor(List<StationDTO> stations) {
+        // Map: Message -> Location
+        Map<String,String> messageMap = new HashedMap<>();
+        stations.forEach(stationDTO -> stationDTO.getPlatforms().forEach(platformDTO -> {
+            addRelevantMessage(messageMap, platformDTO);
+        }));
+
+        return createMessageList(messageMap);
+    }
+
+    private void AddNonLiveDataNotes(TramServiceDate queryDate, List<String> notes) {
         if (queryDate.isWeekend()) {
             notes.add(weekend);
         }
@@ -38,28 +69,22 @@ public class ProvidesNotes {
             notes.add(christmas);
         }
 
-        notes.addAll(createNotesFor(config.getClosedStations()));
-
-        notes.addAll(createNotesFor(decoratedJourneys));
-
-        return notes;
+        notes.addAll(addNotesForStations(config.getClosedStations()));
     }
 
-    private Set<String>  createNotesFor(List<String> closedStations) {
+    private Set<String> addNotesForStations(List<String> closedStations) {
         Set<String> messages = new HashSet<>();
-        closedStations.forEach(stationName -> {
-            messages.add(format("%s is currently closed. %s", stationName, website));
-        } );
+        closedStations.forEach(stationName -> messages.add(format("%s is currently closed. %s", stationName, website)));
         return messages;
     }
 
-    private Set<String> createNotesFor(SortedSet<JourneyDTO> decoratedJourneys) {
+    private Set<String> addNotesForJourneys(SortedSet<JourneyDTO> decoratedJourneys) {
         // Map: Message -> Location
         Map<String,String> messageMap = new HashedMap<>();
 
         decoratedJourneys.stream().forEach(journeyDTO -> journeyDTO.getStages().stream().
                 filter(stageDTO -> stageDTO.getMode().equals(TransportMode.Tram)).
-                forEach(tramStage -> addRelevantMessage(messageMap, tramStage))
+                forEach(tramStage -> addRelevantMessage(messageMap, tramStage.getPlatform()))
         );
 
         return createMessageList(messageMap);
@@ -78,8 +103,8 @@ public class ProvidesNotes {
         return messages;
     }
 
-    private void addRelevantMessage(Map<String,String> messageMap, StageDTO tramStage) {
-        StationDepartureInfo info = tramStage.getPlatform().getStationDepartureInfo();
+    private void addRelevantMessage(Map<String,String> messageMap, PlatformDTO platform) {
+        StationDepartureInfo info = platform.getStationDepartureInfo();
         if (info==null) {
             return;
         }
@@ -100,4 +125,5 @@ public class ProvidesNotes {
     private boolean usefulMessage(String rawMessage) {
         return ! (rawMessage.isEmpty() || EMPTY.equals(rawMessage));
     }
+
 }

@@ -6,13 +6,13 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StationListDTO;
-import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -23,10 +23,14 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
@@ -110,6 +114,7 @@ public class StationResourceTest {
         Response response = IntegrationClient.getResponse(testRule, String.format("stations/live/%s/%s", lat, lon),
                 Optional.empty());
         assertEquals(200,response.getStatus());
+
         StationListDTO stationList =  response.readEntity(StationListDTO.class);
         List<StationDTO> stations = stationList.getStations();
 
@@ -122,6 +127,16 @@ public class StationResourceTest {
                 assertNotNull(stationDTO.getName(), info);
             });
         });
+
+        List<String> notes = stationList.getNotes();
+        assertFalse(notes.isEmpty());
+        // ignore closure message which is always present, also if today is weekend exclude that
+        int ignore = 1;
+        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
+        if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
+            ignore++;
+        }
+        assertTrue((notes.size())-ignore>0);
     }
 
     @Test
@@ -185,14 +200,12 @@ public class StationResourceTest {
     private StationListDTO getNearest(double lat, double lon, Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie);
         assertEquals(200,result.getStatus());
-//        return result.readEntity(new GenericType<List<StationDTO>>(){});
         return result.readEntity(StationListDTO.class);
     }
 
     private StationListDTO getAll(Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, "stations", cookie);
         assertEquals(200,result.getStatus());
-        //return result.readEntity(new GenericType<ArrayList<StationDTO>>(){});
         return result.readEntity(StationListDTO.class);
     }
 

@@ -15,6 +15,14 @@
     </div>
     <div class="row">
         <div class="col-12 col-sm-12 col-lg-" >
+            <div ng-show="Notes" class="panel" id="Notes">
+                <div ng-show="Notes" class="panel-heading"><strong>Notes:</strong></div>
+                <div class="list-group" id="NotesList">
+                    <div ng-show="Notes" ng-repeat="note in notes" id="NoteItem">
+                        <div id="note{{$index}}" class="list-group-item" ng-bind-html="safeHtml(note)"></div>
+                    </div>
+                </div>
+            </div>
             <div id="notYet" ng-hide="(stations.length >0)  || (departures.length >0)" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
