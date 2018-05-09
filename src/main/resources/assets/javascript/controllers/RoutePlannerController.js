@@ -75,15 +75,15 @@ techLabApp.controller('RoutePlannerController',
         }
 
         function getNearStops(position) {
-            transportStops.getNearStops(position.coords.latitude, position.coords.longitude).query(function (stopList) {
-                $scope.stops = stopList;
+            transportStops.getNearStops(position.coords.latitude, position.coords.longitude).get(function (stopList) {
+                $scope.stops = stopList.stations;
                 $scope.filterDestinationStop($scope.fromStop);
             });
         }
 
         function getAllStops() {
-            transportStops.getAll().query(function (stopList) {
-                $scope.stops = stopList;
+            transportStops.getAll().get(function (stopList) {
+                $scope.stops = stopList.stations;
                 $scope.filterDestinationStop($scope.fromStop);
             });
         }

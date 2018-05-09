@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.UpdateRecentJourneys;
@@ -66,7 +67,7 @@ public class StationResource extends UsesRecentCookie {
 
     @GET
     @Timed
-    @ApiOperation(value = "Get all stations", response = StationDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all stations", response = StationListDTO.class, responseContainer = "List")
     @CacheControl(noCache = true)
     public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info("Get all stations with cookie " + tranchesterRecent);
@@ -84,7 +85,7 @@ public class StationResource extends UsesRecentCookie {
             recentStation.ifPresent(station -> displayStations.add(new StationDTO(station, ProximityGroup.RECENT)));
         });
 
-        Response response = Response.ok(displayStations).build();
+        Response response = Response.ok(new StationListDTO(displayStations)).build();
         return response;
     }
 
@@ -136,7 +137,7 @@ public class StationResource extends UsesRecentCookie {
     @GET
     @Timed
     @Path("/live/{lat}/{lon}")
-    @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationListDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
         DateTime time = DateTime.now(timeZone);
@@ -145,13 +146,13 @@ public class StationResource extends UsesRecentCookie {
         List<StationDTO> stations = spatialService.getNearestStations(latLong);
         stations.forEach(station -> liveDataRepository.enrich(station, time));
 
-        return Response.ok(stations).build();
+        return Response.ok(new StationListDTO(stations)).build();
     }
 
     @GET
     @Timed
     @Path("/{lat}/{lon}")
-    @ApiOperation(value = "Get geographically close stations", response = StationDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get geographically close stations", response = StationListDTO.class, responseContainer = "List")
     @CacheControl(noCache = true)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
@@ -174,7 +175,7 @@ public class StationResource extends UsesRecentCookie {
         Station myLocation = new Station(formId(lat,lon), "", "My Location", latLong, false);
         orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
 
-        return Response.ok(orderedStations).build();
+        return Response.ok(new StationListDTO(orderedStations)).build();
     }
 
     private String formId(double lat, double lon) throws JsonProcessingException {

@@ -32,14 +32,14 @@ techLabApp.controller('LiveNearMeController',
         }
 
         function getNearStops(position) {
-            nearby.getNearStops(position.coords.latitude, position.coords.longitude).query(function (stations) {
-                $scope.stations = stations;
+            nearby.getNearStops(position.coords.latitude, position.coords.longitude).get(function (stationList) {
+                $scope.stations = stationList.stations;
                 $scope.departures = [];
             });
         }
 
         function getNearDepartures(position) {
-            nearby.getNearDepartures(position.coords.latitude, position.coords.longitude).query(function (departures) {
+            nearby.getNearDepartures(position.coords.latitude, position.coords.longitude).get(function (departures) {
                 $scope.departures = departures;
                 $scope.stations = [];
 
