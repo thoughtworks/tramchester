@@ -11,7 +11,6 @@ import java.util.TreeSet;
 public class DeparturesMapper {
     private static String DUE = "Due";
 
-
     public SortedSet<DepartureDTO> fromStations(List<StationDTO> enrichedStations) {
         SortedSet<DepartureDTO> departs = new TreeSet<>();
 

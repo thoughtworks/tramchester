@@ -51,6 +51,11 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
 
     @Override
     public int compareTo(DepartureDTO other) {
+        if (when.equals(other.when)) {
+            // if same time use string ordering
+            return destination.compareTo(other.destination);
+        }
+        // time ordering
         return when.compareTo(other.when);
     }
 }
