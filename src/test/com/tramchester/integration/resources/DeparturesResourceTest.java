@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
+import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -49,7 +50,7 @@ public class DeparturesResourceTest {
 
     // NOTE: will fail if API key not available in env var TFGMAPIKEY
     @Test
-    public void shouldGetNearbyDepartures() {
+    public void shouldGetNearbyDeparturesWithNotes() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
@@ -58,14 +59,17 @@ public class DeparturesResourceTest {
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s", lat, lon),
                 Optional.empty());
         assertEquals(200,response.getStatus());
-        SortedSet<DepartureDTO> departures =  response.readEntity(new GenericType<SortedSet<DepartureDTO>>(){});
 
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        //SortedSet<DepartureDTO> departures =  response.readEntity(new GenericType<SortedSet<DepartureDTO>>(){});
+
+        SortedSet<DepartureDTO> departures = departureList.getDepartures();
         assertFalse(departures.isEmpty());
         DepartureDTO departureDTO = departures.first();
         LocalTime when = departureDTO.getWhen();
         assertTrue(when.isAfter(queryTime) );
         String nextDepart = departureDTO.getFrom();
-        assertTrue(nextDepart.toString(),nearby.contains(nextDepart));
+        assertTrue(nextDepart,nearby.contains(nextDepart));
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
 

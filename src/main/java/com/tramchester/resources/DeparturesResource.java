@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
+import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.mappers.DeparturesMapper;
@@ -57,7 +58,8 @@ public class DeparturesResource {
         nearbyStations.forEach(station -> liveDataRepository.enrich(station, time));
 
         SortedSet<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
+        DepartureListDTO departureList = new DepartureListDTO(departuresDTO);
 
-        return Response.ok(departuresDTO).build();
+        return Response.ok(departureList).build();
     }
 }
