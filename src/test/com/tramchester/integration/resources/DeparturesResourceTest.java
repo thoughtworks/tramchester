@@ -11,12 +11,15 @@ import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import org.joda.time.LocalTime;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +75,16 @@ public class DeparturesResourceTest {
         assertTrue(nextDepart,nearby.contains(nextDepart));
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
+
+        List<String> notes = departureList.getNotes();
+        Assert.assertFalse(notes.isEmpty());
+        // ignore closure message which is always present, also if today is weekend exclude that
+        int ignore = 1;
+        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
+        if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
+            ignore++;
+        }
+        Assert.assertTrue((notes.size())-ignore>0);
 
     }
 

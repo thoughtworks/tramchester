@@ -1,15 +1,12 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.TestConfig;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.Stations;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -123,8 +120,8 @@ public class ProvidesNotesTest {
     }
 
     @Test
-    public void shouldAddNotesBasedOnLiveDataIfPresent() {
-        List<StageDTO> stages = new LinkedList<>();
+    public void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
+        List<StageDTO> stages1 = new LinkedList<>();
 
         StageDTO stageA = createStage(TransportMode.Tram, "platformLocation1", "platformIdA", "Some long message", "displayUnitId1");
         StageDTO stageB = createStage(TransportMode.Tram, "platformLocation2", "platformIdB", "Some long message", "displayUnitId2");
@@ -132,11 +129,12 @@ public class ProvidesNotesTest {
         StageDTO stageD = createStage(TransportMode.Walk, "platformLocationX", "platformIdD", "Not a tram message", "displayUnitId4");
         StageDTO stageE = createStage(TransportMode.Tram, "platformLocation2", "platformIdE", "Some Location Long message", "displayUnitId5");
 
-        stages.add(stageA);
-        stages.add(stageB);
-        stages.add(stageC);
-        stages.add(stageD);
-        stages.add(stageE);
+        stages1.add(stageA);
+        stages1.add(stageB);
+        stages1.add(stageC);
+        stages1.add(stageD);
+        stages1.add(stageE);
+        List<StageDTO> stages = stages1;
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
                 , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
@@ -157,17 +155,50 @@ public class ProvidesNotesTest {
         assertTrue(notes.toString(), notes.contains("'Some Location Long message' - platformLocation2, Metrolink"));
     }
 
+    @Test
+    public void shouldAddNotesForStations() {
+
+        List<StationDTO> stations = new LinkedList<>();
+
+        stations.add(createStationDTOwithDepartInfo("first message", "platformLocation1"));
+        stations.add(createStationDTOwithDepartInfo("second message", "platformLocation2"));
+        stations.add(createStationDTOwithDepartInfo("second message", "platformLocation3"));
+
+        List<String> notes = provider.createNotesForStations(stations);
+
+        assertEquals(3, notes.size());
+        assertThat(notes.toString(), notes.contains("'first message' - platformLocation1, Metrolink"));
+        assertThat(notes.toString(), notes.contains("'second message' - Metrolink"));
+
+    }
+
+    private StationDTO createStationDTOwithDepartInfo(String message, String platformLocation) {
+        Station station = new Station("id", "area", "stopName", new LatLong(0,0), true);
+        station.addPlatform(new Platform("platformId1", "name1"));
+        station.addPlatform(new Platform("platformId2", "name2"));
+
+        StationDTO stationDTO = new StationDTO(station, ProximityGroup.MY_LOCATION);
+        stationDTO.getPlatforms().get(0).setDepartureInfo(createDepartureInfo(platformLocation, message, "displayUnitId"));
+        stationDTO.getPlatforms().get(1).setDepartureInfo(createDepartureInfo(platformLocation, message, "displayUnitId"));
+        return stationDTO;
+    }
+
     private StageDTO createStage(TransportMode transportMode, String platformLocation, String platformId, String message, String displayUnitId) {
         boolean isWalk = transportMode.equals(TransportMode.Walk);
-        Platform platform = new Platform(platformId, "platformName");
-        PlatformDTO platformDTO = new PlatformDTO(platform);
-
-        platformDTO.setDepartureInfo(createDepartureInfo(platformLocation, message, displayUnitId));
+        PlatformDTO platformDTO = createPlatformDTO(platformLocation, platformId, message, displayUnitId);
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
                 platformDTO, LocalTime.now(), LocalTime.now(), 42,
                 "summary", "prompt", "headSign", transportMode, isWalk,
                 !isWalk, "displayClass");
+    }
+
+    private PlatformDTO createPlatformDTO(String platformLocation, String platformId, String message, String displayUnitId) {
+        Platform platform = new Platform(platformId, "platformName");
+        PlatformDTO platformDTO = new PlatformDTO(platform);
+
+        platformDTO.setDepartureInfo(createDepartureInfo(platformLocation, message, displayUnitId));
+        return platformDTO;
     }
 
     private StationDepartureInfo createDepartureInfo(String platformLocation, String message, String displayUnitId) {

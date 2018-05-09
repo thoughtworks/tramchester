@@ -47,8 +47,8 @@ techLabApp.controller('LiveNearMeController',
         function getNearDepartures(position) {
             nearby.getNearDepartures(position.coords.latitude, position.coords.longitude).get(function (departureList) {
                 $scope.departures = departureList.departures;
+                $scope.notes = departureList.notes;
                 $scope.stations = [];
-                $scope.notes = [];
                 $scope.Notes = ($scope.notes.length != 0);
             });
         }

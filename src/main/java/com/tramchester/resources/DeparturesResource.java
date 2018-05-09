@@ -6,6 +6,7 @@ import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.services.SpatialService;
@@ -35,12 +36,15 @@ public class DeparturesResource {
     private final SpatialService spatialService;
     private final LiveDataRepository liveDataRepository;
     private final DeparturesMapper departuresMapper;
+    private ProvidesNotes providesNotes;
     private final DateTimeZone timeZone;
 
-    public DeparturesResource(SpatialService spatialService, LiveDataRepository liveDataRepository, DeparturesMapper departuresMapper) {
+    public DeparturesResource(SpatialService spatialService, LiveDataRepository liveDataRepository,
+                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes) {
         this.spatialService = spatialService;
         this.liveDataRepository = liveDataRepository;
         this.departuresMapper = departuresMapper;
+        this.providesNotes = providesNotes;
         timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
     }
 
@@ -58,7 +62,8 @@ public class DeparturesResource {
         nearbyStations.forEach(station -> liveDataRepository.enrich(station, time));
 
         SortedSet<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
-        DepartureListDTO departureList = new DepartureListDTO(departuresDTO);
+        List<String> notes = providesNotes.createNotesForStations(nearbyStations);
+        DepartureListDTO departureList = new DepartureListDTO(departuresDTO, notes);
 
         return Response.ok(departureList).build();
     }

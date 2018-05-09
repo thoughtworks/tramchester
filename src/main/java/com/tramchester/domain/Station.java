@@ -78,6 +78,12 @@ public class Station implements Location {
         return platforms;
     }
 
+    public void addPlatform(Platform platform) {
+        if (!platforms.contains(platform)) {
+            platforms.add(platform);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -104,9 +110,4 @@ public class Station implements Location {
                 '}';
     }
 
-    public void addPlatform(Platform platform) {
-        if (!platforms.contains(platform)) {
-            platforms.add(platform);
-        }
-    }
 }
