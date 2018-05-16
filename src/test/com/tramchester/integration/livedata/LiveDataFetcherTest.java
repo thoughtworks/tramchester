@@ -45,6 +45,5 @@ public class LiveDataFetcherTest {
         assertTrue(aDisplay.getLineName().length()>0);
         DateTime when = aDisplay.getLastUpdate();
         assertEquals(DateTime.now().getDayOfMonth(),when.getDayOfMonth());
-
     }
 }

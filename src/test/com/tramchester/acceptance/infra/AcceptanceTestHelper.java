@@ -4,6 +4,7 @@ import com.tramchester.acceptance.pages.JourneyDetailsPage;
 import com.tramchester.acceptance.pages.RouteDetailsPage;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
+import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertTrue;
 
 public class AcceptanceTestHelper {
+
+    public static LatLong NearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
 
     private ProvidesDriver driver;
 
@@ -123,7 +126,7 @@ public class AcceptanceTestHelper {
         routePlannerPage.setTime(tramJourney.time);
         routePlannerPage.setDate(tramJourney.date);
 
-        return routePlannerPage.submit();
+        return routePlannerPage.submitJourney();
     }
 
     public void checkStage(JourneyDetailsPage journeyDetailsPage, int stageIndex, String fromStop, String toStop,

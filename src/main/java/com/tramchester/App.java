@@ -6,11 +6,11 @@ import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.resources.*;
 import com.tramchester.services.ExpiryCheckService;
 import io.dropwizard.Application;
+import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -20,18 +20,13 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class App extends Application<AppConfiguration>  {
@@ -68,7 +63,7 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new AssetsBundle("/assets/javascript", "/javascript", null, "js"));
         bootstrap.addBundle(new AssetsBundle("/assets/views", "/views", null, "views"));
 
-        // WIP PWA
+        // WIP new app pages
         bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
 
         // api/swagger.json and api/swagger

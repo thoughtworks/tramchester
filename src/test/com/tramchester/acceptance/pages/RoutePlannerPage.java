@@ -4,7 +4,6 @@ package com.tramchester.acceptance.pages;
 import com.tramchester.integration.Stations;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -104,10 +103,17 @@ public class RoutePlannerPage extends Page {
         return String.format("//select[@id='%s']/optgroup[@label='Recent']/option", id);
     }
 
-    public RouteDetailsPage submit() {
+    public RouteDetailsPage submitJourney() {
         WebElement plan = findElementById("plan");
         plan.click();
         return new RouteDetailsPage(driver, providesDateInput);
+    }
+
+
+    public TramsNearMePage tramsNearMe() {
+        WebElement live = findElementById("nearby");
+        live.click();
+        return new TramsNearMePage(driver);
     }
 
     public void waitForToStops() {
@@ -154,4 +160,5 @@ public class RoutePlannerPage extends Page {
         WebElement webElement = waitForElement("build", 3);
         return webElement.getText();
     }
+
 }

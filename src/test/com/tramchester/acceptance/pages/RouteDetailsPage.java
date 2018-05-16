@@ -59,20 +59,6 @@ public class RouteDetailsPage extends Page {
         return waitForElement("NoRoutes", 4*timeOut).isEnabled();
     }
 
-    public List<String> getAllNotes() {
-        WebElement listElement;
-        try {
-            listElement = waitForElement("NotesList", timeOut);
-            waitForElement("NoteItem", timeOut);
-        }
-        catch (TimeoutException timedOut) {
-            // legit, may not be any notes.....
-            return new ArrayList<>();
-        }
-        List<WebElement> listItems = listElement.findElements(By.id("NoteItem"));
-        return listItems.stream().map(WebElement::getText).collect(Collectors.toList());
-    }
-
     public boolean notesPresent() {
         return driver.findElement(By.id("Notes")).isDisplayed();
     }

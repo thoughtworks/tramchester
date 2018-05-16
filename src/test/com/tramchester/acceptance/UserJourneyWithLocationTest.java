@@ -30,7 +30,6 @@ public class UserJourneyWithLocationTest {
     private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     private String myLocation = "My Location";
-    private LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
     private LocalDate when;
     private String url;
     private AcceptanceTestHelper helper;
@@ -55,7 +54,7 @@ public class UserJourneyWithLocationTest {
 
         providesDriver = DriverFactory.create(true, browserName);
 
-        providesDriver.setStubbedLocation(nearAltrincham);
+        providesDriver.setStubbedLocation(AcceptanceTestHelper.NearAltrincham);
 
         providesDriver.init();
 

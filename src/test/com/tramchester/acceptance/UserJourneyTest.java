@@ -32,8 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.*;
 
-@RunWith(Parameterized.class)
-public class UserJourneyTest {
+ public class UserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
     private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
@@ -169,7 +168,7 @@ public class UserJourneyTest {
         routePlannerPage.setTime(time);
         routePlannerPage.setDate(nextTuesday);
 
-        RouteDetailsPage detailsPage = routePlannerPage.submit();
+        RouteDetailsPage detailsPage = routePlannerPage.submitJourney();
         assertTrue(detailsPage.waitForError());
 
     }

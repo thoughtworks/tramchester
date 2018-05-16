@@ -8,8 +8,8 @@
     <div class="col-12 col-sm-12 col-lg-" >
         <div class="list-group">
             <button type="submit" id="switchView" class="btn btn-default btn-lg btn-block" ng-click="switchView()">
-                <div ng-show="flag">Show Departures</div>
-                <div ng-show="!flag">Show Stations</div>
+                <div id="departuresText" ng-show="flag">Show Departures</div>
+                <div id="stationsText" ng-show="!flag">Show Stations</div>
             </button>
         </div>
     </div>
@@ -28,8 +28,8 @@
             </div>
             <div class="information" >
                 <div class="panel" ng-repeat="station in stations" id="stationsList" ng-hide='!stations.length'>
-                    <h4 class="heading">{{station.name}}</h4>
-                    <div class="list-group">
+                    <h4 id="stationName{{$index}}" class="heading">{{station.name}}</h4>
+                    <div id="platformList{{$index}}" class="list-group">
                         <div class="list-group-item">
                             <div ng-repeat="platform in station.platforms">
                                 <div class="dueTrams" ng-show="platform.stationDepartureInfo.dueTrams.length >0">
