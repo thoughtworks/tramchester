@@ -17,17 +17,14 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
 
     public StopTimeData parseEntry(String... data) {
         String tripId = data[0];
-        Optional<TramTime> arrivalTime = Optional.empty();
-        Optional<TramTime> departureTime = Optional.empty();
+        Optional<TramTime> arrivalTime;
+        Optional<TramTime> departureTime;
 
         String fieldOne = data[1];
-        if (fieldOne.contains(":")) {
-            arrivalTime = getDateTime(fieldOne);
-        }
+        arrivalTime = parseTimeField(fieldOne);
 
-        if (data[2].contains(":")) {
-            departureTime = getDateTime(data[2]);
-        }
+        String fieldTwo = data[2];
+        departureTime = parseTimeField(fieldTwo);
 
         String stopId = data[3];
 
@@ -38,21 +35,16 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
     }
 
-
-    private Optional<TramTime> getDateTime(String time) {
-        String[] split = time.split(":",3);
-
-        Integer hour = Integer.parseInt(split[0]);
-        if (hour==24 || hour==25) {
-            hour = 0;
+    private Optional<TramTime> parseTimeField(String fieldOne) {
+        Optional<TramTime> time = Optional.empty();
+        if (fieldOne.contains(":")) {
+            time = TramTime.parse(fieldOne);
         }
-        Integer minutes = Integer.parseInt(split[1]);
-        if (hour>23 || minutes>59) {
-            logger.error("Invalid time found during parsing. Unable to parse "+time);
-            return Optional.empty();
+        if (!time.isPresent()) {
+            logger.error("Invalid time found during parsing. Unable to parse "+fieldOne);
         }
-
-        return Optional.of(TramTime.create(hour,minutes));
-
+        return time;
     }
+
+
 }

@@ -40,7 +40,7 @@ public class TramTransportDataImporterTest {
 
         Stop stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
-        assertThat(stop.getArrivalTime()).isEqualTo(TramTime.create(new LocalTime(06,41)));
+        assertThat(stop.getArrivalTime()).isEqualTo(TramTime.create(06,41));
 
         FeedInfo feedInfo = transportData.getFeedInfo();
         assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");

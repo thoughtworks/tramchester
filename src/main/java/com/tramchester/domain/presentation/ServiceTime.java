@@ -53,10 +53,6 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
         return getMinutes(leaveBegin);
     }
 
-    public int getFromMidnightArrives() {
-        return getMinutes(arrivesEnd);
-    }
-
     @Override
     public String toString() {
         return "ServiceTime{" +
@@ -68,6 +64,7 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
                 '}';
     }
 
+    // for sorting of results
     @Override
     public int compareTo(ServiceTime other) {
         return TimeAsMinutes.compare(arrivesEnd,other.arrivesEnd);

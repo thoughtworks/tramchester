@@ -3,10 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.CreateQueryTimes;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -31,6 +28,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
@@ -73,21 +71,26 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response quickestRoute(@QueryParam("start") String startId,
                                   @QueryParam("end") String endId,
-                                  @QueryParam("departureTime") String departureTime,
+                                  @QueryParam("departureTime") String departureTimeText,
                                   @QueryParam("departureDate") String departureDate,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie){
-        logger.info(format("Plan journey from %s to %s at %s on %s", startId, endId,departureTime, departureDate));
+        logger.info(format("Plan journey from %s to %s at %s on %s", startId, endId,departureTimeText, departureDate));
 
         LocalDate date = new LocalDate(departureDate);
         TramServiceDate queryDate = new TramServiceDate(date);
 
         try {
-            int minutesFromMidnight = dateTimeService.getMinutesFromMidnight(departureTime);
-            JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate, minutesFromMidnight);
-            Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
-            responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
-            Response response = responseBuilder.build();
-            return response;
+            Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeText);
+            if (maybeDepartureTime.isPresent()) {
+                TramTime departureTime = maybeDepartureTime.get();
+                JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate,
+                departureTime.minutesOfDay());
+                Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
+                responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
+                Response response = responseBuilder.build();
+                return response;
+            }
+
         } catch (TramchesterException exception) {
             logger.error("Unable to plan journey",exception);
         } catch(Exception exception) {

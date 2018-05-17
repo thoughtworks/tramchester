@@ -1,8 +1,7 @@
 package com.tramchester.domain;
 
-import org.joda.time.LocalTime;
-
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -24,13 +23,28 @@ public class TramTime {
         return tramTimes[hours][minutes];
     }
 
-    public static TramTime create(LocalTime localTime) {
-        return tramTimes[localTime.getHourOfDay()][localTime.getMinuteOfHour()];
-    }
-
     private TramTime(int hour, int minute) {
         this.hour = hour;
         this.minute = minute;
+    }
+
+    public int minutesOfDay() {
+        return (hour*60)+minute;
+    }
+
+    public static Optional<TramTime> parse(String text) {
+        String[] split = text.split(":",3);
+
+        Integer hour = Integer.parseInt(split[0]);
+        if (hour==24 || hour==25) {
+            hour = 0;
+        }
+        Integer minutes = Integer.parseInt(split[1]);
+        if (hour>23 || minutes>59) {
+            return Optional.empty();
+        }
+
+        return Optional.of(TramTime.create(hour,minutes));
     }
 
     public int getHourOfDay() {
@@ -72,4 +86,5 @@ public class TramTime {
     public String tramDataFormat() {
         return String.format("%s:00",toPattern());
     }
+
 }

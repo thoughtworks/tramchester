@@ -12,7 +12,6 @@ secureHost: tramchester.com
 
 rebuildGraph: true
 pullData: ${TRAM_PULLDATA:- false}
-filterData: true
 graphName: tramchester.db
 closedStations: []
 agencies:
