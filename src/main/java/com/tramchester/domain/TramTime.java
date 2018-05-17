@@ -20,6 +20,10 @@ public class TramTime {
     private int hour;
     private int minute;
 
+    public static TramTime create(int hours, int minutes) {
+        return tramTimes[hours][minutes];
+    }
+
     public static TramTime create(LocalTime localTime) {
         return tramTimes[localTime.getHourOfDay()][localTime.getMinuteOfHour()];
     }
@@ -61,5 +65,11 @@ public class TramTime {
 
     public String toPattern() {
         return format("%02d:%02d",hour,minute);
+    }
+
+
+    // "HH:mm:ss"
+    public String tramDataFormat() {
+        return String.format("%s:00",toPattern());
     }
 }

@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
+import com.tramchester.domain.TramTime;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -18,7 +19,7 @@ public class TramDataLoaderTest {
     // the test data files currently manually maintained, copy over from data/tram as needed
 
     @Test
-    public void shouldLoadRouteData() throws Exception {
+    public void shouldLoadRouteData() {
         DataLoader<RouteData> dataLoader = new DataLoader<>("data/test/routes", new RouteDataParser());
         List<RouteData> routeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
@@ -31,7 +32,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadAgencyData() throws IOException {
+    public void shouldLoadAgencyData() {
         DataLoader<AgencyData> dataLoader = new DataLoader<>("data/test/agency", new AgencyDataParser());
         List<AgencyData> agencyData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
@@ -44,7 +45,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadCalendarData() throws Exception {
+    public void shouldLoadCalendarData() {
         DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar", new CalendarDataParser());
         List<CalendarData> calendarData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
@@ -55,7 +56,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadStopData() throws Exception {
+    public void shouldLoadStopData() {
         DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops", new StopDataParser());
         List<StopData> stopData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
@@ -69,7 +70,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadStopTimeData() throws Exception {
+    public void shouldLoadStopTimeData() {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times", new StopTimeDataParser());
         List<StopTimeData> stopTimeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
@@ -79,12 +80,12 @@ public class TramDataLoaderTest {
         assertThat(stopTime.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTime.getDropOffType()).isEqualTo("1");
         assertThat(stopTime.getStopSequence()).isEqualTo("0001");
-        assertThat(stopTime.getArrivalTime()).isEqualTo(new LocalTime(6,41));
-        assertThat(stopTime.getDepartureTime()).isEqualTo(new LocalTime(6,41));
+        assertThat(stopTime.getArrivalTime()).isEqualTo(TramTime.create(6,41));
+        assertThat(stopTime.getDepartureTime()).isEqualTo(TramTime.create(6,41));
     }
 
     @Test
-    public void shouldLoadTripData() throws Exception {
+    public void shouldLoadTripData() {
         DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips", new TripDataParser());
         List<TripData> tripData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 

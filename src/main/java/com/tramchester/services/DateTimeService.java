@@ -9,6 +9,8 @@ public class DateTimeService {
     public static final String pattern = "HH:mm:ss";
     public static final DateTimeFormatter formatter = DateTimeFormat.forPattern(pattern);
 
+    // "Use TramTime"
+    @Deprecated
     public int getMinutesFromMidnight(String time) {
         DateTime theTime = DateTime.parse(time, formatter);
         int hourOfDay = theTime.getHourOfDay();
@@ -21,6 +23,8 @@ public class DateTimeService {
         return (hourOfDay * 60) + theTime.getMinuteOfHour();
     }
 
+    // "Use TramTime"
+    @Deprecated
     public static String formatTime(LocalTime time){
         return time.toString(pattern);
     }

@@ -1,19 +1,20 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.domain.TramTime;
 import org.joda.time.LocalTime;
 
 import java.util.Optional;
 
 public class StopTimeData {
     private final String tripId;
-    private final Optional<LocalTime> arrivalTime ;
-    private final Optional<LocalTime> departureTime;
+    private final Optional<TramTime> arrivalTime ;
+    private final Optional<TramTime> departureTime;
     private final String stopId;
     private final String stopSequence;
     private final String pickupType;
     private final String dropOffType;
 
-    public StopTimeData(String tripId, Optional<LocalTime> arrivalTime, Optional<LocalTime> departureTime, String stopId,
+    public StopTimeData(String tripId, Optional<TramTime> arrivalTime, Optional<TramTime> departureTime, String stopId,
                         String stopSequence, String pickupType, String dropOffType) {
         if (arrivalTime==null || departureTime==null) {
             throw new RuntimeException("Constrain violation");
@@ -44,11 +45,11 @@ public class StopTimeData {
         return tripId;
     }
 
-    public LocalTime getArrivalTime() {
+    public TramTime getArrivalTime() {
         return arrivalTime.orElse(null);
     }
 
-    public LocalTime getDepartureTime() {
+    public TramTime getDepartureTime() {
         return departureTime.orElse(null);
     }
 

@@ -91,8 +91,10 @@ public class DataCleanser {
                         try {
                             writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
                                     stopTime.getTripId(),
-                                    DateTimeService.formatTime(stopTime.getArrivalTime()),
-                                    DateTimeService.formatTime(stopTime.getDepartureTime()),
+                                    stopTime.getArrivalTime().tramDataFormat(),
+                                    stopTime.getDepartureTime().tramDataFormat(),
+//                                    DateTimeService.formatTime(stopTime.getArrivalTime()),
+//                                    DateTimeService.formatTime(stopTime.getDepartureTime()),
                                     stopTime.getStopId(),
                                     stopTime.getStopSequence(),
                                     stopTime.getPickupType(),

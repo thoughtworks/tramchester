@@ -24,9 +24,9 @@ public class TripTest {
         String routeId = "routeId";
         String serviceId = "serviceId";
 
-        Stop firstStop = new Stop("statA1", stationA, new LocalTime(10, 00), new LocalTime(10, 01), routeId, serviceId);
-        Stop secondStop = new Stop("statB1", stationB, new LocalTime(10, 05), new LocalTime(10, 06), routeId, serviceId);
-        Stop thirdStop = new Stop("statA1", stationA, new LocalTime(10, 10), new LocalTime(10, 10), routeId, serviceId);
+        Stop firstStop = new Stop("statA1", stationA, TramTime.create(10, 00), TramTime.create(10, 01), routeId, serviceId);
+        Stop secondStop = new Stop("statB1", stationB, TramTime.create(10, 05), TramTime.create(10, 06), routeId, serviceId);
+        Stop thirdStop = new Stop("statA1", stationA, TramTime.create(10, 10), TramTime.create(10, 10), routeId, serviceId);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);

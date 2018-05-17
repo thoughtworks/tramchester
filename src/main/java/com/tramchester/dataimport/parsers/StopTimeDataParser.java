@@ -2,6 +2,7 @@ package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.domain.TramTime;
 import org.joda.time.IllegalFieldValueException;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
 
     public StopTimeData parseEntry(String... data) {
         String tripId = data[0];
-        Optional<LocalTime> arrivalTime = Optional.empty();
-        Optional<LocalTime> departureTime = Optional.empty();
+        Optional<TramTime> arrivalTime = Optional.empty();
+        Optional<TramTime> departureTime = Optional.empty();
 
         String fieldOne = data[1];
         if (fieldOne.contains(":")) {
@@ -38,7 +39,7 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
     }
 
 
-    private Optional<LocalTime> getDateTime(String time) {
+    private Optional<TramTime> getDateTime(String time) {
         String[] split = time.split(":",3);
 
         Integer hour = Integer.parseInt(split[0]);
@@ -46,21 +47,12 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
             hour = 0;
         }
         Integer minutes = Integer.parseInt(split[1]);
-        try {
-            return Optional.of(new LocalTime(hour,minutes));
+        if (hour>23 || minutes>59) {
+            logger.error("Invalid time found during parsing. Unable to parse "+time);
+            return Optional.empty();
+        }
 
-            // times only at hours, minutes resolution, seconds always 00 in current data sets
-//            if (split.length==3) {
-//                return Optional.of(new LocalTime(hour,minutes,
-//                        Integer.parseInt(split[2])));
-//            } else {
-//                return Optional.of(new LocalTime(hour,minutes));
-//            }
-        }
-        catch (IllegalFieldValueException exception) {
-            logger.error("Caught Expection during creation of date. Unable to parse "+time, exception);
-            // can't catch and convert here due to the inherited interface
-        }
-        return Optional.empty();
+        return Optional.of(TramTime.create(hour,minutes));
+
     }
 }

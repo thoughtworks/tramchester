@@ -65,34 +65,34 @@ public class TransportDataForTest implements TransportData, StationRepository, P
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area", "startStation", latLong, true);
         addStation(first);
-        Stop stopA = createStop(first, createTime(8, 0), createTime(8, 0), routeA.getId(), serviceAId);
+        Stop stopA = createStop(first, TramTime.create(8, 0), TramTime.create(8, 0), routeA.getId(), serviceAId);
         tripA.addStop(stopA);
 
         Station second = new Station(SECOND_STATION, "area", "secondStation", latLong, true);
-        Stop stopB = createStop(second, createTime(8, 11), createTime(8, 11), routeA.getId(), serviceAId);
+        Stop stopB = createStop(second, TramTime.create(8, 11), TramTime.create(8, 11), routeA.getId(), serviceAId);
         tripA.addStop(stopB);
         addStation(second);
 
         Station interchangeStation = new Station(INTERCHANGE, "area", "cornbrook", latLong, true);
-        Stop stopC = createStop(interchangeStation, createTime(8, 20), createTime(8, 20), routeA.getId(), serviceAId);
+        Stop stopC = createStop(interchangeStation, TramTime.create(8, 20), TramTime.create(8, 20), routeA.getId(), serviceAId);
         tripA.addStop(stopC);
         addStation(interchangeStation);
 
         Station last = new Station(LAST_STATION, "area", "endStation", latLong, true);
         addStation(last);
-        Stop stopD = createStop(last, createTime(8, 40), createTime(8, 40), routeA.getId(), serviceAId);
+        Stop stopD = createStop(last, TramTime.create(8, 40), TramTime.create(8, 40), routeA.getId(), serviceAId);
         tripA.addStop(stopD);
         // service
         serviceA.addTrip(tripA);
 
         // tripB: INTERCHANGE -> STATION_FOUR
         Trip tripB = new Trip("trip2Id", "headSign", serviceBId, routeB.getId());
-        Stop stopE = createStop(interchangeStation, createTime(8, 26), createTime(8, 26), routeB.getId(), serviceBId);
+        Stop stopE = createStop(interchangeStation, TramTime.create(8, 26), TramTime.create(8, 26), routeB.getId(), serviceBId);
         tripB.addStop(stopE);
 
         Station four = new Station(STATION_FOUR, "area", "stat4Station", new LatLong(170.00, 160.00), true);
         addStation(four);
-        Stop stopF = createStop(four, createTime(8, 36), createTime(8, 36), routeB.getId(), serviceBId);
+        Stop stopF = createStop(four, TramTime.create(8, 36), TramTime.create(8, 36), routeB.getId(), serviceBId);
         tripB.addStop(stopF);
         // service
         serviceB.addTrip(tripB);
@@ -102,11 +102,7 @@ public class TransportDataForTest implements TransportData, StationRepository, P
         stationMap.put(station.getId(), station);
     }
 
-    private LocalTime createTime(int hour, int min) {
-        return new LocalTime(hour, min, 00);
-    }
-
-    private Stop createStop(Location startStation, LocalTime arrivalTime, LocalTime departureTime, String routeId, String serviceId) {
+    private Stop createStop(Location startStation, TramTime arrivalTime, TramTime departureTime, String routeId, String serviceId) {
         String platformId = startStation.getId() + "1";
         platforms.put(platformId, new Platform(platformId, format("%s platform 1", startStation.getName())));
         return new Stop(platformId, startStation, arrivalTime, departureTime, routeId, serviceId);

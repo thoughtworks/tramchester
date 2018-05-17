@@ -13,11 +13,11 @@ public class Stop extends TimeAsMinutes {
     private final String routeId;
     private final String serviceId;
 
-    public Stop(String stopId, Location station, LocalTime arrivalTime, LocalTime departureTime, String routeId, String serviceId) {
+    public Stop(String stopId, Location station, TramTime arrivalTime, TramTime departureTime, String routeId, String serviceId) {
 
         this.stopId = stopId.intern();
-        this.arrivalTime = TramTime.create(arrivalTime);
-        this.departureTime = TramTime.create(departureTime);
+        this.arrivalTime = arrivalTime;
+        this.departureTime = departureTime;
         this.station = station;
         this.routeId = routeId.intern();
         this.serviceId = serviceId.intern();

@@ -2,6 +2,7 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.parsers.StopTimeDataParser;
+import com.tramchester.domain.TramTime;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,9 +27,9 @@ public class StopTimeDataParserTest {
 
         assertFalse(stopTimeData.isInError());
         assertThat(stopTimeData.getTripId()).isEqualTo("Trip000001");
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(new LocalTime(6,41,00));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(new LocalTime(6,42,00));
-        assertThat(stopTimeData.getStopId().toString()).isEqualTo("9400ZZMAABM1");
+        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.create(6,41));
+        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.create(6,42));
+        assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTimeData.getStopSequence()).isEqualTo("0001");
     }
 

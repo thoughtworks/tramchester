@@ -8,6 +8,7 @@ import com.tramchester.dataimport.datacleanse.ServicesAndTrips;
 import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.TramTime;
 import com.tramchester.services.DateTimeService;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -134,16 +135,20 @@ public class TestDataCleanser extends EasyMockSupport {
         assertTrue(tripIds.contains("tripIdC"));
     }
 
+    private Optional<TramTime> formTramTimeParam(LocalTime time) {
+        return Optional.of(TramTime.create(time));
+    }
+
     @Test
     public void shouldCleanseStopTimes() throws IOException {
         LocalTime now = LocalTime.now();
-        LocalTime arrivalTime = LocalTime.parse("11:10:09");    //, formatter);
-        LocalTime departureTime = LocalTime.parse("12:09:29");  //, formatter);
+        LocalTime arrivalTime = LocalTime.parse("11:10:00");    //, formatter);
+        LocalTime departureTime = LocalTime.parse("12:09:00");  //, formatter);
 
-        StopTimeData stopTimeA = new StopTimeData("tripIdA", Optional.of(now.minusHours(1)),
-                Optional.of(now.plusHours(1)), "1200stopIdA", "stopSeqA", "pickupA", "dropA");
+        StopTimeData stopTimeA = new StopTimeData("tripIdA", formTramTimeParam(now.minusHours(1)),
+                formTramTimeParam(now.plusHours(1)), "1200stopIdA", "stopSeqA", "pickupA", "dropA");
 
-        StopTimeData stopTimeB = new StopTimeData("tripIdB", Optional.of(arrivalTime), Optional.of(departureTime),
+        StopTimeData stopTimeB = new StopTimeData("tripIdB", formTramTimeParam(arrivalTime), formTramTimeParam(departureTime),
                 "9400stopIdB", "stopSeqB", "pickupB", "dropB");
 
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeA, stopTimeB);
