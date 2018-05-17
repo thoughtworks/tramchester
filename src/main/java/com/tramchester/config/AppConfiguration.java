@@ -3,7 +3,6 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import org.glassfish.jersey.server.JSONP;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -183,11 +182,6 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Override
     public boolean getCreateLocality() { return createLocality; }
-
-    @Override
-    public boolean getFilterData() {
-        return filterData;
-    }
 
     public String getGraphName() { return graphName; }
 

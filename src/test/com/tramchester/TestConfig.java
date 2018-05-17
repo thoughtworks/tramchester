@@ -33,11 +33,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public boolean getFilterData() {
-        return !getDataFolder().resolve("feed_info.txt").toFile().exists() ;
-    }
-
-    @Override
     public List<String> getClosedStations() {
         return closedStations;
     }

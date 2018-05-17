@@ -24,10 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class UserJourneyLiveDataTest {
     private static final String configPath = "config/localAcceptance.yml";
 
-    private String myLocation = "My Location";
-    private LocalDate when;
     private String url;
-    private AcceptanceTestHelper helper;
     private ProvidesDriver providesDriver;
 
     @ClassRule
@@ -53,10 +50,6 @@ public class UserJourneyLiveDataTest {
 
         providesDriver.init();
 
-        helper = new AcceptanceTestHelper(providesDriver);
-
-        // TODO offset for when tfgm data is expiring
-        when = JourneyPlannerHelper.nextTuesday(0);
     }
 
     @After

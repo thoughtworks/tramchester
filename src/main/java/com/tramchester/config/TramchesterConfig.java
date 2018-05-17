@@ -14,9 +14,6 @@ public abstract class TramchesterConfig extends Configuration {
     // pull new copy of timetable data
     public abstract boolean getPullData();
 
-    // redo filtering of the timetable data
-    public abstract boolean getFilterData();
-
     // name of the graph DB to use
     public abstract String getGraphName();
 

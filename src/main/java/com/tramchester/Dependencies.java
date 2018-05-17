@@ -66,9 +66,7 @@ public class Dependencies {
             fetcher.fetchData();
         }
 
-        if (configuration.getFilterData() || configuration.getPullData()) {
-            cleanseData(configuration.getAgencies(), dataPath, dataPath);
-        }
+        cleanseData(configuration.getAgencies(), dataPath, dataPath);
 
         logger.info("Creating dependencies");
         // caching is on by default
