@@ -60,10 +60,10 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(Optional.of(stationB));
         EasyMock.expect(transportData.getStation("stationC")).andStubReturn(Optional.of(stationC));
 
-        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(new LocalTime(8,2), new LocalTime(8,9), "svcId",
+        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(TramTime.create(8,2), TramTime.create(8,9), "svcId",
                 "headSign", "tripIdA"));
 
-        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(new LocalTime(8,9), new LocalTime(8,18),
+        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(TramTime.create(8,9), TramTime.create(8,18),
                 "svcId", "headSign", "tripIdA"));
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
@@ -94,10 +94,10 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         EasyMock.expect(transportData.getStation("stationB")).andStubReturn(Optional.of(stationB));
         EasyMock.expect(transportData.getStation("stationC")).andStubReturn(Optional.of(stationC));
 
-        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(new LocalTime(8,3), new LocalTime(8,7),
+        Optional<ServiceTime> timesLeg1 = Optional.of(new ServiceTime(TramTime.create(8,3), TramTime.create(8,7),
                 "svcId", "headSign", "tripIdA"));
 
-        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(new LocalTime(8,7), new LocalTime(8,16),
+        Optional<ServiceTime> timesLeg2 = Optional.of(new ServiceTime(TramTime.create(8,7), TramTime.create(8,16),
                 "svcId", "headSign", "tripIdA"));
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);

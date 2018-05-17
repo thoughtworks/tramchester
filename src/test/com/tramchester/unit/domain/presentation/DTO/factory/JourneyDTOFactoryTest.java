@@ -44,7 +44,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldCreateJourneyDTO() {
 
-        TransportStage transportStage = createStage(new LocalTime(10, 8), new LocalTime(10, 20));
+        TransportStage transportStage = createStage(TramTime.create(10, 8), TramTime.create(10, 20));
         Journey journey = new Journey(Arrays.asList(transportStage));
 
         StageDTO stageDTO = new StageDTO();
@@ -69,7 +69,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     public void shouldCreateJourneyDTOWithDueTram() {
         DateTime when = new DateTime(2017,11,30,18,41);
 
-        TransportStage transportStage = createStage(when.plusMinutes(1).toLocalTime(), new LocalTime(19, 00));
+        TransportStage transportStage = createStage(TramTime.create(18,42), TramTime.create(19, 00));
         Journey journey = new Journey(Arrays.asList(transportStage));
 
         StageDTO stageDTO = createStageDTOWithDueTram("headSign", when, 5);
@@ -86,7 +86,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldCreateJourneyDTOWithDueTramTimeOutOfRange() {
 
-        TransportStage transportStage = createStage(new LocalTime(10, 8), new LocalTime(10, 20));
+        TransportStage transportStage = createStage(TramTime.create(10, 8), TramTime.create(10, 20));
         Journey journey = new Journey(Arrays.asList(transportStage));
 
         DateTime dateTime = new DateTime(2017,11,30,18,41);
@@ -105,7 +105,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     public void shouldCreateJourneyDTOWithLaterDueTramMatching() {
         DateTime when = new DateTime(2017,11,30,18,41);
 
-        TransportStage transportStage = createStage(when.plusMinutes(9).toLocalTime(), new LocalTime(19, 00));
+        TransportStage transportStage = createStage(TramTime.create(18,50), TramTime.create(19, 00));
         Journey journey = new Journey(Arrays.asList(transportStage));
 
         StageDTO stageDTO = createStageDTOWithDueTram("headSign", when, 5);
@@ -260,14 +260,14 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     private VehicleStageWithTiming createStage(Location firstStation, TravelAction travelAction, Location lastStation) {
-        ServiceTime serviceTime = new ServiceTime(new LocalTime(10, 8), new LocalTime(10, 20), "svcId", "headSign", "tripId");
+        ServiceTime serviceTime = new ServiceTime(TramTime.create(10, 8), TramTime.create(10, 20), "svcId", "headSign", "tripId");
         RawVehicleStage rawVehicleStage = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass");
         rawVehicleStage.setLastStation(lastStation);
         rawVehicleStage.setCost(20-8); // 12 mins
         return new VehicleStageWithTiming(rawVehicleStage, serviceTime, travelAction);
     }
 
-    private TransportStage createStage(LocalTime departs, LocalTime arrivesEnd) {
+    private TransportStage createStage(TramTime departs, TramTime arrivesEnd) {
         RawVehicleStage rawTravelStage = new RawVehicleStage(stationA, "routeName", TransportMode.Bus, "cssClass").
                 setLastStation(stationB).setCost(42);
         ServiceTime serviceTime = new ServiceTime(departs, arrivesEnd, "svcId",

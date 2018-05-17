@@ -47,7 +47,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
                 TransportMode.Tram, "Displayclass");
         rawVehicleStage.setLastStation(Stations.Bury);
         rawVehicleStage.setCost(42);
-        ServiceTime serviceTime = new ServiceTime(LocalTime.MIDNIGHT, LocalTime.MIDNIGHT.plusMinutes(5), "svcId",
+        ServiceTime serviceTime = new ServiceTime(TramTime.create(0, 0), TramTime.create(0,5), "svcId",
                 "headSign", "tripId");
         Platform platform = new Platform("platFormId", "platformName");
         rawVehicleStage.setPlatform(platform);

@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.presentation;
 
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.joda.time.LocalTime;
 import org.junit.Test;
@@ -11,9 +12,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 public class ServiceTimeTest {
-    ServiceTime timeA = new ServiceTime(new LocalTime(11, 00), new LocalTime(11,10), "svcId", "headSign", "tripId");
-    ServiceTime timeC = new ServiceTime(new LocalTime(11, 00), new LocalTime(11,10), "svcId", "headSign", "tripId");
-    ServiceTime timeB = new ServiceTime(new LocalTime(11, 01), new LocalTime(11,9), "svcId", "headSign", "tripId");
+    ServiceTime timeA = new ServiceTime(TramTime.create(11, 00), TramTime.create(11,10), "svcId", "headSign", "tripId");
+    ServiceTime timeC = new ServiceTime(TramTime.create(11, 00), TramTime.create(11,10), "svcId", "headSign", "tripId");
+    ServiceTime timeB = new ServiceTime(TramTime.create(11, 01), TramTime.create(11,9), "svcId", "headSign", "tripId");
 
     @Test
     public void shouldSetValuesCorrectly() {
@@ -50,8 +51,8 @@ public class ServiceTimeTest {
     @Test
     public void correctOrderingInSortedSetAccrossMidnight() {
         SortedSet<ServiceTime> set = new TreeSet<>();
-        ServiceTime timeBeforeMid = new ServiceTime(new LocalTime(23, 50), new LocalTime(23, 55), "svcId", "headSign", "tripId");
-        ServiceTime timeAfterMid = new ServiceTime(new LocalTime(00, 10), new LocalTime(00, 15), "svcId", "headSign", "tripId");
+        ServiceTime timeBeforeMid = new ServiceTime(TramTime.create(23, 50), TramTime.create(23, 55), "svcId", "headSign", "tripId");
+        ServiceTime timeAfterMid = new ServiceTime(TramTime.create(00, 10), TramTime.create(00, 15), "svcId", "headSign", "tripId");
 
         set.add(timeAfterMid);
         set.add(timeBeforeMid);

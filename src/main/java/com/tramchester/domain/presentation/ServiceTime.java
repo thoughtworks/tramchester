@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramTime;
 import com.tramchester.mappers.LocalTimeJsonSerializer;
-import com.tramchester.services.DateTimeService;
 import org.joda.time.LocalTime;
 
 public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime> {
@@ -14,13 +13,13 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
     private final String headSign;
     private final String tripId;
 
-    public ServiceTime(LocalTime leaveBegin, LocalTime arrivesEnd, String serviceId, String headSign, String tripId) {
-        this.leaveBegin = leaveBegin;
-        this.arrivesEnd = arrivesEnd;
-        this.serviceId = serviceId;
-        this.headSign = headSign;
-        this.tripId = tripId;
-    }
+//    public ServiceTime(LocalTime leaveBegin, LocalTime arrivesEnd, String serviceId, String headSign, String tripId) {
+//        this.leaveBegin = leaveBegin;
+//        this.arrivesEnd = arrivesEnd;
+//        this.serviceId = serviceId;
+//        this.headSign = headSign;
+//        this.tripId = tripId;
+//    }
 
     public ServiceTime(TramTime leaveBegin, TramTime arrivesEnd, String serviceId, String headSign, String tripId) {
         this.leaveBegin = new LocalTime(leaveBegin.getHourOfDay(), leaveBegin.getMinuteOfHour());
@@ -56,8 +55,8 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
     @Override
     public String toString() {
         return "ServiceTime{" +
-                "(leaves start) departureTime=" + DateTimeService.formatTime(leaveBegin) +
-                ",(arrives end) arrivalTime=" + DateTimeService.formatTime(arrivesEnd) +
+                "(leaves start) departureTime=" + leaveBegin.toString("HH:mm") +
+                ",(arrives end) arrivalTime=" + arrivesEnd.toString("HH:mm") +
                 ", serviceId='" + serviceId + '\'' +
                 ", tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +

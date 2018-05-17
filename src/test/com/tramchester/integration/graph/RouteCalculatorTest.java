@@ -8,7 +8,6 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
 import com.tramchester.repository.TransportData;
-import com.tramchester.services.DateTimeService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.LocalDate;
 import org.junit.AfterClass;
@@ -25,7 +24,6 @@ public class RouteCalculatorTest {
     private static Dependencies dependencies;
 
     private RouteCalculator calculator;
-    private DateTimeService dateTimeService;
     private LocalDate when = JourneyPlannerHelper.nextTuesday(0);
 
     @BeforeClass
@@ -37,7 +35,6 @@ public class RouteCalculatorTest {
     @Before
     public void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
-        dateTimeService = dependencies.get(DateTimeService.class);
     }
 
     @AfterClass
@@ -55,7 +52,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void testJourneyFromAltyToAirport() throws TramchesterException {
-        int minutesFromMidnight = dateTimeService.getMinutesFromMidnight("11:43:00");
+        int minutesFromMidnight = TramTime.create(11,43).minutesOfDay();
         List<Integer> minutes = Arrays.asList(new Integer[]{minutesFromMidnight});
         TramServiceDate today = new TramServiceDate(LocalDate.now());
 

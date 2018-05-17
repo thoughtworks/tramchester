@@ -9,7 +9,6 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.TramTime;
-import com.tramchester.services.DateTimeService;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.LocalDate;
@@ -155,7 +154,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(reader.getStopTimes()).andReturn(stopTimes);
         validateWriter("stop_times", String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB",
-                arrivalTime.toString(DateTimeService.pattern), departureTime.toString(DateTimeService.pattern)));
+                arrivalTime.toString("HH:mm:ss"), departureTime.toString("HH:mm:ss")));
 
         replayAll();
         Set<String> trips = new HashSet<>();

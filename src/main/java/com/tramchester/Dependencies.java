@@ -31,7 +31,6 @@ import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.RoutesRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.resources.*;
-import com.tramchester.services.DateTimeService;
 import com.tramchester.services.ExpiryCheckService;
 import com.tramchester.services.SpatialService;
 import com.tramchester.services.StationLocalityService;
@@ -101,7 +100,6 @@ public class Dependencies {
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);
-        picoContainer.addComponent(DateTimeService.class);
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
         picoContainer.addComponent(FetchInstanceMetadata.class);
         picoContainer.addComponent(SignalToCloudformationReady.class);

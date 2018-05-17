@@ -5,7 +5,6 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.StopDataParser;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.services.DateTimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
