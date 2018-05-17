@@ -38,8 +38,8 @@ public class TripTest {
         // service times
         assertEquals(1, times.size());
         ServiceTime time = times.first();
-        assertEquals(new LocalTime(10, 01), time.getDepartureTime());
-        assertEquals(new LocalTime(10, 05), time.getArrivalTime());
+        assertEquals(TramTime.create(10, 01), time.getDepartureTime());
+        assertEquals(TramTime.create(10, 05), time.getArrivalTime());
         assertEquals("svcId", time.getServiceId());
         assertEquals(am10Minutes+1, time.getFromMidnightLeaves());
 
@@ -47,8 +47,8 @@ public class TripTest {
         times = trip.getServiceTimes("statB", "statA", new TimeWindow(am10Minutes, 30));
         assertEquals(1, times.size());
         time = times.first();
-        assertEquals(new LocalTime(10, 06), time.getDepartureTime());
-        assertEquals(new LocalTime(10, 10), time.getArrivalTime());
+        assertEquals(TramTime.create(10, 06), time.getDepartureTime());
+        assertEquals(TramTime.create(10, 10), time.getArrivalTime());
         assertEquals("svcId", time.getServiceId());
         assertEquals(am10Minutes+6, time.getFromMidnightLeaves());
 

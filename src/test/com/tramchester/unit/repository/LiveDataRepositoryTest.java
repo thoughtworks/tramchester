@@ -1,9 +1,6 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.TimeAsMinutes;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -168,11 +165,14 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(departureInfo, result);
     }
 
-    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate, String displayId, String platformId, String message, String location) {
+    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate, String displayId,
+                                                String platformId, String message, String location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
                 location, message, lastUpdate);
         info.add(departureInfo);
-        departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single", lastUpdate));
+        TramTime tramTime = TramTime.create(lastUpdate.getHourOfDay(), lastUpdate.getMinuteOfHour());
+
+        departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single", tramTime));
         return departureInfo;
     }
 }

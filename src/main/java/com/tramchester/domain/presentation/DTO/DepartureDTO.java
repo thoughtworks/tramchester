@@ -2,22 +2,23 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.mappers.LocalTimeJsonDeserializer;
-import com.tramchester.mappers.LocalTimeJsonSerializer;
+import com.tramchester.mappers.TramTimeJsonDeserializer;
+import com.tramchester.mappers.TramTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 public class DepartureDTO implements Comparable<DepartureDTO> {
 
     private String from;
-    private LocalTime when;
+    private TramTime when;
     private String carriages;
     private String status;
     private String destination;
 
     public DepartureDTO(String from, DueTram dueTram) {
         this.from = from;
-        this.when = dueTram.getWhen().toLocalTime();
+        this.when = dueTram.getWhen();
         this.carriages = dueTram.getCarriages();
         this.status = dueTram.getStatus();
         this.destination = dueTram.getDestination();
@@ -27,9 +28,9 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         // for deserialisation
     }
 
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
-    public LocalTime getWhen() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    public TramTime getWhen() {
         return when;
     }
 

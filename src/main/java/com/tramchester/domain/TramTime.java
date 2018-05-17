@@ -1,11 +1,16 @@
 package com.tramchester.domain;
 
+import org.joda.time.LocalTime;
+
 import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
 
-public class TramTime {
+public class TramTime implements Comparable<TramTime> {
+    private int hour;
+    private int minute;
+
     private static TramTime[][] tramTimes = new TramTime[24][60];
 
     static {
@@ -16,20 +21,12 @@ public class TramTime {
         }
     }
 
-    private int hour;
-    private int minute;
-
     public static TramTime create(int hours, int minutes) {
         return tramTimes[hours][minutes];
     }
 
-    private TramTime(int hour, int minute) {
-        this.hour = hour;
-        this.minute = minute;
-    }
-
-    public int minutesOfDay() {
-        return (hour*60)+minute;
+    public static TramTime midnight() {
+        return tramTimes[0][0];
     }
 
     public static Optional<TramTime> parse(String text) {
@@ -45,6 +42,42 @@ public class TramTime {
         }
 
         return Optional.of(TramTime.create(hour,minutes));
+    }
+
+    private TramTime(int hour, int minute) {
+        this.hour = hour;
+        this.minute = minute;
+    }
+
+    public static TramTime fromMinutes(int minutesOfDays) {
+        int hour = minutesOfDays / 60;
+        int minutes = minutesOfDays - (hour*60);
+        return create(hour,minutes);
+    }
+
+    public TramTime minusMinutes(int delta) {
+        int mins = minutesOfDay() - delta;
+        return fromMinutes(mins);
+    }
+
+    public TramTime plusMinutes(int delta) {
+        int mins = minutesOfDay() + delta;
+        return fromMinutes(mins);
+    }
+
+    public static TramTime now() {
+        LocalTime now = LocalTime.now();
+        return create(now.getHourOfDay(), now.getMinuteOfHour());
+    }
+
+    public int minutesOfDay() {
+        int theHour = hour;
+        if(hour == 0){
+            theHour = 24;
+        } else if(hour == 1){
+            theHour = 25;
+        }
+        return (theHour * 60) + minute;
     }
 
     public int getHourOfDay() {
@@ -81,10 +114,34 @@ public class TramTime {
         return format("%02d:%02d",hour,minute);
     }
 
-
     // "HH:mm:ss"
     public String tramDataFormat() {
         return String.format("%s:00",toPattern());
+    }
+
+    public boolean isBefore(TramTime other) {
+        if (hour<other.hour) {
+            return true;
+        }
+        if (hour==other.hour) {
+            return minute<other.minute;
+        }
+        return false;
+    }
+
+    public boolean isAfter(TramTime other) {
+        if (hour>other.hour) {
+            return true;
+        }
+        if (hour==other.hour) {
+            return minute>other.minute;
+        }
+        return false;
+    }
+
+    @Override
+    public int compareTo(TramTime other) {
+        return this.minutesOfDay()-other.minutesOfDay();
     }
 
 }

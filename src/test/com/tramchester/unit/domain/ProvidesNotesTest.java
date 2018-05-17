@@ -10,7 +10,6 @@ import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.Stations;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -105,7 +104,7 @@ public class ProvidesNotesTest {
         stages.add(stageA);
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
+                , stages, TramTime.now(), TramTime.now(), "summary", "heading", false));
 
         LocalDate date = LocalDate.now();
         if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
@@ -137,7 +136,7 @@ public class ProvidesNotesTest {
         List<StageDTO> stages = stages1;
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, LocalTime.now(), LocalTime.now(), "summary", "heading", false));
+                , stages, TramTime.now(), TramTime.now(), "summary", "heading", false));
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
 
@@ -188,7 +187,7 @@ public class ProvidesNotesTest {
         PlatformDTO platformDTO = createPlatformDTO(platformLocation, platformId, message, displayUnitId);
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
-                platformDTO, LocalTime.now(), LocalTime.now(), 42,
+                platformDTO, TramTime.now(), TramTime.now(), 42,
                 "summary", "prompt", "headSign", transportMode, isWalk,
                 !isWalk, "displayClass");
     }

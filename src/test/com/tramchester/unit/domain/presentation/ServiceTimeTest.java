@@ -18,8 +18,8 @@ public class ServiceTimeTest {
 
     @Test
     public void shouldSetValuesCorrectly() {
-        assertEquals(new LocalTime(11, 00), timeA.getDepartureTime());
-        assertEquals(new LocalTime(11,10), timeA.getArrivalTime());
+        assertEquals(TramTime.create(11, 00), timeA.getDepartureTime());
+        assertEquals(TramTime.create(11,10), timeA.getArrivalTime());
         assertEquals("svcId", timeA.getServiceId());
         assertEquals("headSign", timeA.getHeadSign());
     }

@@ -56,8 +56,8 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
 
         assertEquals("Direct", journeyDTO.getSummary());
         assertEquals("Bus with No Changes - 12 minutes", journeyDTO.getHeading());
-        assertEquals(new LocalTime(10, 20), journeyDTO.getExpectedArrivalTime());
-        assertEquals(new LocalTime(10, 8), journeyDTO.getFirstDepartureTime());
+        assertEquals(TramTime.create(10, 20), journeyDTO.getExpectedArrivalTime());
+        assertEquals(TramTime.create(10, 8), journeyDTO.getFirstDepartureTime());
         assertEquals(stationA.getId(), journeyDTO.getBegin().getId());
         assertEquals(stationB.getId(), journeyDTO.getEnd().getId());
 
@@ -276,10 +276,11 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         return vehicleStageWithTiming;
     }
 
-
-    private StageDTO createStageDTOWithDueTram(String matchingHeadsign, DateTime when, int wait) {
+    private StageDTO createStageDTOWithDueTram(String matchingHeadsign, DateTime whenTime, int wait) {
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
-                "platform", "platformLocation", "message", when);
+                "platform", "platformLocation", "message", whenTime);
+
+        TramTime when = TramTime.create(whenTime.getHourOfDay(), whenTime.getMinuteOfHour());
         departureInfo.addDueTram(new DueTram("other", "Due", 10, "Single", when));
         departureInfo.addDueTram(new DueTram(matchingHeadsign, "Departed", 0, "Single",when));
         departureInfo.addDueTram(new DueTram(matchingHeadsign, "Due", wait, "Double",when));
@@ -291,8 +292,8 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         int durationOfStage = 15;
         return new StageDTO(new LocationDTO(stationA),
                 new LocationDTO(stationB), new LocationDTO(stationB),
-                true, platform, when.toLocalTime().plusMinutes(1),
-                when.toLocalTime().plusMinutes(durationOfStage),
+                true, platform, when.plusMinutes(1),
+                when.plusMinutes(durationOfStage),
                 durationOfStage, "summary", "prompt",
                 matchingHeadsign, TransportMode.Tram,
                 false, true, "displayClass");

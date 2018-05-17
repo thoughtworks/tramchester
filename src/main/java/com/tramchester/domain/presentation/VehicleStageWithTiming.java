@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.RawVehicleStage;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.livedata.EnrichPlatform;
 import org.joda.time.LocalTime;
@@ -17,11 +18,11 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
         this.serviceTime = serviceTime;
     }
 
-    public LocalTime getExpectedArrivalTime() {
+    public TramTime getExpectedArrivalTime() {
         return serviceTime.getArrivalTime();
     }
 
-    public LocalTime getFirstDepartureTime() {
+    public TramTime getFirstDepartureTime() {
        return serviceTime.getDepartureTime();
     }
 

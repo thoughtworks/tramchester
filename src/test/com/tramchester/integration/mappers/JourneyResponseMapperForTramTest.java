@@ -12,7 +12,6 @@ import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
 import com.tramchester.mappers.TramJourneyResponseMapper;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,8 +28,8 @@ import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
     private final LocalDate nextMonday = JourneyPlannerHelper.nextTuesday(0);
-    private LocalTime sevenAM = new LocalTime(7, 0);
-    private LocalTime eightAM = new LocalTime(8, 0);
+    private TramTime sevenAM = TramTime.create(7, 0);
+    private TramTime eightAM = TramTime.create(8, 0);
 
     private static Dependencies dependencies;
     private TramJourneyResponseMapper mapper;
@@ -67,7 +66,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         Journey journey = result.get();
         TransportStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
-        assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(16,00)));
+        assertTrue(stage.getFirstDepartureTime().isBefore(TramTime.create(16,00)));
     }
 
     @Test
@@ -85,7 +84,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertFalse(journey.getStages().isEmpty());
         TransportStage stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
-        assertTrue(stage.getFirstDepartureTime().isBefore(new LocalTime(22,55)));
+        assertTrue(stage.getFirstDepartureTime().isBefore(TramTime.create(22,55)));
     }
 
     @Test
@@ -208,8 +207,8 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage3.getBoardingPlatform().isPresent());
         assertEquals(middleB.getId()+"1", stage3.getBoardingPlatform().get().getId());
 
-        LocalTime arrivalTime = stage3.getExpectedArrivalTime();
-        assertTrue(arrivalTime.isAfter(new LocalTime(10,10)));
+        TramTime arrivalTime = stage3.getExpectedArrivalTime();
+        assertTrue(arrivalTime.isAfter(TramTime.create(10,10)));
 
     }
 

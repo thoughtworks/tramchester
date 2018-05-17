@@ -1,6 +1,7 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -33,7 +34,7 @@ public class JourneysMapperTest extends EasyMockSupport{
     }
 
     @Test
-    public void shouldMapJourneyThenCreateDTO() throws TramchesterException {
+    public void shouldMapJourneyThenCreateDTO() {
 
         JourneysMapper journeysMapper = new JourneysMapper(mapper);
 
@@ -51,10 +52,11 @@ public class JourneysMapperTest extends EasyMockSupport{
 
         LocationDTO begin = new LocationDTO(Stations.Altrincham);
         LocationDTO end = new LocationDTO(Stations.Victoria);
-        JourneyDTO journeyDTOA = new JourneyDTO(begin, end, new LinkedList<>(), LocalTime.now(), LocalTime.now(),
+        TramTime now = TramTime.now();
+        JourneyDTO journeyDTOA = new JourneyDTO(begin, end, new LinkedList<>(), now, now,
                 "summaryA", "headingA", false);
-        JourneyDTO journeyDTOB = new JourneyDTO(begin, end, new LinkedList<>(), LocalTime.now().plusMinutes(1),
-                LocalTime.now().plusMinutes(1),
+        JourneyDTO journeyDTOB = new JourneyDTO(begin, end, new LinkedList<>(), now.plusMinutes(1),
+                now.plusMinutes(1),
                 "summaryB", "headingB", false);
 
         EasyMock.expect(mapper.createJourney(rawJourneyA, 42)).andReturn(Optional.of(journeyA));

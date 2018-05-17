@@ -1,5 +1,6 @@
 package com.tramchester.mappers;
 
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import org.joda.time.DateTime;
@@ -55,7 +56,9 @@ public class LiveDataParser {
                 String waitString = getNumberedField(jsonObject, "Wait", i);
                 int wait = Integer.parseInt(waitString);
                 String carriages = getNumberedField(jsonObject, "Carriages", i);
-                DueTram dueTram = new DueTram(dest, status, wait, carriages, departureInfo.getLastUpdate());
+                DateTime lastUpdate = departureInfo.getLastUpdate();
+                DueTram dueTram = new DueTram(dest, status, wait, carriages,
+                        TramTime.create(lastUpdate.getHourOfDay(), lastUpdate.getMinuteOfHour()));
                 departureInfo.addDueTram(dueTram);
             }
         }

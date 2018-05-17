@@ -2,10 +2,10 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.mappers.LocalTimeJsonDeserializer;
-import com.tramchester.mappers.LocalTimeJsonSerializer;
-import org.joda.time.LocalTime;
+import com.tramchester.mappers.TramTimeJsonDeserializer;
+import com.tramchester.mappers.TramTimeJsonSerializer;
 
 public class StageDTO {
     private LocationDTO firstStation;
@@ -15,8 +15,8 @@ public class StageDTO {
     private boolean hasPlatform;
     private PlatformDTO platform;
 
-    private LocalTime firstDepartureTime;
-    private LocalTime expectedArrivalTime;
+    private TramTime firstDepartureTime;
+    private TramTime expectedArrivalTime;
     private int duration;
 
     private String summary;
@@ -29,7 +29,7 @@ public class StageDTO {
     private String displayClass;
 
     public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
-                    PlatformDTO platform, LocalTime firstDepartureTime, LocalTime expectedArrivalTime, int duration,
+                    PlatformDTO platform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
                     String summary, String prompt, String headSign, TransportMode mode, boolean walk,
                     boolean isAVehicle, String displayClass) {
         this.firstStation = firstStation;
@@ -77,15 +77,15 @@ public class StageDTO {
         return firstStation;
     }
 
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
-    public LocalTime getFirstDepartureTime() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    public TramTime getFirstDepartureTime() {
         return firstDepartureTime;
     }
 
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
-    public LocalTime getExpectedArrivalTime() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    public TramTime getExpectedArrivalTime() {
         return expectedArrivalTime;
     }
 

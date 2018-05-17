@@ -81,8 +81,8 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         TransportStage stageSecond = found.getStages().get(1);
         assertEquals(7, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
-        assertEquals(new LocalTime(8,18),stageSecond.getExpectedArrivalTime());
-        assertEquals(new LocalTime(8,2),stageFirst.getFirstDepartureTime());
+        assertEquals(TramTime.create(8,18),stageSecond.getExpectedArrivalTime());
+        assertEquals(TramTime.create(8,2),stageFirst.getFirstDepartureTime());
     }
 
     @Test
@@ -115,8 +115,8 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         assertEquals(4, stageFirst.getDuration());
         assertEquals(9, stageSecond.getDuration());
 
-        assertEquals(new LocalTime(8,16),stageSecond.getExpectedArrivalTime());
-        assertEquals(new LocalTime(8,3),stageFirst.getFirstDepartureTime());
+        assertEquals(TramTime.create(8,16),stageSecond.getExpectedArrivalTime());
+        assertEquals(TramTime.create(8,3),stageFirst.getFirstDepartureTime());
 
         assertEquals("Board bus at", stageFirst.getPrompt());
         assertEquals("Change bus at", stageSecond.getPrompt());

@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.RawStage;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.livedata.EnrichPlatform;
 import org.joda.time.LocalTime;
@@ -18,8 +19,8 @@ public interface TransportStage extends RawStage {
     Location getLastStation();
     Location getFirstStation();
 
-    LocalTime getFirstDepartureTime();
-    LocalTime getExpectedArrivalTime();
+    TramTime getFirstDepartureTime();
+    TramTime getExpectedArrivalTime();
 
     int getDuration();
     String getDisplayClass();

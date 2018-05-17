@@ -4,8 +4,9 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TimeAsMinutes;
-import com.tramchester.mappers.LocalTimeJsonDeserializer;
-import com.tramchester.mappers.LocalTimeJsonSerializer;
+import com.tramchester.domain.TramTime;
+import com.tramchester.mappers.TramTimeJsonDeserializer;
+import com.tramchester.mappers.TramTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 import java.util.List;
@@ -15,8 +16,8 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     private LocationDTO begin;
     private LocationDTO end;
     private List<StageDTO> stages;
-    private LocalTime expectedArrivalTime;
-    private LocalTime firstDepartureTime;
+    private TramTime expectedArrivalTime;
+    private TramTime firstDepartureTime;
     private String summary;
     private String heading;
     private String dueTram;
@@ -27,7 +28,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     }
 
     public JourneyDTO(LocationDTO begin, LocationDTO end, List<StageDTO> stages,
-                      LocalTime expectedArrivalTime, LocalTime firstDepartureTime,
+                      TramTime expectedArrivalTime, TramTime firstDepartureTime,
                       String summary, String heading, boolean isDirect) {
         this.begin = begin;
         this.end = end;
@@ -51,15 +52,15 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         return heading;
     }
 
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
-    public LocalTime getFirstDepartureTime() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    public TramTime getFirstDepartureTime() {
         return firstDepartureTime;
     }
 
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
-    public LocalTime getExpectedArrivalTime() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    public TramTime getExpectedArrivalTime() {
         return expectedArrivalTime;
     }
 
@@ -96,7 +97,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     }
 
     private int checkArrival(JourneyDTO other) {
-        return TimeAsMinutes.compare(getExpectedArrivalTime(), other.getExpectedArrivalTime());
+        return getExpectedArrivalTime().compareTo(other.getExpectedArrivalTime());
     }
 
     public String getDueTram() {

@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.integration.Stations;
@@ -18,11 +19,11 @@ public class JourneyDTOTest {
     private LocationDTO stationB = new LocationDTO(Stations.VeloPark);
 
     private JourneyDTO journeyA = new JourneyDTO(stationA, stationB, new LinkedList<>(),
-            new LocalTime(10, 20), new LocalTime(10, 8),
+            TramTime.create(10, 20), TramTime.create(10, 8),
             "summary", "heading", false);
 
     private JourneyDTO journeyB = new JourneyDTO(stationA, stationB, new LinkedList<>(),
-            new LocalTime(10, 25), new LocalTime(10, 8),
+            TramTime.create(10, 25), TramTime.create(10, 8),
             "summary", "heading", false);
 
     @Test
@@ -36,25 +37,25 @@ public class JourneyDTOTest {
         SortedSet<JourneyDTO> set = new TreeSet<>();
         set.add(journeyB);
         set.add(journeyA);
-        assertEquals(new LocalTime(10,20), set.first().getExpectedArrivalTime());
+        assertEquals(TramTime.create(10,20), set.first().getExpectedArrivalTime());
     }
 
     @Test
     public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() {
         JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
-                new LocalTime(23, 50), new LocalTime(10, 8),
+                TramTime.create(23, 50), TramTime.create(10, 8),
                 "summary", "heading", false);
 
         JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
-                new LocalTime(00, 10), new LocalTime(10, 8),
+                TramTime.create(00, 10), TramTime.create(10, 8),
                 "summary", "heading", false);
 
         SortedSet<JourneyDTO> set = new TreeSet<>();
         set.add(afterMidnight);
         set.add(beforeMidnight);
 
-        assertEquals(new LocalTime(23,50), set.first().getExpectedArrivalTime());
-        assertEquals(new LocalTime(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
+        assertEquals(TramTime.create(23,50), set.first().getExpectedArrivalTime());
+        assertEquals(TramTime.create(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
     }
 
 }

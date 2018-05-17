@@ -3,13 +3,10 @@ package com.tramchester.dataimport.parsers;
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.TramTime;
-import org.joda.time.IllegalFieldValueException;
-import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.StringTokenizer;
 
 
 public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {

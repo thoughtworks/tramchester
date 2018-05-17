@@ -1,9 +1,6 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
-import com.tramchester.domain.Location;
-import com.tramchester.domain.TimeAsMinutes;
-import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.WalkingStage;
+import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -12,8 +9,6 @@ import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.mappers.HeadsignMapper;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +70,7 @@ public class JourneyDTOFactory {
             return;
         }
 
-        LocalTime firstDepartTime = journeyDTO.getFirstDepartureTime();
+        TramTime firstDepartTime = journeyDTO.getFirstDepartureTime();
         String headsign = headsignMapper.mapToDestination(firstTramStage.getHeadSign()).toLowerCase();
 
         Comparator<? super DueTram> nearestMatchByDueTime = createDueTramComparator(firstDepartTime);
@@ -84,23 +79,23 @@ public class JourneyDTOFactory {
                 sorted(nearestMatchByDueTime).findFirst();
         if (maybeDueTram.isPresent()) {
             DueTram dueTram = maybeDueTram.get();
-            DateTime when = dueTram.getWhen();
+            TramTime when = dueTram.getWhen();
             journeyDTO.setDueTram(format("%s tram %s at %s", dueTram.getCarriages(), dueTram.getStatus(),
-                    when.toString("HH:mm")));
+                    when.toPattern()));
         }
     }
 
-    private Comparator<DueTram> createDueTramComparator(LocalTime firstDepartTime) {
+    private Comparator<DueTram> createDueTramComparator(TramTime firstDepartTime) {
         return (a, b) -> {
-            int gapA = Math.abs(a.getWhen().getMillisOfDay() - firstDepartTime.getMillisOfDay());
-            int gapB = Math.abs(b.getWhen().getMillisOfDay() - firstDepartTime.getMillisOfDay());
+            int gapA = Math.abs(a.getWhen().minutesOfDay() - firstDepartTime.minutesOfDay());
+            int gapB = Math.abs(b.getWhen().minutesOfDay() - firstDepartTime.minutesOfDay());
             return Integer.compare(gapA,gapB);
         };
     }
 
-    private boolean filterDueTram(String headsign, DueTram dueTram, LocalTime firstDepartTime) {
-        int dueAsMins = TimeAsMinutes.getMinutes(dueTram.getWhen().toLocalTime());
-        int departAsMins = TimeAsMinutes.getMinutes(firstDepartTime);
+    private boolean filterDueTram(String headsign, DueTram dueTram, TramTime firstDepartTime) {
+        int dueAsMins = dueTram.getWhen().minutesOfDay();
+        int departAsMins = firstDepartTime.minutesOfDay();
         String destination = dueTram.getDestination().toLowerCase();
         
         return headsign.equals(destination) &&
@@ -176,9 +171,9 @@ public class JourneyDTOFactory {
         return format("%s with %s - %s", mode, getChanges(allStages), getDuration(allStages));
     }
 
-    private LocalTime getFirstDepartureTime(List<TransportStage> allStages) {
+    private TramTime getFirstDepartureTime(List<TransportStage> allStages) {
         if (allStages.size() == 0) {
-            return LocalTime.MIDNIGHT;
+            return TramTime.midnight();
         }
         if (firstStageIsWalk(allStages)) {
             if (allStages.size()>1) {
@@ -189,13 +184,14 @@ public class JourneyDTOFactory {
     }
 
     private String getDuration(List<TransportStage> allStages) {
-        int mins = TimeAsMinutes.timeDiffMinutes(getExpectedArrivalTime(allStages), getFirstStage(allStages).getFirstDepartureTime());
+        int mins = TimeAsMinutes.timeDiffMinutes(getExpectedArrivalTime(allStages),
+                getFirstStage(allStages).getFirstDepartureTime());
         return format("%s minutes", mins);
     }
 
-    private LocalTime getExpectedArrivalTime(List<TransportStage> allStages) {
+    private TramTime getExpectedArrivalTime(List<TransportStage> allStages) {
         if (allStages.size() == 0) {
-            return LocalTime.MIDNIGHT;
+            return TramTime.create(0,0);
         }
         return getLastStage(allStages).getExpectedArrivalTime();
     }

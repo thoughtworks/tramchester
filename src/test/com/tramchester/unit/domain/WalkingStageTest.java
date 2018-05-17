@@ -1,13 +1,7 @@
 package com.tramchester.unit.domain;
 
-
-import com.tramchester.domain.Location;
-import com.tramchester.domain.RawWalkingStage;
-import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.WalkingStage;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.*;
 import com.tramchester.integration.Stations;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,7 +14,7 @@ public class WalkingStageTest {
     private Location destination;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         int begin = 8 * 60;
         int cost = 22;
         start = Stations.Altrincham;
@@ -31,18 +25,17 @@ public class WalkingStageTest {
     @Test
     public void shouldCalculateTimesCorrectly() {
 
-        LocalTime arrival = walkingStage.getExpectedArrivalTime();
-        assertEquals(new LocalTime(8,22), arrival);
+        TramTime arrival = walkingStage.getExpectedArrivalTime();
+        assertEquals(TramTime.create(8,22), arrival);
 
-        LocalTime departTime = walkingStage.getFirstDepartureTime();
-        assertEquals(new LocalTime(8,00), departTime);
+        TramTime departTime = walkingStage.getFirstDepartureTime();
+        assertEquals(TramTime.create(8,00), departTime);
 
         assertEquals(22, walkingStage.getDuration());
-
     }
 
     @Test
-    public void shouldGetSummaryAndPrompt() throws TramchesterException {
+    public void shouldGetSummaryAndPrompt() {
         assertEquals("Walking",walkingStage.getSummary());
         assertEquals("Walk to",walkingStage.getPrompt());
     }

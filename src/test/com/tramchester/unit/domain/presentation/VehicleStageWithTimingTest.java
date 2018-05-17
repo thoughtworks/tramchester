@@ -40,8 +40,8 @@ public class VehicleStageWithTimingTest {
 
         VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, serviceTimeA, TravelAction.Board);
 
-        assertEquals(new LocalTime(8, 00), stage.getFirstDepartureTime());
-        assertEquals(new LocalTime(9, 15), stage.getExpectedArrivalTime());
+        assertEquals(TramTime.create(8, 00), stage.getFirstDepartureTime());
+        assertEquals(TramTime.create(9, 15), stage.getExpectedArrivalTime());
     }
 
     @Test

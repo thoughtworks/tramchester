@@ -3,39 +3,31 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramTime;
-import com.tramchester.mappers.LocalTimeJsonSerializer;
+import com.tramchester.mappers.TramTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
 public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime> {
-    private final LocalTime leaveBegin;
-    private final LocalTime arrivesEnd;
+    private final TramTime leaveBegin;
+    private final TramTime arrivesEnd;
     private final String serviceId;
     private final String headSign;
     private final String tripId;
 
-//    public ServiceTime(LocalTime leaveBegin, LocalTime arrivesEnd, String serviceId, String headSign, String tripId) {
-//        this.leaveBegin = leaveBegin;
-//        this.arrivesEnd = arrivesEnd;
-//        this.serviceId = serviceId;
-//        this.headSign = headSign;
-//        this.tripId = tripId;
-//    }
-
     public ServiceTime(TramTime leaveBegin, TramTime arrivesEnd, String serviceId, String headSign, String tripId) {
-        this.leaveBegin = new LocalTime(leaveBegin.getHourOfDay(), leaveBegin.getMinuteOfHour());
-        this.arrivesEnd = new LocalTime(arrivesEnd.getHourOfDay(), arrivesEnd.getMinuteOfHour());
+        this.leaveBegin = leaveBegin;
+        this.arrivesEnd = arrivesEnd;
         this.serviceId = serviceId;
         this.headSign = headSign;
         this.tripId = tripId;
     }
 
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    public LocalTime getDepartureTime() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    public TramTime getDepartureTime() {
         return leaveBegin;
     }
 
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    public LocalTime getArrivalTime() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    public TramTime getArrivalTime() {
         return arrivesEnd;
     }
 
@@ -55,8 +47,8 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
     @Override
     public String toString() {
         return "ServiceTime{" +
-                "(leaves start) departureTime=" + leaveBegin.toString("HH:mm") +
-                ",(arrives end) arrivalTime=" + arrivesEnd.toString("HH:mm") +
+                "(leaves start) departureTime=" + leaveBegin.toPattern() +
+                ",(arrives end) arrivalTime=" + arrivesEnd.toPattern() +
                 ", serviceId='" + serviceId + '\'' +
                 ", tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +
@@ -66,7 +58,7 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
     // for sorting of results
     @Override
     public int compareTo(ServiceTime other) {
-        return TimeAsMinutes.compare(arrivesEnd,other.arrivesEnd);
+        return arrivesEnd.compareTo(other.arrivesEnd);
     }
 
     @Override

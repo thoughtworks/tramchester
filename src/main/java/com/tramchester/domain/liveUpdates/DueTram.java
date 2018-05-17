@@ -2,8 +2,11 @@ package com.tramchester.domain.liveUpdates;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.TramTime;
 import com.tramchester.mappers.DateTimeJsonDeserializer;
 import com.tramchester.mappers.DateTimeJsonSerializer;
+import com.tramchester.mappers.TramTimeJsonDeserializer;
+import com.tramchester.mappers.TramTimeJsonSerializer;
 import org.joda.time.DateTime;
 
 public class DueTram {
@@ -12,19 +15,19 @@ public class DueTram {
     private int wait;
     private String carriages;
 
-    // TODO: LocalTime
-    private DateTime when;
+    private TramTime when;
 
     public DueTram() {
         // deserialisation
     }
 
-    public DueTram(String destination, String status, int wait, String carriages, DateTime updateTime) {
+    public DueTram(String destination, String status, int wait, String carriages, TramTime updateTime) {
+        // TODO change DateTime to TramTime
         this.destination = destination;
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
-        when = updateTime.plusMinutes(wait);
+        this.when  = updateTime.plusMinutes(wait);
     }
 
     public String getDestination() {
@@ -53,9 +56,9 @@ public class DueTram {
                 '}';
     }
 
-    @JsonSerialize(using = DateTimeJsonSerializer.class)
-    @JsonDeserialize(using = DateTimeJsonDeserializer.class)
-    public DateTime getWhen() {
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    public TramTime getWhen() {
         return when;
     }
 }
