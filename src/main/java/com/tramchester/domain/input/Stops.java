@@ -83,9 +83,24 @@ public class Stops  implements Iterable<Stop> {
     }
 
     private boolean checkTiming(Stop firstStop, Stop secondStop, TimeWindow timeWindow) {
-        return (secondStop.getArriveMinsFromMidnight()>=firstStop.getDepartureMinFromMidnight())
-                && (firstStop.getDepartureMinFromMidnight() > timeWindow.minsFromMidnight())
-                && ((firstStop.getDepartureMinFromMidnight()-timeWindow.minsFromMidnight()) <= timeWindow.withinMins());
+        int firstStopArriveTime = firstStop.getDepartureMinFromMidnight();
+        int secondStopArriveTime = secondStop.getArriveMinsFromMidnight();
+
+        if (firstStopArriveTime>secondStopArriveTime) {
+            return false;
+        }
+
+        int wait = firstStopArriveTime - timeWindow.minsFromMidnight();
+        if (wait<0) {
+            return false;
+        }
+        if (wait>timeWindow.withinMins()) {
+            return false;
+        }
+        return true;
+//        return (secondStopArriveTime >= firstStopArriveTime)
+//                && (firstStopArriveTime > timeWindow.minsFromMidnight())
+//                && ((firstStopArriveTime - timeWindow.minsFromMidnight()) <= timeWindow.withinMins());
         // does this need to be >= for buses??
     }
 
