@@ -2,8 +2,7 @@
 
 Tramchester 
 ===========
-[![Build Status](https://travis-ci.org/ThoughtWorksInc/tramchester.svg?branch=master)](https://travis-ci.org/ThoughtWorksInc/tramchester)
-
+[![CircleCI](https://circleci.com/gh/ThoughtWorksInc/tramchester.svg?style=svg)](https://circleci.com/gh/ThoughtWorksInc/tramchester)
 
 Tramchester was built by [ThoughtWorks](http://www.thoughtworks.com) in Manchester
 
