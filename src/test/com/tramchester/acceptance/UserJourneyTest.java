@@ -32,6 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.*;
 
+ @RunWith(Parameterized.class)
  public class UserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
     private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
@@ -55,11 +56,10 @@ import static org.junit.Assert.*;
     public static List<String> getBrowserList() {
         if (System.getenv("CIRCLECI")==null) {
             return Arrays.asList( "chrome", "firefox");
-        } else {
-            // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
-            // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
-            return Arrays.asList("firefox");
         }
+        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
+        return Arrays.asList("firefox");
     }
 
     @Parameters
