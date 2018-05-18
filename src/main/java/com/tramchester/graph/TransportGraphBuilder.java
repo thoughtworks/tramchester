@@ -106,8 +106,7 @@ public class TransportGraphBuilder extends StationIndexs {
             Node to = getOrCreateRouteStation(nextStop, route, service);
 
             if (runsAtLeastADay(service.getDays())) {
-                createOrUpdateRelationship(from, to, currentStop,
-                        nextStop, service, route);
+                createOrUpdateRelationship(from, to, currentStop, nextStop, service, route);
             }
         }
     }

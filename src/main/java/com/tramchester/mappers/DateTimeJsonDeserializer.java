@@ -11,9 +11,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 
-@Deprecated
 public class DateTimeJsonDeserializer extends JsonDeserializer<DateTime> {
-    private static String pattern = "HH:mm"; // TODO change to TramTime
+    public static String pattern = "HH:mm"; // TODO shouldn't this include full date?
 
     @Override
     public DateTime deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
