@@ -308,7 +308,7 @@ public class TransportGraphBuilder extends StationIndexs {
             relationship.setProperty(GraphStaticKeys.COST, cost);
             relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
             relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-            relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
+//            relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
             relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
             relationship.setProperty(GraphStaticKeys.DESTINATION, dest);
             relationship.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
