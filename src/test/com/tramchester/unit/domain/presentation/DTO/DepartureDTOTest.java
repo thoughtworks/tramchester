@@ -4,6 +4,7 @@ import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import org.joda.time.DateTime;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import java.util.Set;
@@ -15,7 +16,7 @@ public class DepartureDTOTest {
 
     @Test
     public void shouldCreateFromDueTramAndLocation() {
-        TramTime updateTime = TramTime.now();
+        LocalTime updateTime = LocalTime.now();
 
         String location = "aPlace";
         DueTram dueTram = new DueTram("destination", "status", 42, "carriages", updateTime);
@@ -25,13 +26,12 @@ public class DepartureDTOTest {
         assertEquals("destination", departureDTO.getDestination());
         assertEquals("status", departureDTO.getStatus());
         assertEquals("carriages", departureDTO.getCarriages());
-        assertEquals(updateTime.plusMinutes(42), departureDTO.getWhen());
-
+        assertEquals(TramTime.create(updateTime.plusMinutes(42)), departureDTO.getWhen());
     }
 
     @Test
     public void shouldCompareBasedOnWhenTramDue() {
-        TramTime updateTime = TramTime.now();
+        LocalTime updateTime = LocalTime.now();
 
         DepartureDTO departureDTOA = new DepartureDTO("station", new DueTram("destinationA", "status", 5, "carriages", updateTime));
         DepartureDTO departureDTOB = new DepartureDTO("station", new DueTram("destinationB", "status", 3, "carriages", updateTime));

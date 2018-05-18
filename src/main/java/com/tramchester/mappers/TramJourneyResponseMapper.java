@@ -36,7 +36,7 @@ public class TramJourneyResponseMapper implements SingleJourneyMapper {
                 logger.info("Adding walking stage " + stage);
                 stages.add(walkingStage);
 
-                timeWindow = timeWindow.next(TimeAsMinutes.getMinutes(walkingStage.getExpectedArrivalTime()));
+                timeWindow = timeWindow.next(walkingStage.getExpectedArrivalTime().minutesOfDay());
             }
         }
 

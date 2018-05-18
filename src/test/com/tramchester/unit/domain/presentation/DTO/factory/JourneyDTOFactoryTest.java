@@ -280,7 +280,8 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
                 "platform", "platformLocation", "message", whenTime);
 
-        TramTime when = TramTime.create(whenTime.getHourOfDay(), whenTime.getMinuteOfHour());
+        LocalTime when = whenTime.toLocalTime();
+
         departureInfo.addDueTram(new DueTram("other", "Due", 10, "Single", when));
         departureInfo.addDueTram(new DueTram(matchingHeadsign, "Departed", 0, "Single",when));
         departureInfo.addDueTram(new DueTram(matchingHeadsign, "Due", wait, "Double",when));
@@ -289,11 +290,12 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         PlatformDTO platform = new PlatformDTO(new Platform("platformId", "platformName"));
         platform.setDepartureInfo(departureInfo);
 
+        TramTime expected = TramTime.create(when);
         int durationOfStage = 15;
         return new StageDTO(new LocationDTO(stationA),
                 new LocationDTO(stationB), new LocationDTO(stationB),
-                true, platform, when.plusMinutes(1),
-                when.plusMinutes(durationOfStage),
+                true, platform, expected.plusMinutes(1),
+                expected.plusMinutes(durationOfStage),
                 durationOfStage, "summary", "prompt",
                 matchingHeadsign, TransportMode.Tram,
                 false, true, "displayClass");

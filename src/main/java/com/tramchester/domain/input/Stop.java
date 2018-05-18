@@ -48,11 +48,11 @@ public class Stop extends TimeAsMinutes {
     }
 
     public int getDepartureMinFromMidnight() {
-        return getMinutes(departureTime);
+        return departureTime.minutesOfDay();
     }
 
     public int getArriveMinsFromMidnight() {
-        return getMinutes(arrivalTime);
+        return arrivalTime.minutesOfDay();
     }
 
     public String getId() {

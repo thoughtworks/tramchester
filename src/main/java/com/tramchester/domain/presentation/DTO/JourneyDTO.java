@@ -93,7 +93,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     }
 
     private int checkDeparture(JourneyDTO other) {
-        return TimeAsMinutes.compare(getFirstDepartureTime(),other.getFirstDepartureTime());
+        return getFirstDepartureTime().compareTo(other.getFirstDepartureTime());
     }
 
     private int checkArrival(JourneyDTO other) {

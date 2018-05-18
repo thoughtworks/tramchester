@@ -1,8 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.TramTime;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import javafx.collections.transformation.SortedList;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -131,6 +130,33 @@ public class TramTimeTest {
         checkTimeFromMins(120, 2, 0);
         checkTimeFromMins(150, 2, 30);
         checkTimeFromMins((23*60)+43, 23, 43);
+    }
+
+    @Test
+    public void shouldCreateFromLocalTime() {
+        LocalTime localTime = new LocalTime(14,55);
+
+        TramTime tramTime = TramTime.create(localTime);
+        assertEquals(tramTime.getMinuteOfHour(), 55);
+        assertEquals(tramTime.getHourOfDay(), 14);
+    }
+
+    @Test
+    public void shouldTransformToAndFromMinutesEarlyMorning() {
+        TramTime early = TramTime.create(0,14);
+
+        int minutes = early.minutesOfDay();
+        assertEquals((24*60)+14, minutes);
+
+        TramTime result = TramTime.fromMinutes(minutes);
+        assertEquals(early, result);
+
+        TramTime next = early.plusMinutes(60);
+        minutes = next.minutesOfDay();
+        assertEquals((25*60)+14, minutes);
+
+        result = TramTime.fromMinutes(minutes);
+        assertEquals(next, result);
     }
 
     @Test

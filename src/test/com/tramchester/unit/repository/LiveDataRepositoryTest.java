@@ -13,6 +13,7 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
@@ -165,14 +166,12 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(departureInfo, result);
     }
 
-    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate, String displayId,
-                                                String platformId, String message, String location) {
+    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate,
+                                                String displayId, String platformId, String message, String location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
                 location, message, lastUpdate);
         info.add(departureInfo);
-        TramTime tramTime = TramTime.create(lastUpdate.getHourOfDay(), lastUpdate.getMinuteOfHour());
-
-        departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single", tramTime));
+        departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single", lastUpdate.toLocalTime()));
         return departureInfo;
     }
 }

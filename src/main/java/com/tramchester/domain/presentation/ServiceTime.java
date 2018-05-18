@@ -41,7 +41,7 @@ public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime
     }
 
     public int getFromMidnightLeaves() {
-        return getMinutes(leaveBegin);
+        return leaveBegin.minutesOfDay();
     }
 
     @Override

@@ -8,6 +8,11 @@ import java.util.Optional;
 import static java.lang.String.format;
 
 public class TramTime implements Comparable<TramTime> {
+    // NOTE:
+    // Midnight and 1AM are mapped to >24*60 minutes to preserve meaning from tfgm data where a
+    // 00:14 tram (for example) by convention runs on the day *after* the date for the trip
+    // i.e. the 00:14 on 14th June 2018 actually runs 00:14 15th June 2018 and hence after rest of
+    // trips that day
     private int hour;
     private int minute;
 
@@ -23,6 +28,10 @@ public class TramTime implements Comparable<TramTime> {
 
     public static TramTime create(int hours, int minutes) {
         return tramTimes[hours][minutes];
+    }
+
+    public static TramTime create(LocalTime time) {
+        return tramTimes[time.getHourOfDay()][time.getMinuteOfHour()];
     }
 
     public static TramTime midnight() {
@@ -52,6 +61,12 @@ public class TramTime implements Comparable<TramTime> {
     public static TramTime fromMinutes(int minutesOfDays) {
         int hour = minutesOfDays / 60;
         int minutes = minutesOfDays - (hour*60);
+        if (hour==24) {
+            hour = 0;
+        }
+        if (hour==25) {
+            hour = 1;
+        }
         return create(hour,minutes);
     }
 
@@ -66,8 +81,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public static TramTime now() {
-        LocalTime now = LocalTime.now();
-        return create(now.getHourOfDay(), now.getMinuteOfHour());
+        return create(LocalTime.now());
     }
 
     public int minutesOfDay() {

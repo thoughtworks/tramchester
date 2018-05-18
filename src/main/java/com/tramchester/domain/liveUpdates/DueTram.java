@@ -8,26 +8,25 @@ import com.tramchester.mappers.DateTimeJsonSerializer;
 import com.tramchester.mappers.TramTimeJsonDeserializer;
 import com.tramchester.mappers.TramTimeJsonSerializer;
 import org.joda.time.DateTime;
+import org.joda.time.LocalTime;
 
 public class DueTram {
     private String status;
     private String destination;
     private int wait;
     private String carriages;
-
     private TramTime when;
 
     public DueTram() {
         // deserialisation
     }
 
-    public DueTram(String destination, String status, int wait, String carriages, TramTime updateTime) {
-        // TODO change DateTime to TramTime
+    public DueTram(String destination, String status, int wait, String carriages, LocalTime updateTime) {
         this.destination = destination;
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
-        this.when  = updateTime.plusMinutes(wait);
+        this.when  = TramTime.create(updateTime).plusMinutes(wait);
     }
 
     public String getDestination() {

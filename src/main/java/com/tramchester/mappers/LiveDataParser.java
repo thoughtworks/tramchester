@@ -57,8 +57,7 @@ public class LiveDataParser {
                 int wait = Integer.parseInt(waitString);
                 String carriages = getNumberedField(jsonObject, "Carriages", i);
                 DateTime lastUpdate = departureInfo.getLastUpdate();
-                DueTram dueTram = new DueTram(dest, status, wait, carriages,
-                        TramTime.create(lastUpdate.getHourOfDay(), lastUpdate.getMinuteOfHour()));
+                DueTram dueTram = new DueTram(dest, status, wait, carriages, lastUpdate.toLocalTime());
                 departureInfo.addDueTram(dueTram);
             }
         }
