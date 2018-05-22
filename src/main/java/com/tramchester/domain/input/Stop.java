@@ -1,11 +1,9 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.Location;
-import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramTime;
-import org.joda.time.LocalTime;
 
-public class Stop extends TimeAsMinutes {
+public class Stop {
     private final Location station;
     private final TramTime arrivalTime;
     private final TramTime departureTime;

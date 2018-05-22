@@ -1,21 +1,22 @@
 package com.tramchester.livedata;
 
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.repository.LiveDataRepository;
 
 public class LiveDataEnricher implements EnrichPlatform {
     private LiveDataRepository repository;
     private TramServiceDate tramServiceDate;
-    private int queryMins;
+    private TramTime queryTime;
 
-    public LiveDataEnricher(LiveDataRepository repository, TramServiceDate tramServiceDate, int queryMins) {
+    public LiveDataEnricher(LiveDataRepository repository, TramServiceDate tramServiceDate, int queryMinutes) {
         this.repository = repository;
         this.tramServiceDate = tramServiceDate;
-        this.queryMins = queryMins;
+        this.queryTime = TramTime.fromMinutes(queryMinutes);
     }
 
     public void enrich(PlatformDTO platform) {
-        repository.enrich(platform, tramServiceDate, queryMins);
+        repository.enrich(platform, tramServiceDate, queryTime);
     }
 }

@@ -60,8 +60,9 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         assertEquals(2,repository.count());
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate());
-        repository.enrich(platformA, queryDate, TimeAsMinutes.getMinutes(lastUpdate.toLocalTime()));
-        repository.enrich(platformB, queryDate, TimeAsMinutes.getMinutes(lastUpdate.toLocalTime()));
+        TramTime queryTime = TramTime.create(lastUpdate.toLocalTime());
+        repository.enrich(platformA, queryDate, queryTime);
+        repository.enrich(platformB, queryDate, queryTime);
 
         assertEquals("some message", platformA.getStationDepartureInfo().getMessage());
         assertEquals("", platformB.getStationDepartureInfo().getMessage());
@@ -81,7 +82,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.refreshRespository();
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate());
-        repository.enrich(platform, queryDate, TimeAsMinutes.getMinutes(lastUpdate.toLocalTime()));
+        repository.enrich(platform, queryDate, TramTime.create(lastUpdate.toLocalTime()));
         verifyAll();
 
         StationDepartureInfo enriched = platform.getStationDepartureInfo();
@@ -104,12 +105,12 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         replayAll();
         repository.refreshRespository();
-        int queryMins = TimeAsMinutes.getMinutes(lastUpdate.toLocalTime());
-        repository.enrich(platform, queryDateA, queryMins);
+        TramTime queryTime = TramTime.create(lastUpdate.toLocalTime());
+        repository.enrich(platform, queryDateA, queryTime);
         StationDepartureInfo enriched = platform.getStationDepartureInfo();
         assertTrue(enriched==null);
 
-        repository.enrich(platform, queryDateB, queryMins);
+        repository.enrich(platform, queryDateB, queryTime);
         enriched = platform.getStationDepartureInfo();
         assertTrue(enriched==null);
         verifyAll();
@@ -129,17 +130,17 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         replayAll();
         repository.refreshRespository();
-        int queryMins = TimeAsMinutes.getMinutes(lastUpdate.toLocalTime());
-        repository.enrich(platform, queryDate, queryMins+LiveDataRepository.TIME_LIMIT);
+        TramTime queryTime = TramTime.create(lastUpdate.toLocalTime());
+        repository.enrich(platform, queryDate, queryTime.plusMinutes(LiveDataRepository.TIME_LIMIT));
         StationDepartureInfo enriched = platform.getStationDepartureInfo();
         assertTrue(enriched==null);
 
-        repository.enrich(platform, queryDate, queryMins-LiveDataRepository.TIME_LIMIT);
+        repository.enrich(platform, queryDate, queryTime.minusMinutes(LiveDataRepository.TIME_LIMIT));
         enriched = platform.getStationDepartureInfo();
         assertTrue(enriched==null);
         verifyAll();
     }
-
+    
     @Test
     public void shouldEnrichLocationDTOIfHasPlatforms() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();

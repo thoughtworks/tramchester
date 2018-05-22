@@ -80,6 +80,19 @@ public class TramTime implements Comparable<TramTime> {
         return fromMinutes(mins);
     }
 
+    public static int diffenceAsMinutes(TramTime first, TramTime second) {
+        int secondMins = second.minutesOfDay();
+        int diff;
+        if (first.isBefore(second)) { // crosses midnight
+            int minsBeforeMidnight = 24*60 - secondMins;
+            int minsAfterMidnight = first.minutesOfDay();
+            diff = minsBeforeMidnight + minsAfterMidnight;
+        } else {
+            diff = first.minutesOfDay() - secondMins;
+        }
+        return diff;
+    }
+
     public static TramTime now() {
         return create(LocalTime.now());
     }

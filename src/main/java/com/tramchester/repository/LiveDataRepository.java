@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,7 +23,7 @@ import static java.lang.String.format;
 public class LiveDataRepository {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
 
-    public static final int TIME_LIMIT = 5; // only enrich if data is within this many minutes
+    public static final int TIME_LIMIT = 15; // only enrich if data is within this many minutes
 
     // some displays don't show normal messages in MessageBoard but instead a list of due trams, so exclude these
     List<String> displaysToExclude = Arrays.asList("303","304","461");
@@ -68,9 +69,20 @@ public class LiveDataRepository {
         }
         stationInformation = newMap;
         lastRefresh = DateTime.now();
+        checkForDataFresh(newMap.values());
     }
 
-    public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, int queryMins) {
+    // log errors is data we are receiving from TFGM contains no up to date data
+    private void checkForDataFresh(Collection<StationDepartureInfo> infos) {
+        int total = infos.size();
+        DateTime cutoff = lastRefresh.minusMinutes(TIME_LIMIT);
+        long withinCutof = infos.stream().filter(info -> info.getLastUpdate().isAfter(cutoff)).count();
+        if (withinCutof<total) {
+            logger.error(format("%s out of %s records are within of cuttoff time %s", withinCutof, total, cutoff));
+        }
+    }
+
+    public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime) {
         LocalDate queryDate = tramServiceDate.getDate();
         if (!lastRefresh.toLocalDate().equals(queryDate)) {
             logger.info("no data for date, not querying for departure info " + queryDate);
@@ -79,28 +91,28 @@ public class LiveDataRepository {
 
         String platformId = platform.getId();
         if (stationInformation.containsKey(platformId)) {
-            enrichPlatformIfTimeMatches(platform, queryMins);
+            enrichPlatformIfTimeMatches(platform, queryTime);
         } else {
             logger.error("Unable to find live data for platform " + platform.getId());
         }
     }
 
-    public void enrich(LocationDTO locationDTO, DateTime now) {
+    public void enrich(LocationDTO locationDTO, DateTime current) {
         if (!locationDTO.hasPlatforms()) {
             return;
         }
 
-        if (!now.toLocalDate().equals(lastRefresh.toLocalDate())) {
-            logger.warn("no data for date, not querying for departure info " + now.toLocalDate());
+        if (!current.toLocalDate().equals(lastRefresh.toLocalDate())) {
+            logger.warn("no data for date, not querying for departure info " + current.toLocalDate());
             return;
         }
 
-        int minutes = TimeAsMinutes.getMinutes(now.toLocalTime());
+        TramTime queryTime = TramTime.create(current.toLocalTime());
 
         locationDTO.getPlatforms().forEach(platformDTO -> {
             String idToFind = platformDTO.getId();
             if (stationInformation.containsKey(idToFind)) {
-                enrichPlatformIfTimeMatches(platformDTO, minutes);
+                enrichPlatformIfTimeMatches(platformDTO, queryTime);
             } else {
                 logger.error("Unable to find live data for platform " + platformDTO.getId());
             }
@@ -108,21 +120,21 @@ public class LiveDataRepository {
 
     }
 
-    private void enrichPlatformIfTimeMatches(PlatformDTO platform, int queryMins) {
+    private void enrichPlatformIfTimeMatches(PlatformDTO platform, TramTime queryTime) {
         String platformId = platform.getId();
         logger.info("Found live data for " + platformId);
         StationDepartureInfo info = stationInformation.get(platformId);
 
         DateTime infoLastUpdate = info.getLastUpdate();
 
-        int updateMins = TimeAsMinutes.getMinutes(infoLastUpdate.toLocalTime());
+        TramTime updateTime = TramTime.create(infoLastUpdate.toLocalTime());
 
-        if (Math.abs(queryMins-updateMins) < TIME_LIMIT) {
+        if (Math.abs(queryTime.minutesOfDay()-updateTime.minutesOfDay()) < TIME_LIMIT) {
             logger.info(format("Adding departure info '%s' for platform %s",info, platform));
             platform.setDepartureInfo(info);
         } else {
-            logger.info(format("Not adding departure info as not within time range, query at %s, update at %s (%s)",
-                    queryMins, updateMins, infoLastUpdate));
+            logger.warn(format("Not adding departure info as not within time range, query at %s, update at %s (%s)",
+                    queryTime, updateTime, infoLastUpdate));
         }
     }
 

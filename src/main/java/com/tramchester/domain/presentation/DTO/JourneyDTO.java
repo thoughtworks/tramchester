@@ -3,11 +3,9 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramTime;
 import com.tramchester.mappers.TramTimeJsonDeserializer;
 import com.tramchester.mappers.TramTimeJsonSerializer;
-import org.joda.time.LocalTime;
 
 import java.util.List;
 

@@ -1,12 +1,10 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.TimeAsMinutes;
 import com.tramchester.domain.TramTime;
 import com.tramchester.mappers.TramTimeJsonSerializer;
-import org.joda.time.LocalTime;
 
-public class ServiceTime extends TimeAsMinutes implements Comparable<ServiceTime> {
+public class ServiceTime implements Comparable<ServiceTime> {
     private final TramTime leaveBegin;
     private final TramTime arrivesEnd;
     private final String serviceId;

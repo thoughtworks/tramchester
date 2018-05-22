@@ -184,8 +184,9 @@ public class JourneyDTOFactory {
     }
 
     private String getDuration(List<TransportStage> allStages) {
-        int mins = TimeAsMinutes.timeDiffMinutes(getExpectedArrivalTime(allStages),
-                getFirstStage(allStages).getFirstDepartureTime());
+        TramTime expectedArrivalTime = getExpectedArrivalTime(allStages);
+        TramTime firstDepartureTime = getFirstStage(allStages).getFirstDepartureTime();
+        int mins = TramTime.diffenceAsMinutes(expectedArrivalTime, firstDepartureTime);
         return format("%s minutes", mins);
     }
 
