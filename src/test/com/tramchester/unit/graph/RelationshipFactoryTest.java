@@ -180,8 +180,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertEquals(42, tramRelationship.getCost());
         assertEquals("service99", tramRelationship.getService());
         assertEquals("dest", tramRelationship.getDest());
-        assertSame(times, tramRelationship.getTimesTramRuns());
-        assertSame(days, tramRelationship.getDaysTramRuns());
+        assertSame(times, tramRelationship.getTimesServiceRuns());
+        assertSame(days, tramRelationship.getDaysServiceRuns());
         assertEquals(new LocalDate(2015, 10, 25), tramRelationship.getStartDate().getDate());
         assertEquals(new LocalDate(2016, 11, 24), tramRelationship.getEndDate().getDate());
         assertSame(startTramNode, tramRelationship.getStartNode());

@@ -23,7 +23,7 @@
                     </div>
                 </div>
             </div>
-            <div id="notYet" ng-hide="(stations.length >0)  || (departures.length >0)" class="text-center">
+            <div id="notYet" ng-hide="(stations.length >0)  || (departures)" class="text-center">
                 <img src="images/loader.gif" class="medium-loading"/>
             </div>
             <div class="information" >
@@ -32,26 +32,35 @@
                     <div id="platformList{{$index}}" class="list-group">
                         <div class="list-group-item">
                             <div ng-repeat="platform in station.platforms">
-                                <div class="dueTrams" ng-show="platform.stationDepartureInfo.dueTrams.length >0">
-                                    <span class="nearMePlatform">Platform {{platform.platformNumber}}</span>
-                                    <div ng-repeat="tram in platform.stationDepartureInfo.dueTrams">
-                                        <span class="nearMeTram"><strong>{{tram.when}} {{tram.destination}}</strong> {{tram.carriages}} {{tram.status}}</span>
+                                <div ng-show="platform.stationDepartureInfo">
+                                    <div class="dueTrams" ng-show="platform.stationDepartureInfo.dueTrams.length >0">
+                                        <span class="nearMePlatform">Platform {{platform.platformNumber}}</span>
+                                        <div ng-repeat="tram in platform.stationDepartureInfo.dueTrams">
+                                            <span class="nearMeTram"><strong>{{tram.when}} {{tram.destination}}</strong> {{tram.carriages}} {{tram.status}}</span>
+                                        </div>
                                     </div>
+                                </div>
+                                <div ng-hide="platform.stationDepartureInfo">
+                                    <span class="nearMePlatform">Platform {{platform.platformNumber}}</span>
+                                    <span class="nearMeTram">No live data currently available</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="panel" id="departuresList" ng-hide='!departures.length'>
+                <div class="panel" id="departuresList" ng-show='departures'>
                     <h4 class="heading">Departures</h4>
                     <div class="list-group">
-                        <div class="list-group-item">
+                        <div class="list-group-item" ng-show='departures.length > 0'>
                             <div ng-repeat="departure in departures">
                                 <div>
                                     <span class="nearMeTram"><strong>{{departure.when}}
                                         {{departure.destination}}</strong> {{departure.carriages}} from {{departure.from}}</span>
                                 </div>
                             </div>
+                        </div>
+                        <div class="list-group-item" ng-hide='departures.length > 0'>
+                            <span class="nearMeTram">No live data is currently available</span>
                         </div>
                     </div>
                 </div>

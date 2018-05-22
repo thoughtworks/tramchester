@@ -37,22 +37,21 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     }
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
-                                                GoesToRelationship tramGoesToRelationship, Path path) throws TramchesterException {
+                                                GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
 
-        if (!operatesOnDayOnWeekday(tramGoesToRelationship.getDaysTramRuns(), day)) {
+        if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
             return new ServiceReason.DoesNotRunOnDay(day);
         }
-        if (!noInFlightChangeOfService(incoming, tramGoesToRelationship)) {
+        if (!noInFlightChangeOfService(incoming, goesToRelationship)) {
             return ServiceReason.InflightChangeOfService;
         }
-        if (!operatesOnQueryDate(tramGoesToRelationship.getStartDate(), tramGoesToRelationship.getEndDate(),
-                date))
+        if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), date))
         {
             return ServiceReason.DoesNotRunOnQueryDate;
         }
         // do this last, it is expensive
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
-        if (!operatesOnTime(tramGoesToRelationship.getTimesTramRuns(), elapsedTimeProvider)) {
+        if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
             return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
         }
         return ServiceReason.IsValid;

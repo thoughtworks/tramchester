@@ -113,7 +113,7 @@ public class TramGraphBuilderTest {
                                 collect(Collectors.toList()).
                                 containsAll(deansAndNext)).
                             collect(Collectors.toList());
-                    int[] timesTramRuns = goesTo.getTimesTramRuns();
+                    int[] timesTramRuns = goesTo.getTimesServiceRuns();
                     // number of outbounds from should match calling trip from the data
                     assertEquals(svcId, tripsThatCall.size(), timesTramRuns.length);
 
@@ -189,11 +189,11 @@ public class TramGraphBuilderTest {
         outbounds.forEach(outbound -> {
             if (outbound.isGoesTo()) {
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outbound;
-                int[] runsAt = tramGoesToRelationship.getTimesTramRuns();
+                int[] runsAt = tramGoesToRelationship.getTimesServiceRuns();
                 assertTrue(runsAt.length >0 );
                 logger.info(String.format("%s (%s): ", tramGoesToRelationship.getService(), tramGoesToRelationship.getDest()));
                 logger.info(display(runsAt));
-                boolean[] days = tramGoesToRelationship.getDaysTramRuns();
+                boolean[] days = tramGoesToRelationship.getDaysServiceRuns();
                 logger.info(display(days));
             }
         });
@@ -227,7 +227,7 @@ public class TramGraphBuilderTest {
         });
         // filter by day and then direction/route
         assertTrue(!svcsFromVelopark.isEmpty());
-        svcsFromVelopark.removeIf(svc -> !svc.getDaysTramRuns()[0]); // monday
+        svcsFromVelopark.removeIf(svc -> !svc.getDaysServiceRuns()[0]); // monday
         assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(
                 svc.getService()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
@@ -236,7 +236,7 @@ public class TramGraphBuilderTest {
         assertTrue(svcsFromVelopark.size() >=1 );
 
         svcsFromVelopark.removeIf(svc -> {
-            for (int mins : svc.getTimesTramRuns()) {
+            for (int mins : svc.getTimesServiceRuns()) {
                 if ((mins>=MINUTES_FROM_MIDNIGHT_8AM) && (mins-MINUTES_FROM_MIDNIGHT_8AM<=15)) return false;
             }
             return true;

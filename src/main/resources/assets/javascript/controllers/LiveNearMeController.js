@@ -40,7 +40,7 @@ techLabApp.controller('LiveNearMeController',
                 $scope.stations = stationList.stations;
                 $scope.notes = stationList.notes;
                 $scope.Notes = ($scope.notes.length != 0);
-                $scope.departures = [];
+                $scope.departures = null;
             });
         }
 

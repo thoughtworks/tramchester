@@ -1,6 +1,5 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import org.joda.time.DateTime;

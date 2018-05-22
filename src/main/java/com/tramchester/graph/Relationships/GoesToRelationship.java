@@ -31,14 +31,14 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         super(graphRelationship, nodeFactory);
     }
 
-    public boolean[] getDaysTramRuns() {
+    public boolean[] getDaysServiceRuns() {
         if (daysRunning==null) {
             daysRunning = (boolean[]) graphRelationship.getProperty(GraphStaticKeys.DAYS);
         }
         return daysRunning;
     }
 
-    public int[] getTimesTramRuns() {
+    public int[] getTimesServiceRuns() {
         if (timesRunning==null) {
             timesRunning = (int[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
         }
