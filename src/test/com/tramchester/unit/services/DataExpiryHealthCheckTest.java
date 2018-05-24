@@ -1,10 +1,11 @@
 package com.tramchester.unit.services;
 
 
+import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.repository.ProvidesFeedInfo;
-import com.tramchester.services.ExpiryCheckService;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.LocalDate;
@@ -17,11 +18,10 @@ import java.util.Optional;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-public class ExpiryCheckServiceTest extends EasyMockSupport {
+public class DataExpiryHealthCheckTest extends EasyMockSupport {
 
     private ProvidesFeedInfo providesFeedInfo;
-    private Optional<Boolean> reported = Optional.empty();
-    private ExpiryCheckService service;
+    private DataExpiryHealthCheck healthCheck;
 
     @Before
     public void beforeEachTestRuns() {
@@ -29,7 +29,7 @@ public class ExpiryCheckServiceTest extends EasyMockSupport {
         FeedInfo feedInfo = createFeedInfo(LocalDate.now().minusDays(30), LocalDate.now().plusDays(3));
         EasyMock.expect(providesFeedInfo.getFeedInfo()).andReturn(feedInfo);
 
-        service = new ExpiryCheckService(providesFeedInfo, new TestConfig() {
+        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, new TestConfig() {
             @Override
             public Path getDataFolder() {
                 return null;
@@ -40,40 +40,37 @@ public class ExpiryCheckServiceTest extends EasyMockSupport {
     @Test
     public void shouldTriggerIfWithinThreshholdButNotExpiredYetMatchingNumberOfDays() {
         replayAll();
-        service.check(LocalDate.now(), (hasAlreadyExpired, validUntil) -> reported = Optional.of(hasAlreadyExpired));
+        HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
-        assertTrue(reported.isPresent());
-        assertFalse(reported.get());
+        assertFalse(result.isHealthy());
     }
 
     @Test
     public void shouldTriggerIfWithinThreshholdButNotExpiredYet() {
         replayAll();
-        service.check(LocalDate.now().plusDays(1), (hasAlreadyExpired, validUntil) -> reported = Optional.of(hasAlreadyExpired));
+        HealthCheck.Result result = healthCheck.checkForDate(LocalDate.now().plusDays(1));
         verifyAll();
 
-        assertTrue(reported.isPresent());
-        assertFalse(reported.get());
+        assertFalse(result.isHealthy());
     }
 
     @Test
     public void shouldNotTriggerIfNotWithinThreshhold() {
         replayAll();
-        service.check(LocalDate.now().minusDays(1), (hasAlreadyExpired, validUntil) -> reported = Optional.of(hasAlreadyExpired));
+        HealthCheck.Result result = healthCheck.checkForDate(LocalDate.now().minusDays(1));
         verifyAll();
 
-        assertFalse(reported.isPresent());
+        assertTrue(result.isHealthy());
     }
 
     @Test
     public void shouldTriggerIfPastThreshhold() {
         replayAll();
-        service.check(LocalDate.now().plusDays(4), (hasAlreadyExpired, validUntil) -> reported = Optional.of(hasAlreadyExpired));
+        HealthCheck.Result result = healthCheck.checkForDate(LocalDate.now().plusDays(4));
         verifyAll();
 
-        assertTrue(reported.isPresent());
-        assertTrue(reported.get());
+        assertFalse(result.isHealthy());
     }
 
     private FeedInfo createFeedInfo(LocalDate validFrom, LocalDate validUntil) {

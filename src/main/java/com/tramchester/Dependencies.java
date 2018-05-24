@@ -22,6 +22,8 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.healthchecks.DataExpiryHealthCheck;
+import com.tramchester.healthchecks.GraphHealthCheck;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.JourneysMapper;
@@ -31,7 +33,6 @@ import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.RoutesRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.resources.*;
-import com.tramchester.services.ExpiryCheckService;
 import com.tramchester.services.SpatialService;
 import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
@@ -114,7 +115,6 @@ public class Dependencies {
         picoContainer.addComponent(RoutesRepository.class);
         picoContainer.addComponent(RouteResource.class);
         picoContainer.addComponent(AreaResource.class);
-        picoContainer.addComponent(ExpiryCheckService.class);
         picoContainer.addComponent(LiveDataHTTPFetcher.class);
         picoContainer.addComponent(LiveDataParser.class);
         picoContainer.addComponent(LiveDataRepository.class);
@@ -122,6 +122,7 @@ public class Dependencies {
         rebuildGraph(configuration);
 
         picoContainer.addComponent(GraphHealthCheck.class);
+        picoContainer.addComponent(DataExpiryHealthCheck.class);
 
     }
 

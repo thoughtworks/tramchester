@@ -1,4 +1,4 @@
-package com.tramchester;
+package com.tramchester.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -16,7 +16,7 @@ public class GraphHealthCheck extends HealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         if (service.isAvailable(TIMEOUT_MILLIS)) {
             logger.info("Graph DB available");
             return Result.healthy();

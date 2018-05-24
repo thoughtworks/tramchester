@@ -6,11 +6,11 @@ import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.healthchecks.DataExpiryHealthCheck;
+import com.tramchester.healthchecks.GraphHealthCheck;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.resources.*;
-import com.tramchester.services.ExpiryCheckService;
 import io.dropwizard.Application;
-import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -20,7 +20,6 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,6 +99,7 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(AreaResource.class));
         environment.jersey().register(dependencies.get(DeparturesResource.class));
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
+        environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
 
         filtersForStaticContent(environment);
 
@@ -113,15 +113,6 @@ public class App extends Application<AppConfiguration>  {
                 dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
-        // data expiry check
-        ExpiryCheckService checker = dependencies.get(ExpiryCheckService.class);
-        executor.scheduleAtFixedRate(() -> checker.check(LocalDate.now(), (hasAlreadyExpired, validUntil) -> {
-            if (hasAlreadyExpired) {
-                logger.error("FATAL: Tram data expired on " + validUntil.toString());
-            } else {
-                logger.error("Tram data will expire on " + validUntil.toString());
-            }
-        }), 1, 60, TimeUnit.MINUTES);
 
         // refresh live data
         executor.scheduleAtFixedRate(() -> {
