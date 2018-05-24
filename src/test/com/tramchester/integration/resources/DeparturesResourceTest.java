@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
+import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
@@ -14,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Response;
 import java.time.DayOfWeek;
@@ -45,8 +47,8 @@ public class DeparturesResourceTest {
     }
 
 
-    // NOTE: will fail if API key not available in env var TFGMAPIKEY
     @Test
+    @Category(LiveDataTestCategory.class)
     public void shouldGetNearbyDeparturesWithNotes() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;

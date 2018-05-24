@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
+import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -21,6 +22,7 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
@@ -68,6 +70,7 @@ public class StationResourceTest {
     }
 
     @Test
+    @Category(LiveDataTestCategory.class)
     public void shouldGetSingleStationWithLiveData() {
         String id = Stations.StPetersSquare.getId();
         String endPoint = "stations/live/" + id;
@@ -107,6 +110,7 @@ public class StationResourceTest {
     }
 
     @Test
+    @Category(LiveDataTestCategory.class)
     public void shouldGetNearestStationsWithLiveData() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;

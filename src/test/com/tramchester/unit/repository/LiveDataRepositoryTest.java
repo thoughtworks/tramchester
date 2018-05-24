@@ -7,13 +7,13 @@ import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.livedata.LiveDataFetcher;
+import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.LiveDataRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
     @Before
     public void beforeEachTestRuns() {
-        fetcher = createMock(LiveDataFetcher.class);
+        fetcher = createMock(LiveDataHTTPFetcher.class);
         mapper = createMock(LiveDataParser.class);
         repository = new LiveDataRepository(fetcher, mapper);
         platform = new PlatformDTO(new Platform("platformId", "Platform name"));
@@ -140,7 +140,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertTrue(enriched==null);
         verifyAll();
     }
-    
+
     @Test
     public void shouldEnrichLocationDTOIfHasPlatforms() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();

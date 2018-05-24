@@ -1,13 +1,16 @@
 package com.tramchester.integration.livedata;
 
+import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.livedata.LiveDataFetcher;
+import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import org.joda.time.DateTime;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,11 +19,12 @@ import java.util.stream.Stream;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class LiveDataFetcherTest {
+public class LiveDataHTTPFetcherTest {
 
     @Test
+    @Category(LiveDataTestCategory.class)
     public void shouldFetchDataFromTFGMAPI() throws ParseException {
-        LiveDataFetcher liveDataFetcher = new LiveDataFetcher(new IntegrationTramTestConfig());
+        LiveDataFetcher liveDataFetcher = new LiveDataHTTPFetcher(new IntegrationTramTestConfig());
 
         String payload = liveDataFetcher.fetch();
 

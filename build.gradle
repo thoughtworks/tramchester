@@ -182,10 +182,10 @@ task ci_unit(type: Test) {
 
 task integration(type: Test, dependsOn: compileJava) {
     maxHeapSize = '2000m'
-//    jvmArgs "-XX:MaxMetaspaceSize=256m"
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
+            excludeCategories 'com.tramchester.LiveDataTestCategory' // hopefully temporary exclusion
         }
         testLogging {
             exceptionFormat "full" // default is "short"

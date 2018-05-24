@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
+import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.ProvidesNotes;
@@ -27,6 +28,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
@@ -79,6 +81,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
+    @Category(LiveDataTestCategory.class)
     public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() throws TramchesterException {
         DateTime now = DateTime.now(timeZone);
 
