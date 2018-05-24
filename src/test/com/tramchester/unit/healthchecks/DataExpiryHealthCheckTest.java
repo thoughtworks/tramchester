@@ -1,4 +1,4 @@
-package com.tramchester.unit.services;
+package com.tramchester.unit.healthchecks;
 
 
 import com.codahale.metrics.health.HealthCheck;

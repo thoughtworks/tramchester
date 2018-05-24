@@ -34,14 +34,19 @@ public class DataExpiryHealthCheck extends HealthCheck {
         logger.info(format("Checking if data is expired or will expire with %d days of %s", days, validUntil));
 
         if (currentDate.isAfter(validUntil) || currentDate.isEqual(validUntil)) {
-            return Result.unhealthy("Tram data expired on " + validUntil.toString());
+            String message = "Tram data expired on " + validUntil.toString();
+            logger.error(message);
+            return Result.unhealthy(message);
         }
 
         LocalDate boundary = validUntil.minusDays(days);
         if (currentDate.isAfter(boundary) || currentDate.isEqual(boundary)) {
-            return Result.unhealthy("Tram data will expire on " + validUntil.toString());
+            String message = "Tram data will expire on " + validUntil.toString();
+            return Result.unhealthy(message);
         }
 
-        return Result.healthy("Data is not due to expire until " +validUntil.toString());
+        String message = "Data is not due to expire until " + validUntil.toString();
+        logger.info(message);
+        return Result.healthy(message);
     }
 }

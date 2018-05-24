@@ -21,9 +21,7 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 
 public class LiveDataRepositoryTest extends EasyMockSupport {
 
@@ -66,6 +64,45 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         assertEquals("some message", platformA.getStationDepartureInfo().getMessage());
         assertEquals("", platformB.getStationDepartureInfo().getMessage());
+    }
+
+    @Test
+    public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException {
+        List<StationDepartureInfo> info = new LinkedList<>();
+
+        DateTime lastUpdate = DateTime.now(); // up to date
+        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
+        addStationInfo(info, lastUpdate, "303", "platformIdB", "exclude message", "platformLocation");
+
+        EasyMock.expect(fetcher.fetch()).andReturn("someData");
+        EasyMock.expect(mapper.parse("someData")).andReturn(info);
+
+        replayAll();
+        repository.refreshRespository();
+        verifyAll();
+
+        assertEquals(2,repository.count());
+        assertEquals(0, repository.staleDataCount());
+    }
+
+    @Test
+    public void shouldUpdateStatusWhenRefreshingStaleData() throws ParseException {
+        List<StationDepartureInfo> info = new LinkedList<>();
+
+        DateTime lastUpdate = DateTime.now().minusDays(5); // stale
+        addStationInfo(info, lastUpdate, "yyy", "platformIdC", "some message", "platformLocation");
+        addStationInfo(info, lastUpdate, "303", "platformIdD", "exclude message", "platformLocation");
+        addStationInfo(info, DateTime.now(), "303", "platformIdF", "exclude message", "platformLocation");
+
+        EasyMock.expect(fetcher.fetch()).andReturn("someData");
+        EasyMock.expect(mapper.parse("someData")).andReturn(info);
+
+        replayAll();
+        repository.refreshRespository();
+        verifyAll();
+
+        assertEquals(3,repository.count());
+        assertEquals(2, repository.staleDataCount());
     }
 
     @Test

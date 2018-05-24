@@ -24,6 +24,7 @@ import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.healthchecks.GraphHealthCheck;
+import com.tramchester.healthchecks.LiveDataHealthCheck;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.JourneysMapper;
@@ -123,7 +124,7 @@ public class Dependencies {
 
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
-
+        picoContainer.addComponent(LiveDataHealthCheck.class);
     }
 
     public ErrorCount cleanseData(Set<String> agencies, Path inputPath, Path outputPath) throws IOException {

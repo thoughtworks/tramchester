@@ -8,6 +8,7 @@ import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.healthchecks.GraphHealthCheck;
+import com.tramchester.healthchecks.LiveDataHealthCheck;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.resources.*;
 import io.dropwizard.Application;
@@ -100,6 +101,7 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(DeparturesResource.class));
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
         environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
+        environment.healthChecks().register("liveData", dependencies.get(LiveDataHealthCheck.class));
 
         filtersForStaticContent(environment);
 
@@ -112,7 +114,6 @@ public class App extends Application<AppConfiguration>  {
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry,
                 dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
-
 
         // refresh live data
         executor.scheduleAtFixedRate(() -> {

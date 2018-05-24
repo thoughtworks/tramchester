@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class GraphHealthCheck extends HealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(GraphHealthCheck.class);
+    private final String unavailable = "Graph DB unavailable";
 
     private static final long TIMEOUT_MILLIS = 5;
     private final GraphDatabaseService service;
@@ -21,7 +22,7 @@ public class GraphHealthCheck extends HealthCheck {
             logger.info("Graph DB available");
             return Result.healthy();
         }
-        logger.warn("Graph DB unavailable");
-        return Result.unhealthy("Graph DB unavailable");
+        logger.error(unavailable);
+        return Result.unhealthy(unavailable);
     }
 }

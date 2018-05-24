@@ -69,17 +69,6 @@ public class LiveDataRepository {
         }
         stationInformation = newMap;
         lastRefresh = DateTime.now();
-        checkForDataFresh(newMap.values());
-    }
-
-    // log errors is data we are receiving from TFGM contains no up to date data
-    private void checkForDataFresh(Collection<StationDepartureInfo> infos) {
-        int total = infos.size();
-        DateTime cutoff = lastRefresh.minusMinutes(TIME_LIMIT);
-        long withinCutof = infos.stream().filter(info -> info.getLastUpdate().isAfter(cutoff)).count();
-        if (withinCutof<total) {
-            logger.error(format("%s out of %s records are within of cuttoff time %s", withinCutof, total, cutoff));
-        }
     }
 
     public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime) {
@@ -140,5 +129,16 @@ public class LiveDataRepository {
 
     public int count() {
         return stationInformation.size();
+    }
+
+    public long staleDataCount() {
+        Collection<StationDepartureInfo> infos = stationInformation.values();
+        int total = infos.size();
+        DateTime cutoff = lastRefresh.minusMinutes(TIME_LIMIT);
+        long withinCutof = infos.stream().filter(info -> info.getLastUpdate().isAfter(cutoff)).count();
+        if (withinCutof<total) {
+            logger.error(format("%s out of %s records are within of cuttoff time %s", withinCutof, total, cutoff));
+        }
+        return total-withinCutof;
     }
 }
