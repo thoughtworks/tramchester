@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -13,10 +14,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -140,5 +138,20 @@ public class LiveDataRepository {
             logger.error(format("%s out of %s records are within of cuttoff time %s", withinCutof, total, cutoff));
         }
         return total-withinCutof;
+    }
+
+    public List<StationDepartureInfo> departuresFor(Station station) {
+        List<StationDepartureInfo> result = new LinkedList<>();
+
+        station.getPlatforms().forEach(platform -> {
+            String platformId = platform.getId();
+            if (stationInformation.containsKey(platformId)) {
+                result.add(stationInformation.get(platformId));
+            } else {
+                logger.error("Unable to find stationInformation for platform " + platform);
+            }
+        });
+
+        return result;
     }
 }

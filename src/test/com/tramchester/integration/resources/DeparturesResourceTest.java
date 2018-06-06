@@ -7,6 +7,7 @@ import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
+import com.tramchester.healthchecks.LiveDataHealthCheck;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -81,6 +82,23 @@ public class DeparturesResourceTest {
         }
         Assert.assertTrue((notes.size())-ignore>0);
 
+    }
+
+    @Test
+    @Category(LiveDataHealthCheck.class)
+    public void shouldGetDueTramsForStation() {
+        Response response = IntegrationClient.getResponse(
+                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty());
+        assertEquals(200,response.getStatus());
+
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        SortedSet<DepartureDTO> departures = departureList.getDepartures();
+        assertFalse(departures.isEmpty());
+        assertFalse(departureList.getNotes().isEmpty());
+
+        departures.forEach(depart -> {
+            assertEquals(Stations.StPetersSquare.getName(),depart.getFrom());
+        });
     }
 
 }

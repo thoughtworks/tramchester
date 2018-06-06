@@ -11,10 +11,11 @@ import org.joda.time.LocalTime;
 public class DepartureDTO implements Comparable<DepartureDTO> {
 
     private String from;
-    private TramTime when;
+
     private String carriages;
     private String status;
     private String destination;
+    private TramTime when;
 
     public DepartureDTO(String from, DueTram dueTram) {
         this.from = from;

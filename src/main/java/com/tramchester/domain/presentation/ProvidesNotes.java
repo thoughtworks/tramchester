@@ -50,6 +50,24 @@ public class ProvidesNotes {
         return notes;
     }
 
+    // live notes only
+    public List<String> createNotesFor(List<StationDepartureInfo> departureInfos) {
+        List<String> notes = new LinkedList<>();
+
+        notes.addAll(addLiveMessagesForInfos(departureInfos));
+
+        return notes;
+    }
+
+    private Set<String> addLiveMessagesForInfos(List<StationDepartureInfo> departureInfos) {
+        Map<String,String> messageMap = new HashedMap<>();
+        departureInfos.forEach(info -> {
+            addRelevantMessage(messageMap,info);
+        });
+
+        return createMessageList(messageMap);
+    }
+
     private Set<String> addLiveMessagesFor(List<StationDTO> stations) {
         // Map: Message -> Location
         Map<String,String> messageMap = new HashedMap<>();
@@ -109,6 +127,10 @@ public class ProvidesNotes {
             return;
         }
 
+        addRelevantMessage(messageMap, info);
+    }
+
+    private void addRelevantMessage(Map<String, String> messageMap, StationDepartureInfo info) {
         String rawMessage = info.getMessage();
         if (usefulMessage(rawMessage)) {
             if (messageMap.containsKey(rawMessage)) {
@@ -125,5 +147,6 @@ public class ProvidesNotes {
     private boolean usefulMessage(String rawMessage) {
         return ! (rawMessage.isEmpty() || EMPTY.equals(rawMessage));
     }
+
 
 }

@@ -11,10 +11,12 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 
 public class DueTram {
+
+    private int wait;
+
+    private String carriages;
     private String status;
     private String destination;
-    private int wait;
-    private String carriages;
     private TramTime when;
 
     public DueTram() {

@@ -28,14 +28,38 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     private LiveDataFetcher fetcher;
     private LiveDataParser mapper;
     private LiveDataRepository repository;
-    private PlatformDTO platform;
+    private PlatformDTO platformDTO;
 
     @Before
     public void beforeEachTestRuns() {
         fetcher = createMock(LiveDataHTTPFetcher.class);
         mapper = createMock(LiveDataParser.class);
         repository = new LiveDataRepository(fetcher, mapper);
-        platform = new PlatformDTO(new Platform("platformId", "Platform name"));
+        platformDTO = new PlatformDTO(new Platform("platformId", "Platform name"));
+    }
+
+    @Test
+    public void shouldGetDepartureInformationForSingleStation() throws ParseException {
+        List<StationDepartureInfo> info = new LinkedList<>();
+
+        DateTime lastUpdate = DateTime.now();
+        StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
+                "some message", "platformLocation");
+
+        EasyMock.expect(fetcher.fetch()).andReturn("someData");
+        EasyMock.expect(mapper.parse("someData")).andReturn(info);
+
+        Station station = new Station("stationId", "area", "stopName", new LatLong(1,1), true);
+        Platform platform = new Platform("platformId", "platformName");
+        station.addPlatform(platform);
+
+        replayAll();
+        repository.refreshRespository();
+        List<StationDepartureInfo> departures = repository.departuresFor(station);
+        verifyAll();
+
+        assertEquals(1, departures.size());
+        assertEquals(departureInfo, departures.get(0));
     }
 
     @Test
@@ -119,10 +143,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.refreshRespository();
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate());
-        repository.enrich(platform, queryDate, TramTime.create(lastUpdate.toLocalTime()));
+        repository.enrich(platformDTO, queryDate, TramTime.create(lastUpdate.toLocalTime()));
         verifyAll();
 
-        StationDepartureInfo enriched = platform.getStationDepartureInfo();
+        StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
 
         assertEquals(departureInfo, enriched);
     }
@@ -143,12 +167,12 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.refreshRespository();
         TramTime queryTime = TramTime.create(lastUpdate.toLocalTime());
-        repository.enrich(platform, queryDateA, queryTime);
-        StationDepartureInfo enriched = platform.getStationDepartureInfo();
+        repository.enrich(platformDTO, queryDateA, queryTime);
+        StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
         assertTrue(enriched==null);
 
-        repository.enrich(platform, queryDateB, queryTime);
-        enriched = platform.getStationDepartureInfo();
+        repository.enrich(platformDTO, queryDateB, queryTime);
+        enriched = platformDTO.getStationDepartureInfo();
         assertTrue(enriched==null);
         verifyAll();
     }
@@ -168,12 +192,12 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.refreshRespository();
         TramTime queryTime = TramTime.create(lastUpdate.toLocalTime());
-        repository.enrich(platform, queryDate, queryTime.plusMinutes(LiveDataRepository.TIME_LIMIT));
-        StationDepartureInfo enriched = platform.getStationDepartureInfo();
+        repository.enrich(platformDTO, queryDate, queryTime.plusMinutes(LiveDataRepository.TIME_LIMIT));
+        StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
         assertTrue(enriched==null);
 
-        repository.enrich(platform, queryDate, queryTime.minusMinutes(LiveDataRepository.TIME_LIMIT));
-        enriched = platform.getStationDepartureInfo();
+        repository.enrich(platformDTO, queryDate, queryTime.minusMinutes(LiveDataRepository.TIME_LIMIT));
+        enriched = platformDTO.getStationDepartureInfo();
         assertTrue(enriched==null);
         verifyAll();
     }

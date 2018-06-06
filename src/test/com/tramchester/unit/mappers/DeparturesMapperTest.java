@@ -1,27 +1,32 @@
 package com.tramchester.unit.mappers;
 
+import com.tramchester.TestConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
+import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.mappers.DeparturesMapper;
-import net.sf.cglib.core.Local;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class DeparturesMapperTest {
 
@@ -30,7 +35,13 @@ public class DeparturesMapperTest {
 
     @Before
     public void beforeEachTestRuns() {
-        mapper = new DeparturesMapper();
+        ProvidesNotes providesNotes = new ProvidesNotes(new TestConfig() {
+            @Override
+            public Path getDataFolder() {
+                return null;
+            }
+        });
+        mapper = new DeparturesMapper(providesNotes);
     }
 
     @Test
@@ -95,5 +106,42 @@ public class DeparturesMapperTest {
         DepartureDTO last = results.last();
         assertEquals("XX", last.getDestination());
         assertEquals(expected, last.getWhen());
+    }
+
+    @Test
+    public void shouldMapDepartureInformationTo() {
+        DateTime updateDate = DateTime.now();
+        LocalTime updateTime = LocalTime.now();
+
+        List<StationDepartureInfo> departureInfos = new LinkedList<>();
+        StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName", "stationPlatform1", "location",
+                "messageOne", updateDate);
+        infoA.addDueTram(new DueTram("destinationA", "Due", 5, "Double", updateTime));
+        infoA.addDueTram(new DueTram("destinationB", "Delay", 10, "Single", updateTime));
+
+        StationDepartureInfo infoB = new StationDepartureInfo("displayId2", "lineName", "stationPlatform2", "location",
+                "messageTwo", updateDate);
+        infoB.addDueTram(new DueTram("destinationC", "Departing", 1, "Double", updateTime));
+
+        departureInfos.add(infoA);
+        departureInfos.add(infoB);
+
+        DepartureListDTO result = mapper.from(departureInfos);
+
+        SortedSet<DepartureDTO> departures = result.getDepartures();
+
+        assertEquals(3, result.getDepartures().size());
+        DepartureDTO first = departures.first();
+        assertEquals("destinationC", first.getDestination());
+        assertEquals("Departing", first.getStatus());
+        assertEquals("location", first.getFrom());
+        assertEquals("Double", first.getCarriages());
+        assertEquals(TramTime.create(updateTime.plusMinutes(1)), first.getWhen());
+
+        List<String> notes = result.getNotes();
+        assertEquals(2, notes.size());
+        assertTrue(notes.contains("'messageOne' - location, Metrolink"));
+        assertTrue(notes.contains("'messageTwo' - location, Metrolink"));
+
     }
 }

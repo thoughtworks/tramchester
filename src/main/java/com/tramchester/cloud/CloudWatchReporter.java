@@ -24,7 +24,10 @@ public class CloudWatchReporter extends ScheduledReporter {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
+    public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters,
+                       SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,
+                       SortedMap<String, Timer> timers) {
+
         SortedMap<String, Timer> toSubmit = new TreeMap<>();
 
         timers.forEach((name, timer) -> {

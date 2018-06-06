@@ -2,6 +2,8 @@ package com.tramchester.resources;
 
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.domain.Station;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
@@ -9,6 +11,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -22,10 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Api
@@ -38,20 +38,22 @@ public class DeparturesResource {
     private final DeparturesMapper departuresMapper;
     private ProvidesNotes providesNotes;
     private final DateTimeZone timeZone;
+    private final StationRepository stationRepository;
 
     public DeparturesResource(SpatialService spatialService, LiveDataRepository liveDataRepository,
-                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes) {
+                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository) {
         this.spatialService = spatialService;
         this.liveDataRepository = liveDataRepository;
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
+        this.stationRepository = stationRepository;
         timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
     }
 
     @GET
     @Timed
     @Path("/{lat}/{lon}")
-    @ApiOperation(value = "Get geographically close departures", response = DepartureDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get geographically close departures", response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon) {
         DateTime time = DateTime.now(timeZone);
@@ -66,5 +68,27 @@ public class DeparturesResource {
         DepartureListDTO departureList = new DepartureListDTO(departuresDTO, notes);
 
         return Response.ok(departureList).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/station/{station}")
+    @ApiOperation(value= "All departures from given station ID", response = DepartureListDTO.class)
+    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
+    public Response getDepartureForStation(@PathParam("station") String stationId) {
+
+        Optional<Station> maybeStation = stationRepository.getStation(stationId);
+
+        if (maybeStation.isPresent()) {
+            Station station = maybeStation.get();
+            List<StationDepartureInfo> departs = liveDataRepository.departuresFor(station);
+
+            DepartureListDTO departureList = departuresMapper.from(departs);
+
+            return Response.ok(departureList).build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+
     }
 }
