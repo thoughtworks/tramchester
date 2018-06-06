@@ -109,24 +109,13 @@ public class DeparturesMapperTest {
     }
 
     @Test
-    public void shouldMapDepartureInformationTo() {
+    public void shouldMapDepartureInformationToDepartureListDTOWithNotes() {
         DateTime updateDate = DateTime.now();
         LocalTime updateTime = LocalTime.now();
 
-        List<StationDepartureInfo> departureInfos = new LinkedList<>();
-        StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName", "stationPlatform1", "location",
-                "messageOne", updateDate);
-        infoA.addDueTram(new DueTram("destinationA", "Due", 5, "Double", updateTime));
-        infoA.addDueTram(new DueTram("destinationB", "Delay", 10, "Single", updateTime));
+        List<StationDepartureInfo> departureInfos = createStationDepartureInfo(updateDate, updateTime);
 
-        StationDepartureInfo infoB = new StationDepartureInfo("displayId2", "lineName", "stationPlatform2", "location",
-                "messageTwo", updateDate);
-        infoB.addDueTram(new DueTram("destinationC", "Departing", 1, "Double", updateTime));
-
-        departureInfos.add(infoA);
-        departureInfos.add(infoB);
-
-        DepartureListDTO result = mapper.from(departureInfos);
+        DepartureListDTO result = mapper.from(departureInfos,true);
 
         SortedSet<DepartureDTO> departures = result.getDepartures();
 
@@ -143,5 +132,44 @@ public class DeparturesMapperTest {
         assertTrue(notes.contains("'messageOne' - location, Metrolink"));
         assertTrue(notes.contains("'messageTwo' - location, Metrolink"));
 
+    }
+
+    @Test
+    public void shouldMapDepartureInformationToDepartureListDTOWithoutNotes() {
+        DateTime updateDate = DateTime.now();
+        LocalTime updateTime = LocalTime.now();
+
+        List<StationDepartureInfo> departureInfos = createStationDepartureInfo(updateDate, updateTime);
+
+        DepartureListDTO result = mapper.from(departureInfos,false);
+
+        SortedSet<DepartureDTO> departures = result.getDepartures();
+
+        assertEquals(3, result.getDepartures().size());
+        DepartureDTO first = departures.first();
+        assertEquals("destinationC", first.getDestination());
+        assertEquals("Departing", first.getStatus());
+        assertEquals("location", first.getFrom());
+        assertEquals("Double", first.getCarriages());
+        assertEquals(TramTime.create(updateTime.plusMinutes(1)), first.getWhen());
+
+        List<String> notes = result.getNotes();
+        assertEquals(0, notes.size());
+    }
+
+    private List<StationDepartureInfo> createStationDepartureInfo(DateTime updateDate, LocalTime updateTime) {
+        List<StationDepartureInfo> departureInfos = new LinkedList<>();
+        StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName", "stationPlatform1", "location",
+                "messageOne", updateDate);
+        infoA.addDueTram(new DueTram("destinationA", "Due", 5, "Double", updateTime));
+        infoA.addDueTram(new DueTram("destinationB", "Delay", 10, "Single", updateTime));
+
+        StationDepartureInfo infoB = new StationDepartureInfo("displayId2", "lineName", "stationPlatform2", "location",
+                "messageTwo", updateDate);
+        infoB.addDueTram(new DueTram("destinationC", "Departing", 1, "Double", updateTime));
+
+        departureInfos.add(infoA);
+        departureInfos.add(infoB);
+        return departureInfos;
     }
 }

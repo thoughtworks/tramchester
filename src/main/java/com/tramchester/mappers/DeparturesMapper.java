@@ -6,10 +6,7 @@ import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProvidesNotes;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class DeparturesMapper {
     private static String DUE = "Due";
@@ -36,10 +33,13 @@ public class DeparturesMapper {
         return departs;
     }
 
-    public DepartureListDTO from(List<StationDepartureInfo> departureInfos) {
+    public DepartureListDTO from(List<StationDepartureInfo> departureInfos, boolean includeNotes) {
         SortedSet<DepartureDTO> trams = new TreeSet<>();
 
-        List<String> notes = providesNotes.createNotesFor(departureInfos);
+        List<String> notes = new ArrayList<>();
+        if (includeNotes) {
+            notes = providesNotes.createNotesFor(departureInfos);
+        }
 
         departureInfos.forEach(info -> {
             String from = info.getLocation();

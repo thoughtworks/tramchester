@@ -101,4 +101,23 @@ public class DeparturesResourceTest {
         });
     }
 
+    @Test
+    @Category(LiveDataHealthCheck.class)
+    public void shouldGetDueTramsForStationNotesOnOrOff() {
+        Response response = IntegrationClient.getResponse(
+                testRule, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()), Optional.empty());
+        assertEquals(200,response.getStatus());
+
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        assertFalse(departureList.getNotes().isEmpty());
+
+        response = IntegrationClient.getResponse(
+                testRule, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.getId()), Optional.empty());
+        assertEquals(200,response.getStatus());
+
+        departureList = response.readEntity(DepartureListDTO.class);
+        assertTrue(departureList.getNotes().isEmpty());
+
+    }
+
 }

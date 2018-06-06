@@ -19,10 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
@@ -73,9 +70,17 @@ public class DeparturesResource {
     @GET
     @Timed
     @Path("/station/{station}")
-    @ApiOperation(value= "All departures from given station ID", response = DepartureListDTO.class)
+    @ApiOperation(value= "All departures from given station ID, notes included by default. " +
+            "Control presence of notes using query param ?notes=1 or 0",
+            response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response getDepartureForStation(@PathParam("station") String stationId) {
+    public Response getDepartureForStation(@PathParam("station") String stationId,
+                                           @DefaultValue("1") @QueryParam("notes") String notesParam) {
+
+        boolean includeNotes = true;
+        if (!notesParam.isEmpty()) {
+            includeNotes = !notesParam.equals("0");
+        }
 
         Optional<Station> maybeStation = stationRepository.getStation(stationId);
 
@@ -83,7 +88,7 @@ public class DeparturesResource {
             Station station = maybeStation.get();
             List<StationDepartureInfo> departs = liveDataRepository.departuresFor(station);
 
-            DepartureListDTO departureList = departuresMapper.from(departs);
+            DepartureListDTO departureList = departuresMapper.from(departs,includeNotes);
 
             return Response.ok(departureList).build();
         }
