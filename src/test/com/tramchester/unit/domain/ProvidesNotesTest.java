@@ -49,6 +49,22 @@ public class ProvidesNotesTest {
         List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem("St Peters Square is currently closed. "+ProvidesNotes.website));
+
+    }
+
+    @Test
+    public void shouldAddNotesForEcclesLineClosureSummer2018() {
+
+        LocalDate clousureBegins = LocalDate.parse("2018-07-28");
+        for (int day = 0; day <= 12; day++) {
+            LocalDate onDate = clousureBegins.plusDays(day);
+            TramServiceDate queryDate = new TramServiceDate(onDate);
+            List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
+
+            assertThat(onDate.toString(),
+                    result,
+                    hasItem("The Eccles line is closed until 9th August. Please see https://tfgm.com/travel-updates/eccles-line"));
+        }
     }
 
     @Test
