@@ -33,7 +33,7 @@ public class TransportDataFromFilesTest {
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
     private final String svcDeansgateToVic = "Serv003539";
     // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv003492";
+    private String svcShawAndCrompton = "Serv003393";
 
     private Collection<Service> allServices;
 

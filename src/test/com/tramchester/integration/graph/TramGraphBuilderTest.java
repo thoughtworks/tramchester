@@ -78,8 +78,7 @@ public class TramGraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        // why so high now?
-        assertEquals(43, svcsToMediaCity.size());
+        assertEquals(19, svcsToMediaCity.size());
     }
 
     @Test
