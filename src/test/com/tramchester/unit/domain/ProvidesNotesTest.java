@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.Stations;
+import com.tramchester.repository.StationRepository;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,6 +33,8 @@ import static org.junit.Assert.assertTrue;
 public class ProvidesNotesTest {
     private ProvidesNotes provider;
     private SortedSet<JourneyDTO> decoratedJourneys;
+    String ecclesWebSite = "Please check <a href=\"https://tfgm.com/travel-updates/eccles-line\">TFGM</a> for details.";
+
 
     @Before
     public void beforeEachTestRuns() {
@@ -49,22 +53,6 @@ public class ProvidesNotesTest {
         List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem("St Peters Square is currently closed. "+ProvidesNotes.website));
-
-    }
-
-    @Test
-    public void shouldAddNotesForEcclesLineClosureSummer2018() {
-
-        LocalDate clousureBegins = LocalDate.parse("2018-07-28");
-        for (int day = 0; day <= 12; day++) {
-            LocalDate onDate = clousureBegins.plusDays(day);
-            TramServiceDate queryDate = new TramServiceDate(onDate);
-            List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
-
-            assertThat(onDate.toString(),
-                    result,
-                    hasItem("The Eccles line is closed until 9th August. Please see https://tfgm.com/travel-updates/eccles-line"));
-        }
     }
 
     @Test

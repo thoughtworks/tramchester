@@ -7,6 +7,7 @@ import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class Stations {
     public static Location Cornbrook = createStation("9400ZZMACRN", "Cornbrook area", "Cornbrook");
     public static Location Etihad = createStation("9400ZZMAECS", "Etihad area", "Etihad");
     public static Location Piccadilly = createStation("9400ZZMAPIC", "Piccadilly area", "Piccadilly");
-    public static Location HoltTown = createStation("9400ZZMAHTN", "Holt Area", "Hold Town");
+    public static Location HoltTown = createStation("9400ZZMAHTN", "Holt Area", "Holt Town");
     public static Location Eccles = createStation("9400ZZMAECC", "Eccles Area", "Eccles");
     public static Location Bury = createStation("9400ZZMABUR", "Bury Area", "Bury");
     public static Location EastDidsbury = createStation("9400ZZMAEDY", "Didsbury Area", "East Didsbury");
@@ -51,6 +52,10 @@ public class Stations {
             Rochdale,
             Bury,
             ExchangeSquare);
+
+    public static Set<String> EcclesLineStationIds = new HashSet<>(Arrays.asList(Eccles.getId(),"9400ZZMALDY", "9400ZZMAWST",
+            "9400ZZMALWY", "9400ZZMABWY", HarbourCity.getId(), MediaCityUK.getId(),
+            "9400ZZMAANC", "9400ZZMASQY", "9400ZZMAEXC", Pomona.getId()));
 
     public static List<Location> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 

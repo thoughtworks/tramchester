@@ -89,19 +89,6 @@ public class ProvidesNotes {
 
         notes.addAll(addNotesForStations(config.getClosedStations()));
 
-        if (noEccles(queryDate.getDate())) {
-            notes.add("The Eccles line is closed until 9th August. Please see https://tfgm.com/travel-updates/eccles-line");
-        }
-    }
-
-    private boolean noEccles(LocalDate queryDate) {
-        if (queryDate.isBefore(new LocalDate(2018,7,28))) {
-            return false;
-        }
-        if (queryDate.isAfter(new LocalDate(2018,8,9))) {
-            return false;
-        }
-        return true;
     }
 
     private Set<String> addNotesForStations(List<String> closedStations) {
