@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.repository.TransportData;
@@ -18,7 +19,7 @@ public class TramTransportDataImporterTest {
     private static String PATH = "data/test/";
 
     @Test
-    public void shouldLoadTransportData() {
+    public void shouldLoadTransportData() throws TramchesterException {
         TransportDataReader transportDataReader = new TransportDataReader(Paths.get(PATH), false);
         TransportDataImporter transportDataImporter = new TransportDataImporter(transportDataReader);
 

@@ -62,11 +62,7 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
                 logger.error("No live data API key present in config");
             }
         }
-        catch(TramchesterException exception) {
-            logger.error("Unable to load live data",exception);
-        } catch (IOException exception) {
-            logger.error("Unable to load live data",exception);
-        } catch (URISyntaxException exception) {
+        catch(TramchesterException | IOException | URISyntaxException exception) {
             logger.error("Unable to load live data",exception);
         }
         return "";

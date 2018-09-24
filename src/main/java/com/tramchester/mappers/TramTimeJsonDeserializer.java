@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -18,7 +19,12 @@ public class TramTimeJsonDeserializer extends JsonDeserializer<TramTime> {
     public TramTime deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        Optional<TramTime> result = TramTime.parse(node.asText());
+        Optional<TramTime> result = Optional.empty();
+        try {
+            result = TramTime.parse(node.asText());
+        } catch (TramchesterException e) {
+            throw new IOException("Failed to parse " + node.asText(),e);
+        }
         if (!result.isPresent()) {
             throw new IOException("Failed to parse " + node.asText());
         }

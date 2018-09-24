@@ -1,6 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -39,7 +40,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetDepartureInformationForSingleStation() throws ParseException {
+    public void shouldGetDepartureInformationForSingleStation() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
@@ -63,7 +64,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExcludeMessageBoardTextForSomeDisplays() throws ParseException {
+    public void shouldExcludeMessageBoardTextForSomeDisplays() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         PlatformDTO platformA = new PlatformDTO(new Platform("platformIdA", "Platform name"));
@@ -91,7 +92,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException {
+    public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now(); // up to date
@@ -110,7 +111,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateStatusWhenRefreshingStaleData() throws ParseException {
+    public void shouldUpdateStatusWhenRefreshingStaleData() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now().minusDays(5); // stale
@@ -130,7 +131,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldEnrichAPlatformWhenDateAndTimeWithinTimeRange() throws ParseException {
+    public void shouldEnrichAPlatformWhenDateAndTimeWithinTimeRange() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
@@ -152,7 +153,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotEnrichAPlatformWhenDateOutsideOfRange() throws ParseException {
+    public void shouldNotEnrichAPlatformWhenDateOutsideOfRange() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
@@ -178,7 +179,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotEnrichAPlatformWhenTimeOutsideOfRange() throws ParseException {
+    public void shouldNotEnrichAPlatformWhenTimeOutsideOfRange() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         DateTime lastUpdate = DateTime.now();
@@ -203,7 +204,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldEnrichLocationDTOIfHasPlatforms() throws ParseException {
+    public void shouldEnrichLocationDTOIfHasPlatforms() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         LatLong latLong = new LatLong(-1,2);
@@ -229,7 +230,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate,
-                                                String displayId, String platformId, String message, String location) {
+                                                String displayId, String platformId, String message, String location) throws TramchesterException {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
                 location, message, lastUpdate);
         info.add(departureInfo);

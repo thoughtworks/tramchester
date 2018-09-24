@@ -45,7 +45,7 @@ public class GraphWithSimpleRouteTest {
 
     // TODO Use dependency init instead??
     @BeforeClass
-    public static void onceBeforeAllTestRuns() throws IOException {
+    public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
         transportData = new TransportDataForTest();
 
         File dbFile = new File(TMP_DB);

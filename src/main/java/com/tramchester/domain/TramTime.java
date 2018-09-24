@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.LocalTime;
 
 import java.util.Objects;
@@ -26,7 +27,10 @@ public class TramTime implements Comparable<TramTime> {
         }
     }
 
-    public static TramTime create(int hours, int minutes) {
+    public static TramTime create(int hours, int minutes) throws TramchesterException {
+        if (hours>23|| minutes>59) {
+            throw new TramchesterException(format("Unable to create time from hour:%s and minutes:%s", hours,minutes));
+        }
         return tramTimes[hours][minutes];
     }
 
@@ -38,7 +42,7 @@ public class TramTime implements Comparable<TramTime> {
         return tramTimes[0][0];
     }
 
-    public static Optional<TramTime> parse(String text) {
+    public static Optional<TramTime> parse(String text) throws TramchesterException {
         String[] split = text.split(":",3);
 
         Integer hour = Integer.parseInt(split[0]);
@@ -58,7 +62,7 @@ public class TramTime implements Comparable<TramTime> {
         this.minute = minute;
     }
 
-    public static TramTime fromMinutes(int minutesOfDays) {
+    public static TramTime fromMinutes(int minutesOfDays) throws TramchesterException {
         int hour = minutesOfDays / 60;
         int minutes = minutesOfDays - (hour*60);
         if (hour==24) {
@@ -70,12 +74,12 @@ public class TramTime implements Comparable<TramTime> {
         return create(hour,minutes);
     }
 
-    public TramTime minusMinutes(int delta) {
+    public TramTime minusMinutes(int delta) throws TramchesterException {
         int mins = minutesOfDay() - delta;
         return fromMinutes(mins);
     }
 
-    public TramTime plusMinutes(int delta) {
+    public TramTime plusMinutes(int delta) throws TramchesterException {
         int mins = minutesOfDay() + delta;
         return fromMinutes(mins);
     }

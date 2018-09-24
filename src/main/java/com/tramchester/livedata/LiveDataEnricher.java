@@ -10,10 +10,10 @@ public class LiveDataEnricher implements EnrichPlatform {
     private TramServiceDate tramServiceDate;
     private TramTime queryTime;
 
-    public LiveDataEnricher(LiveDataRepository repository, TramServiceDate tramServiceDate, int queryMinutes) {
+    public LiveDataEnricher(LiveDataRepository repository, TramServiceDate tramServiceDate, TramTime queryMinutes) {
         this.repository = repository;
         this.tramServiceDate = tramServiceDate;
-        this.queryTime = TramTime.fromMinutes(queryMinutes);
+        this.queryTime = queryMinutes;
     }
 
     public void enrich(PlatformDTO platform) {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -53,7 +54,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, TramServiceDate queryDate) throws TramchesterException {
-        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate,minsPastMid);
+        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, TramTime.fromMinutes(minsPastMid));
     }
 
     @Test
@@ -68,7 +69,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
 
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
                 Stations.PiccadillyGardens.getId(),
-                today, 9*60);
+                today, TramTime.fromMinutes(9*60));
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         JourneyDTO journey = journeys.first();
@@ -87,7 +88,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @Category({BusTest.class})
     @Ignore("experimental")
     public void reproduceIssueWithRoute() throws TramchesterException, IOException {
-        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, 9*60);
+        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, TramTime.fromMinutes(9*60));
     }
 
 }

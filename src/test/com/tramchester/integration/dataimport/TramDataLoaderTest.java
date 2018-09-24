@@ -4,6 +4,7 @@ import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -70,7 +71,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadStopTimeData() {
+    public void shouldLoadStopTimeData() throws TramchesterException {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times", new StopTimeDataParser());
         List<StopTimeData> stopTimeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 

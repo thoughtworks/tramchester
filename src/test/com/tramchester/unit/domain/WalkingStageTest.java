@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.integration.Stations;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class WalkingStageTest {
     }
 
     @Test
-    public void shouldCalculateTimesCorrectly() {
+    public void shouldCalculateTimesCorrectly() throws TramchesterException {
 
         TramTime arrival = walkingStage.getExpectedArrivalTime();
         assertEquals(TramTime.create(8,22), arrival);

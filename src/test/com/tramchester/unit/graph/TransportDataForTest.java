@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Interchanges;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
@@ -33,7 +34,7 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     private Collection<Route> routes;
     private Map<String,Platform> platforms;
 
-    public TransportDataForTest() {
+    public TransportDataForTest() throws TramchesterException {
         routes = new LinkedList<>();
         platforms = new HashMap<>();
         Route routeA = new Route("routeAId", "routeACode", "routeA", "MET");

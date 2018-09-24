@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 public class TripTest {
 
     @Test
-    public void shouldModelCircularTripsCorrectly() {
+    public void shouldModelCircularTripsCorrectly() throws TramchesterException {
         Trip trip = new Trip("tripId","headSign", "svcId", "routeId");
 
         Location stationA = new Station("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), false);

@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.presentation.LatLong;
@@ -28,7 +29,7 @@ public class StopsTest {
     private Stop busStopD;
 
     @Before
-    public void beforeEachTestRuns() {
+    public void beforeEachTestRuns() throws TramchesterException {
         stationA = new Station(stationIdA, "areaA", "nameA", new LatLong(-1,1), false);
         stationB = new Station(stationIdB, "areaB", "nameB", new LatLong(-2,2), false);
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
@@ -85,7 +86,7 @@ public class StopsTest {
     }
 
     @Test
-    public void shouldModelMultipleVisitsToSameStation() {
+    public void shouldModelMultipleVisitsToSameStation() throws TramchesterException {
         Stops stops = new Stops();
 
         stops.add(stopA);

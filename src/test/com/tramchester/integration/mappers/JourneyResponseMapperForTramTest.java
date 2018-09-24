@@ -28,8 +28,8 @@ import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
     private final LocalDate nextMonday = JourneyPlannerHelper.nextTuesday(0);
-    private TramTime sevenAM = TramTime.create(7, 0);
-    private TramTime eightAM = TramTime.create(8, 0);
+    private TramTime sevenAM;
+    private TramTime eightAM;
 
     private static Dependencies dependencies;
     private TramJourneyResponseMapper mapper;
@@ -47,10 +47,12 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     @Before
-    public void beforeEachTestRuns() {
+    public void beforeEachTestRuns() throws TramchesterException {
         mapper = dependencies.get(TramJourneyResponseMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         stages = new LinkedList<>();
+        sevenAM = TramTime.create(7, 0);
+        eightAM = TramTime.create(8, 0);
     }
 
     @Test

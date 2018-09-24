@@ -35,8 +35,12 @@ public class JourneysMapper {
 
             Optional<Journey> journey = mapper.createJourney(rawJourney, withinMins);
             if (journey.isPresent()) {
-                journeys.add(factory.build(journey.get()));
-                logger.info("Added journey " +journey);
+                try {
+                    journeys.add(factory.build(journey.get()));
+                    logger.info("Added journey " +journey);
+                } catch (TramchesterException e) {
+                    logger.warn(format("Unable to parse %s to journey", rawJourney),e);
+                }
             } else {
                 logger.warn(format("Unable to parse %s to journey", rawJourney));
             }

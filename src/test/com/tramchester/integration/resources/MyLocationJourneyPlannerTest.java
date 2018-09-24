@@ -55,7 +55,7 @@ public class MyLocationJourneyPlannerTest {
     }
 
     @Test
-    public void planRouteAllowingForWalkingTime() throws JsonProcessingException, UnsupportedEncodingException {
+    public void planRouteAllowingForWalkingTime() throws JsonProcessingException, UnsupportedEncodingException, TramchesterException {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(), (22 * 60) + 9);
         assertEquals(1, journeys.size());
         JourneyDTO first = journeys.first();
@@ -71,7 +71,7 @@ public class MyLocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldGiveWalkingRouteFromMyLocationToNearbyStop() throws JsonProcessingException, UnsupportedEncodingException {
+    public void shouldGiveWalkingRouteFromMyLocationToNearbyStop() throws JsonProcessingException, UnsupportedEncodingException, TramchesterException {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Altrincham.getId(), (22 * 60) + 9);
         assertEquals(1, journeys.size());
         JourneyDTO first = journeys.first();
@@ -83,7 +83,7 @@ public class MyLocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindStationsNearPiccGardensWalkingOnly() throws JsonProcessingException, UnsupportedEncodingException {
+    public void shouldFindStationsNearPiccGardensWalkingOnly() throws JsonProcessingException, UnsupportedEncodingException, TramchesterException {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadillyGardens.getId(), 9 * 60);
         assertEquals(1, journeys.size());
         JourneyDTO first = journeys.first();

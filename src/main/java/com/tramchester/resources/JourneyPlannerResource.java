@@ -81,7 +81,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             if (maybeDepartureTime.isPresent()) {
                 TramTime departureTime = maybeDepartureTime.get();
                 JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate,
-                departureTime.minutesOfDay());
+                TramTime.fromMinutes(departureTime.minutesOfDay()));
                 Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
                 responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
                 Response response = responseBuilder.build();
@@ -98,12 +98,12 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId,
-                                                       TramServiceDate queryDate, int initialQueryTime)
+                                                       TramServiceDate queryDate, TramTime initialQueryTime)
             throws TramchesterException {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,initialQueryTime));
         Set<RawJourney> journeys;
-        List<Integer> queryTimes = createQueryTimes.generate(initialQueryTime);
+        List<Integer> queryTimes = createQueryTimes.generate(initialQueryTime.minutesOfDay());
         if (isFromMyLocation(startId)) {
             journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, queryTimes, queryDate);
         } else {
@@ -116,7 +116,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }
 
-    private JourneyDTOFactory createJourneyDTOFactory(TramServiceDate queryDate, int initialQueryTime) {
+    private JourneyDTOFactory createJourneyDTOFactory(TramServiceDate queryDate, TramTime initialQueryTime) {
         // as query time and contents of live data changes need to create new factory each time
         LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepositoy, queryDate, initialQueryTime);
         StageDTOFactory stageDTOFactory = new StageDTOFactory(liveDataEnricher);

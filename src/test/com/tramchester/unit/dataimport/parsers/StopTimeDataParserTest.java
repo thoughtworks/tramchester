@@ -3,6 +3,7 @@ package com.tramchester.unit.dataimport.parsers;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.parsers.StopTimeDataParser;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class StopTimeDataParserTest {
     }
 
     @Test
-    public void shouldParseStop() {
+    public void shouldParseStop() throws TramchesterException {
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(stop.split(","));
 
         assertFalse(stopTimeData.isInError());

@@ -1,16 +1,18 @@
 package com.tramchester.domain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.mappers.TramTimeJsonSerializer;
 import org.joda.time.LocalTime;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public class WalkingStage implements TransportStage {
     private RawWalkingStage rawWalkingStage;
     private int beginTimeMins;
-    private int millisInMinute = 60 * 1000;
 
     public WalkingStage(RawWalkingStage rawWalkingStage, int beginTimeMins) {
         this.rawWalkingStage = rawWalkingStage;
@@ -62,12 +64,21 @@ public class WalkingStage implements TransportStage {
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getFirstDepartureTime() {
-        return TramTime.fromMinutes(beginTimeMins);
+        try {
+            return TramTime.fromMinutes(beginTimeMins);
+        } catch (TramchesterException e) {
+            throw new IllegalArgumentException("Unable to create TramTime from "+beginTimeMins,e);
+        }
     }
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getExpectedArrivalTime() {
-        return TramTime.fromMinutes(beginTimeMins+getDuration());
+        int minutes = beginTimeMins + getDuration();
+        try {
+            return TramTime.fromMinutes(minutes);
+        } catch (TramchesterException e) {
+            throw new IllegalArgumentException("Unable to create TramTime from "+minutes,e);
+        }
     }
 
     @Override

@@ -34,7 +34,7 @@ public class JourneysMapperTest extends EasyMockSupport{
     }
 
     @Test
-    public void shouldMapJourneyThenCreateDTO() {
+    public void shouldMapJourneyThenCreateDTO() throws TramchesterException {
 
         JourneysMapper journeysMapper = new JourneysMapper(mapper);
 

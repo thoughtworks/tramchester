@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
@@ -15,14 +16,14 @@ import static org.junit.Assert.assertTrue;
 public class TramTimeTest {
 
     @Test
-    public void shouldCreateTramTime() {
+    public void shouldCreateTramTime() throws TramchesterException {
         TramTime timeA = TramTime.create(11,23);
         assertEquals(11, timeA.getHourOfDay());
         assertEquals(23, timeA.getMinuteOfHour());
     }
 
     @Test
-    public void shouldCalculateMinsOfDay() {
+    public void shouldCalculateMinsOfDay() throws TramchesterException {
         TramTime midnight = TramTime.create(0,0);
         assertEquals(24*60, midnight.minutesOfDay());
 
@@ -35,7 +36,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldParseHMS() {
+    public void shouldParseHMS() throws TramchesterException {
         checkCorrectTimePresent(TramTime.parse("11:23:00"), 11, 23);
         checkCorrectTimePresent(TramTime.parse("00:15:00"), 00, 15);
         checkCorrectTimePresent(TramTime.parse("23:35:00"), 23, 35);
@@ -43,7 +44,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldParseHM() {
+    public void shouldParseHM() throws TramchesterException {
         checkCorrectTimePresent(TramTime.parse("11:23"), 11, 23);
         checkCorrectTimePresent(TramTime.parse("00:15"), 00, 15);
         checkCorrectTimePresent(TramTime.parse("23:35"), 23, 35);
@@ -51,13 +52,13 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldParseEmptyIfInvalid() {
+    public void shouldParseEmptyIfInvalid() throws TramchesterException {
         assertFalse(TramTime.parse("43:12").isPresent());
         assertFalse(TramTime.parse("12:99").isPresent());
     }
 
     @Test
-    public void shouldFormatCorrectly() {
+    public void shouldFormatCorrectly() throws TramchesterException {
         TramTime time = TramTime.create(18,56);
 
         assertEquals("18:56",time.toPattern());
@@ -65,7 +66,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldHaveBefore() {
+    public void shouldHaveBefore() throws TramchesterException {
         TramTime timeA = TramTime.create(12,04);
         TramTime timeB =  TramTime.create(12,03);
 
@@ -80,7 +81,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldHaveAfter() {
+    public void shouldHaveAfter() throws TramchesterException {
         TramTime timeA = TramTime.create(12,04);
         TramTime timeB =  TramTime.create(12,03);
 
@@ -95,7 +96,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldBeComparable() {
+    public void shouldBeComparable() throws TramchesterException {
         TramTime timeA = TramTime.create(12,04);
         TramTime timeB =  TramTime.create(12,03);
 
@@ -114,7 +115,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldHandleAfterMidnightTimesCorrectly() {
+    public void shouldHandleAfterMidnightTimesCorrectly() throws TramchesterException {
         TramTime timeA = TramTime.create(00,10);
         TramTime timeB =  TramTime.create(23,10);
 
@@ -126,7 +127,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldCreateFromMinsOfDay() {
+    public void shouldCreateFromMinsOfDay() throws TramchesterException {
         checkTimeFromMins(120, 2, 0);
         checkTimeFromMins(150, 2, 30);
         checkTimeFromMins((23*60)+43, 23, 43);
@@ -142,7 +143,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldTransformToAndFromMinutesEarlyMorning() {
+    public void shouldTransformToAndFromMinutesEarlyMorning() throws TramchesterException {
         TramTime early = TramTime.create(0,14);
 
         int minutes = early.minutesOfDay();
@@ -160,7 +161,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldSubstractMins() {
+    public void shouldSubstractMins() throws TramchesterException {
         TramTime timeA = TramTime.create(12,04);
         TramTime result = timeA.minusMinutes(30);
         assertEquals(11,result.getHourOfDay());
@@ -168,14 +169,14 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldAddMins() {
+    public void shouldAddMins() throws TramchesterException {
         TramTime timeA = TramTime.create(12,34);
         TramTime result = timeA.plusMinutes(30);
         assertEquals(13,result.getHourOfDay());
         assertEquals(4, result.getMinuteOfHour());
     }
 
-    private void checkTimeFromMins(int minsOfDay, int hours, int minsOfHour) {
+    private void checkTimeFromMins(int minsOfDay, int hours, int minsOfHour) throws TramchesterException {
         TramTime one = TramTime.fromMinutes(minsOfDay);
         assertEquals(hours, one.getHourOfDay());
         assertEquals(minsOfHour, one.getMinuteOfHour());

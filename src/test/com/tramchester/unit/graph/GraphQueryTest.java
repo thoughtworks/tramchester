@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -36,7 +37,7 @@ public class GraphQueryTest {
     private static NodeFactory nodeFactory;
 
     @BeforeClass
-    public static void onceBeforeAllTestRuns() throws IOException {
+    public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
         dbFile = new File(TMP_DB);
         FileUtils.deleteDirectory(dbFile);
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();

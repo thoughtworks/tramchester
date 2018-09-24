@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import org.joda.time.DateTime;
@@ -15,7 +16,7 @@ import static junit.framework.TestCase.assertEquals;
 public class DepartureDTOTest {
 
     @Test
-    public void shouldCreateFromDueTramAndLocation() {
+    public void shouldCreateFromDueTramAndLocation() throws TramchesterException {
         LocalTime updateTime = LocalTime.now();
 
         String location = "aPlace";
@@ -30,7 +31,7 @@ public class DepartureDTOTest {
     }
 
     @Test
-    public void shouldCompareBasedOnWhenTramDue() {
+    public void shouldCompareBasedOnWhenTramDue() throws TramchesterException {
         LocalTime updateTime = LocalTime.now();
 
         DepartureDTO departureDTOA = new DepartureDTO("station", new DueTram("destinationA", "status", 5, "carriages", updateTime));

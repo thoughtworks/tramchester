@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
@@ -42,7 +43,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCreateStageDTOCorrectlyForTransportStage() {
+    public void shouldCreateStageDTOCorrectlyForTransportStage() throws TramchesterException {
         RawVehicleStage rawVehicleStage = new RawVehicleStage(Stations.MarketStreet, "routeName",
                 TransportMode.Tram, "Displayclass");
         rawVehicleStage.setLastStation(Stations.Bury);

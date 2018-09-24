@@ -87,7 +87,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         stages.add(busStage);
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
-        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate, minutesFromMidnight);
+        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate,
+                TramTime.fromMinutes(minutesFromMidnight));
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
         HeadsignMapper headsignMapper = new HeadsignMapper();
         JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory, headsignMapper);

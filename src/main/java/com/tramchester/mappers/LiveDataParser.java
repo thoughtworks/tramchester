@@ -1,5 +1,6 @@
 package com.tramchester.mappers;
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import org.joda.time.DateTime;
@@ -7,6 +8,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.List;
 import static java.lang.String.format;
 
 public class LiveDataParser {
+    private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
 
     private int MAX_DUE_TRAMS = 4;
 
@@ -56,8 +60,12 @@ public class LiveDataParser {
                 int wait = Integer.parseInt(waitString);
                 String carriages = getNumberedField(jsonObject, "Carriages", i);
                 DateTime lastUpdate = departureInfo.getLastUpdate();
-                DueTram dueTram = new DueTram(dest, status, wait, carriages, lastUpdate.toLocalTime());
-                departureInfo.addDueTram(dueTram);
+                try {
+                    DueTram dueTram = new DueTram(dest, status, wait, carriages, lastUpdate.toLocalTime());
+                    departureInfo.addDueTram(dueTram);
+                } catch (TramchesterException e) {
+                    logger.error("Unable to create DueTram for "+dest, e);
+                }
             }
         }
     }

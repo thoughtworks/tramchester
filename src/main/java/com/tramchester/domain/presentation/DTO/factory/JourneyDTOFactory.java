@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -32,7 +33,7 @@ public class JourneyDTOFactory {
         this.headsignMapper = headsignMapper;
     }
 
-    public JourneyDTO build(Journey journey) {
+    public JourneyDTO build(Journey journey) throws TramchesterException {
         List<TransportStage> transportStages = journey.getStages();
         List<StageDTO> stages = journey.getStages().stream().map(stage -> stageDTOFactory.build(stage)).collect(Collectors.toList());
 
@@ -152,7 +153,7 @@ public class JourneyDTOFactory {
         return format("Change at %s",result.toString());
     }
 
-    private String getHeading(List<TransportStage> allStages, long embeddedWalk) {
+    private String getHeading(List<TransportStage> allStages, long embeddedWalk) throws TramchesterException {
         String mode;
         if (firstStageIsWalk(allStages)) {
             if (allStages.size()>1) {
@@ -183,14 +184,14 @@ public class JourneyDTOFactory {
         return getFirstStage(allStages).getFirstDepartureTime();
     }
 
-    private String getDuration(List<TransportStage> allStages) {
+    private String getDuration(List<TransportStage> allStages) throws TramchesterException {
         TramTime expectedArrivalTime = getExpectedArrivalTime(allStages);
         TramTime firstDepartureTime = getFirstStage(allStages).getFirstDepartureTime();
         int mins = TramTime.diffenceAsMinutes(expectedArrivalTime, firstDepartureTime);
         return format("%s minutes", mins);
     }
 
-    private TramTime getExpectedArrivalTime(List<TransportStage> allStages) {
+    private TramTime getExpectedArrivalTime(List<TransportStage> allStages) throws TramchesterException {
         if (allStages.size() == 0) {
             return TramTime.create(0,0);
         }

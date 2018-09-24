@@ -22,11 +22,11 @@ import static org.junit.Assert.assertTrue;
 public class VehicleStageWithTimingTest {
 
     private String tripId = "tripId";
-    Location firstStation = new Station("firstStation", "area", "name", new LatLong(1,1), true);
-    RawVehicleStage tramRawStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
+    private Location firstStation = new Station("firstStation", "area", "name", new LatLong(1,1), true);
+    private RawVehicleStage tramRawStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
 
     @Test
-    public void shouldGetDurationCorrectly() {
+    public void shouldGetDurationCorrectly() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(TramTime.create(8, 00), TramTime.create(9, 15), "svcId", "headsign", tripId);
         VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, serviceTime, TravelAction.Board);
         stage.setCost(75);
@@ -35,7 +35,7 @@ public class VehicleStageWithTimingTest {
     }
 
     @Test
-    public void shouldGetFirstDepartureAndFirstArrival() {
+    public void shouldGetFirstDepartureAndFirstArrival() throws TramchesterException {
         ServiceTime serviceTimeA = new ServiceTime(TramTime.create(8, 00), TramTime.create(9, 15), "svcId", "headsign", tripId);
 
         VehicleStageWithTiming stage = new VehicleStageWithTiming(tramRawStage, serviceTimeA, TravelAction.Board);
@@ -45,7 +45,7 @@ public class VehicleStageWithTimingTest {
     }
 
     @Test
-    public void shouldGetAttributesPassedIn() {
+    public void shouldGetAttributesPassedIn() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(TramTime.create(23, 50), TramTime.create(0, 15), "svcId", "headsign", tripId);
 
         RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
@@ -65,7 +65,7 @@ public class VehicleStageWithTimingTest {
     }
 
     @Test
-    public void shouldDisplayCorrectPrompt() {
+    public void shouldDisplayCorrectPrompt() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(TramTime.create(23, 50), TramTime.create(0, 15), "svcId", "headsign", tripId);
         RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
 
@@ -75,7 +75,7 @@ public class VehicleStageWithTimingTest {
     }
 
     @Test
-    public void shouldGetStageSummary() {
+    public void shouldGetStageSummary() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(TramTime.create(23, 50), TramTime.create(0, 15), "svcId", "headsign", tripId);
 
         RawVehicleStage rawTravelStageA = new RawVehicleStage(firstStation, "routeName", TransportMode.Tram, "cssClass");
@@ -92,7 +92,7 @@ public class VehicleStageWithTimingTest {
     }
 
     @Test
-    public void shouldGetCorrectPromptForStage() {
+    public void shouldGetCorrectPromptForStage() throws TramchesterException {
         ServiceTime serviceTime = new ServiceTime(TramTime.create(23, 50), TramTime.create(0, 15), "svcId", "headsign", tripId);
 
         VehicleStageWithTiming tramStageBoard = new VehicleStageWithTiming(tramRawStage, serviceTime, TravelAction.Board);

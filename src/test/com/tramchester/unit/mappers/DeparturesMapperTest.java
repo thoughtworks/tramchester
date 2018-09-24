@@ -4,6 +4,7 @@ import com.tramchester.TestConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
@@ -45,7 +46,7 @@ public class DeparturesMapperTest {
     }
 
     @Test
-    public void shouldConvertOneStationWithDateToDepartuesList() {
+    public void shouldConvertOneStationWithDateToDepartuesList() throws TramchesterException {
         DateTime lastUpdate = DateTime.now();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
@@ -76,7 +77,7 @@ public class DeparturesMapperTest {
     }
 
     @Test
-    public void shouldKeepUseDestinationToSortWhenTimesSame() {
+    public void shouldKeepUseDestinationToSortWhenTimesSame() throws TramchesterException {
         DateTime lastUpdateTime = DateTime.now();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
@@ -109,7 +110,7 @@ public class DeparturesMapperTest {
     }
 
     @Test
-    public void shouldMapDepartureInformationToDepartureListDTOWithNotes() {
+    public void shouldMapDepartureInformationToDepartureListDTOWithNotes() throws TramchesterException {
         DateTime updateDate = DateTime.now();
         LocalTime updateTime = LocalTime.now();
 
@@ -135,7 +136,7 @@ public class DeparturesMapperTest {
     }
 
     @Test
-    public void shouldMapDepartureInformationToDepartureListDTOWithoutNotes() {
+    public void shouldMapDepartureInformationToDepartureListDTOWithoutNotes() throws TramchesterException {
         DateTime updateDate = DateTime.now();
         LocalTime updateTime = LocalTime.now();
 
@@ -157,7 +158,7 @@ public class DeparturesMapperTest {
         assertEquals(0, notes.size());
     }
 
-    private List<StationDepartureInfo> createStationDepartureInfo(DateTime updateDate, LocalTime updateTime) {
+    private List<StationDepartureInfo> createStationDepartureInfo(DateTime updateDate, LocalTime updateTime) throws TramchesterException {
         List<StationDepartureInfo> departureInfos = new LinkedList<>();
         StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName", "stationPlatform1", "location",
                 "messageOne", updateDate);

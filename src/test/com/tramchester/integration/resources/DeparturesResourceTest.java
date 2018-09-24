@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
@@ -50,7 +51,7 @@ public class DeparturesResourceTest {
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldGetNearbyDeparturesWithNotes() {
+    public void shouldGetNearbyDeparturesWithNotes() throws TramchesterException {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 

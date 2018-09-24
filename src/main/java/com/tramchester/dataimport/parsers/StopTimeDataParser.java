@@ -3,6 +3,7 @@ package com.tramchester.dataimport.parsers;
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.exceptions.TramchesterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +35,13 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
 
     private Optional<TramTime> parseTimeField(String fieldOne) {
         Optional<TramTime> time = Optional.empty();
-        if (fieldOne.contains(":")) {
-            time = TramTime.parse(fieldOne);
+        try {
+            if (fieldOne.contains(":")) {
+                time = TramTime.parse(fieldOne);
+            }
+        }
+        catch (TramchesterException e) {
+            logger.error("Failed to parse time for "+fieldOne, e);
         }
         if (!time.isPresent()) {
             logger.error("Invalid time found during parsing. Unable to parse "+fieldOne);
