@@ -67,15 +67,6 @@ jobs:
       - run:
           name: acceptance
           command: |
-# https://github.com/circleci/circleci-images/pull/256 
-#            mkdir -p ~/drivers
-#            wget -N https://github.com/mozilla/geckodriver/releases/download/v0.20.0/geckodriver-v0.20.0-linux64.tar.gz -P ~/drivers
-#            tar xvzf ~/drivers/geckodriver-v0.20.0-linux64.tar.gz -C ~/drivers
-#            sudo cp ~/drivers/geckodriver /usr/local/bin/
-#            sudo apt-get remove firefox-mozilla-build
-#            wget "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US" -O ~/firefox-latest.tar.bz2
-#            tar xjf ~/firefox-latest.tar.bz2 -C ~/
-#            sudo ln -sfv ~/firefox/firefox /usr/bin/firefox
             export LANG="en_GB.UTF-8"
             gradle appium --no-daemon
           environment:
