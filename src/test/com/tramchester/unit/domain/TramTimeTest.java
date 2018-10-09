@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -128,8 +129,8 @@ public class TramTimeTest {
 
     @Test
     public void shouldCreateFromMinsOfDay() throws TramchesterException {
-        checkTimeFromMins(120, 2, 0);
-        checkTimeFromMins(150, 2, 30);
+        checkTimeFromMins(1560, 2, 0);  // 2am is in live data for ashton
+        checkTimeFromMins(210, 3, 30);
         checkTimeFromMins((23*60)+43, 23, 43);
     }
 
@@ -158,6 +159,14 @@ public class TramTimeTest {
 
         result = TramTime.fromMinutes(minutes);
         assertEquals(next, result);
+
+        // some Stops (i.e. Ashton) in live data include hours=26
+        next = early.plusMinutes(120);
+        minutes = next.minutesOfDay();
+        assertEquals((26*60)+14, minutes);
+
+        result = TramTime.fromMinutes(minutes);
+        assertEquals(result, next);
     }
 
     @Test
