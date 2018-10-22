@@ -128,6 +128,21 @@ public class TramTimeTest {
     }
 
     @Test
+    public void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnight() throws TramchesterException {
+        TramTime depart = TramTime.create(9,30);
+        TramTime arrive = TramTime.create(10,45);
+
+        int result = TramTime.diffenceAsMinutes(arrive, depart);
+        assertEquals(75, result);
+
+        arrive = TramTime.create(00,5);
+        depart = TramTime.create(23,15);
+
+        result = TramTime.diffenceAsMinutes(arrive, depart);
+        assertEquals(50, result);
+    }
+
+    @Test
     public void shouldCreateFromMinsOfDay() throws TramchesterException {
         checkTimeFromMins(1560, 2, 0);  // 2am is in live data for ashton
         checkTimeFromMins(210, 3, 30);
