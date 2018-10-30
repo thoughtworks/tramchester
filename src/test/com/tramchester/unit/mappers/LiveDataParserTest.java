@@ -6,6 +6,7 @@ import com.tramchester.mappers.LiveDataParser;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.ISOChronology;
 import org.json.simple.parser.ParseException;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -23,9 +24,49 @@ public class LiveDataParserTest {
             "    }" +
             "]\n }\n";
 
+
+    private LiveDataParser mapper;
+
+    @Before
+    public void beforeEachTestRuns() {
+        mapper = new LiveDataParser();
+    }
+
+    @Test
+    public void shouldMapTimesCorrectlyDuringEarlyHours() throws ParseException {
+        String header = "{\n \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n";
+        String footer = "]\n }\n";
+
+        StringBuilder message = new StringBuilder();
+        message.append(header);
+        for (int i = 1; i < 12; i++) {
+            if (i>1) {
+                message.append(",\n");
+            }
+            String line = String.format( "{\n" +
+                    "\"Id\":%s,\"Line\":\"Eccles\",\"TLAREF\":\"MEC\",\"PIDREF\":\"MEC-TPID03\"," +
+                    "\"StationLocation\":\"MediaCityUK\",\"AtcoCode\":\"9400ZZMAMCU2\",\"Direction\":" +
+                    "\"Incoming\",\"Dest0\":\"Piccadilly\",\"Carriages0\":\"Single\",\"Status0\":\"Due\",\"Wait0\":\"1\",\"" +
+                    "Dest1\":\"Piccadilly\",\"Carriages1\":\"Single\",\"Status1\":\"Due\",\"Wait1\":\"12\",\"" +
+                    "Dest2\":\"Piccadilly\",\"Carriages2\":\"Single\",\"Status2\":\"Due\",\"Wait2\":\"21\",\"" +
+                    "Dest3\":\"\",\"Carriages3\":\"\",\"Status3\":\"\",\"" +
+                    "MessageBoard\":\"Test.\",\"Wait3\":\"\",\"LastUpdated\":\"2017-11-29T%s:45:00Z\"\n" +
+                    "    }", i, i);
+            message.append(line);
+        }
+        message.append(footer);
+
+        List<StationDepartureInfo> info = mapper.parse(message.toString());
+        assertEquals(11, info.size());
+        for (int i = 1; i < 12; i++) {
+            DateTime expected = new DateTime(2017, 11, 29, i, 45);
+            assertEquals(expected.toString(), expected.getMillis(), info.get(i-1).getLastUpdate().getMillis());
+        }
+
+    }
+
     @Test
     public void shouldMapLiveDataToStationInfo() throws ParseException {
-        LiveDataParser mapper = new LiveDataParser();
 
         List<StationDepartureInfo> info = mapper.parse(exampleData);
 

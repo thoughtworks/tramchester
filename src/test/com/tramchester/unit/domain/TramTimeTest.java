@@ -144,7 +144,6 @@ public class TramTimeTest {
 
     @Test
     public void shouldCreateFromMinsOfDay() throws TramchesterException {
-        checkTimeFromMins(1560, 2, 0);  // 2am is in live data for ashton
         checkTimeFromMins(210, 3, 30);
         checkTimeFromMins((23*60)+43, 23, 43);
     }
@@ -168,20 +167,20 @@ public class TramTimeTest {
         TramTime result = TramTime.fromMinutes(minutes);
         assertEquals(early, result);
 
-        TramTime next = early.plusMinutes(60);
-        minutes = next.minutesOfDay();
-        assertEquals((25*60)+14, minutes);
+        //TramTime next = early.plusMinutes(60);
+        //minutes = next.minutesOfDay();
+        //assertEquals((25*60)+14, minutes);
 
-        result = TramTime.fromMinutes(minutes);
-        assertEquals(next, result);
-
-        // some Stops (i.e. Ashton) in live data include hours=26
-        next = early.plusMinutes(120);
-        minutes = next.minutesOfDay();
-        assertEquals((26*60)+14, minutes);
-
-        result = TramTime.fromMinutes(minutes);
-        assertEquals(result, next);
+//        result = TramTime.fromMinutes(minutes);
+//        assertEquals(next, result);
+//
+//        // some Stops (i.e. Ashton) in live data include hours=26 and hours=27
+//        next = early.plusMinutes(120);
+//        minutes = next.minutesOfDay();
+//        assertEquals((26*60)+14, minutes);
+//
+//        result = TramTime.fromMinutes(minutes);
+//        assertEquals(result, next);
     }
 
     @Test

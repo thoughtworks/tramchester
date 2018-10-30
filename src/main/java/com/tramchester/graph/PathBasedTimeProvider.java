@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.exceptions.TramchesterException;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.Path;
@@ -20,7 +19,7 @@ public class PathBasedTimeProvider implements ElapsedTime {
     }
 
     @Override
-    public int getElapsedTime() throws TramchesterException {
+    public int getElapsedTime() {
         if (boardTime.isPresent()) {
             return boardTime.get() + cost;
         }
@@ -36,7 +35,7 @@ public class PathBasedTimeProvider implements ElapsedTime {
     }
 
     @Override
-    public void setJourneyStart(int minutesPastMidnight) throws TramchesterException {
+    public void setJourneyStart(int minutesPastMidnight) {
         boardTime.save(minutesPastMidnight);
     }
 

@@ -71,9 +71,9 @@ public class TramTime implements Comparable<TramTime> {
         if (hour==25) {
             hour = 1;
         }
-        if (hour==26) {
-            hour = 2;
-        }
+//        if (hour==26) {
+//            hour = 2;
+//        }
         return create(hour,minutes);
     }
 
@@ -96,15 +96,17 @@ public class TramTime implements Comparable<TramTime> {
         return create(LocalTime.now());
     }
 
+    //
     public int minutesOfDay() {
         int theHour = hour;
         if(hour == 0){
             theHour = 24;
-        } else if(hour == 1){
-            theHour = 25;
-        } else if (hour == 2) {
-            theHour = 26; // Ashton, in live data
         }
+//        else if(hour == 1){
+//            theHour = 25;
+//        } else if (hour == 2) {
+//            theHour = 26; // Ashton, in live data
+//        }
         return (theHour * 60) + minute;
     }
 

@@ -64,7 +64,7 @@ public class LiveDataParser {
                     DueTram dueTram = new DueTram(dest, status, wait, carriages, lastUpdate.toLocalTime());
                     departureInfo.addDueTram(dueTram);
                 } catch (TramchesterException e) {
-                    logger.error("Unable to create DueTram for "+dest, e);
+                    logger.error(format("Unable to create DueTram for %s from '%s'", dest, jsonObject), e);
                 }
             }
         }
