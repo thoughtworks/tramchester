@@ -6,6 +6,7 @@ import com.tramchester.repository.ServiceTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class TramJourneyResponseMapper implements SingleJourneyMapper {
     public Optional<Journey> createJourney(RawJourney rawJourney, int withinMins) {
         List<RawStage> rawJourneyStages = rawJourney.getStages();
         List<TransportStage> stages = new LinkedList<>();
-        int queryTime = rawJourney.getQueryTime();
+        LocalTime queryTime = rawJourney.getQueryTime();
         TimeWindow timeWindow = new TimeWindow(queryTime, withinMins);
 
         for (RawStage rawStage : rawJourneyStages) {
@@ -32,11 +33,11 @@ public class TramJourneyResponseMapper implements SingleJourneyMapper {
                 timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
             } else if (rawStage.isWalk()) {
                 RawWalkingStage stage = (RawWalkingStage) rawStage;
-                TransportStage walkingStage = new WalkingStage(stage, timeWindow.minsFromMidnight());
+                TransportStage walkingStage = new WalkingStage(stage, timeWindow.queryTime());
                 logger.info("Adding walking stage " + stage);
                 stages.add(walkingStage);
 
-                timeWindow = timeWindow.next(walkingStage.getExpectedArrivalTime().minutesOfDay());
+                timeWindow = timeWindow.next(walkingStage.getExpectedArrivalTime().asLocalTime());
             }
         }
 
@@ -66,9 +67,9 @@ public class TramJourneyResponseMapper implements SingleJourneyMapper {
             VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time.get(), decideAction(stages));
             stages.add(stage);
 
-            int departsAtMinutes = stage.findEarliestDepartureTime();
+            LocalTime departsAtMinutes = stage.findEarliestDepartureTime();
             int duration = stage.getDuration();
-            timeWindow = timeWindow.next(departsAtMinutes + duration);
+            timeWindow = timeWindow.next(departsAtMinutes.plusMinutes(duration));
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",
                     duration, departsAtMinutes, timeWindow));
         }

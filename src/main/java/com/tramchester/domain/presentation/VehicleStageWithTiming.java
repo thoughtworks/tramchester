@@ -2,9 +2,8 @@ package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.TramTime;
-import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.livedata.EnrichPlatform;
-import org.joda.time.LocalTime;
+
+import java.time.LocalTime;
 
 import static java.lang.String.format;
 
@@ -30,8 +29,8 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
         return cost;
     }
 
-    public int findEarliestDepartureTime() {
-        return serviceTime.getFromMidnightLeaves();
+    public LocalTime findEarliestDepartureTime() {
+        return serviceTime.getLeaves();
     }
 
     @Override

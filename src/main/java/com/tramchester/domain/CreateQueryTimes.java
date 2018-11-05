@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.config.TramchesterConfig;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +13,15 @@ public class CreateQueryTimes {
         this.config = config;
     }
 
-    public List<Integer> generate(int initialQueryTime) {
-        List<Integer> result = new ArrayList<>();
-        int queryTime = initialQueryTime;
+    public List<LocalTime> generate(LocalTime initialQueryTime) {
+        List<LocalTime> result = new ArrayList<>();
+
         int interval = config.getQueryInterval();
-        int limit = initialQueryTime + config.getMaxWait();
-        while (queryTime< limit) {
-            result.add(queryTime);
-            queryTime = queryTime + interval;
+
+        int minsToAdd = 0;
+        while (minsToAdd<=config.getMaxWait()) {
+            result.add(initialQueryTime.plusMinutes(minsToAdd));
+            minsToAdd = minsToAdd + interval;
         }
         return result;
     }

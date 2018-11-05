@@ -2,10 +2,6 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
@@ -14,19 +10,20 @@ import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.time.LocalTime;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
-    private static final int AM8 = 8 * 60;
+    private static final LocalTime AM8 = LocalTime.of(8,0); //8 * 60;
     private TramJourneyResponseMapper mapper;
     private TransportDataFromFiles transportData;
     private List<RawStage> stages;
@@ -67,7 +64,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
                 "svcId", "headSign", "tripIdA"));
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+9, 30))).
+        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8.plusMinutes(9), 30))).
                 andReturn(timesLeg2);
 
         replayAll();
@@ -101,7 +98,8 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
                 "svcId", "headSign", "tripIdA"));
 
         EasyMock.expect(transportData.getFirstServiceTime("svcId", stationA, stationB, new TimeWindow(AM8, 30))).andReturn(timesLeg1);
-        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC, new TimeWindow(AM8+7, 30))).andReturn(timesLeg2);
+        EasyMock.expect(transportData.getFirstServiceTime("svcId", stationB, stationC,
+                new TimeWindow(AM8.plusMinutes(7), 30))).andReturn(timesLeg2);
 
         replayAll();
         Optional<Journey> result = mapper.createJourney(journey, 30);
@@ -122,7 +120,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         assertEquals("Change bus at", stageSecond.getPrompt());
     }
 
-    private RawJourney createSimpleRawJourney(int costA, int costB, int queryTime) {
+    private RawJourney createSimpleRawJourney(int costA, int costB, LocalTime queryTime) {
         RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA").
                 setLastStation(stationB).setServiceId("svcId").setCost(costA);
         rawTravelStage1.setPlatform(platformA);

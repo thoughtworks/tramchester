@@ -2,6 +2,7 @@ package com.tramchester.acceptance;
 
 import com.google.common.collect.ImmutableList;
 import com.tramchester.App;
+import com.tramchester.TestConfig;
 import com.tramchester.acceptance.infra.*;
 import com.tramchester.acceptance.pages.JourneyDetailsPage;
 import com.tramchester.acceptance.pages.RouteDetailsPage;
@@ -10,8 +11,7 @@ import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.FeedInfoResourceTest;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
+
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
@@ -22,11 +22,15 @@ import org.openqa.selenium.WebElement;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.TestConfig.dateFormatDashes;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringEndsWith.endsWith;
@@ -79,7 +83,7 @@ import static org.junit.Assert.*;
         helper = new AcceptanceTestHelper(providesDriver);
 
         // TODO offset for when tfgm data is expiring
-        nextTuesday = JourneyPlannerHelper.nextTuesday(0);
+        nextTuesday = TestConfig.nextTuesday(0);
     }
 
     @After
@@ -158,7 +162,7 @@ import static org.junit.Assert.*;
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
 
-        LocalTime time = LocalTime.parse("03:00");
+        LocalTime time = LocalTime.of(3,0);
 
         RoutePlannerPage routePlannerPage = welcomePage.begin();
 
@@ -208,7 +212,7 @@ import static org.junit.Assert.*;
     @Test
     public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
         List<String> headSigns = Collections.singletonList(Stations.Victoria.getName());
-        TramJourney tramJourney = new TramJourney(Stations.ManAirport.getName(), deansgate, nextTuesday, LocalTime.parse("10:15"));
+        TramJourney tramJourney = new TramJourney(Stations.ManAirport.getName(), deansgate, nextTuesday, LocalTime.of(10,15));
         TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults, false);
 
         JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney,
@@ -262,7 +266,7 @@ import static org.junit.Assert.*;
 
     @Test
     public void shouldDisplayNotesOnSaturday() throws InterruptedException {
-        LocalDate aSaturday = nextTuesday.minusDays(3);
+        LocalDate aSaturday = TestConfig.nextSaturday(); //nextTuesday.minusDays(3);
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, aSaturday,
                 LocalTime.parse("10:00")));
@@ -271,7 +275,7 @@ import static org.junit.Assert.*;
 
     @Test
     public void shouldDisplayNotesOnSunday() throws InterruptedException {
-        LocalDate aSunday = nextTuesday.minusDays(2);
+        LocalDate aSunday = TestConfig.nextSunday();
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, aSunday,
                 LocalTime.parse("10:00")));
@@ -351,10 +355,10 @@ import static org.junit.Assert.*;
         assertEquals("Build 2."+build, result);
 
         String dataBegin = page.getValidFrom();
-        assertEquals(" From: "+ FeedInfoResourceTest.validFrom.toString("YYYY-MM-dd"), dataBegin);
+        assertEquals(" From: "+ FeedInfoResourceTest.validFrom.format(dateFormatDashes), dataBegin);
 
         String dataEnd = page.getValidUntil();
-        assertEquals(" Until: " + FeedInfoResourceTest.validUntil.toString("YYYY-MM-dd"), dataEnd);
+        assertEquals(" Until: " + FeedInfoResourceTest.validUntil.format(dateFormatDashes), dataEnd);
     }
 
     private void checkForWeekendNotes(RouteDetailsPage routeDetailsPage) {

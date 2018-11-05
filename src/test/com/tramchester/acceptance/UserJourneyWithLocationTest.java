@@ -1,20 +1,21 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
+import com.tramchester.TestConfig;
 import com.tramchester.acceptance.infra.*;
 import com.tramchester.acceptance.pages.JourneyDetailsPage;
 import com.tramchester.acceptance.pages.RouteDetailsPage;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.JourneyPlannerHelper;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
+
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -22,7 +23,6 @@ import java.util.List;
 
 import static com.tramchester.acceptance.UserJourneyTest.getBrowserList;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
 public class UserJourneyWithLocationTest {
@@ -61,7 +61,7 @@ public class UserJourneyWithLocationTest {
         helper = new AcceptanceTestHelper(providesDriver);
 
         // TODO offset for when tfgm data is expiring
-        when = JourneyPlannerHelper.nextTuesday(0);
+        when = TestConfig.nextTuesday(0);
     }
 
     @After

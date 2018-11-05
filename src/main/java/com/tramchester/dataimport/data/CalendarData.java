@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.data;
 
-import org.joda.time.LocalDate;
+
+import java.time.LocalDate;
 
 public class CalendarData {
     private final String serviceId;

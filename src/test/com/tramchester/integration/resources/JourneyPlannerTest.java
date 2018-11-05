@@ -17,12 +17,13 @@ import com.tramchester.integration.BusTest;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.resources.JourneyPlannerResource;
-import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -53,8 +54,8 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         dependencies.close();
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, TramServiceDate queryDate) throws TramchesterException {
-        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, TramTime.fromMinutes(minsPastMid));
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime, TramServiceDate queryDate) throws TramchesterException {
+        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, TramTime.create(queryTime));
     }
 
     @Test
@@ -69,7 +70,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
 
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
                 Stations.PiccadillyGardens.getId(),
-                today, TramTime.fromMinutes(9*60));
+                today, TramTime.create(9,0));
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         JourneyDTO journey = journeys.first();
@@ -87,8 +88,8 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @Test
     @Category({BusTest.class})
     @Ignore("experimental")
-    public void reproduceIssueWithRoute() throws TramchesterException, IOException {
-        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, TramTime.fromMinutes(9*60));
+    public void reproduceIssueWithRoute() throws TramchesterException {
+        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, TramTime.create(9,0));
     }
 
 }

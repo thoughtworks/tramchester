@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.StationNode;
@@ -18,8 +19,12 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -82,6 +87,30 @@ public class TramGraphBuilderTest {
     }
 
     @Test
+    public void shouldRepdroduceIssueWithWeekendsAtDeansgateToAshton() throws TramchesterException {
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Deansgate.getId()
+                + RouteCodesForTesting.ECCLES_TO_ASH);
+        List<TramGoesToRelationship> trams = outbounds.stream().
+                filter(relationship -> relationship.isGoesTo()).
+                map(relationship -> ((TramGoesToRelationship) relationship)).collect(Collectors.toList());
+        List<TramGoesToRelationship> sundays = trams.stream().
+                filter(tram -> tram.getDaysServiceRuns()[6]).collect(Collectors.toList());
+        assertTrue(sundays.size()>0);
+
+        List<LocalTime> allTimes = new LinkedList();
+
+        sundays.forEach(svc -> {
+            LocalTime[] times = svc.getTimesServiceRuns();
+            for (int i = 0; i < times.length; i++) {
+                allTimes.add(times[i]);
+            }
+        });
+
+        assertTrue(allTimes.size()>0);
+
+    }
+
+    @Test
     public void shouldHaveHarbourCityStation() throws TramchesterException {
 
         TramNode tramNode = calculator.getStation(Stations.HarbourCity.getId());
@@ -112,18 +141,18 @@ public class TramGraphBuilderTest {
                                 collect(Collectors.toList()).
                                 containsAll(deansAndNext)).
                             collect(Collectors.toList());
-                    int[] timesTramRuns = goesTo.getTimesServiceRuns();
+                    LocalTime[] timesTramRuns = goesTo.getTimesServiceRuns();
                     // number of outbounds from should match calling trip from the data
                     assertEquals(svcId, tripsThatCall.size(), timesTramRuns.length);
 
-                    List<Integer> times = tripsThatCall.stream().
+                    List<LocalTime> times = tripsThatCall.stream().
                             map(trip -> trip.getStopsFor(Stations.Deansgate.getId())).
                             flatMap(stops -> stops.stream()).
-                            map(stop -> stop.getDepartureMinFromMidnight()).
+                            map(stop -> stop.getDepartureTime().asLocalTime()).
                             collect(Collectors.toList());
                     assertEquals(svcId, times.size(), timesTramRuns.length);
 
-                    for (int timesTramRun : timesTramRuns) {
+                    for (LocalTime timesTramRun : timesTramRuns) {
                         assertTrue(svcId + " " + timesTramRun, times.contains(timesTramRun));
                     }
 
@@ -188,7 +217,7 @@ public class TramGraphBuilderTest {
         outbounds.forEach(outbound -> {
             if (outbound.isGoesTo()) {
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outbound;
-                int[] runsAt = tramGoesToRelationship.getTimesServiceRuns();
+                LocalTime[] runsAt = tramGoesToRelationship.getTimesServiceRuns();
                 assertTrue(runsAt.length >0 );
                 logger.info(String.format("%s (%s): ", tramGoesToRelationship.getService(), tramGoesToRelationship.getDest()));
                 logger.info(display(runsAt));
@@ -206,9 +235,9 @@ public class TramGraphBuilderTest {
         return builder.toString();
     }
 
-    private String display(int[] runsAt) {
+    private String display(LocalTime[] runsAt) {
         StringBuilder builder = new StringBuilder();
-        for (int i : runsAt) {
+        for (LocalTime i : runsAt) {
             builder.append(" " + i);
         }
         return builder.toString();
@@ -235,8 +264,10 @@ public class TramGraphBuilderTest {
         assertTrue(svcsFromVelopark.size() >=1 );
 
         svcsFromVelopark.removeIf(svc -> {
-            for (int mins : svc.getTimesServiceRuns()) {
-                if ((mins>=MINUTES_FROM_MIDNIGHT_8AM) && (mins-MINUTES_FROM_MIDNIGHT_8AM<=15)) return false;
+            for (LocalTime time : svc.getTimesServiceRuns()) {
+                //if ((mins>=MINUTES_FROM_MIDNIGHT_8AM) && (mins-MINUTES_FROM_MIDNIGHT_8AM<=15))
+                if (time.isAfter(LocalTime.of(7,59)) && time.isBefore(LocalTime.of(8,16)))
+                    return false;
             }
             return true;
         });

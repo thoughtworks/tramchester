@@ -1,8 +1,9 @@
 package com.tramchester.acceptance.pages;
 
-import org.joda.time.LocalTime;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
+import java.time.LocalTime;
 
 public class JourneyDetailsPage extends Page {
 

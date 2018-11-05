@@ -1,19 +1,15 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.exceptions.TramchesterException;
-import org.joda.time.LocalTime;
 
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
 
-public class TramTime implements Comparable<TramTime> {
-    // NOTE:
-    // Midnight and 1AM are mapped to >24*60 minutes to preserve meaning from tfgm data where a
-    // 00:14 tram (for example) by convention runs on the day *after* the date for the trip
-    // i.e. the 00:14 on 14th June 2018 actually runs 00:14 15th June 2018 and hence after rest of
-    // trips that day
+public class  TramTime implements Comparable<TramTime> {
+
     private int hour;
     private int minute;
 
@@ -35,26 +31,29 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public static TramTime create(LocalTime time) {
-        return tramTimes[time.getHourOfDay()][time.getMinuteOfHour()];
+        return tramTimes[time.getHour()][time.getMinute()];
     }
 
     public static TramTime midnight() {
         return tramTimes[0][0];
     }
 
-    public static Optional<TramTime> parse(String text) throws TramchesterException {
+    public static Optional<TramTime> parse(String text) {
         String[] split = text.split(":",3);
 
         Integer hour = Integer.parseInt(split[0]);
-        if (hour==24 || hour==25) {
+        // Received Tram data contains 24 and 25 as an hour
+        if (hour==24) {
             hour = 0;
+        }
+        if (hour==25) {
+            hour = 1;
         }
         Integer minutes = Integer.parseInt(split[1]);
         if (hour>23 || minutes>59) {
             return Optional.empty();
         }
-
-        return Optional.of(TramTime.create(hour,minutes));
+        return Optional.of(TramTime.of(hour,minutes));
     }
 
     private TramTime(int hour, int minute) {
@@ -62,52 +61,42 @@ public class TramTime implements Comparable<TramTime> {
         this.minute = minute;
     }
 
-    public static TramTime fromMinutes(int minutesOfDays) throws TramchesterException {
-        int hour = minutesOfDays / 60;
-        int minutes = minutesOfDays - (hour*60);
-        if (hour==24) {
-            hour = 0;
+    public static TramTime of(int hours, int minutes) {
+        return tramTimes[hours][minutes];
+    }
+
+    public static int diffenceAsMinutes(TramTime first, TramTime second) {
+        if (first.isAtOrAfter(second)) {
+            return diffenceAsMinutesOverMidnight(second, first);
+        } else {
+            return diffenceAsMinutesOverMidnight(first, second);
         }
-        if (hour==25) {
-            hour = 1;
+    }
+
+    private static int diffenceAsMinutesOverMidnight(TramTime earlier, TramTime later) {
+        if (earlier.isEarlyMorning() && later.isLateNight()) {
+            int untilMidnight = (24*60)-later.minutesOfDay();
+            return untilMidnight+earlier.minutesOfDay();
+        } else {
+            return later.minutesOfDay()-earlier.minutesOfDay();
         }
-//        if (hour==26) {
-//            hour = 2;
-//        }
-        return create(hour,minutes);
     }
 
-    public TramTime minusMinutes(int delta) throws TramchesterException {
-        int mins = minutesOfDay() - delta;
-        return fromMinutes(mins);
+    public boolean isLateNight() {
+        return hour==23 || hour==22;
     }
 
-    public TramTime plusMinutes(int delta) throws TramchesterException {
-        int mins = minutesOfDay() + delta;
-        return fromMinutes(mins);
+    public boolean isEarlyMorning() {
+        return hour==0 || hour==1;
     }
 
-    public static int diffenceAsMinutes(TramTime arrive, TramTime depart) {
-        // account for crossing minute by representing hours 00, 01, and 02 as above
-        return arrive.minutesOfDay() - depart.minutesOfDay();
-    }
-
+    @Deprecated
     public static TramTime now() {
         return create(LocalTime.now());
     }
 
-    //
     public int minutesOfDay() {
-        int theHour = hour;
-        if(hour == 0){
-            theHour = 24;
-        }
-//        else if(hour == 1){
-//            theHour = 25;
-//        } else if (hour == 2) {
-//            theHour = 26; // Ashton, in live data
-//        }
-        return (theHour * 60) + minute;
+        return (hour * 60) + minute;
     }
 
     public int getHourOfDay() {
@@ -149,29 +138,32 @@ public class TramTime implements Comparable<TramTime> {
         return String.format("%s:00",toPattern());
     }
 
-    public boolean isBefore(TramTime other) {
-        if (hour<other.hour) {
-            return true;
-        }
-        if (hour==other.hour) {
-            return minute<other.minute;
-        }
-        return false;
-    }
-
-    public boolean isAfter(TramTime other) {
+    private boolean isAtOrAfter(TramTime other) {
         if (hour>other.hour) {
             return true;
         }
         if (hour==other.hour) {
-            return minute>other.minute;
+            return minute>other.minute || minute==other.minute;
         }
         return false;
     }
 
     @Override
     public int compareTo(TramTime other) {
+        if (this.isLateNight() && other.isEarlyMorning()) {
+            return -1;
+        }
         return this.minutesOfDay()-other.minutesOfDay();
     }
 
+    public LocalTime asLocalTime() {
+        return LocalTime.of(hour, minute);
+    }
+
+    public boolean departsAfter(TramTime other) {
+        if (this.isEarlyMorning() && other.isLateNight()) {
+            return true;
+        }
+        return this.isAtOrAfter(other);
+    }
 }

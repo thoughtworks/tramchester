@@ -2,16 +2,20 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TimeWindow;
+import com.tramchester.domain.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class Stops  implements Iterable<Stop> {
     private static final Logger logger = LoggerFactory.getLogger(Stops.class);
 
     private final ArrayList<Stop> stops;
+    // stationId -> [index into stops array]
     private final Map<String, List<Integer>> stations;
 
     public Stops() {
@@ -50,6 +54,7 @@ public class Stops  implements Iterable<Stop> {
 
     public boolean travelsBetween(String firstStationId, String lastStationId, TimeWindow window) {
         if (!(stations.containsKey(firstStationId) && stations.containsKey(lastStationId))) {
+            // just means this set of stops doesn't cover these stations
             //logger.warn(format("No stops for %s to %s as one or more station missing", firstStationId, lastStationId));
             return false;
         }
@@ -83,25 +88,35 @@ public class Stops  implements Iterable<Stop> {
     }
 
     private boolean checkTiming(Stop firstStop, Stop secondStop, TimeWindow timeWindow) {
-        int firstStopArriveTime = firstStop.getDepartureMinFromMidnight();
-        int secondStopArriveTime = secondStop.getArriveMinsFromMidnight();
+        // return (secondStop.getArriveMinsFromMidnight()>=firstStop.getDepartureMinFromMidnight())
+        //                && (firstStop.getDepartureMinFromMidnight() > timeWindow.minsFromMidnight())
+        //                && ((firstStop.getDepartureMinFromMidnight()-timeWindow.minsFromMidnight()) <= timeWindow.withinMins());
+        //        // does this need to be >= for buses??
 
-        if (firstStopArriveTime>secondStopArriveTime) {
+        TramTime firstStopDepartureTime = firstStop.getDepartureTime();
+        TramTime secondStopArriveTime = secondStop.getArrivalTime();
+        TramTime queryTime = TramTime.create(timeWindow.queryTime());
+        int window = timeWindow.withinMins();
+
+        // In the past
+        if (firstStopDepartureTime.asLocalTime().isBefore(timeWindow.queryTime())) {
+            if (!firstStopDepartureTime.isEarlyMorning()) {
+                return false;
+            }
+        }
+
+        if (secondStopArriveTime.asLocalTime().isBefore(firstStopDepartureTime.asLocalTime())) {
+            if (!secondStopArriveTime.isEarlyMorning()) {
+                return false;
+            }
+        }
+
+        // too long to wait
+        if (TramTime.diffenceAsMinutes(firstStopDepartureTime,  queryTime) >= window) {
             return false;
         }
 
-        int wait = firstStopArriveTime - timeWindow.minsFromMidnight();
-        if (wait<0) {
-            return false;
-        }
-        if (wait>timeWindow.withinMins()) {
-            return false;
-        }
         return true;
-//        return (secondStopArriveTime >= firstStopArriveTime)
-//                && (firstStopArriveTime > timeWindow.minsFromMidnight())
-//                && ((firstStopArriveTime - timeWindow.minsFromMidnight()) <= timeWindow.withinMins());
-        // does this need to be >= for buses??
     }
 
     public int size() {

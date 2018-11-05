@@ -8,12 +8,12 @@ import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataParser;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -31,13 +31,13 @@ public class LiveDataRepository {
 
     private LiveDataFetcher fetcher;
     private LiveDataParser parser;
-    private DateTime lastRefresh;
+    private LocalDateTime lastRefresh;
 
     public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser) {
         this.fetcher = fetcher;
         this.parser = parser;
         stationInformation = new HashMap<>();
-        lastRefresh = DateTime.now();
+        lastRefresh = LocalDateTime.now();
     }
 
     public void refreshRespository()  {
@@ -66,7 +66,7 @@ public class LiveDataRepository {
             logger.info("Refreshed live data, count is: " + newMap.size());
         }
         stationInformation = newMap;
-        lastRefresh = DateTime.now();
+        lastRefresh = LocalDateTime.now();
     }
 
     public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime) {
@@ -84,7 +84,7 @@ public class LiveDataRepository {
         }
     }
 
-    public void enrich(LocationDTO locationDTO, DateTime current) {
+    public void enrich(LocationDTO locationDTO, LocalDateTime current) {
         if (!locationDTO.hasPlatforms()) {
             return;
         }
@@ -112,7 +112,7 @@ public class LiveDataRepository {
         logger.info("Found live data for " + platformId);
         StationDepartureInfo info = stationInformation.get(platformId);
 
-        DateTime infoLastUpdate = info.getLastUpdate();
+        LocalDateTime infoLastUpdate = info.getLastUpdate();
 
         TramTime updateTime = TramTime.create(infoLastUpdate.toLocalTime());
 
@@ -132,7 +132,7 @@ public class LiveDataRepository {
     public long staleDataCount() {
         Collection<StationDepartureInfo> infos = stationInformation.values();
         int total = infos.size();
-        DateTime cutoff = lastRefresh.minusMinutes(TIME_LIMIT);
+        LocalDateTime cutoff = lastRefresh.minusMinutes(TIME_LIMIT);
         long withinCutof = infos.stream().filter(info -> info.getLastUpdate().isAfter(cutoff)).count();
         if (withinCutof<total) {
             logger.error(format("%s out of %s records are within of cuttoff time %s", withinCutof, total, cutoff));

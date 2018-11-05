@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
+import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -14,8 +15,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -24,9 +24,13 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.SortedSet;
 
+import static com.tramchester.TestConfig.dateFormatDashes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -43,7 +47,7 @@ public class MyLocationJourneyPlannerTest {
 
     @Before
     public void beforeEachTestRuns() {
-        when = JourneyPlannerHelper.nextTuesday(0);
+        when = TestConfig.nextTuesday(0);
         mapper.registerModule(new JodaModule());
         nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
         nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
@@ -56,18 +60,18 @@ public class MyLocationJourneyPlannerTest {
 
     @Test
     public void planRouteAllowingForWalkingTime() throws JsonProcessingException, UnsupportedEncodingException, TramchesterException {
-        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(), (22 * 60) + 9);
+        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(), (20 * 60) + 9);
         assertEquals(1, journeys.size());
         JourneyDTO first = journeys.first();
 
         List<StageDTO> stages = first.getStages();
         assertEquals(2, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertEquals(TramTime.create(22,9), walkingStage.getFirstDepartureTime());
+        assertEquals(TramTime.create(20,9), walkingStage.getFirstDepartureTime());
 
-        TramTime walkArrives = TramTime.create(22, 22);
+        TramTime walkArrives = TramTime.create(20, 22);
         assertEquals(walkArrives, walkingStage.getExpectedArrivalTime());
-        assertTrue(first.getFirstDepartureTime().isAfter(walkArrives));
+        assertTrue(first.getFirstDepartureTime().asLocalTime().isAfter(walkArrives.asLocalTime()));
     }
 
     @Test
@@ -115,16 +119,15 @@ public class MyLocationJourneyPlannerTest {
 
         int queryTime = 23 * 60;
         int walkingTime = 13;
-        JourneyPlanRepresentation direct = getPlanFor(Stations.NavigationRoad,
-                destination, queryTime+walkingTime);
+        JourneyPlanRepresentation direct = getPlanFor(Stations.NavigationRoad, destination, queryTime+walkingTime);
         assertTrue(direct.getJourneys().size()>0);
 
         validateJourneyFromLocation(nearAltrincham, destination.getId(), queryTime);
     }
 
     private JourneyPlanRepresentation getPlanFor(Location start, Location end, int minsPastMid) {
-        String date = when.toString("YYYY-MM-dd");
-        String time = LocalTime.MIDNIGHT.plusMinutes(minsPastMid).toString("HH:mm:00");
+        String date = when.format(dateFormatDashes);
+        String time = LocalTime.MIDNIGHT.plusMinutes(minsPastMid).format(DateTimeFormatter.ofPattern("HH:mm:00"));
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, start.getId(), end.getId(), time, date);
         Assert.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
@@ -134,8 +137,8 @@ public class MyLocationJourneyPlannerTest {
             throws JsonProcessingException, UnsupportedEncodingException {
         String startId = URLEncoder.encode(JourneyPlannerTest.formId(location), "UTF-8");
 
-        String date = when.toString("YYYY-MM-dd");
-        String time = LocalTime.MIDNIGHT.plusMinutes(queryTime).toString("HH:mm:00");
+        String date = when.format(dateFormatDashes);
+        String time = LocalTime.MIDNIGHT.plusMinutes(queryTime).format(DateTimeFormatter.ofPattern("HH:mm:00"));
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId, destination, time, date);
         Assert.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation plan = response.readEntity(JourneyPlanRepresentation.class);

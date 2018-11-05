@@ -3,8 +3,9 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
-import org.joda.time.LocalDate;
 import org.junit.Test;
+
+import java.time.LocalDate;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -14,7 +15,7 @@ public class TramServiceDateTest {
 
     @Test
     public void shouldInitiateWithDate() throws Exception {
-        LocalDate date = new LocalDate(2014, 10, 25);
+        LocalDate date = LocalDate.of(2014, 10, 25);
         TramServiceDate tramServiceDate = new TramServiceDate(date);
 
         assertThat(tramServiceDate.getDate()).isEqualTo(date);
@@ -23,7 +24,7 @@ public class TramServiceDateTest {
 
     @Test
     public void shouldInitiateWithStringDate() throws Exception {
-        LocalDate date = new LocalDate(2014, 10, 25);
+        LocalDate date = LocalDate.of(2014, 10, 25);
         TramServiceDate tramServiceDate = new TramServiceDate("20141025");
 
         assertThat(tramServiceDate.getDate()).isEqualTo(date);
@@ -32,16 +33,16 @@ public class TramServiceDateTest {
 
     @Test
     public void shouldGetDayOfWeek() throws TramchesterException {
-        TramServiceDate tramServiceDate = new TramServiceDate(new LocalDate(2016, 6, 13));
+        TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.of(2016, 6, 13));
         assertThat(tramServiceDate.getDay()).isEqualTo(DaysOfWeek.Monday);
 
-        tramServiceDate = new TramServiceDate(new LocalDate(2017, 1, 1));
+        tramServiceDate = new TramServiceDate(LocalDate.of(2017, 1, 1));
         assertThat(tramServiceDate.getDay()).isEqualTo(DaysOfWeek.Sunday);
     }
 
     @Test
     public void shouldCheckBetween() {
-        LocalDate aDate = new LocalDate(2016, 6, 13);
+        LocalDate aDate = LocalDate.of(2016, 6, 13);
         TramServiceDate tramServiceDate = new TramServiceDate(aDate);
 
         assertTrue(tramServiceDate.within(aDate, aDate.plusDays(1)));

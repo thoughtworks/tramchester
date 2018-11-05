@@ -9,19 +9,22 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.resources.JourneyPlannerResource;
-import org.joda.time.LocalDate;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 
-import static org.joda.time.DateTimeConstants.TUESDAY;
+import static java.util.Calendar.TUESDAY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
 public abstract class JourneyPlannerHelper {
-    protected JourneyPlannerResource planner;
 
-    public static void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
+    JourneyPlannerResource planner;
+
+    static void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
         for(JourneyDTO journey: journeys) {
             TramTime previousArrive = null;
             for(StageDTO stage : journey.getStages()) {
@@ -30,7 +33,7 @@ public abstract class JourneyPlannerHelper {
                     String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
                             firstDepartureTime, previousArrive, stage);
                     if (stage.getMode()!= TransportMode.Walk) {
-                        assertTrue(prefix + message, firstDepartureTime.isAfter(previousArrive));
+                        assertTrue(prefix + message, firstDepartureTime.asLocalTime().isAfter(previousArrive.asLocalTime()));
                     }
                 }
                 previousArrive = stage.getExpectedArrivalTime();
@@ -38,33 +41,25 @@ public abstract class JourneyPlannerHelper {
         }
     }
 
-    protected JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, int minsPastMid,
-                                                                  LocalDate date) throws TramchesterException {
+    JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, LocalTime queryTime,
+                                                        LocalDate date) throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(date);
-        JourneyPlanRepresentation results = getJourneyPlan(start, end, minsPastMid, queryDate);
+        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryTime, queryDate);
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        String message = String.format("from %s to %s at %s on %s", start, end, minsPastMid, queryDate);
+        String message = String.format("from %s to %s at %s on %s", start, end, queryTime, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
         checkDepartsAfterPreviousArrival(message, journeys);
         journeys.forEach(journey -> assertFalse("Missing stages for journey"+journey, journey.getStages().isEmpty()));
         return results;
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, LocalDate queryDate) throws TramchesterException {
-        return getJourneyPlan(start, end, minsPastMid, new TramServiceDate(queryDate));
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime, LocalDate queryDate) throws TramchesterException {
+        return getJourneyPlan(start, end, queryTime, new TramServiceDate(queryDate));
     }
 
-    protected abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, int minsPastMid, TramServiceDate queryDate) throws TramchesterException;
+    abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime,
+                                                      TramServiceDate queryDate) throws TramchesterException;
 
-    public static LocalDate nextTuesday(int offsetDays) {
-        LocalDate now = LocalDate.now().minusDays(offsetDays);
-        int offset = now.getDayOfWeek()-TUESDAY;
-        LocalDate nextMonday = now.minusDays(offset).plusWeeks(1);
-        while (new TramServiceDate(nextMonday).isChristmasPeriod()) {
-            nextMonday = nextMonday.plusWeeks(1);
-        }
-        return nextMonday;
-    }
 
 }

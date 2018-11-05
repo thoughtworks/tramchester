@@ -3,9 +3,10 @@ package com.tramchester.healthchecks;
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.repository.ProvidesFeedInfo;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
 
 import static java.lang.String.format;
 

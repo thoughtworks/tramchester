@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.mappers.LocalDateJsonDeserializer;
 import com.tramchester.mappers.LocalDateJsonSerializer;
-import org.joda.time.LocalDate;
+
+import java.time.LocalDate;
 
 public class FeedInfo {
     private String version;

@@ -3,13 +3,20 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.integration.Stations;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class StationTest {
+
+    @Test
+    public void shouldHaveCorrectTestDataForStationInterchanges() {
+        assertEquals(TramInterchanges.stations().size(),Stations.Interchanges.size());
+    }
 
     @Test
     public void testShouldSetTramNameCorrecly() {

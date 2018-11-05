@@ -64,6 +64,7 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("secureHost")
     private String secureHost;
 
+    @Deprecated
     @JsonProperty("addWalkingRoutes")
     private boolean addWalkingRoutes;
 

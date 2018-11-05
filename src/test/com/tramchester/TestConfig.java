@@ -1,14 +1,19 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.TramServiceDate;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Calendar.TUESDAY;
 
 
 public abstract class TestConfig extends AppConfiguration {
@@ -81,7 +86,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public boolean getAddWalkingRoutes() { return true; }
+    public boolean getAddWalkingRoutes() { return false; }
 
     @Override
     public int getMaxWait() {
@@ -114,6 +119,33 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public String getLiveDataSubscriptionKey() {
         return System.getenv("TFGMAPIKEY");
+    }
+
+    public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
+
+
+    public static LocalDate nextTuesday(int offsetDays) {
+        DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;
+        LocalDate date = LocalDate.now().minusDays(offsetDays);
+        return getNextDate(dayOfWeek, date);
+    }
+
+    public static LocalDate getNextDate(DayOfWeek dayOfWeek, LocalDate date) {
+        while (date.getDayOfWeek()!= dayOfWeek) {
+            date = date.plusDays(1);
+        }
+        while (new TramServiceDate(date).isChristmasPeriod()) {
+            date = date.plusWeeks(1);
+        }
+        return date;
+    }
+
+    public static LocalDate nextSaturday() {
+        return getNextDate(DayOfWeek.SATURDAY, LocalDate.now());
+    }
+
+    public static LocalDate nextSunday() {
+        return getNextDate(DayOfWeek.SATURDAY, LocalDate.now());
     }
 
 }

@@ -3,14 +3,14 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.mappers.LiveDataParser;
-import org.joda.time.DateTime;
-import org.joda.time.chrono.ISOChronology;
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.*;
 import java.util.List;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 
 public class LiveDataParserTest {
@@ -50,7 +50,7 @@ public class LiveDataParserTest {
                     "Dest1\":\"Piccadilly\",\"Carriages1\":\"Single\",\"Status1\":\"Due\",\"Wait1\":\"12\",\"" +
                     "Dest2\":\"Piccadilly\",\"Carriages2\":\"Single\",\"Status2\":\"Due\",\"Wait2\":\"21\",\"" +
                     "Dest3\":\"\",\"Carriages3\":\"\",\"Status3\":\"\",\"" +
-                    "MessageBoard\":\"Test.\",\"Wait3\":\"\",\"LastUpdated\":\"2017-11-29T%s:45:00Z\"\n" +
+                    "MessageBoard\":\"Test.\",\"Wait3\":\"\",\"LastUpdated\":\"2017-11-29T%02d:45:00Z\"\n" +
                     "    }", i, i);
             message.append(line);
         }
@@ -59,8 +59,8 @@ public class LiveDataParserTest {
         List<StationDepartureInfo> info = mapper.parse(message.toString());
         assertEquals(11, info.size());
         for (int i = 1; i < 12; i++) {
-            DateTime expected = new DateTime(2017, 11, 29, i, 45);
-            assertEquals(expected.toString(), expected.getMillis(), info.get(i-1).getLastUpdate().getMillis());
+            LocalDateTime expected = LocalDateTime.of(2017, 11, 29, i, 45);
+            assertEquals(expected.toString(), expected, info.get(i-1).getLastUpdate());
         }
 
     }
@@ -89,9 +89,9 @@ public class LiveDataParserTest {
         assertEquals(12, dueTram.getWait());
         assertEquals("Single",dueTram.getCarriages());
 
-        DateTime expectedDate = new DateTime(2017, 11, 29,
-                11, 45, 00, ISOChronology.getInstanceUTC());
-        assertEquals(expectedDate, departureInfoA.getLastUpdate());
+        ZoneId zoneId = ZoneId.of("Europe/London");
+        ZonedDateTime expectedDate = ZonedDateTime.of(LocalDateTime.of(2017, 11, 29, 11, 45), zoneId);
+        assertEquals(expectedDate.toLocalDateTime(), departureInfoA.getLastUpdate());
 
         StationDepartureInfo departureInfoB = info.get(1);
         assertEquals("Airport", departureInfoB.getLineName());

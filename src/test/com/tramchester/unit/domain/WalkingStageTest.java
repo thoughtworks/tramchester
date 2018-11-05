@@ -6,6 +6,8 @@ import com.tramchester.integration.Stations;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalTime;
+
 import static org.junit.Assert.assertEquals;
 
 public class WalkingStageTest {
@@ -16,7 +18,7 @@ public class WalkingStageTest {
 
     @Before
     public void setUp() {
-        int begin = 8 * 60;
+        LocalTime begin = LocalTime.of(8,0); //8 * 60;
         int cost = 22;
         start = Stations.Altrincham;
         destination = Stations.Cornbrook;

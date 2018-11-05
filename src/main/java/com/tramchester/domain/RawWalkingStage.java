@@ -37,4 +37,13 @@ public class RawWalkingStage implements RawStage {
     public Location getDestination() {
         return destination;
     }
+
+    @Override
+    public String toString() {
+        return "RawWalkingStage{" +
+                "start=" + start +
+                ", destination=" + destination +
+                ", duration=" + duration +
+                '}';
+    }
 }

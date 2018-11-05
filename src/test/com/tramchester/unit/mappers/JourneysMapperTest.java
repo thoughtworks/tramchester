@@ -13,10 +13,11 @@ import com.tramchester.mappers.SingleJourneyMapper;
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalTime;
+import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -39,9 +40,9 @@ public class JourneysMapperTest extends EasyMockSupport{
         JourneysMapper journeysMapper = new JourneysMapper(mapper);
 
         Set<RawJourney> rawJourneys = new ListOrderedSet<>();
-        RawJourney rawJourneyA =new RawJourney(new LinkedList<>(), 3);
-        RawJourney rawJourneyB =new RawJourney(new LinkedList<>(), 2);
-        RawJourney rawJourneyC =new RawJourney(new LinkedList<>(), 1);
+        RawJourney rawJourneyA =new RawJourney(new LinkedList<>(), LocalTime.of(0,3));
+        RawJourney rawJourneyB =new RawJourney(new LinkedList<>(), LocalTime.of(0,2));
+        RawJourney rawJourneyC =new RawJourney(new LinkedList<>(), LocalTime.of(0,1));
 
         rawJourneys.add(rawJourneyA);
         rawJourneys.add(rawJourneyB);
@@ -52,11 +53,12 @@ public class JourneysMapperTest extends EasyMockSupport{
 
         LocationDTO begin = new LocationDTO(Stations.Altrincham);
         LocationDTO end = new LocationDTO(Stations.Victoria);
-        TramTime now = TramTime.now();
-        JourneyDTO journeyDTOA = new JourneyDTO(begin, end, new LinkedList<>(), now, now,
-                "summaryA", "headingA", false);
-        JourneyDTO journeyDTOB = new JourneyDTO(begin, end, new LinkedList<>(), now.plusMinutes(1),
-                now.plusMinutes(1),
+
+        LocalTime now = LocalTime.now();
+        JourneyDTO journeyDTOA = new JourneyDTO(begin, end, new LinkedList<>(), TramTime.create(now),
+                TramTime.create(now), "summaryA", "headingA", false);
+        JourneyDTO journeyDTOB = new JourneyDTO(begin, end, new LinkedList<>(), TramTime.create(now.plusMinutes(1)),
+                TramTime.create(now.plusMinutes(1)),
                 "summaryB", "headingB", false);
 
         EasyMock.expect(mapper.createJourney(rawJourneyA, 42)).andReturn(Optional.of(journeyA));

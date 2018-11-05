@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TramTime;
 import com.tramchester.mappers.TramTimeJsonSerializer;
 
+import java.time.LocalTime;
+
 public class ServiceTime implements Comparable<ServiceTime> {
     private final TramTime leaveBegin;
     private final TramTime arrivesEnd;
@@ -38,8 +40,8 @@ public class ServiceTime implements Comparable<ServiceTime> {
         return serviceId;
     }
 
-    public int getFromMidnightLeaves() {
-        return leaveBegin.minutesOfDay();
+    public LocalTime getLeaves() {
+        return leaveBegin.asLocalTime();
     }
 
     @Override

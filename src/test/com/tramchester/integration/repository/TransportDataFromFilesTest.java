@@ -12,28 +12,30 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
+import net.sf.cglib.core.Local;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
-    public static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(8 * 60, 45);
+    public static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(LocalTime.of(8,0), 45);
     public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodesForTesting.ASH_TO_ECCLES});
-    public static final int PM11 = (23 * 60);
+    //public static final int PM11 = (23 * 60);
 
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv004153";
+    private final String svcDeansgateToVic = "Serv004171";
     // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv004152";
+    private String svcShawAndCrompton = "Serv004170";
 
     private Collection<Service> allServices;
 
@@ -143,7 +145,7 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
-                new TimeWindow(PM11 + 41 ,30));
+                new TimeWindow(LocalTime.of(23,41), 30));
         assertTrue(trips.isPresent());
     }
 
@@ -152,8 +154,39 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
-                new TimeWindow((PM11 + 41), 30));
+                new TimeWindow(LocalTime.of(23,31), 30));
         assertTrue(trips.isPresent());
+    }
+
+    @Test
+    public void shouldHaveWeekendServicesDeansgateToAshton() {
+        Set<Trip> deansgateTrips = transportData.getTripsFor(Stations.Deansgate.getId());
+
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(9,00),30);
+        List<String> servicesIds = deansgateTrips.stream().
+                filter(trip -> trip.callsAt(Stations.Ashton.getId())).
+                filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(),Stations.Ashton.getId(),timeWindow)).
+                map(trip -> trip.getServiceId()).collect(Collectors.toList());
+        assertTrue(servicesIds.size()>0);
+
+        List<Service> sundays = transportData.getServices().stream().
+                filter(svc -> servicesIds.contains(svc.getServiceId())).
+                filter(svc -> svc.getDays().get(DaysOfWeek.Sunday)).collect(Collectors.toList());
+        assertTrue(sundays.size()>0);
+
+        List<Service> saturdays = transportData.getServices().stream().
+                filter(svc -> servicesIds.contains(svc.getServiceId())).
+                filter(svc -> svc.getDays().get(DaysOfWeek.Saturday)).collect(Collectors.toList());
+        assertTrue(saturdays.size()>0);
+
+
+        List<Trip> sundayTrips = sundays.stream().map(svc -> svc.getTrips()).flatMap(Collection::stream).collect(Collectors.toList());
+
+        List<Trip> atRequiredTimed = sundayTrips.stream().
+                filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(), Stations.Ashton.getId(), timeWindow)).
+                collect(Collectors.toList());
+
+        assertEquals(2, atRequiredTimed.size());
     }
 
     @Test
@@ -161,7 +194,7 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
-                new TimeWindow((PM11 + 41), 30));
+                new TimeWindow(LocalTime.of(11,31), 30));
         assertTrue(trips.isPresent());
     }
 
@@ -302,8 +335,11 @@ public class TransportDataFromFilesTest {
         // finally check there are trams stopping within 15 mins of 8AM on Monday
         stoppingAtVelopark.removeIf(stop -> {
             int mins = stop.getArriveMinsFromMidnight();
-            int expected = MINUTES_FROM_MIDNIGHT_8AM.minsFromMidnight();
-            return !((mins>=expected) && (mins-expected<=15));
+//            int expected = MINUTES_FROM_MIDNIGHT_8AM.queryTime();
+//            return !((mins>=expected) && (mins-expected<=15));
+            TramTime arrivalTime = stop.getArrivalTime();
+            return arrivalTime.asLocalTime().isAfter(LocalTime.of(7,59)) &&
+                    arrivalTime.asLocalTime().isBefore(LocalTime.of(8,16));
         });
 
         assertTrue(stoppingAtVelopark.size()>=1); // at least 1

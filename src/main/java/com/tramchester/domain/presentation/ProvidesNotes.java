@@ -8,8 +8,8 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import org.apache.commons.collections4.map.HashedMap;
-import org.joda.time.LocalDate;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static java.lang.String.format;

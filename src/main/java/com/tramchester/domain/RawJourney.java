@@ -1,13 +1,14 @@
 package com.tramchester.domain;
 
+import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
 
 public class RawJourney implements Iterable<RawStage> {
     private List<RawStage> stages;
-    private int queryTime;
+    private LocalTime queryTime;
 
-    public RawJourney(List<RawStage> stages, int queryTime) {
+    public RawJourney(List<RawStage> stages, LocalTime queryTime) {
         this.stages = stages;
         this.queryTime = queryTime;
     }
@@ -20,7 +21,7 @@ public class RawJourney implements Iterable<RawStage> {
         return stages;
     }
 
-    public int getQueryTime() {
+    public LocalTime getQueryTime() {
         return queryTime;
     }
 

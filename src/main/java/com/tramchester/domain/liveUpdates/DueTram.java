@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.mappers.DateTimeJsonDeserializer;
-import com.tramchester.mappers.DateTimeJsonSerializer;
 import com.tramchester.mappers.TramTimeJsonDeserializer;
 import com.tramchester.mappers.TramTimeJsonSerializer;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
+
+import java.time.LocalTime;
 
 public class DueTram {
 
@@ -24,12 +22,12 @@ public class DueTram {
         // deserialisation
     }
 
-    public DueTram(String destination, String status, int wait, String carriages, LocalTime updateTime) throws TramchesterException {
+    public DueTram(String destination, String status, int wait, String carriages, LocalTime updateTime) {
         this.destination = destination;
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
-        this.when  = TramTime.create(updateTime).plusMinutes(wait);
+        this.when  = TramTime.create(updateTime.plusMinutes(wait)); //.plusMinutes(wait);
     }
 
     public String getDestination() {

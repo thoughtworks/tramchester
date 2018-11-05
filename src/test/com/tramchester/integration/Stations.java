@@ -1,18 +1,15 @@
 package com.tramchester.integration;
 
-import com.tramchester.domain.input.Interchanges;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.collections4.ListUtils;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Stations {
+    // TEST DATA For stations
 
     private static LatLong position = new LatLong(1,1);
 
@@ -40,8 +37,8 @@ public class Stations {
     public static Location HarbourCity = createStation("9400ZZMAHCY", "Harbour City area", "Harbour City");
     public static Location StPetersSquare = createStation("9400ZZMASTP", "Manchester City Centre", "St Peters Square");
     public static Location MarketStreet = createStation("9400ZZMAMKT", "Market Street Area", "Market Street");
-
     public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
+    public static Location StWerburghsRoad = createStation("9400ZZMASTW", "Chorlton", "St Werburgh's Road");
 
     private static List<Location> EndOfTheLineWest = Arrays.asList(Altrincham,
             ManAirport,
@@ -53,19 +50,10 @@ public class Stations {
             Bury,
             ExchangeSquare);
 
-    public static Set<String> EcclesLineStationIds = new HashSet<>(Arrays.asList(Eccles.getId(),"9400ZZMALDY", "9400ZZMAWST",
-            "9400ZZMALWY", "9400ZZMABWY", HarbourCity.getId(), MediaCityUK.getId(),
-            "9400ZZMAANC", "9400ZZMASQY", "9400ZZMAEXC", Pomona.getId()));
-
     public static List<Location> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 
-    public static List<Location> getInterchanges() {
-        return toLocationList(Interchanges.stations());
-    }
-
-    private static List<Location> toLocationList(Set<String> ids) {
-        return ids.stream().map(id -> createStation(id, "area", "name")).collect(Collectors.toList());
-    }
+    public static List<Location> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
+            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
 
     public static Station createStation(String id, String area, String name) {
         return new Station(id, area, name, position, true);

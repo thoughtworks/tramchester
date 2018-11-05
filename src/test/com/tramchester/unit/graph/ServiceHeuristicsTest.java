@@ -12,20 +12,27 @@ import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ServiceHeuristicsTest extends EasyMockSupport {
 
-    private int[] tramTimes = new int[] { 600, 700, 800, 900, 1000 };
+    LocalTime am10 = LocalTime.of(10,0);
+    private LocalTime[] tramTimes = new LocalTime[] { am10,
+            am10.plusMinutes(100),
+            am10.plusMinutes(200),
+            am10.plusMinutes(300),
+            am10.plusMinutes(400) };
     private CachingCostEvaluator costEvaluator;
     TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(30);
     private TramServiceDate date;
-    private int NOT_USED_HERE = 999;
+    private LocalTime NOT_USED_HERE = LocalTime.of(23,59);
 
     @Before
     public void beforeEachTestRuns() {
@@ -35,16 +42,20 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTimesWith30MinWait() throws TramchesterException {
+        LocalTime am640 = LocalTime.of(6, 40); // 400
 
-        ElapsedTime providerA = createNoMatchProvider(400);
-        ElapsedTime providerB = createNoMatchProvider(550);
-        ElapsedTime providerC = createMatchProvider(580, 600- TransportGraphBuilder.BOARDING_COST);
-        ElapsedTime providerD = createMatchProvider(600, 600-TransportGraphBuilder.BOARDING_COST);
-        ElapsedTime providerE = createNoMatchProvider(620);
-        ElapsedTime providerF = createNoMatchProvider(630);
-        ElapsedTime providerG = createNoMatchProvider(650);
-        ElapsedTime providerH = createMatchProvider(680, 700-TransportGraphBuilder.BOARDING_COST);
-        ElapsedTime providerI = createNoMatchProvider(1001);
+        ElapsedTime providerA = createNoMatchProvider(am640); //6:40
+        ElapsedTime providerB = createNoMatchProvider(am640.plusMinutes(150));
+
+        LocalTime journeyStart = LocalTime.of(10,0).minusMinutes(TransportGraphBuilder.BOARDING_COST);
+        ElapsedTime providerC = createMatchProvider(am640.plusMinutes(180), journeyStart);
+        ElapsedTime providerD = createMatchProvider(am640.plusMinutes(200), journeyStart);
+        ElapsedTime providerE = createNoMatchProvider(am640.plusMinutes(220));
+        ElapsedTime providerF = createNoMatchProvider(am640.plusMinutes(230));
+        ElapsedTime providerG = createNoMatchProvider(am640.plusMinutes(250));
+
+        ElapsedTime providerH = createMatchProvider(am640.plusMinutes(280), journeyStart.plusMinutes(100));
+        ElapsedTime providerI = createNoMatchProvider(am640.plusMinutes(601));
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config30MinsWait, date,NOT_USED_HERE);
@@ -62,17 +73,20 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTimesWith15MinWait() throws TramchesterException {
+        LocalTime am640 = LocalTime.of(6, 40); // 400
 
-        ElapsedTime providerA = createNoMatchProvider(400);
-        ElapsedTime providerB = createNoMatchProvider(550);
-        ElapsedTime providerC = createNoMatchProvider(580);
-        ElapsedTime providerD = createMatchProvider(600, 600-TransportGraphBuilder.BOARDING_COST);
-        ElapsedTime providerE = createNoMatchProvider(620);
-        ElapsedTime providerF = createNoMatchProvider(630);
-        ElapsedTime providerG = createNoMatchProvider(650);
-        ElapsedTime providerH = createNoMatchProvider(680);
-        ElapsedTime providerI = createMatchProvider(590, 600-TransportGraphBuilder.BOARDING_COST);
-        ElapsedTime providerJ = createNoMatchProvider(1001);
+        ElapsedTime providerA = createNoMatchProvider(am640);
+        ElapsedTime providerB = createNoMatchProvider(am640.plusMinutes(150));
+        ElapsedTime providerC = createNoMatchProvider(am640.plusMinutes(180));
+        LocalTime journeyStart = LocalTime.of(10,0).minusMinutes(TransportGraphBuilder.BOARDING_COST);
+
+        ElapsedTime providerD = createMatchProvider(am640.plusMinutes(200), journeyStart);
+        ElapsedTime providerE = createNoMatchProvider(am640.plusMinutes(220));
+        ElapsedTime providerF = createNoMatchProvider(am640.plusMinutes(230));
+        ElapsedTime providerG = createNoMatchProvider(am640.plusMinutes(250));
+        ElapsedTime providerH = createNoMatchProvider(am640.plusMinutes(280));
+        ElapsedTime providerI = createMatchProvider(am640.plusMinutes(190), journeyStart);
+        ElapsedTime providerJ = createNoMatchProvider(am640.plusMinutes(601));
 
         replayAll();
         TramchesterConfig configuration = new NeedMaxWaitConfig(15);
@@ -92,11 +106,13 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTimesOneTime() throws TramchesterException {
+        LocalTime am640 = LocalTime.of(6, 40); // 400
 
-        int[] time = new int[] { 450 };
-        ElapsedTime providerA = createNoMatchProvider(400);
-        ElapsedTime providerB = createMatchProvider(420, 450-TransportGraphBuilder.BOARDING_COST);
-        ElapsedTime providerC = createNoMatchProvider(451);
+        LocalTime[] time = new LocalTime[] { LocalTime.of(7,30) };
+        ElapsedTime providerA = createNoMatchProvider(am640);
+        LocalTime journeyStart = am640.plusMinutes(50).minusMinutes(TransportGraphBuilder.BOARDING_COST);
+        ElapsedTime providerB = createMatchProvider(am640.plusMinutes(20), journeyStart);
+        ElapsedTime providerC = createNoMatchProvider(am640.plusMinutes(51));
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config30MinsWait, date,NOT_USED_HERE);
@@ -108,10 +124,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTotalDurationOverWaitTime() throws TramchesterException {
-        int[] time = new int[] { 450 };
+        LocalTime[] time = new LocalTime[] { LocalTime.of(7,30) };
 
         ElapsedTime provider = createMock(ElapsedTime.class);
-        EasyMock.expect(provider.getElapsedTime()).andStubReturn(440);
+        EasyMock.expect(provider.getElapsedTime()).andStubReturn(LocalTime.of(7,20));
         EasyMock.expect(provider.startNotSet()).andReturn(false);
 
         replayAll();
@@ -148,19 +164,19 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldCheckTramServiceDate() {
-        TramServiceDate startDate = new TramServiceDate(new LocalDate(2016, 6, 1));
-        TramServiceDate endDate = new TramServiceDate(new LocalDate(2016, 6, 29));
+        TramServiceDate startDate = new TramServiceDate(LocalDate.of(2016, 6, 1));
+        TramServiceDate endDate = new TramServiceDate(LocalDate.of(2016, 6, 29));
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config30MinsWait, startDate,NOT_USED_HERE);
 
         assertTrue(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(new LocalDate(2016, 6, 15))));
+                new TramServiceDate(LocalDate.of(2016, 6, 15))));
         assertTrue(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(new LocalDate(2016, 6, 1))));
+                new TramServiceDate(LocalDate.of(2016, 6, 1))));
         serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(new LocalDate(2016, 6, 29)));
+                new TramServiceDate(LocalDate.of(2016, 6, 29)));
         assertFalse(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(new LocalDate(2016, 12, 15))));
+                new TramServiceDate(LocalDate.of(2016, 12, 15))));
 
     }
 
@@ -184,7 +200,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         assertTrue(serviceHeuristics.operatesOnDayOnWeekday(days, day));
     }
 
-    private ElapsedTime createMatchProvider(int queryTime, int journeyStart) throws TramchesterException {
+    private ElapsedTime createMatchProvider(LocalTime queryTime, LocalTime journeyStart) throws TramchesterException {
         ElapsedTime provider = createMock(ElapsedTime.class);
         EasyMock.expect(provider.getElapsedTime()).andStubReturn(queryTime);
         EasyMock.expect(provider.startNotSet()).andReturn(true);
@@ -194,7 +210,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         return provider;
     }
 
-    private ElapsedTime createNoMatchProvider(int queryTime) throws TramchesterException {
+    private ElapsedTime createNoMatchProvider(LocalTime queryTime) throws TramchesterException {
         ElapsedTime provider = createMock(ElapsedTime.class);
         EasyMock.expect(provider.getElapsedTime()).andReturn(queryTime);
         return provider;

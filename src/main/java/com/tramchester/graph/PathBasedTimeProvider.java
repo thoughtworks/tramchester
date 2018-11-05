@@ -4,14 +4,16 @@ import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.Path;
 
+import java.time.LocalTime;
+
 
 public class PathBasedTimeProvider implements ElapsedTime {
     private final PersistsBoardingTime boardTime;
-    private final int queryTime;
+    private final LocalTime queryTime;
     private final int cost;
 
     public PathBasedTimeProvider(CostEvaluator<Double> costEvaluator, Path path, PersistsBoardingTime boardTime,
-                                 int queryTime) {
+                                 LocalTime queryTime) {
         WeightedPathImpl weightedPath = new WeightedPathImpl(costEvaluator, path);
         this.cost = (int) weightedPath.weight();
         this.boardTime = boardTime;
@@ -19,12 +21,12 @@ public class PathBasedTimeProvider implements ElapsedTime {
     }
 
     @Override
-    public int getElapsedTime() {
+    public LocalTime getElapsedTime() {
         if (boardTime.isPresent()) {
-            return boardTime.get() + cost;
+            return boardTime.get().plusMinutes(cost);
         }
         else {
-            return queryTime + cost;
+            return queryTime.plusMinutes(cost);
         }
 
     }
@@ -35,7 +37,7 @@ public class PathBasedTimeProvider implements ElapsedTime {
     }
 
     @Override
-    public void setJourneyStart(int minutesPastMidnight) {
+    public void setJourneyStart(LocalTime minutesPastMidnight) {
         boardTime.save(minutesPastMidnight);
     }
 

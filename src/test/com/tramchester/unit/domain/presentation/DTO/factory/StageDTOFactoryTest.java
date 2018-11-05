@@ -13,9 +13,10 @@ import com.tramchester.integration.Stations;
 import com.tramchester.livedata.EnrichPlatform;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.time.LocalTime;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +35,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldCreateStageDTOCorrectlyForWalking() {
         RawWalkingStage rawWalkingStage = new RawWalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15);
-        TransportStage stage = new WalkingStage(rawWalkingStage, 8*60);
+        TransportStage stage = new WalkingStage(rawWalkingStage, LocalTime.of(8,0));
 
         StageDTO build = factory.build(stage);
         replayAll();

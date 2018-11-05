@@ -6,6 +6,7 @@ import com.tramchester.domain.CreateQueryTimes;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -20,14 +21,15 @@ public class CreateQueryTimesTest {
     @Test
     public void shouldGenerateCorrectTimes() {
 
-        List<Integer> result = createQueryTimes.generate(800);
+        LocalTime seedTime = LocalTime.of(13, 20);
+        List<LocalTime> result = createQueryTimes.generate(seedTime);
         assertEquals(5,result.size());
 
-        assertEquals(800, (int)result.get(0));
-        assertEquals(806, (int)result.get(1));
-        assertEquals(812, (int)result.get(2));
-        assertEquals(818, (int)result.get(3));
-        assertEquals(824, (int)result.get(4));
+        assertEquals(seedTime, result.get(0));
+        assertEquals(seedTime.plusMinutes(6), result.get(1));
+        assertEquals(seedTime.plusMinutes(12), result.get(2));
+        assertEquals(seedTime.plusMinutes(18), result.get(3));
+        assertEquals(seedTime.plusMinutes(24), result.get(4));
     }
 
     private class LocalConfig extends TestConfig {

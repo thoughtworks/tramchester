@@ -11,14 +11,14 @@ import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.TramTime;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -153,8 +153,9 @@ public class TestDataCleanser extends EasyMockSupport {
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeA, stopTimeB);
 
         EasyMock.expect(reader.getStopTimes()).andReturn(stopTimes);
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
         validateWriter("stop_times", String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB",
-                arrivalTime.toString("HH:mm:ss"), departureTime.toString("HH:mm:ss")));
+                arrivalTime.format(formatter), departureTime.format(formatter)));
 
         replayAll();
         Set<String> trips = new HashSet<>();
@@ -172,7 +173,8 @@ public class TestDataCleanser extends EasyMockSupport {
         svcIds.add("svcIDB");
         svcIds.add("svcIDC");
 
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(("yyyyMMdd"));
+        //DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(("yyyyMMdd"));
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate start = LocalDate.parse("20151025", dateFormatter);
         LocalDate end = LocalDate.parse("20151026", dateFormatter);
         CalendarData dayA = new CalendarData("svcIDA", false, false, false, false, false, false, false, start, end);
@@ -194,8 +196,8 @@ public class TestDataCleanser extends EasyMockSupport {
     @Test
     public void shouldLeaveFeedInfoLinesUntouched() throws IOException {
 
-        FeedInfo lineA = new FeedInfo("pubA", "urlA", "tzA", "landA", new LocalDate(2016,11,29),
-                new LocalDate(2016,11,30), "versionA");
+        FeedInfo lineA = new FeedInfo("pubA", "urlA", "tzA", "landA", LocalDate.of(2016,11,29),
+                LocalDate.of(2016,11,30), "versionA");
 
         Stream<FeedInfo> feedInfoStream = Stream.of(lineA);
 

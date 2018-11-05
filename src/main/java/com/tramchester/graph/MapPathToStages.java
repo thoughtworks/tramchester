@@ -7,6 +7,7 @@ import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.WeightedPath;
 
+import java.time.LocalTime;
 import java.util.List;
 
 public class MapPathToStages {
@@ -18,7 +19,7 @@ public class MapPathToStages {
         this.mapTransportRelationshipsToStages = mapTransportRelationshipsToStages;
     }
 
-    public List<RawStage> map(WeightedPath path, int minsPastMidnight) throws TramchesterException {
+    public List<RawStage> map(WeightedPath path, LocalTime minsPastMidnight) throws TramchesterException {
         List<TransportRelationship> relationships = pathToTransportRelationship.mapPath(path);
         return mapTransportRelationshipsToStages.mapStages(relationships, minsPastMidnight);
     }

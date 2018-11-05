@@ -3,9 +3,9 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
-import org.joda.time.LocalDate;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 
 import static junit.framework.TestCase.assertFalse;
@@ -19,8 +19,8 @@ public class ServiceTest {
 
         Service service = new Service("", "");
 
-        LocalDate startDate = new LocalDate(2014, 10, 5);
-        LocalDate endDate = new LocalDate(2014, 12, 25);
+        LocalDate startDate = LocalDate.of(2014, 10, 5);
+        LocalDate endDate = LocalDate.of(2014, 12, 25);
 
         service.setServiceDateRange(startDate, endDate);
 
@@ -29,9 +29,9 @@ public class ServiceTest {
 
         assertTrue(service.operatesOn(startDate));
         assertTrue(service.operatesOn(endDate));
-        assertTrue(service.operatesOn(new LocalDate(2014,11,30)));
+        assertTrue(service.operatesOn(LocalDate.of(2014,11,30)));
 
-        assertFalse(service.operatesOn(new LocalDate(2016,11,30)));
+        assertFalse(service.operatesOn(LocalDate.of(2016,11,30)));
         assertFalse(service.operatesOn(startDate.minusDays(1)));
         assertFalse(service.operatesOn(endDate.plusDays(1)));
     }

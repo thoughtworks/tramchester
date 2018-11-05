@@ -13,12 +13,14 @@ import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.LiveDataRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,7 +45,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldGetDepartureInformationForSingleStation() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        DateTime lastUpdate = DateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
                 "some message", "platformLocation");
 
@@ -70,7 +72,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         PlatformDTO platformA = new PlatformDTO(new Platform("platformIdA", "Platform name"));
         PlatformDTO platformB = new PlatformDTO(new Platform("platformIdB", "Platform name"));
 
-        DateTime lastUpdate = DateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
         addStationInfo(info, lastUpdate, "303", "platformIdB", "exclude message", "platformLocation");
 
@@ -95,7 +97,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        DateTime lastUpdate = DateTime.now(); // up to date
+        LocalDateTime lastUpdate = LocalDateTime.now(); // up to date
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
         addStationInfo(info, lastUpdate, "303", "platformIdB", "exclude message", "platformLocation");
 
@@ -114,10 +116,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldUpdateStatusWhenRefreshingStaleData() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        DateTime lastUpdate = DateTime.now().minusDays(5); // stale
+        LocalDateTime lastUpdate = LocalDateTime.now().minusDays(5); // stale
         addStationInfo(info, lastUpdate, "yyy", "platformIdC", "some message", "platformLocation");
         addStationInfo(info, lastUpdate, "303", "platformIdD", "exclude message", "platformLocation");
-        addStationInfo(info, DateTime.now(), "303", "platformIdF", "exclude message", "platformLocation");
+        addStationInfo(info, LocalDateTime.now(), "303", "platformIdF", "exclude message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -134,7 +136,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldEnrichAPlatformWhenDateAndTimeWithinTimeRange() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        DateTime lastUpdate = DateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
                 "some message", "platformLocation");
 
@@ -156,7 +158,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldNotEnrichAPlatformWhenDateOutsideOfRange() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        DateTime lastUpdate = DateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
         addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
@@ -182,7 +184,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldNotEnrichAPlatformWhenTimeOutsideOfRange() throws ParseException, TramchesterException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        DateTime lastUpdate = DateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
         addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
@@ -193,11 +195,13 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         replayAll();
         repository.refreshRespository();
         TramTime queryTime = TramTime.create(lastUpdate.toLocalTime());
-        repository.enrich(platformDTO, queryDate, queryTime.plusMinutes(LiveDataRepository.TIME_LIMIT));
+        repository.enrich(platformDTO, queryDate, TramTime.create(lastUpdate.toLocalTime().plusMinutes(LiveDataRepository.TIME_LIMIT)));
+            //queryTime.plusMinutes(LiveDataRepository.TIME_LIMIT));
         StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
         assertTrue(enriched==null);
 
-        repository.enrich(platformDTO, queryDate, queryTime.minusMinutes(LiveDataRepository.TIME_LIMIT));
+        repository.enrich(platformDTO, queryDate, TramTime.create(lastUpdate.toLocalTime().minusMinutes(LiveDataRepository.TIME_LIMIT)));
+                //queryTime.minusMinutes(LiveDataRepository.TIME_LIMIT));
         enriched = platformDTO.getStationDepartureInfo();
         assertTrue(enriched==null);
         verifyAll();
@@ -212,7 +216,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         station.addPlatform(new Platform("platformId", "Platform name"));
         LocationDTO locationDTO = new LocationDTO(station);
 
-        DateTime lastUpdate = DateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId",
                 "platformId", "some message", "platformLocation");
 
@@ -221,7 +225,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         replayAll();
         repository.refreshRespository();
-        repository.enrich(locationDTO, DateTime.now() );
+        repository.enrich(locationDTO, LocalDateTime.now() );
         verifyAll();
 
         StationDepartureInfo result = locationDTO.getPlatforms().get(0).getStationDepartureInfo();
@@ -229,7 +233,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(departureInfo, result);
     }
 
-    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, DateTime lastUpdate,
+    private StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
                                                 String displayId, String platformId, String message, String location) throws TramchesterException {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
                 location, message, lastUpdate);

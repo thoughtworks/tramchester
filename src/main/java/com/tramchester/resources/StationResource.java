@@ -20,8 +20,6 @@ import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +27,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -50,7 +50,7 @@ public class StationResource extends UsesRecentCookie {
     private final StationRepository stationRepository;
     private final LiveDataRepository liveDataRepository;
     private ProvidesNotes providesNotes;
-    private DateTimeZone timeZone;
+    //private DateTimeZone timeZone;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
@@ -65,7 +65,12 @@ public class StationResource extends UsesRecentCookie {
         this.liveDataRepository = liveDataRepository;
         this.providesNotes = providesNotes;
         allStationsSorted = new LinkedList<>();
-        timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
+        //timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
+    }
+
+    private LocalDateTime getLocalNow() {
+        ZoneId zoneId  = ZoneId.of("Europe/London");
+        return ZonedDateTime.now(zoneId).toLocalDateTime();
     }
 
     @GET
@@ -129,7 +134,7 @@ public class StationResource extends UsesRecentCookie {
         Optional<Station> station = stationRepository.getStation(id);
         if (station.isPresent()) {
             LocationDTO locationDTO = new LocationDTO(station.get());
-            liveDataRepository.enrich(locationDTO, DateTime.now(timeZone));
+            liveDataRepository.enrich(locationDTO, getLocalNow());
             return Response.ok(locationDTO).build();
         }
         else {
@@ -143,15 +148,16 @@ public class StationResource extends UsesRecentCookie {
     @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        DateTime time = DateTime.now(timeZone);
 
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> stations = spatialService.getNearestStations(latLong);
-        stations.forEach(station -> liveDataRepository.enrich(station, time));
+        stations.forEach(station -> liveDataRepository.enrich(station, getLocalNow()));
         List<String> notes = providesNotes.createNotesForStations(stations);
 
         return Response.ok(new StationListDTO(stations,notes)).build();
     }
+
+
 
     @GET
     @Timed

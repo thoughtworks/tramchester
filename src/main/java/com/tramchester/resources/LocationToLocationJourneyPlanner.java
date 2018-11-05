@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class LocationToLocationJourneyPlanner {
         objectMapper = new ObjectMapper();
     }
 
-    public Set<RawJourney> quickestRouteForLocation(String startId, String endId, List<Integer> queryTimes,
+    public Set<RawJourney> quickestRouteForLocation(String startId, String endId, List<LocalTime> queryTimes,
                                                     TramServiceDate queryDate) throws TramchesterException {
         LatLong latLong;
         try {
@@ -55,8 +56,8 @@ public class LocationToLocationJourneyPlanner {
         return createJourneyPlan(latLong, starts, endId, queryTimes, queryDate);
     }
 
-    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<Integer> queryTimes,
-                                              TramServiceDate queryDate) throws TramchesterException {
+    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<LocalTime> queryTimes,
+                                              TramServiceDate queryDate) {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id).get()).collect(Collectors.toList());
 

@@ -1,19 +1,17 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.Route;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+
+import static java.lang.String.format;
 
 public class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
@@ -47,7 +45,7 @@ public class StationIndexs {
         if (node!=null) {
             routeStationNodeCache.put(routeStationId, node);
         } else if (warnIfMissing) {
-            logger.warn("Could not find graph node for route station: " + routeStationId);
+            logger.warn(format("Could not find graph node for route station: '%s'", routeStationId));
         }
         return node;
     }
@@ -61,7 +59,7 @@ public class StationIndexs {
             stationNodeCache.put(stationId, node);
         }
         else if (warnIfMissing) {
-            logger.warn("Could not find graph node for station: " + stationId);
+            logger.warn(format("Could not find graph node for station: '%s'", stationId));
         }
         return node;
     }
@@ -74,7 +72,7 @@ public class StationIndexs {
         if (node!=null) {
             platformNodeCache.put(id,node);
         } else if (warnIfMissing) {
-            logger.warn("Could not find graph node for platform: " + id);
+            logger.warn(format("Could not find graph node for platform: '%s'", id));
         }
         return node;
     }

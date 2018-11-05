@@ -2,7 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.input.Interchanges;
+import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.Platform;
@@ -10,9 +10,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -26,7 +25,7 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     public static final String FIRST_STATION = METROLINK_PREFIX+"_FIRST";
     public static final String SECOND_STATION = METROLINK_PREFIX+"_SECOND";
     public static final String LAST_STATION = METROLINK_PREFIX+"_LAST";
-    public static final String INTERCHANGE = Interchanges.CORNBROOK;
+    public static final String INTERCHANGE = TramInterchanges.CORNBROOK;
     public static final String STATION_FOUR = METROLINK_PREFIX+"_FOUR";
 
     Map<String, Station> stationMap = new HashMap<>();
@@ -51,8 +50,8 @@ public class TransportDataForTest implements TransportData, StationRepository, P
         serviceA.setDays(true, false, false, false, false, false, false);
         serviceB.setDays(true, false, false, false, false, false, false);
 
-        LocalDate startDate = new LocalDate(2014, 02, 10);
-        LocalDate endDate = new LocalDate(2020, 8, 15);
+        LocalDate startDate = LocalDate.of(2014, 02, 10);
+        LocalDate endDate = LocalDate.of(2020, 8, 15);
         serviceA.setServiceDateRange(startDate, endDate);
         serviceB.setServiceDateRange(startDate, endDate);
 
@@ -131,8 +130,8 @@ public class TransportDataForTest implements TransportData, StationRepository, P
 
     @Override
     public FeedInfo getFeedInfo() {
-        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", new LocalDate(2016,5,25),
-                new LocalDate(2016,6,30), "version");
+        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", LocalDate.of(2016,5,25),
+                LocalDate.of(2016,6,30), "version");
     }
 
     @Override

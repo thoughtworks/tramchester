@@ -4,16 +4,18 @@ package com.tramchester.mappers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.joda.time.LocalDate;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class LocalDateJsonSerializer extends JsonSerializer<LocalDate> {
 
-    public static String pattern = "YYYY-MM-dd";
+    // was YYYY-MM-dd
+    public static String pattern = "yyyy-MM-dd";
 
     @Override
     public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(value.toString(pattern));
+        gen.writeString(value.format(DateTimeFormatter.ofPattern(pattern)));
     }
 }

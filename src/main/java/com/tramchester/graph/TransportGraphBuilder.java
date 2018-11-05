@@ -1,8 +1,7 @@
 package com.tramchester.graph;
 
-
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.Interchanges;
+import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.input.Trip;
@@ -17,6 +16,7 @@ import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -40,7 +40,7 @@ public class TransportGraphBuilder extends StationIndexs {
     private Map<String,TransportRelationshipTypes> departs;
     private List<String> platforms;
     private Map<Long, String> relationToSvcId;
-    private Map<Long, int[]> timesForRelationship;
+    private Map<Long, LocalTime[]> timesForRelationship;
 
     private TransportData transportData;
 
@@ -61,8 +61,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
         createIndexs();
 
-        Transaction tx = graphDatabaseService.beginTx();
-        try {
+        try (Transaction tx = graphDatabaseService.beginTx()) {
             logger.info("Rebuilding the graph...");
             for (Route route : transportData.getRoutes()) {
                 for (Service service : route.getServices()) {
@@ -77,8 +76,6 @@ public class TransportGraphBuilder extends StationIndexs {
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
-        } finally {
-            tx.close();
         }
     }
 
@@ -166,7 +163,7 @@ public class TransportGraphBuilder extends StationIndexs {
         TransportRelationshipTypes departType;
         int boardCost;
         int departCost;
-        if (Interchanges.has(station)) {
+        if (TramInterchanges.has(station)) {
             boardType = TransportRelationshipTypes.INTERCHANGE_BOARD;
             boardCost = INTERCHANGE_BOARD_COST;
             departType = TransportRelationshipTypes.INTERCHANGE_DEPART;
@@ -267,13 +264,14 @@ public class TransportGraphBuilder extends StationIndexs {
         // Confusingly some services can go different routes and hence have different outbound GOES relationships from
         // the same node, so we have to check both start and end nodes for each relationship
 
-        int fromMidnight = beginStop.getDepartureMinFromMidnight();
+        LocalTime departTime = beginStop.getDepartureTime().asLocalTime();
         Relationship relationship = getRelationship(service, start, end);
 
         String dest = endStop.getStation().getName();
 
         if (relationship == null) {
-            int cost = endStop.getArriveMinsFromMidnight()-beginStop.getDepartureMinFromMidnight();
+            //int cost = endStop.getArriveMinsFromMidnight()-beginStop.getDepartureMinFromMidnight();
+            int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), beginStop.getArrivalTime());
             TransportRelationshipTypes transportRelationshipType;
             if (route.isTram()) {
                 transportRelationshipType = TransportRelationshipTypes.TRAM_GOES_TO;
@@ -284,10 +282,10 @@ public class TransportGraphBuilder extends StationIndexs {
         } else {
             // add the time of this stop to the service relationship
             //int[] array = (int[]) relationship.getProperty(GraphStaticKeys.TIMES);
-            int[] array = timesForRelationship.get(relationship.getId());
-            if (Arrays.binarySearch(array, fromMidnight) < 0) {
-                int[] newTimes = Arrays.copyOf(array, array.length + 1);
-                newTimes[array.length] = fromMidnight;
+            LocalTime[] array = timesForRelationship.get(relationship.getId());
+            if (Arrays.binarySearch(array, departTime) < 0) {
+                LocalTime[] newTimes = Arrays.copyOf(array, array.length + 1);
+                newTimes[array.length] = departTime;
                 // keep times sorted
                 Arrays.sort(newTimes);
                 timesForRelationship.put(relationship.getId(), newTimes);
@@ -302,7 +300,7 @@ public class TransportGraphBuilder extends StationIndexs {
         if (service.isRunning()) {
             Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
 
-            int[] times = new int[]{begin.getDepartureMinFromMidnight()};   // initial contents
+            LocalTime[] times = new LocalTime[]{begin.getDepartureTime().asLocalTime()};   // initial contents
             timesForRelationship.put(relationship.getId(), times);
             relationship.setProperty(GraphStaticKeys.TIMES, times);
             relationship.setProperty(GraphStaticKeys.COST, cost);
@@ -349,11 +347,8 @@ public class TransportGraphBuilder extends StationIndexs {
                 .limit(1)
                 .findAny();
 
-        if (match.isPresent()) {
-            return match.get();
-        }
+        return match.orElse(null);
 
-        return null;
     }
 
     private String getSvcIdForRelationship(Relationship outgoing) {

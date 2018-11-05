@@ -24,6 +24,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +41,7 @@ public class GraphWithSimpleRouteTest {
     private static RelationshipFactory relationshipFactory;
     private static NodeFactory nodeFactory;
     private TramServiceDate queryDate;
-    private List<Integer> queryTimes;
+    private List<LocalTime> queryTimes;
     private Station firstStation;
 
     // TODO Use dependency init instead??
@@ -75,11 +76,10 @@ public class GraphWithSimpleRouteTest {
     @Before
     public void beforeEachTestRuns() {
         queryDate = new TramServiceDate("20140630");
-        int minutesPastMidnight = (8 * 60) - 3;
         // note: trams only run at specific times so still only getPlatformById one journey in results
         //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
-        queryTimes = Arrays.asList(minutesPastMidnight);
+        queryTimes = Arrays.asList(LocalTime.of(7,57));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() throws TramchesterException {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, Arrays.asList(9*60), queryDate);
+                TransportDataForTest.INTERCHANGE, Arrays.asList(LocalTime.of(9,0)), queryDate);
         assertEquals(0, journeys.size());
     }
 
@@ -121,7 +121,7 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void shouldTestJourneyWithLocationBasedStart() throws TramchesterException {
+    public void shouldTestJourneyWithLocationBasedStart() {
         LatLong origin = new LatLong(180.001, 270.001);
         int walkCost = 1;
         List<StationWalk> startStations = Arrays.asList(new StationWalk(firstStation, walkCost));
@@ -139,7 +139,7 @@ public class GraphWithSimpleRouteTest {
 
     @Ignore("WIP")
     @Test
-    public void shouldFindJourneyAreaToArea() throws TramchesterException {
+    public void shouldFindJourneyAreaToArea() {
         AreaDTO areaA = new AreaDTO("areaA");
         AreaDTO areaB = new AreaDTO("areaB");
 

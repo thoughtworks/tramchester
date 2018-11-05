@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.mappers.DateTimeJsonDeserializer;
 import com.tramchester.mappers.DateTimeJsonSerializer;
-import org.joda.time.DateTime;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,12 +16,12 @@ public class StationDepartureInfo {
     private String stationPlatform;
     private String message;
     private List<DueTram> dueTrams;
-    private DateTime lastUpdate;
+    private LocalDateTime lastUpdate;
     private String displayId;
     private String location;
 
     public StationDepartureInfo(String displayId, String lineName, String stationPlatform, String location,
-                                String message, DateTime lastUpdate) {
+                                String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.lineName = lineName;
         this.stationPlatform = stationPlatform;
@@ -53,7 +53,7 @@ public class StationDepartureInfo {
 
     @JsonSerialize(using = DateTimeJsonSerializer.class)
     @JsonDeserialize(using = DateTimeJsonDeserializer.class)
-    public DateTime getLastUpdate() {
+    public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }
 

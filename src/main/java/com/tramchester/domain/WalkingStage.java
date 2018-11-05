@@ -1,22 +1,20 @@
 package com.tramchester.domain;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.mappers.TramTimeJsonSerializer;
-import org.joda.time.LocalTime;
 
-import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Optional;
 
 public class WalkingStage implements TransportStage {
     private RawWalkingStage rawWalkingStage;
-    private int beginTimeMins;
+    private LocalTime beginTime;
 
-    public WalkingStage(RawWalkingStage rawWalkingStage, int beginTimeMins) {
+    public WalkingStage(RawWalkingStage rawWalkingStage, LocalTime beginTimeMins) {
         this.rawWalkingStage = rawWalkingStage;
-        this.beginTimeMins = beginTimeMins;
+        this.beginTime = beginTimeMins;
     }
 
     @Override
@@ -64,21 +62,12 @@ public class WalkingStage implements TransportStage {
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getFirstDepartureTime() {
-        try {
-            return TramTime.fromMinutes(beginTimeMins);
-        } catch (TramchesterException e) {
-            throw new IllegalArgumentException("Unable to create TramTime from "+beginTimeMins,e);
-        }
+        return TramTime.create(beginTime);
     }
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getExpectedArrivalTime() {
-        int minutes = beginTimeMins + getDuration();
-        try {
-            return TramTime.fromMinutes(minutes);
-        } catch (TramchesterException e) {
-            throw new IllegalArgumentException("Unable to create TramTime from "+minutes,e);
-        }
+        return TramTime.create(beginTime.plusMinutes(getDuration()));
     }
 
     @Override
@@ -102,7 +91,7 @@ public class WalkingStage implements TransportStage {
                 "destination=" + rawWalkingStage.getDestination() +
                 ", start=" + rawWalkingStage.getStart() +
                 ", cost=" + rawWalkingStage.getDuration() +
-                ", beginTime=" + beginTimeMins +
+                ", beginTime=" + beginTime +
                 '}';
     }
 }

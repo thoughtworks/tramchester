@@ -6,16 +6,16 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.presentation.LatLong;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class StopsTest {
-    private int am10Minutes;
+    private LocalTime am10;
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";
     private final String stationIdC = "statC";
@@ -41,7 +41,24 @@ public class StopsTest {
         stopB = new Stop("statB1", stationB, TramTime.create(10, 02), TramTime.create(10, 03), routeId, serviceId);
         stopC = new Stop("statC1", stationC, TramTime.create(10, 10), TramTime.create(10, 10), routeId, serviceId);
         busStopD = new Stop("statD1", stationD, TramTime.create(10,10), TramTime.create(10,11), routeId, serviceId);
-        am10Minutes = 10 * 60;
+        am10 = LocalTime.of(10,0); //10 * 60;
+    }
+
+    @Test
+    public void shouldFindStopsByTimeCrossingMidnight() {
+        Stop stopF = new Stop("stop1", stationA, TramTime.create(LocalTime.of(23, 45)),
+                TramTime.create(LocalTime.of(23, 46)), "routeId", "serviceId");
+        Stop stopG = new Stop("stop2", stationB, TramTime.create(LocalTime.of(00, 5)),
+                TramTime.create(LocalTime.of(00, 6)), "routeId", "serviceId");
+        Stops stops = new Stops();
+
+        stops.add(stopF);
+        stops.add(stopG);
+        assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(23,40), 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(23,47), 30)));
+
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(00,17), 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(23,15), 30)));
     }
 
     @Test
@@ -66,11 +83,14 @@ public class StopsTest {
         assertEquals(1,result.size());
         assertTrue(result.contains(stopC));
 
-        assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(am10Minutes, 30)));
-        assertTrue(stops.travelsBetween(stationIdA, stationIdC, new TimeWindow(am10Minutes, 30)));
-        assertTrue(stops.travelsBetween(stationIdB, stationIdC, new TimeWindow(am10Minutes, 30)));
-        assertFalse(stops.travelsBetween(stationIdC, stationIdA, new TimeWindow(am10Minutes, 30)));
-        assertFalse(stops.travelsBetween(stationIdA, stationIdA, new TimeWindow(am10Minutes, 30)));
+        assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(am10, 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(am10.minusMinutes(31), 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(am10.plusMinutes(41), 30)));
+
+        assertTrue(stops.travelsBetween(stationIdA, stationIdC, new TimeWindow(am10, 30)));
+        assertTrue(stops.travelsBetween(stationIdB, stationIdC, new TimeWindow(am10, 30)));
+        assertFalse(stops.travelsBetween(stationIdC, stationIdA, new TimeWindow(am10, 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdA, new TimeWindow(am10, 30)));
     }
 
     @Test
@@ -82,7 +102,7 @@ public class StopsTest {
         stops.add(stopB);
         stops.add(stopC);
         stops.add(busStopD);
-        assertTrue(stops.travelsBetween(stationIdC, stationD.getId(), new TimeWindow(am10Minutes+9, 30)));
+        assertTrue(stops.travelsBetween(stationIdC, stationD.getId(), new TimeWindow(am10.plusMinutes(9), 30)));
     }
 
     @Test
@@ -101,11 +121,11 @@ public class StopsTest {
         List<Stop> result = stops.getStopsFor(stationIdA);
         assertEquals(2,result.size());
 
-        assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(am10Minutes, 30)));
-        assertTrue(stops.travelsBetween(stationIdA, stationIdC, new TimeWindow(am10Minutes, 30)));
-        assertTrue(stops.travelsBetween(stationIdB, stationIdC, new TimeWindow(am10Minutes, 30)));
-        assertTrue(stops.travelsBetween(stationIdC, stationIdA, new TimeWindow(am10Minutes, 30)));
-        assertTrue(stops.travelsBetween(stationIdB, stationIdA, new TimeWindow(am10Minutes, 30)));
-        assertTrue(stops.travelsBetween(stationIdA, stationIdA, new TimeWindow(am10Minutes, 30)));
+        assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(am10, 30)));
+        assertTrue(stops.travelsBetween(stationIdA, stationIdC, new TimeWindow(am10, 30)));
+        assertTrue(stops.travelsBetween(stationIdB, stationIdC, new TimeWindow(am10, 30)));
+        assertTrue(stops.travelsBetween(stationIdC, stationIdA, new TimeWindow(am10, 30)));
+        assertTrue(stops.travelsBetween(stationIdB, stationIdA, new TimeWindow(am10, 30)));
+        assertTrue(stops.travelsBetween(stationIdA, stationIdA, new TimeWindow(am10, 30)));
     }
 }

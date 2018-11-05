@@ -19,12 +19,8 @@ public class TramTimeJsonDeserializer extends JsonDeserializer<TramTime> {
     public TramTime deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        Optional<TramTime> result = Optional.empty();
-        try {
-            result = TramTime.parse(node.asText());
-        } catch (TramchesterException e) {
-            throw new IOException("Failed to parse " + node.asText(),e);
-        }
+        Optional<TramTime> result;
+        result = TramTime.parse(node.asText());
         if (!result.isPresent()) {
             throw new IOException("Failed to parse " + node.asText());
         }

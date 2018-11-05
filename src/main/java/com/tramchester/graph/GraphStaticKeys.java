@@ -9,6 +9,7 @@ public class GraphStaticKeys {
     public static final String DESTINATION = "route_station";
     public static final String DAYS = "days";
     public static final String COST = "cost";
+
     public static final String TIMES = "times";
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_START_DATE = "start_date";

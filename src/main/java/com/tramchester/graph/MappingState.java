@@ -11,6 +11,7 @@ import com.tramchester.resources.RouteCodeToClassMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public class MappingState {
     private RouteCodeToClassMapper routeIdToClass;
     private StationRepository stationRepository;
     private PlatformRepository platformRepository;
-    private final int minsPastMidnight;
+    private final LocalTime queryTime;
 
     private List<RawStage> stages;
     private int serviceStart;
@@ -33,9 +34,10 @@ public class MappingState {
     private int totalCost;
     private Platform boardingPlatform;
 
-    public MappingState(PlatformRepository platformRepository, StationRepository stationRepository, int minsPastMidnight, RouteCodeToClassMapper routeIdToClass) {
+    public MappingState(PlatformRepository platformRepository, StationRepository stationRepository,
+                        LocalTime queryTime, RouteCodeToClassMapper routeIdToClass) {
         this.platformRepository = platformRepository;
-        this.minsPastMidnight = minsPastMidnight;
+        this.queryTime = queryTime;
         this.routeIdToClass = routeIdToClass;
         this.stationRepository = stationRepository;
         //
@@ -117,8 +119,8 @@ public class MappingState {
 
     }
 
-    public int getElapsedTime() {
-        return minsPastMidnight + totalCost;
+    public LocalTime getElapsedTime() {
+        return queryTime.plusMinutes(totalCost);
     }
 
     public int getTotalCost() {

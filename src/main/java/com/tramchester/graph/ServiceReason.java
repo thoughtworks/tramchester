@@ -2,6 +2,8 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.DaysOfWeek;
 
+import java.time.LocalTime;
+
 public class ServiceReason {
     public static InflightChangeOfService InflightChangeOfService = new InflightChangeOfService();
     public static IsValid IsValid = new IsValid();
@@ -32,9 +34,9 @@ public class ServiceReason {
     }
     static class DoesNotOperateOnTime extends ServiceReason
     {
-        private int elapsedTime;
+        private LocalTime elapsedTime;
 
-        public DoesNotOperateOnTime(int elapsedTime) {
+        public DoesNotOperateOnTime(LocalTime elapsedTime) {
 
             this.elapsedTime = elapsedTime;
         }

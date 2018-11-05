@@ -1,15 +1,10 @@
 package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.ProvidesDateInput;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 
-import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Locale;
 
 public class ProvidesChromeDateInput implements ProvidesDateInput {
@@ -18,13 +13,16 @@ public class ProvidesChromeDateInput implements ProvidesDateInput {
     @Override
     public String createDateInput(LocalDate localDate) {
         String formatter = DateTimeFormat.patternForStyle("S-", locale);
-        return localDate.toString(formatter.replaceAll("y","").replaceAll("Y",""));
+        org.joda.time.LocalDate jodaDate = new org.joda.time.LocalDate(localDate.getYear(), localDate.getMonthValue(),
+                localDate.getDayOfMonth());
+        return jodaDate.toString(formatter.replaceAll("y","").replaceAll("Y",""));
     }
 
     @Override
     public String createTimeFormat(LocalTime time) {
         String formatter = DateTimeFormat.patternForStyle("-S", locale);
-        return time.toString(formatter).replaceAll(" ", "");
+        org.joda.time.LocalTime jodaTime = new org.joda.time.LocalTime(time.getHour(), time.getMinute());
+        return jodaTime.toString(formatter).replaceAll(" ", "");
     }
 
 //    @Override

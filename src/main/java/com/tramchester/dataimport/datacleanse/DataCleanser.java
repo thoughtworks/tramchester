@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 
 public class DataCleanser {
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
-    public static final String DATE_FORMAT = "YYYMMdd";
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("YYYMMdd");
     private static final String WILDCARD = "*";
 
     private TransportDataReader transportDataReader;
@@ -66,8 +67,8 @@ public class DataCleanser {
                         runsOnDay(calendarData.isFriday()),
                         runsOnDay(calendarData.isSaturday()),
                         runsOnDay(calendarData.isSunday()),
-                        calendarData.getStartDate().toString(DATE_FORMAT),
-                        calendarData.getEndDate().toString(DATE_FORMAT))));
+                        calendarData.getStartDate().format(DATE_FORMAT),
+                        calendarData.getEndDate().format(DATE_FORMAT))));
 
         writer.close();
         calendar.close();
@@ -204,8 +205,8 @@ public class DataCleanser {
                 info.getPublisherUrl(),
                 info.getTimezone(),
                 info.getLang(),
-                info.validFrom().toString(DATE_FORMAT),
-                info.validUntil().toString(DATE_FORMAT),
+                info.validFrom().format(DATE_FORMAT),
+                info.validUntil().format(DATE_FORMAT),
                 info.getVersion())));
         writer.close();
         feedInfo.close();

@@ -6,15 +6,17 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.LocalTime;
+
 public abstract class GoesToRelationship extends TransportCostRelationship {
     private String service;
     private boolean[] daysRunning;
-    private int[] timesRunning;
+    private LocalTime[] timesRunning;
     private String dest;
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 
-    protected GoesToRelationship(String service, int cost, boolean[] daysRunning, int[] timesRunning, String id,
+    protected GoesToRelationship(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,
                               TramServiceDate startDate, TramServiceDate endDate, String dest,
                               TramNode startNode, TramNode endNode) {
         //TESTING ONLY
@@ -38,9 +40,9 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         return daysRunning;
     }
 
-    public int[] getTimesServiceRuns() {
+    public LocalTime[] getTimesServiceRuns() {
         if (timesRunning==null) {
-            timesRunning = (int[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
+            timesRunning = (LocalTime[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
         }
         return timesRunning;
     }

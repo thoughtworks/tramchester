@@ -18,7 +18,6 @@ import com.tramchester.repository.LiveDataRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +25,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -73,7 +74,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie){
         logger.info(format("Plan journey from %s to %s at %s on %s", startId, endId,departureTimeText, departureDate));
 
-        LocalDate date = new LocalDate(departureDate);
+        LocalDate date = LocalDate.parse(departureDate); // TODO need formatter?
         TramServiceDate queryDate = new TramServiceDate(date);
 
         try {
@@ -81,7 +82,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             if (maybeDepartureTime.isPresent()) {
                 TramTime departureTime = maybeDepartureTime.get();
                 JourneyPlanRepresentation planRepresentation = createJourneyPlan(startId, endId, queryDate,
-                TramTime.fromMinutes(departureTime.minutesOfDay()));
+                    departureTime);
+
                 Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
                 responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
                 Response response = responseBuilder.build();
@@ -103,7 +105,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,initialQueryTime));
         Set<RawJourney> journeys;
-        List<Integer> queryTimes = createQueryTimes.generate(initialQueryTime.minutesOfDay());
+        List<LocalTime> queryTimes = createQueryTimes.generate(initialQueryTime.asLocalTime());
         if (isFromMyLocation(startId)) {
             journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, queryTimes, queryDate);
         } else {

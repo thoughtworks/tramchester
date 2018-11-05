@@ -14,6 +14,7 @@ import com.tramchester.resources.RouteCodeToClassMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -32,7 +33,7 @@ public class MapTransportRelationshipsToStages {
         this.platformRepository = platformRepository;
     }
 
-    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, int minsPastMidnight) throws TramchesterException {
+    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime minsPastMidnight) throws TramchesterException {
         MappingState state = new MappingState(platformRepository, stationRepository, minsPastMidnight, routeIdToClass);
 
         for (TransportRelationship transportRelationship : transportRelationships) {

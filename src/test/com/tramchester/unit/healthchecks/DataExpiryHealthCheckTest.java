@@ -8,12 +8,11 @@ import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.repository.ProvidesFeedInfo;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.util.Optional;
+import java.time.LocalDate;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;

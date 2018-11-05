@@ -7,11 +7,10 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.repository.TransportData;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import java.nio.file.Paths;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,7 +48,7 @@ public class TramTransportDataImporterTest {
         assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");
         assertThat(feedInfo.getLang()).isEqualTo("en");
         assertThat(feedInfo.getVersion()).isEqualTo("20150617");
-        assertThat(feedInfo.validFrom()).isEqualTo(new LocalDate(2015,6,18));
-        assertThat(feedInfo.validUntil()).isEqualTo(new LocalDate(2015,8,18));
+        assertThat(feedInfo.validFrom()).isEqualTo(LocalDate.of(2015,6,18));
+        assertThat(feedInfo.validUntil()).isEqualTo(LocalDate.of(2015,8,18));
     }
 }

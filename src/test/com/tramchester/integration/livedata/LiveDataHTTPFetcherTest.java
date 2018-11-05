@@ -12,6 +12,7 @@ import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,7 +48,7 @@ public class LiveDataHTTPFetcherTest {
         // this assert will fail if run at certain times of day....
         // assertTrue(aDisplay.getDueTrams().size()>0);
         assertTrue(aDisplay.getLineName().length()>0);
-        DateTime when = aDisplay.getLastUpdate();
+        LocalDateTime when = aDisplay.getLastUpdate();
         assertEquals(DateTime.now().getDayOfMonth(),when.getDayOfMonth());
     }
 }

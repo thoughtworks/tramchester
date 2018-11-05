@@ -1,16 +1,19 @@
 package com.tramchester.domain;
 
+import java.time.LocalTime;
+import java.util.Objects;
+
 public class TimeWindow {
-    private int minsFromMidnight;
+    private LocalTime queryTime;
     private int withinMins;
 
-    public TimeWindow(int minsFromMidnight, int withinMins) {
-        this.minsFromMidnight = minsFromMidnight;
+    public TimeWindow(LocalTime queryTime, int withinMins) {
+        this.queryTime = queryTime;
         this.withinMins = withinMins;
     }
 
-    public int minsFromMidnight() {
-        return minsFromMidnight;
+    public LocalTime queryTime() {
+        return queryTime;
     }
 
     public int withinMins() {
@@ -20,12 +23,12 @@ public class TimeWindow {
     @Override
     public String toString() {
         return "TimeWindow{" +
-                "minsFromMidnight=" + minsFromMidnight +
+                "queryTime=" + queryTime +
                 ", withinMins=" + withinMins +
                 '}';
     }
 
-    public TimeWindow next(int elapsedTime) {
+    public TimeWindow next(LocalTime elapsedTime) {
         return new TimeWindow(elapsedTime, withinMins);
     }
 
@@ -33,18 +36,13 @@ public class TimeWindow {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         TimeWindow that = (TimeWindow) o;
-
-        if (minsFromMidnight != that.minsFromMidnight) return false;
-        return withinMins == that.withinMins;
-
+        return withinMins == that.withinMins &&
+                Objects.equals(queryTime, that.queryTime);
     }
 
     @Override
     public int hashCode() {
-        int result = minsFromMidnight;
-        result = 31 * result + withinMins;
-        return result;
+        return Objects.hash(queryTime, withinMins);
     }
 }

@@ -2,8 +2,9 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.CalendarData;
 import com.tramchester.dataimport.parsers.CalendarDataParser;
-import org.joda.time.LocalDate;
 import org.junit.Test;
+
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,7 +24,7 @@ public class CalendarDataParserTest {
         assertThat(calendarData.isFriday()).isEqualTo(true);
         assertThat(calendarData.isSaturday()).isEqualTo(false);
         assertThat(calendarData.isSunday()).isEqualTo(false);
-        assertThat(calendarData.getStartDate()).isEqualTo(new LocalDate(2014, 10, 20));
-        assertThat(calendarData.getEndDate()).isEqualTo(new LocalDate(2014, 12, 19));
+        assertThat(calendarData.getStartDate()).isEqualTo(LocalDate.of(2014, 10, 20));
+        assertThat(calendarData.getEndDate()).isEqualTo(LocalDate.of(2014, 12, 19));
     }
 }

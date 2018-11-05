@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.input.Interchanges;
+import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -17,11 +17,11 @@ public class TransportGraphAddWalkingRoutes extends StationIndexs  {
     private static final String EXCHANGE_SQUARE = "9400ZZMAEXS";
 
     private List<Walk> walks = Arrays.asList(
-            walk(Interchanges.DEANSGATE, MARKET_STREET, 17),
-            walk(Interchanges.DEANSGATE, Interchanges.PIC_GARDENS, 17),
-            walk(Interchanges.DEANSGATE, Interchanges.PICCADILLY, 19),
-            walk(Interchanges.DEANSGATE, EXCHANGE_SQUARE, 19),
-            walk(Interchanges.DEANSGATE, Interchanges.VICTORIA, 22)
+            walk(TramInterchanges.DEANSGATE, MARKET_STREET, 17),
+            walk(TramInterchanges.DEANSGATE, TramInterchanges.PIC_GARDENS, 17),
+            walk(TramInterchanges.DEANSGATE, TramInterchanges.PICCADILLY, 19),
+            walk(TramInterchanges.DEANSGATE, EXCHANGE_SQUARE, 19),
+            walk(TramInterchanges.DEANSGATE, TramInterchanges.VICTORIA, 22)
     );
 
     public TransportGraphAddWalkingRoutes(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,

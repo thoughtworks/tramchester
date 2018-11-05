@@ -18,7 +18,9 @@ import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -48,8 +50,8 @@ public class RouteCalculator extends StationIndexs {
         this.config = config;
     }
 
-    public Set<RawJourney>  calculateRoute(String startStationId, String endStationId, List<Integer> queryTimes,
-                                          TramServiceDate queryDate) throws TramchesterException {
+    public Set<RawJourney>  calculateRoute(String startStationId, String endStationId, List<LocalTime> queryTimes,
+                                          TramServiceDate queryDate) {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         Node endNode = getStationNode(endStationId);
 
@@ -64,7 +66,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
 
-    public Set<RawJourney> calculateRoute(AreaDTO areaA, AreaDTO areaB, List<Integer> queryTimes, TramServiceDate queryDate) throws TramchesterException {
+    public Set<RawJourney> calculateRoute(AreaDTO areaA, AreaDTO areaB, List<LocalTime> queryTimes, TramServiceDate queryDate) {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         Node endNode = getAreaNode(areaA.getAreaName());
 
@@ -79,10 +81,11 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation,
-                                          List<Integer> queryTimes, TramServiceDate queryDate) throws TramchesterException {
+                                          List<LocalTime> queryTimes, TramServiceDate queryDate) {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         int limit = startStations.isEmpty() ? MAX_NUM_GRAPH_PATHS : (MAX_NUM_GRAPH_PATHS * startStations.size());
         Node endNode = getStationNode(endStation.getId());
+        List<Relationship> addedWalks = new LinkedList<>();
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
@@ -97,19 +100,22 @@ public class RouteCalculator extends StationIndexs {
                 Node node = getStationNode(id);
                 int cost = stationWalk.getCost();
                 logger.info(format("Add walking relationship from %s to %s cost %s", startNode, id, cost));
-                startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO).
-                        setProperty(GraphStaticKeys.COST, cost);
+                Relationship walkingRelationship = startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO);
+                walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
+                addedWalks.add(walkingRelationship);
             });
 
             gatherJounerys(endNode, queryTimes, queryDate, journeys, startNode, limit);
 
+            // must delete relationships first, otherwise may not delete node
+            addedWalks.forEach(walk -> walk.delete());
             startNode.delete();
         }
         return journeys;
     }
 
-    private void gatherJounerys(Node endNode, List<Integer> queryTimes, TramServiceDate queryDate, Set<RawJourney> journeys,
-                                Node startNode, int limit) throws TramchesterException {
+    private void gatherJounerys(Node endNode, List<LocalTime> queryTimes, TramServiceDate queryDate, Set<RawJourney> journeys,
+                                Node startNode, int limit) {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
             TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
@@ -119,12 +125,12 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
-                                       int limit, int minsPathMidnight) {
+                                       int limit, LocalTime queryTime) {
         paths.limit(limit).forEach(path -> {
             logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
             try {
-                List<RawStage> stages = pathToStages.map(path, minsPathMidnight);
-                RawJourney journey = new RawJourney(stages, minsPathMidnight);
+                List<RawStage> stages = pathToStages.map(path, queryTime);
+                RawJourney journey = new RawJourney(stages, queryTime);
                 journeys.add(journey);
             } catch (TramchesterException exception) {
                 logger.error("Failed to parse paths to a journey",exception);
@@ -133,7 +139,7 @@ public class RouteCalculator extends StationIndexs {
         paths.close();
         if (journeys.size() < 1) {
             logger.warn(format("Did not create any journeys from the limit:%s queryTime:%s",
-                    limit, minsPathMidnight));
+                    limit, queryTime));
         }
     }
 
@@ -142,7 +148,7 @@ public class RouteCalculator extends StationIndexs {
         return nodeFactory.getNode(node);
     }
 
-    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, int queryTime,
+    private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, LocalTime queryTime,
                                                   TramServiceDate queryDate, TimeBasedPathExpander pathExpander) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),

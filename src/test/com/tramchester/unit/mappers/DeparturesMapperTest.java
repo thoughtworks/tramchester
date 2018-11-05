@@ -15,18 +15,17 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.mappers.DeparturesMapper;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DeparturesMapperTest {
@@ -47,12 +46,12 @@ public class DeparturesMapperTest {
 
     @Test
     public void shouldConvertOneStationWithDateToDepartuesList() throws TramchesterException {
-        DateTime lastUpdate = DateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
                 "locationName", "message", lastUpdate);
         int wait = 42;
-        LocalTime lastupdateTime = lastUpdate.toLocalTime();
+        java.time.LocalTime lastupdateTime = lastUpdate.toLocalTime();
         departureInfo.addDueTram(new DueTram("tramDest", "Due", wait, "Single", lastupdateTime));
         departureInfo.addDueTram(new DueTram("tramDest", "Due", wait, "Single", lastupdateTime)); // same time, same dest
         departureInfo.addDueTram(new DueTram("tramDest", "NOTDue", wait, "Single", lastupdateTime));
@@ -78,7 +77,7 @@ public class DeparturesMapperTest {
 
     @Test
     public void shouldKeepUseDestinationToSortWhenTimesSame() throws TramchesterException {
-        DateTime lastUpdateTime = DateTime.now();
+        LocalDateTime lastUpdateTime = LocalDateTime.now();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
                 "locationName", "message", lastUpdateTime);
@@ -111,7 +110,7 @@ public class DeparturesMapperTest {
 
     @Test
     public void shouldMapDepartureInformationToDepartureListDTOWithNotes() throws TramchesterException {
-        DateTime updateDate = DateTime.now();
+        LocalDateTime updateDate = LocalDateTime.now();
         LocalTime updateTime = LocalTime.now();
 
         List<StationDepartureInfo> departureInfos = createStationDepartureInfo(updateDate, updateTime);
@@ -137,7 +136,7 @@ public class DeparturesMapperTest {
 
     @Test
     public void shouldMapDepartureInformationToDepartureListDTOWithoutNotes() throws TramchesterException {
-        DateTime updateDate = DateTime.now();
+        LocalDateTime updateDate = LocalDateTime.now();
         LocalTime updateTime = LocalTime.now();
 
         List<StationDepartureInfo> departureInfos = createStationDepartureInfo(updateDate, updateTime);
@@ -158,7 +157,7 @@ public class DeparturesMapperTest {
         assertEquals(0, notes.size());
     }
 
-    private List<StationDepartureInfo> createStationDepartureInfo(DateTime updateDate, LocalTime updateTime) throws TramchesterException {
+    private List<StationDepartureInfo> createStationDepartureInfo(LocalDateTime updateDate, LocalTime updateTime) throws TramchesterException {
         List<StationDepartureInfo> departureInfos = new LinkedList<>();
         StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName", "stationPlatform1", "location",
                 "messageOne", updateDate);

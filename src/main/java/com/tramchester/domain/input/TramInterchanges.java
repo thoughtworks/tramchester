@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Interchanges {
+public class TramInterchanges {
 
     public static final String CORNBROOK = "9400ZZMACRN";
     public static final String ST_PETERS_SQUARE = "9400ZZMASTP";
@@ -21,7 +21,6 @@ public class Interchanges {
     public static final String HARBOURCITY = "9400ZZMAHCY";
     public static final String SHAW_AND_CROMPTON = "9400ZZMASHA";
 
-
     private static List<String> eastInterchanges = Arrays.asList(PIC_GARDENS, VICTORIA, SHAW_AND_CROMPTON, PICCADILLY);
 
     private static List<String> westInterchanges = Arrays.asList(CORNBROOK, TRAF_BAR, ST_WS_ROAD, HARBOURCITY,
@@ -31,12 +30,10 @@ public class Interchanges {
     private static final Set<String> interchanges = new HashSet<>(ListUtils.union(eastInterchanges,westInterchanges));
 
     public static boolean has(Location station) {
-        // TODO changes for Buses
         return interchanges.contains(station.getId());
     }
 
     public static Set<String> stations() {
-        // TODO changes for Buses
         return interchanges;
     }
 }

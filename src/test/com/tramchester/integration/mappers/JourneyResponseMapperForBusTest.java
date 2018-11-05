@@ -14,13 +14,14 @@ import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.mappers.HeadsignMapper;
 import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.mappers.TramJourneyResponseMapper;
 import com.tramchester.repository.LiveDataRepository;
-import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
@@ -65,19 +66,20 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     @Ignore("Work in progress")
     public void shouldMapStockportCircularJourney() throws TramchesterException {
         LocalDate now = LocalDate.now();
-        int offset = now.getDayOfWeek()-MONDAY;
-        LocalDate when = now.plusDays(offset);
-        String svcId = findServiceId(stockportBusStation.getId(), stockportBridgefieldStreet.getId(), when, 571);
+        DayOfWeek offset = now.getDayOfWeek().minus(MONDAY);
+        LocalDate when = now.plusDays(offset.getValue());
+        String svcId = findServiceId(stockportBusStation.getId(), stockportBridgefieldStreet.getId(), when,
+                LocalTime.of(9,42));
         //String svcId = "Serv002953"; // use above when timetable changes to find new svc id
 
         JourneyPlanRepresentation result = getJourneyPlanRepresentation(stockportBusStation, stockportBridgefieldStreet,
-                svcId, 42, 571, new TramServiceDate(when));
+                svcId, 42, LocalTime.of(9,42), new TramServiceDate(when));
 
         assertEquals(1,result.getJourneys().size());
     }
 
     private JourneyPlanRepresentation getJourneyPlanRepresentation(Location begin, Location end, String svcId,
-                                                                   int cost, int minutesFromMidnight, TramServiceDate queryDate) throws TramchesterException {
+                                                                   int cost, LocalTime minutesFromMidnight, TramServiceDate queryDate) throws TramchesterException {
 
         RawVehicleStage busStage = new RawVehicleStage(begin, "route text", TransportMode.Bus, "cssClass");
         busStage.setServiceId(svcId);
@@ -88,7 +90,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
         LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate,
-                TramTime.fromMinutes(minutesFromMidnight));
+                TramTime.create(minutesFromMidnight));
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
         HeadsignMapper headsignMapper = new HeadsignMapper();
         JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory, headsignMapper);

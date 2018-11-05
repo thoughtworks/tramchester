@@ -11,13 +11,14 @@ import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.LocalTime;
 import java.util.LinkedList;
 
 import static org.junit.Assert.assertEquals;
 
 public class PathBasedTimeProviderTest extends EasyMockSupport {
-    public static final int QUERY_TIME = 11 * 60;
-    public static final int START_TIME = QUERY_TIME+5;
+    public static final LocalTime QUERY_TIME = LocalTime.of(11,0);//11 * 60;
+    public static final LocalTime START_TIME = QUERY_TIME.plusMinutes(5);
 
     private LinkedList<Relationship> relationships;
     private CostEvaluator<Double> costEvaluator;
@@ -25,7 +26,7 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
     private PersistsBoardingTime persistsBoardingTime;
 
     @Before
-    public void beforeEachTestRuns() throws TramchesterException {
+    public void beforeEachTestRuns() {
         path = createMock(Path.class);
         relationships = new LinkedList<>();
         persistsBoardingTime = createMock(PersistsBoardingTime.class);
@@ -45,7 +46,7 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
 
         ElapsedTime provider = new PathBasedTimeProvider(costEvaluator, path, persistsBoardingTime, QUERY_TIME);
 
-        int result = provider.getElapsedTime();
+        LocalTime result = provider.getElapsedTime();
         assertEquals(QUERY_TIME, result);
         provider.setJourneyStart(START_TIME);
         result = provider.getElapsedTime();
@@ -68,12 +69,12 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
 
         ElapsedTime provider = new PathBasedTimeProvider(costEvaluator, path, persistsBoardingTime, QUERY_TIME);
 
-        int result = provider.getElapsedTime();
-        assertEquals(QUERY_TIME +15, result); // start plus path
+        LocalTime result = provider.getElapsedTime();
+        assertEquals(QUERY_TIME.plusMinutes(15), result); // start plus path
 
         provider.setJourneyStart(START_TIME);
         result = provider.getElapsedTime();
-        assertEquals(START_TIME +15, result); // actual start time plus path
+        assertEquals(START_TIME.plusMinutes(15), result); // actual start time plus path
 
         verifyAll();
     }

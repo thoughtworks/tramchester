@@ -2,8 +2,6 @@ package com.tramchester.acceptance.pages;
 
 
 import com.tramchester.integration.Stations;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -14,6 +12,8 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;

@@ -30,16 +30,5 @@ public class NodeFactory {
                 throw new TramchesterException("Unknown node label " + labelName);
         }
 
-//        TramNode result = null;
-//        if (type.equals(STATION)) {
-//            result = new StationNode(node);
-//        } else if(type.equals(GraphStaticKeys.DESTINATION)) {
-//            result = new BoardPointNode(node);
-//        } else if(type.equals(GraphStaticKeys.QUERY)) {
-//            result = new QueryNode(node);
-//        } else if(type.equals(GraphStaticKeys.PLATFORM)) {
-//            result = new PlatformNode(node);
-//        }
-//        return result;
     }
 }

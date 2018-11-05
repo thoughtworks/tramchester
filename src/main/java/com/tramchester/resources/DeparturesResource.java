@@ -22,6 +22,9 @@ import org.joda.time.DateTimeZone;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +37,6 @@ public class DeparturesResource {
     private final LiveDataRepository liveDataRepository;
     private final DeparturesMapper departuresMapper;
     private ProvidesNotes providesNotes;
-    private final DateTimeZone timeZone;
     private final StationRepository stationRepository;
 
     public DeparturesResource(SpatialService spatialService, LiveDataRepository liveDataRepository,
@@ -44,7 +46,11 @@ public class DeparturesResource {
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
-        timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
+    }
+
+    private LocalDateTime getLocalNow() {
+        ZoneId zoneId  = ZoneId.of("Europe/London");
+        return ZonedDateTime.now(zoneId).toLocalDateTime();
     }
 
     @GET
@@ -53,12 +59,11 @@ public class DeparturesResource {
     @ApiOperation(value = "Get geographically close departures", response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        DateTime time = DateTime.now(timeZone);
 
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> nearbyStations = spatialService.getNearestStations(latLong);
 
-        nearbyStations.forEach(station -> liveDataRepository.enrich(station, time));
+        nearbyStations.forEach(station -> liveDataRepository.enrich(station, getLocalNow()));
 
         SortedSet<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
         List<String> notes = providesNotes.createNotesForStations(nearbyStations);

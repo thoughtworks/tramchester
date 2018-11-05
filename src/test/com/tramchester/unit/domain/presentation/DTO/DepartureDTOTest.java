@@ -4,10 +4,9 @@ import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.TreeSet;
 

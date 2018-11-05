@@ -14,10 +14,11 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +73,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
     public void shouldMapSimpleJourney() throws TramchesterException {
 
         boolean[] daysRunning = new boolean[1];
-        int[] timesRunning = new int[1];
+        LocalTime[] timesRunning = new LocalTime[1];
 
         relationships.add(BoardRelationship.TestOnly(2, "BoardRelId", stationNodeA, boardingNode));
 
@@ -85,7 +86,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         relationships.add(DepartRelationship.TestOnly(2,"depRelId", departureNode, stationNodeB));
 
         replayAll();
-        List<RawStage> result = mapper.mapStages(relationships, 7 * 60);
+        List<RawStage> result = mapper.mapStages(relationships, LocalTime.of(7,0));
         verifyAll();
 
         assertEquals(1, result.size());
@@ -112,7 +113,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         PlatformNode leavePlatformNode = PlatformNode.TestOnly(leavePlatformId, "node name plat 2");
 
         boolean[] daysRunning = new boolean[1];
-        int[] timesRunning = new int[1];
+        LocalTime[] timesRunning = new LocalTime[1];
 
         // station -> platform
         relationships.add(EnterPlatformRelationship.TestOnly(0, "entPlatRId", stationNodeA, enterPlatformNode));
@@ -136,7 +137,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         EasyMock.expect(platformRepository.getPlatformById(enterPlatformId)).andReturn(Optional.of(platformA));
 
         replayAll();
-        List<RawStage> result = mapper.mapStages(relationships, 7 * 60);
+        List<RawStage> result = mapper.mapStages(relationships, LocalTime.of(7,0));
         verifyAll();
 
         assertEquals(1, result.size());

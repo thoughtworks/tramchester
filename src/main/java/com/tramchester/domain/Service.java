@@ -2,8 +2,8 @@ package com.tramchester.domain;
 
 
 import com.tramchester.domain.input.Trip;
-import org.joda.time.LocalDate;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -54,7 +54,9 @@ public class Service {
     }
 
     public Optional<Trip> getFirstTripAfter(String firstStationId, String lastStationId, TimeWindow timeWindow) {
-        return trips.stream().filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow)).findFirst();
+        return trips.stream().
+                filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow)).
+                findFirst();
     }
 
     @Override

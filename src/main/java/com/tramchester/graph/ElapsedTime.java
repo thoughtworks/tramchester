@@ -2,8 +2,10 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 
+import java.time.LocalTime;
+
 public interface ElapsedTime {
-    int getElapsedTime() throws TramchesterException;
+    LocalTime getElapsedTime() throws TramchesterException;
     boolean startNotSet();
-    void setJourneyStart(int minutesPastMidnight) throws TramchesterException;
+    void setJourneyStart(LocalTime startTime) throws TramchesterException;
 }

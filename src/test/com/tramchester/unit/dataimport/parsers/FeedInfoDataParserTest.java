@@ -3,8 +3,9 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.parsers.FeedInfoDataParser;
 import com.tramchester.domain.FeedInfo;
-import org.joda.time.LocalDate;
 import org.junit.Test;
+
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,7 +22,7 @@ public class FeedInfoDataParserTest {
         assertThat(info.getTimezone()).isEqualTo("feed_timezone");
         assertThat(info.getLang()).isEqualTo("feed_lang");
         assertThat(info.getVersion()).isEqualTo("feed_version");
-        assertThat(info.validFrom()).isEqualTo(new LocalDate(2016,5,30));
-        assertThat(info.validUntil()).isEqualTo(new LocalDate(2016,6,15));
+        assertThat(info.validFrom()).isEqualTo(LocalDate.of(2016,5,30));
+        assertThat(info.validUntil()).isEqualTo(LocalDate.of(2016,6,15));
     }
 }

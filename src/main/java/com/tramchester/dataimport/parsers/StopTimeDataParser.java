@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static java.lang.String.format;
+
 
 public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
     private static final Logger logger = LoggerFactory.getLogger(StopTimeDataParser.class);
@@ -19,10 +21,10 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         Optional<TramTime> departureTime;
 
         String fieldOne = data[1];
-        arrivalTime = parseTimeField(fieldOne);
+        arrivalTime = parseTimeField(fieldOne, tripId);
 
         String fieldTwo = data[2];
-        departureTime = parseTimeField(fieldTwo);
+        departureTime = parseTimeField(fieldTwo, tripId);
 
         String stopId = data[3];
 
@@ -33,18 +35,13 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
     }
 
-    private Optional<TramTime> parseTimeField(String fieldOne) {
+    private Optional<TramTime> parseTimeField(String fieldOne, String tripId) {
         Optional<TramTime> time = Optional.empty();
-        try {
-            if (fieldOne.contains(":")) {
-                time = TramTime.parse(fieldOne);
-            }
-        }
-        catch (TramchesterException e) {
-            logger.error("Failed to parse time for "+fieldOne, e);
+        if (fieldOne.contains(":")) {
+            time = TramTime.parse(fieldOne);
         }
         if (!time.isPresent()) {
-            logger.error("Invalid time found during parsing. Unable to parse "+fieldOne);
+            logger.error(format("Failed to parse time '%s' for tripId '%s'",fieldOne,tripId));
         }
         return time;
     }

@@ -8,24 +8,22 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.Stations;
-import com.tramchester.repository.StationRepository;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static junit.framework.TestCase.fail;
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.joda.time.DateTimeConstants.SATURDAY;
-import static org.joda.time.DateTimeConstants.SUNDAY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -49,7 +47,7 @@ public class ProvidesNotesTest {
 
     @Test
     public void shouldAddNotesForClosedStations() {
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-29"));
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
         List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem("St Peters Square is currently closed. "+ProvidesNotes.website));
@@ -57,7 +55,7 @@ public class ProvidesNotesTest {
 
     @Test
     public void shouldAddNotesForSaturdayJourney() {
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-29"));
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
         List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem(ProvidesNotes.weekend));
@@ -65,7 +63,7 @@ public class ProvidesNotesTest {
 
     @Test
     public void shouldAddNotesForSundayJourney() {
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-30"));
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,30));
         List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, hasItem(ProvidesNotes.weekend));
@@ -73,7 +71,7 @@ public class ProvidesNotesTest {
 
     @Test
     public void shouldNotShowNotesOnOtherDay() {
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.parse("2016-10-31"));
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
         List<String> result = provider.createNotesForJourneys(queryDate, decoratedJourneys);
 
         assertThat(result, not(hasItem(ProvidesNotes.weekend)));
@@ -82,7 +80,7 @@ public class ProvidesNotesTest {
     @Test
     public void shouldHaveNoteForChristmasServices() {
         int year = 2018;
-        LocalDate date = new LocalDate(year, 12, 23);
+        LocalDate date = LocalDate.of(year, 12, 23);
 
         List<String> result = provider.createNotesForJourneys(new TramServiceDate(date), decoratedJourneys);
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
@@ -93,7 +91,7 @@ public class ProvidesNotesTest {
             assertThat(queryDate.toString(), result, hasItem(ProvidesNotes.christmas));
         }
 
-        date = new LocalDate(year+1, 1, 3);
+        date = LocalDate.of(year+1, 1, 3);
         result = provider.createNotesForJourneys(new TramServiceDate(date), decoratedJourneys);
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
     }
@@ -210,7 +208,7 @@ public class ProvidesNotesTest {
         "stationPlatform",
         platformLocation,
         message,
-        DateTime.now());
+        LocalDateTime.now());
     }
 
 }

@@ -2,17 +2,19 @@ package com.tramchester.dataimport.parsers;
 
 import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.domain.FeedInfo;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static java.lang.String.format;
 
 public class FeedInfoDataParser implements CSVEntryParser<FeedInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FeedInfoDataParser.class);
-
-    private static org.joda.time.format.DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYYMMdd");
+    //private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @Override
     public FeedInfo parseEntry(String... data) {

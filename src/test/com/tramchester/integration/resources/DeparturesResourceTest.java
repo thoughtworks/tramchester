@@ -22,6 +22,7 @@ import org.junit.experimental.categories.Category;
 import javax.ws.rs.core.Response;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,8 @@ public class DeparturesResourceTest {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
-        TramTime queryTime = TramTime.now().minusMinutes(5);
+        //TramTime queryTime = TramTime.now().minusMinutes(5);
+        TramTime queryTime = TramTime.create(LocalTime.now().minusMinutes(5));
 
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s", lat, lon),
                 Optional.empty());
@@ -67,7 +69,7 @@ public class DeparturesResourceTest {
         assertFalse(departures.isEmpty());
         DepartureDTO departureDTO = departures.first();
         TramTime when = departureDTO.getWhen();
-        assertTrue(when.isAfter(queryTime) );
+        assertTrue(when.asLocalTime().isAfter(queryTime.asLocalTime()) );
         String nextDepart = departureDTO.getFrom();
         assertTrue(nextDepart,nearby.contains(nextDepart));
         assertFalse(departureDTO.getStatus().isEmpty());

@@ -10,11 +10,13 @@ import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static org.junit.Assert.*;
 
@@ -165,7 +167,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     @Test
     public void shouldHaveGoesToRelationshipWithCostAndService() throws TramchesterException {
         boolean[] days = new boolean[]{true, false, true, false};
-        int[] times = new int[]{10, 20, 30, 40};
+        LocalTime[] times = new LocalTime[]{LocalTime.of(0,10), LocalTime.of(0,20),
+                LocalTime.of(0,30), LocalTime.of(0,40)};
 
         setRelationshipExpectation(TransportRelationshipTypes.TRAM_GOES_TO, 42, 108L);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("service99");
@@ -182,8 +185,8 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         assertEquals("dest", tramRelationship.getDest());
         assertSame(times, tramRelationship.getTimesServiceRuns());
         assertSame(days, tramRelationship.getDaysServiceRuns());
-        assertEquals(new LocalDate(2015, 10, 25), tramRelationship.getStartDate().getDate());
-        assertEquals(new LocalDate(2016, 11, 24), tramRelationship.getEndDate().getDate());
+        assertEquals(LocalDate.of(2015, 10, 25), tramRelationship.getStartDate().getDate());
+        assertEquals(LocalDate.of(2016, 11, 24), tramRelationship.getEndDate().getDate());
         assertSame(startTramNode, tramRelationship.getStartNode());
         assertSame(endTramNode, tramRelationship.getEndNode());
         verifyAll();

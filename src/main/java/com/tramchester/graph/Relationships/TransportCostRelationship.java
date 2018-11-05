@@ -7,8 +7,14 @@ import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import org.neo4j.graphdb.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static java.lang.String.format;
 
 public abstract class TransportCostRelationship implements TransportRelationship {
+    private static final Logger logger = LoggerFactory.getLogger(TransportCostRelationship.class);
+
     protected Relationship graphRelationship;
     private NodeFactory nodeFactory;
 
@@ -53,6 +59,7 @@ public abstract class TransportCostRelationship implements TransportRelationship
 
     @Override
     public TramNode getStartNode() throws TramchesterException {
+        logger.debug(format("Get start node for relationship '%s'", graphRelationship));
         if (startNode==null) {
             startNode = nodeFactory.getNode(graphRelationship.getStartNode());
         }
