@@ -76,12 +76,26 @@ jobs:
           environment:
             ENV: UAT
           command: ./gradlew deploy updateLB tidy --no-daemon
+      - store_test_results:
+          path: ~/repo/build/test-results
+      - store_artifacts:
+          path: ~/repo/build/reports/tests
+  deployProd:
+    steps:
       - run:
           name: deployProd
           environment:
             ENV: ProdGreen
           command: ./gradlew deploy --no-daemon
-      - store_test_results:
-          path: ~/repo/build/test-results
-      - store_artifacts:
-          path: ~/repo/build/reports/tests
+workflows:
+  version: 2
+  buildStep:
+    jobs:
+    - build
+    - hold:
+        type: approval
+        requires:
+        - build
+    - deployProd:
+        requires:
+        - hold
