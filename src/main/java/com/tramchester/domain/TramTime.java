@@ -151,8 +151,12 @@ public class  TramTime implements Comparable<TramTime> {
     @Override
     public int compareTo(TramTime other) {
         if (this.isLateNight() && other.isEarlyMorning()) {
-            return -1;
+            return -1; // is less than
         }
+        if (this.isEarlyMorning() && other.isLateNight()) {
+            return 1; // is more than
+        }
+        // otherwise
         return this.minutesOfDay()-other.minutesOfDay();
     }
 

@@ -49,11 +49,11 @@ public class JourneyDTOTest {
     @Test
     public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() throws TramchesterException {
         JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
-                TramTime.create(23, 50), TramTime.create(10, 8),
+                TramTime.create(00, 10), TramTime.create(10, 8),
                 "summary", "heading", false);
 
         JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
-                TramTime.create(00, 10), TramTime.create(10, 8),
+                TramTime.create(23, 50), TramTime.create(10, 8),
                 "summary", "heading", false);
 
         SortedSet<JourneyDTO> set = new TreeSet<>();
@@ -62,6 +62,24 @@ public class JourneyDTOTest {
 
         assertEquals(TramTime.create(23,50), set.first().getExpectedArrivalTime());
         assertEquals(TramTime.create(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
+    }
+
+    @Test
+    public void shouldHaveSortedSetInExpectedOrderLateNight() throws TramchesterException {
+        JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
+                TramTime.create(23, 42), TramTime.create(10, 8),
+                "summary", "heading", false);
+
+        JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
+                TramTime.create(23, 12), TramTime.create(10, 8),
+                "summary", "heading", false);
+
+        SortedSet<JourneyDTO> set = new TreeSet<>();
+        set.add(afterMidnight);
+        set.add(beforeMidnight);
+
+        assertEquals(TramTime.create(23,12), set.first().getExpectedArrivalTime());
+        assertEquals(TramTime.create(23,12), set.stream().findFirst().get().getExpectedArrivalTime());
     }
 
 }

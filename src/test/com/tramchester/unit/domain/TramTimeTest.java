@@ -10,7 +10,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -64,7 +63,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldBeComparable() throws TramchesterException {
+    public void shouldBeComparableDuringDay() throws TramchesterException {
         TramTime timeA = TramTime.create(12,04);
         TramTime timeB =  TramTime.create(12,03);
 
@@ -74,6 +73,25 @@ public class TramTimeTest {
         TramTime timeC = TramTime.create(12,03);
         assertEquals(0, timeC.compareTo(timeB));
         assertEquals(0, timeB.compareTo(timeC));
+
+        SortedSet<TramTime> set = new TreeSet<>();
+        set.add(timeA);
+        set.add(timeB);
+
+        assertEquals(timeB,set.first());
+    }
+
+    @Test
+    public void shouldBeComparableAcrossMidnight() throws TramchesterException {
+        TramTime timeA = TramTime.create(00,10);
+        TramTime timeB =  TramTime.create(23,10);
+
+        assertTrue(timeA.compareTo(timeB)>0);
+        assertTrue(timeB.compareTo(timeA)<0);
+
+        TramTime timeC = TramTime.create(00,10);
+        assertEquals(0, timeC.compareTo(timeA));
+        assertEquals(0, timeA.compareTo(timeC));
 
         SortedSet<TramTime> set = new TreeSet<>();
         set.add(timeA);
