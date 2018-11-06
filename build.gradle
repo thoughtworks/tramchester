@@ -14,8 +14,9 @@ apply plugin: 'application'
 
 mainClassName = 'com.tramchester.App'
 
-def candidateNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: "0"
-def buildNumber = System.getenv("CIRCLE_BUILD_NUM") ?: candidateNumber
+def candidate = System.getenv("CIRCLE_BUILD_NUM") ?: "0"
+// override build number if RELEASE_NUMBER set, needed because of way circle ci workflows operate
+def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 
 // this is used in the generated dist zip filename
@@ -331,6 +332,8 @@ task blacklistUAT(dependsOn: cfnassist) {
     }
 }
 
+
+// todo change back to use build number
 task release(dependsOn: cfnassist) {
     doLast {
         def releaseNumber = System.getenv("RELEASE_NUMBER")
@@ -342,9 +345,7 @@ task release(dependsOn: cfnassist) {
         } else {
             logger.error('Please set env variable RELEASE_NUMBER')
         }
-
     }
-
 }
 
 

@@ -71,6 +71,12 @@ jobs:
           environment:
             ENV: UAT
           command: ./gradlew deploy updateLB tidy --no-daemon
+      - run: mkdir -p workspace
+      - run: echo "export RELEASE_NUMBER=$CIRCLE_BUILD_NUM" > workspace/release_num.txt
+      - persist_to_workspace:
+        root: workspace
+        paths:
+          - release_num.txt
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
@@ -89,12 +95,18 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
       - run: gradle dependencies --no-daemon
+      - attach_workspace:
+        # Must be absolute path or relative path from working_directory
+          at: workspace
       - run:
           name: deployProd
           environment:
             ENV: ProdGreen
             AWS_REGION: eu-west-1
-          command: ./gradlew deploy --no-daemon
+          command: |
+            source workspace/release_num.txt
+            echo release number is $RELEASE_NUMBER
+            ./gradlew deploy --no-daemon
 workflows:
   version: 2
   buildStep:
