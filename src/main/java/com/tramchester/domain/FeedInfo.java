@@ -2,8 +2,8 @@ package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.mappers.LocalDateJsonDeserializer;
-import com.tramchester.mappers.LocalDateJsonSerializer;
+import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
+import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
 import java.time.LocalDate;
 

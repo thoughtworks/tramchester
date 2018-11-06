@@ -1,5 +1,6 @@
 package com.tramchester.unit.mappers;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.mappers.LiveDataParser;
@@ -89,8 +90,7 @@ public class LiveDataParserTest {
         assertEquals(12, dueTram.getWait());
         assertEquals("Single",dueTram.getCarriages());
 
-        ZoneId zoneId = ZoneId.of("Europe/London");
-        ZonedDateTime expectedDate = ZonedDateTime.of(LocalDateTime.of(2017, 11, 29, 11, 45), zoneId);
+        ZonedDateTime expectedDate = ZonedDateTime.of(LocalDateTime.of(2017, 11, 29, 11, 45), TramchesterConfig.TimeZone);
         assertEquals(expectedDate.toLocalDateTime(), departureInfoA.getLastUpdate());
 
         StationDepartureInfo departureInfoB = info.get(1);

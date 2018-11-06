@@ -57,7 +57,7 @@ public class DeparturesResourceTest {
         double lon = -2.2392436d;
 
         //TramTime queryTime = TramTime.now().minusMinutes(5);
-        TramTime queryTime = TramTime.create(LocalTime.now().minusMinutes(5));
+        TramTime queryTime = TramTime.of(LocalTime.now().minusMinutes(5));
 
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s", lat, lon),
                 Optional.empty());

@@ -3,12 +3,13 @@ package com.tramchester.domain.liveUpdates;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.mappers.DateTimeJsonDeserializer;
-import com.tramchester.mappers.DateTimeJsonSerializer;
+import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class StationDepartureInfo {
 
@@ -51,8 +52,8 @@ public class StationDepartureInfo {
         return dueTrams;
     }
 
-    @JsonSerialize(using = DateTimeJsonSerializer.class)
-    @JsonDeserialize(using = DateTimeJsonDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }
@@ -85,5 +86,24 @@ public class StationDepartureInfo {
 
     public String getLocation() {
         return location;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StationDepartureInfo that = (StationDepartureInfo) o;
+        return Objects.equals(lineName, that.lineName) &&
+                Objects.equals(stationPlatform, that.stationPlatform) &&
+                Objects.equals(message, that.message) &&
+                Objects.equals(dueTrams, that.dueTrams) &&
+                Objects.equals(lastUpdate, that.lastUpdate) &&
+                Objects.equals(displayId, that.displayId) &&
+                Objects.equals(location, that.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lineName, stationPlatform, message, dueTrams, lastUpdate, displayId, location);
     }
 }

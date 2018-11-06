@@ -46,10 +46,10 @@ public class StopsTest {
 
     @Test
     public void shouldFindStopsByTimeCrossingMidnight() {
-        Stop stopF = new Stop("stop1", stationA, TramTime.create(LocalTime.of(23, 45)),
-                TramTime.create(LocalTime.of(23, 46)), "routeId", "serviceId");
-        Stop stopG = new Stop("stop2", stationB, TramTime.create(LocalTime.of(00, 5)),
-                TramTime.create(LocalTime.of(00, 6)), "routeId", "serviceId");
+        Stop stopF = new Stop("stop1", stationA, TramTime.of(LocalTime.of(23, 45)),
+                TramTime.of(LocalTime.of(23, 46)), "routeId", "serviceId");
+        Stop stopG = new Stop("stop2", stationB, TramTime.of(LocalTime.of(00, 5)),
+                TramTime.of(LocalTime.of(00, 6)), "routeId", "serviceId");
         Stops stops = new Stops();
 
         stops.add(stopF);

@@ -1,6 +1,6 @@
 package com.tramchester.unit.mappers;
 
-import com.tramchester.mappers.LocalDateJsonDeserializer;
+import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import org.junit.Test;
 
 import java.time.LocalDate;

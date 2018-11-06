@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -106,7 +107,7 @@ public class ProvidesNotesTest {
         stages.add(stageA);
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, TramTime.now(), TramTime.now(), "summary", "heading", false));
+                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading", false));
 
         LocalDate date = LocalDate.now();
         if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
@@ -138,7 +139,7 @@ public class ProvidesNotesTest {
         List<StageDTO> stages = stages1;
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, TramTime.now(), TramTime.now(), "summary", "heading", false));
+                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading", false));
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
 
@@ -189,7 +190,7 @@ public class ProvidesNotesTest {
         PlatformDTO platformDTO = createPlatformDTO(platformLocation, platformId, message, displayUnitId);
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
-                platformDTO, TramTime.now(), TramTime.now(), 42,
+                platformDTO, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), 42,
                 "summary", "prompt", "headSign", transportMode, isWalk,
                 !isWalk, "displayClass");
     }

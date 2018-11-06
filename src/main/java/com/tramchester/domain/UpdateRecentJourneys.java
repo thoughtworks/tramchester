@@ -2,10 +2,10 @@ package com.tramchester.domain;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.RecentJourneys;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +24,7 @@ public class UpdateRecentJourneys {
     }
 
     public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, String stationId) {
-        Timestamped timestamped = new Timestamped(stationId, DateTime.now());
+        Timestamped timestamped = new Timestamped(stationId, LocalDateTime.now());
         Set<Timestamped> from = new HashSet<>();
         from.addAll(recentJourneys.getRecentIds());
         if (from.contains(timestamped)) {

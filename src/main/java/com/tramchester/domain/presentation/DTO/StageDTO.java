@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.mappers.TramTimeJsonDeserializer;
-import com.tramchester.mappers.TramTimeJsonSerializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 public class StageDTO {
     private LocationDTO firstStation;

@@ -18,7 +18,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -295,8 +294,8 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         int durationOfStage = 15;
         return new StageDTO(new LocationDTO(stationA),
                 new LocationDTO(stationB), new LocationDTO(stationB),
-                true, platform, TramTime.create(when.plusMinutes(1)),
-                TramTime.create(when.plusMinutes(durationOfStage)),
+                true, platform, TramTime.of(when.plusMinutes(1)),
+                TramTime.of(when.plusMinutes(durationOfStage)),
                 durationOfStage, "summary", "prompt",
                 matchingHeadsign, TransportMode.Tram,
                 false, true, "displayClass");

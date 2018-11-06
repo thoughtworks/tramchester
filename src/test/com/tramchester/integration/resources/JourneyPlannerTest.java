@@ -55,7 +55,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime, TramServiceDate queryDate) throws TramchesterException {
-        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, TramTime.create(queryTime));
+        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, TramTime.of(queryTime));
     }
 
     @Test

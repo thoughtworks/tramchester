@@ -88,14 +88,9 @@ public class Stops  implements Iterable<Stop> {
     }
 
     private boolean checkTiming(Stop firstStop, Stop secondStop, TimeWindow timeWindow) {
-        // return (secondStop.getArriveMinsFromMidnight()>=firstStop.getDepartureMinFromMidnight())
-        //                && (firstStop.getDepartureMinFromMidnight() > timeWindow.minsFromMidnight())
-        //                && ((firstStop.getDepartureMinFromMidnight()-timeWindow.minsFromMidnight()) <= timeWindow.withinMins());
-        //        // does this need to be >= for buses??
-
         TramTime firstStopDepartureTime = firstStop.getDepartureTime();
         TramTime secondStopArriveTime = secondStop.getArrivalTime();
-        TramTime queryTime = TramTime.create(timeWindow.queryTime());
+        TramTime queryTime = TramTime.of(timeWindow.queryTime());
         int window = timeWindow.withinMins();
 
         // In the past

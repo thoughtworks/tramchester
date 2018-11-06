@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -183,7 +184,7 @@ public class StationResourceTest {
     public void shouldReturnRecentStationsGroupIfCookieSet() throws JsonProcessingException, UnsupportedEncodingException {
         Location alty = Stations.Altrincham;
         RecentJourneys recentJourneys = new RecentJourneys();
-        recentJourneys.setTimestamps(Sets.newHashSet(new Timestamped(alty.getId(), DateTime.now())));
+        recentJourneys.setTimestamps(Sets.newHashSet(new Timestamped(alty.getId(), LocalDateTime.now())));
 
         String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
         Optional<Cookie> cookie = Optional.of(new Cookie("tramchesterRecent", recentAsString));

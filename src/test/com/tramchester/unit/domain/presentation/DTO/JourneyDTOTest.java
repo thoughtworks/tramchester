@@ -5,7 +5,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.integration.Stations;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 

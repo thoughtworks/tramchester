@@ -1,6 +1,6 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import org.json.simple.JSONArray;
@@ -12,8 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,25 +32,28 @@ public class LiveDataParser {
         JSONArray infoList = (JSONArray) parsed.get("value");
 
         if (infoList!=null) {
-            for (int i = 0; i < infoList.size(); i++) {
-                result.add(parseItem((JSONObject) infoList.get(i)));
+            for (Object anInfoList : infoList) {
+                result.add(parseItem((JSONObject) anInfoList));
             }
         }
-
         return result;
     }
 
     private StationDepartureInfo parseItem(JSONObject jsonObject) {
+        logger.debug(format("Parsing JSON '%s'", jsonObject));
         Long displayId = (Long) jsonObject.get("Id");
         String lineName = (String) jsonObject.get("Line");
         String stationPlatform = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
         String location = (String)jsonObject.get("StationLocation");
-        Instant lastUpdate = Instant.from(ISO_INSTANT.parse(dateString));
+        Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
+        LocalDateTime updateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZone).toLocalDateTime();
+        logger.info("Parsed lived data with update time: "+updateTime);
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, stationPlatform,
-                location, message, lastUpdate.atZone(ZoneId.of("Z")).toLocalDateTime());
+                location, message, updateTime);
         parseDueTrams(jsonObject,departureInfo);
+        logger.debug("Parsed live data to " + departureInfo);
         return departureInfo;
     }
 
@@ -63,8 +65,8 @@ public class LiveDataParser {
                 String waitString = getNumberedField(jsonObject, "Wait", i);
                 int wait = Integer.parseInt(waitString);
                 String carriages = getNumberedField(jsonObject, "Carriages", i);
-                LocalDateTime lastUpdate = departureInfo.getLastUpdate();
-                DueTram dueTram = new DueTram(dest, status, wait, carriages, lastUpdate.toLocalTime());
+                LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
+                DueTram dueTram = new DueTram(dest, status, wait, carriages, lastUpdate);
                 departureInfo.addDueTram(dueTram);
             }
         }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Timestamped;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,8 +49,14 @@ public class RecentJourneys {
     }
 
     @JsonIgnore
-    public boolean contains(String id) {
-        return timestamps.contains(new Timestamped(id, DateTime.now()));
+    public boolean containsStationId(String id) {
+        for (Timestamped timestamp : timestamps) {
+            if (timestamp.getId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
+        //return timestamps.contains(new Timestamped(id, DateTime.now()));
     }
 
     public static RecentJourneys empty() {

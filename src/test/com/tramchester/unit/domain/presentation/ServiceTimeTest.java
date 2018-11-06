@@ -3,7 +3,6 @@ package com.tramchester.unit.domain.presentation;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.ServiceTime;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 

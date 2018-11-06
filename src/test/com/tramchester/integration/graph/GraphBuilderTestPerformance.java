@@ -2,7 +2,6 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -10,6 +9,7 @@ import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,11 +32,11 @@ public class GraphBuilderTestPerformance {
     @Ignore("for performance testing")
     public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
 
-        DateTime start = DateTime.now();
+        LocalTime start = LocalTime.now();
         dependencies.initialise(new PerformanceTestConfig());
-        DateTime finished = DateTime.now();
+        LocalTime finished = LocalTime.now();
 
-        System.out.println("Initialisation took: " + finished.minus(start.getMillis()).getMillis());
+        System.out.println("Initialisation took: " + finished.minusNanos(start.getNano()).getNano());
     }
 
     private static class PerformanceTestConfig extends TestConfig {

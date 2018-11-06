@@ -8,14 +8,14 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
+
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
@@ -57,7 +57,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
     public void buildGraph() {
         logger.info("Building graph from " + transportData.getFeedInfo());
-        DateTime start = DateTime.now();
+        LocalTime start = LocalTime.now();
 
         createIndexs();
 
@@ -71,7 +71,7 @@ public class TransportGraphBuilder extends StationIndexs {
                 }
             }
             tx.success();
-            Seconds duration = Seconds.secondsBetween(start, DateTime.now());
+            Duration duration = Duration.between(start, LocalTime.now());
             logger.info("Graph rebuild finished, took " + duration.getSeconds());
 
         } catch (Exception except) {

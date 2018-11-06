@@ -26,7 +26,7 @@ public class DepartureDTOTest {
         assertEquals("destination", departureDTO.getDestination());
         assertEquals("status", departureDTO.getStatus());
         assertEquals("carriages", departureDTO.getCarriages());
-        assertEquals(TramTime.create(updateTime.plusMinutes(42)), departureDTO.getWhen());
+        assertEquals(TramTime.of(updateTime.plusMinutes(42)), departureDTO.getWhen());
     }
 
     @Test

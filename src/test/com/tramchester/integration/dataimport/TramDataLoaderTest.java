@@ -5,10 +5,8 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 

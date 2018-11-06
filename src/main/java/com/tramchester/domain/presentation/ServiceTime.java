@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TramTime;
-import com.tramchester.mappers.TramTimeJsonSerializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.time.LocalTime;
 

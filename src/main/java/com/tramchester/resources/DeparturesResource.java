@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
@@ -16,8 +17,6 @@ import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,7 +24,9 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
 
 @Api
@@ -49,8 +50,7 @@ public class DeparturesResource {
     }
 
     private LocalDateTime getLocalNow() {
-        ZoneId zoneId  = ZoneId.of("Europe/London");
-        return ZonedDateTime.now(zoneId).toLocalDateTime();
+        return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDateTime();
     }
 
     @GET

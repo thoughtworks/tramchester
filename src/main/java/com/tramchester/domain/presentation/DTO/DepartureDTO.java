@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.mappers.TramTimeJsonDeserializer;
-import com.tramchester.mappers.TramTimeJsonSerializer;
-import org.joda.time.LocalTime;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 public class DepartureDTO implements Comparable<DepartureDTO> {
 

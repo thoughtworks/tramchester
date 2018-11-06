@@ -1,10 +1,9 @@
-package com.tramchester.mappers;
+package com.tramchester.mappers.serialisation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.tramchester.domain.TramTime;
-import org.joda.time.LocalTime;
 
 import java.io.IOException;
 

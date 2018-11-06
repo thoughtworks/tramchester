@@ -8,8 +8,6 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.TramsNearMePage;
 import com.tramchester.acceptance.pages.WelcomePage;
-import com.tramchester.integration.resources.JourneyPlannerHelper;
-import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;

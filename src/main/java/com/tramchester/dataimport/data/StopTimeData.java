@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.data;
 
 import com.tramchester.domain.TramTime;
-import org.joda.time.LocalTime;
 
 import java.util.Optional;
 

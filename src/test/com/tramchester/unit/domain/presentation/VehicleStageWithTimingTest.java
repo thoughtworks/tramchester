@@ -3,21 +3,13 @@ package com.tramchester.unit.domain.presentation;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.presentation.VehicleStageWithTiming;
-import com.tramchester.integration.Stations;
-import com.tramchester.livedata.EnrichPlatform;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class VehicleStageWithTimingTest {
 

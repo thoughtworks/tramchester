@@ -106,11 +106,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             logger.warn("No times provided");
         }
         LocalTime journeyClockTime = provider.getElapsedTime();
-        TramTime journeyClock = TramTime.create(journeyClockTime);
+        TramTime journeyClock = TramTime.of(journeyClockTime);
 
         // the times array is sorted in ascending order
         for (LocalTime nextTramTime : times) {
-            TramTime nextTram = TramTime.create(nextTramTime);
+            TramTime nextTram = TramTime.of(nextTramTime);
 
             // if wait until this tram is too long can stop now
             if (nextTramTime.isAfter(journeyClockTime) &&

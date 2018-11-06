@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.TramServiceDate;
@@ -22,7 +23,6 @@ import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,6 +40,7 @@ import java.util.*;
 import static com.tramchester.TestConfig.dateFormatDashes;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -59,7 +60,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
-        timeZone = ZoneId.of("Europe/London");
+        timeZone = TramchesterConfig.TimeZone;
         when = TestConfig.nextTuesday(0);
         mapper.registerModule(new JodaModule());
         timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
@@ -85,10 +86,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() {
-        ZonedDateTime now = ZonedDateTime.now(timeZone);
+        //ZonedDateTime now = ZonedDateTime.now(timeZone);
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, now.toLocalTime(),
-                new TramServiceDate(now.toLocalDate()));
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, LocalTime.now(),
+                new TramServiceDate(LocalDate.now()));
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -263,8 +264,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         RecentJourneys recentJourneys = getRecentJourneysFromCookie(result);
 
         assertEquals(2,recentJourneys.getRecentIds().size());
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, DateTime.now())));
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, DateTime.now())));
+        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, LocalDateTime.now())));
+        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, LocalDateTime.now())));
     }
 
     @Test
@@ -276,7 +277,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         // cookie with ashton
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped ashton = new Timestamped(Stations.Ashton.getId(), DateTime.now());
+        Timestamped ashton = new Timestamped(Stations.Ashton.getId(), LocalDateTime.now());
         recentJourneys.setRecentIds(Sets.newHashSet(ashton));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
@@ -292,9 +293,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         // ashton, bury and man airport now in cookie
         Set<Timestamped> recents = result.getRecentIds();
         assertEquals(3, recents.size());
-        assertTrue(recents.contains(new Timestamped(start, DateTime.now())));
+        assertTrue(recents.contains(new Timestamped(start, LocalDateTime.now())));
         assertTrue(recents.contains(ashton));
-        assertTrue(recents.contains(new Timestamped(end, DateTime.now())));
+        assertTrue(recents.contains(new Timestamped(end, LocalDateTime.now())));
     }
 
     @Test
@@ -310,7 +311,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         RecentJourneys result = getRecentJourneysFromCookie(response);
         Set<Timestamped> recents = result.getRecentIds();
         assertEquals(1, recents.size());
-        assertTrue(recents.contains(new Timestamped(end, DateTime.now())));
+        // checks ID only
+        assertTrue(recents.contains(new Timestamped(end, LocalDateTime.now())));
     }
 
     @Test

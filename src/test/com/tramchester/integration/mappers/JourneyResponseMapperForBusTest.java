@@ -1,6 +1,7 @@
 package com.tramchester.integration.mappers;
 
 import com.tramchester.Dependencies;
+import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -25,7 +26,6 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.joda.time.DateTimeConstants.MONDAY;
 
 public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 
@@ -65,9 +65,10 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     @Category({BusTest.class})
     @Ignore("Work in progress")
     public void shouldMapStockportCircularJourney() throws TramchesterException {
-        LocalDate now = LocalDate.now();
-        DayOfWeek offset = now.getDayOfWeek().minus(MONDAY);
-        LocalDate when = now.plusDays(offset.getValue());
+//        LocalDate now = LocalDate.now();
+////        DayOfWeek offset = now.getDayOfWeek().minus(MONDAY);
+////
+        LocalDate when = TestConfig.nextTuesday(0);
         String svcId = findServiceId(stockportBusStation.getId(), stockportBridgefieldStreet.getId(), when,
                 LocalTime.of(9,42));
         //String svcId = "Serv002953"; // use above when timetable changes to find new svc id
@@ -90,7 +91,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         journeys.add(new RawJourney(stages, minutesFromMidnight));
 
         LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate,
-                TramTime.create(minutesFromMidnight));
+                TramTime.of(minutesFromMidnight));
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
         HeadsignMapper headsignMapper = new HeadsignMapper();
         JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory, headsignMapper);

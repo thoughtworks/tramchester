@@ -7,7 +7,6 @@ import com.tramchester.integration.Stations;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
-import org.joda.time.DateTime;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -49,6 +48,6 @@ public class LiveDataHTTPFetcherTest {
         // assertTrue(aDisplay.getDueTrams().size()>0);
         assertTrue(aDisplay.getLineName().length()>0);
         LocalDateTime when = aDisplay.getLastUpdate();
-        assertEquals(DateTime.now().getDayOfMonth(),when.getDayOfMonth());
+        assertEquals(LocalDateTime.now().getDayOfMonth(),when.getDayOfMonth());
     }
 }

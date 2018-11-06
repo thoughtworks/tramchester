@@ -4,10 +4,14 @@ import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
 public abstract class TramchesterConfig extends Configuration {
+
+    public static ZoneId TimeZone = ZoneId.of("Europe/London");
+
     // do full rebuild of the graph DB
     public abstract boolean getRebuildGraph();
 

@@ -1,18 +1,26 @@
 package com.tramchester.domain;
 
-import org.joda.time.DateTime;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializerAsMillis;
+import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializeAsMillis;
+
+import java.time.LocalDateTime;
 
 public class Timestamped  {
-    private DateTime when;
+    private LocalDateTime when; // Serialised as Millis since epoch
     private String id;
 
-    public DateTime getWhen() {
+    @JsonSerialize(using = LocalDateTimeJsonSerializeAsMillis.class)
+    @JsonDeserialize(using = LocalDateTimeJsonDeserializerAsMillis.class)
+    public LocalDateTime getWhen() {
         return when;
     }
 
-    public void setWhen(DateTime when) {
-        this.when = when;
-    }
+//    public void setWhen(LocalDateTime when) {
+//        this.when = when;
+//    }
 
     public String getId() {
         return id;
@@ -26,7 +34,7 @@ public class Timestamped  {
         // deserialisation
     }
 
-    public Timestamped(String id, DateTime when) {
+    public Timestamped(String id, LocalDateTime when) {
         this.id = id;
         this.when = when;
     }
@@ -38,6 +46,7 @@ public class Timestamped  {
 
         Timestamped that = (Timestamped) o;
 
+        // JUST ID?
         return id.equals(that.id);
     }
 

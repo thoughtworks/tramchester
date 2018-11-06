@@ -3,11 +3,11 @@ package com.tramchester.domain.liveUpdates;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TramTime;
-import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.mappers.TramTimeJsonDeserializer;
-import com.tramchester.mappers.TramTimeJsonSerializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class DueTram {
 
@@ -27,7 +27,7 @@ public class DueTram {
         this.status = status;
         this.wait = wait;
         this.carriages = carriages;
-        this.when  = TramTime.create(updateTime.plusMinutes(wait)); //.plusMinutes(wait);
+        this.when  = TramTime.of(updateTime.plusMinutes(wait)); //.plusMinutes(wait);
     }
 
     public String getDestination() {
@@ -46,6 +46,29 @@ public class DueTram {
         return carriages;
     }
 
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    public TramTime getWhen() {
+        return when;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DueTram dueTram = (DueTram) o;
+        return wait == dueTram.wait &&
+                Objects.equals(carriages, dueTram.carriages) &&
+                Objects.equals(status, dueTram.status) &&
+                Objects.equals(destination, dueTram.destination) &&
+                Objects.equals(when, dueTram.when);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(wait, carriages, status, destination, when);
+    }
+
     @Override
     public String toString() {
         return "DueTram{" +
@@ -54,11 +77,5 @@ public class DueTram {
                 ", wait=" + wait +
                 ", carriages='" + carriages + '\'' +
                 '}';
-    }
-
-    @JsonSerialize(using = TramTimeJsonSerializer.class)
-    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
-    public TramTime getWhen() {
-        return when;
     }
 }

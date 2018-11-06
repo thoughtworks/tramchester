@@ -1,4 +1,4 @@
-package com.tramchester.mappers;
+package com.tramchester.mappers.serialisation;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;

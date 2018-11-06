@@ -13,7 +13,6 @@ import com.tramchester.mappers.SingleJourneyMapper;
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,10 +54,10 @@ public class JourneysMapperTest extends EasyMockSupport{
         LocationDTO end = new LocationDTO(Stations.Victoria);
 
         LocalTime now = LocalTime.now();
-        JourneyDTO journeyDTOA = new JourneyDTO(begin, end, new LinkedList<>(), TramTime.create(now),
-                TramTime.create(now), "summaryA", "headingA", false);
-        JourneyDTO journeyDTOB = new JourneyDTO(begin, end, new LinkedList<>(), TramTime.create(now.plusMinutes(1)),
-                TramTime.create(now.plusMinutes(1)),
+        JourneyDTO journeyDTOA = new JourneyDTO(begin, end, new LinkedList<>(), TramTime.of(now),
+                TramTime.of(now), "summaryA", "headingA", false);
+        JourneyDTO journeyDTOB = new JourneyDTO(begin, end, new LinkedList<>(), TramTime.of(now.plusMinutes(1)),
+                TramTime.of(now.plusMinutes(1)),
                 "summaryB", "headingB", false);
 
         EasyMock.expect(mapper.createJourney(rawJourneyA, 42)).andReturn(Optional.of(journeyA));

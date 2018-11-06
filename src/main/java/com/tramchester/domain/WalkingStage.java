@@ -1,9 +1,8 @@
 package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.mappers.TramTimeJsonSerializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.time.LocalTime;
 import java.util.Optional;
@@ -62,12 +61,12 @@ public class WalkingStage implements TransportStage {
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getFirstDepartureTime() {
-        return TramTime.create(beginTime);
+        return TramTime.of(beginTime);
     }
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getExpectedArrivalTime() {
-        return TramTime.create(beginTime.plusMinutes(getDuration()));
+        return TramTime.of(beginTime.plusMinutes(getDuration()));
     }
 
     @Override

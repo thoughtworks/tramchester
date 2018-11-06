@@ -30,7 +30,7 @@ public class  TramTime implements Comparable<TramTime> {
         return tramTimes[hours][minutes];
     }
 
-    public static TramTime create(LocalTime time) {
+    public static TramTime of(LocalTime time) {
         return tramTimes[time.getHour()][time.getMinute()];
     }
 
@@ -82,7 +82,7 @@ public class  TramTime implements Comparable<TramTime> {
         }
     }
 
-    public boolean isLateNight() {
+    private boolean isLateNight() {
         return hour==23 || hour==22;
     }
 
@@ -90,10 +90,10 @@ public class  TramTime implements Comparable<TramTime> {
         return hour==0 || hour==1;
     }
 
-    @Deprecated
-    public static TramTime now() {
-        return create(LocalTime.now());
-    }
+//    @Deprecated
+//    public static TramTime now() {
+//        return of(LocalTime.now());
+//    }
 
     public int minutesOfDay() {
         return (hour * 60) + minute;

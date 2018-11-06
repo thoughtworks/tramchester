@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.UpdateRecentJourneys;
@@ -28,7 +29,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,8 +69,7 @@ public class StationResource extends UsesRecentCookie {
     }
 
     private LocalDateTime getLocalNow() {
-        ZoneId zoneId  = ZoneId.of("Europe/London");
-        return ZonedDateTime.now(zoneId).toLocalDateTime();
+        return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDateTime();
     }
 
     @GET
@@ -83,7 +82,7 @@ public class StationResource extends UsesRecentCookie {
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
         List<StationDTO> displayStations = getStations().stream().
-                filter(station -> !recentJourneys.contains(station.getId())).
+                filter(station -> !recentJourneys.containsStationId(station.getId())).
                 map(station -> new StationDTO(station, ProximityGroup.ALL)).
                 collect(Collectors.toList());
 

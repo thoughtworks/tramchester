@@ -6,10 +6,10 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.integration.Stations;
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -79,7 +79,7 @@ public class UpdateRecentJourneysTest {
         Set<Timestamped> set = new HashSet<>();
         int count = 0;
         for (String id : ids) {
-            set.add(new Timestamped(id, DateTime.now().plusSeconds(count++)));
+            set.add(new Timestamped(id, LocalDateTime.now().plusSeconds(count++)));
         }
         return set;
     }

@@ -135,7 +135,7 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     private Optional<TramTime> formTramTimeParam(LocalTime time) {
-        return Optional.of(TramTime.create(time));
+        return Optional.of(TramTime.of(time));
     }
 
     @Test

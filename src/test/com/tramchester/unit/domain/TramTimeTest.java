@@ -2,7 +2,6 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
-import net.sf.cglib.core.Local;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -97,14 +96,14 @@ public class TramTimeTest {
 
     @Test
     public void shouldCheckIfDepartsAfter() {
-        TramTime timeA = TramTime.create(LocalTime.of(0,10));
-        TramTime timeB =  TramTime.create(LocalTime.of(23,10));
+        TramTime timeA = TramTime.of(LocalTime.of(0,10));
+        TramTime timeB =  TramTime.of(LocalTime.of(23,10));
 
         assertTrue(timeA.departsAfter(timeB));
         //assertFalse(timeB.departsAfter(timeA));
 
-        timeA = TramTime.create(LocalTime.of(6,12));
-        timeB = TramTime.create(LocalTime.of(6,11));
+        timeA = TramTime.of(LocalTime.of(6,12));
+        timeB = TramTime.of(LocalTime.of(6,11));
 
         assertTrue(timeA.departsAfter(timeB));
         assertFalse(timeB.departsAfter(timeA));
@@ -155,7 +154,7 @@ public class TramTimeTest {
     @Test
     public void shouldSubstractMins() {
         LocalTime reference = LocalTime.of(12, 04);
-        TramTime result = TramTime.create(reference.minusMinutes(30));
+        TramTime result = TramTime.of(reference.minusMinutes(30));
 
         assertEquals(11,result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());

@@ -92,8 +92,9 @@ public class Dependencies {
 
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
+
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        //objectMapper.registerModule(new JodaModule());
         picoContainer.addComponent(objectMapper);
 
         TransportDataReader dataReader = new TransportDataReader(dataPath, false);

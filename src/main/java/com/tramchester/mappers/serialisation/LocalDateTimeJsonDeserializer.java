@@ -1,4 +1,4 @@
-package com.tramchester.mappers;
+package com.tramchester.mappers.serialisation;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
@@ -10,14 +10,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class DateTimeJsonDeserializer extends JsonDeserializer<LocalDateTime> {
-    public static String pattern = "HH:mm"; // TODO shouldn't this include full date?
+public class LocalDateTimeJsonDeserializer extends JsonDeserializer<LocalDateTime> {
 
     @Override
     public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
-        return LocalDateTime.parse(node.asText(), format);
+        //DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
+        return LocalDateTime.parse(node.asText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }
