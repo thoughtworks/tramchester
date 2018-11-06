@@ -333,20 +333,7 @@ task blacklistUAT(dependsOn: cfnassist) {
 }
 
 
-// todo change back to use build number
-task release(dependsOn: cfnassist) {
-    doLast {
-        def releaseNumber = System.getenv("RELEASE_NUMBER")
-        if (releaseNumber) {
-            logger.warn('Switch ELB to release '+releaseNumber)
-            ant.cfnassist(project: 'tramchesterB', env: 'ProdGreen', buildNumber: releaseNumber, sns: 'true') {
-                ELBUpdate(typeTag: 'web')
-            }
-        } else {
-            logger.error('Please set env variable RELEASE_NUMBER')
-        }
-    }
-}
+
 
 
 

@@ -107,6 +107,7 @@ jobs:
             source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             ./gradlew deploy --no-daemon
+            ./gradlew updateLB --no-daemon
 workflows:
   version: 2
   buildStep:
