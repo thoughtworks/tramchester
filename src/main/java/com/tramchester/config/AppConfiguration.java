@@ -147,11 +147,6 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public boolean getAddWalkingRoutes() {
-        return addWalkingRoutes;
-    }
-
-    @Override
     public int getTimeWindow() {
         return timeWindow;
     }

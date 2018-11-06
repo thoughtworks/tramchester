@@ -112,7 +112,6 @@ public class Dependencies {
         picoContainer.addComponent(LocationToLocationJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
         picoContainer.addComponent(SpatialDatabaseService.class);
-        picoContainer.addComponent(TransportGraphAddWalkingRoutes.class);
         picoContainer.addComponent(FeedInfoResource.class);
         picoContainer.addComponent(RoutesRepository.class);
         picoContainer.addComponent(RouteResource.class);
@@ -172,10 +171,6 @@ public class Dependencies {
             picoContainer.getComponent(StationLocalityService.class).populateLocality();
         }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
-
-        if (configuration.getAddWalkingRoutes()) {
-            picoContainer.getComponent(TransportGraphAddWalkingRoutes.class).addCityCentreWalkingRoutes();
-        }
 
     }
 

@@ -53,9 +53,6 @@ public abstract class TramchesterConfig extends Configuration {
     // the secure host, the one the certificate matches
     public abstract String getSecureHost();
 
-    // add in the cross city walking routes to the graph
-    public abstract boolean getAddWalkingRoutes();
-
     // EXPERIMENTAL FOR BUSES /////////
 
     // try to create walking links between stations close together

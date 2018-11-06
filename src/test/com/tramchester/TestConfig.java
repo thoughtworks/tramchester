@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Calendar.TUESDAY;
 
 
 public abstract class TestConfig extends AppConfiguration {
@@ -84,9 +83,6 @@ public abstract class TestConfig extends AppConfiguration {
     public String getSecureHost() {
         return "tramchester.com";
     }
-
-    @Override
-    public boolean getAddWalkingRoutes() { return false; }
 
     @Override
     public int getMaxWait() {
