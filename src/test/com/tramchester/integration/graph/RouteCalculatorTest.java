@@ -45,7 +45,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldHaveSimpleJourney() throws TramchesterException {
+    public void shouldHaveSimpleJourney() {
         List<LocalTime> minutes = Arrays.asList(LocalTime.of(8,0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
                 minutes, new TramServiceDate(when));
@@ -53,7 +53,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void testJourneyFromAltyToAirport() throws TramchesterException {
+    public void testJourneyFromAltyToAirport() {
         List<LocalTime> queryTimes = Arrays.asList(LocalTime.of(11,43));
         TramServiceDate today = new TramServiceDate(LocalDate.now());
 
@@ -76,12 +76,12 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldHandleCrossingMidnight() throws TramchesterException {
-        TramServiceDate when = new TramServiceDate(LocalDate.now().plusDays(4));
+    public void shouldHandleCrossingMidnight() {
+        //TramServiceDate when = new TramServiceDate(LocalDate.now().plusDays(4));
 
-        List<LocalTime> queryTimes = Arrays.asList(LocalTime.of(23,45));
+        List<LocalTime> queryTimes = Arrays.asList(LocalTime.of(23,15));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.ManAirport.getId(),
-                queryTimes, when);
+                queryTimes, new TramServiceDate(when));
 
         assertTrue(results.size()>0);
     }
@@ -172,7 +172,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) throws TramchesterException {
+    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Arrays.asList(minsPastMid),
                 new TramServiceDate(date));
