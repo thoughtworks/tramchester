@@ -19,8 +19,8 @@ public class MapPathToStages {
         this.mapTransportRelationshipsToStages = mapTransportRelationshipsToStages;
     }
 
-    public List<RawStage> map(WeightedPath path, LocalTime minsPastMidnight) throws TramchesterException {
+    public List<RawStage> map(WeightedPath path, LocalTime queryTime) throws TramchesterException {
         List<TransportRelationship> relationships = pathToTransportRelationship.mapPath(path);
-        return mapTransportRelationshipsToStages.mapStages(relationships, minsPastMidnight);
+        return mapTransportRelationshipsToStages.mapStages(relationships, queryTime);
     }
  }

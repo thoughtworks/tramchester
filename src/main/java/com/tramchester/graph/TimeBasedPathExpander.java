@@ -46,7 +46,6 @@ public class TimeBasedPathExpander implements PathExpander<GraphBranchState> {
 
         TransportRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
 
-
         if (incoming.isBoarding() && (path.length()==1 || path.length()==2 )) {
             // need to reset to real journey start, 1 or 2 depending on wether modelling platforms
             serviceHeuristics.clear();

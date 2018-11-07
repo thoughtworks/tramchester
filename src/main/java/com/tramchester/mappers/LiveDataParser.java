@@ -49,7 +49,7 @@ public class LiveDataParser {
         String location = (String)jsonObject.get("StationLocation");
         Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
         LocalDateTime updateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZone).toLocalDateTime();
-        logger.info("Parsed lived data with update time: "+updateTime);
+        logger.debug("Parsed lived data with update time: "+updateTime);
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, stationPlatform,
                 location, message, updateTime);
         parseDueTrams(jsonObject,departureInfo);

@@ -22,7 +22,8 @@ public class PathToTransportRelationship {
         Iterable<Relationship> relationships = path.relationships();
         List<TransportRelationship> transportRelationships = new ArrayList<>();
 
-        relationships.forEach(relationship -> transportRelationships.add(relationshipFactory.getRelationship(relationship)));
+        relationships.forEach(relationship ->
+                transportRelationships.add(relationshipFactory.getRelationship(relationship)));
 
         return transportRelationships;
     }
