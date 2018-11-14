@@ -48,7 +48,6 @@ dependencies {
     compile 'org.picocontainer:picocontainer:2.14.3',
             'org.neo4j:neo4j:3.4.9',
             'org.neo4j:neo4j-spatial:0.25.6-neo4j-3.4.5',
-//            'joda-time:joda-time:2.4',
             'com.googlecode.jcsv:jcsv:1.4.0',
             'net.lingala.zip4j:zip4j:1.2.3',
             'commons-io:commons-io:2.4',
@@ -78,7 +77,7 @@ task cfnassist {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
-                fileset(dir: 'lib/cfnassist-1.1.18/lib/', includes: 'cfnassist-all-1.1.18.jar')
+                fileset(dir: 'lib/cfnassist-1.1.29/lib/', includes: 'cfnassist-all-1.1.29.jar')
             }
         }
     }

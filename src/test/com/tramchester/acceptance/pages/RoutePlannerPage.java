@@ -47,11 +47,8 @@ public class RoutePlannerPage extends Page {
         return  getSelected(toStop).getText();
     }
 
-    public void setTime(LocalTime time) throws InterruptedException {
+    public void setTime(LocalTime time) {
         WebElement element = getHourElement();
-
-//        String formatter = DateTimeFormat.patternForStyle("-S", locale);
-//        String input = time.toString(formatter).replaceAll(" ", "");
 
         Actions builder  = new Actions(driver);
         String input = providesDateInput.createTimeFormat(time);
@@ -63,7 +60,6 @@ public class RoutePlannerPage extends Page {
         builder.sendKeys(element, input);
         builder.pause(Duration.ofMillis(50));
         builder.build().perform();
-        //Thread.sleep(1000);
 
     }
 
@@ -157,7 +153,7 @@ public class RoutePlannerPage extends Page {
     }
 
     public String getBuild() {
-        WebElement webElement = waitForElement("build", 3);
+        WebElement webElement = waitForElement("build", 5);
         return webElement.getText();
     }
 
