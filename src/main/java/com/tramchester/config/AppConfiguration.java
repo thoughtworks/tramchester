@@ -195,7 +195,7 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Override
     public String getLiveDataS3Bucket() {
-        return liveDataS3Bucket;
+        return liveDataS3Bucket.toLowerCase();
     }
 
 }

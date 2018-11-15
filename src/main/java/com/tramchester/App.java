@@ -1,10 +1,7 @@
 package com.tramchester;
 
 import com.codahale.metrics.MetricRegistry;
-import com.tramchester.cloud.CloudWatchReporter;
-import com.tramchester.cloud.ConfigFromInstanceUserData;
-import com.tramchester.cloud.SendMetricsToCloudWatch;
-import com.tramchester.cloud.SignalToCloudformationReady;
+import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.healthchecks.GraphHealthCheck;
@@ -124,6 +121,9 @@ public class App extends Application<AppConfiguration>  {
                 logger.error("Unable to refresh live data", exeception);
             }
         }, 10,10,TimeUnit.SECONDS);
+
+        UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
+        liveDateRepository.observeUpdates(observer);
 
         // ready to serve traffic
         logger.info("Prepare to signal cloud formation if running in cloud");

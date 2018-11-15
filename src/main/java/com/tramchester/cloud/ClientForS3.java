@@ -63,12 +63,21 @@ public class ClientForS3 {
     }
 
     public boolean keyExists(String prefix, String key) {
-        // limit by prefix to avoid very large requests
-        ObjectListing summary = s3Client.listObjects(config.getLiveDataS3Bucket(), prefix);
-        for (S3ObjectSummary item: summary.getObjectSummaries()) {
-            if (key.equals(item.getKey())) {
-                return true;
+        String bucket = config.getLiveDataS3Bucket();
+        try {
+            if (!s3Client.doesBucketExistV2(bucket)) {
+                return false;
             }
+            // limit by prefix to avoid very large requests
+            ObjectListing summary = s3Client.listObjects(bucket, prefix);
+            for (S3ObjectSummary item : summary.getObjectSummaries()) {
+                if (key.equals(item.getKey())) {
+                    return true;
+                }
+            }
+        }
+        catch (AmazonS3Exception exception) {
+            logger.warn(format("Cannot check if key '%s' exists in bucket '%s'", key, bucket),exception);
         }
         return false;
     }

@@ -2,11 +2,7 @@ package com.tramchester;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.tramchester.cloud.ConfigFromInstanceUserData;
-import com.tramchester.cloud.FetchInstanceMetadata;
-import com.tramchester.cloud.SendMetricsToCloudWatch;
-import com.tramchester.cloud.SignalToCloudformationReady;
+import com.tramchester.cloud.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.FetchDataFromUrl;
@@ -119,15 +115,18 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataHTTPFetcher.class);
         picoContainer.addComponent(LiveDataParser.class);
         picoContainer.addComponent(LiveDataRepository.class);
+        picoContainer.addComponent(ClientForS3.class);
+        picoContainer.addComponent(UploadsLiveData.class);
 
         rebuildGraph(configuration);
 
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);
+
     }
 
-    public ErrorCount cleanseData(Set<String> agencies, Path inputPath, Path outputPath) throws IOException {
+    public void cleanseData(Set<String> agencies, Path inputPath, Path outputPath) throws IOException {
         Path inputDir = inputPath.resolve(TFGM_UNZIP_DIR);
         TransportDataReader reader = new TransportDataReader(inputDir, true);
         TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(outputPath);
@@ -139,7 +138,6 @@ public class Dependencies {
             logger.warn("Errors encounted during parsing data " + count);
         }
         logger.info("Data cleansing finished");
-        return count;
     }
 
     private void rebuildGraph(TramchesterConfig configuration) throws IOException {

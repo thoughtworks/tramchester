@@ -20,7 +20,7 @@ instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
-liveDataS3Bucket: tramchesterLiveData${ENV}
+liveDataS3Bucket: tramchesterlivedatacceptancetest
 dataPath: data/tram
 timeWindow: 60
 maxWait: 25
