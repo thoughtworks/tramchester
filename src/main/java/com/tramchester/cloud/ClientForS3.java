@@ -28,7 +28,7 @@ public class ClientForS3 {
 
     public boolean upload(String key, String json) {
         String bucket = config.getLiveDataS3Bucket();
-        logger.info(format("Uploading to bucket '%s' key '%s' contents '%s'", bucket, key, json));
+        logger.debug(format("Uploading to bucket '%s' key '%s' contents '%s'", bucket, key, json));
 
         try {
             createBucketIfNeeded();
@@ -46,20 +46,20 @@ public class ClientForS3 {
 
             logger.warn(format("Problem with upload, md5 mismatch. expected '%s' got '%s' ", localMd5, remoteMd5));
         }
-        catch (AmazonS3Exception | NoSuchAlgorithmException | InterruptedException exception) {
+        catch (AmazonS3Exception | NoSuchAlgorithmException exception) {
             logger.warn(format("Unable to upload to bucket '%s' key '%s'", bucket, key), exception);
         }
         return false;
     }
 
-    private void createBucketIfNeeded() throws InterruptedException {
+    private void createBucketIfNeeded() {
         String bucket = config.getLiveDataS3Bucket();
         if (s3Client.doesBucketExistV2(bucket)) {
             return;
         }
         logger.info(format("Bucket '%s' does not exist, creating", bucket));
         s3Client.createBucket(bucket);
-        
+
         Waiter<HeadBucketRequest> waiter = s3Client.waiters().bucketExists();
         waiter.run(new WaiterParameters<>(new HeadBucketRequest(bucket)));
 
