@@ -117,8 +117,10 @@ public abstract class TestConfig extends AppConfiguration {
         return System.getenv("TFGMAPIKEY");
     }
 
-    public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
+    @Override
+    public String getLiveDataS3Bucket() { return "tramchestertestlivedatabucket"; }
 
+    public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
 
     public static LocalDate nextTuesday(int offsetDays) {
         DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;

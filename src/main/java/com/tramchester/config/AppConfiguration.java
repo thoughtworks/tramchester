@@ -89,6 +89,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveDataSubscriptionKey")
     private String liveDataSubscriptionKey;
 
+    @JsonProperty("liveDataS3Bucket")
+    private String liveDataS3Bucket;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -188,6 +191,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Set<String> getAgencies() {
         return new HashSet<>(agencies);
+    }
+
+    @Override
+    public String getLiveDataS3Bucket() {
+        return liveDataS3Bucket;
     }
 
 }

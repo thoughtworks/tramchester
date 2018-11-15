@@ -77,4 +77,7 @@ public abstract class TramchesterConfig extends Configuration {
 
     // access key for live data URL issued by TFGM
     public abstract String getLiveDataSubscriptionKey();
+
+    // name of AWS S3 bucket where live data is archived
+    public abstract String getLiveDataS3Bucket();
 }
