@@ -2,10 +2,10 @@ package com.tramchester.integration.cloud;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.*;
+import com.amazonaws.waiters.PollingStrategy;
+import com.amazonaws.waiters.Waiter;
+import com.amazonaws.waiters.WaiterParameters;
 import com.tramchester.TestConfig;
 import com.tramchester.cloud.ClientForS3;
 import org.junit.After;
@@ -59,7 +59,7 @@ public class ClientForS3Test {
     }
 
     @Test
-    public void checkForObjectExisting() throws InterruptedException {
+    public void checkForObjectExisting() {
         createTestBucket();
         s3.putObject(TEST_BUCKET_NAME, KEY, "contents");
         assertTrue(clientForS3.keyExists(PREFIX,KEY));
@@ -72,6 +72,10 @@ public class ClientForS3Test {
         String contents = "someJsonData";
         boolean uploaded = clientForS3.upload(KEY, contents);
         assertTrue(uploaded);
+
+        // the different S3 clients involved get out of sync, so the one sees the bucket and the the other does not
+        Waiter<HeadBucketRequest> waiter = s3.waiters().bucketExists();
+        waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
 
         ObjectListing currentContents = s3.listObjects(TEST_BUCKET_NAME);
         List<S3ObjectSummary> summary = currentContents.getObjectSummaries();
@@ -89,11 +93,13 @@ public class ClientForS3Test {
     }
 
 
-    public void createTestBucket() throws InterruptedException {
+    public void createTestBucket() {
         s3.createBucket(TEST_BUCKET_NAME);
-        while (!s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
-            Thread.sleep(100);
-        }
+        Waiter waiter = s3.waiters().bucketExists();
+        waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
+//        while (!s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
+//            Thread.sleep(100);
+//        }
     }
 
     private void tidyBucket() throws InterruptedException {

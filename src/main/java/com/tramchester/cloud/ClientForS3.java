@@ -2,10 +2,9 @@ package com.tramchester.cloud;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.*;
+import com.amazonaws.waiters.Waiter;
+import com.amazonaws.waiters.WaiterParameters;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class ClientForS3 {
             createBucketIfNeeded();
 
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            String localMd5 = String.format(Base64.encodeBase64String(messageDigest.digest(json.getBytes())));
+            String localMd5 = Base64.encodeBase64String(messageDigest.digest(json.getBytes()));
 
             logger.debug("Uploading with MD5: " + localMd5);
             PutObjectResult result = s3Client.putObject(bucket, key, json);
@@ -47,19 +46,24 @@ public class ClientForS3 {
 
             logger.warn(format("Problem with upload, md5 mismatch. expected '%s' got '%s' ", localMd5, remoteMd5));
         }
-        catch (AmazonS3Exception | NoSuchAlgorithmException exception) {
+        catch (AmazonS3Exception | NoSuchAlgorithmException | InterruptedException exception) {
             logger.warn(format("Unable to upload to bucket '%s' key '%s'", bucket, key), exception);
         }
         return false;
     }
 
-    private void createBucketIfNeeded() {
+    private void createBucketIfNeeded() throws InterruptedException {
         String bucket = config.getLiveDataS3Bucket();
         if (s3Client.doesBucketExistV2(bucket)) {
             return;
         }
         logger.info(format("Bucket '%s' does not exist, creating", bucket));
         s3Client.createBucket(bucket);
+        
+        Waiter<HeadBucketRequest> waiter = s3Client.waiters().bucketExists();
+        waiter.run(new WaiterParameters<>(new HeadBucketRequest(bucket)));
+
+        logger.info(format("Bucket '%s' created.", bucket));
     }
 
     public boolean keyExists(String prefix, String key) {
