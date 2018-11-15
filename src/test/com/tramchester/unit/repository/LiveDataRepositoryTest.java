@@ -1,7 +1,9 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Station;
+import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -10,17 +12,16 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
+import com.tramchester.repository.LiveDataObserver;
 import com.tramchester.repository.LiveDataRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -143,6 +144,11 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
+        // observer
+        List<StationDepartureInfo> observedUpdates = new LinkedList<>();
+        LiveDataObserver observer = update -> observedUpdates.addAll(update);
+        repository.observeUpdates(observer);
+
         replayAll();
         repository.refreshRespository();
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate());
@@ -152,6 +158,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
 
         assertEquals(departureInfo, enriched);
+        assertEquals(observedUpdates.size(),1);
+        assertEquals(departureInfo, observedUpdates.get(0));
     }
 
     @Test

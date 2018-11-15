@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,6 @@ public class StationResource extends UsesRecentCookie {
     private final StationRepository stationRepository;
     private final LiveDataRepository liveDataRepository;
     private ProvidesNotes providesNotes;
-    //private DateTimeZone timeZone;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
@@ -65,7 +65,6 @@ public class StationResource extends UsesRecentCookie {
         this.liveDataRepository = liveDataRepository;
         this.providesNotes = providesNotes;
         allStationsSorted = new LinkedList<>();
-        //timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
     }
 
     private LocalDateTime getLocalNow() {
@@ -92,15 +91,14 @@ public class StationResource extends UsesRecentCookie {
             recentStation.ifPresent(station -> displayStations.add(new StationDTO(station, ProximityGroup.RECENT)));
         });
 
-        Response response = Response.ok(new StationListDTO(displayStations)).build();
-        return response;
+        return Response.ok(new StationListDTO(displayStations)).build();
     }
 
     private List<Station> getStations() {
         if (allStationsSorted.isEmpty()) {
             List<Station> rawList = stationRepository.getStations();
             allStationsSorted = rawList.stream().
-                    sorted((s1, s2) -> s1.getName().compareTo(s2.getName())).
+                    sorted(Comparator.comparing(Station::getName)).
                     filter(station -> !closedStations.contains(station.getName())).
                     collect(Collectors.toList());
         }
@@ -165,7 +163,7 @@ public class StationResource extends UsesRecentCookie {
     @CacheControl(noCache = true)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
-        logger.info(format("Get station at %s,%s with cookie ", lat, lon, tranchesterRecent));
+        logger.info(format("Get station at %s,%s with recentcookie '%s'", lat, lon, tranchesterRecent));
 
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> orderedStations = spatialService.reorderNearestStations(latLong, getStations());

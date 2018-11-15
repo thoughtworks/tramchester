@@ -33,11 +33,14 @@ public class LiveDataRepository {
     private LiveDataParser parser;
     private LocalDateTime lastRefresh;
 
+    private List<LiveDataObserver> observers;
+
     public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser) {
         this.fetcher = fetcher;
         this.parser = parser;
         stationInformation = new HashMap<>();
         lastRefresh = LocalDateTime.now();
+        observers = new LinkedList<>();
     }
 
     public void refreshRespository()  {
@@ -67,6 +70,7 @@ public class LiveDataRepository {
         }
         stationInformation = newMap;
         lastRefresh = LocalDateTime.now();
+        observers.forEach(observer -> observer.seenUpdate(stationInformation.values()));
     }
 
     public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime) {
@@ -152,5 +156,9 @@ public class LiveDataRepository {
         });
 
         return result;
+    }
+
+    public void observeUpdates(LiveDataObserver observer) {
+        observers.add(observer);
     }
 }
