@@ -48,8 +48,8 @@ public class ClientForS3Test {
     }
 
     @Test
-    public void shouldUploadOkIfBucketExist() throws IOException {
-        s3.createBucket(TEST_BUCKET_NAME);
+    public void shouldUploadOkIfBucketExist() throws IOException, InterruptedException {
+        createTestBucket();
         validateUpload();
     }
 
@@ -59,8 +59,8 @@ public class ClientForS3Test {
     }
 
     @Test
-    public void checkForObjectExisting() {
-        s3.createBucket(TEST_BUCKET_NAME);
+    public void checkForObjectExisting() throws InterruptedException {
+        createTestBucket();
         s3.putObject(TEST_BUCKET_NAME, KEY, "contents");
         assertTrue(clientForS3.keyExists(PREFIX,KEY));
 
@@ -88,8 +88,15 @@ public class ClientForS3Test {
         assertEquals(contents, storedJson);
     }
 
+
+    public void createTestBucket() throws InterruptedException {
+        s3.createBucket(TEST_BUCKET_NAME);
+        while (!s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
+            Thread.sleep(100);
+        }
+    }
+
     private void tidyBucket() throws InterruptedException {
-        AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
         if (s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
             DeleteObjectsRequest deleteObjects = new DeleteObjectsRequest(TEST_BUCKET_NAME).withKeys(KEY);
             s3.deleteObjects(deleteObjects);
