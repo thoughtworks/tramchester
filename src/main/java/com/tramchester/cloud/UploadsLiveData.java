@@ -26,10 +26,10 @@ public class UploadsLiveData implements LiveDataObserver {
         try {
             LocalDateTime timeStamp = extractMostRecent(liveData);
 
-            String environment = System.getenv("ENV");
+            String environment = System.getenv("PLACE");
 
             if (environment==null) {
-                logger.warn("ENV is not set");
+                logger.warn("PLACE is not set");
                 environment = "test";
             }
 
