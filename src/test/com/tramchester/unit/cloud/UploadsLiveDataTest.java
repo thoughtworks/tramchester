@@ -25,7 +25,8 @@ public class UploadsLiveDataTest extends EasyMockSupport {
 
     @Before
     public void beforeEachTestRuns() {
-        environment = "test";
+        environment = System.getenv("ENV");
+        environment = environment==null ? "test" : environment;
         LocalDateTime lastUpdateTime = LocalDateTime.parse("2018-11-15T15:06:32");
 
         s3facade = createStrictMock(ClientForS3.class);
