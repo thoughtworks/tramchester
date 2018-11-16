@@ -42,6 +42,7 @@ jobs:
           environment:
             SERVER_URL: https://alpha.tramchester.com
             ENV: Dev
+            PLACE: Dev
       - run:
           command: gradle integration --no-daemon
           name: integration
