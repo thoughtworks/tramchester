@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import java.io.PrintWriter;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +46,18 @@ public class App extends Application<AppConfiguration>  {
     }
 
     public static void main(String[] args) throws Exception {
+        logEnvironmentalVars();
         new App().run(args);
+    }
+
+    private static void logEnvironmentalVars() {
+        Map<String, String> vars = System.getenv();
+        vars.forEach((name,value) -> {
+            if (("TFGMAPIKEY".equals(name))) {
+                value = "****";
+            }
+            logger.info(String.format("Environment %s=%s", name, value));
+        });
     }
 
     @Override
