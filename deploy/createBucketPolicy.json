@@ -2,7 +2,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "S3 Template for creating a bucket policy so a given IP can access the given bucket",
+  "Description" : "NOT USED -- S3 Template for creating a bucket policy so a given IP can access the given bucket",
 
   "Parameters" : {
 	"vpc" : { "Type" : "String" },

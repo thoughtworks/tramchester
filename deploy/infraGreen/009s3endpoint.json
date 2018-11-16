@@ -24,6 +24,12 @@
 					"Effect":"Allow",
 					"Principal": "*",
 					"Action":["s3:*"],
+					"Resource":[ "arn:aws:s3:::tramchesterlivedata/*" ]
+				},
+				{
+					"Effect":"Allow",
+					"Principal": "*",
+					"Action":["s3:*"],
 					"Resource":[ "arn:aws:s3:::cloudformation-waitcondition-ap-northeast-1/*",
 						"arn:aws:s3:::cloudformation-waitcondition-ap-southeast-1/*",
 						"arn:aws:s3:::cloudformation-waitcondition-ap-southeast-2/*",

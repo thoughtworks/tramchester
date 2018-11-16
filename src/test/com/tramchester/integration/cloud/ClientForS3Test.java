@@ -54,11 +54,6 @@ public class ClientForS3Test {
     }
 
     @Test
-    public void shouldCreateBucketAndUpload() throws IOException {
-        validateUpload();
-    }
-
-    @Test
     public void checkForObjectExisting() {
         createTestBucket();
         s3.putObject(TEST_BUCKET_NAME, KEY, "contents");

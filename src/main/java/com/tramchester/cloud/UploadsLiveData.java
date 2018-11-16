@@ -26,11 +26,18 @@ public class UploadsLiveData implements LiveDataObserver {
         try {
             LocalDateTime timeStamp = extractMostRecent(liveData);
 
+            String environment = System.getenv("ENV");
+
+            if (environment==null) {
+                logger.warn("ENV is not set");
+                environment = "test";
+            }
+
             String date = timeStamp.toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE);
             String time = timeStamp.toLocalTime().format(DateTimeFormatter.ISO_TIME);
-            String key = String.format("%s/%s", date,time);
+            String key = String.format("%s/%s/%s", environment.toLowerCase(), date,time);
 
-            if (s3.keyExists(date, key)) {
+            if (s3. keyExists(date, key)) {
                 return true;
             }
 
