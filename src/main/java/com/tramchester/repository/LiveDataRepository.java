@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
@@ -70,7 +71,16 @@ public class LiveDataRepository {
         }
         stationInformation = newMap;
         lastRefresh = LocalDateTime.now();
-        observers.forEach(observer -> observer.seenUpdate(stationInformation.values()));
+        invokeObservers();
+    }
+
+    public void invokeObservers() {
+        try {
+            observers.forEach(observer -> observer.seenUpdate(stationInformation.values()));
+        }
+        catch (RuntimeException runtimeException) {
+            logger.error("Error invoking observer", runtimeException);
+        }
     }
 
     public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime) {
