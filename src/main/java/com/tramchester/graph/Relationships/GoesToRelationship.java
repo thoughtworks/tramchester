@@ -11,14 +11,18 @@ import java.time.LocalTime;
 public abstract class GoesToRelationship extends TransportCostRelationship {
     private String service;
     private boolean[] daysRunning;
-    private LocalTime[] timesRunning;
     private String dest;
     private TramServiceDate startDate;
     private TramServiceDate endDate;
+    private String tripId;
+
+    // TODO array to disappear
+    private LocalTime[] timesRunning; // OR if edge per trip then
+    private LocalTime timeRunning;
 
     protected GoesToRelationship(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,
                               TramServiceDate startDate, TramServiceDate endDate, String dest,
-                              TramNode startNode, TramNode endNode) {
+                              TramNode startNode, TramNode endNode, String tripId) {
         //TESTING ONLY
         super(cost, id, startNode, endNode);
         this.service = service;
@@ -27,6 +31,7 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         this.startDate = startDate;
         this.endDate = endDate;
         this.dest = dest;
+        this.tripId = tripId;
     }
 
     public GoesToRelationship(Relationship graphRelationship, NodeFactory nodeFactory) {
@@ -45,6 +50,27 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
             timesRunning = (LocalTime[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
         }
         return timesRunning;
+    }
+
+    public LocalTime getTimeServiceRuns() {
+        if (timeRunning==null) {
+            timeRunning =(LocalTime) graphRelationship.getProperty(GraphStaticKeys.DEPART_TIME);
+        }
+        return timeRunning;
+    }
+
+    public boolean hasTripId() {
+        if (tripId!=null) {
+            return !tripId.isEmpty();
+        }
+        return graphRelationship.hasProperty(GraphStaticKeys.TRIP_ID);
+    }
+
+    public String getTripId() {
+        if (tripId==null) {
+            tripId = (String) graphRelationship.getProperty(GraphStaticKeys.TRIP_ID);
+        }
+        return tripId;
     }
 
     public String getService() {

@@ -3,6 +3,7 @@ package com.tramchester.graph.Relationships;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Relationship;
 
 public class InterchangeDepartsRelationship extends TransportCostRelationship {
@@ -10,12 +11,12 @@ public class InterchangeDepartsRelationship extends TransportCostRelationship {
         super(graphRelationship, nodeFactory);
     }
 
-    public static InterchangeDepartsRelationship TestOnly(int cost, String id, TramNode firstNode, TramNode endNode) {
-        return new InterchangeDepartsRelationship(cost,id, firstNode, endNode);
+    public static InterchangeDepartsRelationship TestOnly(String id, TramNode firstNode, TramNode endNode) {
+        return new InterchangeDepartsRelationship(id, firstNode, endNode);
     }
 
-    private InterchangeDepartsRelationship(int cost, String id, TramNode startNode, TramNode endNode) {
-        super(cost,id,startNode, endNode);
+    private InterchangeDepartsRelationship(String id, TramNode startNode, TramNode endNode) {
+        super(TransportGraphBuilder.INTERCHANGE_DEPART_COST ,id,startNode, endNode);
     }
 
     @Override
@@ -30,6 +31,12 @@ public class InterchangeDepartsRelationship extends TransportCostRelationship {
 
     @Override
     public boolean isInterchange() { return true; }
+
+    @Override
+    public int getCost() {
+        return TransportGraphBuilder.INTERCHANGE_DEPART_COST;
+    }
+
 
     @Override
     public String toString() {

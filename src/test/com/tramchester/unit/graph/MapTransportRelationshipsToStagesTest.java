@@ -75,15 +75,16 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         boolean[] daysRunning = new boolean[1];
         LocalTime[] timesRunning = new LocalTime[1];
 
-        relationships.add(BoardRelationship.TestOnly(2, "BoardRelId", stationNodeA, boardingNode));
+        relationships.add(BoardRelationship.TestOnly("BoardRelId", stationNodeA, boardingNode));
 
         TramServiceDate startDate = new TramServiceDate(LocalDate.now());
         TramServiceDate endDate = new TramServiceDate(LocalDate.now());
 
+        String tripId = "";
         relationships.add(TramGoesToRelationship.TestOnly("svcId", 18, daysRunning, timesRunning, "id4", startDate,
-                endDate, "dest", boardingNode, departureNode));
+                endDate, "dest", boardingNode, departureNode, tripId));
 
-        relationships.add(DepartRelationship.TestOnly(2,"depRelId", departureNode, stationNodeB));
+        relationships.add(DepartRelationship.TestOnly("depRelId", departureNode, stationNodeB));
 
         replayAll();
         List<RawStage> result = mapper.mapStages(relationships, LocalTime.of(7,0));
@@ -119,14 +120,15 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         relationships.add(EnterPlatformRelationship.TestOnly(0, "entPlatRId", stationNodeA, enterPlatformNode));
 
         // platform -> borading point
-        relationships.add(BoardRelationship.TestOnly(2, "boardRelId", enterPlatformNode, boardingNode));
+        relationships.add(BoardRelationship.TestOnly("boardRelId", enterPlatformNode, boardingNode));
 
         // boarding point -> next boarding point
+        String tripId = "";
         relationships.add(TramGoesToRelationship.TestOnly("svcId", 18, daysRunning, timesRunning, "id4", startDate,
-                endDate, "dest", boardingNode, departureNode));
+                endDate, "dest", boardingNode, departureNode, tripId));
 
         // boarding point -> platform
-        relationships.add(DepartRelationship.TestOnly(2,"depRelId", departureNode,
+        relationships.add(DepartRelationship.TestOnly("depRelId", departureNode,
                 leavePlatformNode));
 
         // platform -> station

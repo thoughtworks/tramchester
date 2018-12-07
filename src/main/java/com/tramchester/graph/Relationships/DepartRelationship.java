@@ -3,6 +3,7 @@ package com.tramchester.graph.Relationships;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Relationship;
 
 public class DepartRelationship extends TransportCostRelationship {
@@ -10,12 +11,17 @@ public class DepartRelationship extends TransportCostRelationship {
         super(graphRelationship, nodeFactory);
     }
 
-    public static DepartRelationship TestOnly(int cost, String id, TramNode firstNode, TramNode endNode) {
-        return new DepartRelationship(cost,id, firstNode, endNode);
+    public static DepartRelationship TestOnly(String id, TramNode firstNode, TramNode endNode) {
+        return new DepartRelationship(id, firstNode, endNode);
     }
 
-    private DepartRelationship(int cost, String id, TramNode startNode, TramNode endNode) {
-        super(cost,id,startNode, endNode);
+    private DepartRelationship(String id, TramNode startNode, TramNode endNode) {
+        super(TransportGraphBuilder.DEPARTS_COST,id,startNode, endNode);
+    }
+
+    @Override
+    public int getCost() {
+        return TransportGraphBuilder.DEPARTS_COST;
     }
 
     @Override

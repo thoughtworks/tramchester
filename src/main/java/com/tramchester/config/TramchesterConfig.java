@@ -80,4 +80,7 @@ public abstract class TramchesterConfig extends Configuration {
 
     // name of AWS S3 bucket where live data is archived
     public abstract String getLiveDataS3Bucket();
+
+    // Edge per trip/time instead of an array of time
+    public abstract boolean getEdgePerTrip();
 }

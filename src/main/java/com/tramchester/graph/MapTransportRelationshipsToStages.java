@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -100,7 +101,12 @@ public class MapTransportRelationshipsToStages {
         logger.info(format("Add stage goes to %s, service %s, elapsed %s", goesToRelationship.getDest(), serviceId, state.getElapsedTime()));
 
         if (!state.isOnService()) {
-            state.boardService(transportRelationship, serviceId);
+            if (goesToRelationship.hasTripId()) {
+                LocalTime time = goesToRelationship.getTimeServiceRuns();
+                state.boardService(transportRelationship, serviceId, time, goesToRelationship.getTripId());
+            } else {
+                state.boardService(transportRelationship, serviceId, Optional.empty(), Optional.empty());
+            }
         }
     }
 

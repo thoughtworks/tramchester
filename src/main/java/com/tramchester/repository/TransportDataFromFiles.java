@@ -181,7 +181,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         return routes.get(routeId);
     }
 
-    private Trip getTrip(String tripId) {
+    public Trip getTrip(String tripId) {
         return trips.get(tripId);
     }
 

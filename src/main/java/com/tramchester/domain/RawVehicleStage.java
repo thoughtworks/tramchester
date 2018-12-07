@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import java.time.LocalTime;
 import java.util.Optional;
 
 public class RawVehicleStage implements RawStage {
@@ -12,6 +13,9 @@ public class RawVehicleStage implements RawStage {
     protected String serviceId;
     protected Location lastStation;
     private Optional<Platform> platform;
+
+    private String tripId;
+    private LocalTime departTime;
 
     public RawVehicleStage(Location firstStation, String routeName, TransportMode mode, String displayClass) {
         this.firstStation = firstStation;
@@ -34,6 +38,8 @@ public class RawVehicleStage implements RawStage {
         this.lastStation = other.lastStation;
         this.cost = other.cost;
         this.platform = other.platform;
+        this.tripId = other.tripId;
+        this.departTime = other.departTime;
     }
 
     public String getServiceId() {
@@ -94,6 +100,8 @@ public class RawVehicleStage implements RawStage {
                 ", serviceId='" + serviceId + '\'' +
                 ", lastStation=" + lastStation +
                 ", platform=" + platform +
+                ", tripId='" + tripId + '\'' +
+                ", departTime=" + departTime +
                 '}';
     }
 
@@ -108,5 +116,25 @@ public class RawVehicleStage implements RawStage {
 
     public Optional<Platform> getBoardingPlatform() {
         return platform;
+    }
+
+    public long getCost() {
+        return cost;
+    }
+
+    public void setTripId(String id) {
+        tripId = id;
+    }
+
+    public void setDepartTime(LocalTime time) {
+        departTime = time;
+    }
+
+    public LocalTime getDepartTime() {
+        return departTime;
+    }
+
+    public String getTripId() {
+        return tripId;
     }
 }

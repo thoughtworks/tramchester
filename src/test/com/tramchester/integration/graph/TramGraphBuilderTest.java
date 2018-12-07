@@ -30,7 +30,6 @@ import static org.junit.Assert.*;
 
 public class TramGraphBuilderTest {
     private static final Logger logger = LoggerFactory.getLogger(TramGraphBuilderTest.class);
-    private static final int MINUTES_FROM_MIDNIGHT_8AM = 8 * 60;
     private static Dependencies dependencies;
 
     private RouteCalculator calculator;

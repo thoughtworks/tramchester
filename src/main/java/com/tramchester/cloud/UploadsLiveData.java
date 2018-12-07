@@ -37,7 +37,7 @@ public class UploadsLiveData implements LiveDataObserver {
             String time = timeStamp.toLocalTime().format(DateTimeFormatter.ISO_TIME);
             String key = String.format("%s/%s/%s", environment.toLowerCase(), date,time);
 
-            if (s3. keyExists(date, key)) {
+            if (s3.keyExists(date, key)) {
                 return true;
             }
 

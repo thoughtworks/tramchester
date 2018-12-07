@@ -22,10 +22,7 @@ import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.healthchecks.GraphHealthCheck;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
-import com.tramchester.mappers.DeparturesMapper;
-import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.mappers.LiveDataParser;
-import com.tramchester.mappers.TramJourneyResponseMapper;
+import com.tramchester.mappers.*;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.RoutesRepository;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -84,13 +81,17 @@ public class Dependencies {
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
-        picoContainer.addComponent(TramJourneyResponseMapper.class);
+
+        if (configuration.getEdgePerTrip()) {
+            picoContainer.addComponent(TramJourneyResponseWithTimesMapper.class);
+        } else {
+            picoContainer.addComponent(TramJourneyResponseMapper.class);
+        }
 
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        //objectMapper.registerModule(new JodaModule());
         picoContainer.addComponent(objectMapper);
 
         TransportDataReader dataReader = new TransportDataReader(dataPath, false);

@@ -122,6 +122,11 @@ public abstract class TestConfig extends AppConfiguration {
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
 
+    @Override
+    public boolean getEdgePerTrip() {
+        return false;
+    }
+
     public static LocalDate nextTuesday(int offsetDays) {
         DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;
         LocalDate date = LocalDate.now().minusDays(offsetDays);

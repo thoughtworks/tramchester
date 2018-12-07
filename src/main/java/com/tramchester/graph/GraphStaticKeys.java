@@ -15,6 +15,10 @@ public class GraphStaticKeys {
     public static final String SERVICE_START_DATE = "start_date";
     public static final String SERVICE_END_DATE = "end_date";
 
+    // experimental
+    public static final String DEPART_TIME = "time";
+    public static final String TRIP_ID = "trip_id";
+
     public static class RouteStation {
         public static final String ROUTE_NAME = "route_name";
         public static final String ROUTE_ID = "route_id";

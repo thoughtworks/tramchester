@@ -23,14 +23,14 @@ import static org.junit.Assert.assertTrue;
 
 public class ServiceHeuristicsTest extends EasyMockSupport {
 
-    LocalTime am10 = LocalTime.of(10,0);
+    private LocalTime am10 = LocalTime.of(10,0);
     private LocalTime[] tramTimes = new LocalTime[] { am10,
             am10.plusMinutes(100),
             am10.plusMinutes(200),
             am10.plusMinutes(300),
             am10.plusMinutes(400) };
     private CachingCostEvaluator costEvaluator;
-    TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(30);
+    private TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(30);
     private TramServiceDate date;
     private LocalTime NOT_USED_HERE = LocalTime.of(23,59);
 
@@ -44,7 +44,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     public void shouldHandleTimesWith30MinWait() throws TramchesterException {
         LocalTime am640 = LocalTime.of(6, 40); // 400
 
-        ElapsedTime providerA = createNoMatchProvider(am640); //6:40
+        ElapsedTime providerA = createNoMatchProvider(am640);
         ElapsedTime providerB = createNoMatchProvider(am640.plusMinutes(150));
 
         LocalTime journeyStart = LocalTime.of(10,0).minusMinutes(TransportGraphBuilder.BOARDING_COST);
@@ -142,15 +142,17 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         TramServiceDate endDate = new TramServiceDate("20151130");
         boolean[] days = new boolean[] {true,true,true,true,true,true,true};
 
-        TransportRelationship board = BoardRelationship.TestOnly(5, "boardsId", null, null);
-        TransportRelationship depart = DepartRelationship.TestOnly(0, "departsId", null, null);
-        TransportRelationship change = InterchangeDepartsRelationship.TestOnly(3, "interchangeId",null,null);
+        TransportRelationship board = BoardRelationship.TestOnly("boardsId", null, null);
+        TransportRelationship depart = DepartRelationship.TestOnly("departsId", null, null);
+        TransportRelationship change = InterchangeDepartsRelationship.TestOnly("interchangeId",null,null);
+
+        String tripId = "";
 
         TramGoesToRelationship outA = TramGoesToRelationship.TestOnly("0042",10, days, tramTimes, "id1", startDate,
-                endDate, "destA", null, null);
+                endDate, "destA", null, null, tripId);
 
         TramGoesToRelationship outB = TramGoesToRelationship.TestOnly("0048", 5, days, tramTimes, "id2", startDate,
-                endDate, "destB", null, null);
+                endDate, "destB", null, null, tripId);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config30MinsWait,startDate,NOT_USED_HERE);

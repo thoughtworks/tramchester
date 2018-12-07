@@ -10,25 +10,32 @@ import java.time.LocalTime;
 public class PathBasedTimeProvider implements ElapsedTime {
     private final PersistsBoardingTime boardTime;
     private final LocalTime queryTime;
-    private final int cost;
+    private int cost = -1;
+    private final WeightedPathImpl weightedPath;
 
     public PathBasedTimeProvider(CostEvaluator<Double> costEvaluator, Path path, PersistsBoardingTime boardTime,
                                  LocalTime queryTime) {
-        WeightedPathImpl weightedPath = new WeightedPathImpl(costEvaluator, path);
-        this.cost = (int) weightedPath.weight();
+        weightedPath = new WeightedPathImpl(costEvaluator, path);
         this.boardTime = boardTime;
         this.queryTime = queryTime;
     }
 
     @Override
     public LocalTime getElapsedTime() {
+        int costOfJourney = getCost();
         if (boardTime.isPresent()) {
-            return boardTime.get().plusMinutes(cost);
+            return boardTime.get().plusMinutes(costOfJourney);
         }
         else {
-            return queryTime.plusMinutes(cost);
+            return queryTime.plusMinutes(costOfJourney);
         }
+    }
 
+    private int getCost() {
+        if (cost==-1) {
+            cost = (int) weightedPath.weight();
+        }
+        return cost;
     }
 
     @Override

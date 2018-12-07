@@ -92,6 +92,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveDataS3Bucket")
     private String liveDataS3Bucket;
 
+    @JsonProperty("edgePerTrip")
+    private boolean edgePerTrip;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -196,6 +199,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getLiveDataS3Bucket() {
         return liveDataS3Bucket.toLowerCase();
+    }
+
+    @Override
+    public boolean getEdgePerTrip() {
+        return edgePerTrip;
     }
 
 }

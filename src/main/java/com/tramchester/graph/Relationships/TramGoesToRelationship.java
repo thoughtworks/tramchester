@@ -9,18 +9,19 @@ import org.neo4j.graphdb.Relationship;
 import java.time.LocalTime;
 
 public class TramGoesToRelationship extends GoesToRelationship {
+
     private TramGoesToRelationship(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,
                                    TramServiceDate startDate, TramServiceDate endDate, String dest,
-                                   TramNode startNode, TramNode endNode) {
-        super(service, cost, daysRunning, timesRunning, id, startDate, endDate, dest, startNode, endNode);
+                                   TramNode startNode, TramNode endNode, String tripId) {
+        super(service, cost, daysRunning, timesRunning, id, startDate, endDate, dest, startNode, endNode, tripId);
     }
 
     public static TramGoesToRelationship TestOnly(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,
                                                   TramServiceDate startDate, TramServiceDate endDate, String dest,
-                                                  TramNode startNode, TramNode endNode) {
+                                                  TramNode startNode, TramNode endNode, String tripId) {
         return new TramGoesToRelationship(service,  cost,  daysRunning, timesRunning,  id,
                  startDate,  endDate,  dest,
-                 startNode,  endNode);
+                 startNode,  endNode, tripId);
     }
 
     public TramGoesToRelationship(Relationship graphRelationship, NodeFactory nodeFactory) {
@@ -31,4 +32,5 @@ public class TramGoesToRelationship extends GoesToRelationship {
     public TransportMode getMode() {
         return TransportMode.Tram;
     }
+
 }

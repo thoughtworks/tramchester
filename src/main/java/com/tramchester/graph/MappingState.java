@@ -78,7 +78,8 @@ public class MappingState {
         this.serviceStart = totalCost;
     }
 
-    public void boardService(TransportRelationship transportRelationship, String serviceId) {
+    public void boardService(TransportRelationship transportRelationship, String serviceId, Optional<LocalTime> time,
+                             Optional<String> tripId) {
         String routeName = boardingNode.getRouteName();
         String routeId = boardingNode.getRouteId();
         String tramRouteClass = routeIdToClass.map(routeId);
@@ -89,6 +90,22 @@ public class MappingState {
         if (boardingPlatform !=null) {
             currentStage.setPlatform(boardingPlatform);
         }
+        tripId.ifPresent(id -> currentStage.setTripId(id));
+        time.ifPresent(depart -> currentStage.setDepartTime(depart));
+    }
+
+    public void boardService(TransportRelationship transportRelationship, String serviceId, LocalTime time, String tripId) {
+        String routeName = boardingNode.getRouteName();
+        String routeId = boardingNode.getRouteId();
+        String tramRouteClass = routeIdToClass.map(routeId);
+        Station firstStation = stationRepository.getStation(firstStationId).get();
+        currentStage = new RawVehicleStage(firstStation, routeName, transportRelationship.getMode(), tramRouteClass);
+        currentStage.setServiceId(serviceId);
+        if (boardingPlatform !=null) {
+            currentStage.setPlatform(boardingPlatform);
+        }
+        currentStage.setTripId(tripId);
+        currentStage.setDepartTime(time);
     }
 
     public void departService(String stationId) {

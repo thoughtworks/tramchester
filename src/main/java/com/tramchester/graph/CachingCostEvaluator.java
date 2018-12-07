@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class CachingCostEvaluator implements CostEvaluator<Double>{
-    Map<Long, Integer> idToCost;
+    Map<Long, Double> idToCost;
     private String propertyName;
 
     public CachingCostEvaluator() {
@@ -20,10 +20,12 @@ public class CachingCostEvaluator implements CostEvaluator<Double>{
     @Override
     public Double getCost(Relationship relationship, Direction direction) {
         long key = relationship.getId();
-        if (!idToCost.containsKey(key)) {
-            Integer value = (Integer) relationship.getProperty(propertyName);
-            idToCost.put(key, value);
+        if (idToCost.containsKey(key)) {
+            return idToCost.get(key);
         }
-        return idToCost.get(key).doubleValue();
+        Integer amount = (Integer) relationship.getProperty(propertyName);
+        Double value = amount.doubleValue();
+        idToCost.put(key, value);
+        return value;
     }
 }

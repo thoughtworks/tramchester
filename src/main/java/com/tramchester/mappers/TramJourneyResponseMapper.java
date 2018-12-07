@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 
-public class TramJourneyResponseMapper implements SingleJourneyMapper {
+public class TramJourneyResponseMapper extends SingleJourneyMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyResponseMapper.class);
 
     private ServiceTimes serviceTimes;
@@ -76,15 +76,7 @@ public class TramJourneyResponseMapper implements SingleJourneyMapper {
         return timeWindow;
     }
 
-    protected TravelAction decideAction(List<TransportStage> stagesSoFar) {
-        if (stagesSoFar.isEmpty()) {
-            return TravelAction.Board;
-        }
-        if ((stagesSoFar.get(stagesSoFar.size()-1) instanceof WalkingStage)) {
-            return TravelAction.Board;
-        }
-        return TravelAction.Change;
-    }
+
 
 
 }

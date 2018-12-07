@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.DiagramCreator;
+import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -24,6 +25,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -58,7 +60,15 @@ public class GraphWithSimpleRouteTest {
         nodeFactory = new NodeFactory();
         relationshipFactory = new RelationshipFactory(nodeFactory);
 
-        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory, spatialDatabaseService);
+        TestConfig testConfig = new TestConfig() {
+            @Override
+            public Path getDataFolder() {
+                return null;
+            }
+        };
+
+        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
+                spatialDatabaseService, testConfig);
         builder.buildGraph();
 
         RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
