@@ -30,20 +30,17 @@ import static org.junit.Assert.assertTrue;
 
 
 public class ProvidesNotesTest {
-    private ProvidesNotes provider;
+    private ProvidesNotes provider = new ProvidesNotes(new TestConfig() {
+        @Override
+        public Path getDataFolder() {
+            return null;
+        }
+    });
     private SortedSet<JourneyDTO> decoratedJourneys;
-    String ecclesWebSite = "Please check <a href=\"https://tfgm.com/travel-updates/eccles-line\">TFGM</a> for details.";
-
 
     @Before
     public void beforeEachTestRuns() {
         decoratedJourneys = new TreeSet<>();
-        provider = new ProvidesNotes(new TestConfig() {
-            @Override
-            public Path getDataFolder() {
-                return null;
-            }
-        });
     }
 
     @Test
@@ -118,7 +115,11 @@ public class ProvidesNotesTest {
         List<String> notes = provider.createNotesForJourneys(serviceDate, decoratedJourneys);
 
         // 1 is for the closure
-        assertEquals(1, notes.size());
+        int expected = 1;
+        if (serviceDate.isChristmasPeriod()) {
+            expected++;
+        }
+        assertEquals(expected, notes.size());
     }
 
     @Test
@@ -166,7 +167,7 @@ public class ProvidesNotesTest {
         stations.add(createStationDTOwithDepartInfo("second message", "platformLocation2"));
         stations.add(createStationDTOwithDepartInfo("second message", "platformLocation3"));
 
-        List<String> notes = provider.createNotesForStations(stations);
+        List<String> notes = provider.createNotesForStations(stations, new TramServiceDate(LocalDate.of(2016,10,25)));
 
         assertEquals(3, notes.size());
         assertThat(notes.toString(), notes.contains("'first message' - platformLocation1, Metrolink"));

@@ -15,7 +15,8 @@ public class ProvidesChromeDateInput implements ProvidesDateInput {
         String formatter = DateTimeFormat.patternForStyle("S-", locale);
         org.joda.time.LocalDate jodaDate = new org.joda.time.LocalDate(localDate.getYear(), localDate.getMonthValue(),
                 localDate.getDayOfMonth());
-        return jodaDate.toString(formatter.replaceAll("y","").replaceAll("Y",""));
+        String pattern = formatter.replaceAll("yy", "yyyy");
+        return jodaDate.toString(pattern).replaceAll("/","");
     }
 
     @Override
@@ -24,25 +25,4 @@ public class ProvidesChromeDateInput implements ProvidesDateInput {
         org.joda.time.LocalTime jodaTime = new org.joda.time.LocalTime(time.getHour(), time.getMinute());
         return jodaTime.toString(formatter).replaceAll(" ", "");
     }
-
-//    @Override
-//    public void createTimeFormat(Actions builder, WebElement element, LocalTime localTime) throws InterruptedException {
-//
-////       String formatter = DateTimeFormat.patternForStyle("-S", locale);
-////        String input = time.toString(formatter).replaceAll(" ", "");
-//
-//        DateTimeFormatter format = DateTimeFormat.shortTime();
-//        String output = format.print(localTime);
-//
-//        int chars = output.length();
-//
-//        while (chars-- > 0) {
-//            builder.sendKeys(element, Keys.ARROW_LEFT);
-//        }
-//        builder.sendKeys(element, output);
-//        builder.pause(Duration.ofMillis(50));
-//        builder.build().perform();
-//        Thread.sleep(1000); // yuck, but chrome seems to have a big lag on AM/PM changes....
-//    }
-
 }

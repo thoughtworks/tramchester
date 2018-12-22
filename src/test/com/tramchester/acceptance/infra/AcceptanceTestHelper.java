@@ -112,14 +112,14 @@ public class AcceptanceTestHelper {
         return numChanges<=0;
     }
 
-    public RouteDetailsPage enterRouteSelection(String url, TramJourney tramJourney) throws InterruptedException {
+    public RouteDetailsPage enterRouteSelection(String url, TramJourney tramJourney) {
         WelcomePage welcomePage = driver.getWelcomePage();
         welcomePage.load(url);
         RoutePlannerPage routePlannerPage = welcomePage.begin();
         return enterRouteSelection(routePlannerPage, tramJourney);
     }
 
-    private RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, TramJourney tramJourney) throws InterruptedException {
+    private RouteDetailsPage enterRouteSelection(RoutePlannerPage routePlannerPage, TramJourney tramJourney) {
         routePlannerPage.waitForToStops();
         routePlannerPage.setFromStop(tramJourney.fromStop);
         routePlannerPage.setToStop(tramJourney.toStop);

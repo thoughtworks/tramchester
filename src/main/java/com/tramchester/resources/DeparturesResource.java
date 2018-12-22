@@ -4,6 +4,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
@@ -22,7 +23,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -59,14 +59,18 @@ public class DeparturesResource {
     @ApiOperation(value = "Get geographically close departures", response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-
+        LocalDateTime localNow = getLocalNow();
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> nearbyStations = spatialService.getNearestStations(latLong);
 
-        nearbyStations.forEach(station -> liveDataRepository.enrich(station, getLocalNow()));
+        nearbyStations.forEach(station -> {
+            liveDataRepository.enrich(station, localNow);
+        });
 
         SortedSet<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
-        List<String> notes = providesNotes.createNotesForStations(nearbyStations);
+        TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
+
+        List<String> notes = providesNotes.createNotesForStations(nearbyStations, queryDate);
         DepartureListDTO departureList = new DepartureListDTO(departuresDTO, notes);
 
         return Response.ok(departureList).build();

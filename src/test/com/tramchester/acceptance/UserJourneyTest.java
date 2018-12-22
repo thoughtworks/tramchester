@@ -216,8 +216,7 @@ import static org.junit.Assert.*;
         TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults, false);
 
         JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney,
-                tramJourneyExpectations,
-                0, false);
+                tramJourneyExpectations, 0, false);
         RouteDetailsPage routeDetailsPage = journeyDetailsPage.backToRouteDetails();
         routeDetailsPage.waitForRoutes();
     }

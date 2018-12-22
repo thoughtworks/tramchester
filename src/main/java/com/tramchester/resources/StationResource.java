@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
@@ -146,10 +147,16 @@ public class StationResource extends UsesRecentCookie {
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
 
+        LocalDateTime localNow = getLocalNow();
+
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> stations = spatialService.getNearestStations(latLong);
-        stations.forEach(station -> liveDataRepository.enrich(station, getLocalNow()));
-        List<String> notes = providesNotes.createNotesForStations(stations);
+        stations.forEach(station -> {
+            liveDataRepository.enrich(station, localNow);
+        });
+
+        TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
+        List<String> notes = providesNotes.createNotesForStations(stations, queryDate);
 
         return Response.ok(new StationListDTO(stations,notes)).build();
     }

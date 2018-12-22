@@ -138,6 +138,7 @@ public class GraphWithSimpleRouteTest {
 
         Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
         Set<RawJourney> journeys = calculator.calculateRoute(origin, startStations, endStation, queryTimes, queryDate);
+
         assertEquals(1, journeys.size());
     }
 

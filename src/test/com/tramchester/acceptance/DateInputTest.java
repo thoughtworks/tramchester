@@ -41,10 +41,10 @@ public class DateInputTest {
         String result = chromeProvider.createDateInput(date);
 
         // actual ordering is locale specific, which is needed to support browser running in other locals i.e. on CI box
-        assertEquals(6, result.length());
+        assertEquals(8, result.length());
         assertTrue(result.contains("30"));
         assertTrue(result.contains("11"));
-        assertFalse(result.contains("2019"));
+        assertTrue(result.contains("2019"));
     }
 
     @Test

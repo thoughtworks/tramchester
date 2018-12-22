@@ -9,7 +9,6 @@ import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import org.apache.commons.collections4.map.HashedMap;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -39,12 +38,10 @@ public class ProvidesNotes {
         return notes;
     }
 
-    public List<String> createNotesForStations(List<StationDTO> stations) {
+    public List<String> createNotesForStations(List<StationDTO> stations, TramServiceDate queryDate) {
         List<String> notes = new LinkedList<>();
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
         AddNonLiveDataNotes(queryDate, notes);
-
         notes.addAll(addLiveMessagesFor(stations));
 
         return notes;
