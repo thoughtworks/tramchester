@@ -78,7 +78,7 @@ task cfnassist {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
-                fileset(dir: 'lib/cfnassist-1.1.29/lib/', includes: 'cfnassist-all-1.1.29.jar')
+                fileset(dir: 'lib/cfnassist-1.1.37/lib/', includes: 'cfnassist-all-1.1.37.jar')
             }
         }
     }
