@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalTime;
 import java.util.Optional;
 
-import static java.lang.String.format;
-
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
@@ -56,12 +54,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         if (config.getEdgePerTrip()) {
             ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
+            // single time per edge
             LocalTime time = goesToRelationship.getTimeServiceRuns();
             if (!operatesOnTime(time, elapsedTimeProvider)) {
                 return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
             }
         } else {
             ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
+            // all times for the service per edge
             if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
                 return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
             }

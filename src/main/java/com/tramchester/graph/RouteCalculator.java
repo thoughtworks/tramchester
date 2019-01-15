@@ -118,7 +118,8 @@ public class RouteCalculator extends StationIndexs {
                                 Node startNode, int limit) {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
-            TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
+            //TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
+            PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(relationshipFactory, serviceHeuristics);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             mapStreamToJourneySet(journeys, paths, limit, queryTime);
         });
@@ -149,7 +150,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, LocalTime queryTime,
-                                                  TramServiceDate queryDate, TimeBasedPathExpander pathExpander) {
+                                                  TramServiceDate queryDate, PathExpander<GraphBranchState> pathExpander) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));

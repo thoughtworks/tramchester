@@ -45,6 +45,11 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldHaveFailingTestForEdgePerTrip() {
+        assertFalse(new IntegrationTramTestConfig().getEdgePerTrip());
+    }
+
+    @Test
     public void shouldHaveSimpleJourney() {
         List<LocalTime> minutes = Arrays.asList(LocalTime.of(8,0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
