@@ -32,6 +32,9 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final int DEPARTS_COST = 1;
     public static final int BOARDING_COST = 2;
 
+    private int numberNodes = 0;
+    private int numberRelationships = 0;
+
     private final boolean edgePerTrip;
 
     public enum Labels implements Label
@@ -82,6 +85,12 @@ public class TransportGraphBuilder extends StationIndexs {
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
         }
+        reportStats();
+    }
+
+    private void reportStats() {
+        logger.info("Nodes created: " + numberNodes);
+        logger.info("Relationships created: " + numberRelationships);
     }
 
     private void createIndexs() {
@@ -125,8 +134,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
         if (stationNode == null) {
             logger.info(format("Creating station node: %s ",station));
-            stationNode = graphDatabaseService.createNode(Labels.STATION);
-
+            stationNode = createGraphNode(Labels.STATION);
             stationNode.setProperty(GraphStaticKeys.ID, id);
             stationNode.setProperty(GraphStaticKeys.Station.NAME, stationName);
             LatLong latLong = station.getLatLong();
@@ -144,12 +152,17 @@ public class TransportGraphBuilder extends StationIndexs {
         return stationNode;
     }
 
+    private Node createGraphNode(Labels label) {
+        numberNodes++;
+        return graphDatabaseService.createNode(label);
+    }
+
     private Node getOrCreatePlatform(Stop stop) {
         String id = stop.getId();
 
         Node platformNode = getPlatformNode(id);
         if (platformNode==null) {
-            platformNode = graphDatabaseService.createNode(Labels.PLATFORM);
+            platformNode = createGraphNode(Labels.PLATFORM);
             platformNode.setProperty(GraphStaticKeys.ID, id);
             String platformName = id.substring(id.length()-1); // the final digit of the ID
             platformNode.setProperty(GraphStaticKeys.Station.NAME, format("%s Platform %s",stop.getStation().getName(),platformName));
@@ -195,9 +208,9 @@ public class TransportGraphBuilder extends StationIndexs {
             stationOrPlatformID = stop.getId();
             // station -> platform & platform -> station
             if (!hasPlatform(stationId, stationOrPlatformID)) {
-                Relationship crossToPlatform = stationNode.createRelationshipTo(platformNode, TransportRelationshipTypes.ENTER_PLATFORM);
+                Relationship crossToPlatform = createRelationship(stationNode, platformNode, TransportRelationshipTypes.ENTER_PLATFORM);
                 crossToPlatform.setProperty(GraphStaticKeys.COST, 0);
-                Relationship crossFromPlatform = platformNode.createRelationshipTo(stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
+                Relationship crossFromPlatform = createRelationship(platformNode, stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
                 crossFromPlatform.setProperty(GraphStaticKeys.COST, 0);
                 // always create together
                 platforms.add(stationId + stationOrPlatformID);
@@ -206,7 +219,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
         // boarding: platform/station ->  callingPoint
         if (!hasBoarding(stationOrPlatformID, callingPointId, boardType)) {
-            Relationship interchangeRelationshipTo = platformNode.createRelationshipTo( callingPoint, boardType);
+            Relationship interchangeRelationshipTo = createRelationship(platformNode, callingPoint, boardType);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.COST, boardCost);
             interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, callingPointId);
             boardings.put(boardKey(callingPointId, stationOrPlatformID), boardType);
@@ -214,7 +227,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
         // leave: route station -> platform/station
         if (!hasDeparting(callingPointId, stationOrPlatformID, departType)) {
-            Relationship departRelationship =  callingPoint.createRelationshipTo(platformNode, departType);
+            Relationship departRelationship = createRelationship(callingPoint, platformNode, departType);
             departRelationship.setProperty(GraphStaticKeys.COST, departCost);
             departRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
             departs.put(departKey(callingPointId, stationOrPlatformID), departType);
@@ -222,6 +235,12 @@ public class TransportGraphBuilder extends StationIndexs {
 
         return  callingPoint;
     }
+
+    private Relationship createRelationship(Node stationNode, Node platformNode, TransportRelationshipTypes relationshipType) {
+        numberRelationships++;
+        return stationNode.createRelationshipTo(platformNode, relationshipType);
+    }
+
 
     private boolean hasPlatform(String stationId, String platformId) {
         String key = stationId + platformId;
@@ -255,7 +274,7 @@ public class TransportGraphBuilder extends StationIndexs {
     private Node createCallingPoint(Location station, Route route, String routeStationId, Service service) {
         logger.info(format("Creating route station %s route %s service %s", station.getId(),route.getId(),
                 service.getServiceId()));
-        Node routeStation = graphDatabaseService.createNode(Labels.ROUTE_STATION);
+        Node routeStation = createGraphNode(Labels.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
@@ -269,11 +288,13 @@ public class TransportGraphBuilder extends StationIndexs {
 
     // edge per trip, experimental
     private void createRelationship(Node start, Node end, int stopIndex, Trip trip, Service service, Route route) {
+        if (!service.isRunning()) {
+            return;
+        }
+
         Stop beginStop = trip.getStops().get(stopIndex);
         Stop endStop = trip.getStops().get(stopIndex + 1);
-        String destinationName = endStop.getStation().getName();
 
-        int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), beginStop.getArrivalTime());
         TransportRelationshipTypes transportRelationshipType;
         if (route.isTram()) {
             transportRelationshipType = TransportRelationshipTypes.TRAM_GOES_TO;
@@ -281,15 +302,15 @@ public class TransportGraphBuilder extends StationIndexs {
             transportRelationshipType = TransportRelationshipTypes.BUS_GOES_TO;
         }
 
-        if (service.isRunning()) {
-            Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
+        Relationship relationship = createRelationship(start, end, transportRelationshipType);
 
-            relationship.setProperty(GraphStaticKeys.DEPART_TIME, beginStop.getDepartureTime().asLocalTime());
-            relationship.setProperty(GraphStaticKeys.TRIP_ID, trip.getTripId());
+        relationship.setProperty(GraphStaticKeys.DEPART_TIME, beginStop.getDepartureTime().asLocalTime());
+        relationship.setProperty(GraphStaticKeys.TRIP_ID, trip.getTripId());
 
-            // common properties
-            addCommonProperties(end, relationship, transportRelationshipType, cost, service, route, destinationName);
-        }
+        // common properties
+        int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), beginStop.getArrivalTime());
+        addCommonProperties(relationship, transportRelationshipType, cost, service, route);
+
     }
 
     private void createOrUpdateRelationship(Node start, Node end,
@@ -301,8 +322,6 @@ public class TransportGraphBuilder extends StationIndexs {
         LocalTime departTime = beginStop.getDepartureTime().asLocalTime();
         Relationship relationship = getRelationship(service, start, end);
 
-        String dest = endStop.getStation().getName();
-
         if (relationship == null) {
             int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), beginStop.getArrivalTime());
             TransportRelationshipTypes transportRelationshipType;
@@ -311,10 +330,9 @@ public class TransportGraphBuilder extends StationIndexs {
             } else {
                 transportRelationshipType = TransportRelationshipTypes.BUS_GOES_TO;
             }
-            createRelationship(start, end, transportRelationshipType, beginStop, cost, service, route, dest);
+            createRelationship(start, end, transportRelationshipType, beginStop, cost, service, route);
         } else {
             // add the time of this stop to the service relationship
-            //int[] array = (int[]) relationship.getProperty(GraphStaticKeys.TIMES);
             LocalTime[] array = timesForRelationship.get(relationship.getId());
             if (Arrays.binarySearch(array, departTime) < 0) {
                 LocalTime[] newTimes = Arrays.copyOf(array, array.length + 1);
@@ -329,9 +347,9 @@ public class TransportGraphBuilder extends StationIndexs {
 
     private void createRelationship(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
                                     Stop begin, int cost, Service service,
-                                    Route route, String dest) {
+                                    Route route) {
         if (service.isRunning()) {
-            Relationship relationship = start.createRelationshipTo(end, transportRelationshipType);
+            Relationship relationship = createRelationship(start, end, transportRelationshipType);
 
             // times
             LocalTime[] times = new LocalTime[]{begin.getDepartureTime().asLocalTime()};   // initial contents
@@ -339,19 +357,17 @@ public class TransportGraphBuilder extends StationIndexs {
             relationship.setProperty(GraphStaticKeys.TIMES, times);
 
             // common properties
-            addCommonProperties(end, relationship, transportRelationshipType, cost, service, route, dest);
+            addCommonProperties(relationship, transportRelationshipType, cost, service, route);
 
         }
     }
 
-    private void addCommonProperties(Node end, Relationship relationship, TransportRelationshipTypes transportRelationshipType,
+    private void addCommonProperties(Relationship relationship, TransportRelationshipTypes transportRelationshipType,
                                      int cost, Service service,
-                                     Route route, String dest) {
+                                     Route route) {
         relationship.setProperty(GraphStaticKeys.COST, cost);
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-        relationship.setProperty(GraphStaticKeys.ID, end.getProperty(GraphStaticKeys.ID));
-        relationship.setProperty(GraphStaticKeys.DESTINATION, dest);
         relationship.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
         relationship.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
 

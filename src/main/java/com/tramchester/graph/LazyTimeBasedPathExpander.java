@@ -40,7 +40,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
                     if (path.length()==0) {
                         return true;
                     }
-                    if (!isGoesTo(next)) {
+                    if (!next.isType(TRAM_GOES_TO)) {
                         return true;
                     }
                     if (interestedIn(next, path)) {
@@ -62,6 +62,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
     private boolean interestedIn(Relationship graphRelationship, Path path) {
         TransportRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
         TransportRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
+
         GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
 
         try {
@@ -71,10 +72,6 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
             logger.error("Unable to check service heuristics",e);
         }
         return false;
-    }
-
-    private boolean isGoesTo(Relationship graphRelationship) {
-        return graphRelationship.isType(TRAM_GOES_TO);
     }
 
     @Override

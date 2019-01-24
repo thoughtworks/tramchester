@@ -48,7 +48,7 @@ public class ClientForS3Test {
     }
 
     @Test
-    public void shouldUploadOkIfBucketExist() throws IOException, InterruptedException {
+    public void shouldUploadOkIfBucketExist() throws IOException {
         createTestBucket();
         validateUpload();
     }

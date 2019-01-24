@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
@@ -26,6 +27,13 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private CostEvaluator<Double> costEvaluator;
     private Optional<LocalTime> boardingTime;
     private int maxWaitMinutes;
+
+    // stats
+    private final AtomicInteger totalChecked = new AtomicInteger(0);
+    private final AtomicInteger inflightChange = new AtomicInteger(0);
+    private final AtomicInteger dateWrong = new AtomicInteger(0);
+    private final AtomicInteger timeWrong = new AtomicInteger(0);
+    private final AtomicInteger dayWrong = new AtomicInteger(0);
 
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, TramchesterConfig config, TramServiceDate date,
                              LocalTime queryTime) {
@@ -41,14 +49,18 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
 
+        totalChecked.incrementAndGet();
         if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
+            dayWrong.incrementAndGet();
             return new ServiceReason.DoesNotRunOnDay(day);
         }
-        if (!noInFlightChangeOfService(incoming, goesToRelationship)) {
+        if (!sameService(incoming, goesToRelationship)) {
+            inflightChange.incrementAndGet();
             return ServiceReason.InflightChangeOfService;
         }
         if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), date))
         {
+            dateWrong.incrementAndGet();
             return ServiceReason.DoesNotRunOnQueryDate;
         }
 
@@ -57,12 +69,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             // single time per edge
             LocalTime time = goesToRelationship.getTimeServiceRuns();
             if (!operatesOnTime(time, elapsedTimeProvider)) {
+                timeWrong.incrementAndGet();
                 return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
             }
         } else {
             ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
             // all times for the service per edge
             if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
+                timeWrong.incrementAndGet();
                 return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
             }
         }
@@ -103,7 +117,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return operates;
     }
 
-    public boolean noInFlightChangeOfService(TransportRelationship incoming, GoesToRelationship outgoing) {
+    public boolean sameService(TransportRelationship incoming, GoesToRelationship outgoing) {
         if (!incoming.isGoesTo()) {
             return true; // not a connecting relationship
         }
@@ -112,7 +126,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return service.equals(outgoing.getService());
     }
 
-    // todo retire this version
     public boolean operatesOnTime(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
         if (times.length==0) {
             logger.warn("No times provided");
@@ -125,13 +138,15 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             TramTime nextTram = TramTime.of(nextTramTime);
 
             // if wait until this tram is too long can stop now
+            int diffenceAsMinutes = TramTime.diffenceAsMinutes(nextTram, journeyClock);
+
             if (nextTramTime.isAfter(journeyClockTime) &&
-                    TramTime.diffenceAsMinutes(nextTram, journeyClock)>maxWaitMinutes) {
+                    diffenceAsMinutes >maxWaitMinutes) {
                 return false;
             }
 
             if (nextTram.departsAfter(journeyClock)) {
-                if (TramTime.diffenceAsMinutes(nextTram, journeyClock) <= maxWaitMinutes) {
+                if (diffenceAsMinutes <= maxWaitMinutes) {
                     if (provider.startNotSet()) {
                         LocalTime realJounrneyStartTime = nextTramTime.minusMinutes(TransportGraphBuilder.BOARDING_COST);
                         provider.setJourneyStart(realJounrneyStartTime);
@@ -146,27 +161,24 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return false;
     }
 
-    public boolean operatesOnTime(LocalTime time, ElapsedTime provider) throws TramchesterException {
+    private boolean operatesOnTime(LocalTime time, ElapsedTime provider) throws TramchesterException {
         LocalTime journeyClockTime = provider.getElapsedTime();
         TramTime journeyClock = TramTime.of(journeyClockTime);
 
-        // the times array is sorted in ascending order
-        TramTime nextTram = TramTime.of(time);
+        if (time.isAfter(journeyClockTime) || time.equals(journeyClockTime)) {
+            TramTime nextTram = TramTime.of(time);
 
-        // if wait until this tram is too long can stop now
-        if (time.isAfter(journeyClockTime) &&
-                TramTime.diffenceAsMinutes(nextTram, journeyClock)>maxWaitMinutes) {
-            return false;
-        }
+            int diffenceAsMinutes = TramTime.diffenceAsMinutes(nextTram, journeyClock);
 
-        if (time.isAfter(journeyClockTime)) {
-            if (TramTime.diffenceAsMinutes(nextTram, journeyClock) <= maxWaitMinutes) {
-                if (provider.startNotSet()) {
-                    LocalTime realJounrneyStartTime = time.minusMinutes(TransportGraphBuilder.BOARDING_COST);
-                    provider.setJourneyStart(realJounrneyStartTime);
-                }
-                return true;  // within max wait time
+            if (diffenceAsMinutes > maxWaitMinutes) {
+                return false;
             }
+
+            if (provider.startNotSet()) {
+                LocalTime realJounrneyStartTime = time.minusMinutes(TransportGraphBuilder.BOARDING_COST);
+                provider.setJourneyStart(realJounrneyStartTime);
+            }
+            return true;  // within max wait time
         }
 
         return false;
@@ -195,8 +207,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return boardingTime.get();
     }
 
-    @Override
-    public void clear() {
-        boardingTime = Optional.empty();
+    public void reportStats() {
+        logger.info("Total checked: " + totalChecked.get());
+        logger.info("Date mismatch: " + dateWrong.get());
+        logger.info("Day mismatch: " + dayWrong.get());
+        logger.info("Service change: " + inflightChange.get());
+        logger.info("Time wrong: " + timeWrong.get());
     }
 }

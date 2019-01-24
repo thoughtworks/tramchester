@@ -178,7 +178,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.DAYS)).andReturn(days);
         //EasyMock.expect(relationship.hasProperty(GraphStaticKeys.TIMES)).andReturn(true);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.TIMES)).andReturn(times);
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DESTINATION)).andReturn("dest");
+//        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DESTINATION)).andReturn("dest");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_START_DATE)).andReturn("20151025");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andReturn("20161124");
 
@@ -186,7 +186,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         TramGoesToRelationship tramRelationship = (TramGoesToRelationship) relationshipFactory.getRelationship(relationship);
         assertEquals(42, tramRelationship.getCost());
         assertEquals("service99", tramRelationship.getService());
-        assertEquals("dest", tramRelationship.getDest());
+//        assertEquals("dest", tramRelationship.getDest());
         assertSame(times, tramRelationship.getTimesServiceRuns());
         assertSame(days, tramRelationship.getDaysServiceRuns());
         assertEquals(LocalDate.of(2015, 10, 25), tramRelationship.getStartDate().getDate());
@@ -211,7 +211,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         EasyMock.expect(relationship.hasProperty(GraphStaticKeys.TRIP_ID)).andReturn(true);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.TRIP_ID)).andReturn("tripId");
 
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DESTINATION)).andReturn("dest");
+//        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DESTINATION)).andReturn("dest");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_START_DATE)).andReturn("20151025");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andReturn("20161124");
 
@@ -219,7 +219,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         TramGoesToRelationship tramRelationship = (TramGoesToRelationship) relationshipFactory.getRelationship(relationship);
         assertEquals(42, tramRelationship.getCost());
         assertEquals("service99", tramRelationship.getService());
-        assertEquals("dest", tramRelationship.getDest());
+//        assertEquals("dest", tramRelationship.getDest());
         assertEquals(time, tramRelationship.getTimeServiceRuns());
         assertTrue(tramRelationship.hasTripId());
         assertEquals("tripId", tramRelationship.getTripId());

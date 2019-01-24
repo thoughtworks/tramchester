@@ -6,7 +6,7 @@ public class GraphStaticKeys {
     public static final String ID = "id";
 
     // relationship properties
-    public static final String DESTINATION = "route_station";
+//    public static final String DESTINATION = "route_station";
     public static final String DAYS = "days";
     public static final String COST = "cost";
 

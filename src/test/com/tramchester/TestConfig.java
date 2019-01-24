@@ -125,7 +125,7 @@ public abstract class TestConfig extends AppConfiguration {
     ////// WORK IN PROGRESS
     @Override
     public boolean getEdgePerTrip() {
-        return false;
+        return true;
     }
 
     public static LocalDate nextTuesday(int offsetDays) {

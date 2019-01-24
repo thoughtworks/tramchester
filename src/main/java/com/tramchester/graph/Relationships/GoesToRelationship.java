@@ -11,7 +11,6 @@ import java.time.LocalTime;
 public abstract class GoesToRelationship extends TransportCostRelationship {
     private String service;
     private boolean[] daysRunning;
-    private String dest;
     private TramServiceDate startDate;
     private TramServiceDate endDate;
     private String tripId;
@@ -30,7 +29,6 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         this.timesRunning = timesRunning;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.dest = dest;
         this.tripId = tripId;
     }
 
@@ -80,11 +78,11 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         return service;
     }
 
-    public String getDest() {
-        if (dest==null) {
-            dest = graphRelationship.getProperty(GraphStaticKeys.DESTINATION).toString();
-        }
-        return dest; }
+//    public String getDest() {
+//        if (dest==null) {
+//            dest = graphRelationship.getProperty(GraphStaticKeys.DESTINATION).toString();
+//        }
+//        return dest; }
 
     public TramServiceDate getStartDate() {
         if (startDate==null) {
@@ -109,7 +107,6 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
     public String toString() {
         return "TramGoesToRelationship{" +
                 "service='" + getService() + '\'' +
-                ", dest='" + getDest() + '\'' +
                 ", startDate=" + getStartDate() +
                 ", endDate=" + getEndDate() +
                 '}';

@@ -218,7 +218,7 @@ public class TramGraphBuilderTest {
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outbound;
                 LocalTime[] runsAt = tramGoesToRelationship.getTimesServiceRuns();
                 assertTrue(runsAt.length >0 );
-                logger.info(String.format("%s (%s): ", tramGoesToRelationship.getService(), tramGoesToRelationship.getDest()));
+                logger.info(String.format("%s", tramGoesToRelationship.getService()));
                 logger.info(display(runsAt));
                 boolean[] days = tramGoesToRelationship.getDaysServiceRuns();
                 logger.info(display(days));

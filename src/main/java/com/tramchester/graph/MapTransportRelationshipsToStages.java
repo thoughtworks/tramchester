@@ -98,7 +98,7 @@ public class MapTransportRelationshipsToStages {
         // routeStation -> routeStation
         GoesToRelationship goesToRelationship = (GoesToRelationship) transportRelationship;
         String serviceId = goesToRelationship.getService();
-        logger.info(format("Add stage goes to %s, service %s, elapsed %s", goesToRelationship.getDest(), serviceId, state.getElapsedTime()));
+        logger.info(format("Add stage service %s, elapsed %s", serviceId, state.getElapsedTime()));
 
         if (!state.isOnService()) {
             if (goesToRelationship.hasTripId()) {

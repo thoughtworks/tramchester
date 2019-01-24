@@ -28,7 +28,7 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     public static final String INTERCHANGE = TramInterchanges.CORNBROOK;
     public static final String STATION_FOUR = METROLINK_PREFIX+"_FOUR";
 
-    Map<String, Station> stationMap = new HashMap<>();
+    private Map<String, Station> stationMap = new HashMap<>();
 
     private Collection<Route> routes;
     private Map<String,Platform> platforms;

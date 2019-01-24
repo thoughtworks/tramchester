@@ -80,10 +80,10 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> startStations, Station endStation,
+    public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, Station endStation,
                                           List<LocalTime> queryTimes, TramServiceDate queryDate) {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
-        int limit = startStations.isEmpty() ? MAX_NUM_GRAPH_PATHS : (MAX_NUM_GRAPH_PATHS * startStations.size());
+        int limit = stationWalks.isEmpty() ? MAX_NUM_GRAPH_PATHS : (MAX_NUM_GRAPH_PATHS * stationWalks.size());
         Node endNode = getStationNode(endStation.getId());
         List<Relationship> addedWalks = new LinkedList<>();
 
@@ -95,7 +95,7 @@ public class RouteCalculator extends StationIndexs {
             startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
             logger.info(format("Added start node at %s as node %s", origin, startNode));
 
-            startStations.forEach(stationWalk -> {
+            stationWalks.forEach(stationWalk -> {
                 String id = stationWalk.getId();
                 Node node = getStationNode(id);
                 int cost = stationWalk.getCost();
@@ -118,10 +118,10 @@ public class RouteCalculator extends StationIndexs {
                                 Node startNode, int limit) {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
-            //TimeBasedPathExpander pathExpander = new TimeBasedPathExpander(relationshipFactory, nodeFactory, serviceHeuristics);
             PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(relationshipFactory, serviceHeuristics);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             mapStreamToJourneySet(journeys, paths, limit, queryTime);
+            serviceHeuristics.reportStats();
         });
     }
 

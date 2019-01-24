@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.DiagramCreator;
-import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -25,9 +24,9 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -60,15 +59,10 @@ public class GraphWithSimpleRouteTest {
         nodeFactory = new NodeFactory();
         relationshipFactory = new RelationshipFactory(nodeFactory);
 
-        TestConfig testConfig = new TestConfig() {
-            @Override
-            public Path getDataFolder() {
-                return null;
-            }
-        };
+        TramchesterConfig configuration = new IntegrationTramTestConfig();
 
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
-                spatialDatabaseService, testConfig);
+                spatialDatabaseService, configuration);
         builder.buildGraph();
 
         RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
@@ -76,7 +70,6 @@ public class GraphWithSimpleRouteTest {
         MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData, transportData);
 
         CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
-        TramchesterConfig configuration = new IntegrationTramTestConfig();
 
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
@@ -89,11 +82,11 @@ public class GraphWithSimpleRouteTest {
         // note: trams only run at specific times so still only getPlatformById one journey in results
         //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
-        queryTimes = Arrays.asList(LocalTime.of(7,57));
+        queryTimes = Collections.singletonList(LocalTime.of(7, 57));
     }
 
     @Test
-    public void shouldTestSimpleJourneyIsPossible() throws TramchesterException {
+    public void shouldTestSimpleJourneyIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.SECOND_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
@@ -101,7 +94,7 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void shouldTestSimpleJourneyIsPossibleToInterchange() throws TramchesterException {
+    public void shouldTestSimpleJourneyIsPossibleToInterchange() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.INTERCHANGE, queryTimes, queryDate);
         assertEquals(1, journeys.size());
@@ -109,14 +102,14 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void shouldTestSimpleJourneyIsNotPossible() throws TramchesterException {
+    public void shouldTestSimpleJourneyIsNotPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, Arrays.asList(LocalTime.of(9,0)), queryDate);
+                TransportDataForTest.INTERCHANGE, Collections.singletonList(LocalTime.of(9, 0)), queryDate);
         assertEquals(0, journeys.size());
     }
 
     @Test
-    public void shouldTestJourneyEndOverWaitLimitIsPossible() throws TramchesterException {
+    public void shouldTestJourneyEndOverWaitLimitIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.LAST_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
@@ -124,7 +117,7 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() throws TramchesterException {
+    public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.STATION_FOUR, queryTimes, queryDate);
         assertEquals(1, journeys.size());
@@ -134,10 +127,10 @@ public class GraphWithSimpleRouteTest {
     public void shouldTestJourneyWithLocationBasedStart() {
         LatLong origin = new LatLong(180.001, 270.001);
         int walkCost = 1;
-        List<StationWalk> startStations = Arrays.asList(new StationWalk(firstStation, walkCost));
+        List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
 
         Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
-        Set<RawJourney> journeys = calculator.calculateRoute(origin, startStations, endStation, queryTimes, queryDate);
+        Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, endStation, queryTimes, queryDate);
 
         assertEquals(1, journeys.size());
     }

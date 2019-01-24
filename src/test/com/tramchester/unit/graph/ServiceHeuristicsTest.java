@@ -156,11 +156,11 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config30MinsWait,startDate,NOT_USED_HERE);
-        assertTrue(serviceHeuristics.noInFlightChangeOfService(board, outA));
-        assertTrue(serviceHeuristics.noInFlightChangeOfService(depart, outA));
-        assertTrue(serviceHeuristics.noInFlightChangeOfService(change, outA));
-        assertTrue(serviceHeuristics.noInFlightChangeOfService(outA, outA));
-        assertFalse(serviceHeuristics.noInFlightChangeOfService(outB, outA));
+        assertTrue(serviceHeuristics.sameService(board, outA));
+        assertTrue(serviceHeuristics.sameService(depart, outA));
+        assertTrue(serviceHeuristics.sameService(change, outA));
+        assertTrue(serviceHeuristics.sameService(outA, outA));
+        assertFalse(serviceHeuristics.sameService(outB, outA));
         verifyAll();
     }
 

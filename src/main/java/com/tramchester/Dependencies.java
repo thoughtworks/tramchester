@@ -1,6 +1,5 @@
 package com.tramchester;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.cloud.*;
 import com.tramchester.config.TramchesterConfig;
@@ -76,7 +75,7 @@ public class Dependencies {
         picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(ServiceHeuristics.class);
         picoContainer.addComponent(CachingCostEvaluator.class);
-        picoContainer.addComponent(TimeBasedPathExpander.class);
+        picoContainer.addComponent(LazyTimeBasedPathExpander.class);
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
