@@ -46,7 +46,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
 
         Iterable<Relationship> relationships = endNode.getRelationships(Direction.OUTGOING);
 
-        Iterable<Relationship> results = () -> new Iterator<Relationship>() {
+        Iterable<Relationship>  results = () -> new Iterator<Relationship>() {
             private Relationship next;
             private Iterator<Relationship> relationshipIterator = relationships.iterator();
             @Override

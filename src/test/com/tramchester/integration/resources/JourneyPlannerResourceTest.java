@@ -86,7 +86,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() {
-        //ZonedDateTime now = ZonedDateTime.now(timeZone);
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, LocalTime.now(),
                 new TramServiceDate(LocalDate.now()));

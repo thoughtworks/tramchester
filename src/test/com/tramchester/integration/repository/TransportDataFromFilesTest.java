@@ -33,9 +33,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv004106";
-    // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv004106";
+    private final String svcDeansgateToVic = "Serv004112";
+    // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
+    private String svcShawAndCrompton = "Serv004112";
 
     private Collection<Service> allServices;
 
@@ -154,7 +154,7 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
-                new TimeWindow(LocalTime.of(23,31), 30));
+                new TimeWindow(LocalTime.of(23,35), 30));
         assertTrue(trips.isPresent());
     }
 
@@ -189,14 +189,7 @@ public class TransportDataFromFilesTest {
         assertEquals(4, atRequiredTimed.size());
     }
 
-    @Test
-    public void shouldGetTripCrossingMidnight() {
-        // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-        Service svc = transportData.getServiceById(svcShawAndCrompton);
-        Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
-                new TimeWindow(LocalTime.of(11,31), 30));
-        assertTrue(trips.isPresent());
-    }
+
 
     @Test
     public void shouldHaveAtLeastOnePlatformForEveryStation() {
