@@ -1,6 +1,8 @@
 package com.tramchester.unit.graph;
 
 
+import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -38,6 +40,12 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     @Rule
     public TestName testName = new TestName();
     private Path path;
+    private TramchesterConfig config = new TestConfig() {
+        @Override
+        public java.nio.file.Path getDataFolder() {
+            return null;
+        }
+    };
 
     @Before
     public void beforeEachTestRuns() {
@@ -78,7 +86,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
-                serviceHeuristics);
+                serviceHeuristics, config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
 
         int number = countResults(results);
@@ -111,7 +119,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
-                serviceHeuristics);
+                serviceHeuristics,config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
 
@@ -141,7 +149,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
-                serviceHeuristics);
+                serviceHeuristics,config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
 
@@ -177,7 +185,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
-                serviceHeuristics);
+                serviceHeuristics,config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
         verifyAll();

@@ -42,6 +42,8 @@ public class RelationshipFactory {
             case WALKS_TO: return new WalksToRelationship(graphRelationship, nodeFactory);
             case ENTER_PLATFORM: return new EnterPlatformRelationship(graphRelationship, nodeFactory);
             case LEAVE_PLATFORM: return new LeavePlatformRelationship(graphRelationship, nodeFactory);
+            // edge per service
+            case SERVICE: return new ServiceRelationship(graphRelationship, nodeFactory);
             default:
                 throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
         }

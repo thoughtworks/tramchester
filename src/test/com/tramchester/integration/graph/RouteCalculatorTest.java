@@ -157,7 +157,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldReproduceIssueCornbrookToAshtonSatursdays() throws TramchesterException {
-        LocalDate date = LocalDate.of(2018,11,10);
+        LocalDate date = TestConfig.nextSaturday();
         checkRouteNextNDays(Stations.Cornbrook, Stations.Ashton, date, LocalTime.of(9,0), 7);
     }
 

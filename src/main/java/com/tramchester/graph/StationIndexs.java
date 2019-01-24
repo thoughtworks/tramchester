@@ -17,6 +17,8 @@ public class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
 
     protected final RelationshipFactory relationshipFactory;
+
+    // TODO with the indexes is the cache needed?
     private Map<String,Node> routeStationNodeCache;
     private Map<String,Node> stationNodeCache;
     private Map<String,Node> platformNodeCache;

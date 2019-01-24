@@ -37,11 +37,20 @@ public class GraphQuery {
         return result;
     }
 
-
     public Node getPlatformNode(String id) {
         Node result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
             result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.PLATFORM,
+                    GraphStaticKeys.ID, id);
+            tx.success();
+        }
+        return result;
+    }
+
+    public Node getServiceNode(String id) {
+        Node result;
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.SERVICE,
                     GraphStaticKeys.ID, id);
             tx.success();
         }

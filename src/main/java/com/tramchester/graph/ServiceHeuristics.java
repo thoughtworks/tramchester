@@ -9,7 +9,9 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.CostEvaluator;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,23 +47,46 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.queryTime = queryTime;
         boardingTime = Optional.empty();
     }
+    
+    // edge per trip
+    public ServiceReason checkServiceHeuristics(Node node){
+        // days
+        boolean[] days = (boolean[]) node.getProperty(GraphStaticKeys.DAYS);
+        if (!operatesOnDayOnWeekday(days, day)) {
+            dayWrong.incrementAndGet();
+            return new ServiceReason.DoesNotRunOnDay(day);
+        }
+        // date
+        TramServiceDate startDate = new TramServiceDate(node.getProperty(GraphStaticKeys.SERVICE_START_DATE).toString());
+        TramServiceDate endDate = new TramServiceDate(node.getProperty(GraphStaticKeys.SERVICE_END_DATE).toString());
+        if (!operatesOnQueryDate(startDate, endDate, date)) {
+            dateWrong.incrementAndGet();
+            return ServiceReason.DoesNotRunOnQueryDate;
+        }
+
+        return ServiceReason.IsValid;
+    }
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
 
         totalChecked.incrementAndGet();
-        if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
-            dayWrong.incrementAndGet();
-            return new ServiceReason.DoesNotRunOnDay(day);
+        if (!config.getEdgePerTrip()) {
+            // already checked via service node for edge per trip
+            if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
+                dayWrong.incrementAndGet();
+                return new ServiceReason.DoesNotRunOnDay(day);
+            }
+            if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), date))
+            {
+                dateWrong.incrementAndGet();
+                return ServiceReason.DoesNotRunOnQueryDate;
+            }
         }
+
         if (!sameService(incoming, goesToRelationship)) {
             inflightChange.incrementAndGet();
             return ServiceReason.InflightChangeOfService;
-        }
-        if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), date))
-        {
-            dateWrong.incrementAndGet();
-            return ServiceReason.DoesNotRunOnQueryDate;
         }
 
         if (config.getEdgePerTrip()) {

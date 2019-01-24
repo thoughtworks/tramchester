@@ -33,9 +33,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv004996";
+    private final String svcDeansgateToVic = "Serv004106";
     // use JourneyPlannerResourceTest.shouldFindEndOfDayThreeStageJourney to find svc id
-    private String svcShawAndCrompton = "Serv004995";
+    private String svcShawAndCrompton = "Serv004106";
 
     private Collection<Service> allServices;
 
@@ -71,7 +71,7 @@ public class TransportDataFromFilesTest {
         assertTrue(result.isTram());
 
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals(3, headsigns.size());
+        assertEquals(4, headsigns.size());
         assertTrue(headsigns.contains("Eccles"));
     }
 
@@ -145,7 +145,7 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
-                new TimeWindow(LocalTime.of(23,41), 30));
+                new TimeWindow(LocalTime.of(23,31), 30));
         assertTrue(trips.isPresent());
     }
 
@@ -186,7 +186,7 @@ public class TransportDataFromFilesTest {
                 filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(), Stations.Ashton.getId(), timeWindow)).
                 collect(Collectors.toList());
 
-        assertEquals(6, atRequiredTimed.size());
+        assertEquals(4, atRequiredTimed.size());
     }
 
     @Test
