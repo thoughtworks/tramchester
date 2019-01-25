@@ -321,7 +321,6 @@ public class TransportGraphBuilder extends StationIndexs {
             svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         }
 
-
         TransportRelationshipTypes transportRelationshipType;
         if (route.isTram()) {
             transportRelationshipType = TransportRelationshipTypes.TRAM_GOES_TO;

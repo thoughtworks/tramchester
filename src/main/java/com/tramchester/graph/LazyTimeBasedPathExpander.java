@@ -10,23 +10,29 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.time.LocalTime;
+import java.util.Iterator;
+import java.util.LinkedList;
 
-import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
+import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private static final Logger logger = LoggerFactory.getLogger(LazyTimeBasedPathExpander.class);
 
+    private final LocalTime queryTime;
+    private final int maxWait;
     private RelationshipFactory relationshipFactory;
     private ServiceHeuristics serviceHeuristics;
     private boolean edgePerService;
 
-    public LazyTimeBasedPathExpander(RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics,
+    public LazyTimeBasedPathExpander(LocalTime queryTime, RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics,
                                      TramchesterConfig config) {
+        this.queryTime = queryTime;
         this.relationshipFactory = relationshipFactory;
         this.serviceHeuristics = serviceHeuristics;
         this.edgePerService = config.getEdgePerTrip();
+        maxWait = config.getMaxWait();
     }
 
     @Override
@@ -50,6 +56,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
         private final Path path;
         private final Iterator<Relationship> relationships;
         private final Relationship inboundToLastNode;
+        private LocalTime timeHere = LocalTime.MAX;
         private Relationship next;
 
         public RelationshipIterable(Path path) {
@@ -62,9 +69,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
         public boolean hasNext() {
             while (relationships.hasNext()) {
                 next = relationships.next();
-//                    if (path.length()==0) {
-//                        return true;
-//                    }
+
                 if (edgePerService && next.isType(SERVICE)) {
                     // follow an edge to service node only if service id matches
                     if (inboundToLastNode.isType(TRAM_GOES_TO)) {
@@ -73,13 +78,14 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
                             return true;
                         }
                     } else if (inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD)) {
+                        // just boarded so ignore svc id
                         return true;
                     }
                 } else {
                     if (!next.isType(TRAM_GOES_TO)) {
                         return true;
                     }
-                    if (interestedIn(next, path)) {
+                    if (interestedIn(next)) {
                         return true;
                     }
                 }
@@ -91,22 +97,57 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
         public Relationship next() {
             return next;
         }
-    }
 
-    private boolean interestedIn(Relationship graphRelationship, Path path) {
+        private boolean interestedIn(Relationship graphRelationship) {
 
-        TransportRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
-        TransportRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
+            TransportRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
 
-        GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
+            GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
 
-        try {
-            ServiceReason serviceReason = serviceHeuristics.checkServiceHeuristics(incoming, goesToRelationship, path);
-            return serviceReason==ServiceReason.IsValid;
-        } catch (TramchesterException e) {
-            logger.error("Unable to check service heuristics",e);
+            if (edgePerService) {
+                LocalTime timeServiceRuns = goesToRelationship.getTimeServiceRuns();
+                if (timeServiceRuns.isBefore(queryTime)) {
+                    return false;
+                }
+                findTimeAtThisPoint(path, queryTime);
+                if (timeServiceRuns.isBefore(timeHere)) {
+                    return false;
+                }
+                LocalTime limit = timeHere.plusMinutes(maxWait);
+                if (timeServiceRuns.isAfter(limit)) {
+                    return false;
+                }
+                return true;
+            }
+
+            try {
+                TransportRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
+                ServiceReason serviceReason = serviceHeuristics.checkServiceHeuristics(incoming, goesToRelationship, path);
+                return serviceReason==ServiceReason.IsValid;
+            } catch (TramchesterException e) {
+                logger.error("Unable to check service heuristics",e);
+            }
+            return false;
         }
-        return false;
+
+        public void findTimeAtThisPoint(Path path, LocalTime queryTime) {
+            if (timeHere!=LocalTime.MAX) {
+                return;
+            }
+
+            Iterator<Relationship> relationshipIterator = path.reverseRelationships().iterator();
+            int cost = 0;
+            while(relationshipIterator.hasNext()) {
+                Relationship relationship = relationshipIterator.next();
+                cost = cost +  Integer.parseInt(relationship.getProperty(COST).toString());
+                if (relationship.isType(TRAM_GOES_TO)) {
+                    LocalTime time = (LocalTime) relationship.getProperty(DEPART_TIME);
+                    timeHere = time.plusMinutes(cost);
+                    return;
+                }
+            }
+            timeHere = queryTime.plusMinutes(cost);
+        }
     }
 
     @Override

@@ -118,7 +118,7 @@ public class RouteCalculator extends StationIndexs {
                                 Node startNode, int limit) {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
-            PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(relationshipFactory,
+            PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime,relationshipFactory,
                     serviceHeuristics,config);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             mapStreamToJourneySet(journeys, paths, limit, queryTime);

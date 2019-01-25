@@ -19,6 +19,7 @@ import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.MDC;
 
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     private ServiceHeuristics serviceHeuristics;
     private Node endNode;
     private BranchState<GraphBranchState> branchState;
+    private LocalTime queryTime;
 
     @Rule
     public TestName testName = new TestName();
@@ -71,6 +73,8 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         path = createMock(Path.class);
         GraphBranchState state = createMock(GraphBranchState.class);
         branchState = createGraphBranchState(state);
+
+        queryTime = LocalTime.now();
     }
 
     @Test
@@ -86,7 +90,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
+        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
                 serviceHeuristics, config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
 
@@ -121,7 +125,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
                 andReturn(ServiceReason.IsValid);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
+        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
                 serviceHeuristics,config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
@@ -153,7 +157,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotRunOnQueryDate);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
+        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
                 serviceHeuristics,config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
@@ -189,7 +193,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
                 andReturn(ServiceReason.IsValid);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
+        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
                 serviceHeuristics,config);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);

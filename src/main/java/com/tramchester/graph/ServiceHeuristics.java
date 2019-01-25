@@ -11,7 +11,6 @@ import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,5 +236,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         logger.info("Day mismatch: " + dayWrong.get());
         logger.info("Service change: " + inflightChange.get());
         logger.info("Time wrong: " + timeWrong.get());
+    }
+
+    public boolean beforeQueryTime(LocalTime timeServiceRuns) {
+        return timeServiceRuns.isBefore(queryTime);
     }
 }
