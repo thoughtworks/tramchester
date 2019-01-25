@@ -82,11 +82,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
                 dateWrong.incrementAndGet();
                 return ServiceReason.DoesNotRunOnQueryDate;
             }
-        }
-
-        if (!sameService(incoming, goesToRelationship)) {
-            inflightChange.incrementAndGet();
-            return ServiceReason.InflightChangeOfService;
+            if (!sameService(incoming, goesToRelationship)) {
+                inflightChange.incrementAndGet();
+                return ServiceReason.InflightChangeOfService;
+            }
         }
 
         if (config.getEdgePerTrip()) {

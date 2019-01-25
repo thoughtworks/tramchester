@@ -82,7 +82,10 @@ public class DiagramCreator {
                     addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "E"));
                 } else if (tramRelat.isLeavePlatform()) {
                     addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L"));
-                } else {
+                } else if (tramRelat.isServiceLink()) {
+                    addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "Link"));
+                }
+                else {
                     // boarding and depart
                     String label = tramRelat.isInterchange() ? "X" : "";
                     if (tramRelat.isBoarding()) {
@@ -113,7 +116,7 @@ public class DiagramCreator {
             return "P:";
         }
         if (endNode.isRouteStation()) {
-            return "BP:";
+            return "RS:";
         }
         if (endNode.isStation()) {
             return "S:";

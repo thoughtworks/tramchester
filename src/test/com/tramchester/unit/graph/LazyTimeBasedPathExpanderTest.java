@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
@@ -79,10 +78,12 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         Set<Relationship> outgoingRelationships = createRelationships(boards, departs);
 
-        EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
-        EasyMock.expect(path.length()).andReturn(0);
-        EasyMock.expect(path.length()).andReturn(1);
+//        EasyMock.expect(path.length()).andReturn(0);
+//        EasyMock.expect(path.length()).andReturn(1);
+        Relationship lastRelationship = createMock(Relationship.class);
+        EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
 
         replayAll();
         PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
@@ -99,15 +100,17 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     public void shouldExpandPathsCorrectlyForMatchingPath() throws TramchesterException {
         Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
-        EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
 
-        EasyMock.expect(path.length()).andReturn(0);
-        EasyMock.expect(path.length()).andReturn(1);
-        EasyMock.expect(path.length()).andReturn(2);
+        //EasyMock.expect(path.length()).andReturn(0);
+        //EasyMock.expect(path.length()).andReturn(1);
+        //EasyMock.expect(path.length()).andReturn(2);
 
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+        EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+
         TransportRelationship incoming = createMock(TransportRelationship.class);
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
 
@@ -132,12 +135,14 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     public void shouldExpandPathsCorrectlyForNonMatchingPath() throws TramchesterException {
         Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
-        EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
-        EasyMock.expect(path.length()).andStubReturn(1);
+        //EasyMock.expect(path.length()).andStubReturn(1);
 
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+        EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+
         TransportRelationship incoming = createMock(TransportRelationship.class);
 
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
@@ -162,7 +167,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     public void shouldExpandPathsCorrectlyForMixedMatchingPath() throws TramchesterException {
         Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, goesToB, departs);
 
-        EasyMock.expect(path.endNode()).andReturn(endNode);
+        EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
 
         EasyMock.expect(path.length()).andStubReturn(1);

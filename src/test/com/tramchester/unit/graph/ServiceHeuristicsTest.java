@@ -131,7 +131,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(provider.startNotSet()).andReturn(false);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config30MinsWait, date,NOT_USED_HERE);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config30MinsWait, date, NOT_USED_HERE);
         assertTrue(serviceHeuristics.operatesOnTime(time, provider));
         verifyAll();
     }

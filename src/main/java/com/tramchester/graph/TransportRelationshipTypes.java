@@ -13,4 +13,4 @@ public enum TransportRelationshipTypes implements RelationshipType {
     ENTER_PLATFORM,
     LEAVE_PLATFORM,
     SERVICE
-}
+    }

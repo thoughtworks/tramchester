@@ -12,11 +12,12 @@ public interface TransportRelationship {
     boolean isWalk();
     boolean isEnterPlatform();
     boolean isLeavePlatform();
+    boolean isServiceLink();
 
     int getCost();
     String getId();
     TransportMode getMode();
-    TramNode getStartNode() throws TramchesterException;
-    TramNode getEndNode() throws TramchesterException;
+    TramNode getStartNode();
+    TramNode getEndNode();
 
 }

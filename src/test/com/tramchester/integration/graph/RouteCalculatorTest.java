@@ -58,6 +58,21 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldHaveSimpleOneStopJourney() throws TramchesterException {
+        checkRouteNextNDays(Stations.Deansgate, Stations.Cornbrook, when, LocalTime.of(9,0), 1);
+    }
+
+    @Test
+    public void shouldHaveSimpleManyStopSameLineJourney() throws TramchesterException {
+        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, LocalTime.of(9,0), 1);
+    }
+
+    @Test
+    public void shouldHaveSimpleManyStopJourney() throws TramchesterException {
+        checkRouteNextNDays(Stations.Altrincham, Stations.Bury, when, LocalTime.of(9,0), 1);
+    }
+
+    @Test
     public void testJourneyFromAltyToAirport() {
         List<LocalTime> queryTimes = Arrays.asList(LocalTime.of(11,43));
         TramServiceDate today = new TramServiceDate(LocalDate.now());

@@ -58,7 +58,7 @@ public abstract class TransportCostRelationship implements TransportRelationship
     public abstract TransportMode getMode();
 
     @Override
-    public TramNode getStartNode() throws TramchesterException {
+    public TramNode getStartNode() {
         logger.debug(format("Get start node for relationship '%s'", graphRelationship));
         if (startNode==null) {
             startNode = nodeFactory.getNode(graphRelationship.getStartNode());
@@ -67,7 +67,7 @@ public abstract class TransportCostRelationship implements TransportRelationship
     }
 
     @Override
-    public TramNode getEndNode() throws TramchesterException {
+    public TramNode getEndNode() {
         if (endNode==null) {
             endNode = nodeFactory.getNode(graphRelationship.getEndNode());
         }
@@ -106,6 +106,9 @@ public abstract class TransportCostRelationship implements TransportRelationship
     public boolean isInterchange() {
         return false;
     }
+
+    @Override
+    public boolean isServiceLink() { return false; }
 
 
 }

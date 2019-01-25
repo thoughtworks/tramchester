@@ -10,7 +10,7 @@ import java.util.List;
 
 public class NodeFactory {
 
-    public TramNode getNode(Node node) throws TramchesterException {
+    public TramNode getNode(Node node) {
         Iterable<Label> iterable = node.getLabels();
         List<Label> labels = Lists.newLinkedList(iterable);
 
@@ -26,8 +26,10 @@ public class NodeFactory {
                 return new PlatformNode(node);
             case QUERY_NODE:
                 return new QueryNode(node);
+            case SERVICE:
+                return new ServiceNode(node);
             default:
-                throw new TramchesterException("Unknown node label " + labelName);
+                throw new RuntimeException("Unknown node label " + labelName);
         }
 
     }

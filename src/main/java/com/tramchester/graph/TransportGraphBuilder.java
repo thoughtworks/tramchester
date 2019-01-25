@@ -308,16 +308,19 @@ public class TransportGraphBuilder extends StationIndexs {
         String svcNodeId = format("%s_%s", start.getId(), service.getServiceId());
         Node svcNode = graphQuery.getServiceNode(svcNodeId);
         if (svcNode==null) {
+            logger.info(format("Creating service node '%s' for service '%s'", svcNodeId, service.getServiceId()));
             svcNode = createGraphNode(Labels.SERVICE);
+            svcNode.setProperty(GraphStaticKeys.ID, svcNodeId);
             svcNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
             svcNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
             svcNode.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
             svcNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
+
+            Relationship svcRelationship = createRelationship(routeStationStart, svcNode, TransportRelationshipTypes.SERVICE);
+            svcRelationship.setProperty(COST, 0);
+            svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         }
 
-        Relationship svcRelationship = createRelationship(routeStationStart, svcNode, TransportRelationshipTypes.SERVICE);
-        svcRelationship.setProperty(COST, 0);
-        svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
 
         TransportRelationshipTypes transportRelationshipType;
         if (route.isTram()) {
