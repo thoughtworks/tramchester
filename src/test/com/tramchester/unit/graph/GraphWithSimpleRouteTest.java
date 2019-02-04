@@ -70,7 +70,7 @@ public class GraphWithSimpleRouteTest {
         PathToTransportRelationship pathToRelationships  = new PathToTransportRelationship(relationshipFactory);
         MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData, transportData);
 
-        CostEvaluator<Double> costEvaluator = new CachingCostEvaluator(configuration);
+        CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
 
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,

@@ -3,9 +3,20 @@ package com.tramchester.graph;
 import com.tramchester.domain.TramServiceDate;
 import org.neo4j.graphdb.Node;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import static com.tramchester.graph.GraphStaticKeys.HOUR;
 
 public class CachedNodeOperations implements NodeOperations {
+    private final Map<Long, Boolean> serviceNodes;
+    private final Map<Long, Boolean> hourNodes;
+
+    public CachedNodeOperations() {
+        hourNodes = new ConcurrentHashMap<>();
+        serviceNodes = new ConcurrentHashMap<>();
+    }
+
 
     @Override
     public boolean[] getDays(Node node) {
@@ -29,11 +40,21 @@ public class CachedNodeOperations implements NodeOperations {
 
     @Override
     public boolean isService(Node node) {
-        return node.hasLabel(TransportGraphBuilder.Labels.SERVICE);
+        return checkForLabel(serviceNodes, node, TransportGraphBuilder.Labels.SERVICE);
     }
 
     @Override
     public boolean isHour(Node node) {
-        return node.hasLabel(TransportGraphBuilder.Labels.HOUR);
+        return checkForLabel(hourNodes, node, TransportGraphBuilder.Labels.HOUR);
+    }
+
+    public boolean checkForLabel(Map<Long, Boolean> map, Node node, TransportGraphBuilder.Labels label) {
+        long id = node.getId();
+        if (!map.containsKey(id)) {
+            boolean flag = node.hasLabel(label);
+            map.put(id, flag);
+            return flag;
+        }
+        return map.get(id);
     }
 }

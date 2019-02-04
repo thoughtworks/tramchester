@@ -35,7 +35,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     @Before
     public void beforeEachTestRuns() {
         date = new TramServiceDate(LocalDate.now());
-        costEvaluator = new CachingCostEvaluator(config30MinsWait);
+        costEvaluator = new CachingCostEvaluator();
         nodeOperations = new CachedNodeOperations();
     }
 

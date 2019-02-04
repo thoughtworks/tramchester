@@ -38,7 +38,7 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
                 return null;
             }
         };
-        costEvaluator = new CachingCostEvaluator(testConfig);
+        costEvaluator = new CachingCostEvaluator();
     }
 
     @Test
