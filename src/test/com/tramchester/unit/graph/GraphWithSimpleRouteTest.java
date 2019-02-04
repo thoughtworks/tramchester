@@ -58,6 +58,8 @@ public class GraphWithSimpleRouteTest {
         nodeFactory = new NodeFactory();
         relationshipFactory = new RelationshipFactory(nodeFactory);
 
+        NodeOperations nodeOperations = new CachedNodeOperations();
+
         TramchesterConfig configuration = new IntegrationTramTestConfig();
 
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
@@ -68,11 +70,11 @@ public class GraphWithSimpleRouteTest {
         PathToTransportRelationship pathToRelationships  = new PathToTransportRelationship(relationshipFactory);
         MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData, transportData);
 
-        CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
+        CostEvaluator<Double> costEvaluator = new CachingCostEvaluator(configuration);
 
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
         calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
-                spatialDatabaseService, mapper, costEvaluator, configuration);
+                spatialDatabaseService, nodeOperations, mapper, costEvaluator, configuration);
     }
 
     @Before

@@ -31,6 +31,7 @@ import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.picocontainer.DefaultPicoContainer;
@@ -117,6 +118,7 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataRepository.class);
         picoContainer.addComponent(ClientForS3.class);
         picoContainer.addComponent(UploadsLiveData.class);
+        picoContainer.addComponent(NodeOperations.class, new CachedNodeOperations());
 
         rebuildGraph(configuration);
 

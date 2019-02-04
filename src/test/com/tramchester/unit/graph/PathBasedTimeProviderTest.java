@@ -1,6 +1,8 @@
 package com.tramchester.unit.graph;
 
 
+import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import org.easymock.EasyMock;
@@ -30,7 +32,13 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
         path = createMock(Path.class);
         relationships = new LinkedList<>();
         persistsBoardingTime = createMock(PersistsBoardingTime.class);
-        costEvaluator = new CachingCostEvaluator();
+        TramchesterConfig testConfig = new TestConfig() {
+            @Override
+            public java.nio.file.Path getDataFolder() {
+                return null;
+            }
+        };
+        costEvaluator = new CachingCostEvaluator(testConfig);
     }
 
     @Test

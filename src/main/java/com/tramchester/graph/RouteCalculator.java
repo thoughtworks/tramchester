@@ -33,18 +33,20 @@ public class RouteCalculator extends StationIndexs {
 
     private static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
-    private String queryNodeName = "BEGIN";
+    private final String queryNodeName = "BEGIN";
 
-    private NodeFactory nodeFactory;
-    private MapPathToStages pathToStages;
-    private CostEvaluator<Double> costEvaluator;
-    private TramchesterConfig config;
+    private final NodeFactory nodeFactory;
+    private final MapPathToStages pathToStages;
+    private final CostEvaluator<Double> costEvaluator;
+    private final TramchesterConfig config;
+    private final NodeOperations nodeOperations;
 
     public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
-                           SpatialDatabaseService spatialDatabaseService, MapPathToStages pathToStages,
+                           SpatialDatabaseService spatialDatabaseService, NodeOperations nodeOperations, MapPathToStages pathToStages,
                            CostEvaluator<Double> costEvaluator, TramchesterConfig config) {
         super(db, relationshipFactory, spatialDatabaseService, true);
         this.nodeFactory = nodeFactory;
+        this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.costEvaluator = costEvaluator;
         this.config = config;
@@ -117,7 +119,7 @@ public class RouteCalculator extends StationIndexs {
     private void gatherJounerys(Node endNode, List<LocalTime> queryTimes, TramServiceDate queryDate, Set<RawJourney> journeys,
                                 Node startNode, int limit) {
         queryTimes.forEach(queryTime -> {
-            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, config, queryDate, queryTime);
+            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config, queryDate, queryTime);
             PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime,relationshipFactory,
                     serviceHeuristics,config);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);

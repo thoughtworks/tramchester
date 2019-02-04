@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -20,18 +20,20 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState> {
     private static final Logger logger = LoggerFactory.getLogger(LazyTimeBasedPathExpander.class);
 
-    private final LocalTime queryTime;
     private final int maxWait;
-    private RelationshipFactory relationshipFactory;
-    private ServiceHeuristics serviceHeuristics;
-    private boolean edgePerService;
+    private final RelationshipFactory relationshipFactory;
+    private final ServiceHeuristics serviceHeuristics;
+
+    private final boolean edgePerService;
+    private final LocalTime queryTime;
 
     public LazyTimeBasedPathExpander(LocalTime queryTime, RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics,
                                      TramchesterConfig config) {
         this.queryTime = queryTime;
         this.relationshipFactory = relationshipFactory;
         this.serviceHeuristics = serviceHeuristics;
-        this.edgePerService = config.getEdgePerTrip();
+
+        edgePerService = config.getEdgePerTrip();
         maxWait = config.getMaxWait();
     }
 
@@ -41,10 +43,16 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
 
         if (edgePerService) {
             // only pursue outbound edges from a service if days and date match for the service node
-            if (endNode.hasLabel(TransportGraphBuilder.Labels.SERVICE)) {
-                if (serviceHeuristics.checkServiceHeuristics(endNode) != ServiceReason.IsValid) {
+            if (serviceHeuristics.isService(endNode)) {
+                if (serviceHeuristics.checkService(endNode) != ServiceReason.IsValid) {
                     //logger.info("Skipping service node " + endNode.getProperty(ID));
-                    return new LinkedList<>();
+                    return Collections.emptyList();
+                }
+            }
+            // only follow hour nodes if match up with possible journeys
+            if (serviceHeuristics.isHour(endNode)) {
+                if (serviceHeuristics.checkHour(endNode) != ServiceReason.IsValid) {
+                    return Collections.emptyList();
                 }
             }
         }

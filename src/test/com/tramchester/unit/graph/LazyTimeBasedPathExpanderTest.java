@@ -41,12 +41,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     @Rule
     public TestName testName = new TestName();
     private Path path;
-    private TramchesterConfig config = new TestConfig() {
-        @Override
-        public java.nio.file.Path getDataFolder() {
-            return null;
-        }
-    };
+    private TramchesterConfig config = new NoEdgePerTripTestConfig();
 
     @Before
     public void beforeEachTestRuns() {
@@ -84,8 +79,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
-//        EasyMock.expect(path.length()).andReturn(0);
-//        EasyMock.expect(path.length()).andReturn(1);
+
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
 
@@ -106,10 +100,6 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
-
-        //EasyMock.expect(path.length()).andReturn(0);
-        //EasyMock.expect(path.length()).andReturn(1);
-        //EasyMock.expect(path.length()).andReturn(2);
 
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
@@ -230,4 +220,16 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
             };
     }
 
+    private class NoEdgePerTripTestConfig extends TestConfig {
+        @Override
+        public java.nio.file.Path getDataFolder() {
+            return null;
+        }
+
+        @Override
+        public boolean getEdgePerTrip() {
+            return false;
+        }
+
+    }
 }

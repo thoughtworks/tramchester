@@ -40,7 +40,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, STATION, AREA, PLATFORM, QUERY_NODE, SERVICE
+        ROUTE_STATION, STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, HOUR
     }
 
     private Map<String,TransportRelationshipTypes> boardings;
@@ -110,6 +110,12 @@ public class TransportGraphBuilder extends StationIndexs {
             if (edgePerTrip) {
                 schema.indexFor(Labels.SERVICE)
                         .on(GraphStaticKeys.ID)
+                        .create();
+                schema.indexFor(Labels.HOUR)
+                        .on(GraphStaticKeys.ID)
+                        .create();
+                schema.indexFor(Labels.HOUR)
+                        .on(GraphStaticKeys.HOUR)
                         .create();
             }
             tx.success();
@@ -306,19 +312,37 @@ public class TransportGraphBuilder extends StationIndexs {
         Stop endStop = trip.getStops().get(stopIndex + 1);
 
         String svcNodeId = format("%s_%s", start.getId(), service.getServiceId());
-        Node svcNode = graphQuery.getServiceNode(svcNodeId);
-        if (svcNode==null) {
+        Node serviceNode = graphQuery.getServiceNode(svcNodeId);
+        if (serviceNode==null) {
             logger.info(format("Creating service node '%s' for service '%s'", svcNodeId, service.getServiceId()));
-            svcNode = createGraphNode(Labels.SERVICE);
-            svcNode.setProperty(GraphStaticKeys.ID, svcNodeId);
-            svcNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
-            svcNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-            svcNode.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
-            svcNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
+            serviceNode = createGraphNode(Labels.SERVICE);
+            serviceNode.setProperty(GraphStaticKeys.ID, svcNodeId);
+            serviceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+            serviceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
+            serviceNode.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
+            serviceNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
 
-            Relationship svcRelationship = createRelationship(routeStationStart, svcNode, TransportRelationshipTypes.SERVICE);
+            // start route station -> svc node
+            Relationship svcRelationship = createRelationship(routeStationStart, serviceNode, TransportRelationshipTypes.SERVICE);
             svcRelationship.setProperty(COST, 0);
             svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+        }
+        LocalTime departTime = beginStop.getDepartureTime().asLocalTime();
+
+        //String hourNodeId = format("%s_%s_%s", svcNodeId, trip.getTripId(), departTime.getHour());
+        String hourNodeId = format("%s_%s", svcNodeId, departTime.getHour());
+
+        Node hourNode = graphQuery.getServiceNode(hourNodeId);
+        if (hourNode==null) {
+            logger.info("Create an hour node with ID " + hourNodeId);
+            hourNode = createGraphNode(Labels.HOUR);
+            hourNode.setProperty(GraphStaticKeys.ID, hourNodeId);
+            hourNode.setProperty(GraphStaticKeys.HOUR, departTime.getHour());
+
+            // service node -> hour node
+            Relationship hourRelationship = createRelationship(serviceNode, hourNode, TransportRelationshipTypes.HOUR);
+            hourRelationship.setProperty(COST, 0);
+            //hourRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         }
 
         TransportRelationshipTypes transportRelationshipType;
@@ -328,9 +352,10 @@ public class TransportGraphBuilder extends StationIndexs {
             transportRelationshipType = TransportRelationshipTypes.BUS_GOES_TO;
         }
 
-        Relationship relationship = createRelationship(svcNode, routeStationEnd, transportRelationshipType);
+        // hour node -> end route station
+        Relationship relationship = createRelationship(hourNode, routeStationEnd, transportRelationshipType);
 
-        relationship.setProperty(GraphStaticKeys.DEPART_TIME, beginStop.getDepartureTime().asLocalTime());
+        relationship.setProperty(GraphStaticKeys.DEPART_TIME, departTime);
         relationship.setProperty(GraphStaticKeys.TRIP_ID, trip.getTripId());
 
         // common properties
