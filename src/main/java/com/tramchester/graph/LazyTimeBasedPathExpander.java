@@ -38,7 +38,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
     }
 
     @Override
-    public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> branchState) {
+    public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> unusedBranchState) {
         Node endNode = path.endNode();
 
         if (edgePerService) {
@@ -64,6 +64,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
         private final Path path;
         private final Iterator<Relationship> relationships;
         private final Relationship inboundToLastNode;
+
         private LocalTime timeHere = LocalTime.MAX;
         private Relationship next;
 

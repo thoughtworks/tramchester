@@ -158,11 +158,8 @@ public class RouteCalculator extends StationIndexs {
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));
 
-        GraphBranchState state = new GraphBranchState(queryDate, queryTime);
-
         if (startNode.getProperty(GraphStaticKeys.Station.NAME).equals(queryNodeName)) {
             logger.info("Query node based search, setting start time to actual query time");
-            state.setStartTime(queryTime);
         }
 
         PathFinder<WeightedPath> pathFinder = new Dijkstra(pathExpander, costEvaluator);

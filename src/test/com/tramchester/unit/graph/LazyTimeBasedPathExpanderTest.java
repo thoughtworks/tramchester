@@ -45,6 +45,9 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
     @Before
     public void beforeEachTestRuns() {
+
+        branchState = null;
+
         // for logging
         MDC.put("test", testName.getMethodName());
 
@@ -66,8 +69,6 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         serviceHeuristics = createMock(ServiceHeuristics.class);
         endNode = createMock(Node.class);
         path = createMock(Path.class);
-        GraphBranchState state = createMock(GraphBranchState.class);
-        branchState = createGraphBranchState(state);
 
         queryTime = LocalTime.now();
     }
@@ -204,20 +205,6 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
             count++;
         }
         return count;
-    }
-
-    private BranchState<GraphBranchState> createGraphBranchState(final GraphBranchState state) {
-        return new BranchState<GraphBranchState>() {
-                @Override
-                public GraphBranchState getState() {
-                    return state;
-                }
-
-                @Override
-                public void setState(GraphBranchState graphBranchState) {
-
-                }
-            };
     }
 
     private class NoEdgePerTripTestConfig extends TestConfig {
