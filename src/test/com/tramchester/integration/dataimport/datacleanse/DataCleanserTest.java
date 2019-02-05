@@ -29,9 +29,12 @@ public class DataCleanserTest implements TransportDataFetcher {
     public static final Path INPUT = Paths.get(path, Dependencies.TFGM_UNZIP_DIR);
     public static final Path OUTPUT = Paths.get(path, "output");
     private static Path dataCleansePath = Paths.get("data","testCleanse");
+    private static IntegrationTramTestConfig integrationTramTestConfig;
 
     @BeforeClass
     public static void beforeAllTestRuns() throws IOException {
+        integrationTramTestConfig = new IntegrationTramTestConfig();
+
         tidyFiles();
         File outputDir = OUTPUT.toFile();
         if (!outputDir.exists()) {
@@ -60,7 +63,6 @@ public class DataCleanserTest implements TransportDataFetcher {
     @Ignore("Primarily for performance testing")
     public void shouldCleanseTramData() throws IOException {
         DataCleanser dataCleanser = getDataCleanser();
-        IntegrationTramTestConfig integrationTramTestConfig = new IntegrationTramTestConfig();
         dataCleanser.run(integrationTramTestConfig.getAgencies());
     }
 
@@ -72,14 +74,14 @@ public class DataCleanserTest implements TransportDataFetcher {
         Dependencies dependencies = new Dependencies();
         Set<String> agencies = new HashSet<>();
         agencies.add("MET");
-        dependencies.cleanseData(agencies, dataCleansePath, dataCleansePath);
+        dependencies.cleanseData(dataCleansePath, dataCleansePath, integrationTramTestConfig);
     }
 
     private DataCleanser getDataCleanser() throws IOException {
         fetchData();
         TransportDataReader reader = new TransportDataReader(INPUT, false);
         TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
-        return new DataCleanser(reader, writeFactory, new ErrorCount());
+        return new DataCleanser(reader, writeFactory, new ErrorCount(), integrationTramTestConfig);
     }
 
     @Override

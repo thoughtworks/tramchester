@@ -29,7 +29,7 @@ public class RouteResourceTest {
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     ObjectMapper mapper = new ObjectMapper();
-    private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Eccles",
+    private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
             new LinkedList<>(), "displayClass");
 
     @Before

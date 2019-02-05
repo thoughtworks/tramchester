@@ -31,7 +31,6 @@ import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.picocontainer.DefaultPicoContainer;
@@ -60,7 +59,7 @@ public class Dependencies {
             fetcher.fetchData();
         }
 
-        cleanseData(configuration.getAgencies(), dataPath, dataPath);
+        cleanseData(dataPath, dataPath, configuration);
 
         logger.info("Creating dependencies");
         // caching is on by default
@@ -128,14 +127,14 @@ public class Dependencies {
 
     }
 
-    public void cleanseData(Set<String> agencies, Path inputPath, Path outputPath) throws IOException {
+    public void cleanseData(Path inputPath, Path outputPath, TramchesterConfig config) throws IOException {
         Path inputDir = inputPath.resolve(TFGM_UNZIP_DIR);
         TransportDataReader reader = new TransportDataReader(inputDir, true);
         TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(outputPath);
 
         ErrorCount count = new ErrorCount();
-        DataCleanser dataCleanser = new DataCleanser(reader, writerFactory, count);
-        dataCleanser.run(agencies);
+        DataCleanser dataCleanser = new DataCleanser(reader, writerFactory, count, config);
+        dataCleanser.run(config.getAgencies());
         if (!count.noErrors()) {
             logger.warn("Errors encounted during parsing data " + count);
         }

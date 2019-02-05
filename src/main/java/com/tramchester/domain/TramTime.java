@@ -90,11 +90,6 @@ public class  TramTime implements Comparable<TramTime> {
         return hour==0 || hour==1;
     }
 
-//    @Deprecated
-//    public static TramTime now() {
-//        return of(LocalTime.now());
-//    }
-
     public int minutesOfDay() {
         return (hour * 60) + minute;
     }

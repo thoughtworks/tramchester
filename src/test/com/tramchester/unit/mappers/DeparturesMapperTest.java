@@ -33,12 +33,7 @@ public class DeparturesMapperTest {
 
     @Before
     public void beforeEachTestRuns() {
-        ProvidesNotes providesNotes = new ProvidesNotes(new TestConfig() {
-            @Override
-            public Path getDataFolder() {
-                return null;
-            }
-        });
+        ProvidesNotes providesNotes = new ProvidesNotes(TestConfig.GET());
         mapper = new DeparturesMapper(providesNotes);
     }
 

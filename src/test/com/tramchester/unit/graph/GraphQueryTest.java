@@ -53,12 +53,7 @@ public class GraphQueryTest {
 
         TransportDataForTest transportData = new TransportDataForTest();
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
-                spatialDatabaseService, new TestConfig() {
-            @Override
-            public Path getDataFolder() {
-                return null;
-            }
-        });
+                spatialDatabaseService, TestConfig.GET());
         builder.buildGraph();
     }
 

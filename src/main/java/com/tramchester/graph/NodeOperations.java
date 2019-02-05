@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import org.neo4j.graphdb.Node;
 
 public interface NodeOperations {
@@ -11,7 +12,7 @@ public interface NodeOperations {
 
     TramServiceDate getServiceEndDate(Node node);
 
-    int getHour(Node node);
+    TramTime getTime(Node node);
 
     boolean isService(Node node);
 

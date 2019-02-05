@@ -50,14 +50,31 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
                 }
             }
             // only follow hour nodes if match up with possible journeys
+            LocalTime currentElapsed = calculateElapsedTimeForPath(path, queryTime);
             if (serviceHeuristics.isHour(endNode)) {
-                if (serviceHeuristics.checkHour(endNode) != ServiceReason.IsValid) {
+                if (serviceHeuristics.checkTime(endNode, currentElapsed) != ServiceReason.IsValid) {
                     return Collections.emptyList();
                 }
             }
         }
 
         return () -> new RelationshipIterable(path);
+    }
+
+    public LocalTime calculateElapsedTimeForPath(Path path, LocalTime queryTime) {
+        LocalTime foundTime;
+        Iterator<Relationship> relationshipIterator = path.reverseRelationships().iterator();
+        int cost = 0;
+        while(relationshipIterator.hasNext()) {
+            Relationship relationship = relationshipIterator.next();
+            cost = cost +  Integer.parseInt(relationship.getProperty(COST).toString());
+            if (relationship.isType(TRAM_GOES_TO)) {
+                LocalTime time = (LocalTime) relationship.getProperty(DEPART_TIME);
+                foundTime = time.plusMinutes(cost);
+                return foundTime;
+            }
+        }
+        return queryTime.plusMinutes(cost);
     }
 
     public class RelationshipIterable implements Iterator<Relationship> {
@@ -139,23 +156,11 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
             return false;
         }
 
-        public void findTimeAtThisPoint(Path path, LocalTime queryTime) {
+        private void findTimeAtThisPoint(Path path, LocalTime queryTime) {
             if (timeHere!=LocalTime.MAX) {
                 return;
             }
-
-            Iterator<Relationship> relationshipIterator = path.reverseRelationships().iterator();
-            int cost = 0;
-            while(relationshipIterator.hasNext()) {
-                Relationship relationship = relationshipIterator.next();
-                cost = cost +  Integer.parseInt(relationship.getProperty(COST).toString());
-                if (relationship.isType(TRAM_GOES_TO)) {
-                    LocalTime time = (LocalTime) relationship.getProperty(DEPART_TIME);
-                    timeHere = time.plusMinutes(cost);
-                    return;
-                }
-            }
-            timeHere = queryTime.plusMinutes(cost);
+            timeHere = calculateElapsedTimeForPath(path, queryTime);
         }
     }
 

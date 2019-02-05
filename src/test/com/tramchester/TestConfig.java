@@ -17,6 +17,15 @@ import static java.util.Arrays.asList;
 
 public abstract class TestConfig extends AppConfiguration {
 
+    public static AppConfiguration GET() {
+        return new TestConfig() {
+            @Override
+            public Path getDataFolder() {
+                return null;
+            }
+        };
+    }
+
     private List<String> closedStations = asList("St Peters Square");
 
     private Path zipFilePath = Paths.get("data.zip");
@@ -119,6 +128,9 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public String getLiveDataS3Bucket() { return "tramchestertestlivedatabucket"; }
+
+    @Override
+    public boolean getRemoveRouteNameSuffix() { return true; }
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
 

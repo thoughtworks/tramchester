@@ -28,50 +28,36 @@ public class GraphQuery {
     }
 
     public Node getStationNode(String stationId) {
-        Node result;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.STATION,
-                    GraphStaticKeys.ID, stationId);
-            tx.success();
-        }
-        return result;
+        return getNodeByLabel(stationId, TransportGraphBuilder.Labels.STATION);
     }
 
     public Node getPlatformNode(String id) {
-        Node result;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.PLATFORM,
-                    GraphStaticKeys.ID, id);
-            tx.success();
-        }
-        return result;
+        return getNodeByLabel(id, TransportGraphBuilder.Labels.PLATFORM);
     }
 
     public Node getServiceNode(String id) {
+        TransportGraphBuilder.Labels Label = TransportGraphBuilder.Labels.SERVICE;
+
+        return getNodeByLabel(id, Label);
+    }
+
+    public Node getAreaNode(String id) {
+        return getNodeByLabel(id, TransportGraphBuilder.Labels.AREA);
+    }
+
+    public Node getRouteStationNode(String id) {
+        return getNodeByLabel(id, TransportGraphBuilder.Labels.ROUTE_STATION);
+    }
+
+    public Node getTimeNode(String id) {
+        return getNodeByLabel(id, TransportGraphBuilder.Labels.TIME);
+    }
+
+    private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {
         Node result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.SERVICE,
+            result = graphDatabaseService.findNode(label,
                     GraphStaticKeys.ID, id);
-            tx.success();
-        }
-        return result;
-    }
-
-    public Node getAreaNode(String areaName) {
-        Node result;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.AREA,
-                    GraphStaticKeys.ID, areaName);
-            tx.success();
-        }
-        return result;
-    }
-
-    public Node getRouteStationNode(String routeStationId) {
-        Node result;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.findNode(TransportGraphBuilder.Labels.ROUTE_STATION,
-                    GraphStaticKeys.ID, routeStationId);
             tx.success();
         }
         return result;
@@ -115,5 +101,6 @@ public class GraphQuery {
         }
         return result;
     }
+
 
 }

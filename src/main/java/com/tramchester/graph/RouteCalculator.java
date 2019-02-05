@@ -120,8 +120,8 @@ public class RouteCalculator extends StationIndexs {
                                 Node startNode, int limit) {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config, queryDate, queryTime);
-            PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime,relationshipFactory,
-                    serviceHeuristics,config);
+            PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
+                    serviceHeuristics, config);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             mapStreamToJourneySet(journeys, paths, limit, queryTime);
             serviceHeuristics.reportStats();
@@ -147,7 +147,7 @@ public class RouteCalculator extends StationIndexs {
         }
     }
 
-    public TramNode getStation(String stationId) throws TramchesterException {
+    public TramNode getStation(String stationId) {
         Node node = getStationNode(stationId);
         return nodeFactory.getNode(node);
     }

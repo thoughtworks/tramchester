@@ -1,5 +1,7 @@
 package com.tramchester.unit.dataimport.datacleanse;
 
+import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
@@ -16,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -31,24 +34,27 @@ public class TestDataCleanser extends EasyMockSupport {
     private TransportDataWriter writer;
     private DataCleanser cleanser;
     private TransportDataWriterFactory factory;
+    private TramchesterConfig config;
 
     @Before
     public void beforeEachTestRuns() {
+        config = TestConfig.GET();
+
         reader = createMock(TransportDataReader.class);
         writer = createMock(TransportDataWriter.class);
         factory = createMock(TransportDataWriterFactory.class);
-        cleanser = new DataCleanser(reader, factory, new ErrorCount());
+        cleanser = new DataCleanser(reader, factory, new ErrorCount(), config);
     }
 
     @Test
     public void shouldCleanseRoutes() throws IOException {
 
-        RouteData routeA = new RouteData("R2", "CODE2", "CtoD", "NOT");
-        RouteData routeB = new RouteData("R1", "CODE1", "AtoB", "MET");
+        RouteData routeA = new RouteData("R2", "CODE2", "CtoD name", "NOT");
+        RouteData routeB = new RouteData("R1", "CODE1", "AtoB name with issue (ignore me", "MET");
         Stream<RouteData> routes = Stream.of(routeA, routeB);
 
         EasyMock.expect(reader.getRoutes()).andReturn(routes);
-        validateWriter("routes", "R1,MET,CODE1,AtoB,0");
+        validateWriter("routes", "R1,MET,CODE1,AtoB name with issue,0");
 
         replayAll();
         List<String> routeCodes = cleanser.cleanseRoutes(new HashSet<>(Arrays.asList("MET")));
@@ -91,7 +97,6 @@ public class TestDataCleanser extends EasyMockSupport {
         cleanser.cleanseStops(stopIds);
         verifyAll();
     }
-
 
     @Test
     public void shouldCleanseStopMultiPart() throws IOException {

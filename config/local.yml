@@ -26,6 +26,7 @@ liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata
 dataPath: data/tram
+removeRouteNameSuffix: true
 timeWindow: 60
 maxWait: 25
 queryInterval: 6

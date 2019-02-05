@@ -83,4 +83,7 @@ public abstract class TramchesterConfig extends Configuration {
 
     // Edge per trip/time instead of an array of time
     public abstract boolean getEdgePerTrip();
+
+    // remove the (Purple Line) part of the route name?
+    public abstract boolean getRemoveRouteNameSuffix();
 }

@@ -31,13 +31,7 @@ public class ClientForS3Test {
     @Before
     public void beforeEachTestRuns() throws InterruptedException {
         s3 = AmazonS3ClientBuilder.defaultClient();
-        clientForS3 = new ClientForS3(new TestConfig() {
-            @Override
-            public Path getDataFolder() {
-                return null;
-
-            }
-        });
+        clientForS3 = new ClientForS3(TestConfig.GET());
         tidyBucket();
     }
 

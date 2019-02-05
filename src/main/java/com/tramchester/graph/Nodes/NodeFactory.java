@@ -1,7 +1,6 @@
 package com.tramchester.graph.Nodes;
 
 import com.google.common.collect.Lists;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -28,7 +27,7 @@ public class NodeFactory {
                 return new QueryNode(node);
             case SERVICE:
                 return new ServiceNode(node);
-            case HOUR:
+            case TIME:
                 return new HourNode(node);
             default:
                 throw new RuntimeException("Unknown node label " + labelName);

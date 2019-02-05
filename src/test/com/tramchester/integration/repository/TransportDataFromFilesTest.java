@@ -33,9 +33,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv004112";
+    private final String svcDeansgateToVic = "Serv003046";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv004112";
+    private String svcShawAndCrompton = "Serv003045";
 
     private Collection<Service> allServices;
 
@@ -65,7 +65,7 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetRoute() {
         Route result = transportData.getRoute(RouteCodesForTesting.ASH_TO_ECCLES);
-        assertEquals("Ashton-under-Lyne - Eccles", result.getName());
+        assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals("MET",result.getAgency());
         assertEquals("MET:   3:I:",result.getId());
         assertTrue(result.isTram());
@@ -186,7 +186,7 @@ public class TransportDataFromFilesTest {
                 filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(), Stations.Ashton.getId(), timeWindow)).
                 collect(Collectors.toList());
 
-        assertEquals(4, atRequiredTimed.size());
+        assertEquals(2, atRequiredTimed.size());
     }
 
 

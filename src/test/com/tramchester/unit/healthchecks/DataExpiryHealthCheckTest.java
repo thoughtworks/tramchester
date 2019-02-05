@@ -27,13 +27,7 @@ public class DataExpiryHealthCheckTest extends EasyMockSupport {
         providesFeedInfo = createMock(ProvidesFeedInfo.class);
         FeedInfo feedInfo = createFeedInfo(LocalDate.now().minusDays(30), LocalDate.now().plusDays(3));
         EasyMock.expect(providesFeedInfo.getFeedInfo()).andReturn(feedInfo);
-
-        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, new TestConfig() {
-            @Override
-            public Path getDataFolder() {
-                return null;
-            }
-        });
+        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, TestConfig.GET());
     }
 
     @Test

@@ -30,12 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 
 public class ProvidesNotesTest {
-    private ProvidesNotes provider = new ProvidesNotes(new TestConfig() {
-        @Override
-        public Path getDataFolder() {
-            return null;
-        }
-    });
+    private ProvidesNotes provider = new ProvidesNotes(TestConfig.GET());
     private SortedSet<JourneyDTO> decoratedJourneys;
 
     @Before

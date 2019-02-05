@@ -1,16 +1,7 @@
 package com.tramchester.graph.Nodes;
 
 import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TramGoesToRelationship;
-import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourNode implements TramNode {
     private final String id;
@@ -19,7 +10,7 @@ public class HourNode implements TramNode {
 
     public HourNode(Node node) {
         this.node = node;
-        this.name = node.getProperty(GraphStaticKeys.HOUR).toString();
+        this.name = node.getProperty(GraphStaticKeys.TIME).toString();
         this.id = node.getProperty(GraphStaticKeys.ID).toString();
     }
 

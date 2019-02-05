@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.datacleanse;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.*;
@@ -22,14 +23,16 @@ public class DataCleanser {
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("YYYMMdd");
     private static final String WILDCARD = "*";
 
-    private TransportDataReader transportDataReader;
-    private TransportDataWriterFactory transportDataWriterFactory;
-    private ErrorCount count;
+    private final TransportDataReader transportDataReader;
+    private final TransportDataWriterFactory transportDataWriterFactory;
+    private final ErrorCount count;
+    private final TramchesterConfig config;
 
-    public DataCleanser(TransportDataReader reader, TransportDataWriterFactory factory, ErrorCount count) {
+    public DataCleanser(TransportDataReader reader, TransportDataWriterFactory factory, ErrorCount count, TramchesterConfig config) {
         this.transportDataReader = reader;
         this.transportDataWriterFactory = factory;
         this.count = count;
+        this.config = config;
     }
 
     public void run(Set<String> agencies) throws IOException {
@@ -181,11 +184,19 @@ public class DataCleanser {
 
     private void addRoute(List<String> routeCodes, TransportDataWriter writer, RouteData route) {
         String id = route.getId();
+        String routeName = route.getName();
+
+        if (config.getRemoveRouteNameSuffix()) {
+            int indexOf = routeName.indexOf("(");
+            if (indexOf > -1) {
+                routeName = routeName.substring(0,indexOf).trim();
+            }
+        }
         writer.writeLine(String.format("%s,%s,%s,%s,0",
                 id,
                 route.getAgency(),
                 route.getCode(),
-                route.getName()));
+                routeName));
         routeCodes.add(id);
         logger.info("Added route " + id);
     }

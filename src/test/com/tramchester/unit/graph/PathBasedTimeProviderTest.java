@@ -32,12 +32,6 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
         path = createMock(Path.class);
         relationships = new LinkedList<>();
         persistsBoardingTime = createMock(PersistsBoardingTime.class);
-        TramchesterConfig testConfig = new TestConfig() {
-            @Override
-            public java.nio.file.Path getDataFolder() {
-                return null;
-            }
-        };
         costEvaluator = new CachingCostEvaluator();
     }
 

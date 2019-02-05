@@ -19,12 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class UpdateRecentJourneysTest {
 
     private String altyId = Stations.Altrincham.getId();
-    private UpdateRecentJourneys updater = new UpdateRecentJourneys(new TestConfig() {
-        @Override
-        public Path getDataFolder() {
-            return null;
-        }
-    });
+    private UpdateRecentJourneys updater = new UpdateRecentJourneys(TestConfig.GET());
 
     @Test
     public void shouldUpdateRecentFrom() {

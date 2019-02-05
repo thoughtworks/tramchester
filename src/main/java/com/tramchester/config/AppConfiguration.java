@@ -95,6 +95,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("edgePerTrip")
     private boolean edgePerTrip;
 
+    @JsonProperty("removeRouteNameSuffix")
+    private boolean removeRouteNameSuffix;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -204,6 +207,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean getEdgePerTrip() {
         return edgePerTrip;
+    }
+
+    @Override
+    public boolean getRemoveRouteNameSuffix() {
+        return removeRouteNameSuffix;
     }
 
 }

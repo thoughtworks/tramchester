@@ -70,20 +70,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return ServiceReason.IsValid;
     }
 
-    public ServiceReason checkHour(Node endNode) {
-        totalChecked.incrementAndGet();
-
-        int hourA = queryTime.getHour();
-        int hourB = queryTime.plusMinutes(maxWaitMinutes).getHour();
-        int hourC = queryTime.plusMinutes(maxWaitMinutes).plusHours(1).getHour();
-        int nodeHour = nodeOperations.getHour(endNode);
-        if (hourA==nodeHour || hourB==nodeHour || hourC==nodeHour) {
-            return ServiceReason.IsValid;
-        }
-        timeWrong.incrementAndGet();
-        return new ServiceReason.DoesNotOperateOnTime(queryTime);
-    }
-
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
 
@@ -203,26 +189,41 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return false;
     }
 
-    private boolean operatesOnTime(LocalTime time, ElapsedTime provider) throws TramchesterException {
-        LocalTime journeyClockTime = provider.getElapsedTime();
-        TramTime journeyClock = TramTime.of(journeyClockTime);
+    public ServiceReason checkTime(Node node, LocalTime currentElapsed) {
+        totalChecked.incrementAndGet();
+        TramTime nodeTime = nodeOperations.getTime(node);
 
-        if (time.isAfter(journeyClockTime) || time.equals(journeyClockTime)) {
-            TramTime nextTram = TramTime.of(time);
+        if (operatesWithinTime(nodeTime.asLocalTime(), currentElapsed)) {
+            return ServiceReason.IsValid;
+        }
+        timeWrong.incrementAndGet();
+        return new ServiceReason.DoesNotOperateOnTime(queryTime);
+    }
+
+    private boolean operatesOnTime(LocalTime timeHere, ElapsedTime elapsedTime) throws TramchesterException {
+
+        if (operatesWithinTime(timeHere, elapsedTime.getElapsedTime())) {
+            if (elapsedTime.startNotSet()) {
+                LocalTime realJounrneyStartTime = timeHere.minusMinutes(TransportGraphBuilder.BOARDING_COST);
+                elapsedTime.setJourneyStart(realJounrneyStartTime);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean operatesWithinTime(LocalTime timeHere, LocalTime journeyClockTime) {
+        TramTime journeyClock = TramTime.of(journeyClockTime);
+        if (timeHere.isAfter(journeyClockTime) || timeHere.equals(journeyClockTime)) {
+            TramTime nextTram = TramTime.of(timeHere);
 
             int diffenceAsMinutes = TramTime.diffenceAsMinutes(nextTram, journeyClock);
 
             if (diffenceAsMinutes > maxWaitMinutes) {
                 return false;
             }
-
-            if (provider.startNotSet()) {
-                LocalTime realJounrneyStartTime = time.minusMinutes(TransportGraphBuilder.BOARDING_COST);
-                provider.setJourneyStart(realJounrneyStartTime);
-            }
             return true;  // within max wait time
         }
-
         return false;
     }
 
