@@ -74,4 +74,19 @@ public class BoardPointNode implements TramNode {
         return routeId;
     }
 
+    @Override
+    public boolean isService() {
+        return false;
+    }
+
+    @Override
+    public boolean isHour() {
+        return false;
+    }
+
+    @Override
+    public boolean isMinute() {
+        return false;
+    }
+
 }

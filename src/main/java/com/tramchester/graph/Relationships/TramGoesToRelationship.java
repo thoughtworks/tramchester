@@ -13,7 +13,7 @@ public class TramGoesToRelationship extends GoesToRelationship {
     private TramGoesToRelationship(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,
                                    TramServiceDate startDate, TramServiceDate endDate, String dest,
                                    TramNode startNode, TramNode endNode, String tripId) {
-        super(service, cost, daysRunning, timesRunning, id, startDate, endDate, dest, startNode, endNode, tripId);
+        super(service, cost, daysRunning, timesRunning, id, startDate, endDate, startNode, endNode, tripId);
     }
 
     public static TramGoesToRelationship TestOnly(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,

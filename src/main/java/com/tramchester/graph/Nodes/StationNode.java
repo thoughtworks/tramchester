@@ -59,4 +59,19 @@ public class StationNode implements TramNode {
         return false;
     }
 
+    @Override
+    public boolean isService() {
+        return false;
+    }
+
+    @Override
+    public boolean isHour() {
+        return false;
+    }
+
+    @Override
+    public boolean isMinute() {
+        return false;
+    }
+
 }

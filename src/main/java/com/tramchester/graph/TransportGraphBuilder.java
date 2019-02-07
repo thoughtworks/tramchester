@@ -40,7 +40,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, TIME
+        ROUTE_STATION, STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
     }
 
     private Map<String,TransportRelationshipTypes> boardings;
@@ -98,25 +98,18 @@ public class TransportGraphBuilder extends StationIndexs {
         try ( Transaction tx = graphDatabaseService.beginTx() )
         {
             Schema schema = graphDatabaseService.schema();
-            schema.indexFor(Labels.ROUTE_STATION)
-                    .on(GraphStaticKeys.ID)
-                    .create();
-            schema.indexFor(Labels.STATION)
-                    .on(GraphStaticKeys.ID)
-                    .create();
-            schema.indexFor(Labels.PLATFORM).
-                    on(GraphStaticKeys.ID)
-                    .create();
+            schema.indexFor(Labels.STATION).on(GraphStaticKeys.ID).create();
+            schema.indexFor(Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
+            schema.indexFor(Labels.PLATFORM).on(GraphStaticKeys.ID).create();
             if (edgePerTrip) {
-                schema.indexFor(Labels.SERVICE)
-                        .on(GraphStaticKeys.ID)
-                        .create();
-                schema.indexFor(Labels.TIME)
-                        .on(GraphStaticKeys.ID)
-                        .create();
-                schema.indexFor(Labels.TIME)
-                        .on(GraphStaticKeys.TIME)
-                        .create();
+                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.ID).create();
+                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.DAYS).create();
+                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_START_DATE).create();
+                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_END_DATE).create();
+                schema.indexFor(Labels.HOUR).on(GraphStaticKeys.ID).create();
+                schema.indexFor(Labels.HOUR).on(GraphStaticKeys.HOUR).create();
+                schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.ID).create();
+                schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.TIME).create();
             }
             tx.success();
         }
@@ -311,7 +304,7 @@ public class TransportGraphBuilder extends StationIndexs {
         Stop beginStop = trip.getStops().get(stopIndex);
         Stop endStop = trip.getStops().get(stopIndex + 1);
 
-        String svcNodeId = format("%s_%s", start.getId(), service.getServiceId());
+        String svcNodeId = format("%s_%s_%s", start.getId(), route.getId(), service.getServiceId());
         Node serviceNode = graphQuery.getServiceNode(svcNodeId);
         if (serviceNode==null) {
             logger.info(format("Creating service node '%s' for service '%s'", svcNodeId, service.getServiceId()));
@@ -323,25 +316,39 @@ public class TransportGraphBuilder extends StationIndexs {
             serviceNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
 
             // start route station -> svc node
-            Relationship svcRelationship = createRelationship(routeStationStart, serviceNode, TransportRelationshipTypes.SERVICE);
+            Relationship svcRelationship = createRelationship(routeStationStart, serviceNode, TransportRelationshipTypes.TO_SERVICE);
             svcRelationship.setProperty(COST, 0);
             svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         }
 
         TramTime departureTime = beginStop.getDepartureTime();
 
-        // Node for the time
-        String timeNodeIdent = format("%s_%s", svcNodeId, departureTime.toPattern());
-        Node timeNode = graphQuery.getTimeNode(timeNodeIdent);
-        if (timeNode==null) {
-            logger.info("Create a time node with ID " + timeNodeIdent);
-            timeNode = createGraphNode(Labels.TIME);
-            timeNode.setProperty(GraphStaticKeys.ID, timeNodeIdent);
-            timeNode.setProperty(GraphStaticKeys.TIME, departureTime);
+        // Node for the hours
+        String hourNodeIdent = format("%s_%s", svcNodeId, departureTime.getHourOfDay());
+        Node hourNode = graphQuery.getTimeNode(hourNodeIdent);
+        if (hourNode==null) {
+            logger.info("Create an hour node with ID " + hourNodeIdent);
+            hourNode = createGraphNode(Labels.HOUR);
+            hourNode.setProperty(GraphStaticKeys.ID, hourNodeIdent);
+            hourNode.setProperty(GraphStaticKeys.HOUR, departureTime.getHourOfDay());
 
             // service node -> time node
-            Relationship timeRelationship = createRelationship(serviceNode, timeNode, TransportRelationshipTypes.TIME);
-            timeRelationship.setProperty(COST, 0);
+            Relationship toHourRelationship = createRelationship(serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
+            toHourRelationship.setProperty(COST, 0);
+        }
+
+        // Node for the minute
+        String minuteNodeId = format("%s_%s", svcNodeId, departureTime.toPattern());
+        Node minuteNode = graphQuery.getTimeNode(minuteNodeId);
+        if (minuteNode==null) {
+            logger.info("Create a minute node with ID " + minuteNodeId);
+            minuteNode = createGraphNode(Labels.MINUTE);
+            minuteNode.setProperty(GraphStaticKeys.ID, minuteNodeId);
+            minuteNode.setProperty(GraphStaticKeys.TIME, departureTime.asLocalTime());
+
+            // hour Node -> time node
+            Relationship toHourRelationship = createRelationship(hourNode, minuteNode, TransportRelationshipTypes.TO_MINUTE);
+            toHourRelationship.setProperty(COST, 0);
         }
 
         TransportRelationshipTypes transportRelationshipType;
@@ -352,7 +359,7 @@ public class TransportGraphBuilder extends StationIndexs {
         }
 
         // time node -> end route station
-        Relationship relationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
+        Relationship relationship = createRelationship(minuteNode, routeStationEnd, transportRelationshipType);
 
         relationship.setProperty(GraphStaticKeys.DEPART_TIME, departureTime.asLocalTime());
         relationship.setProperty(GraphStaticKeys.TRIP_ID, trip.getTripId());

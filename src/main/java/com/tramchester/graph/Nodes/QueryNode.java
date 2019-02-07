@@ -35,6 +35,21 @@ public class QueryNode implements TramNode {
     }
 
     @Override
+    public boolean isService() {
+        return false;
+    }
+
+    @Override
+    public boolean isHour() {
+        return false;
+    }
+
+    @Override
+    public boolean isMinute() {
+        return false;
+    }
+
+    @Override
     public String getName() {
         return "Your location";
     }

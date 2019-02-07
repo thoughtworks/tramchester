@@ -27,10 +27,8 @@ public class HourRelationship extends TransportCostRelationship  {
     }
 
     @Override
-    public boolean isServiceLink() { return true; }
-
-    public String getServiceId() {
-        return  graphRelationship.getProperty(SERVICE_ID).toString();
+    public boolean isHourLink() {
+        return true;
     }
 
 }

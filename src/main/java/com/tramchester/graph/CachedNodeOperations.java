@@ -1,9 +1,9 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramTime;
 import org.neo4j.graphdb.Node;
 
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,10 +12,16 @@ import static com.tramchester.graph.GraphStaticKeys.TIME;
 public class CachedNodeOperations implements NodeOperations {
     private final Map<Long, Boolean> serviceNodes;
     private final Map<Long, Boolean> hourNodes;
+    private final Map<Long, Boolean> minuteNotes;
+
+    // cached times
+    private final Map<Long, LocalTime> times;
 
     public CachedNodeOperations() {
         hourNodes = new ConcurrentHashMap<>();
         serviceNodes = new ConcurrentHashMap<>();
+        times = new ConcurrentHashMap<>();
+        minuteNotes = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -34,8 +40,14 @@ public class CachedNodeOperations implements NodeOperations {
     }
 
     @Override
-    public TramTime getTime(Node node) {
-        return (TramTime) node.getProperty(TIME);
+    public LocalTime getTime(Node node) {
+        long nodeId = node.getId();
+        if (times.containsKey(nodeId)) {
+            return times.get(nodeId);
+        }
+        LocalTime value = (LocalTime) node.getProperty(TIME);
+        times.put(nodeId,value);
+        return value;
     }
 
     @Override
@@ -45,16 +57,27 @@ public class CachedNodeOperations implements NodeOperations {
 
     @Override
     public boolean isHour(Node node) {
-        return checkForLabel(hourNodes, node, TransportGraphBuilder.Labels.TIME);
+        return checkForLabel(hourNodes, node, TransportGraphBuilder.Labels.HOUR);
+    }
+
+    @Override
+    public boolean isMinute(Node node) {
+        return checkForLabel(minuteNotes, node, TransportGraphBuilder.Labels.MINUTE);
+    }
+
+    @Override
+    public int getHour(Node node) {
+        return (int) node.getProperty(GraphStaticKeys.HOUR);
     }
 
     public boolean checkForLabel(Map<Long, Boolean> map, Node node, TransportGraphBuilder.Labels label) {
         long id = node.getId();
-        if (!map.containsKey(id)) {
-            boolean flag = node.hasLabel(label);
-            map.put(id, flag);
-            return flag;
+        if (map.containsKey(id)) {
+            return map.get(id);
         }
-        return map.get(id);
+
+        boolean flag = node.hasLabel(label);
+        map.put(id, flag);
+        return flag;
     }
 }

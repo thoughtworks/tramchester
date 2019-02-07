@@ -12,6 +12,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -21,12 +22,13 @@ import static java.lang.String.format;
 public class TransportDataForTest implements TransportData, StationRepository, PlatformRepository {
     private String serviceAId = "serviceAId";
     private String serviceBId = "serviceBId";
+    private String serviceCId = "serviceCId";
 
-    public static final String FIRST_STATION = METROLINK_PREFIX+"_FIRST";
-    public static final String SECOND_STATION = METROLINK_PREFIX+"_SECOND";
-    public static final String LAST_STATION = METROLINK_PREFIX+"_LAST";
+    public static final String FIRST_STATION = METROLINK_PREFIX+"_ST_FIRST";
+    public static final String SECOND_STATION = METROLINK_PREFIX+"_ST_SECOND";
+    public static final String LAST_STATION = METROLINK_PREFIX+"_ST_LAST";
     public static final String INTERCHANGE = TramInterchanges.CORNBROOK;
-    public static final String STATION_FOUR = METROLINK_PREFIX+"_FOUR";
+    public static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
 
     private Map<String, Station> stationMap = new HashMap<>();
 
@@ -34,6 +36,9 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     private Map<String,Platform> platforms;
 
     public TransportDataForTest() throws TramchesterException {
+        double latitude = 180.00;
+        double longitude = 270.0;
+
         routes = new LinkedList<>();
         platforms = new HashMap<>();
         Route routeA = new Route("routeAId", "routeACode", "routeA", "MET");
@@ -45,57 +50,72 @@ public class TransportDataForTest implements TransportData, StationRepository, P
         Service serviceA = new Service(serviceAId, routeA.getId());
         routeA.addService(serviceA);
         Service serviceB = new Service(serviceBId, routeB.getId());
+        Service serviceC = new Service(serviceCId, routeB.getId());
         routeB.addService(serviceB);
+        routeB.addService(serviceC);
 
         serviceA.setDays(true, false, false, false, false, false, false);
         serviceB.setDays(true, false, false, false, false, false, false);
+        serviceC.setDays(true, false, false, false, false, false, false);
 
         LocalDate startDate = LocalDate.of(2014, 02, 10);
         LocalDate endDate = LocalDate.of(2020, 8, 15);
         serviceA.setServiceDateRange(startDate, endDate);
         serviceB.setServiceDateRange(startDate, endDate);
-
-        // 8*60=480
+        serviceC.setServiceDateRange(startDate, endDate);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip("trip1Id", "headSign", serviceAId, routeA.getId());
+        Trip tripA = new Trip("tripAId", "headSign", serviceAId, routeA.getId());
 
-        double latitude = 180.00;
-        double longitude = 270.0;
         LatLong latLong = new LatLong(latitude, longitude);
-        Station first = new Station(FIRST_STATION, "area", "startStation", latLong, true);
+        Station first = new Station(FIRST_STATION, "area1", "startStation", latLong, true);
         addStation(first);
         Stop stopA = createStop(first, TramTime.create(8, 0), TramTime.create(8, 0), routeA.getId(), serviceAId);
         tripA.addStop(stopA);
 
-        Station second = new Station(SECOND_STATION, "area", "secondStation", latLong, true);
+        Station second = new Station(SECOND_STATION, "area2", "secondStation", latLong, true);
         Stop stopB = createStop(second, TramTime.create(8, 11), TramTime.create(8, 11), routeA.getId(), serviceAId);
         tripA.addStop(stopB);
         addStation(second);
 
-        Station interchangeStation = new Station(INTERCHANGE, "area", "cornbrook", latLong, true);
+        Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", latLong, true);
         Stop stopC = createStop(interchangeStation, TramTime.create(8, 20), TramTime.create(8, 20), routeA.getId(), serviceAId);
         tripA.addStop(stopC);
         addStation(interchangeStation);
 
-        Station last = new Station(LAST_STATION, "area", "endStation", latLong, true);
+        Station last = new Station(LAST_STATION, "area4", "endStation", latLong, true);
         addStation(last);
         Stop stopD = createStop(last, TramTime.create(8, 40), TramTime.create(8, 40), routeA.getId(), serviceAId);
         tripA.addStop(stopD);
         // service
         serviceA.addTrip(tripA);
 
-        // tripB: INTERCHANGE -> STATION_FOUR
-        Trip tripB = new Trip("trip2Id", "headSign", serviceBId, routeB.getId());
-        Stop stopE = createStop(interchangeStation, TramTime.create(8, 26), TramTime.create(8, 26), routeB.getId(), serviceBId);
-        tripB.addStop(stopE);
+        // INTERTERCHANGE -> LAST_STATION
+        Trip tripC = new Trip("tripCId", "headSign", serviceAId, routeA.getId());
+        Stop stopG = createStop(interchangeStation, TramTime.create(9, 05), TramTime.create(9, 15), routeB.getId(), serviceCId);
+        Stop stopH = createStop(last, TramTime.create(9, 16), TramTime.create(9, 20), routeB.getId(), serviceCId);
+        tripC.addStop(stopG);
+        tripC.addStop(stopH);
+        serviceC.addTrip(tripC);
 
-        Station four = new Station(STATION_FOUR, "area", "stat4Station", new LatLong(170.00, 160.00), true);
+        Station four = new Station(STATION_FOUR, "area5", "Station4", new LatLong(170.00, 160.00), true);
         addStation(four);
-        Stop stopF = createStop(four, TramTime.create(8, 36), TramTime.create(8, 36), routeB.getId(), serviceBId);
-        tripB.addStop(stopF);
-        // service
-        serviceB.addTrip(tripB);
+
+        // INTERCHANGE -> STATION_FOUR
+        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(8, 26), "tripBId");
+        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 10), "tripB2Id");
+        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 20), "tripB3Id");
+    }
+
+    public void createInterchangeToStation4Trip(Route routeB, Service serviceB, Station interchangeStation, Station four, LocalTime startTime, String tripB2Id) {
+        Trip tripB2 = new Trip(tripB2Id, "headSignTripB2", serviceBId, routeB.getId());
+        Stop stopE2 = createStop(interchangeStation, TramTime.of(startTime),
+                TramTime.of(startTime.plusMinutes(5)), routeB.getId(), serviceBId);
+        tripB2.addStop(stopE2);
+        Stop stopF2 = createStop(four, TramTime.of(startTime.plusMinutes(5)),
+                TramTime.of(startTime.plusMinutes(8)), routeB.getId(), serviceBId);
+        tripB2.addStop(stopF2);
+        serviceB.addTrip(tripB2);
     }
 
     private void addStation(Station station) {

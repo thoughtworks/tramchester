@@ -40,6 +40,29 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
+    public void shouldBeInterestedInCorrectHours() {
+        LocalTime queryTime = LocalTime.of(9,1);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+                date, queryTime);
+        assertFalse(serviceHeuristics.interestedInHour(8));
+        assertTrue(serviceHeuristics.interestedInHour(9));
+        assertTrue(serviceHeuristics.interestedInHour(10));
+        assertFalse(serviceHeuristics.interestedInHour(11));
+    }
+
+    @Test
+    public void shouldBeInterestedInCorrectHoursOverMidnight() {
+        LocalTime queryTime = LocalTime.of(23,10);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+                date, queryTime);
+        assertFalse(serviceHeuristics.interestedInHour(22));
+        assertTrue(serviceHeuristics.interestedInHour(23));
+        assertTrue(serviceHeuristics.interestedInHour(0));
+        assertTrue(serviceHeuristics.interestedInHour(1));
+        assertFalse(serviceHeuristics.interestedInHour(2));
+    }
+
+    @Test
     public void shouldHandleTimesWith30MinWait() throws TramchesterException {
         LocalTime am640 = LocalTime.of(6, 40); // 400
 

@@ -1,10 +1,14 @@
 package com.tramchester.graph.Nodes;
 
 public interface TramNode {
+    String getId();
+    String getName();
+
     boolean isStation();
     boolean isRouteStation();
-    String getId();
-    boolean isQuery();
-    String getName();
     boolean isPlatform();
+    boolean isQuery();
+    boolean isService();
+    boolean isHour();
+    boolean isMinute();
 }

@@ -110,5 +110,15 @@ public abstract class TransportCostRelationship implements TransportRelationship
     @Override
     public boolean isServiceLink() { return false; }
 
+    @Override
+    public boolean isHourLink() {
+        return false;
+    }
+
+    @Override
+    public boolean isMinuteLink() {
+        return false;
+    }
+
 
 }

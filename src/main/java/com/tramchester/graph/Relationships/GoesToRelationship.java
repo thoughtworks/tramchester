@@ -20,8 +20,8 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
     private LocalTime timeRunning;
 
     protected GoesToRelationship(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,
-                              TramServiceDate startDate, TramServiceDate endDate, String dest,
-                              TramNode startNode, TramNode endNode, String tripId) {
+                                 TramServiceDate startDate, TramServiceDate endDate,
+                                 TramNode startNode, TramNode endNode, String tripId) {
         //TESTING ONLY
         super(cost, id, startNode, endNode);
         this.service = service;
@@ -77,12 +77,6 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         }
         return service;
     }
-
-//    public String getDest() {
-//        if (dest==null) {
-//            dest = graphRelationship.getProperty(GraphStaticKeys.DESTINATION).toString();
-//        }
-//        return dest; }
 
     public TramServiceDate getStartDate() {
         if (startDate==null) {

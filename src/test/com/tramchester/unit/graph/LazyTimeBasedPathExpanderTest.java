@@ -35,13 +35,15 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     private RelationshipFactory mockRelationshipFactory;
     private ServiceHeuristics serviceHeuristics;
     private Node endNode;
-    private BranchState<GraphBranchState> branchState;
+    private BranchState<Double> branchState;
     private LocalTime queryTime;
 
     @Rule
     public TestName testName = new TestName();
     private Path path;
     private TramchesterConfig config = new NoEdgePerTripTestConfig();
+    private NodeOperations mockNodeOperations;
+    private CachingCostEvaluator mockCostEvaluator;
 
     @Before
     public void beforeEachTestRuns() {
@@ -70,6 +72,9 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         endNode = createMock(Node.class);
         path = createMock(Path.class);
 
+        mockNodeOperations = createMock(NodeOperations.class);
+        mockCostEvaluator = createMock(CachingCostEvaluator.class);
+
         queryTime = LocalTime.now();
     }
 
@@ -85,8 +90,8 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config);
+        PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
+                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
 
         int number = countResults(results);
@@ -116,8 +121,8 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
                 andReturn(ServiceReason.IsValid);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics,config);
+        PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
+                serviceHeuristics,config, mockNodeOperations, mockCostEvaluator);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
 
@@ -148,8 +153,8 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotRunOnQueryDate);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics,config);
+        PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
+                serviceHeuristics,config, mockNodeOperations, mockCostEvaluator);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
 
@@ -184,8 +189,8 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
                 andReturn(ServiceReason.IsValid);
 
         replayAll();
-        PathExpander<GraphBranchState> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics,config);
+        PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
+                serviceHeuristics,config, mockNodeOperations, mockCostEvaluator);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
         verifyAll();

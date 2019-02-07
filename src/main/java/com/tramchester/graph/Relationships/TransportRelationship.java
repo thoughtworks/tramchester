@@ -13,6 +13,8 @@ public interface TransportRelationship {
     boolean isEnterPlatform();
     boolean isLeavePlatform();
     boolean isServiceLink();
+    boolean isHourLink();
+    boolean isMinuteLink();
 
     int getCost();
     String getId();

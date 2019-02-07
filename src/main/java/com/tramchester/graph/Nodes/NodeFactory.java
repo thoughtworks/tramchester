@@ -27,8 +27,10 @@ public class NodeFactory {
                 return new QueryNode(node);
             case SERVICE:
                 return new ServiceNode(node);
-            case TIME:
+            case HOUR:
                 return new HourNode(node);
+            case MINUTE:
+                return new MinuteNode(node);
             default:
                 throw new RuntimeException("Unknown node label " + labelName);
         }

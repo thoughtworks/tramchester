@@ -58,4 +58,19 @@ public class PlatformNode implements TramNode {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean isService() {
+        return false;
+    }
+
+    @Override
+    public boolean isHour() {
+        return false;
+    }
+
+    @Override
+    public boolean isMinute() {
+        return false;
+    }
 }

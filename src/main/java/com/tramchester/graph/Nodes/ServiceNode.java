@@ -46,6 +46,21 @@ public class ServiceNode implements TramNode {
     }
 
     @Override
+    public boolean isService() {
+        return true;
+    }
+
+    @Override
+    public boolean isHour() {
+        return false;
+    }
+
+    @Override
+    public boolean isMinute() {
+        return false;
+    }
+
+    @Override
     public String getName() {
         return name;
     }

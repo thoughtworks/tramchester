@@ -12,6 +12,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     WALKS_TO,
     ENTER_PLATFORM,
     LEAVE_PLATFORM,
-    SERVICE,
-    TIME
+    TO_SERVICE,
+    TO_HOUR,
+    TO_MINUTE
     }

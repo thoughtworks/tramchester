@@ -10,7 +10,9 @@ public class GraphStaticKeys {
     public static final String COST = "cost";
 
     // time on a node
+    public static final String HOUR = "hour";
     public static final String TIME = "time";
+
     // time(s) on a relationship
     public static final String TIMES = "times";
 

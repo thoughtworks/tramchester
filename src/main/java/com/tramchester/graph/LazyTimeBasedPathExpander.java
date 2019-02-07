@@ -5,7 +5,11 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphalgo.CostEvaluator;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.PathExpander;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,68 +17,134 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState> {
+public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     private static final Logger logger = LoggerFactory.getLogger(LazyTimeBasedPathExpander.class);
 
-    private final int maxWait;
+    private final LocalTime queryTime;
     private final RelationshipFactory relationshipFactory;
     private final ServiceHeuristics serviceHeuristics;
 
     private final boolean edgePerService;
-    private final LocalTime queryTime;
+    private final NodeOperations nodeOperations;
+    private final CostEvaluator<Double> cachingCostEvaluator;
+
+    // TODO Base on long possible journey
 
     public LazyTimeBasedPathExpander(LocalTime queryTime, RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics,
-                                     TramchesterConfig config) {
+                                     TramchesterConfig config, NodeOperations nodeOperations, CostEvaluator<Double> cachingCostEvaluator) {
         this.queryTime = queryTime;
         this.relationshipFactory = relationshipFactory;
         this.serviceHeuristics = serviceHeuristics;
-
         edgePerService = config.getEdgePerTrip();
-        maxWait = config.getMaxWait();
+        this.nodeOperations = nodeOperations;
+        this.cachingCostEvaluator = cachingCostEvaluator;
     }
 
     @Override
-    public Iterable<Relationship> expand(Path path, BranchState<GraphBranchState> unusedBranchState) {
+    public Iterable<Relationship> expand(Path path, BranchState<Double> branchState) {
         Node endNode = path.endNode();
+        if (!edgePerService) {
+            return () -> new RelationshipIterable(path);
+        }
 
-        if (edgePerService) {
-            // only pursue outbound edges from a service if days and date match for the service node
-            if (serviceHeuristics.isService(endNode)) {
-                if (serviceHeuristics.checkService(endNode) != ServiceReason.IsValid) {
-                    //logger.info("Skipping service node " + endNode.getProperty(ID));
-                    return Collections.emptyList();
-                }
-            }
-            // only follow hour nodes if match up with possible journeys
-            LocalTime currentElapsed = calculateElapsedTimeForPath(path, queryTime);
-            if (serviceHeuristics.isHour(endNode)) {
-                if (serviceHeuristics.checkTime(endNode, currentElapsed) != ServiceReason.IsValid) {
-                    return Collections.emptyList();
-                }
+        // only pursue outbound edges from a service if days and date match for the service node
+        if (nodeOperations.isService(endNode)) {
+            if (serviceHeuristics.checkService(endNode) != ServiceReason.IsValid) {
+                //logger.info("Skipping service node " + endNode.getProperty(ID));
+                return Collections.emptyList();
             }
         }
 
-        return () -> new RelationshipIterable(path);
+        if (nodeOperations.isHour(endNode)) {
+            int hour = nodeOperations.getHour(endNode);
+            if (!serviceHeuristics.interestedInHour(hour)) {
+                return Collections.emptyList();
+            }
+        }
+
+        // only follow hour nodes if match up with possible journeys
+        if (nodeOperations.isMinute(endNode)) {
+            LocalTime nodeTime = nodeOperations.getTime(endNode);
+            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
+            if (serviceHeuristics.checkTime(nodeTime, currentElapsed) != ServiceReason.IsValid) {
+                return Collections.emptyList();
+            }
+        }
+        return buildSimpleExpandsionList(path);
     }
 
-    public LocalTime calculateElapsedTimeForPath(Path path, LocalTime queryTime) {
-        LocalTime foundTime;
-        Iterator<Relationship> relationshipIterator = path.reverseRelationships().iterator();
+    private Iterable<Relationship> buildSimpleExpandsionList(Path path) {
+        LinkedList<Relationship> result = new LinkedList<>();
+        Relationship inboundToLastNode = path.lastRelationship();
+
+        if (inboundToLastNode==null) {
+            return path.endNode().getRelationships(OUTGOING);
+        }
+
+        boolean inboundWasGoesTo = inboundToLastNode.isType(TRAM_GOES_TO);
+        String inboundSvcId = inboundWasGoesTo ? inboundToLastNode.getProperty(SERVICE_ID).toString() : "";
+        boolean inboundWasBoarding = inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD);
+
+        Iterable<Relationship> iter = path.endNode().getRelationships(OUTGOING);
+        iter.forEach(next -> {
+            if (next.isType(TO_SERVICE)) {
+                // ONLY follow an edge to service node only if service id matches
+                if (inboundWasGoesTo) {
+                    String svcId = next.getProperty(SERVICE_ID).toString();
+                    if (svcId.equals(inboundSvcId)) {
+                        result.add(next);
+                    }
+                } else {
+                    if (inboundWasBoarding) {
+                        // just boarded so can safely ignore svc id
+                        result.add(next);
+                    }
+                }
+            } else {
+                // not a service, so just follow
+                result.add(next); // other cases caught at node level, day, date, and time
+            }
+        });
+
+        return result;
+    }
+
+    public LocalTime calculateElapsedTimeForPath(Path path) {
+        LocalTime time = backtrackToLastSeenTime(path, queryTime);
+        return calculateCostToStartOrLastTimeSeen(path, time);
+    }
+
+    public LocalTime calculateCostToStartOrLastTimeSeen(Path path, LocalTime time) {
         int cost = 0;
+        Iterator<Relationship> relationshipIterator = path.reverseRelationships().iterator();
         while(relationshipIterator.hasNext()) {
             Relationship relationship = relationshipIterator.next();
-            cost = cost +  Integer.parseInt(relationship.getProperty(COST).toString());
+            cost = cost +  cachingCostEvaluator.getCost(relationship, OUTGOING).intValue();
             if (relationship.isType(TRAM_GOES_TO)) {
-                LocalTime time = (LocalTime) relationship.getProperty(DEPART_TIME);
-                foundTime = time.plusMinutes(cost);
-                return foundTime;
+                return time.plusMinutes(cost);
             }
         }
-        return queryTime.plusMinutes(cost);
+        return time.plusMinutes(cost);
+    }
+
+    public LocalTime backtrackToLastSeenTime(Path path, LocalTime time) {
+        Iterator<Node> nodes = path.reverseNodes().iterator();
+        // skip first one, will be current time node
+        nodes.next();
+        while(nodes.hasNext()) {
+            Node node = nodes.next();
+            if (nodeOperations.isMinute(node)) {
+                return nodeOperations.getTime(node);
+            }
+        }
+        return time;
     }
 
     public class RelationshipIterable implements Iterator<Relationship> {
@@ -82,12 +152,11 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
         private final Iterator<Relationship> relationships;
         private final Relationship inboundToLastNode;
 
-        private LocalTime timeHere = LocalTime.MAX;
         private Relationship next;
 
         public RelationshipIterable(Path path) {
             this.path = path;
-            this.relationships = path.endNode().getRelationships(Direction.OUTGOING).iterator();
+            this.relationships = path.endNode().getRelationships(OUTGOING).iterator();
             inboundToLastNode = path.lastRelationship();
         }
 
@@ -96,18 +165,22 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
             while (relationships.hasNext()) {
                 next = relationships.next();
 
-                if (edgePerService && next.isType(SERVICE)) {
-                    // follow an edge to service node only if service id matches
-                    if (inboundToLastNode.isType(TRAM_GOES_TO)) {
-                        String svcId = next.getProperty(SERVICE_ID).toString();
-                        if (svcId.equals(inboundToLastNode.getProperty(SERVICE_ID))) {
+                if (edgePerService) {
+                    if (next.isType(TO_SERVICE)) {
+                        // follow an edge to service node only if service id matches
+                        if (inboundToLastNode.isType(TRAM_GOES_TO)) {
+                            String svcId = next.getProperty(SERVICE_ID).toString();
+                            if (svcId.equals(inboundToLastNode.getProperty(SERVICE_ID))) {
+                                return true;
+                            }
+                        } else if (inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD)) {
+                            // just boarded so ignore svc id
                             return true;
                         }
-                    } else if (inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD)) {
-                        // just boarded so ignore svc id
-                        return true;
+                    } else {
+                        return true; // other cases caught at node level, day, date, and time
                     }
-                } else {
+                } else { // not edgePerService
                     if (!next.isType(TRAM_GOES_TO)) {
                         return true;
                     }
@@ -125,26 +198,10 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
         }
 
         private boolean interestedIn(Relationship graphRelationship) {
+            // NOT called for edgePerService
 
             TransportRelationship outgoing = relationshipFactory.getRelationship(graphRelationship);
-
             GoesToRelationship goesToRelationship = (GoesToRelationship) outgoing;
-
-            if (edgePerService) {
-                LocalTime timeServiceRuns = goesToRelationship.getTimeServiceRuns();
-                if (timeServiceRuns.isBefore(queryTime)) {
-                    return false;
-                }
-                findTimeAtThisPoint(path, queryTime);
-                if (timeServiceRuns.isBefore(timeHere)) {
-                    return false;
-                }
-                LocalTime limit = timeHere.plusMinutes(maxWait);
-                if (timeServiceRuns.isAfter(limit)) {
-                    return false;
-                }
-                return true;
-            }
 
             try {
                 TransportRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
@@ -156,16 +213,10 @@ public class LazyTimeBasedPathExpander implements PathExpander<GraphBranchState>
             return false;
         }
 
-        private void findTimeAtThisPoint(Path path, LocalTime queryTime) {
-            if (timeHere!=LocalTime.MAX) {
-                return;
-            }
-            timeHere = calculateElapsedTimeForPath(path, queryTime);
-        }
     }
 
     @Override
-    public PathExpander<GraphBranchState> reverse() {
+    public PathExpander<Double> reverse() {
         return this;
     }
 

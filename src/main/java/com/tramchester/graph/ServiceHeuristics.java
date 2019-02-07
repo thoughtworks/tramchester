@@ -30,6 +30,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private Optional<LocalTime> boardingTime;
     private final int maxWaitMinutes;
 
+    private int LONGEST_TRIP_LIMIT_MINUTES = 119;
+
     // stats
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final AtomicInteger inflightChange = new AtomicInteger(0);
@@ -70,10 +72,21 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return ServiceReason.IsValid;
     }
 
+
+    public ServiceReason checkTime(LocalTime nodeTime, LocalTime currentElapsed) {
+
+        if (operatesWithinTime(nodeTime, currentElapsed)) {
+            return ServiceReason.IsValid;
+        }
+        timeWrong.incrementAndGet();
+        return new ServiceReason.DoesNotOperateOnTime(queryTime);
+    }
+
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
 
         totalChecked.incrementAndGet();
+
         if (!config.getEdgePerTrip()) {
             // already checked via service node for edge per trip
             if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
@@ -92,15 +105,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         if (config.getEdgePerTrip()) {
-            totalChecked.incrementAndGet();
+            // if node based time check is working should not need to actually check edges by this point
+            return ServiceReason.IsValid;
 
-            ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
-            // single time per edge
-            LocalTime time = goesToRelationship.getTimeServiceRuns();
-            if (!operatesOnTime(time, elapsedTimeProvider)) {
-                timeWrong.incrementAndGet();
-                return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
-            }
         } else {
             ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
             // all times for the service per edge
@@ -189,29 +196,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return false;
     }
 
-    public ServiceReason checkTime(Node node, LocalTime currentElapsed) {
-        totalChecked.incrementAndGet();
-        TramTime nodeTime = nodeOperations.getTime(node);
-
-        if (operatesWithinTime(nodeTime.asLocalTime(), currentElapsed)) {
-            return ServiceReason.IsValid;
-        }
-        timeWrong.incrementAndGet();
-        return new ServiceReason.DoesNotOperateOnTime(queryTime);
-    }
-
-    private boolean operatesOnTime(LocalTime timeHere, ElapsedTime elapsedTime) throws TramchesterException {
-
-        if (operatesWithinTime(timeHere, elapsedTime.getElapsedTime())) {
-            if (elapsedTime.startNotSet()) {
-                LocalTime realJounrneyStartTime = timeHere.minusMinutes(TransportGraphBuilder.BOARDING_COST);
-                elapsedTime.setJourneyStart(realJounrneyStartTime);
-            }
-            return true;
-        }
-        return false;
-    }
-
     private boolean operatesWithinTime(LocalTime timeHere, LocalTime journeyClockTime) {
         TramTime journeyClock = TramTime.of(journeyClockTime);
         if (timeHere.isAfter(journeyClockTime) || timeHere.equals(journeyClockTime)) {
@@ -258,12 +242,21 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         logger.info("Time wrong: " + timeWrong.get());
     }
 
+    public boolean interestedInHour(int hour) {
+        int queryTimeHour = queryTime.getHour();
+        if (hour== queryTimeHour) {
+            return true;
+        }
 
-    public boolean isService(Node endNode) {
-        return nodeOperations.isService(endNode);
-    }
+        LocalTime time = LocalTime.of(hour, 0);
+        if (queryTimeHour<22 && hour<queryTimeHour) {
+            return false;
+        }
+        LocalTime limit = queryTime.plusMinutes(LONGEST_TRIP_LIMIT_MINUTES);
+        if (time.isBefore(limit)) {
+            return true;
+        }
 
-    public boolean isHour(Node node) {
-        return nodeOperations.isHour(node);
+        return false;
     }
 }

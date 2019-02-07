@@ -7,7 +7,6 @@ import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.Traverser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ public class GraphQuery {
     }
 
     public Node getTimeNode(String id) {
-        return getNodeByLabel(id, TransportGraphBuilder.Labels.TIME);
+        return getNodeByLabel(id, TransportGraphBuilder.Labels.HOUR);
     }
 
     private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {

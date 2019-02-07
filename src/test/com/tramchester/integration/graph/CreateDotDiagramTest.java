@@ -38,8 +38,11 @@ public class CreateDotDiagramTest {
     }
 
     @Test
-    public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException, TramchesterException {
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService);
+    public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
+        // TODO
+        int depthLimit = 7;
+
+        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
         creator.create("manchester_trams.dot", Stations.VeloPark.getId());
     }
 

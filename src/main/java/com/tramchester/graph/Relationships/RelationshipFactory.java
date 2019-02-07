@@ -43,8 +43,9 @@ public class RelationshipFactory {
             case ENTER_PLATFORM: return new EnterPlatformRelationship(graphRelationship, nodeFactory);
             case LEAVE_PLATFORM: return new LeavePlatformRelationship(graphRelationship, nodeFactory);
             // edge per service
-            case SERVICE: return new ServiceRelationship(graphRelationship, nodeFactory);
-            case TIME: return new HourRelationship(graphRelationship, nodeFactory);
+            case TO_SERVICE: return new ServiceRelationship(graphRelationship, nodeFactory);
+            case TO_HOUR: return new HourRelationship(graphRelationship, nodeFactory);
+            case TO_MINUTE: return new MinuteRelationship(graphRelationship,nodeFactory);
             default:
                 throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
         }
