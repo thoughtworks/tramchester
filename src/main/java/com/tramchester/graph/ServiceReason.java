@@ -13,19 +13,6 @@ public class ServiceReason {
         return new DoesNotOperateOnTime(queryTime);
     }
 
-    private static class DoesNotRunOnDay extends ServiceReason
-    {
-        private final DaysOfWeek day;
-
-        public DoesNotRunOnDay(DaysOfWeek day) {
-            this.day = day;
-        }
-
-        public String toString() {
-            return "DoesNotRunOnDay:"+day;
-        }
-    }
-
     private static class InflightChangeOfService extends ServiceReason
     {
         public String toString() { return "InflightChangeOfService"; }

@@ -51,30 +51,30 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHaveSimpleJourney() {
-        List<LocalTime> minutes = Arrays.asList(LocalTime.of(8,0));
+        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
                 minutes, new TramServiceDate(when));
         assertTrue(results.size()>0);
     }
 
     @Test
-    public void shouldHaveSimpleOneStopJourney() throws TramchesterException {
+    public void shouldHaveSimpleOneStopJourney() {
         checkRouteNextNDays(Stations.Deansgate, Stations.Cornbrook, when, LocalTime.of(9,0), 1);
     }
 
     @Test
-    public void shouldHaveSimpleManyStopSameLineJourney() throws TramchesterException {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, LocalTime.of(9,0), 1);
+    public void shouldHaveSimpleManyStopSameLineJourney() {
+        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, LocalTime.of(9,0), 20);
     }
 
     @Test
-    public void shouldHaveSimpleManyStopJourney() throws TramchesterException {
+    public void shouldHaveSimpleManyStopJourney() {
         checkRouteNextNDays(Stations.Altrincham, Stations.Bury, when, LocalTime.of(9,0), 1);
     }
 
     @Test
     public void testJourneyFromAltyToAirport() {
-        List<LocalTime> queryTimes = Arrays.asList(LocalTime.of(11,43));
+        List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(11, 43));
         TramServiceDate today = new TramServiceDate(LocalDate.now());
 
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
@@ -99,7 +99,7 @@ public class RouteCalculatorTest {
     public void shouldHandleCrossingMidnight() {
         //TramServiceDate when = new TramServiceDate(LocalDate.now().plusDays(4));
 
-        List<LocalTime> queryTimes = Arrays.asList(LocalTime.of(23,15));
+        List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(23, 15));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.ManAirport.getId(),
                 queryTimes, new TramServiceDate(when));
 
@@ -123,7 +123,7 @@ public class RouteCalculatorTest {
         }
 
         Boolean result = combinations.parallelStream().
-                map(pair -> calc(pair, Arrays.asList(LocalTime.of(12,0)), queryDate)).
+                map(pair -> calc(pair, Collections.singletonList(LocalTime.of(12, 0)), queryDate)).
                 map(journeys -> journeys.size() > 0).
                 reduce(true, (a, b) -> a && b);
         assertTrue(result);
@@ -135,7 +135,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldFindEndOfLinesToEndOfLines() throws TramchesterException {
+    public void shouldFindEndOfLinesToEndOfLines() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
                 checkRouteNextNDays(start, dest, when, LocalTime.of(9,0), 7);
@@ -144,7 +144,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldFindInterchangesToInterchanges() throws TramchesterException {
+    public void shouldFindInterchangesToInterchanges() {
         for (Location start :  Stations.Interchanges) {
             for (Location dest : Stations.Interchanges) {
                 checkRouteNextNDays(start, dest, when, LocalTime.of(9,0), 7);
@@ -153,7 +153,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldFindEndOfLinesToInterchanges() throws TramchesterException {
+    public void shouldFindEndOfLinesToInterchanges() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.Interchanges) {
                 checkRouteNextNDays(start, dest, when, LocalTime.of(9,0), 7);
@@ -162,7 +162,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldFindInterchangesToEndOfLines() throws TramchesterException {
+    public void shouldFindInterchangesToEndOfLines() {
         for (Location start : Stations.Interchanges ) {
             for (Location dest : Stations.EndOfTheLine) {
                 checkRouteNextNDays(start,dest, when, LocalTime.of(8,0), 7);
@@ -171,20 +171,20 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldReproduceIssueCornbrookToAshtonSatursdays() throws TramchesterException {
+    public void shouldReproduceIssueCornbrookToAshtonSatursdays() {
         LocalDate date = TestConfig.nextSaturday();
         checkRouteNextNDays(Stations.Cornbrook, Stations.Ashton, date, LocalTime.of(9,0), 7);
     }
 
     @Test
-    public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() throws TramchesterException {
+    public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
         for(int i=0; i<60; i++) {
             LocalTime time = LocalTime.of(8,i);
             validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, when);
         }
     }
 
-    protected void checkRouteNextNDays(Location start, Location dest, LocalDate date, LocalTime time, int numDays) throws TramchesterException {
+    protected void checkRouteNextNDays(Location start, Location dest, LocalDate date, LocalTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
                 validateAtLeastOneJourney(start, dest, time, date.plusDays(day));
@@ -194,7 +194,7 @@ public class RouteCalculatorTest {
 
     private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
-        Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Arrays.asList(minsPastMid),
+        Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Collections.singletonList(minsPastMid),
                 new TramServiceDate(date));
 
         String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);

@@ -2,7 +2,6 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
@@ -17,7 +16,6 @@ import org.neo4j.graphdb.Node;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.TestCase.fail;
@@ -51,7 +49,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         LocalTime queryTime = LocalTime.of(9,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
-                queryTime, date, runningServices);
+                queryTime, runningServices);
 
         runningServices.add("serviceIdA");
 
@@ -73,7 +71,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         LocalTime queryTime = LocalTime.of(9,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
-                queryTime, date, runningServices);
+                queryTime, runningServices);
 
         // querytime + costSoFar + maxWait (for board) = latest time could arrive here
         // querytime + costSoFar + 0 = earlier time could arrive here
@@ -91,7 +89,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         LocalTime queryTime = LocalTime.of(9,50);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
-                queryTime, date, runningServices);
+                queryTime, runningServices);
 
         int costSoFar = 15;
 
@@ -107,7 +105,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         LocalTime queryTime = LocalTime.of(23,10);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
-                queryTime, date, runningServices);
+                queryTime, runningServices);
         assertFalse(serviceHeuristics.interestedInHour(22, costSoFar));
         assertTrue(serviceHeuristics.interestedInHour(23, costSoFar));
         assertFalse(serviceHeuristics.interestedInHour(0, costSoFar));
@@ -120,7 +118,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         LocalTime queryTime = LocalTime.of(23,10);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
-                queryTime, date, runningServices);
+                queryTime, runningServices);
         assertFalse(serviceHeuristics.interestedInHour(22, costSoFar));
         assertTrue(serviceHeuristics.interestedInHour(23, costSoFar));
         assertTrue(serviceHeuristics.interestedInHour(0, costSoFar));
@@ -145,7 +143,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         ElapsedTime providerI = createNoMatchProvider(am640.plusMinutes(601));
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, date, runningServices);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, runningServices);
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerA));
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerB));
         assertTrue(serviceHeuristics.operatesOnTime(tramTimes, providerC));
@@ -177,7 +175,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         replayAll();
         TramchesterConfig configuration = new NeedMaxWaitConfig(15);
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, configuration, NOT_USED_HERE, date, runningServices);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, configuration, NOT_USED_HERE, runningServices);
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerA));
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerB));
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerC));
@@ -202,7 +200,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         ElapsedTime providerC = createNoMatchProvider(am640.plusMinutes(51));
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, date, runningServices);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, runningServices);
         assertFalse(serviceHeuristics.operatesOnTime(time, providerA));
         assertTrue(serviceHeuristics.operatesOnTime(time, providerB));
         assertFalse(serviceHeuristics.operatesOnTime(time, providerC));
@@ -218,7 +216,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(provider.startNotSet()).andReturn(false);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, date, runningServices);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, runningServices);
         assertTrue(serviceHeuristics.operatesOnTime(time, provider));
         verifyAll();
     }
@@ -242,52 +240,13 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
                 endDate, "destB", null, null, tripId);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, startDate, runningServices);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, runningServices);
         assertTrue(serviceHeuristics.sameService(board, outA));
         assertTrue(serviceHeuristics.sameService(depart, outA));
         assertTrue(serviceHeuristics.sameService(change, outA));
         assertTrue(serviceHeuristics.sameService(outA, outA));
         assertFalse(serviceHeuristics.sameService(outB, outA));
         verifyAll();
-    }
-
-
-    @Test
-    public void shouldCheckTramServiceDate() {
-        TramServiceDate startDate = new TramServiceDate(LocalDate.of(2016, 6, 1));
-        TramServiceDate endDate = new TramServiceDate(LocalDate.of(2016, 6, 29));
-
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, startDate, runningServices);
-
-        assertTrue(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(LocalDate.of(2016, 6, 15))));
-        assertTrue(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(LocalDate.of(2016, 6, 1))));
-        serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(LocalDate.of(2016, 6, 29)));
-        assertFalse(serviceHeuristics.operatesOnQueryDate(startDate, endDate,
-                new TramServiceDate(LocalDate.of(2016, 12, 15))));
-
-    }
-
-    @Test
-    public void shouldCheckIfTramRunsOnADay() {
-
-        checkDay(true,false,false,false,false,false,false, DaysOfWeek.Monday);
-        checkDay(false,true,false,false,false,false,false,DaysOfWeek.Tuesday);
-        checkDay(false,false,true,false,false,false,false,DaysOfWeek.Wednesday);
-        checkDay(false,false,false,true,false,false,false,DaysOfWeek.Thursday);
-        checkDay(false,false,false,false,true,false,false,DaysOfWeek.Friday);
-        checkDay(false,false,false,false,false,true,false,DaysOfWeek.Saturday);
-        checkDay(false, false, false, false, false, false, true, DaysOfWeek.Sunday);
-    }
-
-    private void checkDay(boolean d1, boolean d2, boolean d3, boolean d4,
-                          boolean d5, boolean d6, boolean d7, DaysOfWeek day) {
-
-        boolean[] days = new boolean[]{d1, d2, d3, d4, d5, d6, d7};
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, date, runningServices);
-        assertTrue(serviceHeuristics.operatesOnDayOnWeekday(days, day));
     }
 
     private ElapsedTime createMatchProvider(LocalTime queryTime, LocalTime journeyStart) throws TramchesterException {

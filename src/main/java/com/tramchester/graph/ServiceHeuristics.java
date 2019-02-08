@@ -25,9 +25,7 @@ import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
-    private final TramServiceDate date;
     private final Set<String> runningServices;
-    private final DaysOfWeek day;
     private final LocalTime queryTime;
 
     private final CostEvaluator<Double> costEvaluator;
@@ -40,16 +38,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger inflightChange = new AtomicInteger(0);
     private final AtomicInteger dateWrong = new AtomicInteger(0);
     private final AtomicInteger timeWrong = new AtomicInteger(0);
-    private final AtomicInteger dayWrong = new AtomicInteger(0);
 
-    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config, LocalTime queryTime, TramServiceDate date, Set<String> runningServices) {
+    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config,
+                             LocalTime queryTime, Set<String> runningServices) {
         this.nodeOperations = nodeOperations;
         this.config = config;
 
         this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = config.getMaxWait();
-        this.date = date;
-        this.day = date.getDay();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
         boardingTime = Optional.empty();
@@ -65,20 +61,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             dateWrong.incrementAndGet();
             return ServiceReason.DoesNotRunOnQueryDate;
         }
-
-//        boolean[] days = nodeOperations.getDays(node);
-//        if (!operatesOnDayOnWeekday(days, day)) {
-//            dayWrong.incrementAndGet();
-//            return new ServiceReason.DoesNotRunOnDay(day);
-//        }
-//        // date
-//        TramServiceDate startDate = nodeOperations.getServiceStartDate(node);
-//        TramServiceDate endDate = nodeOperations.getServiceEndDate(node);
-//        if (!operatesOnQueryDate(startDate, endDate, date)) {
-//            dateWrong.incrementAndGet();
-//            return ServiceReason.DoesNotRunOnQueryDate;
-//        }
-//        return ServiceReason.IsValid;
     }
 
     // edge per trip
@@ -93,7 +75,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
-
         totalChecked.incrementAndGet();
 
         if (!config.getEdgePerTrip()) {
@@ -103,16 +84,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
                 dateWrong.incrementAndGet();
                 return ServiceReason.DoesNotRunOnQueryDate;
             }
-
-//            if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
-//                dayWrong.incrementAndGet();
-//                return new ServiceReason.DoesNotRunOnDay(day);
-//            }
-//            if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), date))
-//            {
-//                dateWrong.incrementAndGet();
-//                return ServiceReason.DoesNotRunOnQueryDate;
-//            }
 
             if (!sameService(incoming, goesToRelationship)) {
                 inflightChange.incrementAndGet();
@@ -134,39 +105,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         return ServiceReason.IsValid;
-    }
-
-    public boolean operatesOnQueryDate(TramServiceDate startDate, TramServiceDate endDate, TramServiceDate queryDate) {
-        return Service.operatesOn(startDate, endDate, queryDate.getDate());
-    }
-
-    public boolean operatesOnDayOnWeekday(boolean[] days, DaysOfWeek today) {
-        boolean operates = false;
-        switch (today) {
-            case Monday:
-                operates = days[0];
-                break;
-            case Tuesday:
-                operates = days[1];
-                break;
-            case Wednesday:
-                operates =  days[2];
-                break;
-            case Thursday:
-                operates = days[3];
-                break;
-            case Friday:
-                operates = days[4];
-                break;
-            case Saturday:
-                operates = days[5];
-                break;
-            case Sunday:
-                operates = days[6];
-                break;
-        }
-
-        return operates;
     }
 
     public boolean sameService(TransportRelationship incoming, GoesToRelationship outgoing) {
@@ -245,7 +183,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     public void reportStats() {
         logger.info("Total checked: " + totalChecked.get());
         logger.info("Date mismatch: " + dateWrong.get());
-        logger.info("Day mismatch: " + dayWrong.get());
         logger.info("Service change: " + inflightChange.get());
         logger.info("Time wrong: " + timeWrong.get());
     }

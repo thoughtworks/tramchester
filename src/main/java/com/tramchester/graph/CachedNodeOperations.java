@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.TramServiceDate;
 import org.neo4j.graphdb.Node;
 
 import java.time.LocalTime;
@@ -22,21 +21,6 @@ public class CachedNodeOperations implements NodeOperations {
         serviceNodes = new ConcurrentHashMap<>();
         times = new ConcurrentHashMap<>();
         minuteNotes = new ConcurrentHashMap<>();
-    }
-
-    @Override
-    public boolean[] getDays(Node node) {
-        return (boolean[]) node.getProperty(GraphStaticKeys.DAYS);
-    }
-
-    @Override
-    public TramServiceDate getServiceStartDate(Node node) {
-        return new TramServiceDate(node.getProperty(GraphStaticKeys.SERVICE_START_DATE).toString());
-    }
-
-    @Override
-    public TramServiceDate getServiceEndDate(Node node) {
-        return new TramServiceDate(node.getProperty(GraphStaticKeys.SERVICE_END_DATE).toString());
     }
 
     @Override

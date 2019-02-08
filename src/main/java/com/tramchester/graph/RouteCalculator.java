@@ -125,9 +125,9 @@ public class RouteCalculator extends StationIndexs {
                 stream().
                 map(svc -> svc.getServiceId()).
                 collect(Collectors.toSet());
-        
+
         queryTimes.forEach(queryTime -> {
-            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config, queryTime, queryDate, runningServices);
+            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config, queryTime, runningServices);
             PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
                     serviceHeuristics, config, nodeOperations, costEvaluator);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
