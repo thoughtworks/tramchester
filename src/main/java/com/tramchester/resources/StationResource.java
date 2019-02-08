@@ -31,10 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -65,7 +62,7 @@ public class StationResource extends UsesRecentCookie {
         this.stationRepository = transportData;
         this.liveDataRepository = liveDataRepository;
         this.providesNotes = providesNotes;
-        allStationsSorted = new LinkedList<>();
+        allStationsSorted = new ArrayList<>();
     }
 
     private LocalDateTime getLocalNow() {
@@ -97,7 +94,7 @@ public class StationResource extends UsesRecentCookie {
 
     private List<Station> getStations() {
         if (allStationsSorted.isEmpty()) {
-            List<Station> rawList = stationRepository.getStations();
+            Set<Station> rawList = stationRepository.getStations();
             allStationsSorted = rawList.stream().
                     sorted(Comparator.comparing(Station::getName)).
                     filter(station -> !closedStations.contains(station.getName())).

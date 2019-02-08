@@ -42,24 +42,60 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     @Test
     public void shouldBeInterestedInCorrectHours() {
         LocalTime queryTime = LocalTime.of(9,1);
+
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
                 date, queryTime);
-        assertFalse(serviceHeuristics.interestedInHour(8));
-        assertTrue(serviceHeuristics.interestedInHour(9));
-        assertTrue(serviceHeuristics.interestedInHour(10));
-        assertFalse(serviceHeuristics.interestedInHour(11));
+
+        // querytime + costSoFar + maxWait (for board) = latest time could arrive here
+        // querytime + costSoFar + 0 = earlier time could arrive here
+
+        int costSoFar = 58;
+
+        assertFalse(serviceHeuristics.interestedInHour(8, costSoFar));
+        assertTrue(serviceHeuristics.interestedInHour(9, costSoFar));
+        assertTrue(serviceHeuristics.interestedInHour(10, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(11, costSoFar));
+    }
+
+    @Test
+    public void shouldBeInterestedInCorrectHoursCrossesNextHour() {
+        LocalTime queryTime = LocalTime.of(9,50);
+
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+                date, queryTime);
+
+        int costSoFar = 15;
+
+        assertFalse(serviceHeuristics.interestedInHour(8, costSoFar));
+        assertTrue(serviceHeuristics.interestedInHour(9, costSoFar));
+        assertTrue(serviceHeuristics.interestedInHour(10, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(11, costSoFar));
     }
 
     @Test
     public void shouldBeInterestedInCorrectHoursOverMidnight() {
+        int costSoFar = 15;
+
         LocalTime queryTime = LocalTime.of(23,10);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
                 date, queryTime);
-        assertFalse(serviceHeuristics.interestedInHour(22));
-        assertTrue(serviceHeuristics.interestedInHour(23));
-        assertTrue(serviceHeuristics.interestedInHour(0));
-        assertTrue(serviceHeuristics.interestedInHour(1));
-        assertFalse(serviceHeuristics.interestedInHour(2));
+        assertFalse(serviceHeuristics.interestedInHour(22, costSoFar));
+        assertTrue(serviceHeuristics.interestedInHour(23, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(0, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(1, costSoFar));
+    }
+
+    @Test
+    public void shouldBeInterestedInCorrectHoursOverMidnightLongerJourney() {
+        int costSoFar = 51;
+
+        LocalTime queryTime = LocalTime.of(23,10);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+                date, queryTime);
+        assertFalse(serviceHeuristics.interestedInHour(22, costSoFar));
+        assertTrue(serviceHeuristics.interestedInHour(23, costSoFar));
+        assertTrue(serviceHeuristics.interestedInHour(0, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(1, costSoFar));
     }
 
     @Test

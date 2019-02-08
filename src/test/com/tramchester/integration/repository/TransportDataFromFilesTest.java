@@ -33,9 +33,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv003046";
+    private final String svcDeansgateToVic = "Serv003071";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv003045";
+    private String svcShawAndCrompton = "Serv003070";
 
     private Collection<Service> allServices;
 
@@ -80,7 +80,7 @@ public class TransportDataFromFilesTest {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
 
-        assertEquals(14, tramRoutes);
+        assertEquals(12, tramRoutes);
     }
 
     @Test
@@ -193,7 +193,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldHaveAtLeastOnePlatformForEveryStation() {
-        List<Station> stations = transportData.getStations();
+        Set<Station> stations = transportData.getStations();
         List<Platform> found = new LinkedList<>();
         stations.forEach(station->{
             transportData.getPlatformById(station.getId()+"1").ifPresent(platform->found.add(platform));
@@ -289,7 +289,7 @@ public class TransportDataFromFilesTest {
 
         assertEquals(allSvcs, allServices.size());
 
-        List<Station> allsStations = transportData.getStations();
+        Set<Station> allsStations = transportData.getStations();
 
         Set<Trip> allTrips = new HashSet<>();
         allsStations.forEach(station -> allTrips.addAll(transportData.getTripsFor(station.getId())));

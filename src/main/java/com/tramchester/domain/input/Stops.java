@@ -95,13 +95,13 @@ public class Stops  implements Iterable<Stop> {
 
         // In the past
         if (firstStopDepartureTime.asLocalTime().isBefore(timeWindow.queryTime())) {
-            if (!firstStopDepartureTime.isEarlyMorning()) {
+            if (!TramTime.isEarlyMorning(firstStopDepartureTime.getHourOfDay())) {
                 return false;
             }
         }
 
         if (secondStopArriveTime.asLocalTime().isBefore(firstStopDepartureTime.asLocalTime())) {
-            if (!secondStopArriveTime.isEarlyMorning()) {
+            if (!TramTime.isEarlyMorning(secondStopArriveTime.getHourOfDay())) {
                 return false;
             }
         }

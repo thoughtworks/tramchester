@@ -144,7 +144,7 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     }
 
     @Override
-    public List<Station> getStations() {
+    public Set<Station> getStations() {
         return null;
     }
 

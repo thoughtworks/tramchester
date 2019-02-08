@@ -18,7 +18,6 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -62,9 +61,11 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             }
         }
 
+        // TODO does this include cost to current node?
+        int costSoFar = branchState.getState().intValue();
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
-            if (!serviceHeuristics.interestedInHour(hour)) {
+            if (!serviceHeuristics.interestedInHour(hour, costSoFar)) {
                 return Collections.emptyList();
             }
         }
@@ -95,21 +96,12 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         Iterable<Relationship> iter = path.endNode().getRelationships(OUTGOING);
         iter.forEach(next -> {
             if (next.isType(TO_SERVICE)) {
-                // ONLY follow an edge to service node only if service id matches
-                if (inboundWasGoesTo) {
-                    String svcId = next.getProperty(SERVICE_ID).toString();
-                    if (svcId.equals(inboundSvcId)) {
-                        result.add(next);
-                    }
-                } else {
-                    if (inboundWasBoarding) {
-                        // just boarded so can safely ignore svc id
-                        result.add(next);
-                    }
+                if (serviceHeuristics.checkForSvcChange(inboundWasGoesTo, inboundWasBoarding, inboundSvcId, next)) {
+                    result.add(next);
                 }
             } else {
-                // not a service, so just follow
-                result.add(next); // other cases caught at node level, day, date, and time
+                // not a service, so just follow, put at end
+                result.addLast(next); // other cases caught at node level, day, date, and time
             }
         });
 

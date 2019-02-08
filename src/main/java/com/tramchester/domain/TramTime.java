@@ -74,7 +74,7 @@ public class  TramTime implements Comparable<TramTime> {
     }
 
     private static int diffenceAsMinutesOverMidnight(TramTime earlier, TramTime later) {
-        if (earlier.isEarlyMorning() && later.isLateNight()) {
+        if (isEarlyMorning(earlier.hour) && isLateNight(later.hour)) {
             int untilMidnight = (24*60)-later.minutesOfDay();
             return untilMidnight+earlier.minutesOfDay();
         } else {
@@ -82,11 +82,11 @@ public class  TramTime implements Comparable<TramTime> {
         }
     }
 
-    private boolean isLateNight() {
+    public static boolean isLateNight(int hour) {
         return hour==23 || hour==22;
     }
 
-    public boolean isEarlyMorning() {
+    public static boolean isEarlyMorning(int hour) {
         return hour==0 || hour==1;
     }
 
@@ -145,10 +145,10 @@ public class  TramTime implements Comparable<TramTime> {
 
     @Override
     public int compareTo(TramTime other) {
-        if (this.isLateNight() && other.isEarlyMorning()) {
+        if (isLateNight(hour) && isEarlyMorning(other.hour)) {
             return -1; // is less than
         }
-        if (this.isEarlyMorning() && other.isLateNight()) {
+        if (isEarlyMorning(hour) && isLateNight(other.hour)) {
             return 1; // is more than
         }
         // otherwise
@@ -160,7 +160,7 @@ public class  TramTime implements Comparable<TramTime> {
     }
 
     public boolean departsAfter(TramTime other) {
-        if (this.isEarlyMorning() && other.isLateNight()) {
+        if (isEarlyMorning(hour) && isLateNight(other.hour)) {
             return true;
         }
         return this.isAtOrAfter(other);

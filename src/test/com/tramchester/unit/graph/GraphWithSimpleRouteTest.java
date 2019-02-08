@@ -44,7 +44,7 @@ public class GraphWithSimpleRouteTest {
     private List<LocalTime> queryTimes;
     private Station firstStation;
 
-    // TODO Use dependency init instead??
+    // TODO Use dependency init instead, this is messy
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
         transportData = new TransportDataForTest();

@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 public class ServiceTest {
 
     @Test
-    public void shouldSetStartDateAndEndDate() throws Exception {
+    public void shouldSetStartDateAndEndDate() {
 
         Service service = new Service("", "");
 
@@ -37,7 +37,7 @@ public class ServiceTest {
     }
 
     @Test
-    public void shouldAddTripsToService() throws Exception {
+    public void shouldAddTripsToService() {
 
         Service service = new Service("", "");
 
@@ -49,7 +49,7 @@ public class ServiceTest {
     }
 
     @Test
-    public void shouldSetWeekendDaysOnService() throws Exception {
+    public void shouldSetWeekendDaysOnService() {
         Service service = new Service("", "");
 
         service.setDays(false, false, false, false, false, true, true);
@@ -65,7 +65,7 @@ public class ServiceTest {
     }
 
     @Test
-    public void shouldSetRouteIdAndServiceId() throws Exception {
+    public void shouldSetRouteIdAndServiceId() {
         Service service = new Service("SRV001", "ROUTE66");
 
         assertThat(service.getRouteId()).isEqualTo("ROUTE66");
@@ -74,7 +74,7 @@ public class ServiceTest {
 
 
     @Test
-    public void shouldCheckIfServiceIsNotRunning() throws Exception {
+    public void shouldCheckIfServiceIsNotRunning() {
         Service service = new Service("", "");
 
         service.setDays(false, false, false, false, false, false, false);
@@ -83,7 +83,7 @@ public class ServiceTest {
     }
 
     @Test
-    public void shouldCheckIfServiceIsRunning() throws Exception {
+    public void shouldCheckIfServiceIsRunning() {
         Service service = new Service("", "");
 
         service.setDays(false, false, true, false, false, false, false);

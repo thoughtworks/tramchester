@@ -111,7 +111,7 @@ public class RouteCalculatorTest {
         TramServiceDate queryDate = new TramServiceDate(when);
         TransportData data = dependencies.get(TransportData.class);
 
-        List<Station> allStations = data.getStations();
+        Set<Station> allStations = data.getStations();
         List<Pair<Location,Location>> combinations = new LinkedList<>();
 
         for (Location start : allStations) {

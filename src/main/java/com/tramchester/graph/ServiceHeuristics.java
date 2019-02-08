@@ -11,12 +11,15 @@ import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
 
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
@@ -29,8 +32,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final NodeOperations nodeOperations;
     private Optional<LocalTime> boardingTime;
     private final int maxWaitMinutes;
-
-    private int LONGEST_TRIP_LIMIT_MINUTES = 119;
 
     // stats
     private final AtomicInteger totalChecked = new AtomicInteger(0);
@@ -68,11 +69,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             dateWrong.incrementAndGet();
             return ServiceReason.DoesNotRunOnQueryDate;
         }
-
         return ServiceReason.IsValid;
     }
 
 
+    // edge per trip
     public ServiceReason checkTime(LocalTime nodeTime, LocalTime currentElapsed) {
 
         if (operatesWithinTime(nodeTime, currentElapsed)) {
@@ -211,14 +212,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return false;
     }
 
-    private String log(int[] times) {
-        StringBuilder builder = new StringBuilder();
-        for (int time : times) {
-            builder.append(time+" ");
-        }
-        return builder.toString();
-    }
-
     @Override
     public void save(LocalTime time) {
         boardingTime = Optional.of(time);
@@ -242,21 +235,51 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         logger.info("Time wrong: " + timeWrong.get());
     }
 
-    public boolean interestedInHour(int hour) {
+    // querytime + costSoFar + maxWait (for board) = latest time could arrive here
+    // querytime + costSoFar + 0 = earlier time could arrive here
+    public boolean interestedInHour(int hour, int costSoFar) {
+        // quick win
         int queryTimeHour = queryTime.getHour();
         if (hour== queryTimeHour) {
             return true;
         }
+        TramTime earliestTime = TramTime.of(queryTime.plusMinutes(costSoFar));
 
-        LocalTime time = LocalTime.of(hour, 0);
-        if (queryTimeHour<22 && hour<queryTimeHour) {
+
+        TramTime latestTimeInHour = TramTime.of(hour, 59);
+        if (latestTimeInHour.compareTo(earliestTime)<0) {
             return false;
         }
-        LocalTime limit = queryTime.plusMinutes(LONGEST_TRIP_LIMIT_MINUTES);
-        if (time.isBefore(limit)) {
+//        if (TramTime.diffenceAsMinutes(earliestTime, latestTimeInHour)<60) {
+//            return true;
+//        }
+
+        TramTime earliestTimeInHour = TramTime.of(hour, 0);
+        if (TramTime.diffenceAsMinutes(earliestTimeInHour, earliestTime)<=maxWaitMinutes) {
             return true;
         }
 
+        return false;
+    }
+
+    public boolean checkForSvcChange(boolean inboundWasGoesTo, boolean inboundWasBoarding, String inboundSvcId,
+                                     Relationship next) {
+
+        // ONLY follow an edge to service node only if service id matches
+        if (inboundWasGoesTo) {
+            String svcId = next.getProperty(SERVICE_ID).toString();
+            if (svcId.equals(inboundSvcId)) {
+                // same service
+                return true;
+            }
+        }
+        // else
+        if (inboundWasBoarding) {
+            // just got on board, so don't care about previous service id
+            return true;
+        }
+        // else
+        inflightChange.incrementAndGet();
         return false;
     }
 }

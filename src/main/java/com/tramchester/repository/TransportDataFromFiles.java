@@ -16,14 +16,15 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 public class TransportDataFromFiles implements TransportData, StationRepository, AreasRepository, PlatformRepository, ServiceTimes {
-
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
+
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private HashMap<String, Station> stations = new HashMap<>();  // station id -> station
     private HashMap<String, Service> services = new HashMap<>();  // service id -> service
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
-    private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
+
+    private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
 
     public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
@@ -53,7 +54,6 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         );
 
         logger.info("Data load is complete");
-
     }
 
     private void populateCalendars(Stream<CalendarData> calendars) {
@@ -185,8 +185,8 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         return trips.get(tripId);
     }
 
-    public List<Station> getStations() {
-        ArrayList<Station> stationList = new ArrayList<>();
+    public Set<Station> getStations() {
+        Set<Station> stationList = new HashSet<>();
         stationList.addAll(stations.values());
         return stationList;
     }
@@ -251,7 +251,6 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         });
         return callingTrips;
     }
-
 
     @Override
     public List<AreaDTO> getAreas() {
