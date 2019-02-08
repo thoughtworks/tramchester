@@ -9,6 +9,7 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.repository.TransportData;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.PathFinder;
@@ -23,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -40,11 +42,13 @@ public class RouteCalculator extends StationIndexs {
     private final CostEvaluator<Double> costEvaluator;
     private final TramchesterConfig config;
     private final NodeOperations nodeOperations;
+    private final TransportData transportData;
 
-    public RouteCalculator(GraphDatabaseService db, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
+    public RouteCalculator(GraphDatabaseService db, TransportData transportData, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
                            SpatialDatabaseService spatialDatabaseService, NodeOperations nodeOperations, MapPathToStages pathToStages,
                            CostEvaluator<Double> costEvaluator, TramchesterConfig config) {
         super(db, relationshipFactory, spatialDatabaseService, true);
+        this.transportData = transportData;
         this.nodeFactory = nodeFactory;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
@@ -60,7 +64,7 @@ public class RouteCalculator extends StationIndexs {
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = getStationNode(startStationId);
 
-            gatherJounerys(endNode, queryTimes, queryDate, journeys, startNode, MAX_NUM_GRAPH_PATHS);
+            gatherJounerys(startNode, endNode, queryTimes, queryDate, MAX_NUM_GRAPH_PATHS, journeys);
 
             tx.success();
         }
@@ -75,7 +79,7 @@ public class RouteCalculator extends StationIndexs {
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node startNode = getAreaNode(areaB.getAreaName());
 
-            gatherJounerys(endNode, queryTimes, queryDate, journeys, startNode, MAX_NUM_GRAPH_PATHS);
+            gatherJounerys(startNode, endNode, queryTimes, queryDate, MAX_NUM_GRAPH_PATHS, journeys);
 
             tx.success();
         }
@@ -107,7 +111,7 @@ public class RouteCalculator extends StationIndexs {
                 addedWalks.add(walkingRelationship);
             });
 
-            gatherJounerys(endNode, queryTimes, queryDate, journeys, startNode, limit);
+            gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, journeys);
 
             // must delete relationships first, otherwise may not delete node
             addedWalks.forEach(walk -> walk.delete());
@@ -116,10 +120,14 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    private void gatherJounerys(Node endNode, List<LocalTime> queryTimes, TramServiceDate queryDate, Set<RawJourney> journeys,
-                                Node startNode, int limit) {
+    private void gatherJounerys(Node startNode, Node endNode, List<LocalTime> queryTimes, TramServiceDate queryDate, int limit, Set<RawJourney> journeys) {
+        Set<String> runningServices = transportData.getServicesOnDate(queryDate).
+                stream().
+                map(svc -> svc.getServiceId()).
+                collect(Collectors.toSet());
+        
         queryTimes.forEach(queryTime -> {
-            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config, queryDate, queryTime);
+            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config, queryTime, queryDate, runningServices);
             PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
                     serviceHeuristics, config, nodeOperations, costEvaluator);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);

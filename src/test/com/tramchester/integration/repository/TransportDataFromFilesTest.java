@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.Dependencies;
+import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
@@ -18,6 +19,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,6 +83,23 @@ public class TransportDataFromFilesTest {
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
 
         assertEquals(12, tramRoutes);
+    }
+
+    @Test
+    public void shouldGetServicesByDate() {
+        LocalDate localDate = TestConfig.nextSaturday();
+        TramServiceDate date = new TramServiceDate(localDate);
+        Set<Service> results = transportData.getServicesOnDate(date);
+
+        assertFalse(results.isEmpty());
+        long saturdays = results.stream().filter(svc -> svc.getDays().get(DaysOfWeek.Saturday)).count();
+        assertEquals(results.size(), saturdays);
+        long onDate = results.stream().filter(svc -> svc.operatesOn(localDate)).count();
+        assertEquals(results.size(), onDate);
+
+        LocalDate noTramsDate = transportData.getFeedInfo().validUntil().plusMonths(12);
+        results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
+        assertTrue(results.isEmpty());
     }
 
     @Test

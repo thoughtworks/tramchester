@@ -71,7 +71,7 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         return tripId;
     }
 
-    public String getService() {
+    public String getServiceId() {
         if (service==null) {
             service = graphRelationship.getProperty(GraphStaticKeys.SERVICE_ID).toString();
         }
@@ -100,7 +100,7 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
     @Override
     public String toString() {
         return "TramGoesToRelationship{" +
-                "service='" + getService() + '\'' +
+                "service='" + getServiceId() + '\'' +
                 ", startDate=" + getStartDate() +
                 ", endDate=" + getEndDate() +
                 '}';

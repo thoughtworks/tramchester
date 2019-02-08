@@ -23,4 +23,5 @@ public interface NodeOperations {
 
     LocalTime getTime(Node node);
 
+    String getServiceId(Node node);
 }

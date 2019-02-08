@@ -9,7 +9,11 @@ public class ServiceReason {
     public static IsValid IsValid = new IsValid();
     public static DoesNotRunOnQueryDate DoesNotRunOnQueryDate = new DoesNotRunOnQueryDate();
 
-    static class DoesNotRunOnDay extends ServiceReason
+    public static ServiceReason DoesNotOperateOnTime(LocalTime queryTime) {
+        return new DoesNotOperateOnTime(queryTime);
+    }
+
+    private static class DoesNotRunOnDay extends ServiceReason
     {
         private final DaysOfWeek day;
 
@@ -22,21 +26,22 @@ public class ServiceReason {
         }
     }
 
-    static class InflightChangeOfService extends ServiceReason
+    private static class InflightChangeOfService extends ServiceReason
     {
         public String toString() { return "InflightChangeOfService"; }
     }
 
-    static class IsValid extends ServiceReason
+    private static class IsValid extends ServiceReason
     {
+        public String toString() { return "IsValid"; }
     }
 
-    static class DoesNotRunOnQueryDate extends ServiceReason
+    private static class DoesNotRunOnQueryDate extends ServiceReason
     {
         public String toString() { return "DoesNotRunOnQueryDate"; }
     }
 
-    static class DoesNotOperateOnTime extends ServiceReason
+    private static class DoesNotOperateOnTime extends ServiceReason
     {
         private LocalTime elapsedTime;
 

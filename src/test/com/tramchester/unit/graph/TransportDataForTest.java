@@ -31,15 +31,16 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     public static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
 
     private Map<String, Station> stationMap = new HashMap<>();
-
-    private Collection<Route> routes;
     private Map<String,Platform> platforms;
+    private Collection<Route> routes;
+    private Set<Service> services;
 
     public TransportDataForTest() throws TramchesterException {
         double latitude = 180.00;
         double longitude = 270.0;
 
         routes = new LinkedList<>();
+        services = new HashSet<>();
         platforms = new HashMap<>();
         Route routeA = new Route("routeAId", "routeACode", "routeA", "MET");
         Route routeB = new Route("routeBId", "routeBCode", "routeB", "MET");
@@ -63,6 +64,10 @@ public class TransportDataForTest implements TransportData, StationRepository, P
         serviceA.setServiceDateRange(startDate, endDate);
         serviceB.setServiceDateRange(startDate, endDate);
         serviceC.setServiceDateRange(startDate, endDate);
+
+        services.add(serviceA);
+        services.add(serviceB);
+        services.add(serviceC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         Trip tripA = new Trip("tripAId", "headSign", serviceAId, routeA.getId());
@@ -129,23 +134,33 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     }
 
     @Override
+    public Collection<Service> getServices() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public Set<Service> getServicesOnDate(TramServiceDate date) {
+        return services;
+    }
+
+    @Override
     public Collection<Route> getRoutes() {
         return routes;
     }
 
     @Override
     public Stream<Trip> getTripsByRouteId(String routeId) {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public Route getRoute(String routeId) {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public Set<Station> getStations() {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override

@@ -73,7 +73,7 @@ public class GraphWithSimpleRouteTest {
         CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
 
         MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
-        calculator = new RouteCalculator(graphDBService, nodeFactory, relationshipFactory,
+        calculator = new RouteCalculator(graphDBService, transportData, nodeFactory, relationshipFactory,
                 spatialDatabaseService, nodeOperations, mapper, costEvaluator, configuration);
     }
 

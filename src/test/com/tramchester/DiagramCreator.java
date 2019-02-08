@@ -115,7 +115,7 @@ public class DiagramCreator {
             if (service.hasTripId()) {
                 id = service.getTripId();
             } else {
-                id = service.getService();
+                id = service.getServiceId();
             }
             builder.append(format("\"%s\"->\"%s\" [label=\"%s\"];\n",
                     startNodeId, service.getEndNode().getId(), id

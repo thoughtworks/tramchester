@@ -97,7 +97,7 @@ public class MapTransportRelationshipsToStages {
     private void recordGoesTo(MappingState state, TransportRelationship transportRelationship) {
         // routeStation -> routeStation
         GoesToRelationship goesToRelationship = (GoesToRelationship) transportRelationship;
-        String serviceId = goesToRelationship.getService();
+        String serviceId = goesToRelationship.getServiceId();
         logger.info(format("Add stage service %s, elapsed %s", serviceId, state.getElapsedTime()));
 
         if (!state.isOnService()) {

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -27,7 +28,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
     private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
 
-    public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
+    public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> rawRoutes, Stream<TripData> rawTrips,
                                   Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
                                   Stream<FeedInfo> feedInfo)  {
         logger.info("Loading transport data from files");
@@ -39,10 +40,15 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         }
 
         populateStationsAndAreas(stops);
-        populateRoutes(routes);
-        populateTrips(trips);
+        populateRoutes(rawRoutes);
+        populateTrips(rawTrips);
         populateStopTimes(stopTimes);
         populateCalendars(calendars);
+
+        logger.info(format("%s stations", stations.size()));
+        logger.info(format("%s routes", this.routes.size()));
+        logger.info(format("%s services", services.size()));
+        logger.info(format("%s trips", this.trips.size()));
 
         // update svcs where calendar data is missing
         services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
@@ -240,6 +246,15 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
 
     public Collection<Service> getServices() {
         return Collections.unmodifiableCollection(services.values());
+    }
+
+    @Override
+    public Set<Service> getServicesOnDate(TramServiceDate date) {
+        DaysOfWeek day = date.getDay();
+        return Collections.unmodifiableSet(services.values().stream().
+                filter(svc -> svc.getDays().get(day)).
+                filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toSet()));
+
     }
 
     public Set<Trip> getTripsFor(String stationId) {

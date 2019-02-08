@@ -51,6 +51,11 @@ public class CachedNodeOperations implements NodeOperations {
     }
 
     @Override
+    public String getServiceId(Node node) {
+        return node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+    }
+
+    @Override
     public boolean isService(Node node) {
         return checkForLabel(serviceNodes, node, TransportGraphBuilder.Labels.SERVICE);
     }

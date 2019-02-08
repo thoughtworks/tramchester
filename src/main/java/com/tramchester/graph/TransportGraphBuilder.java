@@ -307,7 +307,7 @@ public class TransportGraphBuilder extends StationIndexs {
         String svcNodeId = format("%s_%s_%s", start.getId(), route.getId(), service.getServiceId());
         Node serviceNode = graphQuery.getServiceNode(svcNodeId);
         if (serviceNode==null) {
-            logger.info(format("Creating service node '%s' for service '%s'", svcNodeId, service.getServiceId()));
+            //logger.info(format("Creating service node '%s' for service '%s'", svcNodeId, service.getServiceId()));
             serviceNode = createGraphNode(Labels.SERVICE);
             serviceNode.setProperty(GraphStaticKeys.ID, svcNodeId);
             serviceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
@@ -327,7 +327,6 @@ public class TransportGraphBuilder extends StationIndexs {
         String hourNodeIdent = format("%s_%s", svcNodeId, departureTime.getHourOfDay());
         Node hourNode = graphQuery.getTimeNode(hourNodeIdent);
         if (hourNode==null) {
-            logger.info("Create an hour node with ID " + hourNodeIdent);
             hourNode = createGraphNode(Labels.HOUR);
             hourNode.setProperty(GraphStaticKeys.ID, hourNodeIdent);
             hourNode.setProperty(GraphStaticKeys.HOUR, departureTime.getHourOfDay());
@@ -341,7 +340,6 @@ public class TransportGraphBuilder extends StationIndexs {
         String minuteNodeId = format("%s_%s", svcNodeId, departureTime.toPattern());
         Node minuteNode = graphQuery.getTimeNode(minuteNodeId);
         if (minuteNode==null) {
-            logger.info("Create a minute node with ID " + minuteNodeId);
             minuteNode = createGraphNode(Labels.MINUTE);
             minuteNode.setProperty(GraphStaticKeys.ID, minuteNodeId);
             minuteNode.setProperty(GraphStaticKeys.TIME, departureTime.asLocalTime());

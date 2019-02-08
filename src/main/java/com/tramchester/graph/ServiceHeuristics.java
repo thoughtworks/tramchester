@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
@@ -25,6 +26,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
     private final TramServiceDate date;
+    private final Set<String> runningServices;
     private final DaysOfWeek day;
     private final LocalTime queryTime;
 
@@ -40,8 +42,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger timeWrong = new AtomicInteger(0);
     private final AtomicInteger dayWrong = new AtomicInteger(0);
 
-    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config, TramServiceDate date,
-                             LocalTime queryTime) {
+    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config, LocalTime queryTime, TramServiceDate date, Set<String> runningServices) {
         this.nodeOperations = nodeOperations;
         this.config = config;
 
@@ -50,6 +51,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.date = date;
         this.day = date.getDay();
         this.queryTime = queryTime;
+        this.runningServices = runningServices;
         boardingTime = Optional.empty();
     }
     
@@ -57,21 +59,27 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     public ServiceReason checkService(Node node){
         totalChecked.incrementAndGet();
         // days
-        boolean[] days = nodeOperations.getDays(node);
-        if (!operatesOnDayOnWeekday(days, day)) {
-            dayWrong.incrementAndGet();
-            return new ServiceReason.DoesNotRunOnDay(day);
-        }
-        // date
-        TramServiceDate startDate = nodeOperations.getServiceStartDate(node);
-        TramServiceDate endDate = nodeOperations.getServiceEndDate(node);
-        if (!operatesOnQueryDate(startDate, endDate, date)) {
+        if (runningServices.contains(nodeOperations.getServiceId(node))) {
+            return ServiceReason.IsValid;
+        } else {
             dateWrong.incrementAndGet();
             return ServiceReason.DoesNotRunOnQueryDate;
         }
-        return ServiceReason.IsValid;
-    }
 
+//        boolean[] days = nodeOperations.getDays(node);
+//        if (!operatesOnDayOnWeekday(days, day)) {
+//            dayWrong.incrementAndGet();
+//            return new ServiceReason.DoesNotRunOnDay(day);
+//        }
+//        // date
+//        TramServiceDate startDate = nodeOperations.getServiceStartDate(node);
+//        TramServiceDate endDate = nodeOperations.getServiceEndDate(node);
+//        if (!operatesOnQueryDate(startDate, endDate, date)) {
+//            dateWrong.incrementAndGet();
+//            return ServiceReason.DoesNotRunOnQueryDate;
+//        }
+//        return ServiceReason.IsValid;
+    }
 
     // edge per trip
     public ServiceReason checkTime(LocalTime nodeTime, LocalTime currentElapsed) {
@@ -80,7 +88,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         timeWrong.incrementAndGet();
-        return new ServiceReason.DoesNotOperateOnTime(queryTime);
+        return ServiceReason.DoesNotOperateOnTime(queryTime);
     }
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
@@ -90,15 +98,22 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         if (!config.getEdgePerTrip()) {
             // already checked via service node for edge per trip
-            if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
-                dayWrong.incrementAndGet();
-                return new ServiceReason.DoesNotRunOnDay(day);
-            }
-            if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), date))
-            {
+            String serviceId = goesToRelationship.getServiceId();
+            if (!runningServices.contains(serviceId)) {
                 dateWrong.incrementAndGet();
                 return ServiceReason.DoesNotRunOnQueryDate;
             }
+
+//            if (!operatesOnDayOnWeekday(goesToRelationship.getDaysServiceRuns(), day)) {
+//                dayWrong.incrementAndGet();
+//                return new ServiceReason.DoesNotRunOnDay(day);
+//            }
+//            if (!operatesOnQueryDate(goesToRelationship.getStartDate(), goesToRelationship.getEndDate(), date))
+//            {
+//                dateWrong.incrementAndGet();
+//                return ServiceReason.DoesNotRunOnQueryDate;
+//            }
+
             if (!sameService(incoming, goesToRelationship)) {
                 inflightChange.incrementAndGet();
                 return ServiceReason.InflightChangeOfService;
@@ -114,7 +129,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             // all times for the service per edge
             if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
                 timeWrong.incrementAndGet();
-                return new ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
+                return ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
             }
         }
 
@@ -159,8 +174,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return true; // not a connecting relationship
         }
         GoesToRelationship goesToRelationship = (GoesToRelationship) incoming;
-        String service = goesToRelationship.getService();
-        return service.equals(outgoing.getService());
+        String service = goesToRelationship.getServiceId();
+        return service.equals(outgoing.getServiceId());
     }
 
     public boolean operatesOnTime(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
@@ -235,24 +250,20 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         logger.info("Time wrong: " + timeWrong.get());
     }
 
-    // querytime + costSoFar + maxWait (for board) = latest time could arrive here
-    // querytime + costSoFar + 0 = earlier time could arrive here
     public boolean interestedInHour(int hour, int costSoFar) {
         // quick win
         int queryTimeHour = queryTime.getHour();
         if (hour== queryTimeHour) {
             return true;
         }
-        TramTime earliestTime = TramTime.of(queryTime.plusMinutes(costSoFar));
 
+
+        TramTime earliestTime = TramTime.of(queryTime.plusMinutes(costSoFar));
 
         TramTime latestTimeInHour = TramTime.of(hour, 59);
         if (latestTimeInHour.compareTo(earliestTime)<0) {
             return false;
         }
-//        if (TramTime.diffenceAsMinutes(earliestTime, latestTimeInHour)<60) {
-//            return true;
-//        }
 
         TramTime earliestTimeInHour = TramTime.of(hour, 0);
         if (TramTime.diffenceAsMinutes(earliestTimeInHour, earliestTime)<=maxWaitMinutes) {

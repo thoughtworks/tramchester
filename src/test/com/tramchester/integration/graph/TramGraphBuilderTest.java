@@ -2,7 +2,6 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.TramTime;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.ServiceNode;
@@ -22,10 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
@@ -108,7 +104,7 @@ public class TramGraphBuilderTest {
             if (in instanceof TramGoesToRelationship) svcsToMediaCity.add((TramGoesToRelationship) in);
         });
 
-        Set<String> serviceId = svcsToMediaCity.stream().map(svc -> svc.getService()).collect(Collectors.toSet());
+        Set<String> serviceId = svcsToMediaCity.stream().map(svc -> svc.getServiceId()).collect(Collectors.toSet());
 
         assertEquals(1, boards.size());
         assertEquals(14, serviceId.size());
@@ -183,7 +179,7 @@ public class TramGraphBuilderTest {
 
         outbounds.stream().filter(out->out.isGoesTo()).forEach(out -> {
                     TramGoesToRelationship goesTo = (TramGoesToRelationship) out;
-                    String svcId = goesTo.getService();
+                    String svcId = goesTo.getServiceId();
                     Service svc = transportData.getServiceById(svcId);
                     Set<Trip> trips = svc.getTrips();
                     List<Trip> tripsThatCall = trips.stream().filter(trip -> trip.getStops().stream().
@@ -288,7 +284,7 @@ public class TramGraphBuilderTest {
         });
 
         outbounds.forEach(outbound -> {
-            String svcId = outbound.getService();
+            String svcId = outbound.getServiceId();
             assertTrue(svcId,fileSvcs.contains(svcId));
         });
     }
@@ -354,7 +350,7 @@ public class TramGraphBuilderTest {
                 TramGoesToRelationship tramGoesToRelationship = (TramGoesToRelationship) outbound;
                 LocalTime[] runsAt = tramGoesToRelationship.getTimesServiceRuns();
                 assertTrue(runsAt.length >0 );
-                logger.info(String.format("%s", tramGoesToRelationship.getService()));
+                logger.info(String.format("%s", tramGoesToRelationship.getServiceId()));
                 logger.info(display(runsAt));
                 boolean[] days = tramGoesToRelationship.getDaysServiceRuns();
                 logger.info(display(days));
@@ -394,7 +390,7 @@ public class TramGraphBuilderTest {
         svcsFromVelopark.removeIf(svc -> !svc.getDaysServiceRuns()[0]); // monday
         assertTrue(!svcsFromVelopark.isEmpty());
         svcsFromVelopark.removeIf(svc -> !transportData.getServiceById(
-                svc.getService()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
+                svc.getServiceId()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
         assertTrue(!svcsFromVelopark.isEmpty());
 
         assertTrue(svcsFromVelopark.size() >=1 );

@@ -185,7 +185,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         replayAll();
         TramGoesToRelationship tramRelationship = (TramGoesToRelationship) relationshipFactory.getRelationship(relationship);
         assertEquals(42, tramRelationship.getCost());
-        assertEquals("service99", tramRelationship.getService());
+        assertEquals("service99", tramRelationship.getServiceId());
 //        assertEquals("dest", tramRelationship.getDest());
         assertSame(times, tramRelationship.getTimesServiceRuns());
         assertSame(days, tramRelationship.getDaysServiceRuns());
@@ -218,7 +218,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         replayAll();
         TramGoesToRelationship tramRelationship = (TramGoesToRelationship) relationshipFactory.getRelationship(relationship);
         assertEquals(42, tramRelationship.getCost());
-        assertEquals("service99", tramRelationship.getService());
+        assertEquals("service99", tramRelationship.getServiceId());
 //        assertEquals("dest", tramRelationship.getDest());
         assertEquals(time, tramRelationship.getTimeServiceRuns());
         assertTrue(tramRelationship.hasTripId());
