@@ -30,8 +30,11 @@ public class TransportGraphBuilder extends StationIndexs {
 
     public static final int INTERCHANGE_DEPART_COST = 1;
     public static final int INTERCHANGE_BOARD_COST = 1;
+
     public static final int DEPARTS_COST = 1;
     public static final int BOARDING_COST = 2;
+
+    public static final int PLATFORM_COST = 0;
 
     private int numberNodes = 0;
     private int numberRelationships = 0;
@@ -166,13 +169,13 @@ public class TransportGraphBuilder extends StationIndexs {
     }
 
     private Node getOrCreatePlatform(Stop stop) {
-        String id = stop.getId();
+        String stopId = stop.getId();
 
-        Node platformNode = getPlatformNode(id);
+        Node platformNode = getPlatformNode(stopId);
         if (platformNode==null) {
             platformNode = createGraphNode(Labels.PLATFORM);
-            platformNode.setProperty(GraphStaticKeys.ID, id);
-            String platformName = id.substring(id.length()-1); // the final digit of the ID
+            platformNode.setProperty(GraphStaticKeys.ID, stopId);
+            String platformName = stopId.substring(stopId.length()-1); // the final digit of the ID
             platformNode.setProperty(GraphStaticKeys.Station.NAME, format("%s Platform %s",stop.getStation().getName(),platformName));
         }
         return platformNode;
@@ -180,14 +183,33 @@ public class TransportGraphBuilder extends StationIndexs {
 
     private Node getOrCreateRouteStation(Stop stop, Route route, Service service) {
         Location station = stop.getStation();
+        String stationId = station.getId();
         String callingPointId = createCallingPointId(station, route);
-        Node callingPoint = getRouteStationNode(callingPointId);
 
+        Node callingPoint = getRouteStationNode(callingPointId);
         if ( callingPoint == null) {
              callingPoint = createCallingPoint(station, route, callingPointId, service);
         }
 
         Node stationNode = getOrCreateStation(station);
+
+        Node platformNode = stationNode;
+
+        String stationOrPlatformID = stationId;
+        if (station.isTram()) {
+            // add a platform node between station and calling points
+            platformNode = getOrCreatePlatform(stop);
+            stationOrPlatformID = stop.getId();
+            // station -> platform & platform -> station
+            if (!hasPlatform(stationId, stationOrPlatformID)) {
+                Relationship crossToPlatform = createRelationship(stationNode, platformNode, TransportRelationshipTypes.ENTER_PLATFORM);
+                crossToPlatform.setProperty(COST, PLATFORM_COST);
+                Relationship crossFromPlatform = createRelationship(platformNode, stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
+                crossFromPlatform.setProperty(COST, PLATFORM_COST);
+                // always create together
+                platforms.add(stationId + stationOrPlatformID);
+            }
+        }
 
         TransportRelationshipTypes boardType;
         TransportRelationshipTypes departType;
@@ -203,26 +225,6 @@ public class TransportGraphBuilder extends StationIndexs {
             boardCost = BOARDING_COST;
             departType = TransportRelationshipTypes.DEPART;
             departCost = DEPARTS_COST;
-        }
-
-        String stationId = station.getId();
-
-        Node platformNode = stationNode;
-
-        String stationOrPlatformID = stationId;
-        if (station.isTram()) {
-            // add a platform node between station and calling points
-            platformNode = getOrCreatePlatform(stop);
-            stationOrPlatformID = stop.getId();
-            // station -> platform & platform -> station
-            if (!hasPlatform(stationId, stationOrPlatformID)) {
-                Relationship crossToPlatform = createRelationship(stationNode, platformNode, TransportRelationshipTypes.ENTER_PLATFORM);
-                crossToPlatform.setProperty(COST, 0);
-                Relationship crossFromPlatform = createRelationship(platformNode, stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
-                crossFromPlatform.setProperty(COST, 0);
-                // always create together
-                platforms.add(stationId + stationOrPlatformID);
-            }
         }
 
         // boarding: platform/station ->  callingPoint

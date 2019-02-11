@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
+import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_BOARD;
 import static org.junit.Assert.assertEquals;
 
 public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
@@ -89,6 +91,9 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
 
+        EasyMock.expect(lastRelationship.isType(BOARD)).andStubReturn(false);
+        EasyMock.expect(lastRelationship.isType(INTERCHANGE_BOARD)).andStubReturn(false);
+
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
                 serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
@@ -110,6 +115,9 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
+
+        EasyMock.expect(lastRelationship.isType(BOARD)).andStubReturn(false);
+        EasyMock.expect(lastRelationship.isType(INTERCHANGE_BOARD)).andStubReturn(false);
 
         TransportRelationship incoming = createMock(TransportRelationship.class);
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
@@ -143,6 +151,9 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
         EasyMock.expect(path.lastRelationship()).andReturn(lastRelationship);
 
+        EasyMock.expect(lastRelationship.isType(BOARD)).andStubReturn(false);
+        EasyMock.expect(lastRelationship.isType(INTERCHANGE_BOARD)).andStubReturn(false);
+
         TransportRelationship incoming = createMock(TransportRelationship.class);
 
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andReturn(incoming);
@@ -174,6 +185,9 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         Relationship lastRelationship = createMock(Relationship.class);
         EasyMock.expect(path.lastRelationship()).andStubReturn(lastRelationship);
+        EasyMock.expect(lastRelationship.isType(BOARD)).andStubReturn(false);
+        EasyMock.expect(lastRelationship.isType(INTERCHANGE_BOARD)).andStubReturn(false);
+
         TransportRelationship incoming = createMock(TransportRelationship.class);
 
         EasyMock.expect(mockRelationshipFactory.getRelationship(lastRelationship)).andStubReturn(incoming);

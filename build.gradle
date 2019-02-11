@@ -63,7 +63,8 @@ dependencies {
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:3.4',
             'org.seleniumhq.selenium:selenium-java:3.11.0',
-            'io.appium:java-client:4.1.2'
+            'io.appium:java-client:4.1.2',
+            'org.hamcrest:hamcrest:2.1'
 }
 
 sourceSets {

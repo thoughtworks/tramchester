@@ -34,7 +34,7 @@ public class MapTransportRelationshipsToStages {
         this.platformRepository = platformRepository;
     }
 
-    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime minsPastMidnight) throws TramchesterException {
+    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime minsPastMidnight) {
         MappingState state = new MappingState(platformRepository, stationRepository, minsPastMidnight, routeIdToClass);
 
         for (TransportRelationship transportRelationship : transportRelationships) {

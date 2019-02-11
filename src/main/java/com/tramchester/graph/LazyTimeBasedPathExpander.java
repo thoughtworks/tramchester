@@ -54,10 +54,9 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             return () -> new RelationshipIterable(path);
         }
 
-        // only pursue outbound edges from a service service runs today
+        // only pursue outbound edges from a service service runs today & within time
         if (nodeOperations.isService(endNode)) {
             if (serviceHeuristics.checkService(endNode) != ServiceReason.IsValid) {
-                //logger.info("Skipping service node " + endNode.getProperty(ID));
                 return Collections.emptyList();
             }
         }
@@ -144,14 +143,19 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     public class RelationshipIterable implements Iterator<Relationship> {
         private final Path path;
         private final Iterator<Relationship> relationships;
-        private final Relationship inboundToLastNode;
+        private final boolean justBoarded;
 
         private Relationship next;
 
         public RelationshipIterable(Path path) {
             this.path = path;
             this.relationships = path.endNode().getRelationships(OUTGOING).iterator();
-            inboundToLastNode = path.lastRelationship();
+            Relationship inboundToLastNode = path.lastRelationship();
+            if (inboundToLastNode!=null) {
+                justBoarded = inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD);
+            } else {
+                justBoarded = false;
+            }
         }
 
         @Override
@@ -160,26 +164,34 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                 next = relationships.next();
 
                 if (edgePerService) {
-                    if (next.isType(TO_SERVICE)) {
-                        // follow an edge to service node only if service id matches
-                        if (inboundToLastNode.isType(TRAM_GOES_TO)) {
-                            String svcId = next.getProperty(SERVICE_ID).toString();
-                            if (svcId.equals(inboundToLastNode.getProperty(SERVICE_ID))) {
-                                return true;
-                            }
-                        } else if (inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD)) {
-                            // just boarded so ignore svc id
+//                    if (next.isType(TO_SERVICE)) {
+//                        // follow an edge to service node only if service id matches
+//                        if (inboundToLastNode.isType(TRAM_GOES_TO)) {
+//                            String svcId = next.getProperty(SERVICE_ID).toString();
+//                            if (svcId.equals(inboundToLastNode.getProperty(SERVICE_ID))) {
+//                                return true;
+//                            }
+//                        } else if (inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD)) {
+//                            // just boarded so ignore svc id
+//                            return true;
+//                        }
+//                    } else {
+//                        return true; // other cases caught at node level, day, date, and time
+//                    }
+                } else {
+                    if (next.isType(TRAM_GOES_TO)) {
+                        if (interestedIn(next)) {
                             return true;
                         }
                     } else {
-                        return true; // other cases caught at node level, day, date, and time
-                    }
-                } else { // not edgePerService
-                    if (!next.isType(TRAM_GOES_TO)) {
-                        return true;
-                    }
-                    if (interestedIn(next)) {
-                        return true;
+                        if (!justBoarded) {
+                            return true;
+                        }
+                        // so we just boarded a tram, don't attempt to immediately get off again
+                        boolean departing = next.isType(DEPART) || next.isType(INTERCHANGE_DEPART);
+                        if (!departing) {
+                            return true;
+                        }
                     }
                 }
             }

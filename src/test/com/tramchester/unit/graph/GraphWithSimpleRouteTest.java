@@ -128,9 +128,10 @@ public class GraphWithSimpleRouteTest {
     public void shouldTestJourneyWithLocationBasedStart() {
         LatLong origin = new LatLong(180.001, 270.001);
         int walkCost = 1;
-        List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
 
+        List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
         Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
+
         Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, endStation, queryTimes, queryDate);
 
         assertEquals(1, journeys.size());

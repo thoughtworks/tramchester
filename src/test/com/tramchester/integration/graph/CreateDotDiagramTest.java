@@ -43,7 +43,7 @@ public class CreateDotDiagramTest {
         int depthLimit = 7;
 
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
-        creator.create("manchester_trams.dot", Stations.VeloPark.getId());
+        creator.create("manchester_trams.dot", Stations.Deansgate.getId());
     }
 
 }

@@ -15,7 +15,9 @@ import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
+import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
+import org.neo4j.kernel.impl.util.NoneStrictMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +72,6 @@ public class RouteCalculator extends StationIndexs {
         }
         return journeys;
     }
-
 
     public Set<RawJourney> calculateRoute(AreaDTO areaA, AreaDTO areaB, List<LocalTime> queryTimes, TramServiceDate queryDate) {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
@@ -131,6 +132,7 @@ public class RouteCalculator extends StationIndexs {
             PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
                     serviceHeuristics, config, nodeOperations, costEvaluator);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
+            logger.info(format("Journey from %s to %s at %s on %s limit:%s", startNode, endNode, queryTime, queryDate, limit));
             mapStreamToJourneySet(journeys, paths, limit, queryTime);
             serviceHeuristics.reportStats();
         });
@@ -170,7 +172,8 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        PathFinder<WeightedPath> pathFinder = new Dijkstra(pathExpander, costEvaluator);
+        PathFinder<WeightedPath> pathFinder = new Dijkstra(pathExpander, costEvaluator,
+                PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
 
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
         return StreamSupport.stream(pathIterator.spliterator(), false);

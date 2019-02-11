@@ -22,7 +22,6 @@ import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,17 +32,20 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.tramchester.TestConfig.dateFormatDashes;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIn.isOneOf;
+import static org.hamcrest.collection.IsIn.oneOf;
 import static org.joda.time.DateTimeConstants.SATURDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
 import static org.junit.Assert.assertEquals;
@@ -123,8 +125,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         PlatformDTO platform2 = secondStage.getPlatform();
 
         assertEquals("1", platform2.getPlatformNumber());
-        assertEquals( "Piccadilly platform 1", platform2.getName());
-        assertEquals( Stations.Piccadilly.getId()+"1", platform2.getId());
+        // two possible places to change
+        assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1")));
+        assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.getId()+"1", Stations.Cornbrook.getId()+"1")));
     }
 
     @Test
@@ -137,7 +140,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        assertEquals(1, journeys.size());
+        assertTrue(journeys.size()>0);
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
     }
 

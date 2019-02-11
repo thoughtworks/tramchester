@@ -83,21 +83,21 @@ public class RouteCalculatorTest {
         assertTrue(results.size()>0);    // results is iterator
         for (RawJourney result : results) {
             List<RawStage> stages = result.getStages();
-            assertEquals(2, stages.size());
+            assertTrue(stages.size()>=2);
             RawVehicleStage firstStage = (RawVehicleStage) stages.get(0);
             assertEquals(Stations.Altrincham, firstStage.getFirstStation());
             assertEquals(Stations.TraffordBar, firstStage.getLastStation());
             assertEquals(TransportMode.Tram, firstStage.getMode());
-            RawVehicleStage secondStage = (RawVehicleStage) stages.get(1);
-            assertEquals(Stations.TraffordBar, secondStage.getFirstStation());
-            assertEquals(Stations.ManAirport, secondStage.getLastStation());
-            assertEquals(TransportMode.Tram, secondStage.getMode());
+
+            RawVehicleStage finalStage = (RawVehicleStage) stages.get(stages.size()-1);
+            //assertEquals(Stations.TraffordBar, secondStage.getFirstStation()); // THIS CAN CHANGE
+            assertEquals(Stations.ManAirport, finalStage.getLastStation());
+            assertEquals(TransportMode.Tram, finalStage.getMode());
         }
     }
 
     @Test
     public void shouldHandleCrossingMidnight() {
-        //TramServiceDate when = new TramServiceDate(LocalDate.now().plusDays(4));
 
         List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(23, 15));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.ManAirport.getId(),
@@ -168,6 +168,11 @@ public class RouteCalculatorTest {
                 checkRouteNextNDays(start,dest, when, LocalTime.of(8,0), 7);
             }
         }
+    }
+
+    @Test
+    public void reproduceIssueWithImmediateDepartOffABoardedTram() {
+        checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, when, LocalTime.of(8,0), 7);
     }
 
     @Test

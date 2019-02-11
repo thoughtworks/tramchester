@@ -1,9 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.Service;
-import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
@@ -87,33 +84,30 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
-        totalChecked.incrementAndGet();
-
-        if (!config.getEdgePerTrip()) {
-            // already checked via service node for edge per trip
-            String serviceId = goesToRelationship.getServiceId();
-            if (!runningServices.contains(serviceId)) {
-                dateWrong.incrementAndGet();
-                return ServiceReason.DoesNotRunOnQueryDate;
-            }
-
-            if (!sameService(incoming, goesToRelationship)) {
-                inflightChange.incrementAndGet();
-                return ServiceReason.InflightChangeOfService;
-            }
-        }
 
         if (config.getEdgePerTrip()) {
             // if node based time check is working should not need to actually check edges by this point
             return ServiceReason.IsValid;
+        }
 
-        } else {
-            ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
-            // all times for the service per edge
-            if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
-                timeWrong.incrementAndGet();
-                return ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
-            }
+        totalChecked.incrementAndGet();
+        // already checked via service node for edge per trip
+        String serviceId = goesToRelationship.getServiceId();
+        if (!runningServices.contains(serviceId)) {
+            dateWrong.incrementAndGet();
+            return ServiceReason.DoesNotRunOnQueryDate;
+        }
+
+        if (!sameService(incoming, goesToRelationship)) {
+            inflightChange.incrementAndGet();
+            return ServiceReason.InflightChangeOfService;
+        }
+
+        ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
+        // all times for the service per edge
+        if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
+            timeWrong.incrementAndGet();
+            return ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
         }
 
         return ServiceReason.IsValid;
@@ -132,6 +126,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         if (times.length==0) {
             logger.warn("No times provided");
         }
+        totalChecked.getAndIncrement();
         LocalTime journeyClockTime = provider.getElapsedTime();
         TramTime journeyClock = TramTime.of(journeyClockTime);
 
@@ -201,6 +196,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public boolean interestedInHour(int hour, int costSoFar) {
         // quick win
+        totalChecked.getAndIncrement();
+
         int queryTimeHour = queryTime.getHour();
         if (hour== queryTimeHour) {
             return true;
