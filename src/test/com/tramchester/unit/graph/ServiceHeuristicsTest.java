@@ -23,6 +23,8 @@ import static org.junit.Assert.*;
 
 public class ServiceHeuristicsTest extends EasyMockSupport {
 
+    public static final int MAX_WAIT = 30;
+
     private LocalTime am10 = LocalTime.of(10,0);
     private LocalTime[] tramTimes = new LocalTime[] { am10,
             am10.plusMinutes(100),
@@ -30,22 +32,20 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
             am10.plusMinutes(300),
             am10.plusMinutes(400) };
     private CachingCostEvaluator costEvaluator;
-    private TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(30);
-    private TramServiceDate date;
+    private TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private LocalTime NOT_USED_HERE = LocalTime.of(23,59);
     private NodeOperations nodeOperations;
     private Set<String> runningServices;
 
     @Before
     public void beforeEachTestRuns() {
-        date = new TramServiceDate(LocalDate.now());
         costEvaluator = new CachingCostEvaluator();
         nodeOperations = new CachedNodeOperations();
         runningServices = new HashSet<>();
     }
 
     @Test
-    public void shouldCheckNodeBasedOnServiceId() {
+    public void shouldCheckNodeBasedOnServiceIdAndTimeMatches() {
         LocalTime queryTime = LocalTime.of(9,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
@@ -55,6 +55,9 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         Node node = createMock(Node.class);
         EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(9,0));
+        EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,30));
+
         EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdB");
 
         replayAll();
@@ -64,6 +67,56 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         result = serviceHeuristics.checkService(node);
         assertEquals(ServiceReason.DoesNotRunOnQueryDate, result);
         verifyAll();
+    }
+
+    @Test
+    public void shouldCheckNodeBasedOnServiceIdAndTimeOverlaps() {
+        LocalTime queryTime = LocalTime.of(9,1);
+
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+                queryTime, runningServices);
+
+        runningServices.add("serviceIdA");
+
+        // no longer running at query time
+        Node tooEarlyNode = createMock(Node.class);
+        EasyMock.expect(tooEarlyNode.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
+        EasyMock.expect(tooEarlyNode.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(8,00));
+        EasyMock.expect(tooEarlyNode.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(8,30));
+
+        // doesnt start running until after query time
+        Node tooLateNode = createMock(Node.class);
+        EasyMock.expect(tooLateNode.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
+        EasyMock.expect(tooLateNode.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(queryTime.plusMinutes(MAX_WAIT+1));
+
+        // starts before query, but still running within max wait
+        Node overlapStartsBefore = createMock(Node.class);
+        EasyMock.expect(overlapStartsBefore.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
+        EasyMock.expect(overlapStartsBefore.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(8,50));
+        EasyMock.expect(overlapStartsBefore.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,20));
+
+        // starts after query within max wait, finishes after max wait
+        Node overlapStartsAfter = createMock(Node.class);
+        EasyMock.expect(overlapStartsAfter.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
+        EasyMock.expect(overlapStartsAfter.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(9,20));
+        EasyMock.expect(overlapStartsAfter.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,45));
+
+        // starts before query, finishes after max wait
+        Node overlapStartsBeforeFinishesAfter = createMock(Node.class);
+        EasyMock.expect(overlapStartsBeforeFinishesAfter.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
+        EasyMock.expect(overlapStartsBeforeFinishesAfter.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(8,45));
+        EasyMock.expect(overlapStartsBeforeFinishesAfter.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,20));
+
+        replayAll();
+        assertEquals(ServiceReason.DoesNotOperateOnTime(queryTime), serviceHeuristics.checkService(tooEarlyNode));
+        assertEquals(ServiceReason.DoesNotOperateOnTime(queryTime), serviceHeuristics.checkService(tooLateNode));
+
+        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsBefore));
+        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsAfter));
+        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsBeforeFinishesAfter));
+
+        verifyAll();
+
     }
 
     @Test

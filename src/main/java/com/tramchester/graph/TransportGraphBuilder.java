@@ -311,9 +311,13 @@ public class TransportGraphBuilder extends StationIndexs {
             serviceNode = createGraphNode(Labels.SERVICE);
             serviceNode.setProperty(GraphStaticKeys.ID, svcNodeId);
             serviceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+
             serviceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
             serviceNode.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
             serviceNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
+
+            serviceNode.setProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME, service.earliestDepartTime().asLocalTime());
+            serviceNode.setProperty(GraphStaticKeys.SERVICE_LATEST_TIME, service.latestDepartTime().asLocalTime());
 
             // start route station -> svc node
             Relationship svcRelationship = createRelationship(routeStationStart, serviceNode, TransportRelationshipTypes.TO_SERVICE);

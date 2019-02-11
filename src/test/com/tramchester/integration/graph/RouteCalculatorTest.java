@@ -64,7 +64,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, LocalTime.of(9,0), 20);
+        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, LocalTime.of(9,0), 1);
     }
 
     @Test

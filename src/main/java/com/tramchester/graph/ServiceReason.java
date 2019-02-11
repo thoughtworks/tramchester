@@ -1,7 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.DaysOfWeek;
-
 import java.time.LocalTime;
 
 public class ServiceReason {
@@ -30,6 +28,15 @@ public class ServiceReason {
 
     private static class DoesNotOperateOnTime extends ServiceReason
     {
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof DoesNotOperateOnTime)) {
+                return false;
+            }
+            DoesNotOperateOnTime other = (DoesNotOperateOnTime) obj;
+            return other.elapsedTime.equals(this.elapsedTime);
+        }
+
         private LocalTime elapsedTime;
 
         public DoesNotOperateOnTime(LocalTime elapsedTime) {

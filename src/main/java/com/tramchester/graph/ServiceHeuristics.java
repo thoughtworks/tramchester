@@ -48,14 +48,25 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.maxWaitMinutes = config.getMaxWait();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
+
+        // for none edge per trip path
         boardingTime = Optional.empty();
     }
     
     // edge per trip
     public ServiceReason checkService(Node node){
         totalChecked.incrementAndGet();
+        LocalTime limitTime = queryTime.plusMinutes(maxWaitMinutes);
         // days
         if (runningServices.contains(nodeOperations.getServiceId(node))) {
+            if (limitTime.isBefore(nodeOperations.getServiceEarliest(node).asLocalTime())) {
+                timeWrong.getAndIncrement();
+                return ServiceReason.DoesNotOperateOnTime(queryTime);
+            }
+            if (queryTime.isAfter(nodeOperations.getServiceLatest(node).asLocalTime())) {
+                timeWrong.getAndIncrement();
+                return ServiceReason.DoesNotOperateOnTime(queryTime);
+            }
             return ServiceReason.IsValid;
         } else {
             dateWrong.incrementAndGet();
@@ -65,6 +76,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     // edge per trip
     public ServiceReason checkTime(LocalTime nodeTime, LocalTime currentElapsed) {
+        totalChecked.getAndIncrement();
 
         if (operatesWithinTime(nodeTime, currentElapsed)) {
             return ServiceReason.IsValid;
@@ -194,11 +206,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return true;
         }
 
-
         TramTime earliestTime = TramTime.of(queryTime.plusMinutes(costSoFar));
 
         TramTime latestTimeInHour = TramTime.of(hour, 59);
         if (latestTimeInHour.compareTo(earliestTime)<0) {
+            timeWrong.getAndIncrement();
             return false;
         }
 
@@ -207,6 +219,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return true;
         }
 
+        timeWrong.getAndIncrement();
         return false;
     }
 
@@ -223,7 +236,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
         // else
         if (inboundWasBoarding) {
-            // just got on board, so don't care about previous service id
+            // just got on board, so don't care about previous service
             return true;
         }
         // else

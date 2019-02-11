@@ -2,7 +2,10 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.TramTime;
+import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.integration.Stations;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -10,6 +13,7 @@ import java.util.HashMap;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ServiceTest {
@@ -42,10 +46,17 @@ public class ServiceTest {
         Service service = new Service("", "");
 
         Trip trip = new Trip("001", "Deansgate", "SVC002", "");
+        trip.addStop(new Stop("stopId1", Stations.Deansgate, TramTime.of(9,5), TramTime.of(9,6), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId2", Stations.Deansgate, TramTime.of(8,15), TramTime.of(8,16), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId3", Stations.Deansgate, TramTime.of(10,25), TramTime.of(10,26), "Rid", "Sid"));
+
         service.addTrip(trip);
 
         assertThat(service.getTrips()).hasSize(1);
         assertThat(service.getTrips()).contains(trip);
+
+        assertEquals(TramTime.of(8,16), service.earliestDepartTime());
+        assertEquals(TramTime.of(10,26), service.latestDepartTime());
     }
 
     @Test

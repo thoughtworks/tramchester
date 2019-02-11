@@ -49,11 +49,12 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     @Override
     public Iterable<Relationship> expand(Path path, BranchState<Double> branchState) {
         Node endNode = path.endNode();
+
         if (!edgePerService) {
             return () -> new RelationshipIterable(path);
         }
 
-        // only pursue outbound edges from a service if days and date match for the service node
+        // only pursue outbound edges from a service service runs today
         if (nodeOperations.isService(endNode)) {
             if (serviceHeuristics.checkService(endNode) != ServiceReason.IsValid) {
                 //logger.info("Skipping service node " + endNode.getProperty(ID));
@@ -62,9 +63,9 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         // TODO does this include cost to current node?
-        int costSoFar = branchState.getState().intValue();
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
+            int costSoFar = branchState.getState().intValue();
             if (!serviceHeuristics.interestedInHour(hour, costSoFar)) {
                 return Collections.emptyList();
             }
@@ -78,6 +79,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                 return Collections.emptyList();
             }
         }
+
         return buildSimpleExpandsionList(path);
     }
 

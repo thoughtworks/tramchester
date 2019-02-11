@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TramTime;
 import org.neo4j.graphdb.Node;
 
 import java.time.LocalTime;
@@ -37,6 +38,18 @@ public class CachedNodeOperations implements NodeOperations {
     @Override
     public String getServiceId(Node node) {
         return node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+    }
+
+    @Override
+    public TramTime getServiceEarliest(Node node) {
+        LocalTime localTime = (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME);
+        return TramTime.of(localTime);
+    }
+
+    @Override
+    public TramTime getServiceLatest(Node node) {
+        LocalTime localTime = (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME);
+        return TramTime.of(localTime);
     }
 
     @Override

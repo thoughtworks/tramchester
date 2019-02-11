@@ -21,10 +21,15 @@ public class Service {
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 
+    private TramTime earliestDepart;
+    private TramTime latestDepart;
+
     public Service(String serviceId, String routeId) {
         this.serviceId = serviceId.intern();
         this.routeId = routeId.intern();
         this.trips = new LinkedHashSet<>();
+        earliestDepart = null;
+        latestDepart = null;
     }
 
     public String getServiceId() {
@@ -129,4 +134,35 @@ public class Service {
         return false;
     }
 
+    public TramTime earliestDepartTime() {
+        if (earliestDepart!=null) {
+            return earliestDepart;
+        }
+
+        trips.forEach(trip -> {
+            TramTime departureTime = trip.earliestDepartTime();
+            if (earliestDepart==null) {
+                earliestDepart = departureTime;
+            } else if (departureTime.compareTo(earliestDepart)<0) {
+                earliestDepart = departureTime;
+            }
+        });
+        return earliestDepart;
+    }
+
+    public TramTime latestDepartTime() {
+        if (latestDepart!=null) {
+            return latestDepart;
+        }
+
+        trips.forEach(trip -> {
+            TramTime departureTime = trip.latestDepartTime();
+            if (latestDepart==null) {
+                latestDepart = departureTime;
+            } else  if (departureTime.compareTo(latestDepart)>0) {
+                latestDepart = departureTime;
+            }
+        });
+        return latestDepart;
+    }
 }

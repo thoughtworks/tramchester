@@ -1,6 +1,7 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.TimeWindow;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,8 @@ public class Trip {
     private final String tripId;
     private final String headSign;
     private final Stops stops;
+    private TramTime earliestDepart = null;
+    private TramTime latestDepart = null;
 
     public Trip(String tripId, String headSign, String serviceId, String routeId) {
         this.tripId = tripId.intern();
@@ -53,7 +56,18 @@ public class Trip {
     }
 
     public void addStop(Stop stop) {
-       stops.add(stop);
+        stops.add(stop);
+        TramTime departureTime = stop.getDepartureTime();
+        if (earliestDepart==null) {
+            earliestDepart = departureTime;
+        } else if (departureTime.compareTo(earliestDepart)<0) {
+            earliestDepart = departureTime;
+        }
+        if (latestDepart==null) {
+            latestDepart = departureTime;
+        } else if (departureTime.compareTo(latestDepart)>0) {
+            latestDepart = departureTime;
+        }
     }
 
     public boolean travelsBetween(String firstStationId, String lastStationId, TimeWindow window) {
@@ -121,5 +135,13 @@ public class Trip {
 
     public String getRouteId() {
         return routeId;
+    }
+
+    public TramTime earliestDepartTime() {
+        return earliestDepart;
+    }
+
+    public TramTime latestDepartTime() {
+        return latestDepart;
     }
 }
