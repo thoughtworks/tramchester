@@ -48,11 +48,11 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
 
     @Override
     public Iterable<Relationship> expand(Path path, BranchState<Double> branchState) {
-        Node endNode = path.endNode();
-
         if (!edgePerService) {
             return () -> new RelationshipIterable(path);
         }
+
+        Node endNode = path.endNode();
 
         // only pursue outbound edges from a service service runs today & within time
         if (nodeOperations.isService(endNode)) {
@@ -91,8 +91,8 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         boolean inboundWasGoesTo = inboundToLastNode.isType(TRAM_GOES_TO);
-        String inboundSvcId = inboundWasGoesTo ? inboundToLastNode.getProperty(SERVICE_ID).toString() : "";
         boolean inboundWasBoarding = inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD);
+        String inboundSvcId = inboundWasGoesTo ? inboundToLastNode.getProperty(SERVICE_ID).toString() : "";
 
         Iterable<Relationship> iter = path.endNode().getRelationships(OUTGOING);
         iter.forEach(next -> {
@@ -101,8 +101,13 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                     result.add(next);
                 }
             } else {
-                // not a service, so just follow, put at end
-                result.addLast(next); // other cases caught at node level, day, date, and time
+                if (!inboundWasBoarding) {
+                    result.addLast(next);
+                } else {
+                    if (!(next.isType(DEPART) || next.isType(INTERCHANGE_DEPART))) {
+                        result.addLast(next);
+                    }
+                }
             }
         });
 
@@ -162,36 +167,18 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         public boolean hasNext() {
             while (relationships.hasNext()) {
                 next = relationships.next();
-
-                if (edgePerService) {
-//                    if (next.isType(TO_SERVICE)) {
-//                        // follow an edge to service node only if service id matches
-//                        if (inboundToLastNode.isType(TRAM_GOES_TO)) {
-//                            String svcId = next.getProperty(SERVICE_ID).toString();
-//                            if (svcId.equals(inboundToLastNode.getProperty(SERVICE_ID))) {
-//                                return true;
-//                            }
-//                        } else if (inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD)) {
-//                            // just boarded so ignore svc id
-//                            return true;
-//                        }
-//                    } else {
-//                        return true; // other cases caught at node level, day, date, and time
-//                    }
+                if (next.isType(TRAM_GOES_TO)) {
+                    if (interestedIn(next)) {
+                        return true;
+                    }
                 } else {
-                    if (next.isType(TRAM_GOES_TO)) {
-                        if (interestedIn(next)) {
-                            return true;
-                        }
-                    } else {
-                        if (!justBoarded) {
-                            return true;
-                        }
-                        // so we just boarded a tram, don't attempt to immediately get off again
-                        boolean departing = next.isType(DEPART) || next.isType(INTERCHANGE_DEPART);
-                        if (!departing) {
-                            return true;
-                        }
+                    if (!justBoarded) {
+                        return true;
+                    }
+                    // so we just boarded a tram, don't attempt to immediately get off again
+                    boolean departing = next.isType(DEPART) || next.isType(INTERCHANGE_DEPART);
+                    if (!departing) {
+                        return true;
                     }
                 }
             }
@@ -218,7 +205,6 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             }
             return false;
         }
-
     }
 
     @Override

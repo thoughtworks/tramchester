@@ -70,12 +70,12 @@ public class UserJourneyWithLocationTest {
     }
 
     @Test
-    public void shouldCheckNearAltrinchamToAshton() throws InterruptedException {
+    public void shouldCheckNearAltrinchamToAshton() {
 
         String finalStation = Stations.Ashton.getName();
         String firstStation = Stations.NavigationRoad.getName();
 
-        List<String> changes = Arrays.asList(firstStation, Stations.Piccadilly.getName());
+        List<String> changes = Arrays.asList(firstStation, Stations.Cornbrook.getName());
         List<String> headSigns = Arrays.asList("", Stations.Piccadilly.getName(), finalStation);
 
         LocalTime time = LocalTime.parse("19:47");
@@ -106,7 +106,7 @@ public class UserJourneyWithLocationTest {
 
 
     @Test
-    public void shouldCheckNearAltrinchamToCornbrook() throws InterruptedException {
+    public void shouldCheckNearAltrinchamToCornbrook() {
 
         String firstStation = Stations.NavigationRoad.getName();
         List<String> changes = Collections.singletonList(firstStation);
@@ -130,7 +130,7 @@ public class UserJourneyWithLocationTest {
     }
 
     @Test
-    public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() throws InterruptedException {
+    public void shouldCopeWithNearbyLocationWhenSelectingMyLocation() {
 
         List<String> changes = new LinkedList<>();
 

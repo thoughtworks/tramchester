@@ -55,8 +55,6 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         // for logging
         MDC.put("test", testName.getMethodName());
 
-        new NodeFactory();
-
         departs = createMock(Relationship.class);
         EasyMock.expect(departs.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(false);
 
@@ -97,6 +95,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
                 serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
 
         int number = countResults(results);

@@ -130,14 +130,14 @@ public abstract class TestConfig extends AppConfiguration {
     public String getLiveDataS3Bucket() { return "tramchestertestlivedatabucket"; }
 
     @Override
-    public boolean getRemoveRouteNameSuffix() { return true; }
+    public boolean getRemoveRouteNameSuffix() { return false; }
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
 
     ////// WORK IN PROGRESS
     @Override
     public boolean getEdgePerTrip() {
-        return false;
+        return true;
     }
 
     public static LocalDate nextTuesday(int offsetDays) {
