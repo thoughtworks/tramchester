@@ -34,8 +34,6 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     private final NodeOperations nodeOperations;
     private final CostEvaluator<Double> cachingCostEvaluator;
 
-    // TODO Base on long possible journey
-
     public LazyTimeBasedPathExpander(LocalTime queryTime, RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics,
                                      TramchesterConfig config, NodeOperations nodeOperations, CostEvaluator<Double> cachingCostEvaluator) {
         this.queryTime = queryTime;
@@ -56,7 +54,8 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
 
         // only pursue outbound edges from a service service runs today & within time
         if (nodeOperations.isService(endNode)) {
-            if (serviceHeuristics.checkService(endNode) != ServiceReason.IsValid) {
+            int costSoFar = branchState.getState().intValue(); // expensive
+            if (!serviceHeuristics.checkService(endNode, queryTime.plusMinutes(costSoFar)).isValid()) {
                 return Collections.emptyList();
             }
         }
@@ -64,8 +63,8 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         // TODO does this include cost to current node?
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
-            int costSoFar = branchState.getState().intValue();
-            if (!serviceHeuristics.interestedInHour(hour, costSoFar)) {
+            int costSoFar = branchState.getState().intValue(); // expensive
+            if (!serviceHeuristics.interestedInHour(hour, costSoFar).isValid()) {
                 return Collections.emptyList();
             }
         }
@@ -74,7 +73,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         if (nodeOperations.isMinute(endNode)) {
             LocalTime nodeTime = nodeOperations.getTime(endNode);
             LocalTime currentElapsed = calculateElapsedTimeForPath(path);
-            if (serviceHeuristics.checkTime(nodeTime, currentElapsed) != ServiceReason.IsValid) {
+            if (!serviceHeuristics.checkTime(nodeTime, currentElapsed).isValid()) {
                 return Collections.emptyList();
             }
         }

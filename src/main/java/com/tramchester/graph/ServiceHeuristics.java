@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,6 +26,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final TramchesterConfig config;
     private final Set<String> runningServices;
     private final LocalTime queryTime;
+    private final List<ServiceReason> reasons;
 
     private final CostEvaluator<Double> costEvaluator;
     private final NodeOperations nodeOperations;
@@ -48,26 +51,31 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         // for none edge per trip path
         boardingTime = Optional.empty();
+
+        // diagnostics, needs debug
+        reasons = new LinkedList<>();
     }
     
     // edge per trip
-    public ServiceReason checkService(Node node){
+    // TODO have to account for elapsed time
+    public ServiceReason checkService(Node node, LocalTime currentElapsed){
         totalChecked.incrementAndGet();
-        LocalTime limitTime = queryTime.plusMinutes(maxWaitMinutes);
+        LocalTime limitTime = currentElapsed.plusMinutes(maxWaitMinutes);
         // days
-        if (runningServices.contains(nodeOperations.getServiceId(node))) {
+        String nodeServiceId = nodeOperations.getServiceId(node);
+        if (runningServices.contains(nodeServiceId)) {
             if (limitTime.isBefore(nodeOperations.getServiceEarliest(node).asLocalTime())) {
                 timeWrong.getAndIncrement();
-                return ServiceReason.DoesNotOperateOnTime(queryTime);
+                return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "before:"+nodeServiceId));
             }
-            if (queryTime.isAfter(nodeOperations.getServiceLatest(node).asLocalTime())) {
+            if (currentElapsed.isAfter(nodeOperations.getServiceLatest(node).asLocalTime())) {
                 timeWrong.getAndIncrement();
-                return ServiceReason.DoesNotOperateOnTime(queryTime);
+                return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "after:"+nodeServiceId));
             }
             return ServiceReason.IsValid;
         } else {
             dateWrong.incrementAndGet();
-            return ServiceReason.DoesNotRunOnQueryDate;
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId));
         }
     }
 
@@ -79,7 +87,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         timeWrong.incrementAndGet();
-        return ServiceReason.DoesNotOperateOnTime(queryTime);
+        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString()));
     }
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
@@ -95,31 +103,38 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         String serviceId = goesToRelationship.getServiceId();
         if (!runningServices.contains(serviceId)) {
             dateWrong.incrementAndGet();
-            return ServiceReason.DoesNotRunOnQueryDate;
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId));
         }
 
-        if (!sameService(incoming, goesToRelationship)) {
-            inflightChange.incrementAndGet();
-            return ServiceReason.InflightChangeOfService;
+        if (!sameService(incoming, goesToRelationship).isValid()) {
+            return recordReason(ServiceReason.InflightChangeOfService);
         }
 
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
         // all times for the service per edge
         if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
             timeWrong.incrementAndGet();
-            return ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime());
+            return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
+                    elapsedTimeProvider.getElapsedTime().toString()));
         }
 
         return ServiceReason.IsValid;
     }
 
-    public boolean sameService(TransportRelationship incoming, GoesToRelationship outgoing) {
+    // caller records
+    public ServiceReason sameService(TransportRelationship incoming, GoesToRelationship outgoing) {
         if (!incoming.isGoesTo()) {
-            return true; // not a connecting relationship
+            return ServiceReason.IsValid; // not a connecting/goes to relationship, no svc id
         }
+
         GoesToRelationship goesToRelationship = (GoesToRelationship) incoming;
         String service = goesToRelationship.getServiceId();
-        return service.equals(outgoing.getServiceId());
+        if (service.equals(outgoing.getServiceId())) {
+            return ServiceReason.IsValid;
+        }
+
+        inflightChange.incrementAndGet();
+        return ServiceReason.InflightChangeOfService;
     }
 
     public boolean operatesOnTime(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
@@ -147,9 +162,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
                         LocalTime realJounrneyStartTime = nextTramTime.minusMinutes(TransportGraphBuilder.BOARDING_COST);
                         provider.setJourneyStart(realJounrneyStartTime);
                     }
-//                    if (logger.isDebugEnabled()) {
-//                        logger.debug(format("Tram operates on time. Times: '%s' ElapsedTime '%s'", log(times), provider));
-//                    }
                     return true;  // within max wait time
                 }
             }
@@ -194,13 +206,13 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         logger.info("Time wrong: " + timeWrong.get());
     }
 
-    public boolean interestedInHour(int hour, int costSoFar) {
+    public ServiceReason interestedInHour(int hour, int costSoFar) {
         // quick win
         totalChecked.getAndIncrement();
 
         int queryTimeHour = queryTime.getHour();
         if (hour== queryTimeHour) {
-            return true;
+            return ServiceReason.IsValid;
         }
 
         TramTime earliestTime = TramTime.of(queryTime.plusMinutes(costSoFar));
@@ -208,16 +220,16 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         TramTime latestTimeInHour = TramTime.of(hour, 59);
         if (latestTimeInHour.compareTo(earliestTime)<0) {
             timeWrong.getAndIncrement();
-            return false;
+            return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, latestTimeInHour.toString()));
         }
 
         TramTime earliestTimeInHour = TramTime.of(hour, 0);
         if (TramTime.diffenceAsMinutes(earliestTimeInHour, earliestTime)<=maxWaitMinutes) {
-            return true;
+            return ServiceReason.IsValid;
         }
 
         timeWrong.getAndIncrement();
-        return false;
+        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString()));
     }
 
     public boolean checkForSvcChange(boolean inboundWasGoesTo, boolean inboundWasBoarding, String inboundSvcId,
@@ -239,5 +251,20 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // else
         inflightChange.incrementAndGet();
         return false;
+    }
+
+    public void reportReasons() {
+        reportStats();
+        if (logger.isDebugEnabled()) {
+            reasons.forEach(reason -> logger.debug("ServiceReason: " + reason ));
+        }
+    }
+
+    // TODO counters into here
+    private ServiceReason recordReason(ServiceReason serviceReason) {
+        if (logger.isDebugEnabled()) {
+            reasons.add(serviceReason);
+        }
+        return serviceReason;
     }
 }

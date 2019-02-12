@@ -133,12 +133,15 @@ public class RouteCalculator extends StationIndexs {
                     serviceHeuristics, config, nodeOperations, costEvaluator);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             logger.info(format("Journey from %s to %s at %s on %s limit:%s", startNode, endNode, queryTime, queryDate, limit));
-            mapStreamToJourneySet(journeys, paths, limit, queryTime);
-            serviceHeuristics.reportStats();
+            if (mapStreamToJourneySet(journeys, paths, limit, queryTime)) {
+                serviceHeuristics.reportStats();
+            } else {
+                serviceHeuristics.reportReasons();
+            }
         });
     }
 
-    private void mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
+    private boolean mapStreamToJourneySet(Set<RawJourney> journeys, Stream<WeightedPath> paths,
                                        int limit, LocalTime queryTime) {
         paths.limit(limit).forEach(path -> {
             logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
@@ -151,10 +154,12 @@ public class RouteCalculator extends StationIndexs {
             }
         });
         paths.close();
-        if (journeys.size() < 1) {
+        boolean foundJourney = journeys.size() > 0;
+        if (!foundJourney) {
             logger.warn(format("Did not create any journeys from the limit:%s queryTime:%s",
                     limit, queryTime));
         }
+        return foundJourney;
     }
 
     public TramNode getStation(String stationId) {

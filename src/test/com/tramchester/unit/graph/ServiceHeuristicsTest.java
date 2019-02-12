@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
@@ -13,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,7 +44,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldCheckNodeBasedOnServiceIdAndTimeMatches() {
-        LocalTime queryTime = LocalTime.of(9,1);
+        LocalTime queryTime = LocalTime.of(8,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
                 queryTime, runningServices);
@@ -54,6 +52,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         runningServices.add("serviceIdA");
 
         Node node = createMock(Node.class);
+        LocalTime elapsed = queryTime.plusHours(1);
         EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
         EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(9,0));
         EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,30));
@@ -61,17 +60,18 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(node.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdB");
 
         replayAll();
-        ServiceReason result = serviceHeuristics.checkService(node);
+        ServiceReason result = serviceHeuristics.checkService(node, elapsed);
         assertEquals(ServiceReason.IsValid, result);
 
-        result = serviceHeuristics.checkService(node);
-        assertEquals(ServiceReason.DoesNotRunOnQueryDate, result);
+        result = serviceHeuristics.checkService(node, elapsed);
+        assertEquals(ServiceReason.DoesNotRunOnQueryDate("xxx"), result);
         verifyAll();
     }
 
     @Test
     public void shouldCheckNodeBasedOnServiceIdAndTimeOverlaps() {
-        LocalTime queryTime = LocalTime.of(9,1);
+        LocalTime queryTime = LocalTime.of(8,1);
+        LocalTime elaspsedTime = LocalTime.of(9,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
                 queryTime, runningServices);
@@ -87,7 +87,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         // doesnt start running until after query time
         Node tooLateNode = createMock(Node.class);
         EasyMock.expect(tooLateNode.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("serviceIdA");
-        EasyMock.expect(tooLateNode.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(queryTime.plusMinutes(MAX_WAIT+1));
+        EasyMock.expect(tooLateNode.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(elaspsedTime.plusMinutes(MAX_WAIT+1));
 
         // starts before query, but still running within max wait
         Node overlapStartsBefore = createMock(Node.class);
@@ -108,12 +108,14 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(overlapStartsBeforeFinishesAfter.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,20));
 
         replayAll();
-        assertEquals(ServiceReason.DoesNotOperateOnTime(queryTime), serviceHeuristics.checkService(tooEarlyNode));
-        assertEquals(ServiceReason.DoesNotOperateOnTime(queryTime), serviceHeuristics.checkService(tooLateNode));
+        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTime, "diag"),
+                serviceHeuristics.checkService(tooEarlyNode, elaspsedTime));
+        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTime, "diag"),
+                serviceHeuristics.checkService(tooLateNode, elaspsedTime));
 
-        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsBefore));
-        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsAfter));
-        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsBeforeFinishesAfter));
+        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsBefore, elaspsedTime));
+        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsAfter, elaspsedTime));
+        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkService(overlapStartsBeforeFinishesAfter, elaspsedTime));
 
         verifyAll();
 
@@ -131,10 +133,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         int costSoFar = 58;
 
-        assertFalse(serviceHeuristics.interestedInHour(8, costSoFar));
-        assertTrue(serviceHeuristics.interestedInHour(9, costSoFar));
-        assertTrue(serviceHeuristics.interestedInHour(10, costSoFar));
-        assertFalse(serviceHeuristics.interestedInHour(11, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(8, costSoFar).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(9, costSoFar).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(10, costSoFar).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(11, costSoFar).isValid());
     }
 
     @Test
@@ -146,10 +148,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         int costSoFar = 15;
 
-        assertFalse(serviceHeuristics.interestedInHour(8, costSoFar));
-        assertTrue(serviceHeuristics.interestedInHour(9, costSoFar));
-        assertTrue(serviceHeuristics.interestedInHour(10, costSoFar));
-        assertFalse(serviceHeuristics.interestedInHour(11, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(8, costSoFar).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(9, costSoFar).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(10, costSoFar).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(11, costSoFar).isValid());
     }
 
     @Test
@@ -159,10 +161,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         LocalTime queryTime = LocalTime.of(23,10);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
                 queryTime, runningServices);
-        assertFalse(serviceHeuristics.interestedInHour(22, costSoFar));
-        assertTrue(serviceHeuristics.interestedInHour(23, costSoFar));
-        assertFalse(serviceHeuristics.interestedInHour(0, costSoFar));
-        assertFalse(serviceHeuristics.interestedInHour(1, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(22, costSoFar).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(23, costSoFar).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(0, costSoFar).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(1, costSoFar).isValid());
     }
 
     @Test
@@ -172,10 +174,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         LocalTime queryTime = LocalTime.of(23,10);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
                 queryTime, runningServices);
-        assertFalse(serviceHeuristics.interestedInHour(22, costSoFar));
-        assertTrue(serviceHeuristics.interestedInHour(23, costSoFar));
-        assertTrue(serviceHeuristics.interestedInHour(0, costSoFar));
-        assertFalse(serviceHeuristics.interestedInHour(1, costSoFar));
+        assertFalse(serviceHeuristics.interestedInHour(22, costSoFar).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(23, costSoFar).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(0, costSoFar).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(1, costSoFar).isValid());
     }
 
     @Test
@@ -294,11 +296,11 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait, NOT_USED_HERE, runningServices);
-        assertTrue(serviceHeuristics.sameService(board, outA));
-        assertTrue(serviceHeuristics.sameService(depart, outA));
-        assertTrue(serviceHeuristics.sameService(change, outA));
-        assertTrue(serviceHeuristics.sameService(outA, outA));
-        assertFalse(serviceHeuristics.sameService(outB, outA));
+        assertTrue(serviceHeuristics.sameService(board, outA).isValid());
+        assertTrue(serviceHeuristics.sameService(depart, outA).isValid());
+        assertTrue(serviceHeuristics.sameService(change, outA).isValid());
+        assertTrue(serviceHeuristics.sameService(outA, outA).isValid());
+        assertFalse(serviceHeuristics.sameService(outB, outA).isValid());
         verifyAll();
     }
 

@@ -50,6 +50,7 @@ public class TransportDataForTest implements TransportData, StationRepository, P
 
         Service serviceA = new Service(serviceAId, routeA.getId());
         routeA.addService(serviceA);
+
         Service serviceB = new Service(serviceBId, routeB.getId());
         Service serviceC = new Service(serviceCId, routeB.getId());
         routeB.addService(serviceB);

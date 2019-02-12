@@ -160,7 +160,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo);
 
         EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo, path)).
-                andReturn(ServiceReason.DoesNotRunOnQueryDate);
+                andReturn(ServiceReason.DoesNotRunOnQueryDate("diag"));
 
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
@@ -196,7 +196,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         EasyMock.expect(mockRelationshipFactory.getRelationship(goesToB)).andReturn(goesTo2);
 
         EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo1, path)).
-                andReturn(ServiceReason.DoesNotRunOnQueryDate);
+                andReturn(ServiceReason.DoesNotRunOnQueryDate("diag"));
 
         EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo2, path)).
                 andReturn(ServiceReason.IsValid);
