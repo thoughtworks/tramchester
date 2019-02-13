@@ -68,8 +68,19 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldHaveSimpleManyStopJourney() {
+    public void shouldHaveSimpleManyStopJourneyViaInterchange() {
         checkRouteNextNDays(Stations.Altrincham, Stations.Bury, when, LocalTime.of(9,0), 1);
+    }
+
+    // over max wait, catch failure to accumulate journey times correctly
+    @Test
+    public void shouldHaveSimpleButLongJoruneySameRoute() {
+        checkRouteNextNDays(Stations.ManAirport, Stations.TraffordBar, when, LocalTime.of(9,0), 1);
+    }
+
+    @Test
+    public void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
+        checkRouteNextNDays(Stations.Cornbrook, Stations.Bury, when, LocalTime.of(9,0), 1);
     }
 
     @Test
@@ -173,6 +184,11 @@ public class RouteCalculatorTest {
     @Test
     public void reproduceIssueWithImmediateDepartOffABoardedTram() {
         checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, when, LocalTime.of(8,0), 7);
+    }
+
+    @Test
+    public void reproduceIssueWithImmediateDepartOffABoardedTramSunday() {
+        checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, TestConfig.nextSunday(), LocalTime.of(8,0), 1);
     }
 
     @Test

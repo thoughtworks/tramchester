@@ -161,7 +161,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     public static LocalDate nextSunday() {
-        return getNextDate(DayOfWeek.SATURDAY, LocalDate.now());
+        return getNextDate(DayOfWeek.SUNDAY, LocalDate.now());
     }
 
 }

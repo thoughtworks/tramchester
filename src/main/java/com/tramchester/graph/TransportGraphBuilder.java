@@ -34,7 +34,7 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final int DEPARTS_COST = 1;
     public static final int BOARDING_COST = 2;
 
-    public static final int PLATFORM_COST = 0;
+    private static final int PLATFORM_COST = 0;
 
     private int numberNodes = 0;
     private int numberRelationships = 0;
@@ -129,9 +129,9 @@ public class TransportGraphBuilder extends StationIndexs {
 
             if (runsAtLeastADay(service.getDays())) {
                 if (edgePerTrip) {
-                    createRelationship(currentStop.getStation(), from, to, stopIndex, trip, service, route);
+                    createRelationship(from, to, currentStop, nextStop, route, service, trip);
                 } else {
-                    createOrUpdateRelationship(from, to, currentStop, nextStop, service, route);
+                    createOrUpdateRelationship(from, to, currentStop, nextStop, route, service);
                 }
             }
         }
@@ -297,23 +297,21 @@ public class TransportGraphBuilder extends StationIndexs {
     }
 
     //// edge per trip, experimental
-    private void createRelationship(Location start, Node routeStationStart, Node routeStationEnd, int stopIndex,
-                                    Trip trip, Service service, Route route) {
-        if (!service.isRunning()) {
-            return;
-        }
+    private void createRelationship(Node routeStationStart, Node routeStationEnd, Stop beginStop, Stop endStop,
+                                    Route route, Service service, Trip trip) {
+        Location startLocation = beginStop.getStation();
 
-        Stop beginStop = trip.getStops().get(stopIndex);
-        Stop endStop = trip.getStops().get(stopIndex + 1);
-
-        String svcNodeId = format("%s_%s_%s", start.getId(), route.getId(), service.getServiceId());
+        // Node for the service
+        // Need route ID here as some services can go via multiple routes, this seems to be associated with the depots
+        String svcNodeId = format("%s_%s_%s", startLocation.getId(), route.getId(), service.getServiceId());
         Node serviceNode = graphQuery.getServiceNode(svcNodeId);
         if (serviceNode==null) {
-            //logger.info(format("Creating service node '%s' for service '%s'", svcNodeId, service.getServiceId()));
+
             serviceNode = createGraphNode(Labels.SERVICE);
             serviceNode.setProperty(GraphStaticKeys.ID, svcNodeId);
             serviceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
 
+            // TODO no longer needed
             serviceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
             serviceNode.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
             serviceNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
@@ -323,18 +321,18 @@ public class TransportGraphBuilder extends StationIndexs {
 
             // start route station -> svc node
             Relationship svcRelationship = createRelationship(routeStationStart, serviceNode, TransportRelationshipTypes.TO_SERVICE);
-            svcRelationship.setProperty(COST, 0);
             svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+            svcRelationship.setProperty(COST, 0);
         }
 
         TramTime departureTime = beginStop.getDepartureTime();
 
-        // Node for the hours
-        String hourNodeIdent = format("%s_%s", svcNodeId, departureTime.getHourOfDay());
-        Node hourNode = graphQuery.getTimeNode(hourNodeIdent);
+        // Node for the hour
+        String hourNodeId = format("%s_%s", svcNodeId, departureTime.getHourOfDay());
+        Node hourNode = graphQuery.getTimeNode(hourNodeId);
         if (hourNode==null) {
             hourNode = createGraphNode(Labels.HOUR);
-            hourNode.setProperty(GraphStaticKeys.ID, hourNodeIdent);
+            hourNode.setProperty(GraphStaticKeys.ID, hourNodeId);
             hourNode.setProperty(GraphStaticKeys.HOUR, departureTime.getHourOfDay());
 
             // service node -> time node
@@ -342,40 +340,36 @@ public class TransportGraphBuilder extends StationIndexs {
             toHourRelationship.setProperty(COST, 0);
         }
 
-        // Node for the minute
-        String minuteNodeId = format("%s_%s", svcNodeId, departureTime.toPattern());
-        Node minuteNode = graphQuery.getTimeNode(minuteNodeId);
-        if (minuteNode==null) {
-            minuteNode = createGraphNode(Labels.MINUTE);
-            minuteNode.setProperty(GraphStaticKeys.ID, minuteNodeId);
-            minuteNode.setProperty(GraphStaticKeys.TIME, departureTime.asLocalTime());
+        // Node for the departure time
+        String timeNodeId = format("%s_%s", svcNodeId, departureTime.toPattern());
+        Node timeNode = graphQuery.getTimeNode(timeNodeId);
+        if (timeNode==null) {
+            timeNode = createGraphNode(Labels.MINUTE);
+            timeNode.setProperty(GraphStaticKeys.ID, timeNodeId);
+            timeNode.setProperty(GraphStaticKeys.TIME, departureTime.asLocalTime());
 
-            // hour Node -> time node
-            Relationship toHourRelationship = createRelationship(hourNode, minuteNode, TransportRelationshipTypes.TO_MINUTE);
+            // hour node -> time node
+            Relationship toHourRelationship = createRelationship(hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
             toHourRelationship.setProperty(COST, 0);
         }
 
-        TransportRelationshipTypes transportRelationshipType;
-        if (route.isTram()) {
-            transportRelationshipType = TransportRelationshipTypes.TRAM_GOES_TO;
-        } else {
-            transportRelationshipType = TransportRelationshipTypes.BUS_GOES_TO;
-        }
+        TransportRelationshipTypes transportRelationshipType =
+                route.isTram() ? TransportRelationshipTypes.TRAM_GOES_TO : TransportRelationshipTypes.BUS_GOES_TO;
 
         // time node -> end route station
-        Relationship relationship = createRelationship(minuteNode, routeStationEnd, transportRelationshipType);
-
-        relationship.setProperty(GraphStaticKeys.DEPART_TIME, departureTime.asLocalTime());
+        Relationship relationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
         relationship.setProperty(GraphStaticKeys.TRIP_ID, trip.getTripId());
+
+        // TODO should not need depart time as using check on the Node instead
+        relationship.setProperty(GraphStaticKeys.DEPART_TIME, departureTime.asLocalTime());
 
         // common properties
         int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), beginStop.getArrivalTime());
         addCommonProperties(relationship, transportRelationshipType, cost, service, route);
-
     }
 
     private void createOrUpdateRelationship(Node start, Node end,
-                                            Stop beginStop, Stop endStop, Service service, Route route) {
+                                            Stop beginStop, Stop endStop, Route route, Service service) {
 
         // Confusingly some services can go different routes and hence have different outbound GOES relationships from
         // the same node, so we have to check both start and end nodes for each relationship

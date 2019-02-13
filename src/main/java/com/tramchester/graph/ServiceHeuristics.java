@@ -57,37 +57,48 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     }
     
     // edge per trip
-    // TODO have to account for elapsed time
+    // TODO change to TramTime
     public ServiceReason checkService(Node node, LocalTime currentElapsed){
         totalChecked.incrementAndGet();
-        LocalTime limitTime = currentElapsed.plusMinutes(maxWaitMinutes);
-        // days
+        // date
+
         String nodeServiceId = nodeOperations.getServiceId(node);
-        if (runningServices.contains(nodeServiceId)) {
-            if (limitTime.isBefore(nodeOperations.getServiceEarliest(node).asLocalTime())) {
-                timeWrong.getAndIncrement();
-                return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "before:"+nodeServiceId));
-            }
-            if (currentElapsed.isAfter(nodeOperations.getServiceLatest(node).asLocalTime())) {
-                timeWrong.getAndIncrement();
-                return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "after:"+nodeServiceId));
-            }
-            return ServiceReason.IsValid;
-        } else {
+        if (!runningServices.contains(nodeServiceId)) {
             dateWrong.incrementAndGet();
             return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId));
         }
+
+        // prepared to wait up to max wait for start of a service...
+        LocalTime serviceStart = nodeOperations.getServiceEarliest(node).asLocalTime().minusMinutes(maxWaitMinutes);
+        // BUT if arrive after service finished there is nothing to be done...
+        TramTime serviceEnd = nodeOperations.getServiceLatest(node);
+
+        TramTime currentLock = TramTime.of(currentElapsed);
+        if (!currentLock.between(TramTime.of(serviceStart), serviceEnd)) {
+            timeWrong.getAndIncrement();
+            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, nodeServiceId));
+        }
+
+        return ServiceReason.IsValid;
     }
 
     // edge per trip
-    public ServiceReason checkTime(LocalTime nodeTime, LocalTime currentElapsed) {
+    public ServiceReason checkTime(Node node, LocalTime currentElapsed) {
         totalChecked.getAndIncrement();
 
+        LocalTime nodeTime = nodeOperations.getTime(node);
         if (operatesWithinTime(nodeTime, currentElapsed)) {
             return ServiceReason.IsValid;
         }
         timeWrong.incrementAndGet();
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString()));
+    }
+
+    private boolean operatesWithinTime(LocalTime nodeTime, LocalTime elapsedTimed) {
+        TramTime earliest = TramTime.of(nodeTime.minusMinutes(maxWaitMinutes));
+        TramTime clock = TramTime.of(elapsedTimed);
+
+        return clock.between(earliest, TramTime.of(nodeTime));
     }
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
@@ -169,21 +180,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return false;
     }
 
-    private boolean operatesWithinTime(LocalTime timeHere, LocalTime journeyClockTime) {
-        TramTime journeyClock = TramTime.of(journeyClockTime);
-        if (timeHere.isAfter(journeyClockTime) || timeHere.equals(journeyClockTime)) {
-            TramTime nextTram = TramTime.of(timeHere);
-
-            int diffenceAsMinutes = TramTime.diffenceAsMinutes(nextTram, journeyClock);
-
-            if (diffenceAsMinutes > maxWaitMinutes) {
-                return false;
-            }
-            return true;  // within max wait time
-        }
-        return false;
-    }
-
     @Override
     public void save(LocalTime time) {
         boardingTime = Optional.of(time);
@@ -206,7 +202,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         logger.info("Time wrong: " + timeWrong.get());
     }
 
-    public ServiceReason interestedInHour(int hour, int costSoFar) {
+    public ServiceReason interestedInHour(int hour, LocalTime journeyClockTime) {
         // quick win
         totalChecked.getAndIncrement();
 
@@ -215,16 +211,12 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
 
-        TramTime earliestTime = TramTime.of(queryTime.plusMinutes(costSoFar));
-
         TramTime latestTimeInHour = TramTime.of(hour, 59);
-        if (latestTimeInHour.compareTo(earliestTime)<0) {
-            timeWrong.getAndIncrement();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, latestTimeInHour.toString()));
-        }
 
-        TramTime earliestTimeInHour = TramTime.of(hour, 0);
-        if (TramTime.diffenceAsMinutes(earliestTimeInHour, earliestTime)<=maxWaitMinutes) {
+        TramTime earliestTimeInHour = TramTime.of(LocalTime.of(hour,0).minusMinutes(maxWaitMinutes));
+        TramTime earliestTime = TramTime.of(journeyClockTime);
+
+        if (earliestTime.between(earliestTimeInHour,latestTimeInHour)) {
             return ServiceReason.IsValid;
         }
 

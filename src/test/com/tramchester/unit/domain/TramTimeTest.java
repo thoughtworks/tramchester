@@ -118,13 +118,61 @@ public class TramTimeTest {
         TramTime timeB =  TramTime.of(LocalTime.of(23,10));
 
         assertTrue(timeA.departsAfter(timeB));
-        //assertFalse(timeB.departsAfter(timeA));
 
         timeA = TramTime.of(LocalTime.of(6,12));
         timeB = TramTime.of(LocalTime.of(6,11));
 
         assertTrue(timeA.departsAfter(timeB));
         assertFalse(timeB.departsAfter(timeA));
+    }
+
+    @Test
+    public void shouldHaveIsBefore() {
+        assertTrue(TramTime.of(11,33).isBefore(TramTime.of(12,00)));
+        assertTrue(TramTime.of(0,3).isBefore(TramTime.of(0,30)));
+        assertTrue(TramTime.of(11,3).isBefore(TramTime.of(0,30)));
+
+        assertFalse(TramTime.of(10,30).isBefore(TramTime.of(10,30)));
+        assertFalse(TramTime.of(10,30).isBefore(TramTime.of(9,30)));
+        assertFalse(TramTime.of(0,30).isBefore(TramTime.of(4,0))); // late night
+    }
+
+    @Test
+    public void shouldHaveAfter() {
+        assertTrue(TramTime.of(11,44).isAfter(TramTime.of(11,00)));
+        assertTrue(TramTime.of(0,30).isAfter(TramTime.of(23,30)));
+        assertTrue(TramTime.of(0,30).isAfter(TramTime.of(21,30)));
+        assertTrue(TramTime.of(00,44).isAfter(TramTime.of(00,20)));
+        assertTrue(TramTime.of(2,44).isAfter(TramTime.of(2,20)));
+
+        assertFalse(TramTime.of(2,30).isAfter(TramTime.of(23,30)));
+        assertFalse(TramTime.of(4,30).isAfter(TramTime.of(0,30)));
+    }
+
+    @Test
+    public void shouldIfBetweenAccountingForMidnight() {
+        TramTime morning = TramTime.of(11,30);
+
+        assertTrue(morning.between(TramTime.of(9,0), TramTime.of(13,0)));
+        assertTrue(morning.between(TramTime.of(11,30), TramTime.of(13,0)));
+        assertTrue(morning.between(TramTime.of(10,30), TramTime.of(11,30)));
+
+        assertFalse(morning.between(TramTime.of(9,0), TramTime.of(11,0)));
+        assertFalse(morning.between(TramTime.of(12,0), TramTime.of(13,0)));
+
+        assertTrue(morning.between(TramTime.of(5,0), TramTime.of(0,1)));
+        assertTrue(morning.between(TramTime.of(5,0), TramTime.of(0,0)));
+        assertTrue(morning.between(TramTime.of(5,0), TramTime.of(1,0)));
+
+        TramTime earlyMorning = TramTime.of(0,20);
+        assertTrue(earlyMorning.between(TramTime.of(0,1), TramTime.of(0,21)));
+        assertTrue(earlyMorning.between(TramTime.of(0,0), TramTime.of(0,21)));
+        assertTrue(earlyMorning.between(TramTime.of(0,1), TramTime.of(0,20)));
+        assertTrue(earlyMorning.between(TramTime.of(0,0), TramTime.of(0,20)));
+        assertTrue(earlyMorning.between(TramTime.of(5,0), TramTime.of(1,20)));
+        assertFalse(earlyMorning.between(TramTime.of(3,0), TramTime.of(11,20)));
+        assertFalse(earlyMorning.between(TramTime.of(23,0), TramTime.of(0,15)));
+
     }
 
     @Test

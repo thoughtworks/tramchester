@@ -51,11 +51,12 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         Node endNode = path.endNode();
+        // not same as branchState.getState() as accounts for actual board time which != query time
+        LocalTime currentElapsed = calculateElapsedTimeForPath(path);
 
         // only pursue outbound edges from a service service runs today & within time
         if (nodeOperations.isService(endNode)) {
-            int costSoFar = branchState.getState().intValue(); // expensive
-            if (!serviceHeuristics.checkService(endNode, queryTime.plusMinutes(costSoFar)).isValid()) {
+            if (!serviceHeuristics.checkService(endNode, currentElapsed).isValid()) {
                 return Collections.emptyList();
             }
         }
@@ -63,17 +64,14 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         // TODO does this include cost to current node?
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
-            int costSoFar = branchState.getState().intValue(); // expensive
-            if (!serviceHeuristics.interestedInHour(hour, costSoFar).isValid()) {
+            if (!serviceHeuristics.interestedInHour(hour, currentElapsed).isValid()) {
                 return Collections.emptyList();
             }
         }
 
         // only follow hour nodes if match up with possible journeys
         if (nodeOperations.isMinute(endNode)) {
-            LocalTime nodeTime = nodeOperations.getTime(endNode);
-            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
-            if (!serviceHeuristics.checkTime(nodeTime, currentElapsed).isValid()) {
+            if (!serviceHeuristics.checkTime(endNode, currentElapsed).isValid()) {
                 return Collections.emptyList();
             }
         }
@@ -103,6 +101,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                 if (!inboundWasBoarding) {
                     result.addLast(next);
                 } else {
+                    // boarding, so check not immediately getting off again
                     if (!(next.isType(DEPART) || next.isType(INTERCHANGE_DEPART))) {
                         result.addLast(next);
                     }

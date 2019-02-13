@@ -36,7 +36,6 @@ public class GraphQuery {
 
     public Node getServiceNode(String id) {
         TransportGraphBuilder.Labels Label = TransportGraphBuilder.Labels.SERVICE;
-
         return getNodeByLabel(id, Label);
     }
 
@@ -55,8 +54,7 @@ public class GraphQuery {
     private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {
         Node result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.findNode(label,
-                    GraphStaticKeys.ID, id);
+            result = graphDatabaseService.findNode(label, GraphStaticKeys.ID, id);
             tx.success();
         }
         return result;

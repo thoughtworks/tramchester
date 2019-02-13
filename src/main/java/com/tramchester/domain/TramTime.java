@@ -165,4 +165,56 @@ public class  TramTime implements Comparable<TramTime> {
         }
         return this.isAtOrAfter(other);
     }
+
+    // inclusive
+    public boolean between(TramTime start, TramTime end) {
+        boolean startFlag = (this.equals(start)) || isAfter(start);
+        boolean endFlag = (this.equals(end) || isBefore(end));
+        return startFlag && endFlag;
+    }
+
+    public boolean isBefore(TramTime other) {
+        if (this.equals(other)) {
+            return false;
+        }
+        if (isEarlyMorning(other.getHourOfDay())) {
+            if (isLateNight(hour)) {
+                return true;
+            }
+            if (!isEarlyMorning(hour))
+            {
+                return true;
+            }
+        } else {
+            if (isEarlyMorning(hour)) {
+                return false;
+            }
+        }
+
+        return other.isAtOrAfter(this);
+
+    }
+
+    public boolean isAfter(TramTime other) {
+        if (this.equals(other)) {
+            return false;
+        }
+        if (isEarlyMorning(hour)) {
+            if (isLateNight(other.hour)) {
+                return true;
+            }
+            if (isEarlyMorning(other.hour)) {
+                return this.isAtOrAfter(other);
+            } else {
+                return true;
+            }
+        } else if (isEarlyMorning(other.hour)) {
+            if (isEarlyMorning(hour)) {
+                return this.isAtOrAfter(other);
+            }
+            return false;
+        }
+
+        return this.isAtOrAfter(other);
+    }
 }

@@ -313,9 +313,16 @@ public class TransportDataFromFilesTest {
         Set<Trip> allTrips = new HashSet<>();
         allsStations.forEach(station -> allTrips.addAll(transportData.getTripsFor(station.getId())));
 
+        int tripsSize = transportData.getTrips().size();
+        assertEquals(tripsSize, allTrips.size());
+
+        Set<String> tripIdsFromSvcs = transportData.getServices().stream().map(svc -> svc.getTrips()).
+                flatMap(trips -> trips.stream()).
+                map(trip -> trip.getTripId()).collect(Collectors.toSet());
+        assertEquals(tripsSize, tripIdsFromSvcs.size());
+
         Set<String> tripServicesId = new HashSet<>();
         allTrips.forEach(trip -> tripServicesId.add(trip.getServiceId()));
-
         assertEquals(allSvcs, tripServicesId.size());
     }
 
