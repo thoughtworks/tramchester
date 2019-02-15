@@ -1,8 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Nodes.TramNode;
+import com.tramchester.graph.Nodes.*;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
@@ -67,18 +66,21 @@ public class DiagramCreator {
         }
         seen.add(startNodeId);
 
-        List<TramGoesToRelationship> services = new LinkedList<>();
 
+        addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", startNodeId,
+                getLabelFor(startNode), getShapeFor(startNode)));
+
+        List<TramGoesToRelationship> services = new LinkedList<>();
         rawNode.getRelationships(Direction.OUTGOING).forEach(relationship -> {
             TransportRelationship tramRelat = relationshipFactory.getRelationship(relationship);
 
             Node rawEndNode = relationship.getEndNode();
             TramNode endNode = nodeFactory.getNode(rawEndNode);
             String endNodeId = endNode.getId().replace(" ", "");
-            // add node
-            String prefix = selectPrefixFor(startNode);
-            addLine(builder, format("\"%s\" [label=\"%s%s\n%s\"];\n", startNodeId,
-                    prefix, startNode.getName(), startNodeId));
+
+            addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", endNodeId,
+                    getLabelFor(endNode), getShapeFor(endNode)));
+
             // add links
             if (tramRelat.isGoesTo()) {
                 TramGoesToRelationship serviceRelationship = (TramGoesToRelationship) tramRelat;
@@ -90,21 +92,21 @@ public class DiagramCreator {
             } else if (tramRelat.isLeavePlatform()) {
                 addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L"));
             } else if (tramRelat.isServiceLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "SvcLink"));
+                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "Svc"));
             } else if (tramRelat.isHourLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "HLink"));
+                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "H"));
             } else if (tramRelat.isMinuteLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "MLink"));
+                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "T"));
             }
             else {
                 // boarding and depart
-                String label = tramRelat.isInterchange() ? "X" : "";
+                String edgeLabel = tramRelat.isInterchange() ? "X" : "";
                 if (tramRelat.isBoarding()) {
-                    label += "B";
+                    edgeLabel += "B";
                 } else if (tramRelat.isDepartTram()) {
-                    label += "D";
+                    edgeLabel += "D";
                 }
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, label));
+                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, edgeLabel));
             }
             visit(rawEndNode, builder, seen, depth+1);
         });
@@ -124,24 +126,48 @@ public class DiagramCreator {
 
     }
 
-    private String selectPrefixFor(TramNode endNode) {
-        if (endNode.isPlatform()) {
-            return "P:";
+    private String getShapeFor(TramNode node) {
+        if (node.isPlatform()) {
+            return "box";
         }
-        if (endNode.isRouteStation()) {
-            return "RS:";
+        if (node.isRouteStation()) {
+            return "oval";
         }
-        if (endNode.isStation()) {
-            return "St:";
+        if (node.isStation()) {
+            return "octagon";
         }
-        if (endNode.isService()) {
-            return "svc:";
+        if (node.isService()) {
+            return "cds";
         }
-        if (endNode.isHour()) {
-            return "H";
+        if (node.isHour()) {
+            return "box";
         }
-        if (endNode.isMinute()) {
-            return "M:";
+        if (node.isMinute()) {
+            return "box";
+        }
+        return "box";
+    }
+
+    private String getLabelFor(TramNode node) {
+        if (node.isPlatform()) {
+            return node.getName();
+        }
+        if (node.isRouteStation()) {
+            BoardPointNode bpNode = (BoardPointNode) node;
+            return format("%s\n%s", bpNode.getRouteId(), bpNode.getName());
+        }
+        if (node.isStation()) {
+            return node.getName();
+        }
+        if (node.isService()) {
+            ServiceNode svcNode = (ServiceNode) node;
+            return svcNode.getServiceId();
+        }
+        if (node.isHour()) {
+            return node.getName();
+        }
+        if (node.isMinute()) {
+            return node.getName();
         }
         return "";
     }

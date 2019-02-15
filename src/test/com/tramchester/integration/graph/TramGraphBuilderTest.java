@@ -2,8 +2,8 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.Nodes.ServiceNode;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -35,9 +34,7 @@ public class TramGraphBuilderTest {
 
     private RouteCalculator calculator;
     private TransportDataFromFiles transportData;
-    private GraphDatabaseService service;
     private Transaction transaction;
-    private RelationshipFactory factory;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -51,8 +48,7 @@ public class TramGraphBuilderTest {
     public void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
         transportData = dependencies.get(TransportDataFromFiles.class);
-        service = dependencies.get(GraphDatabaseService.class);
-        factory = dependencies.get(RelationshipFactory.class);
+        GraphDatabaseService service = dependencies.get(GraphDatabaseService.class);
         transaction = service.beginTx();
     }
 
@@ -92,6 +88,29 @@ public class TramGraphBuilderTest {
     }
 
     @Test
+    public void shouldHaveCorrectOutboundsAtMediaCity() throws TramchesterException {
+        assumeTrue(edgePerTrip);
+
+        String mediaCityUKId = Stations.MediaCityUK.getId();
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
+                mediaCityUKId + RouteCodesForTesting.ECCLES_TO_ASH );
+        outbounds.addAll(calculator.getOutboundRouteStationRelationships(
+                mediaCityUKId + RouteCodesForTesting.ASH_TO_ECCLES ));
+
+        List<ServiceRelationship> graphServicesRelationships = new LinkedList<>();
+        outbounds.forEach(out -> {
+            if (out instanceof ServiceRelationship) graphServicesRelationships.add((ServiceRelationship) out);
+        });
+
+        Set<String> graphSvcIds = graphServicesRelationships.stream().map(svc -> svc.getServiceId()).collect(Collectors.toSet());
+
+        Set<String> fileSvcIds = transportData.getTripsFor(mediaCityUKId).stream().map(svc -> svc.getServiceId()).collect(Collectors.toSet());
+        fileSvcIds.removeAll(graphSvcIds);
+
+        assertEquals(0, fileSvcIds.size());
+    }
+
+    @Test
     public void shouldHaveCorrectInboundsAtMediaCityEdgePerTrip() throws TramchesterException {
         assumeTrue(edgePerTrip);
 
@@ -110,28 +129,28 @@ public class TramGraphBuilderTest {
         assertEquals(1, graphBoardAtStation.size());
 
         Set<String> graphInboundSvcIds = graphTramsIntoStation.stream().
-                map(svc -> svc.getServiceId()).
+                map(GoesToRelationship::getServiceId).
                 collect(Collectors.toSet());
 
         Set<Trip> callingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRouteId().equals(routeId)).
-                map(svc -> svc.getTrips()).
-                flatMap(trips -> trips.stream()).
+                map(Service::getTrips).
+                flatMap(Collection::stream).
                 filter(trip -> trip.callsAt(stationId)). // calls at , but not starts at because no inbound for these
                 filter(trip -> !trip.getStops().get(0).getStation().getId().equals(stationId)).
                 collect(Collectors.toSet());
 
         Set<String> svcIdsFromCallingTrips = callingTrips.stream().
-                map(trip -> trip.getServiceId()).
+                map(Trip::getServiceId).
                 collect(Collectors.toSet());
 
         assertEquals(svcIdsFromCallingTrips.size(), graphInboundSvcIds.size());
 
-        Set<String> graphInboundTripIds = graphTramsIntoStation.stream().map(svc -> svc.getTripId()).collect(Collectors.toSet());
+        Set<String> graphInboundTripIds = graphTramsIntoStation.stream().map(GoesToRelationship::getTripId).collect(Collectors.toSet());
 
         assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
 
-        Set<String> tripIdsFromFile = callingTrips.stream().map(trip -> trip.getTripId()).collect(Collectors.toSet());
+        Set<String> tripIdsFromFile = callingTrips.stream().map(Trip::getTripId).collect(Collectors.toSet());
 
         tripIdsFromFile.removeAll(graphInboundTripIds);
         assertEquals(0, tripIdsFromFile.size());
@@ -143,7 +162,7 @@ public class TramGraphBuilderTest {
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Deansgate.getId()
                 + RouteCodesForTesting.ECCLES_TO_ASH);
-        List<ServiceNode> serviceNodes = outbounds.stream().filter(relationship -> relationship.isServiceLink()).
+        List<ServiceNode> serviceNodes = outbounds.stream().filter(TransportRelationship::isServiceLink).
                 map(relationship -> (ServiceNode)relationship.getEndNode()).collect(Collectors.toList());
 
         List<ServiceNode> sundays = serviceNodes.stream().filter(node -> node.getDaysServiceRuns()[6]).collect(Collectors.toList());
@@ -157,19 +176,17 @@ public class TramGraphBuilderTest {
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Deansgate.getId()
                 + RouteCodesForTesting.ECCLES_TO_ASH);
         List<TramGoesToRelationship> trams = outbounds.stream().
-                filter(relationship -> relationship.isGoesTo()).
+                filter(TransportRelationship::isGoesTo).
                 map(relationship -> ((TramGoesToRelationship) relationship)).collect(Collectors.toList());
         List<TramGoesToRelationship> sundays = trams.stream().
                 filter(tram -> tram.getDaysServiceRuns()[6]).collect(Collectors.toList());
         assertTrue(sundays.size()>0);
 
-        List<LocalTime> allTimes = new LinkedList();
+        List<LocalTime> allTimes = new LinkedList<>();
 
         sundays.forEach(svc -> {
             LocalTime[] times = svc.getTimesServiceRuns();
-            for (int i = 0; i < times.length; i++) {
-                allTimes.add(times[i]);
-            }
+            allTimes.addAll(Arrays.asList(times));
         });
 
         assertTrue(allTimes.size()>0);
@@ -177,7 +194,7 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldHaveHarbourCityStation() throws TramchesterException {
+    public void shouldHaveHarbourCityStation() {
 
         TramNode tramNode = calculator.getStation(Stations.HarbourCity.getId());
 
@@ -201,7 +218,7 @@ public class TramGraphBuilderTest {
 
         List<String> deansAndNext = Arrays.asList(Stations.Deansgate.getId(), Stations.MarketStreet.getId());
 
-        outbounds.stream().filter(out->out.isGoesTo()).forEach(out -> {
+        outbounds.stream().filter(TransportRelationship::isGoesTo).forEach(out -> {
                     TramGoesToRelationship goesTo = (TramGoesToRelationship) out;
                     String svcId = goesTo.getServiceId();
                     Service svc = transportData.getServiceById(svcId);
@@ -217,7 +234,7 @@ public class TramGraphBuilderTest {
 
                     List<LocalTime> times = tripsThatCall.stream().
                             map(trip -> trip.getStopsFor(Stations.Deansgate.getId())).
-                            flatMap(stops -> stops.stream()).
+                            flatMap(Collection::stream).
                             map(stop -> stop.getDepartureTime().asLocalTime()).
                             collect(Collectors.toList());
                     assertEquals(svcId, times.size(), timesTramRuns.length);
@@ -233,33 +250,50 @@ public class TramGraphBuilderTest {
     public void shouldCheckOutboundSvcRelationships() throws TramchesterException {
         assumeTrue(edgePerTrip);
 
-        String deansgateId = Stations.Deansgate.getId();
-        String routeId = RouteCodesForTesting.ALTY_TO_BURY;
+        graphAndFileConsistencyCheckOutbounds(Stations.Deansgate.getId(), RouteCodesForTesting.ALTY_TO_BURY);
+        graphAndFileConsistencyCheckOutbounds(Stations.StPetersSquare.getId(), RouteCodesForTesting.ALTY_TO_BURY);
+        graphAndFileConsistencyCheckOutbounds(Stations.StPetersSquare.getId(), RouteCodesForTesting.BURY_TO_ALTY);
+    }
 
+    public void graphAndFileConsistencyCheckOutbounds(String stationId, String routeId) throws TramchesterException {
         List<TransportRelationship> graphOutbounds = calculator.getOutboundRouteStationRelationships(
-                deansgateId + routeId);
+                stationId + routeId);
 
         assertTrue(graphOutbounds.size()>0);
 
         List<TramNode> graphOutboundSvcs = graphOutbounds.stream().
-                filter(svc -> svc.isServiceLink()).
+                filter(TransportRelationship::isServiceLink).
                 map(svc -> (ServiceRelationship) svc).
-                map(relationship -> relationship.getEndNode()).
+                map(TransportCostRelationship::getEndNode).
                 collect(Collectors.toList());
 
         Set<Trip> callingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRouteId().equals(routeId)).
-                map(svc -> svc.getTrips()).
-                flatMap(trips -> trips.stream()).
-                filter(trip -> trip.callsAt(deansgateId)).
+                map(Service::getTrips).
+                flatMap(Collection::stream).
+                filter(trip -> trip.callsAt(stationId)).
                 collect(Collectors.toSet());
 
         Set<String> svcIdsFromCallingTrips = callingTrips.stream().
-                map(trip -> trip.getServiceId()).
+                map(Trip::getServiceId).
                 collect(Collectors.toSet());
 
         // each svc should be one outbound, no dups, so use list not set of ids
         assertEquals(svcIdsFromCallingTrips.size(), graphOutboundSvcs.size());
+
+        // service earliest/latest at nodes should match those from trips/stops
+        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
+               forEach(serviceNode -> {
+                   Service fileService = transportData.getServiceById(serviceNode.getServiceId());
+                   LocalTime nodeEarliest = serviceNode.getEarliestTime();
+                   assertEquals(fileService.getServiceId(), fileService.earliestDepartTime().asLocalTime(), nodeEarliest);
+               });
+        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
+                forEach(serviceNode -> {
+                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
+                    LocalTime nodeLatest = serviceNode.getLatestTime();
+                    assertEquals(fileService.getServiceId(), fileService.latestDepartTime().asLocalTime(), nodeLatest);
+                });
     }
 
     @Test
@@ -372,7 +406,7 @@ public class TramGraphBuilderTest {
     private String display(boolean[] days) {
         StringBuilder builder = new StringBuilder();
         for(boolean runs : days) {
-            builder.append(" " + (runs?"Y":"N"));
+            builder.append(" ").append(runs?"Y":"N");
         }
         return builder.toString();
     }
@@ -380,7 +414,7 @@ public class TramGraphBuilderTest {
     private String display(LocalTime[] runsAt) {
         StringBuilder builder = new StringBuilder();
         for (LocalTime i : runsAt) {
-            builder.append(" " + i);
+            builder.append(" ").append(i);
         }
         return builder.toString();
     }
@@ -416,7 +450,6 @@ public class TramGraphBuilderTest {
         });
 
         assertTrue(svcsFromVelopark.size() >=1 ); // at least one service calls mondays at this time, 59
-
     }
 
     @Test
@@ -438,21 +471,8 @@ public class TramGraphBuilderTest {
         assertTrue(!serviceNodes.isEmpty());
         svcRelationshipsFromVeloPark.removeIf(svc -> !transportData.getServiceById(
                 svc.getServiceId()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
+
         assertTrue(!svcRelationshipsFromVeloPark.isEmpty());
-
-        assertTrue(svcRelationshipsFromVeloPark.size() >=1 );
-
-//        serviceNodes.stream().map(node -> node.getGoesToRelationship());
-//        svcRelationshipsFromVeloPark.removeIf(svc -> {
-//            for (LocalTime time : svc.getTimesServiceRuns()) {
-//                //if ((mins>=MINUTES_FROM_MIDNIGHT_8AM) && (mins-MINUTES_FROM_MIDNIGHT_8AM<=15))
-//                if (time.isAfter(LocalTime.of(7,59)) && time.isBefore(LocalTime.of(8,16)))
-//                    return false;
-//            }
-//            return true;
-//        });
-
-        assertTrue(svcRelationshipsFromVeloPark.size() >=1 ); // at least one service calls mondays at this time, 59
 
     }
 

@@ -226,10 +226,19 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(next.getProperty("service_id")).andStubReturn("inboundId");
 
         replayAll();
-        assertTrue(serviceHeuristics.checkForSvcChange(inboundWasGoesTo, false, "inboundId", next));
-        assertFalse(serviceHeuristics.checkForSvcChange(inboundWasGoesTo, false, "XXXX", next));
-        assertTrue(serviceHeuristics.checkForSvcChange(inboundWasGoesTo, true, "XXXX", next));
-        assertFalse(serviceHeuristics.checkForSvcChange(false, false, "XXXX", next));
+        assertTrue("id match", serviceHeuristics.checkForSvcChange(next, inboundWasGoesTo, false, "inboundId"));
+        assertFalse("id mismatch", serviceHeuristics.checkForSvcChange(next, inboundWasGoesTo, false, "XXXX"));
+        assertFalse("id mismatch", serviceHeuristics.checkForSvcChange(next, inboundWasGoesTo, true, "XXXX"));
+
+        assertTrue("boarding", serviceHeuristics.checkForSvcChange(next, false, true, "XXXX"));
+
+
+        try {
+            serviceHeuristics.checkForSvcChange(next, false, false, "XXXX");
+            fail("should throw");
+        } catch (RuntimeException expected) {
+            // expected
+        }
 
         verifyAll();
     }

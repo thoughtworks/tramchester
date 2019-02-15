@@ -252,7 +252,6 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
         return Collections.unmodifiableCollection(trips.values());
     }
 
-
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
         DaysOfWeek day = date.getDay();

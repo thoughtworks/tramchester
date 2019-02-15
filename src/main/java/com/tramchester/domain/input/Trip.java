@@ -60,12 +60,12 @@ public class Trip {
         TramTime departureTime = stop.getDepartureTime();
         if (earliestDepart==null) {
             earliestDepart = departureTime;
-        } else if (departureTime.compareTo(earliestDepart)<0) {
+        } else if (departureTime.isBefore(earliestDepart)) {
             earliestDepart = departureTime;
         }
         if (latestDepart==null) {
             latestDepart = departureTime;
-        } else if (departureTime.compareTo(latestDepart)>0) {
+        } else if (departureTime.isAfter(latestDepart)) {
             latestDepart = departureTime;
         }
     }

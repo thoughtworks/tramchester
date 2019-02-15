@@ -7,13 +7,11 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
-import net.sf.cglib.core.Local;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,9 +25,8 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
-    public static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(LocalTime.of(8,0), 45);
-    public static final List<String> ashtonRoutes = Arrays.asList(new String[]{RouteCodesForTesting.ASH_TO_ECCLES});
-    //public static final int PM11 = (23 * 60);
+    private static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(LocalTime.of(8,0), 45);
+    private static final List<String> ashtonRoutes = Collections.singletonList(RouteCodesForTesting.ASH_TO_ECCLES);
 
     private static Dependencies dependencies;
 
@@ -122,8 +119,8 @@ public class TransportDataFromFilesTest {
         assertFalse(filtered.isEmpty());
 
         List<Trip> trips = filtered.stream()
-                .map(svc -> svc.getTrips())
-                .flatMap(svcTrips -> svcTrips.stream())
+                .map(Service::getTrips)
+                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         // find trips calling at Velo
@@ -131,7 +128,7 @@ public class TransportDataFromFilesTest {
         assertFalse(trips.isEmpty());
 
         List<String> callingServices = trips.stream()
-                .map(trip -> trip.getServiceId())
+                .map(Trip::getServiceId)
                 .collect(Collectors.toList());
 
         // find one service id from trips
@@ -181,11 +178,11 @@ public class TransportDataFromFilesTest {
     public void shouldHaveWeekendServicesDeansgateToAshton() {
         Set<Trip> deansgateTrips = transportData.getTripsFor(Stations.Deansgate.getId());
 
-        TimeWindow timeWindow = new TimeWindow(LocalTime.of(9,00),30);
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(9,0),30);
         List<String> servicesIds = deansgateTrips.stream().
                 filter(trip -> trip.callsAt(Stations.Ashton.getId())).
                 filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(),Stations.Ashton.getId(),timeWindow)).
-                map(trip -> trip.getServiceId()).collect(Collectors.toList());
+                map(Trip::getServiceId).collect(Collectors.toList());
         assertTrue(servicesIds.size()>0);
 
         List<Service> sundays = transportData.getServices().stream().
@@ -199,7 +196,7 @@ public class TransportDataFromFilesTest {
         assertTrue(saturdays.size()>0);
 
 
-        List<Trip> sundayTrips = sundays.stream().map(svc -> svc.getTrips()).flatMap(Collection::stream).collect(Collectors.toList());
+        List<Trip> sundayTrips = sundays.stream().map(Service::getTrips).flatMap(Collection::stream).collect(Collectors.toList());
 
         List<Trip> atRequiredTimed = sundayTrips.stream().
                 filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(), Stations.Ashton.getId(), timeWindow)).
@@ -208,15 +205,11 @@ public class TransportDataFromFilesTest {
         assertEquals(2, atRequiredTimed.size());
     }
 
-
-
     @Test
     public void shouldHaveAtLeastOnePlatformForEveryStation() {
         Set<Station> stations = transportData.getStations();
         List<Platform> found = new LinkedList<>();
-        stations.forEach(station->{
-            transportData.getPlatformById(station.getId()+"1").ifPresent(platform->found.add(platform));
-        });
+        stations.forEach(station-> transportData.getPlatformById(station.getId()+"1").ifPresent(found::add));
         assertEquals(stations.size(),found.size());
     }
 
@@ -316,9 +309,9 @@ public class TransportDataFromFilesTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        Set<String> tripIdsFromSvcs = transportData.getServices().stream().map(svc -> svc.getTrips()).
-                flatMap(trips -> trips.stream()).
-                map(trip -> trip.getTripId()).collect(Collectors.toSet());
+        Set<String> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getTrips).
+                flatMap(Collection::stream).
+                map(Trip::getTripId).collect(Collectors.toSet());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
 
         Set<String> tripServicesId = new HashSet<>();
@@ -333,7 +326,7 @@ public class TransportDataFromFilesTest {
         Set<String> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.getDays().get(DaysOfWeek.Monday))
                 .filter(svc -> ashtonRoutes.contains(svc.getRouteId()))
-                .map(svc -> svc.getServiceId())
+                .map(Service::getServiceId)
                 .collect(Collectors.toSet());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID
@@ -346,7 +339,7 @@ public class TransportDataFromFilesTest {
         List<Stop> stoppingAtVelopark = filteredTrips.stream()
                 .filter(trip -> mondayAshToManServices.contains(trip.getServiceId()))
                 .map(trip -> trip.getStopsFor(Stations.VeloPark.getId()))
-                .flatMap(stops -> stops.stream())
+                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         assertEquals(filteredTrips.size(), stoppingAtVelopark.size());

@@ -46,4 +46,14 @@ public class CreateDotDiagramTest {
         creator.create("manchester_trams.dot", Stations.Deansgate.getId());
     }
 
+    // media city is somewhat unique....
+    @Test
+    public void shouldProduceADotDiagramOfTheTramNetworkForMediaCity() throws IOException {
+        // TODO
+        int depthLimit = 5;
+
+        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
+        creator.create("mediacity_trams.dot", Stations.MediaCityUK.getId());
+    }
+
 }

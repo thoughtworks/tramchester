@@ -61,7 +61,6 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             }
         }
 
-        // TODO does this include cost to current node?
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
             if (!serviceHeuristics.interestedInHour(hour, currentElapsed).isValid()) {
@@ -92,19 +91,19 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         String inboundSvcId = inboundWasGoesTo ? inboundToLastNode.getProperty(SERVICE_ID).toString() : "";
 
         Iterable<Relationship> iter = path.endNode().getRelationships(OUTGOING);
-        iter.forEach(next -> {
-            if (next.isType(TO_SERVICE)) {
-                if (serviceHeuristics.checkForSvcChange(inboundWasGoesTo, inboundWasBoarding, inboundSvcId, next)) {
-                    result.add(next);
+        iter.forEach(relationship -> {
+            if (relationship.isType(TO_SERVICE)) {
+                if (serviceHeuristics.checkForSvcChange(relationship, inboundWasGoesTo, inboundWasBoarding, inboundSvcId)) {
+                    result.add(relationship);
                 }
             } else {
-                if (!inboundWasBoarding) {
-                    result.addLast(next);
-                } else {
-                    // boarding, so check not immediately getting off again
-                    if (!(next.isType(DEPART) || next.isType(INTERCHANGE_DEPART))) {
-                        result.addLast(next);
+                if (inboundWasBoarding) {
+                    if (!(relationship.isType(DEPART) || relationship.isType(INTERCHANGE_DEPART))) {
+                        // don't allow getting on then just getting off again
+                        result.addLast(relationship);
                     }
+                } else {
+                    result.addLast(relationship);
                 }
             }
         });

@@ -32,5 +32,4 @@ public class ServiceRelationship extends TransportCostRelationship  {
     public String getServiceId() {
         return  graphRelationship.getProperty(SERVICE_ID).toString();
     }
-
 }

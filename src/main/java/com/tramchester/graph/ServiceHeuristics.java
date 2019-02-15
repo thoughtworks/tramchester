@@ -73,10 +73,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // BUT if arrive after service finished there is nothing to be done...
         TramTime serviceEnd = nodeOperations.getServiceLatest(node);
 
-        TramTime currentLock = TramTime.of(currentElapsed);
-        if (!currentLock.between(TramTime.of(serviceStart), serviceEnd)) {
+        TramTime currentClock = TramTime.of(currentElapsed);
+        if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
             timeWrong.getAndIncrement();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, nodeServiceId));
+            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId));
         }
 
         return ServiceReason.IsValid;
@@ -91,7 +91,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         timeWrong.incrementAndGet();
-        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString()));
+        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, "TimeMistmact:"+currentElapsed.toString()));
     }
 
     private boolean operatesWithinTime(LocalTime nodeTime, LocalTime elapsedTimed) {
@@ -224,15 +224,18 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString()));
     }
 
-    public boolean checkForSvcChange(boolean inboundWasGoesTo, boolean inboundWasBoarding, String inboundSvcId,
-                                     Relationship next) {
+    public boolean checkForSvcChange(Relationship next, boolean inboundWasGoesTo, boolean inboundWasBoarding, String inboundSvcId) {
+        // only called if next is a Service relationship
 
-        // ONLY follow an edge to service node only if service id matches
         if (inboundWasGoesTo) {
+            // can't magically jump between trams without getting off first
             String svcId = next.getProperty(SERVICE_ID).toString();
             if (svcId.equals(inboundSvcId)) {
                 // same service
                 return true;
+            } else {
+                inflightChange.incrementAndGet();
+                return false;
             }
         }
         // else
@@ -240,9 +243,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             // just got on board, so don't care about previous service
             return true;
         }
+        throw new RuntimeException("should only reach route station node via boarding or from a goes to link");
         // else
-        inflightChange.incrementAndGet();
-        return false;
+        //return false;
     }
 
     public void reportReasons() {

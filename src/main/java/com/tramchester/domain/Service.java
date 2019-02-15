@@ -143,7 +143,7 @@ public class Service {
             TramTime departureTime = trip.earliestDepartTime();
             if (earliestDepart==null) {
                 earliestDepart = departureTime;
-            } else if (departureTime.compareTo(earliestDepart)<0) {
+            } else if (departureTime.isBefore(earliestDepart)) {
                 earliestDepart = departureTime;
             }
         });
@@ -159,7 +159,7 @@ public class Service {
             TramTime departureTime = trip.latestDepartTime();
             if (latestDepart==null) {
                 latestDepart = departureTime;
-            } else  if (departureTime.compareTo(latestDepart)>0) {
+            } else  if (departureTime.isAfter(latestDepart)) {
                 latestDepart = departureTime;
             }
         });

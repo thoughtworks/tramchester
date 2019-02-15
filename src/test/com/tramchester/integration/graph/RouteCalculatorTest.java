@@ -18,6 +18,7 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -133,11 +134,12 @@ public class RouteCalculatorTest {
             }
         }
 
-        Boolean result = combinations.parallelStream().
-                map(pair -> calc(pair, Collections.singletonList(LocalTime.of(12, 0)), queryDate)).
-                map(journeys -> journeys.size() > 0).
-                reduce(true, (a, b) -> a && b);
-        assertTrue(result);
+        Set<Pair<Location, Location>> failed = combinations.parallelStream().
+                map(route -> Pair.of(route, calc(route, Collections.singletonList(LocalTime.of(12, 0)), queryDate))).
+                filter(pair -> pair.getRight().size() < 1).
+                map(pair -> pair.getLeft()).collect(Collectors.toSet());
+
+        assertEquals(0, failed.size());
 
     }
 
@@ -182,13 +184,41 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
+        LocalDate nextTuesday = TestConfig.nextTuesday(0);
+        // catches issue with services, only some of which go to media city, while others direct to broadway
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, LocalTime.of(8,00), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, LocalTime.of(8,00), nextTuesday);
+
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, LocalTime.of(9,00), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, LocalTime.of(9,00), nextTuesday);
+    }
+
+    @Test
+    public void shouldReproIssueWithBuryToEccles() {
+        LocalDate nextTuesday = TestConfig.nextTuesday(0);
+//        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, LocalTime.of(9,00), nextTuesday);
+//
+//        validateAtLeastOneJourney(Stations.Bury, Stations.Victoria, LocalTime.of(9,00), nextTuesday);
+//        validateAtLeastOneJourney(Stations.Bury, Stations.ExchangeSquare, LocalTime.of(9,00), nextTuesday);
+//        validateAtLeastOneJourney(Stations.Bury, Stations.StPetersSquare, LocalTime.of(9,00), nextTuesday);
+//        validateAtLeastOneJourney(Stations.Bury, Stations.Deansgate, LocalTime.of(9,00), nextTuesday);
+//        validateAtLeastOneJourney(Stations.Bury, Stations.Cornbrook, LocalTime.of(9,00), nextTuesday);
+//        validateAtLeastOneJourney(Stations.Bury, Stations.HarbourCity, LocalTime.of(9,00), nextTuesday);
+//        validateAtLeastOneJourney(Stations.Bury, Stations.MediaCityUK, LocalTime.of(9,00), nextTuesday);
+
+        validateAtLeastOneJourney(Stations.Bury, Stations.Broadway, LocalTime.of(9,00), nextTuesday);
+        validateAtLeastOneJourney(Stations.Bury, Stations.Eccles, LocalTime.of(9,00), nextTuesday);
+    }
+
+    @Test
     public void reproduceIssueWithImmediateDepartOffABoardedTram() {
         checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, when, LocalTime.of(8,0), 7);
     }
 
     @Test
-    public void reproduceIssueWithImmediateDepartOffABoardedTramSunday() {
-        checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, TestConfig.nextSunday(), LocalTime.of(8,0), 1);
+    public void reproduceIssueWithTramsSunday() {
+        checkRouteNextNDays(Stations.StPetersSquare, Stations.Deansgate, TestConfig.nextSunday(), LocalTime.of(9,0), 1);
     }
 
     @Test

@@ -303,7 +303,9 @@ public class TransportGraphBuilder extends StationIndexs {
 
         // Node for the service
         // Need route ID here as some services can go via multiple routes, this seems to be associated with the depots
-        String svcNodeId = format("%s_%s_%s", startLocation.getId(), route.getId(), service.getServiceId());
+        // some services can go in two different directions from a station i.e. around Media City UK
+        String svcNodeId = format("%s_%s_%s_%s", startLocation.getId(), endStop.getStation().getId(),
+                service.getServiceId(), route.getId());
         Node serviceNode = graphQuery.getServiceNode(svcNodeId);
         if (serviceNode==null) {
 

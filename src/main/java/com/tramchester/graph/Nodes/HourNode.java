@@ -5,11 +5,13 @@ import org.neo4j.graphdb.Node;
 
 public class HourNode implements TramNode {
     private final String id;
+    private final Node node;
     private final String name;
 
     public HourNode(Node node) {
         this.name = node.getProperty(GraphStaticKeys.HOUR).toString();
         this.id = node.getProperty(GraphStaticKeys.ID).toString();
+        this.node = node;
     }
 
     @Override
@@ -56,5 +58,4 @@ public class HourNode implements TramNode {
     public boolean isMinute() {
         return false;
     }
-
 }

@@ -6,6 +6,7 @@ import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
+import com.tramchester.integration.Stations;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,6 +70,9 @@ public class TripTest {
         assertEquals(am10Minutes.plusMinutes(1), trip.earliestDepartFor("statA","statB", new TimeWindow(am10Minutes, 30)).get().getLeaves());
         assertEquals(am10Minutes.plusMinutes(6), trip.earliestDepartFor("statB","statA", new TimeWindow(am10Minutes, 30)).get().getLeaves());
         assertEquals(am10Minutes.plusMinutes(1), trip.earliestDepartFor("statA","statA", new TimeWindow(am10Minutes, 30)).get().getLeaves());
+
+        assertEquals(TramTime.create(10,01), trip.earliestDepartTime());
+
     }
 
     @Test
@@ -77,10 +81,12 @@ public class TripTest {
         Stop firstStop = new Stop("stop1", stationA, TramTime.create(23, 45), TramTime.create(23, 46), routeId, serviceId);
         Stop secondStop = new Stop("stop2", stationB, TramTime.create(23, 59), TramTime.create(0, 1), routeId, serviceId);
         Stop thirdStop = new Stop("stop3", stationC, TramTime.create(0,10), TramTime.create(00, 11), routeId, serviceId);
+        Stop fourthStop = new Stop("stop4", stationC, TramTime.create(6,30), TramTime.create(6, 30), routeId, serviceId);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
+        trip.addStop(fourthStop);
 
         SortedSet<ServiceTime> times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(23,40), 30));
         assertEquals(1, times.size());
@@ -89,6 +95,29 @@ public class TripTest {
         times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(00,10), 30));
         assertEquals(1, times.size());
         assertEquals(TramTime.create(23,46), times.first().getDepartureTime());
+
+        assertEquals(TramTime.create(6,30), trip.earliestDepartTime());
+    }
+
+    @Test
+    public void shouldFindEarliestDepartCorrectly() throws TramchesterException {
+
+        Stop thirdStop = new Stop("stop3", stationC, TramTime.create(0,10), TramTime.create(00, 11), routeId, serviceId);
+        Stop fourthStop = new Stop("stop4", stationC, TramTime.create(6,30), TramTime.create(6, 31), routeId, serviceId);
+
+        trip.addStop(thirdStop);
+        trip.addStop(fourthStop);
+
+        assertEquals(TramTime.create(6,31), trip.earliestDepartTime());
+    }
+
+    @Test
+    public void shouldFindLatestDepartCorrectly() {
+        trip.addStop(new Stop("stopId3", Stations.Deansgate, TramTime.of(10,25), TramTime.of(10,26), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId4", Stations.Deansgate, TramTime.of(0,1), TramTime.of(0,1), "Rid", "Sid"));
+
+        assertEquals(TramTime.of(0,1), trip.latestDepartTime());
+
     }
 
     @Test
@@ -109,5 +138,8 @@ public class TripTest {
         times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(00,10), 30));
         assertEquals(1, times.size());
         assertEquals(TramTime.create(00,11), times.first().getDepartureTime());
+
+        assertEquals(TramTime.create(0,11), trip.earliestDepartTime());
+
     }
 }
