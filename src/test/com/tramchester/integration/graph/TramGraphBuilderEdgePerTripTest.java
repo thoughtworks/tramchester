@@ -82,14 +82,123 @@ public class TramGraphBuilderEdgePerTripTest {
     }
 
     @Test
+    public void shouldRepdroduceIssueWithWeekendsAtDeansgateToAshtonWithEdgePerService() throws TramchesterException {
+        assumeTrue(edgePerTrip);
+
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Deansgate.getId()
+                + RouteCodesForTesting.ECCLES_TO_ASH);
+        List<ServiceNode> serviceNodes = outbounds.stream().filter(TransportRelationship::isServiceLink).
+                map(relationship -> (ServiceNode)relationship.getEndNode()).collect(Collectors.toList());
+
+        List<ServiceNode> sundays = serviceNodes.stream().filter(node -> node.getDaysServiceRuns()[6]).collect(Collectors.toList());
+        assertTrue(sundays.size()>0);
+    }
+
+    @Test
     public void shouldHaveCorrectInboundsAtMediaCityEdgePerTrip() throws TramchesterException {
         assumeTrue(edgePerTrip);
 
-        String stationId = Stations.MediaCityUK.getId();
-        String routeId = RouteCodesForTesting.ECCLES_TO_ASH;
+        checkInboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
+        checkInboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
 
-        List<TransportRelationship> inbounds = calculator.getInboundRouteStationRelationships(
+        checkInboundConsistency(Stations.HarbourCity.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
+        checkInboundConsistency(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
+
+        checkInboundConsistency(Stations.Broadway.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
+        checkInboundConsistency(Stations.Broadway.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
+    }
+
+    @Test
+    public void shouldCheckOutboundSvcRelationships() throws TramchesterException {
+        assumeTrue(edgePerTrip);
+
+        checkOutboundConsistency(Stations.Cornbrook.getId(), RouteCodesForTesting.ALTY_TO_BURY);
+        checkOutboundConsistency(Stations.Cornbrook.getId(), RouteCodesForTesting.BURY_TO_ALTY);
+
+        checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ALTY_TO_BURY);
+        checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.BURY_TO_ALTY);
+
+        checkOutboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
+        checkOutboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
+
+        // consistent heading away from Media City ONLY, see below
+        checkOutboundConsistency(Stations.HarbourCity.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
+        checkOutboundConsistency(Stations.Broadway.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
+
+        // these two are not consistent because same svc can go different ways while still having same route code
+        // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
+        // => end up with two outbound services instead of one, hence numbers looks different
+        // graphAndFileConsistencyCheckOutbounds(Stations.Broadway.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
+        // graphAndFileConsistencyCheckOutbounds(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
+    }
+
+    @Test
+    public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8AmEdgePerTrip() throws TramchesterException {
+        assumeTrue(edgePerTrip);
+
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
+                Stations.VeloPark.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
+
+        List<ServiceRelationship> svcRelationshipsFromVeloPark = new LinkedList<>();
+        outbounds.forEach(out -> {
+            if (out instanceof ServiceRelationship) svcRelationshipsFromVeloPark.add((ServiceRelationship) out);
+        });
+        // filter by day and then direction/route
+        assertTrue(!svcRelationshipsFromVeloPark.isEmpty());
+        List<ServiceNode> serviceNodes = svcRelationshipsFromVeloPark.stream().
+                map(relationship -> (ServiceNode) relationship.getEndNode()).collect(Collectors.toList());
+        serviceNodes.removeIf(svc -> !svc.getDaysServiceRuns()[0]); // monday
+        assertTrue(!serviceNodes.isEmpty());
+        svcRelationshipsFromVeloPark.removeIf(svc -> !transportData.getServiceById(
+                svc.getServiceId()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
+
+        assertTrue(!svcRelationshipsFromVeloPark.isEmpty());
+
+    }
+
+    public void checkOutboundConsistency(String stationId, String routeId) throws TramchesterException {
+        List<TransportRelationship> graphOutbounds = calculator.getOutboundRouteStationRelationships(
                 stationId + routeId);
+
+        assertTrue(graphOutbounds.size()>0);
+
+        List<TramNode> graphOutboundSvcs = graphOutbounds.stream().
+                filter(TransportRelationship::isServiceLink).
+                map(svc -> (ServiceRelationship) svc).
+                map(TransportCostRelationship::getEndNode).
+                collect(Collectors.toList());
+
+        Set<Trip> fileCallingTrips = transportData.getServices().stream().
+                filter(svc -> svc.getRouteId().equals(routeId)).
+                map(Service::getTrips).
+                flatMap(Collection::stream).
+                filter(trip -> trip.callsAt(stationId)).
+                collect(Collectors.toSet());
+
+        Set<String> fileSvcIdFromTrips = fileCallingTrips.stream().
+                map(Trip::getServiceId).
+                collect(Collectors.toSet());
+
+        // each svc should be one outbound, no dups, so use list not set of ids
+        assertEquals(fileSvcIdFromTrips.size(), graphOutboundSvcs.size());
+
+        // service earliest/latest at nodes should match those from trips/stops
+        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
+                forEach(serviceNode -> {
+                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
+                    LocalTime nodeEarliest = serviceNode.getEarliestTime();
+                    assertEquals(fileService.getServiceId(), fileService.earliestDepartTime().asLocalTime(), nodeEarliest);
+                });
+        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
+                forEach(serviceNode -> {
+                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
+                    LocalTime nodeLatest = serviceNode.getLatestTime();
+                    assertEquals(fileService.getServiceId(), fileService.latestDepartTime().asLocalTime(), nodeLatest);
+                });
+    }
+
+    public void checkInboundConsistency(String stationId, String routeId) throws TramchesterException {
+        List<TransportRelationship> inbounds = calculator.getInboundRouteStationRelationships(stationId + routeId);
 
         List<BoardRelationship> graphBoardAtStation = new LinkedList<>();
         List<TramGoesToRelationship> graphTramsIntoStation = new LinkedList<>();
@@ -125,130 +234,5 @@ public class TramGraphBuilderEdgePerTripTest {
 
         tripIdsFromFile.removeAll(graphInboundTripIds);
         assertEquals(0, tripIdsFromFile.size());
-    }
-
-    @Test
-    public void shouldRepdroduceIssueWithWeekendsAtDeansgateToAshtonWithEdgePerService() throws TramchesterException {
-        assumeTrue(edgePerTrip);
-
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Deansgate.getId()
-                + RouteCodesForTesting.ECCLES_TO_ASH);
-        List<ServiceNode> serviceNodes = outbounds.stream().filter(TransportRelationship::isServiceLink).
-                map(relationship -> (ServiceNode)relationship.getEndNode()).collect(Collectors.toList());
-
-        List<ServiceNode> sundays = serviceNodes.stream().filter(node -> node.getDaysServiceRuns()[6]).collect(Collectors.toList());
-        assertTrue(sundays.size()>0);
-    }
-
-    @Test
-    public void shouldCheckOutboundSvcRelationships() throws TramchesterException {
-        assumeTrue(edgePerTrip);
-
-        graphAndFileConsistencyCheckOutbounds(Stations.Deansgate.getId(), RouteCodesForTesting.ALTY_TO_BURY);
-        graphAndFileConsistencyCheckOutbounds(Stations.StPetersSquare.getId(), RouteCodesForTesting.ALTY_TO_BURY);
-        graphAndFileConsistencyCheckOutbounds(Stations.StPetersSquare.getId(), RouteCodesForTesting.BURY_TO_ALTY);
-    }
-
-    @Test
-    public void shouldValidateGraphRepresentationMatchesTransportDataEdgePerTrip() throws TramchesterException {
-        assumeTrue(edgePerTrip);
-
-        String station = Stations.VeloPark.getId();
-        String route = RouteCodesForTesting.ASH_TO_ECCLES;
-
-        List<TransportRelationship> relationships = calculator.getOutboundRouteStationRelationships(station + route);
-
-        // check on departs relationship & services
-        List<TransportRelationship> departs = new LinkedList<>();
-        List<ServiceRelationship> outbounds = new LinkedList<>();
-        relationships.forEach(relationship -> {
-            if (relationship instanceof DepartRelationship) departs.add(relationship);
-            if (relationship instanceof ServiceRelationship) outbounds.add((ServiceRelationship) relationship);
-        });
-
-        assertEquals(relationships.size()-1, (outbounds.size())); // rest should be tram services
-        assertEquals(1, departs.size()); // one way to getPlatformById off the tram
-
-        Set<Trip> trips = transportData.getTripsFor(station);
-        Set<String> fileSvcs = new HashSet<>(); // all trips both ways
-
-        trips.forEach(trip -> {
-            String serviceId = trip.getServiceId();
-            Service serviceById = transportData.getServiceById(serviceId);
-            if (serviceById.getRouteId().equals(route)
-                    && serviceById.isRunning()) {
-                fileSvcs.add(serviceId);
-            }
-        });
-
-        outbounds.forEach(outbound -> {
-            String svcId = outbound.getServiceId();
-            assertTrue(svcId,fileSvcs.contains(svcId));
-        });
-    }
-
-    @Test
-    public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8AmEdgePerTrip() throws TramchesterException {
-        assumeTrue(edgePerTrip);
-
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
-                Stations.VeloPark.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
-
-        List<ServiceRelationship> svcRelationshipsFromVeloPark = new LinkedList<>();
-        outbounds.forEach(out -> {
-            if (out instanceof ServiceRelationship) svcRelationshipsFromVeloPark.add((ServiceRelationship) out);
-        });
-        // filter by day and then direction/route
-        assertTrue(!svcRelationshipsFromVeloPark.isEmpty());
-        List<ServiceNode> serviceNodes = svcRelationshipsFromVeloPark.stream().
-                map(relationship -> (ServiceNode) relationship.getEndNode()).collect(Collectors.toList());
-        serviceNodes.removeIf(svc -> !svc.getDaysServiceRuns()[0]); // monday
-        assertTrue(!serviceNodes.isEmpty());
-        svcRelationshipsFromVeloPark.removeIf(svc -> !transportData.getServiceById(
-                svc.getServiceId()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
-
-        assertTrue(!svcRelationshipsFromVeloPark.isEmpty());
-
-    }
-
-    public void graphAndFileConsistencyCheckOutbounds(String stationId, String routeId) throws TramchesterException {
-        List<TransportRelationship> graphOutbounds = calculator.getOutboundRouteStationRelationships(
-                stationId + routeId);
-
-        assertTrue(graphOutbounds.size()>0);
-
-        List<TramNode> graphOutboundSvcs = graphOutbounds.stream().
-                filter(TransportRelationship::isServiceLink).
-                map(svc -> (ServiceRelationship) svc).
-                map(TransportCostRelationship::getEndNode).
-                collect(Collectors.toList());
-
-        Set<Trip> callingTrips = transportData.getServices().stream().
-                filter(svc -> svc.getRouteId().equals(routeId)).
-                map(Service::getTrips).
-                flatMap(Collection::stream).
-                filter(trip -> trip.callsAt(stationId)).
-                collect(Collectors.toSet());
-
-        Set<String> svcIdsFromCallingTrips = callingTrips.stream().
-                map(Trip::getServiceId).
-                collect(Collectors.toSet());
-
-        // each svc should be one outbound, no dups, so use list not set of ids
-        assertEquals(svcIdsFromCallingTrips.size(), graphOutboundSvcs.size());
-
-        // service earliest/latest at nodes should match those from trips/stops
-        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
-                forEach(serviceNode -> {
-                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
-                    LocalTime nodeEarliest = serviceNode.getEarliestTime();
-                    assertEquals(fileService.getServiceId(), fileService.earliestDepartTime().asLocalTime(), nodeEarliest);
-                });
-        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
-                forEach(serviceNode -> {
-                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
-                    LocalTime nodeLatest = serviceNode.getLatestTime();
-                    assertEquals(fileService.getServiceId(), fileService.latestDepartTime().asLocalTime(), nodeLatest);
-                });
     }
 }
