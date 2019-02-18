@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -51,11 +50,10 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         Node endNode = path.endNode();
-        // not same as branchState.getState() as accounts for actual board time which != query time
-        LocalTime currentElapsed = calculateElapsedTimeForPath(path);
 
         // only pursue outbound edges from a service service runs today & within time
         if (nodeOperations.isService(endNode)) {
+            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
             if (!serviceHeuristics.checkService(endNode, currentElapsed).isValid()) {
                 return Collections.emptyList();
             }
@@ -63,13 +61,15 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
 
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
+            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
             if (!serviceHeuristics.interestedInHour(hour, currentElapsed).isValid()) {
                 return Collections.emptyList();
             }
         }
 
         // only follow hour nodes if match up with possible journeys
-        if (nodeOperations.isMinute(endNode)) {
+        if (nodeOperations.isTime(endNode)) {
+            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
             if (!serviceHeuristics.checkTime(endNode, currentElapsed).isValid()) {
                 return Collections.emptyList();
             }
@@ -79,31 +79,32 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     }
 
     private Iterable<Relationship> buildSimpleExpandsionList(Path path) {
-        LinkedList<Relationship> result = new LinkedList<>();
-        Relationship inboundToLastNode = path.lastRelationship();
+        Relationship inbound = path.lastRelationship();
 
-        if (inboundToLastNode==null) {
+        if (inbound==null) {
             return path.endNode().getRelationships(OUTGOING);
         }
 
-        boolean inboundWasGoesTo = inboundToLastNode.isType(TRAM_GOES_TO);
-        boolean inboundWasBoarding = inboundToLastNode.isType(BOARD) || inboundToLastNode.isType(INTERCHANGE_BOARD);
-        String inboundSvcId = inboundWasGoesTo ? inboundToLastNode.getProperty(SERVICE_ID).toString() : "";
+        boolean inboundWasBoarding = inbound.isType(BOARD) || inbound.isType(INTERCHANGE_BOARD);
+
+        LinkedList<Relationship> result = new LinkedList<>();
 
         Iterable<Relationship> iter = path.endNode().getRelationships(OUTGOING);
-        iter.forEach(relationship -> {
-            if (relationship.isType(TO_SERVICE)) {
-                if (serviceHeuristics.checkForSvcChange(relationship, inboundWasGoesTo, inboundWasBoarding, inboundSvcId)) {
-                    result.add(relationship);
+        iter.forEach(outbound -> {
+            if (outbound.isType(TO_SERVICE)) {
+                if (inboundWasBoarding) {
+                    result.add(outbound);
+                } else if (serviceHeuristics.sameTripAndService(inbound, outbound)) {
+                    result.add(outbound);
                 }
             } else {
                 if (inboundWasBoarding) {
-                    if (!(relationship.isType(DEPART) || relationship.isType(INTERCHANGE_DEPART))) {
+                    if ( ! (outbound.isType(DEPART) || outbound.isType(INTERCHANGE_DEPART))) {
                         // don't allow getting on then just getting off again
-                        result.addLast(relationship);
+                        result.addLast(outbound);
                     }
                 } else {
-                    result.addLast(relationship);
+                    result.addLast(outbound);
                 }
             }
         });
@@ -135,7 +136,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         nodes.next();
         while(nodes.hasNext()) {
             Node node = nodes.next();
-            if (nodeOperations.isMinute(node)) {
+            if (nodeOperations.isTime(node)) {
                 return nodeOperations.getTime(node);
             }
         }

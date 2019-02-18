@@ -13,13 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
+import static com.tramchester.graph.GraphStaticKeys.*;
 
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
@@ -133,13 +130,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     }
 
     // caller records
-    public ServiceReason sameService(TransportRelationship incoming, GoesToRelationship outgoing) {
-        if (!incoming.isGoesTo()) {
+    public ServiceReason sameService(TransportRelationship transportRelationship, GoesToRelationship outgoing) {
+        if (!transportRelationship.isGoesTo()) {
             return ServiceReason.IsValid; // not a connecting/goes to relationship, no svc id
         }
 
-        GoesToRelationship goesToRelationship = (GoesToRelationship) incoming;
-        String service = goesToRelationship.getServiceId();
+        GoesToRelationship incoming = (GoesToRelationship) transportRelationship;
+        String service = incoming.getServiceId();
+
         if (service.equals(outgoing.getServiceId())) {
             return ServiceReason.IsValid;
         }
@@ -224,28 +222,19 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString()));
     }
 
-    public boolean checkForSvcChange(Relationship next, boolean inboundWasGoesTo, boolean inboundWasBoarding, String inboundSvcId) {
-        // only called if next is a Service relationship
-
-        if (inboundWasGoesTo) {
-            // can't magically jump between trams without getting off first
-            String svcId = next.getProperty(SERVICE_ID).toString();
-            if (svcId.equals(inboundSvcId)) {
-                // same service
-                return true;
-            } else {
-                inflightChange.incrementAndGet();
-                return false;
-            }
+    public boolean sameTripAndService(Relationship inbound, Relationship outbound) {
+        if (!inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)) {
+            return false;
         }
-        // else
-        if (inboundWasBoarding) {
-            // just got on board, so don't care about previous service
-            return true;
+        String inboundSvcId = inbound.getProperty(SERVICE_ID).toString();
+        String outboundSvcId = outbound.getProperty(SERVICE_ID).toString();
+        if (!inboundSvcId.equals(outboundSvcId)) {
+            return false;
         }
-        throw new RuntimeException("should only reach route station node via boarding or from a goes to link");
-        // else
-        //return false;
+        // now check inbound trip is available on this outgoing service
+        String outboundTrips = (outbound.getProperty(TRIPS).toString());
+        String inboundTripId = inbound.getProperty(TRIP_ID).toString();
+        return outboundTrips.contains(inboundTripId);
     }
 
     public void reportReasons() {
@@ -262,4 +251,5 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
         return serviceReason;
     }
+
 }

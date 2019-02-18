@@ -3,7 +3,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.Location;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -12,6 +12,8 @@ import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
+
+import static java.lang.String.format;
 
 public class CreateDotDiagramTest {
     private static Dependencies dependencies;
@@ -39,21 +41,23 @@ public class CreateDotDiagramTest {
 
     @Test
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
-        // TODO
         int depthLimit = 7;
 
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
-        creator.create("manchester_trams.dot", Stations.Deansgate.getId());
+        create(Stations.Deansgate, depthLimit);
     }
 
-    // media city is somewhat unique....
+    // media city is area somewhat unique....
     @Test
-    public void shouldProduceADotDiagramOfTheTramNetworkForMediaCity() throws IOException {
-        // TODO
-        int depthLimit = 5;
+    public void shouldProduceADotDiagramOfTheTramNetworkForMediaCityArea() throws IOException {
+        int depthLimit = 3;
+        create(Stations.MediaCityUK, depthLimit);
+        create(Stations.HarbourCity, depthLimit);
+        create(Stations.Broadway, depthLimit);
+    }
 
+    public void create(Location startPoint, int depthLimit) throws IOException {
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
-        creator.create("mediacity_trams.dot", Stations.MediaCityUK.getId());
+        creator.create(format("%s_trams.dot", startPoint.getName()), startPoint.getId());
     }
 
 }

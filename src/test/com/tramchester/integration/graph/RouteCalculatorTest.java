@@ -3,11 +3,9 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import com.tramchester.integration.resources.JourneyPlannerHelper;
 import com.tramchester.repository.TransportData;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.AfterClass;
@@ -27,7 +25,7 @@ public class RouteCalculatorTest {
     private static Dependencies dependencies;
 
     private RouteCalculator calculator;
-    private LocalDate when = TestConfig.nextTuesday(0);
+    private LocalDate nextTuesday = TestConfig.nextTuesday(0);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -54,34 +52,34 @@ public class RouteCalculatorTest {
     public void shouldHaveSimpleJourney() {
         List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
-                minutes, new TramServiceDate(when));
+                minutes, new TramServiceDate(nextTuesday));
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleOneStopJourney() {
-        checkRouteNextNDays(Stations.Deansgate, Stations.Cornbrook, when, LocalTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.Deansgate, Stations.Cornbrook, nextTuesday, LocalTime.of(9,0), 1);
     }
 
     @Test
     public void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, LocalTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, nextTuesday, LocalTime.of(9,0), 1);
     }
 
     @Test
     public void shouldHaveSimpleManyStopJourneyViaInterchange() {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Bury, when, LocalTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.Altrincham, Stations.Bury, nextTuesday, LocalTime.of(9,0), 1);
     }
 
     // over max wait, catch failure to accumulate journey times correctly
     @Test
     public void shouldHaveSimpleButLongJoruneySameRoute() {
-        checkRouteNextNDays(Stations.ManAirport, Stations.TraffordBar, when, LocalTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.ManAirport, Stations.TraffordBar, nextTuesday, LocalTime.of(9,0), 1);
     }
 
     @Test
     public void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
-        checkRouteNextNDays(Stations.Cornbrook, Stations.Bury, when, LocalTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.Cornbrook, Stations.Bury, nextTuesday, LocalTime.of(9,0), 1);
     }
 
     @Test
@@ -113,14 +111,14 @@ public class RouteCalculatorTest {
 
         List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(23, 15));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.ManAirport.getId(),
-                queryTimes, new TramServiceDate(when));
+                queryTimes, new TramServiceDate(nextTuesday));
 
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldFindRouteEachStationToEveryOtherStream() {
-        TramServiceDate queryDate = new TramServiceDate(when);
+        TramServiceDate queryDate = new TramServiceDate(nextTuesday);
         TransportData data = dependencies.get(TransportData.class);
 
         Set<Station> allStations = data.getStations();
@@ -151,7 +149,7 @@ public class RouteCalculatorTest {
     public void shouldFindEndOfLinesToEndOfLines() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNextNDays(start, dest, when, LocalTime.of(9,0), 7);
+                checkRouteNextNDays(start, dest, nextTuesday, LocalTime.of(9,0), 7);
             }
         }
     }
@@ -160,7 +158,7 @@ public class RouteCalculatorTest {
     public void shouldFindInterchangesToInterchanges() {
         for (Location start :  Stations.Interchanges) {
             for (Location dest : Stations.Interchanges) {
-                checkRouteNextNDays(start, dest, when, LocalTime.of(9,0), 7);
+                checkRouteNextNDays(start, dest, nextTuesday, LocalTime.of(9,0), 7);
             }
         }
     }
@@ -169,7 +167,7 @@ public class RouteCalculatorTest {
     public void shouldFindEndOfLinesToInterchanges() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.Interchanges) {
-                checkRouteNextNDays(start, dest, when, LocalTime.of(9,0), 7);
+                checkRouteNextNDays(start, dest, nextTuesday, LocalTime.of(9,0), 7);
             }
         }
     }
@@ -178,7 +176,7 @@ public class RouteCalculatorTest {
     public void shouldFindInterchangesToEndOfLines() {
         for (Location start : Stations.Interchanges ) {
             for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNextNDays(start,dest, when, LocalTime.of(8,0), 7);
+                checkRouteNextNDays(start,dest, nextTuesday, LocalTime.of(8,0), 7);
             }
         }
     }
@@ -195,25 +193,40 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldReproIssueWithBuryToEccles() {
-        LocalDate nextTuesday = TestConfig.nextTuesday(0);
-//        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, LocalTime.of(9,00), nextTuesday);
-//
-//        validateAtLeastOneJourney(Stations.Bury, Stations.Victoria, LocalTime.of(9,00), nextTuesday);
-//        validateAtLeastOneJourney(Stations.Bury, Stations.ExchangeSquare, LocalTime.of(9,00), nextTuesday);
-//        validateAtLeastOneJourney(Stations.Bury, Stations.StPetersSquare, LocalTime.of(9,00), nextTuesday);
-//        validateAtLeastOneJourney(Stations.Bury, Stations.Deansgate, LocalTime.of(9,00), nextTuesday);
-//        validateAtLeastOneJourney(Stations.Bury, Stations.Cornbrook, LocalTime.of(9,00), nextTuesday);
-//        validateAtLeastOneJourney(Stations.Bury, Stations.HarbourCity, LocalTime.of(9,00), nextTuesday);
-//        validateAtLeastOneJourney(Stations.Bury, Stations.MediaCityUK, LocalTime.of(9,00), nextTuesday);
-
+    public void shouldReproIssueWithJourneysToEccles() {
         validateAtLeastOneJourney(Stations.Bury, Stations.Broadway, LocalTime.of(9,00), nextTuesday);
         validateAtLeastOneJourney(Stations.Bury, Stations.Eccles, LocalTime.of(9,00), nextTuesday);
     }
 
     @Test
+    public void reproduceIssueEdgePerTrip() {
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,51), nextTuesday);
+    }
+
+    @Test
+    public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
+        assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
+    }
+
+    private int checkRangeOfTimes(Location start, Location dest) {
+        List<LocalTime> missing = new LinkedList<>();
+        for (int hour = 6; hour < 23; hour++) {
+            for (int minutes = 0; minutes < 59; minutes++) {
+                LocalTime time = LocalTime.of(hour, minutes);
+                Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
+                        Collections.singletonList(time), new TramServiceDate(nextTuesday));
+                if (journeys.size()==0) {
+                    missing.add(time);
+                }
+            }
+
+        }
+        return missing.size();
+    }
+
+    @Test
     public void reproduceIssueWithImmediateDepartOffABoardedTram() {
-        checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, when, LocalTime.of(8,0), 7);
+        checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, nextTuesday, LocalTime.of(8,0), 7);
     }
 
     @Test
@@ -231,7 +244,7 @@ public class RouteCalculatorTest {
     public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
         for(int i=0; i<60; i++) {
             LocalTime time = LocalTime.of(8,i);
-            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, when);
+            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, nextTuesday);
         }
     }
 

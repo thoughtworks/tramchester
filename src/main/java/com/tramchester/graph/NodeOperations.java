@@ -11,7 +11,7 @@ public interface NodeOperations {
 
     boolean isHour(Node node);
 
-    boolean isMinute(Node node);
+    boolean isTime(Node node);
 
     int getHour(Node endNode);
 

@@ -50,6 +50,7 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         return timesRunning;
     }
 
+    @Deprecated
     public LocalTime getTimeServiceRuns() {
         if (timeRunning==null) {
             timeRunning =(LocalTime) graphRelationship.getProperty(GraphStaticKeys.DEPART_TIME);
