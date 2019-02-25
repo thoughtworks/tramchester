@@ -1,0 +1,76 @@
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <a id="backToRouteDetails" class="navbar-button" ng-click="goBack(journey)">
+            <span class="glyphicon glyphicon-chevron-left">Journeys</span>
+        </a>
+        <h5 class="navbar-title">Directions</h5>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" ng-hide='!journey.stages.length'>
+            <button id="earlierTram" class="btn btn-default btn-sm pull-left"
+                    ng-click="earlierTram()" ng-disabled="disableEarlierTram">
+                <span>Earlier </span><span class="glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button id="laterTram" class="btn btn-default btn-sm pull-right"
+                    ng-click="laterTram()" ng-disabled="disableLaterTram">
+                <span class="glyphicon glyphicon-chevron-right"> Later</span>
+            </button>
+
+            <h4 id="journeyHeader" class="heading">{{journey.firstDepartureTime}}
+                from
+                {{journey.begin.name}}</h4>
+            <div ng-repeat="stage in journey.stages">
+                <div class="panel {{stage.displayClass}}">
+                    <div id="stageSummary{{$index}}" class="panel-heading">{{stage.summary}}</div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        <a id="showMap{{$index}}" ng-click="showMap(stage)" class="list-group-item">
+                            <span>
+                                <h4>
+                                    <span style="display: inline-block; width: 85%;" id="stagePrompt{{$index}}">{{stage.prompt}} <strong>{{stage.actionStation.name}}</strong></span>
+                                    <button class="pull-right tcr-button">Map</button>
+                                </h4>
+                            </span>
+                        </a>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-show="stage.isAVehicle">
+                            <div id="stageInstruction{{$index}}">
+                                <strong>{{stage.firstDepartureTime}}</strong> Catch
+                                {{stage.headSign}} {{stage.mode}}
+                                <span id="stagePlatformInstruction{{$index}}" ng-show="stage.hasPlatform">
+                                    from Platform {{stage.platform.platformNumber}}
+                                </span>
+                            </div>
+                        </li>
+                        <li ng-show="stage.hasPlatform && (stage.platform.stationDepartureInfo.dueTrams.length >0)" class="list-group-item">
+                            <div class="dueTrams">
+                                <span>Trams from this station</span>
+                                <div ng-repeat="tram in stage.platform.stationDepartureInfo.dueTrams">
+                                    <span class="dueTram">{{tram.destination}} {{tram.carriages}} tram {{tram.status}} at {{tram.when}}</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item"><span class="glyphicon glyphicon-time pull-right"></span>
+                            <div id="stageDuration{{$index}}">Duration <strong>{{stage.duration}} min</strong></div>
+                        </li>
+                        <li class="list-group-item" ng-show="stage.isAVehicle">
+                            <div id="stageArrive{{$index}}">
+                                <strong>{{stage.expectedArrivalTime}}</strong> Arrive at {{stage.lastStation.name}}</div>
+                        </li>
+                    </ul>
+                </div>
+                <div ng-if="!$last" class="tcr-change" >
+                    <div id="change{{$index}}">
+                        <span class="glyphicon glyphicon-random"></span>
+                        <span class="trc-change-text" ng-show="stage.isAVehicle">Change {{stage.mode}}</span>
+                    </div>
+                </div>
+            </div>
+            <p><a id="newJourney" href="/#/routePlanner" class="btn btn-default btn-lg btn-block">Plan New Journey</a></p>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>

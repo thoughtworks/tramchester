@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app="techLabApp">
+
+<head>
+    <title>Tramchester</title>
+    <meta name="google-site-verification" content="V0rkr8JD8ND80Wyt2LR8dC4rMhQ9SDQQV6jO7_Bc02U" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <!-- iPhone (Retina) -->
+    <link href="apple-touch-startup-image-640x920.png" media="(device-width: 320px) and (device-height: 480px)
+	         and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <!-- 57 x 57 Android and iPhone 3 icon -->
+    <link rel="apple-touch-icon" href="icon57x57.png" sizes="57x57">
+    <link rel="apple-touch-icon" href="icon144x144.png" sizes="144x144">
+    <link rel="apple-touch-icon" href="icon114x114.png" sizes="114x114">
+    <link rel="apple-touch-icon" href="icon72x72.png" sizes="72x72">
+    <link rel="shortcut icon" href="icon57x57.png">
+    <link rel="stylesheet" type="text/css" href="css/MyFontsWebfontsKit.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
+    <link href="css/tramchester.css" rel="stylesheet" media="screen">
+    <link href="css/leaflet.css" rel="stylesheet"  />
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-43150360-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+</head>
+<body class="tcr">
+<ng-view></ng-view>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="/javascript/lib/bootstrap.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-cookies.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-resource.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-route.min.js"></script>
+<script src="/javascript/lib/angulartics.min.js"></script>
+<!-- CND for leaflet not available over https -->
+<script src="/javascript/lib/leaflet-0.7.5/leaflet.js"></script>
+<script src="/javascript/lib/moment.js"></script>
+<script src="/javascript/app.js"></script>
+<script src="/javascript/resources/TransportStopsResource.js"></script>
+<script src="/javascript/resources/VersionResource.js"></script>
+<script src="/javascript/resources/FeedinfoResource.js"></script>
+<script src="/javascript/resources/RoutesResource.js"></script>
+<script src="/javascript/resources/NearbyResource.js"></script>
+<script src="/javascript/resources/JourneyPlannerResource.js"></script>
+<script src="/javascript/services/VersionService.js"></script>
+<script src="/javascript/services/FeedinfoService.js"></script>
+<script src="/javascript/services/RoutesService.js"></script>
+<script src="/javascript/services/JourneyPlanService.js"></script>
+<script src="/javascript/controllers/RoutePlannerController.js"></script>
+<script src="/javascript/controllers/SplashController.js"></script>
+<script src="/javascript/controllers/FooterController.js"></script>
+<script src="/javascript/controllers/RouteDetailsController.js"></script>
+<script src="/javascript/controllers/JourneyDetailsController.js"></script>
+<script src="/javascript/controllers/MapController.js"></script>
+<script src="/javascript/controllers/NetworkMapController.js"></script>
+<script src="/javascript/controllers/LiveNearMeController.js"></script>
+<script src="https://www.mapquestapi.com/sdk/leaflet/v2.s/mq-map.js?key=Fmjtd%7Cluub20a22h%2C2w%3Do5-9urgd4"></script>
+<script src="https://www.mapquestapi.com/sdk/leaflet/v2.s/mq-routing.js?key=Fmjtd%7Cluub20a22h%2C2w%3Do5-9urgd4"></script>
+</body>
+</html>

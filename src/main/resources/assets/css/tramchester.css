@@ -1,0 +1,374 @@
+/*!
+ * Tramchester
+ * FAC 514
+ */
+
+html {
+    font-family: Helvetica, sans-serif;
+}
+
+/* BRANDING */
+
+.StudioNeon {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+}
+
+.tcr {
+    color: #81725e;
+    background-color: #e8e8e3;
+}
+
+.tcr a {
+    color: #191c1f;
+}
+
+.tcr .heading {
+    text-align: center;
+}
+
+.tcr hr {
+    border-top: 2px solid #191c1f;
+}
+
+.tcr legend {
+    color: #81725e;
+    border-width: 0;;
+}
+
+.tcr .btn:hover,
+.tcr .btn:focus {
+    color: #ffffff;
+    background-color: #191c1f;
+}
+
+.tcr a.list-group-item:hover,
+.tcr a.list-group-item:focus {
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #191c1f;
+    border-radius: 0px;
+}
+
+.tcr-button {
+    font-size: 12px;
+}
+
+.tcr-splash {
+    background-color: #ffe100;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 100%;
+}
+
+.tcr-map .navbar {
+    margin-bottom: 0;
+}
+
+.navbar-button {
+    float: left;
+    margin-top: 20px;
+}
+
+.navbar-title {
+    display: block;
+    max-width: 200px;
+    padding: 8px 10px;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #000;
+    text-align: center;
+}
+
+.tcr-start .tcr-navbar .navbar-brand {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.5em;
+    color: #191c1f;
+}
+
+.tcr-splash h1 {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 3em;
+    color: #191c1f;
+    border-top: 2px solid #191c1f;
+    border-bottom: 10px solid #191c1f;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.jumbotron {
+    padding: 0;
+    margin-bottom: 30px;
+    color: #191c1f;
+    background-color: #ffe100;
+}
+
+.jumbotron h1 {
+    font-family: StudioNeon;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 2em;
+    color: #191c1f;
+    border-top: 2px solid #191c1f;
+    border-bottom: 10px solid #191c1f;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.jumbotron p {
+    line-height: 1.4;
+    font-size: 18px;
+}
+
+.tcr-navbar {
+    background-color: #ffe100;
+    border-radius: 0px;
+    border-top: 2px solid #191c1f;
+    border-bottom: 10px solid #191c1f;
+}
+
+.tcr-navbar .navbar-brand {
+    color: #191c1f;
+}
+
+.tcr .panel {
+    -webkit-box-shadow: 4px 4px 2px #ccc;
+    box-shadow: 4px 4px 2px #ccc;
+    border-color: #999;
+}
+
+.tcr .panel-heading {
+    margin-bottom: -16px;
+}
+
+.tcr-change {
+    font-size: 1.5em;
+    text-align: center;
+    color: #ccc;
+    text-shadow: 0px 2px 2px #fff;
+    margin-bottom: 10px;
+}
+
+.trc-change-text {
+    font-size: 20px;
+    margin-left: 20px;
+}
+
+.tcr .well {
+    background-color: #ffffff;
+    box-shadow: 4px 4px 2px #ccc;
+    border-color: #999;
+}
+
+.tcr-footer, .tcr-footer a {
+    text-align: center;
+}
+
+.tcr-footer hr {
+    border-top: 2px solid #ccc;
+    border-bottom: 1px solid #fff;
+}
+
+.tcr-splash .tcr-footer, .tcr-splash {
+    color: #bfa900;
+    text-align: center;
+    text-shadow: 0px 2px 2px #fffbb3;
+}
+
+.tcr-splash .tcr-footer hr {
+    border-top: 2px solid #bfa900;
+    border-bottom: 1px solid #fffbb3;
+}
+
+/*.tcr-date {*/
+/*}*/
+
+/*! Directions */
+
+.tcr-directions table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: #fff;
+}
+
+.tcr-directions table tbody > tr > td {
+    padding: 5px;
+    line-height: 1.428571429;
+    vertical-align: top;
+    border-top: 1px solid #e8e8e3;
+}
+
+.tram-stop {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #81725e;
+    border-radius: 10px;
+}
+
+.small-loading {
+    margin-top: -5px;
+}
+
+.medium-loading {
+    margin-top: 40px;
+    height: 80px;
+    width: 80px
+}
+
+#map-container {
+    position: relative;
+}
+
+/*! BREAKPOINT STUFF */
+
+@media (min-width: 768px) {
+    .container {
+        margin-right: 10%;
+        margin-left: 10%;
+    }
+
+    .navbar-brand {
+        float: none;
+    }
+}
+
+@media (min-width: 991px) {
+    .container {
+        margin-right: 20%;
+        margin-left: 20%;
+    }
+
+    .navbar-brand {
+        float: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        margin-right: 25%;
+        margin-left: 25%;
+    }
+
+    .navbar-brand {
+        float: none;
+    }
+}
+
+/* iOS form inputs */
+input[type="time"], input[type="datetime-local"] {
+    -webkit-appearance: none;
+}
+
+.RouteWalking .panel-heading {
+    /* nothing yet */
+}
+
+.RouteClass1 .panel-heading {
+    background-color: #308c2c;
+    stroke: #308c2c;
+    color: white;
+}
+
+.RouteClass2 .panel-heading {
+    background-color: #781f82;
+    stroke: #781f82;
+    color: white;
+}
+
+.RouteClass3 .panel-heading {
+    background-color: #58c6f1;
+    stroke: #58c6f1;
+    color: white;
+}
+
+.RouteClass4 .panel-heading {
+    background-color: #eebb01;
+    stroke: #eebb01;
+    color: white;
+}
+
+.RouteClass5 .panel-heading {
+    background-color: #aab304;
+    stroke: #aab304;
+    color: white;
+}
+
+.RouteClass6 .panel-heading {
+    background-color: #0069b3;
+    stroke: #0069b3;
+    color: white;
+}
+
+.RouteClass7 .panel-heading {
+    background-color: #f18801;
+    stroke: #0069b3;
+    color: white;
+}
+
+/*! Tram stop */
+.stop .panel-heading {
+    background-color: #81725e;
+    color: #ffffff;
+}
+
+.tcr .panel-heading.news {
+    margin-bottom: -16px;
+    color: red;
+    font-weight: bold;
+}
+
+.tcr-navbar.news {
+    margin-bottom: 0;
+}
+
+.tcr .news {
+    border-radius: 0;
+    margin-top: -16px;
+}
+
+.panel.news a {
+    text-decoration: underline;
+}
+
+.news-hidden {
+    display: none;
+}
+
+.dueTrams {
+    margin-left: 10px;
+}
+
+.dueTram {
+    font-size: 12px;
+    margin-left: 20px;
+    text-align: left;
+}
+
+.nearMeTram {
+    font-size: 14px;
+}
+
+.nearMePlatform {
+    font-size: 12px;
+}
+
+.list-group p {
+    padding: 10px;
+    padding-left: 15px;
+}
+
+.appInfo {
+    display: inline-block;
+}

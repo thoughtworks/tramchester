@@ -1,0 +1,78 @@
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <a class="navbar-button" ng-click="goBack()">
+            <span class="glyphicon glyphicon-chevron-left">New Journey</span>
+        </a>
+        <h5 class="navbar-title">Select Route</h5>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-">
+            <div ng-show="Notes" class="panel" id="Notes">
+                <div ng-show="Notes" class="panel-heading"><strong>Notes:</strong></div>
+                <div class="list-group" id="NotesList">
+                    <div ng-show="Notes" ng-repeat="note in journeyPlan.notes" id="NoteItem">
+                         <div id="note{{$index}}" class="list-group-item" ng-bind-html="safeHtml(note)"></div>
+                    </div>
+                </div>
+            </div>
+            <div ng-show="NoRoutes" class="panel" id="NoRoutes">
+                <div ng-show="NoRoutes" class="panel-heading">No Results</div>
+                <div ng-show="NoRoutes" class="list-group text-center">
+                    Unable to find any routes for the journey, please check the
+                    <a href="http://www.metrolink.co.uk/Pages/default.aspx"
+                       target="_blank">Metrolink Home page.</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-lg-" ng-hide="NoRoutes">
+            <div id="routes" ng-show="!journeyPlan.journeys.length" class="text-center">
+                <img src="images/loader.gif" class="medium-loading"/>
+            </div>
+            <div ng-repeat="journey in journeyPlan.journeys" ng-click="showJourneyDetails($index)">
+                <div class="panel" id="journeyPanel{{$index}}">
+                    <div class="panel-heading" id="journeyHeading{{$index}}">{{journey.heading}}</div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        <a ng-click="showJourneyDetails($index)" class="list-group-item" >
+                            <span>
+                                <span id="journeyBegin{{$index}}"><strong>{{journey.firstDepartureTime}}</strong> from <strong>{{journey.begin.name}}</strong></span>
+                                <button class="pull-right tcr-button">Details</button>
+                            </span>
+                        </a>
+                    </div>
+                    <ul class="list-group" id="dueTram{{$index}}" ng-show="journey.dueTram">
+                        <li class="list-group-item">
+                            <span class="glyphicon glyphicon glyphicon-time pull-right"></span>
+                            {{journey.dueTram}}
+                        </li>
+                    </ul>
+                    <ul class="list-group" id="journeySummary{{$index}}">
+                        <li class="list-group-item">
+                            <span  ng-show="journey.isDirect" class="glyphicon glyphicon-arrow-right pull-right"></span>
+                            <span  ng-show="!journey.isDirect" class="glyphicon glyphicon-random pull-right"></span>
+                            {{journey.summary}}
+                        </li>
+                    </ul>
+                    <ul class="list-group">
+                        <li class="list-group-item" id="journeyEnd{{$index}}">
+                            <strong>{{journey.expectedArrivalTime}}</strong> Arrive at
+                            <strong>{{journey.end.name}}</strong>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div  id="newJourneyPanel" class="col-12 col-sm-12 col-lg-">
+            <div class="panel">
+                <div class="panel-heading">Plan new journey</div>
+                    <div class="list-group">
+                        <a id="newJourney" href="/#/routePlanner" class="btn bt n-default btn-lg btn-block">Plan New Journey</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>

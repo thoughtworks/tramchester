@@ -1,0 +1,76 @@
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <h5 class="navbar-title">Trams Near Me</h5>
+    </div>
+</div>
+
+<div class="container">
+    <div class="col-12 col-sm-12 col-lg-" >
+        <div class="list-group">
+            <button type="submit" id="switchView" class="btn btn-default btn-lg btn-block" ng-click="switchView()">
+                <div id="departuresText" ng-show="flag">Show Departures</div>
+                <div id="stationsText" ng-show="!flag">Show Stations</div>
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" >
+            <div ng-show="Notes" class="panel" id="Notes">
+                <div ng-show="Notes" class="panel-heading"><strong>Notes:</strong></div>
+                <div class="list-group" id="NotesList">
+                    <div ng-show="Notes" ng-repeat="note in notes" id="NoteItem">
+                        <div id="note{{$index}}" class="list-group-item" ng-bind-html="safeHtml(note)"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="notYet" ng-hide="(stations.length >0)  || (departures)" class="text-center">
+                <img src="images/loader.gif" class="medium-loading"/>
+            </div>
+            <div class="information" >
+                <div class="panel" ng-repeat="station in stations" id="stationsList" ng-hide='!stations.length'>
+                    <h4 id="stationName{{$index}}" class="heading">{{station.name}}</h4>
+                    <div id="platformList{{$index}}" class="list-group">
+                        <div class="list-group-item">
+                            <div ng-repeat="platform in station.platforms">
+                                <div ng-show="platform.stationDepartureInfo">
+                                    <div class="dueTrams" ng-show="platform.stationDepartureInfo.dueTrams.length >0">
+                                        <span class="nearMePlatform">Platform {{platform.platformNumber}}</span>
+                                        <div ng-repeat="tram in platform.stationDepartureInfo.dueTrams">
+                                            <span class="nearMeTram"><strong>{{tram.when}} {{tram.destination}}</strong> {{tram.carriages}} {{tram.status}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-hide="platform.stationDepartureInfo">
+                                    <span class="nearMePlatform">Platform {{platform.platformNumber}}</span>
+                                    <span class="nearMeTram">No live data currently available</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel" id="departuresList" ng-show='departures'>
+                    <h4 class="heading">Departures</h4>
+                    <div class="list-group">
+                        <div class="list-group-item" ng-show='departures.length > 0'>
+                            <div ng-repeat="departure in departures">
+                                <div>
+                                    <span class="nearMeTram"><strong>{{departure.when}}
+                                        {{departure.destination}}</strong> {{departure.carriages}} from {{departure.from}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item" ng-hide='departures.length > 0'>
+                            <span class="nearMeTram">No live data is currently available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12 col-lg-" >
+            <div class="list-group">
+                <a id="newJourney" href="/#/routePlanner" class="panel btn bt n-default btn-lg btn-block">Plan New Journey</a>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>

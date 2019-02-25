@@ -1,0 +1,81 @@
+<div class="navbar tcr-navbar">
+    <div class="container">
+        <h5 class="navbar-title">Plan Journey</h5>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-lg-" id="route-planner">
+            <form name="journeyPlanForm">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="fromStop">From</label>
+                        <select id="fromStop"
+                                ng-model="fromStop"
+                                required
+                                ng-options="stop.id as stop.name group by stop.proximityGroup.name for stop in stops | orderBy:['proximityGroup.order']"
+                                ng-show="stops.length"
+                                class="form-control input-lg"
+                                ng-change="fromStopSelected()">
+                            <option value="">- Please select stop -</option>
+                        </select>
+
+                        <div class="form-control input-lg" ng-hide="stops.length">
+                            <img src="images/small-loading.gif" class="small-loading"/> Loading stops...
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="toStop">To</label>
+                        <select id="toStop"
+                                ng-model="toStop"
+                                required
+                                ng-options="stop.id as stop.name group by stop.proximityGroup.name for stop in endStops | filter: groupFilter | orderBy:['proximityGroup.order']"
+                                ng-show="endStops.length"
+                                class="form-control input-lg">
+                            <option value="">- Please select stop -</option>
+                        </select>
+
+                        <div class="form-control input-lg" ng-hide="stops.length">
+                            <img src="images/small-loading.gif" class="small-loading"/> Loading stops...
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="hour">Departure Time</label>
+                        <input id="hour"
+                               type="time"
+                               class="form-control input-lg"
+                               required
+                               ng-model="departureTime">
+                        <label for="date">Departure Date</label>
+                        <input id="date"
+                               type="date"
+                               class="tcr-date form-control input-lg"
+                               placeholder="dd/MM/YYYY"
+                               required
+                               min="{{validFrom}}"
+                               max="{{enforceExpiry && validUntil || '2020-11-30'}}"
+                               ng-model="departureDate">
+                    </div>
+                    <button type="submit" id="plan" class="btn btn-default btn-lg btn-block panel"
+                            ng-click="findRoute(fromStop, toStop, departureTime, departureDate, journeyPlanForm)">
+                        Find Routes
+                    </button>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="col-12 col-sm-12 col-lg-" >
+        <div class="list-group">
+            <button name="nearby" type="submit" id="nearby" class="btn btn-default btn-lg btn-block"
+                    ng-click="nearMe()">
+                Trams Near Me
+            </button>
+        </div>
+    </div>
+</div>
+<ng-include src="'templates/footer.html'"></ng-include>
+
+
+
+
+
