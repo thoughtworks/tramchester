@@ -52,7 +52,7 @@ public class DeparturesResourceTest {
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldGetNearbyDeparturesWithNotes() throws TramchesterException {
+    public void shouldGetNearbyDeparturesWithNotes() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 

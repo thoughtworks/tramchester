@@ -20,11 +20,16 @@ public class ClientForS3 {
     private static final Logger logger = LoggerFactory.getLogger(ClientForS3.class);
 
     private final TramchesterConfig config;
-    private final AmazonS3 s3Client;
+    private AmazonS3 s3Client;
 
     public ClientForS3(TramchesterConfig config) {
-        s3Client = AmazonS3ClientBuilder.defaultClient();
         this.config = config;
+        try {
+            s3Client = AmazonS3ClientBuilder.defaultClient();
+        }
+        catch (com.amazonaws.SdkClientException exception) {
+            logger.warn("Unable to init S3 client, no live data will be archived.");
+        }
     }
 
     public boolean upload(String key, String json) {
@@ -74,5 +79,9 @@ public class ClientForS3 {
             logger.warn(format("Cannot check if key '%s' exists in bucket '%s'", key, bucket),exception);
         }
         return false;
+    }
+
+    public boolean isStarted() {
+        return s3Client!=null;
     }
 }

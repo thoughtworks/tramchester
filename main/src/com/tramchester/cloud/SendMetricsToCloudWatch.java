@@ -31,7 +31,12 @@ public class SendMetricsToCloudWatch {
 
         // see http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html
         // For local dev best to set AWS_REGION env var
-        client = AmazonCloudWatchClientBuilder.defaultClient();
+        try {
+            client = AmazonCloudWatchClientBuilder.defaultClient();
+        }
+        catch (com.amazonaws.SdkClientException exception) {
+            logger.warn("Unable to init cloud watch client, no metrics will be sent", exception);
+        }
     }
 
     private MetricDatum createDatum(String name, Timer timer) {
@@ -46,6 +51,11 @@ public class SendMetricsToCloudWatch {
     }
 
     public void putMetricData(SortedMap<String, Timer> toSubmit, String nameSpace) {
+        if (client==null) {
+            logger.warn("No cloud watch client available, will not send metrics");
+            return;
+        }
+
         List<MetricDatum> metricDatum = new LinkedList<>();
         toSubmit.forEach((name,timer) -> metricDatum.add(createDatum(name,timer)));
 
