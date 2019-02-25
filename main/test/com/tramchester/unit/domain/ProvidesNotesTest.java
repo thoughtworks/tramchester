@@ -188,7 +188,7 @@ public class ProvidesNotesTest {
                 new LocationDTO(Stations.PiccadillyGardens), true,
                 platformDTO, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), 42,
                 "summary", "prompt", "headSign", transportMode, isWalk,
-                !isWalk, "displayClass");
+                !isWalk, "displayClass", 12);
     }
 
     private PlatformDTO createPlatformDTO(String platformLocation, String platformId, String message, String displayUnitId) {

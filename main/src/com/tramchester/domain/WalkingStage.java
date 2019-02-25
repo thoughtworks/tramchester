@@ -93,4 +93,9 @@ public class WalkingStage implements TransportStage {
                 ", beginTime=" + beginTime +
                 '}';
     }
+
+    @Override
+    public int getPassedStops() {
+        return 0;
+    }
 }

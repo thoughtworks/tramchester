@@ -19,6 +19,8 @@ import org.junit.Test;
 import java.time.LocalTime;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StageDTOFactoryTest extends EasyMockSupport {
 
@@ -39,7 +41,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
 
         StageDTO build = factory.build(stage);
         replayAll();
-        checkValues(stage, build);
+        checkValues(stage, build, false);
         verifyAll();
     }
 
@@ -47,7 +49,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     public void shouldCreateStageDTOCorrectlyForTransportStage() throws TramchesterException {
         RawVehicleStage rawVehicleStage = new RawVehicleStage(Stations.MarketStreet, "routeName",
                 TransportMode.Tram, "Displayclass");
-        rawVehicleStage.setLastStation(Stations.Bury);
+        rawVehicleStage.setLastStation(Stations.Bury,23);
         rawVehicleStage.setCost(42);
         ServiceTime serviceTime = new ServiceTime(TramTime.create(0, 0), TramTime.create(0,5), "svcId",
                 "headSign", "tripId");
@@ -62,10 +64,10 @@ public class StageDTOFactoryTest extends EasyMockSupport {
         StageDTO stageDTO = factory.build(stage);
         verifyAll();
 
-        checkValues(stage, stageDTO);
+        checkValues(stage, stageDTO, true);
     }
 
-    private void checkValues(TransportStage stage, StageDTO dto) {
+    private void checkValues(TransportStage stage, StageDTO dto, boolean hasPlatform) {
         assertEquals(stage.getActionStation().getId(), dto.getActionStation().getId());
         assertEquals(stage.isWalk(), dto.isWalk());
         assertEquals(stage.getMode(), dto.getMode());
@@ -79,5 +81,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(stage.getPrompt(), dto.getPrompt());
         assertEquals(stage.getSummary(), dto.getSummary());
         assertEquals(stage.getDisplayClass(), dto.getDisplayClass());
+        assertEquals(stage.getPassedStops(), dto.getPassedStops());
+        assertEquals(hasPlatform, dto.getHasPlatform());
     }
 }

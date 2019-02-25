@@ -108,13 +108,13 @@ public class MappingState {
         currentStage.setDepartTime(time);
     }
 
-    public void departService(String stationId) {
+    public void departService(String stationId, int passedStops) {
         Station lastStation = stationRepository.getStation(stationId).get();
         if (currentStage==null) {
             logger.error("Attempt to depart tram when no current stage set, implies a zero stop tram trip");
             throw new RuntimeException("No current stage set when departing tram");
         }
-        currentStage.setLastStation(lastStation);
+        currentStage.setLastStation(lastStation, passedStops);
         currentStage.setCost(totalCost - serviceStart);
         logger.info(format("Added stage: '%s' at time %s", currentStage, getElapsedTime()));
         stages.add(currentStage);

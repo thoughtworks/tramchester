@@ -99,6 +99,7 @@ public class RouteCalculatorTest {
             assertEquals(Stations.Altrincham, firstStage.getFirstStation());
             assertEquals(Stations.TraffordBar, firstStage.getLastStation());
             assertEquals(TransportMode.Tram, firstStage.getMode());
+            assertEquals(7, firstStage.getPassedStops());
 
             RawVehicleStage finalStage = (RawVehicleStage) stages.get(stages.size()-1);
             //assertEquals(Stations.TraffordBar, secondStage.getFirstStation()); // THIS CAN CHANGE
@@ -133,15 +134,29 @@ public class RouteCalculatorTest {
             }
         }
 
+        List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(12, 0));
+
         Map<Pair<Location, Location>, Set<RawJourney>> allJourneys = combinations.parallelStream().
-                map(stations -> Pair.of(stations, calc(stations, Collections.singletonList(LocalTime.of(12, 0)), queryDate))).
-                //filter(pair -> pair.getRight().size()).
-                //map(pair -> pair.getLeft())
+                map(stations -> Pair.of(stations, calc(stations, queryTimes, queryDate))).
                         collect(Collectors.toMap(pair -> pair.getLeft(), pair -> pair.getRight()));
 
         long failed = allJourneys.values().stream().filter(rawJourneys -> rawJourneys.size() == 0).count();
-
         assertEquals(0L, failed);
+
+        Set<Integer> passedStops = allJourneys.values().stream().
+                flatMap(set -> set.stream()).
+                map(journey ->
+                        journey.getStages().stream().
+                                map(stage -> stage.getPassedStops()).
+                                reduce((a, b) -> a + b)).
+                filter(sum -> sum.isPresent()).
+                map(sum -> sum.get())
+                .collect(Collectors.toSet());
+
+        Integer[] results = new Integer[passedStops.size()];
+        passedStops.toArray(results);
+        int longest = results[results.length - 1];
+        assertEquals(40,longest);
 
     }
 

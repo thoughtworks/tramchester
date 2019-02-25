@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RawJourney implements Iterable<RawStage> {
-    private List<RawStage> stages;
-    private LocalTime queryTime;
+    private final List<RawStage> stages;
+    private final LocalTime queryTime;
 
     public RawJourney(List<RawStage> stages, LocalTime queryTime) {
         this.stages = stages;

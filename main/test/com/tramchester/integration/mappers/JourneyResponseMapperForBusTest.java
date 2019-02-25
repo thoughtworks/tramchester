@@ -80,11 +80,11 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     }
 
     private JourneyPlanRepresentation getJourneyPlanRepresentation(Location begin, Location end, String svcId,
-                                                                   int cost, LocalTime minutesFromMidnight, TramServiceDate queryDate) throws TramchesterException {
+                                                                   int cost, LocalTime minutesFromMidnight, TramServiceDate queryDate) {
 
         RawVehicleStage busStage = new RawVehicleStage(begin, "route text", TransportMode.Bus, "cssClass");
         busStage.setServiceId(svcId);
-        busStage.setLastStation(end);
+        busStage.setLastStation(end,1 );
         busStage.setCost(cost);
 
         stages.add(busStage);

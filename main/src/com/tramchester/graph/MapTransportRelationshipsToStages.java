@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Nodes.BoardPointNode;
 import com.tramchester.graph.Nodes.QueryNode;
 import com.tramchester.graph.Nodes.StationNode;
@@ -36,6 +35,7 @@ public class MapTransportRelationshipsToStages {
 
     public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime minsPastMidnight) {
         MappingState state = new MappingState(platformRepository, stationRepository, minsPastMidnight, routeIdToClass);
+        int passedStops = 0;
 
         for (TransportRelationship transportRelationship : transportRelationships) {
             TramNode firstNode = transportRelationship.getStartNode();
@@ -48,13 +48,17 @@ public class MapTransportRelationshipsToStages {
             state.incrementCost(currentStepCost);
 
             if (transportRelationship.isBoarding()) {
+                passedStops = 0;
                 recordBoarding(state, firstNode, (BoardPointNode) secondNode);
             } else if (transportRelationship.isEnterPlatform()) {
                 recordEnterPlatform(state, firstNode, secondNode);
             } else if (transportRelationship.isGoesTo()) {
+                passedStops = passedStops+1;
                 recordGoesTo(state, transportRelationship);
             } else if (transportRelationship.isDepartTram()) {
-                recordDepart(state, secondNode, endNodeId, firstNodeId);
+                // -1 as we count outbound from first station
+                recordDepart(state, secondNode, endNodeId, firstNodeId, passedStops-1);
+                passedStops = 0;
             } else if (transportRelationship.isLeavePlatform()) {
                 recordLeavePlatform(secondNode, endNodeId);
             } else if (transportRelationship.isWalk()) {
@@ -82,7 +86,7 @@ public class MapTransportRelationshipsToStages {
         state.addWalkingStage(begin, dest, cost);
     }
 
-    private void recordDepart(MappingState state, TramNode secondNode, String endNodeId, String firstNodeId) {
+    private void recordDepart(MappingState state, TramNode secondNode, String endNodeId, String firstNodeId, int passedStops) {
         // route station  -> station
         String stationName = secondNode.getName();
         logger.info(format("Depart tram: at:'%s' to: '%s' '%s' at %s", firstNodeId, stationName, endNodeId, state.getElapsedTime()));
@@ -91,7 +95,7 @@ public class MapTransportRelationshipsToStages {
         if (secondNode.isPlatform()) {
             stageId = Station.formId(endNodeId);
         }
-        state.departService(stageId);
+        state.departService(stageId, passedStops);
     }
 
     private void recordGoesTo(MappingState state, TransportRelationship transportRelationship) {

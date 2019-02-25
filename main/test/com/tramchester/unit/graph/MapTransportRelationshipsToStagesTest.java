@@ -70,7 +70,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldMapSimpleJourney() throws TramchesterException {
+    public void shouldMapSimpleJourney() {
 
         boolean[] daysRunning = new boolean[1];
         LocalTime[] timesRunning = new LocalTime[1];
@@ -100,10 +100,11 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         assertEquals(TransportMode.Tram, stage.getMode());
         assertTrue(stage.getIsAVehicle());
         assertEquals( "svcId", stage.getServiceId());
+        assertEquals(0, stage.getPassedStops());
     }
 
     @Test
-    public void shouldMapSimpleJourneyWithPlatform() throws TramchesterException {
+    public void shouldMapSimpleJourneyWithPlatform() {
         String enterPlatformId = stationA.getId() + "1";
         String leavePlatformId = stationB.getId() + "2";
 

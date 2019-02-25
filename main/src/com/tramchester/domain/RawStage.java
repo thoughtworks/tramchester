@@ -4,5 +4,5 @@ public interface RawStage {
     TransportMode getMode();
     boolean getIsAVehicle();
     boolean isWalk();
-
+    int getPassedStops();
 }

@@ -42,7 +42,7 @@ public class VehicleStageWithTimingTest {
 
         RawVehicleStage rawTravelStage = new RawVehicleStage(firstStation, "route", TransportMode.Tram, "cssClass");
         Location lastStation = new Station("lastStation", "area", "name", new LatLong(-1, -1), true);
-        rawTravelStage.setLastStation(lastStation);
+        rawTravelStage.setLastStation(lastStation,55);
         rawTravelStage.setServiceId("svcId");
         rawTravelStage.setCost(25);
         VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, serviceTime, TravelAction.Board);
@@ -54,6 +54,7 @@ public class VehicleStageWithTimingTest {
         assertEquals(firstStation, stage.getActionStation());
         assertEquals("svcId", stage.getServiceId());
         assertEquals("headsign", stage.getHeadSign());
+        assertEquals(55, stage.getPassedStops());
     }
 
     @Test

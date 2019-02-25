@@ -122,10 +122,10 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
     private RawJourney createSimpleRawJourney(int costA, int costB, LocalTime queryTime) {
         RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA").
-                setLastStation(stationB).setServiceId("svcId").setCost(costA);
+                setLastStation(stationB,2).setServiceId("svcId").setCost(costA);
         rawTravelStage1.setPlatform(platformA);
         RawVehicleStage rawTravelStage2 = new RawVehicleStage(stationB, "routeNameA", TransportMode.Bus, "routeIdA").
-                setLastStation(stationC).setServiceId("svcId").setCost(costB);
+                setLastStation(stationC,2).setServiceId("svcId").setCost(costB);
         rawTravelStage2.setPlatform(platformB);
         stages.add(rawTravelStage1);
         stages.add(rawTravelStage2);

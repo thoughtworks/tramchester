@@ -46,4 +46,10 @@ public class RawWalkingStage implements RawStage {
                 ", duration=" + duration +
                 '}';
     }
+
+    @Override
+    public int getPassedStops() {
+        return 0;
+    }
+
 }

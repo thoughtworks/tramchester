@@ -7,11 +7,12 @@ public class RawVehicleStage implements RawStage {
     protected Location firstStation;
     protected TransportMode mode;
     protected String routeName;
-    protected String displayClass;
+    private String displayClass;
     protected int cost;
 
     protected String serviceId;
     protected Location lastStation;
+    private int passedStops;
     private Optional<Platform> platform;
 
     private String tripId;
@@ -23,6 +24,7 @@ public class RawVehicleStage implements RawStage {
         this.mode = mode;
         this.displayClass = displayClass;
         platform = Optional.empty();
+        passedStops = -1;
     }
 
     public RawVehicleStage() {
@@ -30,16 +32,15 @@ public class RawVehicleStage implements RawStage {
     }
 
     public RawVehicleStage(RawVehicleStage other) {
-        this.firstStation = other.firstStation;
-        this.routeName = other.routeName;
-        this.mode = other.mode;
-        this.displayClass = other.displayClass;
+        this(other.firstStation, other.routeName, other.mode, other.displayClass);
+
         this.serviceId = other.serviceId;
         this.lastStation = other.lastStation;
         this.cost = other.cost;
         this.platform = other.platform;
         this.tripId = other.tripId;
         this.departTime = other.departTime;
+        this.passedStops = other.passedStops;
     }
 
     public String getServiceId() {
@@ -51,8 +52,9 @@ public class RawVehicleStage implements RawStage {
         return this;
     }
 
-    public RawVehicleStage setLastStation(Location lastStation) {
+    public RawVehicleStage setLastStation(Location lastStation, int passedStops) {
         this.lastStation = lastStation;
+        this.passedStops = passedStops;
         return this;
     }
 
@@ -136,5 +138,9 @@ public class RawVehicleStage implements RawStage {
 
     public String getTripId() {
         return tripId;
+    }
+
+    public int getPassedStops() {
+        return passedStops;
     }
 }

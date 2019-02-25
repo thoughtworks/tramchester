@@ -27,11 +27,12 @@ public class StageDTO {
     private boolean walk;
     private boolean isAVehicle;
     private String displayClass;
+    private int passedStops;
 
     public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
                     PlatformDTO platform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
                     String summary, String prompt, String headSign, TransportMode mode, boolean walk,
-                    boolean isAVehicle, String displayClass) {
+                    boolean isAVehicle, String displayClass, int passedStops) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
@@ -47,6 +48,7 @@ public class StageDTO {
         this.walk = walk;
         this.isAVehicle = isAVehicle;
         this.displayClass = displayClass;
+        this.passedStops = passedStops;
     }
 
     public StageDTO() {
@@ -116,5 +118,9 @@ public class StageDTO {
     // web site
     public boolean getHasPlatform() {
         return hasPlatform;
+    }
+
+    public int getPassedStops() {
+        return passedStops;
     }
 }

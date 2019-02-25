@@ -91,7 +91,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.SECOND_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION);
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION, 0);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.INTERCHANGE, queryTimes, queryDate);
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE);
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE, 1);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.LAST_STATION, queryTimes, queryDate);
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION);
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION, 2);
     }
 
     @Test
@@ -154,11 +154,12 @@ public class GraphWithSimpleRouteTest {
 
     }
 
-    private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation) {
+    private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation, int passedStops) {
         RawJourney journey = (RawJourney)journeys.toArray()[0];
         List<RawStage> stages = journey.getStages();
         RawVehicleStage vehicleStage = (RawVehicleStage) stages.get(0);
         assertEquals(firstStation,vehicleStage.getFirstStation().getId());
         assertEquals(secondStation,vehicleStage.getLastStation().getId());
+        assertEquals(passedStops, vehicleStage.getPassedStops());
     }
 }
