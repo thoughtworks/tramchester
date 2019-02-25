@@ -25,7 +25,9 @@ public class UploadsLiveData implements LiveDataObserver {
     public boolean seenUpdate(Collection<StationDepartureInfo> liveData) {
         if (!s3.isStarted()) {
             logger.warn("S3 client not started, not live data will be archived");
+            return false;
         }
+
         try {
             LocalDateTime timeStamp = extractMostRecent(liveData);
 
