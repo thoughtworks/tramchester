@@ -16,6 +16,8 @@ public class GraphStaticKeys {
     // time(s) on a relationship
     public static final String TIMES = "times";
 
+    public static final String TRIPS = "trips";
+
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_START_DATE = "start_date";
     public static final String SERVICE_END_DATE = "end_date";
@@ -23,8 +25,11 @@ public class GraphStaticKeys {
     public static final String SERVICE_LATEST_TIME ="latest";
 
     // experimental
-    public static final String DEPART_TIME = "time";
     public static final String TRIP_ID = "trip_id";
+
+    @Deprecated
+    public static final String DEPART_TIME = "time";
+
 
     public static class RouteStation {
         public static final String ROUTE_NAME = "route_name";

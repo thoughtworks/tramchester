@@ -63,7 +63,7 @@ public class CachedNodeOperations implements NodeOperations {
     }
 
     @Override
-    public boolean isMinute(Node node) {
+    public boolean isTime(Node node) {
         return checkForLabel(minuteNotes, node, TransportGraphBuilder.Labels.MINUTE);
     }
 

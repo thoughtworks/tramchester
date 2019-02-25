@@ -13,13 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
+import static com.tramchester.graph.GraphStaticKeys.*;
 
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
@@ -63,9 +60,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // date
 
         String nodeServiceId = nodeOperations.getServiceId(node);
+
         if (!runningServices.contains(nodeServiceId)) {
             dateWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId));
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(node, nodeServiceId));
         }
 
         // prepared to wait up to max wait for start of a service...
@@ -76,7 +74,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         TramTime currentClock = TramTime.of(currentElapsed);
         if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
             timeWrong.getAndIncrement();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId));
+            return recordReason(ServiceReason.DoesNotOperateOnTime(node, currentElapsed, "ServiceNotRunning:"+nodeServiceId));
         }
 
         return ServiceReason.IsValid;
@@ -91,7 +89,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         timeWrong.incrementAndGet();
-        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, "TimeMistmact:"+currentElapsed.toString()));
+        return recordReason(ServiceReason.DoesNotOperateOnTime(node, queryTime, "TimeMismatch:"+currentElapsed.toString()));
     }
 
     private boolean operatesWithinTime(LocalTime nodeTime, LocalTime elapsedTimed) {
@@ -114,7 +112,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         String serviceId = goesToRelationship.getServiceId();
         if (!runningServices.contains(serviceId)) {
             dateWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId));
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(path.endNode(), serviceId));
         }
 
         if (!sameService(incoming, goesToRelationship).isValid()) {
@@ -125,7 +123,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // all times for the service per edge
         if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
             timeWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
+            return recordReason(ServiceReason.DoesNotOperateOnTime(path.endNode(), queryTime,
                     elapsedTimeProvider.getElapsedTime().toString()));
         }
 
@@ -133,13 +131,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     }
 
     // caller records
-    public ServiceReason sameService(TransportRelationship incoming, GoesToRelationship outgoing) {
-        if (!incoming.isGoesTo()) {
+    public ServiceReason sameService(TransportRelationship transportRelationship, GoesToRelationship outgoing) {
+        if (!transportRelationship.isGoesTo()) {
             return ServiceReason.IsValid; // not a connecting/goes to relationship, no svc id
         }
 
-        GoesToRelationship goesToRelationship = (GoesToRelationship) incoming;
-        String service = goesToRelationship.getServiceId();
+        GoesToRelationship incoming = (GoesToRelationship) transportRelationship;
+        String service = incoming.getServiceId();
+
         if (service.equals(outgoing.getServiceId())) {
             return ServiceReason.IsValid;
         }
@@ -224,28 +223,25 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString()));
     }
 
-    public boolean checkForSvcChange(Relationship next, boolean inboundWasGoesTo, boolean inboundWasBoarding, String inboundSvcId) {
-        // only called if next is a Service relationship
-
-        if (inboundWasGoesTo) {
-            // can't magically jump between trams without getting off first
-            String svcId = next.getProperty(SERVICE_ID).toString();
-            if (svcId.equals(inboundSvcId)) {
-                // same service
-                return true;
-            } else {
-                inflightChange.incrementAndGet();
-                return false;
-            }
+    public ServiceReason sameTripAndService(Relationship inbound, Relationship outbound) {
+        if (!inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)) {
+            inflightChange.getAndIncrement();
+            return ServiceReason.InflightChangeOfService;
         }
-        // else
-        if (inboundWasBoarding) {
-            // just got on board, so don't care about previous service
-            return true;
+        String inboundSvcId = inbound.getProperty(SERVICE_ID).toString();
+        String outboundSvcId = outbound.getProperty(SERVICE_ID).toString();
+        if (!inboundSvcId.equals(outboundSvcId)) {
+            inflightChange.getAndIncrement();
+            return recordReason(ServiceReason.InflightChangeOfService);
         }
-        throw new RuntimeException("should only reach route station node via boarding or from a goes to link");
-        // else
-        //return false;
+        // now check inbound trip is available on this outgoing service
+        String outboundTrips = (outbound.getProperty(TRIPS).toString());
+        String inboundTripId = inbound.getProperty(TRIP_ID).toString();
+        if (outboundTrips.contains(inboundTripId))  {
+            return ServiceReason.IsValid;
+        }
+        inflightChange.getAndIncrement();
+        return recordReason(ServiceReason.InflightChangeOfService);
     }
 
     public void reportReasons() {
@@ -262,4 +258,5 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
         return serviceReason;
     }
+
 }

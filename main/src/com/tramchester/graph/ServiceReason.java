@@ -1,5 +1,7 @@
 package com.tramchester.graph;
 
+import org.neo4j.graphdb.Node;
+
 import java.time.LocalTime;
 
 import static java.lang.String.format;
@@ -11,6 +13,18 @@ public class ServiceReason {
 
     public static DoesNotRunOnQueryDate DoesNotRunOnQueryDate(String diag) {
         return new DoesNotRunOnQueryDate(diag);
+    }
+
+    public static ServiceReason DoesNotRunOnQueryDate(Node node, String nodeServiceId) {
+        return new DoesNotRunOnQueryDate(node, nodeServiceId);
+    }
+
+    public static ServiceReason DoesNotOperateOnTime(Node node, LocalTime currentElapsed, String diagnostics) {
+        return new DoesNotOperateOnTime(node, currentElapsed, diagnostics);
+    }
+
+    public static ServiceReason DoesNotOperateOnTime(LocalTime queryTime, String diag) {
+        return new DoesNotOperateOnTime(queryTime, diag);
     }
 
     public boolean isValid() {
@@ -26,21 +40,9 @@ public class ServiceReason {
         public String toString() { return "IsValid"; }
     }
 
-    public static ServiceReason DoesNotOperateOnTime(LocalTime queryTime, String diag) {
-        return new DoesNotOperateOnTime(queryTime, diag);
-    }
-
     private static class InflightChangeOfService extends ServiceReason
     {
         public String toString() { return "InflightChangeOfService"; }
-    }
-
-    private static abstract class HasDiag extends ServiceReason {
-        protected final String diag;
-
-        public HasDiag(String diag) {
-            this.diag = diag;
-        }
     }
 
     private static class DoesNotRunOnQueryDate extends HasDiag
@@ -49,20 +51,28 @@ public class ServiceReason {
             super(diag);
         }
 
-        public String toString() { return "DoesNotRunOnQueryDate:"+diag; }
+        public DoesNotRunOnQueryDate(Node node, String nodeServiceId) {
+            super(node, nodeServiceId);
+        }
+
+        public String toString() {
+            return "DoesNotRunOnQueryDateOrDay:" + super.toString();
+        }
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof DoesNotRunOnQueryDate)) {
-                return false;
-            }
-            return true;
+            return obj instanceof DoesNotRunOnQueryDate;
         }
     }
 
     private static class DoesNotOperateOnTime extends HasDiag
     {
         private LocalTime elapsedTime;
+
+        public DoesNotOperateOnTime(Node node, LocalTime currentElapsed, String diagnostics) {
+            super(node, diagnostics);
+            this .elapsedTime = currentElapsed;
+        }
 
         @Override
         public boolean equals(Object obj) {
@@ -79,7 +89,30 @@ public class ServiceReason {
         }
 
         public String toString() {
-            return format("DoesNotOperateOnTime:%s Time:%s", diag, elapsedTime);
+            return "DoesNotOperateOnTime:" + super.toString();
+        }
+    }
+
+    private static abstract class HasDiag extends ServiceReason {
+        protected final String diag;
+        private final Node node;
+
+        public HasDiag(String diag) {
+            this(null,diag);
+        }
+
+        public HasDiag(Node node, String diagnostics) {
+            this.diag =diagnostics;
+            this.node = node;
+        }
+
+        @Override
+        public String toString() {
+            if (node!=null) {
+                return format("diag:'%s' node:'%s'", diag, node.getProperty(GraphStaticKeys.ID));
+            } else {
+                return format("diag:'%s'", diag);
+            }
         }
     }
 
