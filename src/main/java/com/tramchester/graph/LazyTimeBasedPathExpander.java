@@ -94,7 +94,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             if (outbound.isType(TO_SERVICE)) {
                 if (inboundWasBoarding) {
                     result.add(outbound);
-                } else if (serviceHeuristics.sameTripAndService(inbound, outbound)) {
+                } else if (serviceHeuristics.sameTripAndService(inbound, outbound).isValid()) {
                     result.add(outbound);
                 }
             } else {

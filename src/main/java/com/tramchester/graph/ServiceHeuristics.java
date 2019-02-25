@@ -60,9 +60,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // date
 
         String nodeServiceId = nodeOperations.getServiceId(node);
+
         if (!runningServices.contains(nodeServiceId)) {
             dateWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId));
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(node, nodeServiceId));
         }
 
         // prepared to wait up to max wait for start of a service...
@@ -73,7 +74,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         TramTime currentClock = TramTime.of(currentElapsed);
         if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
             timeWrong.getAndIncrement();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId));
+            return recordReason(ServiceReason.DoesNotOperateOnTime(node, currentElapsed, "ServiceNotRunning:"+nodeServiceId));
         }
 
         return ServiceReason.IsValid;
@@ -88,7 +89,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         timeWrong.incrementAndGet();
-        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, "TimeMistmact:"+currentElapsed.toString()));
+        return recordReason(ServiceReason.DoesNotOperateOnTime(node, queryTime, "TimeMismatch:"+currentElapsed.toString()));
     }
 
     private boolean operatesWithinTime(LocalTime nodeTime, LocalTime elapsedTimed) {
@@ -111,7 +112,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         String serviceId = goesToRelationship.getServiceId();
         if (!runningServices.contains(serviceId)) {
             dateWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId));
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(path.endNode(), serviceId));
         }
 
         if (!sameService(incoming, goesToRelationship).isValid()) {
@@ -122,7 +123,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // all times for the service per edge
         if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
             timeWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
+            return recordReason(ServiceReason.DoesNotOperateOnTime(path.endNode(), queryTime,
                     elapsedTimeProvider.getElapsedTime().toString()));
         }
 
@@ -222,19 +223,25 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString()));
     }
 
-    public boolean sameTripAndService(Relationship inbound, Relationship outbound) {
+    public ServiceReason sameTripAndService(Relationship inbound, Relationship outbound) {
         if (!inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)) {
-            return false;
+            inflightChange.getAndIncrement();
+            return ServiceReason.InflightChangeOfService;
         }
         String inboundSvcId = inbound.getProperty(SERVICE_ID).toString();
         String outboundSvcId = outbound.getProperty(SERVICE_ID).toString();
         if (!inboundSvcId.equals(outboundSvcId)) {
-            return false;
+            inflightChange.getAndIncrement();
+            return recordReason(ServiceReason.InflightChangeOfService);
         }
         // now check inbound trip is available on this outgoing service
         String outboundTrips = (outbound.getProperty(TRIPS).toString());
         String inboundTripId = inbound.getProperty(TRIP_ID).toString();
-        return outboundTrips.contains(inboundTripId);
+        if (outboundTrips.contains(inboundTripId))  {
+            return ServiceReason.IsValid;
+        }
+        inflightChange.getAndIncrement();
+        return recordReason(ServiceReason.InflightChangeOfService);
     }
 
     public void reportReasons() {

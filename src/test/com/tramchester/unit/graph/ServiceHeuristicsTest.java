@@ -241,9 +241,9 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(inbound.getProperty(TRIP_ID)).andReturn("trip03");
 
         replayAll();
-        assertTrue(serviceHeuristics.sameTripAndService(inbound, outbound));
-        assertTrue(serviceHeuristics.sameTripAndService(inbound, outbound));
-        assertTrue(serviceHeuristics.sameTripAndService(inbound, outbound));
+        assertTrue(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
+        assertTrue(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
+        assertTrue(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
         verifyAll();
     }
 
@@ -269,9 +269,9 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andReturn(false);
 
         replayAll();
-        assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound));
-        assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound));
-        assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound));
+        assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
+        assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
+        assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
         verifyAll();
     }
 

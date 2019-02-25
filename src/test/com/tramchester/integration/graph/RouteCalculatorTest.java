@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -132,12 +133,15 @@ public class RouteCalculatorTest {
             }
         }
 
-        Set<Pair<Location, Location>> failed = combinations.parallelStream().
-                map(route -> Pair.of(route, calc(route, Collections.singletonList(LocalTime.of(12, 0)), queryDate))).
-                filter(pair -> pair.getRight().size() < 1).
-                map(pair -> pair.getLeft()).collect(Collectors.toSet());
+        Map<Pair<Location, Location>, Set<RawJourney>> allJourneys = combinations.parallelStream().
+                map(stations -> Pair.of(stations, calc(stations, Collections.singletonList(LocalTime.of(12, 0)), queryDate))).
+                //filter(pair -> pair.getRight().size()).
+                //map(pair -> pair.getLeft())
+                        collect(Collectors.toMap(pair -> pair.getLeft(), pair -> pair.getRight()));
 
-        assertEquals(0, failed.size());
+        long failed = allJourneys.values().stream().filter(rawJourneys -> rawJourneys.size() == 0).count();
+
+        assertEquals(0L, failed);
 
     }
 
