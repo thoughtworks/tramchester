@@ -1,4 +1,3 @@
-how
 *.class
 *.rpm
 tmp
@@ -18,7 +17,11 @@ bin
 dist
 .gradle/
 build/
-data/
+data/bus
+data/tram
+data/all
+data/gtdf-out
+data/*.zip
 
 TEST-*.xml
 database/scripts/
@@ -34,3 +37,4 @@ node_modules/
 test_network.dot
 testData/gtdf-out/
 testData/output/
+.envrc

@@ -77,6 +77,7 @@ sourceSets {
         java {
             srcDirs = ['main/test']
         }
+        resources.srcDir file('main/test/resources')
     }
 }
 
