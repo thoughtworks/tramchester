@@ -89,7 +89,8 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
             String stationId = Station.formId(stopId);
             if (stations.containsKey(stationId)) {
                 Station station = stations.get(stationId);
-                Stop stop = new Stop(stopId, station, stopTimeData.getArrivalTime(),
+                int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
+                Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(),
                         stopTimeData.getDepartureTime(), trip.getRouteId() , trip.getServiceId());
                 trip.addStop(stop);
             } else {

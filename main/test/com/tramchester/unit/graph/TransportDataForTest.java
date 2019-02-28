@@ -76,30 +76,30 @@ public class TransportDataForTest implements TransportData, StationRepository, P
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area1", "startStation", latLong, true);
         addStation(first);
-        Stop stopA = createStop(first, TramTime.create(8, 0), TramTime.create(8, 0), routeA.getId(), serviceAId);
+        Stop stopA = createStop(first, TramTime.create(8, 0), TramTime.create(8, 0), routeA.getId(), serviceAId, 1);
         tripA.addStop(stopA);
 
         Station second = new Station(SECOND_STATION, "area2", "secondStation", latLong, true);
-        Stop stopB = createStop(second, TramTime.create(8, 11), TramTime.create(8, 11), routeA.getId(), serviceAId);
+        Stop stopB = createStop(second, TramTime.create(8, 11), TramTime.create(8, 11), routeA.getId(), serviceAId, 2);
         tripA.addStop(stopB);
         addStation(second);
 
         Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", latLong, true);
-        Stop stopC = createStop(interchangeStation, TramTime.create(8, 20), TramTime.create(8, 20), routeA.getId(), serviceAId);
+        Stop stopC = createStop(interchangeStation, TramTime.create(8, 20), TramTime.create(8, 20), routeA.getId(), serviceAId, 3);
         tripA.addStop(stopC);
         addStation(interchangeStation);
 
         Station last = new Station(LAST_STATION, "area4", "endStation", latLong, true);
         addStation(last);
-        Stop stopD = createStop(last, TramTime.create(8, 40), TramTime.create(8, 40), routeA.getId(), serviceAId);
+        Stop stopD = createStop(last, TramTime.create(8, 40), TramTime.create(8, 40), routeA.getId(), serviceAId, 4);
         tripA.addStop(stopD);
         // service
         serviceA.addTrip(tripA);
 
         // INTERTERCHANGE -> LAST_STATION
         Trip tripC = new Trip("tripCId", "headSign", serviceAId, routeA.getId());
-        Stop stopG = createStop(interchangeStation, TramTime.create(9, 05), TramTime.create(9, 15), routeB.getId(), serviceCId);
-        Stop stopH = createStop(last, TramTime.create(9, 16), TramTime.create(9, 20), routeB.getId(), serviceCId);
+        Stop stopG = createStop(interchangeStation, TramTime.create(9, 05), TramTime.create(9, 15), routeB.getId(), serviceCId, 1);
+        Stop stopH = createStop(last, TramTime.create(9, 16), TramTime.create(9, 20), routeB.getId(), serviceCId, 2);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         serviceC.addTrip(tripC);
@@ -116,10 +116,10 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     public void createInterchangeToStation4Trip(Route routeB, Service serviceB, Station interchangeStation, Station four, LocalTime startTime, String tripB2Id) {
         Trip tripB2 = new Trip(tripB2Id, "headSignTripB2", serviceBId, routeB.getId());
         Stop stopE2 = createStop(interchangeStation, TramTime.of(startTime),
-                TramTime.of(startTime.plusMinutes(5)), routeB.getId(), serviceBId);
+                TramTime.of(startTime.plusMinutes(5)), routeB.getId(), serviceBId, 1);
         tripB2.addStop(stopE2);
         Stop stopF2 = createStop(four, TramTime.of(startTime.plusMinutes(5)),
-                TramTime.of(startTime.plusMinutes(8)), routeB.getId(), serviceBId);
+                TramTime.of(startTime.plusMinutes(8)), routeB.getId(), serviceBId, 2);
         tripB2.addStop(stopF2);
         serviceB.addTrip(tripB2);
     }
@@ -128,10 +128,10 @@ public class TransportDataForTest implements TransportData, StationRepository, P
         stationMap.put(station.getId(), station);
     }
 
-    private Stop createStop(Location startStation, TramTime arrivalTime, TramTime departureTime, String routeId, String serviceId) {
+    private Stop createStop(Location startStation, TramTime arrivalTime, TramTime departureTime, String routeId, String serviceId, int seuqenceId) {
         String platformId = startStation.getId() + "1";
         platforms.put(platformId, new Platform(platformId, format("%s platform 1", startStation.getName())));
-        return new Stop(platformId, startStation, arrivalTime, departureTime, routeId, serviceId);
+        return new Stop(platformId, startStation, seuqenceId, arrivalTime, departureTime, routeId, serviceId);
     }
 
     @Override

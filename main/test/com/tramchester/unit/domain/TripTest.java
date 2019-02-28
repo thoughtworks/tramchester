@@ -11,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.SortedSet;
 
 import static junit.framework.TestCase.fail;
@@ -38,9 +40,9 @@ public class TripTest {
     @Test
     public void shouldModelCircularTripsCorrectly() throws TramchesterException {
 
-        Stop firstStop = new Stop("statA1", stationA, TramTime.create(10, 00), TramTime.create(10, 01), routeId, serviceId);
-        Stop secondStop = new Stop("statB1", stationB, TramTime.create(10, 05), TramTime.create(10, 06), routeId, serviceId);
-        Stop thirdStop = new Stop("statA1", stationA, TramTime.create(10, 10), TramTime.create(10, 10), routeId, serviceId);
+        Stop firstStop = new Stop("statA1", stationA, 1, TramTime.create(10, 00), TramTime.create(10, 01), routeId, serviceId);
+        Stop secondStop = new Stop("statB1", stationB, 2, TramTime.create(10, 05), TramTime.create(10, 06), routeId, serviceId);
+        Stop thirdStop = new Stop("statA1", stationA, 3, TramTime.create(10, 10), TramTime.create(10, 10), routeId, serviceId);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -73,15 +75,21 @@ public class TripTest {
 
         assertEquals(TramTime.create(10,01), trip.earliestDepartTime());
 
+        // sequence respected
+        List<Integer> seqNums = new LinkedList<>();
+        trip.getStops().forEach(stop -> { seqNums.add(stop.getGetSequenceNumber()); });
+        assertEquals(1, seqNums.get(0).intValue());
+        assertEquals(2, seqNums.get(1).intValue());
+        assertEquals(3, seqNums.get(2).intValue());
     }
 
     @Test
     public void shouldFindEarliestDepartCorrectlyCrossingMidnight() throws TramchesterException {
 
-        Stop firstStop = new Stop("stop1", stationA, TramTime.create(23, 45), TramTime.create(23, 46), routeId, serviceId);
-        Stop secondStop = new Stop("stop2", stationB, TramTime.create(23, 59), TramTime.create(0, 1), routeId, serviceId);
-        Stop thirdStop = new Stop("stop3", stationC, TramTime.create(0,10), TramTime.create(00, 11), routeId, serviceId);
-        Stop fourthStop = new Stop("stop4", stationC, TramTime.create(6,30), TramTime.create(6, 30), routeId, serviceId);
+        Stop firstStop = new Stop("stop1", stationA, 1, TramTime.create(23, 45), TramTime.create(23, 46), routeId, serviceId);
+        Stop secondStop = new Stop("stop2", stationB, 2, TramTime.create(23, 59), TramTime.create(0, 1), routeId, serviceId);
+        Stop thirdStop = new Stop("stop3", stationC, 3, TramTime.create(0,10), TramTime.create(00, 11), routeId, serviceId);
+        Stop fourthStop = new Stop("stop4", stationC, 4, TramTime.create(6,30), TramTime.create(6, 30), routeId, serviceId);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -102,8 +110,8 @@ public class TripTest {
     @Test
     public void shouldFindEarliestDepartCorrectly() throws TramchesterException {
 
-        Stop thirdStop = new Stop("stop3", stationC, TramTime.create(0,10), TramTime.create(00, 11), routeId, serviceId);
-        Stop fourthStop = new Stop("stop4", stationC, TramTime.create(6,30), TramTime.create(6, 31), routeId, serviceId);
+        Stop thirdStop = new Stop("stop3", stationC, 3, TramTime.create(0,10), TramTime.create(00, 11), routeId, serviceId);
+        Stop fourthStop = new Stop("stop4", stationC, 4, TramTime.create(6,30), TramTime.create(6, 31), routeId, serviceId);
 
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
@@ -113,8 +121,8 @@ public class TripTest {
 
     @Test
     public void shouldFindLatestDepartCorrectly() {
-        trip.addStop(new Stop("stopId3", Stations.Deansgate, TramTime.of(10,25), TramTime.of(10,26), "Rid", "Sid"));
-        trip.addStop(new Stop("stopId4", Stations.Deansgate, TramTime.of(0,1), TramTime.of(0,1), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId3", Stations.Deansgate, 3, TramTime.of(10,25), TramTime.of(10,26), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId4", Stations.Deansgate, 4, TramTime.of(0,1), TramTime.of(0,1), "Rid", "Sid"));
 
         assertEquals(TramTime.of(0,1), trip.latestDepartTime());
 
@@ -123,9 +131,9 @@ public class TripTest {
     @Test
     public void shouldFindEarliestDepartAfterCrossingMidnight() throws TramchesterException {
 
-        Stop firstStop = new Stop("stop1", stationA, TramTime.create(00, 10), TramTime.create(00, 11), routeId, serviceId);
-        Stop secondStop = new Stop("stop2", stationB, TramTime.create(00, 15), TramTime.create(0, 16), routeId, serviceId);
-        Stop thirdStop = new Stop("stop3", stationC, TramTime.create(0,24), TramTime.create(00, 25), routeId, serviceId);
+        Stop firstStop = new Stop("stop1", stationA, 1, TramTime.create(00, 10), TramTime.create(00, 11), routeId, serviceId);
+        Stop secondStop = new Stop("stop2", stationB, 2, TramTime.create(00, 15), TramTime.create(0, 16), routeId, serviceId);
+        Stop thirdStop = new Stop("stop3", stationC, 3, TramTime.create(0,24), TramTime.create(00, 25), routeId, serviceId);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);

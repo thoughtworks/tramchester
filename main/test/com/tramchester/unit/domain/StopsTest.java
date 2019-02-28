@@ -37,18 +37,18 @@ public class StopsTest {
 
         String routeId = "routeID";
         String serviceId = "serviceId";
-        stopA = new Stop("statA1", stationA, TramTime.create(10, 00), TramTime.create(10, 01), routeId, serviceId);
-        stopB = new Stop("statB1", stationB, TramTime.create(10, 02), TramTime.create(10, 03), routeId, serviceId);
-        stopC = new Stop("statC1", stationC, TramTime.create(10, 10), TramTime.create(10, 10), routeId, serviceId);
-        busStopD = new Stop("statD1", stationD, TramTime.create(10,10), TramTime.create(10,11), routeId, serviceId);
+        stopA = new Stop("statA1", stationA, 1, TramTime.create(10, 00), TramTime.create(10, 01), routeId, serviceId);
+        stopB = new Stop("statB1", stationB, 2, TramTime.create(10, 02), TramTime.create(10, 03), routeId, serviceId);
+        stopC = new Stop("statC1", stationC, 3, TramTime.create(10, 10), TramTime.create(10, 10), routeId, serviceId);
+        busStopD = new Stop("statD1", stationD, 4, TramTime.create(10,10), TramTime.create(10,11), routeId, serviceId);
         am10 = LocalTime.of(10,0); //10 * 60;
     }
 
     @Test
     public void shouldFindStopsByTimeCrossingMidnight() {
-        Stop stopF = new Stop("stop1", stationA, TramTime.of(LocalTime.of(23, 45)),
+        Stop stopF = new Stop("stop1", stationA, 1, TramTime.of(LocalTime.of(23, 45)),
                 TramTime.of(LocalTime.of(23, 46)), "routeId", "serviceId");
-        Stop stopG = new Stop("stop2", stationB, TramTime.of(LocalTime.of(00, 5)),
+        Stop stopG = new Stop("stop2", stationB, 2, TramTime.of(LocalTime.of(00, 5)),
                 TramTime.of(LocalTime.of(00, 6)), "routeId", "serviceId");
         Stops stops = new Stops();
 
@@ -113,7 +113,7 @@ public class StopsTest {
         stops.add(stopB);
         stops.add(stopC);
 
-        Stop stopD = new Stop("stopA1", stationA, TramTime.create(10, 20),
+        Stop stopD = new Stop("stopA1", stationA, 4, TramTime.create(10, 20),
                 TramTime.create(10, 21), "routeId", "serviceId");
         stops.add(stopD);
 

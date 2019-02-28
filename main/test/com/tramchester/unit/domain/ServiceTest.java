@@ -46,11 +46,11 @@ public class ServiceTest {
         Service service = new Service("", "");
 
         Trip trip = new Trip("001", "Deansgate", "SVC002", "");
-        trip.addStop(new Stop("stopId1", Stations.Deansgate, TramTime.of(9,5), TramTime.of(9,6), "Rid", "Sid"));
-        trip.addStop(new Stop("stopId2", Stations.Deansgate, TramTime.of(8,15), TramTime.of(8,16), "Rid", "Sid"));
-        trip.addStop(new Stop("stopId3", Stations.Deansgate, TramTime.of(10,25), TramTime.of(10,26), "Rid", "Sid"));
-        trip.addStop(new Stop("stopId4", Stations.Deansgate, TramTime.of(0,1), TramTime.of(0,1), "Rid", "Sid"));
-        trip.addStop(new Stop("stopId5", Stations.Deansgate, TramTime.of(6,30), TramTime.of(6,30), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId1", Stations.Deansgate, 1, TramTime.of(9,5), TramTime.of(9,6), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId2", Stations.Deansgate, 2, TramTime.of(8,15), TramTime.of(8,16), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId3", Stations.Deansgate, 3, TramTime.of(10,25), TramTime.of(10,26), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId4", Stations.Deansgate, 4, TramTime.of(0,1), TramTime.of(0,1), "Rid", "Sid"));
+        trip.addStop(new Stop("stopId5", Stations.Deansgate, 5, TramTime.of(6,30), TramTime.of(6,30), "Rid", "Sid"));
 
         service.addTrip(trip);
 
