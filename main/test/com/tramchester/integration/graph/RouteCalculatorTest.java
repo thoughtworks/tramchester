@@ -165,6 +165,17 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldFindEndOfLinesToEndOfLinesTuesday() {
+        for (Location start : Stations.EndOfTheLine) {
+            for (Location dest : Stations.EndOfTheLine) {
+                if (!dest.equals(start)) {
+                    validateAtLeastOneJourney(start, dest, LocalTime.of(9, 0), nextTuesday);
+                }
+            }
+        }
+    }
+
+    @Test
     public void shouldFindEndOfLinesToEndOfLines() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -267,6 +278,11 @@ public class RouteCalculatorTest {
         }
     }
 
+    @Test
+    public void reproIssueRochdaleToEccles() {
+        validateAtLeastOneJourney(Stations.Rochdale, Stations.Eccles, LocalTime.of(9,0), nextTuesday);
+    }
+
     protected void checkRouteNextNDays(Location start, Location dest, LocalDate date, LocalTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
@@ -282,7 +298,7 @@ public class RouteCalculatorTest {
 
         String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
-        journeys.forEach(journey -> assertFalse("Missing stages for journey"+journey,journey.getStages().isEmpty()));
+        journeys.forEach(journey -> assertFalse(message+ " missing stages for journey"+journey,journey.getStages().isEmpty()));
     }
 
 

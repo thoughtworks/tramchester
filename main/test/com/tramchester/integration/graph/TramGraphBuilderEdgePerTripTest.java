@@ -95,6 +95,22 @@ public class TramGraphBuilderEdgePerTripTest {
     }
 
     @Test
+    public void shouldHaveCorrectRelationshipsAtTraffordBar() throws TramchesterException {
+        assumeTrue(edgePerTrip);
+
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.TraffordBar.getId()
+                + RouteCodesForTesting.ALTY_TO_BURY);
+
+        assertTrue(outbounds.size()>1);
+
+        outbounds = calculator.getOutboundRouteStationRelationships(Stations.TraffordBar.getId()
+                + RouteCodesForTesting.ASH_TO_ECCLES);
+
+        assertTrue(outbounds.size()>1);
+
+    }
+
+    @Test
     public void shouldHaveCorrectInboundsAtMediaCityEdgePerTrip() throws TramchesterException {
         assumeTrue(edgePerTrip);
 

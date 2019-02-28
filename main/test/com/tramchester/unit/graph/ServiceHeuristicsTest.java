@@ -248,7 +248,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotMatchOnServiceAndTripsIfDiffer() {
+    public void shouldNotMatchOnServiceAndTripsIfEitherDiffer() {
 
         LocalTime queryTime = LocalTime.of(9,10);
 
@@ -258,18 +258,18 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         Relationship outbound = createMock(Relationship.class);
         EasyMock.expect(outbound.getProperty(SERVICE_ID)).andReturn("inbound");
         EasyMock.expect(outbound.getProperty(SERVICE_ID)).andReturn("inbound");
-        EasyMock.expect(outbound.getProperty(TRIPS)).andStubReturn("trip01trip02trip03");
+        EasyMock.expect(outbound.getProperty(TRIPS)).andReturn("trip01trip02trip03");
 
         Relationship inbound = createMock(Relationship.class);
         EasyMock.expect(inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andReturn(true);
-        EasyMock.expect(inbound.getProperty(SERVICE_ID)).andReturn("xxx");
+        EasyMock.expect(inbound.getProperty(SERVICE_ID)).andReturn("xxx"); // <--svc diff
+        //
         EasyMock.expect(inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andReturn(true);
-        EasyMock.expect(inbound.getProperty(SERVICE_ID)).andReturn("inbound");
-        EasyMock.expect(inbound.getProperty(TRIP_ID)).andReturn("trip04");
-        EasyMock.expect(inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andReturn(false);
+        EasyMock.expect(inbound.getProperty(SERVICE_ID)).andReturn("inbound"); // <--svc same
+        EasyMock.expect(inbound.getProperty(TRIP_ID)).andReturn("trip04"); // <-- no match on trip
+
 
         replayAll();
-        assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
         assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
         assertFalse(serviceHeuristics.sameTripAndService(inbound, outbound).isValid());
         verifyAll();

@@ -31,23 +31,29 @@ public class RelationshipFactory {
 
     private TransportRelationship createRelationship(Relationship graphRelationship) {
         String name = graphRelationship.getType().name();
-        TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(name);
-        switch (relationshipType) {
-            case TRAM_GOES_TO: return new TramGoesToRelationship(graphRelationship, nodeFactory);
-            case BUS_GOES_TO: return new BusGoesToRelationship(graphRelationship, nodeFactory);
-            case DEPART: return new DepartRelationship(graphRelationship, nodeFactory);
-            case BOARD: return new BoardRelationship(graphRelationship, nodeFactory);
-            case INTERCHANGE_DEPART: return new InterchangeDepartsRelationship(graphRelationship, nodeFactory);
-            case INTERCHANGE_BOARD: return new InterchangeBoardsRelationship(graphRelationship, nodeFactory);
-            case WALKS_TO: return new WalksToRelationship(graphRelationship, nodeFactory);
-            case ENTER_PLATFORM: return new EnterPlatformRelationship(graphRelationship, nodeFactory);
-            case LEAVE_PLATFORM: return new LeavePlatformRelationship(graphRelationship, nodeFactory);
-            // edge per service
-            case TO_SERVICE: return new ServiceRelationship(graphRelationship, nodeFactory);
-            case TO_HOUR: return new HourRelationship(graphRelationship, nodeFactory);
-            case TO_MINUTE: return new MinuteRelationship(graphRelationship,nodeFactory);
-            default:
-                throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
+        try {
+            TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(name);
+            switch (relationshipType) {
+                case TRAM_GOES_TO: return new TramGoesToRelationship(graphRelationship, nodeFactory);
+                case BUS_GOES_TO: return new BusGoesToRelationship(graphRelationship, nodeFactory);
+                case DEPART: return new DepartRelationship(graphRelationship, nodeFactory);
+                case BOARD: return new BoardRelationship(graphRelationship, nodeFactory);
+                case INTERCHANGE_DEPART: return new InterchangeDepartsRelationship(graphRelationship, nodeFactory);
+                case INTERCHANGE_BOARD: return new InterchangeBoardsRelationship(graphRelationship, nodeFactory);
+                case WALKS_TO: return new WalksToRelationship(graphRelationship, nodeFactory);
+                case ENTER_PLATFORM: return new EnterPlatformRelationship(graphRelationship, nodeFactory);
+                case LEAVE_PLATFORM: return new LeavePlatformRelationship(graphRelationship, nodeFactory);
+                // edge per service
+                case TO_SERVICE: return new ServiceRelationship(graphRelationship, nodeFactory);
+                case TO_HOUR: return new HourRelationship(graphRelationship, nodeFactory);
+                case TO_MINUTE: return new MinuteRelationship(graphRelationship,nodeFactory);
+                default:
+                    throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
+            }
         }
+        catch(java.lang.IllegalArgumentException unexpected) {
+            throw new RuntimeException("Unable to find match for "+ name, unexpected);
+        }
+
     }
 }

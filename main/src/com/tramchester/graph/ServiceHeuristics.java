@@ -116,7 +116,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         if (!sameService(incoming, goesToRelationship).isValid()) {
-            return recordReason(ServiceReason.InflightChangeOfService);
+            return recordReason(ServiceReason.InflightChangeOfService(serviceId));
         }
 
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
@@ -144,7 +144,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         inflightChange.incrementAndGet();
-        return ServiceReason.InflightChangeOfService;
+        return ServiceReason.InflightChangeOfService(service);
     }
 
     public boolean operatesOnTime(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
@@ -225,14 +225,16 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public ServiceReason sameTripAndService(Relationship inbound, Relationship outbound) {
         if (!inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)) {
-            inflightChange.getAndIncrement();
-            return ServiceReason.InflightChangeOfService;
+//            inflightChange.getAndIncrement();
+//            return ServiceReason.InflightChangeOfService;
+            throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO relationships");
         }
+
         String inboundSvcId = inbound.getProperty(SERVICE_ID).toString();
         String outboundSvcId = outbound.getProperty(SERVICE_ID).toString();
         if (!inboundSvcId.equals(outboundSvcId)) {
             inflightChange.getAndIncrement();
-            return recordReason(ServiceReason.InflightChangeOfService);
+            return recordReason(ServiceReason.InflightChangeOfService(inboundSvcId));
         }
         // now check inbound trip is available on this outgoing service
         String outboundTrips = (outbound.getProperty(TRIPS).toString());
@@ -241,7 +243,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         inflightChange.getAndIncrement();
-        return recordReason(ServiceReason.InflightChangeOfService);
+        return recordReason(ServiceReason.InflightChangeOfService(inboundTripId));
     }
 
     public void reportReasons() {
@@ -251,7 +253,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
     }
 
-    // TODO counters into here
     private ServiceReason recordReason(ServiceReason serviceReason) {
         if (logger.isDebugEnabled()) {
             reasons.add(serviceReason);
@@ -259,4 +260,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return serviceReason;
     }
 
+    public void clearReasons() {
+        reasons.clear();
+    }
 }

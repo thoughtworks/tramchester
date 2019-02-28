@@ -39,7 +39,7 @@ public class StationIndexs {
         platformNodeCache = new HashMap<>();
     }
 
-    protected Node getRouteStationNode(String routeStationId) {
+    protected Node getCallingPointNode(String routeStationId) {
         if (routeStationNodeCache.containsKey(routeStationId)) {
             return routeStationNodeCache.get(routeStationId);
         }

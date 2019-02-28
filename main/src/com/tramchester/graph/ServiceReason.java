@@ -8,7 +8,8 @@ import static java.lang.String.format;
 
 public class ServiceReason {
 
-    public static InflightChangeOfService InflightChangeOfService = new InflightChangeOfService();
+    public static InflightChangeOfService InflightChangeOfService(String diag) { return new InflightChangeOfService(diag);}
+
     public static IsValid IsValid = new IsValid();
 
     public static DoesNotRunOnQueryDate DoesNotRunOnQueryDate(String diag) {
@@ -27,6 +28,7 @@ public class ServiceReason {
         return new DoesNotOperateOnTime(queryTime, diag);
     }
 
+    // DEFAULT
     public boolean isValid() {
         return false;
     }
@@ -40,9 +42,13 @@ public class ServiceReason {
         public String toString() { return "IsValid"; }
     }
 
-    private static class InflightChangeOfService extends ServiceReason
+    private static class InflightChangeOfService extends HasDiag
     {
-        public String toString() { return "InflightChangeOfService"; }
+        public InflightChangeOfService(String diag) {
+            super(diag);
+        }
+
+        public String toString() { return "InflightChangeOfService "+diag; }
     }
 
     private static class DoesNotRunOnQueryDate extends HasDiag

@@ -136,7 +136,7 @@ public class RouteCalculator extends StationIndexs {
             if (mapStreamToJourneySet(journeys, paths, limit, queryTime)) {
                 serviceHeuristics.reportStats();
             } else {
-                serviceHeuristics.reportReasons();
+                //serviceHeuristics.reportReasons();
             }
         });
     }

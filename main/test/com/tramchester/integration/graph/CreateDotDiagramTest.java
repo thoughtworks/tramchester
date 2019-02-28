@@ -50,9 +50,10 @@ public class CreateDotDiagramTest {
     @Test
     public void shouldProduceADotDiagramOfTheTramNetworkForMediaCityArea() throws IOException {
         int depthLimit = 3;
-        create(Stations.MediaCityUK, depthLimit);
-        create(Stations.HarbourCity, depthLimit);
-        create(Stations.Broadway, depthLimit);
+//        create(Stations.MediaCityUK, depthLimit);
+//        create(Stations.HarbourCity, depthLimit);
+//        create(Stations.Broadway, depthLimit);
+        create(Stations.Piccadilly, depthLimit);
     }
 
     public void create(Location startPoint, int depthLimit) throws IOException {

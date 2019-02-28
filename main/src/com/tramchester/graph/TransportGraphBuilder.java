@@ -10,7 +10,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;
 
-import org.neo4j.cypher.internal.frontend.v2_3.SemanticDirection;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
@@ -122,7 +121,8 @@ public class TransportGraphBuilder extends StationIndexs {
     }
 
     private void AddRouteServiceTrip(Route route, Service service, Trip trip) {
-       Stops stops = trip.getStops();
+        Stops stops = trip.getStops();
+
         for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
             Stop currentStop = stops.get(stopIndex);
             Stop nextStop = stops.get(stopIndex + 1);
@@ -189,7 +189,7 @@ public class TransportGraphBuilder extends StationIndexs {
         String stationId = station.getId();
         String callingPointId = createCallingPointId(station, route);
 
-        Node callingPoint = getRouteStationNode(callingPointId);
+        Node callingPoint = getCallingPointNode(callingPointId);
         if ( callingPoint == null) {
              callingPoint = createCallingPoint(station, route, callingPointId, service);
         }
@@ -197,7 +197,6 @@ public class TransportGraphBuilder extends StationIndexs {
         Node stationNode = getOrCreateStation(station);
 
         Node platformNode = stationNode;
-
         String stationOrPlatformID = stationId;
         if (station.isTram()) {
             // add a platform node between station and calling points
@@ -205,8 +204,11 @@ public class TransportGraphBuilder extends StationIndexs {
             stationOrPlatformID = stop.getId();
             // station -> platform & platform -> station
             if (!hasPlatform(stationId, stationOrPlatformID)) {
+                // station -> platform
                 Relationship crossToPlatform = createRelationship(stationNode, platformNode, TransportRelationshipTypes.ENTER_PLATFORM);
                 crossToPlatform.setProperty(COST, PLATFORM_COST);
+
+                // platform -> station
                 Relationship crossFromPlatform = createRelationship(platformNode, stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
                 crossFromPlatform.setProperty(COST, PLATFORM_COST);
                 // always create together
@@ -311,13 +313,14 @@ public class TransportGraphBuilder extends StationIndexs {
                 service.getServiceId(), route.getId());
 
         Node serviceNode = graphQuery.getServiceNode(svcNodeId);
-        if (serviceNode==null) {
+        String tripId = trip.getTripId();
 
+        if (serviceNode==null) {
             serviceNode = createGraphNode(Labels.SERVICE);
             serviceNode.setProperty(GraphStaticKeys.ID, svcNodeId);
             serviceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
 
-            // TODO no longer needed
+            // TODO these 3 no longer needed
             serviceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
             serviceNode.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
             serviceNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
@@ -329,13 +332,15 @@ public class TransportGraphBuilder extends StationIndexs {
             Relationship svcRelationship = createRelationship(routeStationStart, serviceNode, TransportRelationshipTypes.TO_SERVICE);
             svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
             svcRelationship.setProperty(COST, 0);
-            svcRelationship.setProperty(GraphStaticKeys.TRIPS,trip.getTripId());
+            svcRelationship.setProperty(GraphStaticKeys.TRIPS, tripId);
 
         } else {
             serviceNode.getRelationships(INCOMING, TransportRelationshipTypes.TO_SERVICE).forEach(
                     relationship -> {
                         String tripIds = relationship.getProperty(GraphStaticKeys.TRIPS).toString();
-                        relationship.setProperty(GraphStaticKeys.TRIPS,trip.getTripId()+tripIds);
+                        if (!tripIds.contains(tripId)) {
+                            relationship.setProperty(GraphStaticKeys.TRIPS, tripId + tripIds);
+                        }
                     });
         }
 
@@ -372,9 +377,10 @@ public class TransportGraphBuilder extends StationIndexs {
 
         // time node -> end route station
         Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
-        goesToRelationship.setProperty(GraphStaticKeys.TRIP_ID, trip.getTripId());
+        goesToRelationship.setProperty(GraphStaticKeys.TRIP_ID, tripId);
 
         // TODO should not need depart time as using check on the Node instead
+        // but for now it is used in the mapper code
         goesToRelationship.setProperty(GraphStaticKeys.DEPART_TIME, departureTime.asLocalTime());
 
         // common properties

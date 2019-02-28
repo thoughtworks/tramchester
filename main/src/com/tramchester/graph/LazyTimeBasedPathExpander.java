@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class LazyTimeBasedPathExpander implements PathExpander<Double> {
@@ -50,7 +51,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         Node endNode = path.endNode();
-
+//
         // only pursue outbound edges from a service service runs today & within time
         if (nodeOperations.isService(endNode)) {
             LocalTime currentElapsed = calculateElapsedTimeForPath(path);
@@ -58,22 +59,22 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                 return Collections.emptyList();
             }
         }
-
-        if (nodeOperations.isHour(endNode)) {
-            int hour = nodeOperations.getHour(endNode);
-            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
-            if (!serviceHeuristics.interestedInHour(hour, currentElapsed).isValid()) {
-                return Collections.emptyList();
-            }
-        }
-
-        // only follow hour nodes if match up with possible journeys
-        if (nodeOperations.isTime(endNode)) {
-            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
-            if (!serviceHeuristics.checkTime(endNode, currentElapsed).isValid()) {
-                return Collections.emptyList();
-            }
-        }
+//
+//        if (nodeOperations.isHour(endNode)) {
+//            int hour = nodeOperations.getHour(endNode);
+//            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
+//            if (!serviceHeuristics.interestedInHour(hour, currentElapsed).isValid()) {
+//                return Collections.emptyList();
+//            }
+//        }
+//
+//        // only follow hour nodes if match up with possible journeys
+//        if (nodeOperations.isTime(endNode)) {
+//            LocalTime currentElapsed = calculateElapsedTimeForPath(path);
+//            if (!serviceHeuristics.checkTime(endNode, currentElapsed).isValid()) {
+//                return Collections.emptyList();
+//            }
+//        }
 
         return buildSimpleExpandsionList(path);
     }
@@ -81,17 +82,20 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     private Iterable<Relationship> buildSimpleExpandsionList(Path path) {
         Relationship inbound = path.lastRelationship();
 
+        Node endNode = path.endNode();
         if (inbound==null) {
-            return path.endNode().getRelationships(OUTGOING);
+            return endNode.getRelationships(OUTGOING);
         }
 
         boolean inboundWasBoarding = inbound.isType(BOARD) || inbound.isType(INTERCHANGE_BOARD);
 
         LinkedList<Relationship> result = new LinkedList<>();
 
-        Iterable<Relationship> iter = path.endNode().getRelationships(OUTGOING);
+        int evaluated = 0;
+        Iterable<Relationship> iter = endNode.getRelationships(OUTGOING);
         iter.forEach(outbound -> {
             if (outbound.isType(TO_SERVICE)) {
+                //result.add(outbound);
                 if (inboundWasBoarding) {
                     result.add(outbound);
                 } else if (serviceHeuristics.sameTripAndService(inbound, outbound).isValid()) {
@@ -99,7 +103,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                 }
             } else {
                 if (inboundWasBoarding) {
-                    if ( ! (outbound.isType(DEPART) || outbound.isType(INTERCHANGE_DEPART))) {
+                    if ( ! (outbound.isType(DEPART) || outbound.isType(INTERCHANGE_DEPART)) ) {
                         // don't allow getting on then just getting off again
                         result.addLast(outbound);
                     }
@@ -108,6 +112,15 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                 }
             }
         });
+
+        if (result.size()==0) {
+            logger.debug(format("No outbound from %s %s, arrived via %s %s ",
+                    endNode.getLabels(), endNode.getProperties(GraphStaticKeys.ID),
+                    inbound.getStartNode().getLabels(), inbound.getStartNode().getProperties(GraphStaticKeys.ID)));
+
+            serviceHeuristics.reportReasons();
+        }
+        serviceHeuristics.clearReasons();
 
         return result;
     }
