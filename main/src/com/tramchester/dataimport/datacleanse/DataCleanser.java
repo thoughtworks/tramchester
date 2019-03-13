@@ -96,8 +96,6 @@ public class DataCleanser {
                                     stopTime.getTripId(),
                                     stopTime.getArrivalTime().tramDataFormat(),
                                     stopTime.getDepartureTime().tramDataFormat(),
-//                                    DateTimeService.formatTime(stopTime.getArrivalTime()),
-//                                    DateTimeService.formatTime(stopTime.getDepartureTime()),
                                     stopTime.getStopId(),
                                     stopTime.getStopSequence(),
                                     stopTime.getPickupType(),
@@ -150,7 +148,8 @@ public class DataCleanser {
             writer.writeLine(String.format("%s,%s,\"%s,%s%s\",%s,%s",
                     stop.getId(),
                     stop.getCode(),
-                    stop.getArea(), stop.getName(), tramPrefix,
+                    stop.getArea(),
+                    workAroundName(stop.getName()), tramPrefix,
                     stop.getLatitude(),
                     stop.getLongitude()));
         });
@@ -158,6 +157,13 @@ public class DataCleanser {
         writer.close();
         stops.close();
         logger.info("**** End cleansing stops.\n\n");
+    }
+
+    private String workAroundName(String name) {
+        if ("St Peters Square".equals(name)) {
+            return "St Peter's Square";
+        }
+        return name;
     }
 
     public List<String> cleanseRoutes(Set<String> agencyCodes) throws IOException {

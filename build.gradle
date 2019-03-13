@@ -6,7 +6,11 @@ buildscript {
         classpath 'org.owasp:dependency-check-gradle:2.1.0'
     }
 }
- 
+
+plugins {
+    id "com.github.ManifestClasspath" version "0.1.0-RELEASE"
+}
+
 apply plugin: 'org.owasp.dependencycheck'
 apply plugin: 'java'
 apply plugin: 'idea'
