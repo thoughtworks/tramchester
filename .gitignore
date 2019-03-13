@@ -38,3 +38,5 @@ test_network.dot
 testData/gtdf-out/
 testData/output/
 .envrc
+*.dot
+*.gradle~
