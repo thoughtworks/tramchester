@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class TransportDataFromFiles implements TransportData, StationRepository, AreasRepository, PlatformRepository, ServiceTimes {
+public class TransportDataFromFiles implements TransportData, AreasRepository, PlatformRepository, ServiceTimes {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
@@ -89,6 +89,7 @@ public class TransportDataFromFiles implements TransportData, StationRepository,
             String stationId = Station.formId(stopId);
             if (stations.containsKey(stationId)) {
                 Station station = stations.get(stationId);
+                station.addRoute(trip.getRouteId());
                 int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
                 Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(),
                         stopTimeData.getDepartureTime(), trip.getRouteId() , trip.getServiceId());

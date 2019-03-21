@@ -104,6 +104,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             throws TramchesterException {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,initialQueryTime));
+
         Set<RawJourney> journeys;
         List<LocalTime> queryTimes = createQueryTimes.generate(initialQueryTime.asLocalTime());
         if (isFromMyLocation(startId)) {

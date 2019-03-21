@@ -5,7 +5,6 @@ import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
-import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
@@ -20,9 +19,7 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.MDC;
 
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
 import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_BOARD;
@@ -81,7 +78,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     @Test
     public void shouldExpandPathsCorrectlyForInitialPath() {
 
-        Set<Relationship> outgoingRelationships = createRelationships(boards, departs);
+        List<Relationship> outgoingRelationships = createRelationships(boards, departs);
 
         EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
@@ -106,7 +103,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
     @Test
     public void shouldExpandPathsCorrectlyForMatchingPath() throws TramchesterException {
-        Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
+        List<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
         EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
@@ -140,7 +137,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
     @Test
     public void shouldExpandPathsCorrectlyForNonMatchingPath() throws TramchesterException {
-        Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
+        List<Relationship> outgoingRelationships = createRelationships(boards, goesToA, departs);
 
         EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
@@ -175,7 +172,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
     @Test
     public void shouldExpandPathsCorrectlyForMixedMatchingPath() throws TramchesterException {
-        Set<Relationship> outgoingRelationships = createRelationships(boards, goesToA, goesToB, departs);
+        List<Relationship> outgoingRelationships = createRelationships(boards, goesToA, goesToB, departs);
 
         EasyMock.expect(path.endNode()).andStubReturn(endNode);
         EasyMock.expect(endNode.getRelationships(Direction.OUTGOING)).andReturn(outgoingRelationships);
@@ -211,8 +208,71 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         assertEquals(3, actual);
     }
 
-    private Set<Relationship> createRelationships(Relationship... relats) {
-        Set<Relationship> relationships = new HashSet<>();
+    @Test
+    public void shouldCalculateElapsedTimeCorrectlyBoarding() {
+
+        List<Relationship> relationships = createRelationships(boards);
+
+        EasyMock.expect(boards.getProperty("cost")).andReturn(TransportGraphBuilder.BOARDING_COST);
+
+        EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
+
+        LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
+                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+
+        replayAll();
+        LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
+        verifyAll();
+
+        assertEquals(queryTime.plusMinutes(TransportGraphBuilder.BOARDING_COST), result);
+    }
+
+    @Test
+    public void shouldCalculateElapsedTimeCorrectlyBoardingAndDeparts() {
+
+        List<Relationship> relationships = createRelationships(boards, departs);
+
+        EasyMock.expect(boards.getProperty("cost")).andReturn(TransportGraphBuilder.BOARDING_COST);
+        EasyMock.expect(departs.getProperty("cost")).andReturn(TransportGraphBuilder.DEPARTS_COST);
+
+        EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
+
+        LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
+                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+
+        replayAll();
+        LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
+        verifyAll();
+
+        assertEquals(queryTime.plusMinutes(TransportGraphBuilder.BOARDING_COST+TransportGraphBuilder.DEPARTS_COST), result);
+    }
+
+    @Test
+    public void shouldCalculateElapsedTimeCorrectlyBoardingAndGoesTo() {
+
+        List<Relationship> relationships = createRelationships(departs, goesToA);
+
+        EasyMock.expect(departs.getProperty("cost")).andReturn(TransportGraphBuilder.BOARDING_COST);
+        EasyMock.expect(goesToA.getProperty("cost")).andReturn(3);
+
+        Node startNode = createMock(Node.class);
+        EasyMock.expect(goesToA.getStartNode()).andReturn(startNode);
+        EasyMock.expect(mockNodeOperations.getTime(startNode)).andReturn(LocalTime.of(11,23));
+
+        EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
+
+        LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
+                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+
+        replayAll();
+        LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
+        verifyAll();
+
+        assertEquals(LocalTime.of(11,23).plusMinutes(TransportGraphBuilder.BOARDING_COST).plusMinutes(3), result);
+    }
+
+    private List<Relationship> createRelationships(Relationship... relats) {
+        List<Relationship> relationships = new ArrayList<>();
         Collections.addAll(relationships, relats);
         return relationships;
     }

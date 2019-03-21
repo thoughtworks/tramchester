@@ -51,6 +51,7 @@ dependencies {
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile 'org.picocontainer:picocontainer:2.14.3',
             'org.neo4j:neo4j:3.4.9',
+            'org.neo4j:neo4j-slf4j:3.4.9',
             'org.neo4j:neo4j-spatial:0.25.6-neo4j-3.4.5',
             'com.googlecode.jcsv:jcsv:1.4.0',
             'net.lingala.zip4j:zip4j:1.2.3',

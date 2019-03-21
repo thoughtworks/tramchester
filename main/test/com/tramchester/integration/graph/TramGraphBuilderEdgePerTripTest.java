@@ -95,15 +95,15 @@ public class TramGraphBuilderEdgePerTripTest {
     }
 
     @Test
-    public void shouldHaveCorrectRelationshipsAtTraffordBar() throws TramchesterException {
+    public void shouldHaveCorrectRelationshipsAtCornbrook() throws TramchesterException {
         assumeTrue(edgePerTrip);
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.TraffordBar.getId()
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Cornbrook.getId()
                 + RouteCodesForTesting.ALTY_TO_BURY);
 
         assertTrue(outbounds.size()>1);
 
-        outbounds = calculator.getOutboundRouteStationRelationships(Stations.TraffordBar.getId()
+        outbounds = calculator.getOutboundRouteStationRelationships(Stations.Cornbrook.getId()
                 + RouteCodesForTesting.ASH_TO_ECCLES);
 
         assertTrue(outbounds.size()>1);
@@ -133,6 +133,9 @@ public class TramGraphBuilderEdgePerTripTest {
 
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ALTY_TO_BURY);
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.BURY_TO_ALTY);
+
+        checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
+        checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
 
         checkOutboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
         checkOutboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ECCLES_TO_ASH);

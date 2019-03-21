@@ -12,6 +12,9 @@ import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -46,17 +49,23 @@ public class CreateDotDiagramTest {
         create(Stations.Deansgate, depthLimit);
     }
 
-    // media city is area somewhat unique....
     @Test
     public void shouldProduceADotDiagramOfTheTramNetworkForMediaCityArea() throws IOException {
-        int depthLimit = 4;
-        create(Stations.Deansgate, depthLimit);
+        int depthLimit = 3;
         create(Stations.MediaCityUK, depthLimit);
         create(Stations.HarbourCity, depthLimit);
-        create(Stations.Broadway, depthLimit);
         create(Stations.Piccadilly, depthLimit);
-        create(Stations.Altrincham, depthLimit);
 
+        create(Arrays.asList(
+                new Location[]{Stations.StPetersSquare,Stations.Deansgate,Stations.Cornbrook,Stations.Pomona }), 5);
+    }
+
+
+    public void create(List<Location> startPoints, int depthLimit) throws IOException {
+        String filename = startPoints.get(0).getName();
+        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
+        List<String> ids = startPoints.stream().map(point -> point.getId()).collect(Collectors.toList());
+        creator.create(format("around_%s_trams.dot", filename), ids);
     }
 
     public void create(Location startPoint, int depthLimit) throws IOException {

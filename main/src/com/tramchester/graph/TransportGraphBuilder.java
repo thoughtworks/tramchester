@@ -69,6 +69,35 @@ public class TransportGraphBuilder extends StationIndexs {
         edgePerTrip = config.getEdgePerTrip();
     }
 
+    public void buildGraphwithFilter(GraphFilter filter) {
+        logger.info("Building graph from " + transportData.getFeedInfo());
+        LocalTime start = LocalTime.now();
+
+        createIndexs();
+
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            logger.info("Rebuilding the graph...");
+            for (Route route : transportData.getRoutes()) {
+                if (filter.shouldInclude(route)) {
+                    for (Service service : route.getServices()) {
+                        if (filter.shouldInclude(service)) {
+                            for (Trip trip : service.getTrips()) {
+                                AddRouteServiceTrip(route, service, trip, filter);
+                            }
+                        }
+                    }
+                }
+            }
+            tx.success();
+            Duration duration = Duration.between(start, LocalTime.now());
+            logger.info("Graph rebuild finished, took " + duration.getSeconds());
+
+        } catch (Exception except) {
+            logger.error("Exception while rebuilding the graph", except);
+        }
+        reportStats();
+    }
+
     public void buildGraph() {
         logger.info("Building graph from " + transportData.getFeedInfo());
         LocalTime start = LocalTime.now();
@@ -120,10 +149,21 @@ public class TransportGraphBuilder extends StationIndexs {
         }
     }
 
+    private void AddRouteServiceTrip(Route route, Service service, Trip trip, GraphFilter filter) {
+        Stops stops = filter.filterStops(trip.getStops());
+        int lastStopNum = stops.size(); // sequence runs from 1
+
+        AddRouteServiceTripStops(route, service, trip, stops, lastStopNum);
+    }
+
     private void AddRouteServiceTrip(Route route, Service service, Trip trip) {
         Stops stops = trip.getStops();
         int lastStopNum = stops.size(); // sequence runs from 1
 
+        AddRouteServiceTripStops(route, service, trip, stops, lastStopNum);
+    }
+
+    private void AddRouteServiceTripStops(Route route, Service service, Trip trip, Stops stops, int lastStopNum) {
         for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
             Stop currentStop = stops.get(stopIndex);
             Stop nextStop = stops.get(stopIndex + 1);

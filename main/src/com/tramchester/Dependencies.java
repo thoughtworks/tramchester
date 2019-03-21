@@ -33,6 +33,7 @@ import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.Caching;
@@ -45,10 +46,19 @@ import java.nio.file.Path;
 import java.util.Set;
 
 public class Dependencies {
-
     public static final String TFGM_UNZIP_DIR = "gtdf-out";
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
+    private final GraphFilter graphFilter;
+
+    public Dependencies() {
+        graphFilter=null;
+    }
+
+    public Dependencies(GraphFilter graphFilter) {
+        this.graphFilter = graphFilter;
+    }
+
 
     public void initialise(TramchesterConfig configuration) throws IOException {
         Path dataPath = configuration.getDataPath();
@@ -124,7 +134,6 @@ public class Dependencies {
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);
-
     }
 
     public void cleanseData(Path inputPath, Path outputPath, TramchesterConfig config) throws IOException {
@@ -143,7 +152,7 @@ public class Dependencies {
 
     private void rebuildGraph(TramchesterConfig configuration) throws IOException {
         String graphName = configuration.getGraphName();
-        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
+        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
 
         File graphFile = new File(graphName);
         GraphDatabaseBuilder builder = graphDatabaseFactory.
@@ -159,7 +168,13 @@ public class Dependencies {
                 throw e;
             }
             picoContainer.addComponent(GraphDatabaseService.class, builder.newGraphDatabase());
-            picoContainer.getComponent(TransportGraphBuilder.class).buildGraph();
+
+            TransportGraphBuilder graphBuilder = picoContainer.getComponent(TransportGraphBuilder.class);
+            if (graphFilter==null) {
+                graphBuilder.buildGraph();
+            } else {
+                graphBuilder.buildGraphwithFilter(graphFilter);
+            }
             logger.info("Graph rebuild is finished for " + graphName);
         } else {
             logger.info("Not rebuilding graph " + graphFile.getAbsolutePath() + ". Loading graph");

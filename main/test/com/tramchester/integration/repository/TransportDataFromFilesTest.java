@@ -12,6 +12,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
+import net.sf.cglib.core.Local;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -317,6 +318,37 @@ public class TransportDataFromFilesTest {
         Set<String> tripServicesId = new HashSet<>();
         allTrips.forEach(trip -> tripServicesId.add(trip.getServiceId()));
         assertEquals(allSvcs, tripServicesId.size());
+    }
+
+    @Test
+    public void shouldReproIssueStPetersToPomona() {
+        TramTime problemTime = TramTime.of(19, 51);
+        Set<Trip> allTrips = transportData.getTripsFor(Stations.StPetersSquare.getId());
+
+        TimeWindow timeWindow = new TimeWindow(problemTime.asLocalTime(), 25);
+
+        Set<Trip> trips = allTrips.stream().
+                filter(trip -> trip.callsAt(Stations.Pomona.getId())).
+                filter(trip -> trip.getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES)).
+                filter(trip -> trip.earliestDepartTime().isBefore(problemTime) || trip.earliestDepartTime().equals(problemTime)).
+                filter(trip -> trip.latestDepartTime().isAfter(problemTime) || trip.latestDepartTime().equals(problemTime)).
+                filter(trip -> trip.travelsBetween(Stations.StPetersSquare.getId(),Stations.Pomona.getId(), timeWindow)).
+                collect(Collectors.toSet());
+
+
+        Set<Service> svcs = trips.stream().map(trip -> trip.getServiceId()).
+                map(svcId -> transportData.getServiceById(svcId)).
+                collect(Collectors.toSet());
+
+        List<String> runTuesday = svcs.stream().
+                filter(service -> service.getDays().get(DaysOfWeek.Tuesday)).
+                map(service -> service.getServiceId()).
+                collect(Collectors.toList());
+
+        List<Trip> runningTrips = trips.stream().filter(trip -> runTuesday.contains(trip.getServiceId())).collect(Collectors.toList());
+
+        assertTrue(runTuesday.size()>0);
+
     }
 
     @Test

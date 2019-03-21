@@ -2,8 +2,10 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.LatLong;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
@@ -14,6 +16,7 @@ public class Station implements Location {
     private LatLong latLong;
     private boolean tram;
     private List<Platform> platforms;
+    private Set<String> servesRoutes;
 
     public Station () {
         // deserialisation
@@ -32,6 +35,7 @@ public class Station implements Location {
         this.tram = tram;
         this.area = area;
         platforms = new LinkedList<>();
+        servesRoutes = new HashSet<>();
     }
 
     @Override
@@ -107,7 +111,16 @@ public class Station implements Location {
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", tram=" + tram +
+                ", platforms=" + platforms +
+                ", servesRoutes=" + servesRoutes +
                 '}';
     }
 
+    public void addRoute(String routeId) {
+        servesRoutes.add(routeId);
+    }
+
+    public Set<String> getRoutes() {
+        return servesRoutes;
+    }
 }

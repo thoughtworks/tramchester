@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface TransportData extends ProvidesFeedInfo {
+public interface TransportData extends ProvidesFeedInfo, StationRepository {
     Collection<Service> getServices();
     Set<Service> getServicesOnDate(TramServiceDate date);
     Collection<Route> getRoutes();

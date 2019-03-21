@@ -22,6 +22,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
     private final Set<String> runningServices;
+    private final Set<String> preferRoutes;
     private final LocalTime queryTime;
     private final List<ServiceReason> reasons;
 
@@ -37,7 +38,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger timeWrong = new AtomicInteger(0);
 
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config,
-                             LocalTime queryTime, Set<String> runningServices) {
+                             LocalTime queryTime, Set<String> runningServices, Set<String> preferRoutes) {
         this.nodeOperations = nodeOperations;
         this.config = config;
 
@@ -45,6 +46,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.maxWaitMinutes = config.getMaxWait();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
+        this.preferRoutes = preferRoutes;
 
         // for none edge per trip path
         boardingTime = Optional.empty();
@@ -55,21 +57,28 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     
     // edge per trip
     // TODO change to TramTime
-    public ServiceReason checkService(Node node, LocalTime currentElapsed){
+    public ServiceReason checkServiceDate(Node node) {
         totalChecked.incrementAndGet();
-        // date
 
         String nodeServiceId = nodeOperations.getServiceId(node);
 
-        if (!runningServices.contains(nodeServiceId)) {
-            dateWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(node, nodeServiceId));
+        if (runningServices.contains(nodeServiceId)) {
+            return ServiceReason.IsValid;
         }
+
+        dateWrong.incrementAndGet();
+        return recordReason(ServiceReason.DoesNotRunOnQueryDate(node, nodeServiceId));
+
+    }
+
+    public ServiceReason checkServiceTime(Node node, LocalTime currentElapsed) {
+        totalChecked.incrementAndGet();
 
         // prepared to wait up to max wait for start of a service...
         LocalTime serviceStart = nodeOperations.getServiceEarliest(node).asLocalTime().minusMinutes(maxWaitMinutes);
         // BUT if arrive after service finished there is nothing to be done...
         TramTime serviceEnd = nodeOperations.getServiceLatest(node);
+        String nodeServiceId = nodeOperations.getServiceId(node);
 
         TramTime currentClock = TramTime.of(currentElapsed);
         if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
@@ -202,11 +211,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     }
 
     public ServiceReason interestedInHour(int hour, LocalTime journeyClockTime) {
-        // quick win
         totalChecked.getAndIncrement();
 
         int queryTimeHour = queryTime.getHour();
         if (hour== queryTimeHour) {
+            // quick win
             return ServiceReason.IsValid;
         }
 
@@ -225,8 +234,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public ServiceReason sameTripAndService(Relationship inbound, Relationship outbound) {
         if (!inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)) {
-//            inflightChange.getAndIncrement();
-//            return ServiceReason.InflightChangeOfService;
             throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO relationships");
         }
 
@@ -236,6 +243,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             inflightChange.getAndIncrement();
             return recordReason(ServiceReason.InflightChangeOfService(inboundSvcId));
         }
+
         // now check inbound trip is available on this outgoing service
         String outboundTrips = (outbound.getProperty(TRIPS).toString());
         String inboundTripId = inbound.getProperty(TRIP_ID).toString();
