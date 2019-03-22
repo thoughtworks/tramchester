@@ -5,6 +5,7 @@ public class GraphStaticKeys {
     // ID Common across both
     public static final String ID = "id";
 
+
     // relationship properties
     public static final String DAYS = "days";
     public static final String COST = "cost";
@@ -19,6 +20,7 @@ public class GraphStaticKeys {
     public static final String TRIPS = "trips";
 
     public static final String SERVICE_ID = "service_id";
+
     public static final String SERVICE_START_DATE = "start_date";
     public static final String SERVICE_END_DATE = "end_date";
     public static final String SERVICE_EARLIEST_TIME ="earliest";

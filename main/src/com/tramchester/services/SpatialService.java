@@ -98,7 +98,8 @@ public class SpatialService extends StationIndexs {
         List<GeoPipeFlow> results = getSpatialLayer().findClosestPointsTo(LatLong.getCoordinate(latLong),
                 config.getNearestStopRangeKM());
 
-        List<String> ids =results.stream().limit(count).map(item -> (String)item.getRecord().getGeomNode().getProperty(GraphStaticKeys.ID)).
+        List<String> ids =results.stream().limit(count).
+                map(item -> (String)item.getRecord().getGeomNode().getProperty(GraphStaticKeys.ID)).
                 collect(Collectors.toList());
 
         return ids;

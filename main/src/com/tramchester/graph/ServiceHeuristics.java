@@ -12,11 +12,14 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
+import static java.lang.String.format;
 
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
@@ -57,7 +60,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     
     // edge per trip
     // TODO change to TramTime
-    public ServiceReason checkServiceDate(Node node) {
+    public ServiceReason checkServiceDate(Node node, Path path) {
         totalChecked.incrementAndGet();
 
         String nodeServiceId = nodeOperations.getServiceId(node);
@@ -67,11 +70,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         dateWrong.incrementAndGet();
-        return recordReason(ServiceReason.DoesNotRunOnQueryDate(node, nodeServiceId));
+        return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
 
     }
 
-    public ServiceReason checkServiceTime(Node node, LocalTime currentElapsed) {
+    public ServiceReason checkServiceTime(Path path, Node node, LocalTime currentElapsed) {
         totalChecked.incrementAndGet();
 
         // prepared to wait up to max wait for start of a service...
@@ -83,14 +86,15 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         TramTime currentClock = TramTime.of(currentElapsed);
         if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
             timeWrong.getAndIncrement();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(node, currentElapsed, "ServiceNotRunning:"+nodeServiceId));
+            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId,
+                    path));
         }
 
         return ServiceReason.IsValid;
     }
 
     // edge per trip
-    public ServiceReason checkTime(Node node, LocalTime currentElapsed) {
+    public ServiceReason checkTime(Path path, Node node, LocalTime currentElapsed) {
         totalChecked.getAndIncrement();
 
         LocalTime nodeTime = nodeOperations.getTime(node);
@@ -98,7 +102,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         timeWrong.incrementAndGet();
-        return recordReason(ServiceReason.DoesNotOperateOnTime(node, queryTime, "TimeMismatch:"+currentElapsed.toString()));
+        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
+                "TimeMismatch:"+currentElapsed.toString(), path));
     }
 
     private boolean operatesWithinTime(LocalTime nodeTime, LocalTime elapsedTimed) {
@@ -121,26 +126,26 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         String serviceId = goesToRelationship.getServiceId();
         if (!runningServices.contains(serviceId)) {
             dateWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(path.endNode(), serviceId));
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId, path));
         }
 
-        if (!sameService(incoming, goesToRelationship).isValid()) {
-            return recordReason(ServiceReason.InflightChangeOfService(serviceId));
+        if (!sameService(path, incoming, goesToRelationship).isValid()) {
+            return recordReason(ServiceReason.InflightChangeOfService(serviceId, path));
         }
 
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
         // all times for the service per edge
         if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
             timeWrong.incrementAndGet();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(path.endNode(), queryTime,
-                    elapsedTimeProvider.getElapsedTime().toString()));
+            return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
+                    elapsedTimeProvider.getElapsedTime().toString(), path));
         }
 
         return ServiceReason.IsValid;
     }
 
     // caller records
-    public ServiceReason sameService(TransportRelationship transportRelationship, GoesToRelationship outgoing) {
+    public ServiceReason sameService(Path path, TransportRelationship transportRelationship, GoesToRelationship outgoing) {
         if (!transportRelationship.isGoesTo()) {
             return ServiceReason.IsValid; // not a connecting/goes to relationship, no svc id
         }
@@ -153,7 +158,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         inflightChange.incrementAndGet();
-        return ServiceReason.InflightChangeOfService(service);
+        return ServiceReason.InflightChangeOfService(service, path);
     }
 
     public boolean operatesOnTime(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
@@ -210,7 +215,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         logger.info("Time wrong: " + timeWrong.get());
     }
 
-    public ServiceReason interestedInHour(int hour, LocalTime journeyClockTime) {
+    public ServiceReason interestedInHour(Path path, int hour, LocalTime journeyClockTime) {
         totalChecked.getAndIncrement();
 
         int queryTimeHour = queryTime.getHour();
@@ -229,10 +234,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         timeWrong.getAndIncrement();
-        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString()));
+        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString(), path));
     }
 
-    public ServiceReason sameTripAndService(Relationship inbound, Relationship outbound) {
+    public ServiceReason sameTripAndService(Path path, Relationship inbound, Relationship outbound) {
         if (!inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)) {
             throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO relationships");
         }
@@ -241,7 +246,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         String outboundSvcId = outbound.getProperty(SERVICE_ID).toString();
         if (!inboundSvcId.equals(outboundSvcId)) {
             inflightChange.getAndIncrement();
-            return recordReason(ServiceReason.InflightChangeOfService(inboundSvcId));
+            return recordReason(ServiceReason.InflightChangeOfService(inboundSvcId, path));
         }
 
         // now check inbound trip is available on this outgoing service
@@ -251,13 +256,39 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return ServiceReason.IsValid;
         }
         inflightChange.getAndIncrement();
-        return recordReason(ServiceReason.InflightChangeOfService(inboundTripId));
+        return recordReason(ServiceReason.InflightChangeOfService(inboundTripId, path));
     }
 
     public void reportReasons() {
         reportStats();
         if (logger.isDebugEnabled()) {
             reasons.forEach(reason -> logger.debug("ServiceReason: " + reason ));
+            createGraphFile();
+        }
+    }
+
+    private void createGraphFile() {
+        String fileName = format("%s_at_%s.dot", queryTime.toString(), LocalTime.now().toString());
+
+        if (reasons.isEmpty()) {
+            logger.warn(format("Not creating dot file %s, reasons empty", fileName));
+            return;
+        }
+
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append("digraph G {\n");
+            reasons.forEach(reason -> { reason.recordPath(builder);});
+            builder.append("}");
+
+
+            FileWriter writer = new FileWriter(fileName);
+            writer.write(builder.toString());
+            writer.close();
+            logger.info(format("Created file %s", fileName));
+        }
+        catch (IOException e) {
+            logger.warn("Unable to create diagnostic graph file", e);
         }
     }
 

@@ -30,7 +30,7 @@ import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RouteCalculatorSubGraph {
+public class RouteCalculatorSubGraphTest {
     private static Dependencies dependencies;
 
     private RouteCalculator calculator;
@@ -47,11 +47,11 @@ public class RouteCalculatorSubGraph {
 //        graphFilter.addRoute(RouteCodesForTesting.BURY_TO_ALTY);
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
 
+        graphFilter.addService("Serv003011");
+
         graphFilter.addService("Serv003017");
         graphFilter.addService("Serv003020");
         graphFilter.addService("Serv003018");
-        graphFilter.addService("Serv003011");
-
         graphFilter.addService("Serv003026");
         graphFilter.addService("Serv003024");
         graphFilter.addService("Serv003023");

@@ -136,7 +136,9 @@ public class RouteCalculator extends StationIndexs {
                     serviceHeuristics, config, nodeOperations, costEvaluator);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             logger.info(format("Journey from %s to %s at %s on %s limit:%s", startNode, endNode, queryTime, queryDate, limit));
-            mapStreamToJourneySet(journeys, paths, limit, queryTime);
+            if (!mapStreamToJourneySet(journeys, paths, limit, queryTime)) {
+                serviceHeuristics.reportReasons();
+            }
             serviceHeuristics.reportStats();
         });
     }
@@ -154,6 +156,7 @@ public class RouteCalculator extends StationIndexs {
             }
         });
         paths.close();
+
         boolean foundJourney = journeys.size() > 0;
         if (!foundJourney) {
             logger.warn(format("Did not create any journeys from the limit:%s queryTime:%s",
