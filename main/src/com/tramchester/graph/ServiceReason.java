@@ -1,6 +1,8 @@
 package com.tramchester.graph;
 
 import org.neo4j.graphdb.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 
@@ -92,12 +94,18 @@ public abstract class ServiceReason {
     }
 
     private static abstract class HasDiag extends ServiceReason {
+        private static final Logger logger = LoggerFactory.getLogger(HasDiag.class);
+
         protected final String diag;
         private final String pathAsString;
 
         public HasDiag(String diagnostics, Path path) {
             this.diag =diagnostics;
-            this.pathAsString = PathToGraphViz.map(path);
+            if (logger.isDebugEnabled()) {
+                pathAsString = PathToGraphViz.map(path);
+            } else {
+                pathAsString = path.toString();
+            }
         }
 
         @Override

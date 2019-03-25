@@ -43,12 +43,12 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Set;
 
 public class Dependencies {
+    private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
+
     public static final String TFGM_UNZIP_DIR = "gtdf-out";
     protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
-    private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
     private final GraphFilter graphFilter;
 
     public Dependencies() {

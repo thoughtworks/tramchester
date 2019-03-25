@@ -11,7 +11,7 @@
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
+            <level>INFO</level>
         </filter>
         <file>build/reports/tests/testing.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -28,7 +28,7 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
     </root>
