@@ -85,7 +85,7 @@ public class StationResourceTest {
         assertEquals(4, platforms.size());
         StationDepartureInfo info = platforms.get(0).getStationDepartureInfo();
         assertNotNull(info);
-        assertEquals("471", info.getDisplayId());
+        assertEquals("St Peter's Square", info.getLocation());
     }
 
     @Test

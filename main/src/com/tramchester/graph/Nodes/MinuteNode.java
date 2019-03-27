@@ -5,7 +5,7 @@ import org.neo4j.graphdb.Node;
 
 import java.time.LocalTime;
 
-public class MinuteNode implements TramNode {
+public class MinuteNode extends TramNode {
     private final String id;
     private final String name;
     private final Node node;
@@ -17,43 +17,13 @@ public class MinuteNode implements TramNode {
     }
 
     @Override
-    public boolean isStation() {
-        return false;
-    }
-
-    @Override
-    public boolean isRouteStation() {
-        return false;
-    }
-
-    @Override
     public String getId() {
         return id;
     }
 
     @Override
-    public boolean isQuery() {
-        return false;
-    }
-
-    @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean isPlatform() {
-        return false;
-    }
-
-    @Override
-    public boolean isService() {
-        return false;
-    }
-
-    @Override
-    public boolean isHour() {
-        return false;
     }
 
     @Override

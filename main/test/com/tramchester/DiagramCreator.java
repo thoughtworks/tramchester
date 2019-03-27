@@ -101,6 +101,8 @@ public class DiagramCreator {
                 addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "H"));
             } else if (inboundRelationship.isMinuteLink()) {
                 addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "T"));
+            } else if (inboundRelationship.isEndServiceLink()) {
+                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "End"));
             }
             else {
                 // boarding and depart
@@ -231,6 +233,10 @@ public class DiagramCreator {
             String fullTime = node.getName();
             int index = fullTime.indexOf(":");
             return fullTime.substring(index);
+        }
+        if (node.isServiceEnd()) {
+            ServiceEndNode serviceEndNode = (ServiceEndNode) node;
+            return serviceEndNode.getId();
         }
         return "No_Label";
     }

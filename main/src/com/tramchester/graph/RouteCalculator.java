@@ -12,10 +12,12 @@ import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.TransportData;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
+import org.neo4j.graphalgo.EstimateEvaluator;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.AStar;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
+import org.neo4j.graphalgo.impl.util.GeoEstimateEvaluator;
 import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
 import org.neo4j.kernel.impl.util.NoneStrictMath;
@@ -181,8 +183,9 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        PathFinder<WeightedPath> pathFinder = new Dijkstra(pathExpander, costEvaluator,
-                    PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
+        Dijkstra pathFinder = new Dijkstra(pathExpander, costEvaluator,
+                PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
+
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
         
         return StreamSupport.stream(pathIterator.spliterator(), false);

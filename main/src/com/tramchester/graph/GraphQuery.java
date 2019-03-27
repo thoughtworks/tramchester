@@ -48,7 +48,15 @@ public class GraphQuery {
     }
 
     public Node getTimeNode(String id) {
+        return getNodeByLabel(id, TransportGraphBuilder.Labels.MINUTE);
+    }
+
+    public Node getHourNode(String id) {
         return getNodeByLabel(id, TransportGraphBuilder.Labels.HOUR);
+    }
+
+    public Node getServiceEndNode(String id) {
+        return getNodeByLabel(id, TransportGraphBuilder.Labels.SERVICE_END);
     }
 
     private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {

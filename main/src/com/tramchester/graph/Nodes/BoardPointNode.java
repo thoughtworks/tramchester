@@ -3,7 +3,7 @@ package com.tramchester.graph.Nodes;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Node;
 
-public class BoardPointNode implements TramNode {
+public class BoardPointNode extends TramNode {
     private final String id;
     private final String routeName;
     private final String routeId;
@@ -28,11 +28,6 @@ public class BoardPointNode implements TramNode {
     }
 
     @Override
-    public boolean isStation() {
-        return false;
-    }
-
-    @Override
     public boolean isRouteStation() {
         return true;
     }
@@ -43,18 +38,8 @@ public class BoardPointNode implements TramNode {
     }
 
     @Override
-    public boolean isQuery() {
-        return false;
-    }
-
-    @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean isPlatform() {
-        return false;
     }
 
     @Override
@@ -72,21 +57,6 @@ public class BoardPointNode implements TramNode {
 
     public String getRouteId() {
         return routeId;
-    }
-
-    @Override
-    public boolean isService() {
-        return false;
-    }
-
-    @Override
-    public boolean isHour() {
-        return false;
-    }
-
-    @Override
-    public boolean isMinute() {
-        return false;
     }
 
 }

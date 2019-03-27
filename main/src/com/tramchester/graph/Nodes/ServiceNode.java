@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class ServiceNode implements TramNode {
+public class ServiceNode extends TramNode {
     private final String id;
     private final String name;
     private final Node node;
@@ -28,38 +28,13 @@ public class ServiceNode implements TramNode {
     }
 
     @Override
-    public boolean isStation() {
-        return false;
-    }
-
-    @Override
-    public boolean isRouteStation() {
-        return false;
-    }
-
-    @Override
     public String getId() {
         return id;
     }
 
     @Override
-    public boolean isQuery() {
-        return false;
-    }
-
-    @Override
     public boolean isService() {
         return true;
-    }
-
-    @Override
-    public boolean isHour() {
-        return false;
-    }
-
-    @Override
-    public boolean isMinute() {
-        return false;
     }
 
     @Override

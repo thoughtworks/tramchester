@@ -208,69 +208,6 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         assertEquals(3, actual);
     }
 
-    @Test
-    public void shouldCalculateElapsedTimeCorrectlyBoarding() {
-
-        List<Relationship> relationships = createRelationships(boards);
-
-        EasyMock.expect(boards.getProperty("cost")).andReturn(TransportGraphBuilder.BOARDING_COST);
-
-        EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
-
-        LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
-
-        replayAll();
-        LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
-        verifyAll();
-
-        assertEquals(queryTime.plusMinutes(TransportGraphBuilder.BOARDING_COST), result);
-    }
-
-    @Test
-    public void shouldCalculateElapsedTimeCorrectlyBoardingAndDeparts() {
-
-        List<Relationship> relationships = createRelationships(boards, departs);
-
-        EasyMock.expect(boards.getProperty("cost")).andReturn(TransportGraphBuilder.BOARDING_COST);
-        EasyMock.expect(departs.getProperty("cost")).andReturn(TransportGraphBuilder.DEPARTS_COST);
-
-        EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
-
-        LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
-
-        replayAll();
-        LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
-        verifyAll();
-
-        assertEquals(queryTime.plusMinutes(TransportGraphBuilder.BOARDING_COST+TransportGraphBuilder.DEPARTS_COST), result);
-    }
-
-    @Test
-    public void shouldCalculateElapsedTimeCorrectlyBoardingAndGoesTo() {
-
-        List<Relationship> relationships = createRelationships(departs, goesToA);
-
-        EasyMock.expect(departs.getProperty("cost")).andReturn(TransportGraphBuilder.BOARDING_COST);
-        EasyMock.expect(goesToA.getProperty("cost")).andReturn(3);
-
-        Node startNode = createMock(Node.class);
-        EasyMock.expect(goesToA.getStartNode()).andReturn(startNode);
-        EasyMock.expect(mockNodeOperations.getTime(startNode)).andReturn(LocalTime.of(11,23));
-
-        EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
-
-        LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
-
-        replayAll();
-        LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
-        verifyAll();
-
-        assertEquals(LocalTime.of(11,23).plusMinutes(TransportGraphBuilder.BOARDING_COST).plusMinutes(3), result);
-    }
-
     private List<Relationship> createRelationships(Relationship... relats) {
         List<Relationship> relationships = new ArrayList<>();
         Collections.addAll(relationships, relats);

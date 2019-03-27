@@ -4,7 +4,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Node;
 
-public class QueryNode implements TramNode {
+public class QueryNode extends TramNode {
 
     private final LatLong latLong;
 
@@ -12,16 +12,6 @@ public class QueryNode implements TramNode {
         double lat = Double.parseDouble(node.getProperty(GraphStaticKeys.Station.LAT).toString());
         double lon = Double.parseDouble(node.getProperty(GraphStaticKeys.Station.LONG).toString());
         this.latLong = new LatLong(lat,lon);
-    }
-
-    @Override
-    public boolean isStation() {
-        return false;
-    }
-
-    @Override
-    public boolean isRouteStation() {
-        return false;
     }
 
     @Override
@@ -35,28 +25,8 @@ public class QueryNode implements TramNode {
     }
 
     @Override
-    public boolean isService() {
-        return false;
-    }
-
-    @Override
-    public boolean isHour() {
-        return false;
-    }
-
-    @Override
-    public boolean isMinute() {
-        return false;
-    }
-
-    @Override
     public String getName() {
         return "Your location";
-    }
-
-    @Override
-    public boolean isPlatform() {
-        return false;
     }
 
     public LatLong getLatLon() {

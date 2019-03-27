@@ -231,16 +231,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         verifyAll();
     }
 
-    private class StubNode implements TramNode {
-        @Override
-        public boolean isStation() {
-            return false;
-        }
-
-        @Override
-        public boolean isRouteStation() {
-            return false;
-        }
+    private class StubNode extends TramNode {
 
         @Override
         public String getId() {
@@ -248,33 +239,9 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         }
 
         @Override
-        public boolean isQuery() {
-            return false;
-        }
-
-        @Override
-        public boolean isService() {
-            return false;
-        }
-
-        @Override
-        public boolean isHour() {
-            return false;
-        }
-
-        @Override
-        public boolean isMinute() {
-            return false;
-        }
-
-        @Override
         public String getName() {
             return null;
         }
 
-        @Override
-        public boolean isPlatform() {
-            return false;
-        }
     }
 }

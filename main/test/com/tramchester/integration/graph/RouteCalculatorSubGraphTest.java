@@ -82,16 +82,12 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void reproduceIssueEdgePerTrip() {
 
-//        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, LocalTime.of(19,51), nextTuesday);
-//        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Pomona, LocalTime.of(19,51).plusMinutes(6), nextTuesday);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, LocalTime.of(19,51), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Pomona, LocalTime.of(19,51).plusMinutes(6), nextTuesday);
 
-//        validateAtLeastOneJourney(Stations.Deansgate, Stations.Cornbrook, LocalTime.of(19,51).plusMinutes(3), nextTuesday);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Cornbrook, LocalTime.of(19,51).plusMinutes(3), nextTuesday);
         validateAtLeastOneJourney(Stations.Deansgate, Stations.Pomona, LocalTime.of(19,51).plusMinutes(3), nextTuesday);
 
-        // fails if matches depart time exactly...??
-        //validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Pomona, LocalTime.of(19,48), nextTuesday);
-
-        // 51 -> 56 fail
         validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,51), nextTuesday);
         validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,56), nextTuesday);
     }
@@ -106,7 +102,7 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 5);
+        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 7);
 //        List<String> ids = Arrays.asList(new String[]{Stations.StPetersSquare.getId(),
 //            Stations.Deansgate.getId(), Stations.Cornbrook.getId(), Stations.Pomona.getId()});
         creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));

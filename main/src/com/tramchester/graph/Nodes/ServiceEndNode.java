@@ -3,12 +3,12 @@ package com.tramchester.graph.Nodes;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Node;
 
-public class HourNode extends TramNode {
-    private final String id;
-    private final String name;
+import java.time.LocalTime;
 
-    public HourNode(Node node) {
-        this.name = node.getProperty(GraphStaticKeys.HOUR).toString();
+public class ServiceEndNode extends TramNode {
+    private final String id;
+
+    public ServiceEndNode(Node node) {
         this.id = node.getProperty(GraphStaticKeys.ID).toString();
     }
 
@@ -19,12 +19,13 @@ public class HourNode extends TramNode {
 
     @Override
     public String getName() {
-        return name;
+        return id;
     }
 
     @Override
-    public boolean isHour() {
+    public boolean isServiceEnd() {
         return true;
     }
+
 
 }

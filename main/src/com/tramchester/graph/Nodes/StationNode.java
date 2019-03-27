@@ -4,7 +4,7 @@ package com.tramchester.graph.Nodes;
 import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Node;
 
-public class StationNode implements TramNode {
+public class StationNode extends TramNode {
     private final String id;
     private final String name;
 
@@ -42,36 +42,6 @@ public class StationNode implements TramNode {
     @Override
     public boolean isStation() {
         return true;
-    }
-
-    @Override
-    public boolean isRouteStation() {
-        return false;
-    }
-
-    @Override
-    public boolean isQuery() {
-        return false;
-    }
-
-    @Override
-    public boolean isPlatform() {
-        return false;
-    }
-
-    @Override
-    public boolean isService() {
-        return false;
-    }
-
-    @Override
-    public boolean isHour() {
-        return false;
-    }
-
-    @Override
-    public boolean isMinute() {
-        return false;
     }
 
 }

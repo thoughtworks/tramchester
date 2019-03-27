@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class GraphWithSimpleRouteTest {
 
@@ -121,7 +122,7 @@ public class GraphWithSimpleRouteTest {
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.STATION_FOUR, queryTimes, queryDate);
-        assertEquals(1, journeys.size());
+       assertTrue(journeys.size()>=1);
     }
 
     @Test

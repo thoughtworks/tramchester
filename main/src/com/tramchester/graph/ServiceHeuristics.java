@@ -240,8 +240,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     }
 
     public ServiceReason sameTripAndService(Path path, Relationship inbound, Relationship outbound) {
-        if (!inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)) {
-            throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO relationships");
+        boolean isGoesTo = inbound.isType(TRAM_GOES_TO);
+        if (!(isGoesTo || inbound.isType(TO_END_SERVICE))) {
+            throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO or TO_END_SERVICE relationships");
         }
 
         String inboundSvcId = inbound.getProperty(SERVICE_ID).toString();
@@ -252,8 +253,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         // now check inbound trip is available on this outgoing service
-        String outboundTrips = (outbound.getProperty(TRIPS).toString());
         String inboundTripId = inbound.getProperty(TRIP_ID).toString();
+        String outboundTrips;
+        if (isGoesTo) {
+            outboundTrips = outbound.getProperty(TRIPS).toString();
+        } else {
+            outboundTrips = outbound.getProperty(TRIP_ID).toString();
+        }
+
         if (outboundTrips.contains(inboundTripId))  {
             return recordReason(ServiceReason.IsValid(path,format("[%s}%s->%s", inboundTripId, inboundSvcId, outboundSvcId)));
         }
@@ -303,16 +310,16 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return serviceReason;
     }
 
-    public void clearReasons() {
-        reasons.clear();
-    }
-
     public ServiceReason checkReboardAndSvcChanges(Path path, Relationship inbound, boolean inboundWasBoarding, Relationship outbound) {
 
         if (outbound.isType(TO_SERVICE)) {
             if (inboundWasBoarding) {
                 return recordReason(ServiceReason.IsValid(path,"board"));
             }
+            return sameTripAndService(path, inbound, outbound);
+        }
+
+        if (outbound.isType(TRAM_GOES_TO)) {
             return sameTripAndService(path, inbound, outbound);
         }
 
