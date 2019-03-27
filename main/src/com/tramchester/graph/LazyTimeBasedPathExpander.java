@@ -28,7 +28,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
 
     private final boolean edgePerService;
     private final NodeOperations nodeOperations;
-    private long endNodeId;
+    //private long endNodeId;
     //private final CostEvaluator<Double> cachingCostEvaluator;
 
     public LazyTimeBasedPathExpander(LocalTime queryTime, RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics,
@@ -49,21 +49,22 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         Node endNode = path.endNode();
+        long endNodeId = endNode.getId();
 
-        logger.debug(format("Expand for node %s, type %s, id %s", endNode.getId(), endNode.getLabels(),
+        logger.debug(format("Expand for node %s, type %s, id %s", endNodeId, endNode.getLabels(),
                 endNode.getProperties(GraphStaticKeys.ID)));
 
         // only pursue outbound edges from a service service runs today & within time
         if (nodeOperations.isService(endNode)) {
             if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
-                logger.debug(format("Skip node %s, type %s, id %s", endNode.getId(), endNode.getLabels(),
+                logger.debug(format("Skip node %s, type %s, id %s", endNodeId, endNode.getLabels(),
                         endNode.getProperties(GraphStaticKeys.ID)));
                 return Iterables.empty();
             }
 
             LocalTime currentElapsed = calculateElapsedTimeForPath(path);
             if (!serviceHeuristics.checkServiceTime(path, endNode, currentElapsed).isValid()) {
-                logger.debug(format("Skip node %s, type %s, id %s", endNode.getId(), endNode.getLabels(),
+                logger.debug(format("Skip node %s, type %s, id %s", endNodeId, endNode.getLabels(),
                         endNode.getProperties(GraphStaticKeys.ID)));
                 return Iterables.empty();
             }
@@ -75,7 +76,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             int hour = nodeOperations.getHour(endNode);
             LocalTime currentElapsed = calculateElapsedTimeForPath(path);
             if (!serviceHeuristics.interestedInHour(path, hour, currentElapsed).isValid()) {
-                logger.debug(format("Skip node %s, type %s, id %s", endNode.getId(), endNode.getLabels(),
+                logger.debug(format("Skip node %s, type %s, id %s", endNodeId, endNode.getLabels(),
                         endNode.getProperties(GraphStaticKeys.ID)));
                 return Iterables.empty();
             }
@@ -84,7 +85,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         if (nodeOperations.isTime(endNode)) {
             LocalTime currentElapsed = calculateElapsedTimeForPath(path);
             if (!serviceHeuristics.checkTime(path, endNode, currentElapsed).isValid()) {
-                logger.debug(format("Skip node %s, type %s, id %s", endNode.getId(), endNode.getLabels(),
+                logger.debug(format("Skip node %s, type %s, id %s", endNodeId, endNode.getLabels(),
                         endNode.getProperties(GraphStaticKeys.ID)));
                 return Iterables.empty();
             }
@@ -94,9 +95,11 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     }
 
     private Iterable<Relationship> buildSimpleExpandsionList(Path path) {
+        logger.debug("Build list for: " + path);
         Node endNode = path.endNode();
 
-        logger.debug(format("Build list for node %s, type %s, id %s", endNode.getId(), endNode.getLabels(),
+        long endNodeId = endNode.getId();
+        logger.debug(format("Build list for node %s, type %s, id %s", endNodeId, endNode.getLabels(),
                 endNode.getProperties(GraphStaticKeys.ID)));
 
         Iterable<Relationship> outboundRelationships = endNode.getRelationships(OUTGOING);
@@ -108,11 +111,16 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                 endNode.hasLabel(TransportGraphBuilder.Labels.MINUTE) ||
                 endNode.hasLabel(TransportGraphBuilder.Labels.STATION)) {
 
-            return outboundRelationships;
+            logger.debug(format("Include all outbound for node %s", endNodeId));
+            if (!outboundRelationships.iterator().hasNext()) {
+                logger.warn("No outbound nodes found at node " + endNodeId);
+            }
+            return allRelationships(outboundRelationships);
         }
 
         Relationship inbound = path.lastRelationship();
         if (inbound==null) {
+            logger.debug(format("Include all outbound for FIRST node %s", endNodeId));
             return outboundRelationships;
         }
 
@@ -121,9 +129,8 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         List<Relationship> excluded = new ArrayList<>();
         List<Relationship> result = new ArrayList<>();
 
-        Iterable<Relationship> iter = outboundRelationships;
-        for(Relationship outbound : iter) {
-            if (addIfNeeded(path, inbound, inboundWasBoarding, outbound)) {
+        for(Relationship outbound : outboundRelationships) {
+            if (serviceHeuristics.checkReboardAndSvcChanges(path, inbound, inboundWasBoarding, outbound).isValid()) {
                 result.add(outbound);
             } else {
                 excluded.add(outbound);
@@ -138,28 +145,20 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         if (logger.isDebugEnabled()) {
-            excluded.forEach(exclude -> logger.debug(format("At node %s excluded %s", endNodeId, exclude)));
+            excluded.forEach(exclude -> logger.debug(format("At node %s excluded %s", endNode.getAllProperties(), exclude)));
         }
+        logger.debug(format("For node %s included %s and excluded %s", endNodeId, result.size(), excluded.size()));
 
         return result;
     }
 
-    private boolean addIfNeeded(Path path, Relationship inbound, boolean inboundWasBoarding, Relationship outbound) {
-
-        if (outbound.isType(TO_SERVICE)) {
-            if (inboundWasBoarding) {
-                return true;
-            }
-            return serviceHeuristics.sameTripAndService(path, inbound, outbound).isValid();
-        }
-
-        boolean departing = outbound.isType(DEPART) || outbound.isType(INTERCHANGE_DEPART);
-        if (inboundWasBoarding && departing) {
-            return false;
-        }
-
-        return true;
+    private Iterable<Relationship> allRelationships(Iterable<Relationship> outboundRelationships) {
+        List<Relationship> results = new ArrayList<>();
+        outboundRelationships.forEach(
+                outbound->results.add(outbound));
+        return results;
     }
+
 
     public LocalTime calculateElapsedTimeForPath(Path path) {
 
@@ -180,37 +179,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         logger.debug(format("Time for %s is %s", path.toString(), queryTime.plusMinutes(cost)));
         return queryTime.plusMinutes(cost);
 
-//        LocalTime time = backtrackToLastSeenTime(path, queryTime);
-//        return calculateCostToStartOrLastTimeSeen(path, time);
     }
-
-//    public LocalTime calculateCostToStartOrLastTimeSeen(Path path, LocalTime time) {
-//        int cost = 0;
-//
-//        Iterator<Relationship> relationshipIterator = path.reverseRelationships().iterator();
-//        while(relationshipIterator.hasNext()) {
-//            Relationship relationship = relationshipIterator.next();
-//            cost = cost +  cachingCostEvaluator.getCost(relationship, OUTGOING).intValue();
-//            if (relationship.isType(TRAM_GOES_TO)) {
-//                return time.plusMinutes(cost);
-//            }
-//        }
-//
-//        return time.plusMinutes(cost);
-//    }
-//
-//    public LocalTime backtrackToLastSeenTime(Path path, LocalTime time) {
-//        Iterator<Node> nodes = path.reverseNodes().iterator();
-//        // skip first one, will be current time node
-//        nodes.next();
-//        while(nodes.hasNext()) {
-//            Node node = nodes.next();
-//            if (nodeOperations.isTime(node)) {
-//                return nodeOperations.getTime(node);
-//            }
-//        }
-//        return time;
-//    }
 
     public class RelationshipIterable implements Iterator<Relationship> {
         private final Path path;
@@ -266,7 +235,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             try {
                 TransportRelationship incoming =  relationshipFactory.getRelationship(path.lastRelationship());
                 ServiceReason serviceReason = serviceHeuristics.checkServiceHeuristics(incoming, goesToRelationship, path);
-                return serviceReason==ServiceReason.IsValid;
+                return serviceReason.isValid();
             } catch (TramchesterException e) {
                 logger.error("Unable to check service heuristics",e);
             }

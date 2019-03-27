@@ -64,7 +64,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         replayAll();
         ServiceReason result = serviceHeuristics.checkServiceDate(node, path);
-        assertEquals(ServiceReason.IsValid, result);
+        assertTrue(result.isValid());
 
         result = serviceHeuristics.checkServiceDate(node, path);
         assertEquals(ServiceReason.DoesNotRunOnQueryDate("xxx", path), result);
@@ -124,10 +124,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTime, "unused", path),
                 serviceHeuristics.checkServiceTime(path, tooLateNode, elaspsedTime));
 
-        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkServiceTime(path, overlapStartsBefore, elaspsedTime));
-        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkServiceTime(path, overlapStartsAfter, elaspsedTime));
-        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkServiceTime(path, overlapStartsBeforeFinishesAfter, elaspsedTime));
-        assertEquals(ServiceReason.IsValid, serviceHeuristics.checkServiceTime(path, endsAfterMidnight, elaspsedTime));
+        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBefore, elaspsedTime).isValid());
+        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsAfter, elaspsedTime).isValid());
+        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBeforeFinishesAfter, elaspsedTime).isValid());
+        assertTrue(serviceHeuristics.checkServiceTime(path, endsAfterMidnight, elaspsedTime).isValid());
 
         verifyAll();
     }

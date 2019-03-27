@@ -136,9 +136,6 @@ public class DiagramCreator {
 
             addNode(builder, destinationNode, endNodeId);
 
-//            addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", endNodeId,
-//                    getLabelFor(destinationNode), getShapeFor(destinationNode)));
-
             // add links
             if (outboundRelationship.isGoesTo()) {
                 TramGoesToRelationship serviceRelationship = (TramGoesToRelationship) outboundRelationship;

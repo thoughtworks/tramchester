@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
 public class ServiceHeuristics implements PersistsBoardingTime {
@@ -66,7 +67,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         String nodeServiceId = nodeOperations.getServiceId(node);
 
         if (runningServices.contains(nodeServiceId)) {
-            return ServiceReason.IsValid;
+            return recordReason(ServiceReason.IsValid(path,"dateDay"));
         }
 
         dateWrong.incrementAndGet();
@@ -90,7 +91,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
                     path));
         }
 
-        return ServiceReason.IsValid;
+        return recordReason(ServiceReason.IsValid(path,"svcTimes"));
+
     }
 
     // edge per trip
@@ -99,11 +101,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         LocalTime nodeTime = nodeOperations.getTime(node);
         if (operatesWithinTime(nodeTime, currentElapsed)) {
-            return ServiceReason.IsValid;
+            return recordReason(ServiceReason.IsValid(path, "timeNode"));
         }
         timeWrong.incrementAndGet();
-        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
-                "TimeMismatch:"+currentElapsed.toString(), path));
+        return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString(), path));
     }
 
     private boolean operatesWithinTime(LocalTime nodeTime, LocalTime elapsedTimed) {
@@ -117,8 +118,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
 
         if (config.getEdgePerTrip()) {
+            throw new RuntimeException("Should not call this for edgePerTrip");
             // if node based time check is working should not need to actually check edges by this point
-            return ServiceReason.IsValid;
+//            return recordReason(ServiceReason.IsValid(path));
         }
 
         totalChecked.incrementAndGet();
@@ -141,20 +143,20 @@ public class ServiceHeuristics implements PersistsBoardingTime {
                     elapsedTimeProvider.getElapsedTime().toString(), path));
         }
 
-        return ServiceReason.IsValid;
+        return recordReason(ServiceReason.IsValid(path,"ok"));
     }
 
     // caller records
     public ServiceReason sameService(Path path, TransportRelationship transportRelationship, GoesToRelationship outgoing) {
         if (!transportRelationship.isGoesTo()) {
-            return ServiceReason.IsValid; // not a connecting/goes to relationship, no svc id
+            return recordReason(ServiceReason.IsValid(path,"notGoesTo")); // not a connecting/goes to relationship, no svc id
         }
 
         GoesToRelationship incoming = (GoesToRelationship) transportRelationship;
         String service = incoming.getServiceId();
 
         if (service.equals(outgoing.getServiceId())) {
-            return ServiceReason.IsValid;
+            return recordReason(ServiceReason.IsValid(path, "svcMatch"));
         }
 
         inflightChange.incrementAndGet();
@@ -221,7 +223,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         int queryTimeHour = queryTime.getHour();
         if (hour== queryTimeHour) {
             // quick win
-            return ServiceReason.IsValid;
+            return recordReason(ServiceReason.IsValid(path, "Hour"));
         }
 
         TramTime latestTimeInHour = TramTime.of(hour, 59);
@@ -230,7 +232,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         TramTime earliestTime = TramTime.of(journeyClockTime);
 
         if (earliestTime.between(earliestTimeInHour,latestTimeInHour)) {
-            return ServiceReason.IsValid;
+            return recordReason(ServiceReason.IsValid(path, "Hour"));
         }
 
         timeWrong.getAndIncrement();
@@ -246,14 +248,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         String outboundSvcId = outbound.getProperty(SERVICE_ID).toString();
         if (!inboundSvcId.equals(outboundSvcId)) {
             inflightChange.getAndIncrement();
-            return recordReason(ServiceReason.InflightChangeOfService(inboundSvcId, path));
+            return recordReason(ServiceReason.InflightChangeOfService(format("%s->%s", inboundSvcId, outboundSvcId), path));
         }
 
         // now check inbound trip is available on this outgoing service
         String outboundTrips = (outbound.getProperty(TRIPS).toString());
         String inboundTripId = inbound.getProperty(TRIP_ID).toString();
         if (outboundTrips.contains(inboundTripId))  {
-            return ServiceReason.IsValid;
+            return recordReason(ServiceReason.IsValid(path,format("[%s}%s->%s", inboundTripId, inboundSvcId, outboundSvcId)));
         }
         inflightChange.getAndIncrement();
         return recordReason(ServiceReason.InflightChangeOfService(inboundTripId, path));
@@ -278,7 +280,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("digraph G {\n");
-            reasons.forEach(reason -> { reason.recordPath(builder);});
+            Set<String> paths = new HashSet<>();
+            reasons.forEach(reason -> reason.recordPath(paths));
+            paths.forEach(path -> builder.append(path));
             builder.append("}");
 
 
@@ -301,5 +305,22 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public void clearReasons() {
         reasons.clear();
+    }
+
+    public ServiceReason checkReboardAndSvcChanges(Path path, Relationship inbound, boolean inboundWasBoarding, Relationship outbound) {
+
+        if (outbound.isType(TO_SERVICE)) {
+            if (inboundWasBoarding) {
+                return recordReason(ServiceReason.IsValid(path,"board"));
+            }
+            return sameTripAndService(path, inbound, outbound);
+        }
+
+        boolean departing = outbound.isType(DEPART) || outbound.isType(INTERCHANGE_DEPART);
+        if (inboundWasBoarding && departing) {
+            return recordReason(ServiceReason.Reboard("reboard", path));
+        }
+
+        return recordReason(ServiceReason.IsValid(path, "no reboard"));
     }
 }

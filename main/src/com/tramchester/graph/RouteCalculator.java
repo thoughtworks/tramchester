@@ -14,6 +14,7 @@ import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
+import org.neo4j.graphalgo.impl.path.AStar;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
@@ -181,9 +182,9 @@ public class RouteCalculator extends StationIndexs {
         }
 
         PathFinder<WeightedPath> pathFinder = new Dijkstra(pathExpander, costEvaluator,
-                PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
-
+                    PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
+        
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
