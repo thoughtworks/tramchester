@@ -12,12 +12,8 @@ import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.TransportData;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
-import org.neo4j.graphalgo.EstimateEvaluator;
-import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
-import org.neo4j.graphalgo.impl.path.AStar;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
-import org.neo4j.graphalgo.impl.util.GeoEstimateEvaluator;
 import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
 import org.neo4j.kernel.impl.util.NoneStrictMath;
@@ -135,12 +131,13 @@ public class RouteCalculator extends StationIndexs {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config,
                     queryTime, runningServices, preferRoutes);
-            PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
-                    serviceHeuristics, config, nodeOperations, costEvaluator);
+            LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
+                    serviceHeuristics, config, nodeOperations);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
             logger.info(format("Journey from %s to %s at %s on %s limit:%s", startNode, endNode, queryTime, queryDate, limit));
             if (!mapStreamToJourneySet(journeys, paths, limit, queryTime)) {
                 serviceHeuristics.reportReasons();
+                pathExpander.reportVisits(MAX_NUM_GRAPH_PATHS);
             }
             serviceHeuristics.reportStats();
         });

@@ -117,12 +117,9 @@ public abstract class ServiceReason {
 
     }
 
-    /// convinience methods
-
+    /// convenience methods
 
     public static InflightChangeOfService InflightChangeOfService(String diag, Path path) { return new InflightChangeOfService(diag, path);}
-
-//    public static IsValid IsValid(Path path) { return new IsValid(path);}
 
     public static IsValid IsValid(Path path, String diag) { return new IsValid(path,diag);}
 

@@ -26,7 +26,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
     private final Set<String> runningServices;
-    private final Set<String> preferRoutes;
     private final LocalTime queryTime;
     private final List<ServiceReason> reasons;
 
@@ -41,6 +40,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger dateWrong = new AtomicInteger(0);
     private final AtomicInteger timeWrong = new AtomicInteger(0);
 
+    // TODO prefer routes optimisation
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config,
                              LocalTime queryTime, Set<String> runningServices, Set<String> preferRoutes) {
         this.nodeOperations = nodeOperations;
@@ -50,7 +50,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.maxWaitMinutes = config.getMaxWait();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
-        this.preferRoutes = preferRoutes;
 
         // for none edge per trip path
         boardingTime = Optional.empty();
@@ -92,7 +91,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         return recordReason(ServiceReason.IsValid(path,"svcTimes"));
-
     }
 
     // edge per trip
@@ -119,8 +117,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         if (config.getEdgePerTrip()) {
             throw new RuntimeException("Should not call this for edgePerTrip");
-            // if node based time check is working should not need to actually check edges by this point
-//            return recordReason(ServiceReason.IsValid(path));
         }
 
         totalChecked.incrementAndGet();
@@ -131,8 +127,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId, path));
         }
 
-        if (!sameService(path, incoming, goesToRelationship).isValid()) {
-            return recordReason(ServiceReason.InflightChangeOfService(serviceId, path));
+        ServiceReason inflightChange = sameService(path, incoming, goesToRelationship);
+        if (!inflightChange.isValid()) {
+            return inflightChange;
         }
 
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
@@ -146,7 +143,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return recordReason(ServiceReason.IsValid(path,"ok"));
     }
 
-    // caller records
     public ServiceReason sameService(Path path, TransportRelationship transportRelationship, GoesToRelationship outgoing) {
         if (!transportRelationship.isGoesTo()) {
             return recordReason(ServiceReason.IsValid(path,"notGoesTo")); // not a connecting/goes to relationship, no svc id
@@ -160,7 +156,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         inflightChange.incrementAndGet();
-        return ServiceReason.InflightChangeOfService(service, path);
+        return recordReason(ServiceReason.InflightChangeOfService(service, path));
     }
 
     public boolean operatesOnTime(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
@@ -241,6 +237,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public ServiceReason sameTripAndService(Path path, Relationship inbound, Relationship outbound) {
         boolean isGoesTo = inbound.isType(TRAM_GOES_TO);
+
         if (!(isGoesTo || inbound.isType(TO_END_SERVICE))) {
             throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO or TO_END_SERVICE relationships");
         }
@@ -289,9 +286,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             builder.append("digraph G {\n");
             Set<String> paths = new HashSet<>();
             reasons.forEach(reason -> reason.recordPath(paths));
-            paths.forEach(path -> builder.append(path));
+            paths.forEach(builder::append);
             builder.append("}");
-
 
             FileWriter writer = new FileWriter(fileName);
             writer.write(builder.toString());

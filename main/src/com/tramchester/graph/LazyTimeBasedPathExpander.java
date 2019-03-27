@@ -5,8 +5,10 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
-import org.neo4j.graphalgo.CostEvaluator;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.PathExpander;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.helpers.collection.Iterables;
 import org.slf4j.Logger;
@@ -28,17 +30,18 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
 
     private final boolean edgePerService;
     private final NodeOperations nodeOperations;
-    //private long endNodeId;
-    //private final CostEvaluator<Double> cachingCostEvaluator;
+
+    private final Map<Node, Integer> visited;
 
     public LazyTimeBasedPathExpander(LocalTime queryTime, RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics,
-                                     TramchesterConfig config, NodeOperations nodeOperations, CostEvaluator<Double> cachingCostEvaluator) {
+                                     TramchesterConfig config, NodeOperations nodeOperations) {
         this.queryTime = queryTime;
         this.relationshipFactory = relationshipFactory;
         this.serviceHeuristics = serviceHeuristics;
-        edgePerService = config.getEdgePerTrip();
+        this.edgePerService = config.getEdgePerTrip();
         this.nodeOperations = nodeOperations;
-        //this.cachingCostEvaluator = cachingCostEvaluator;
+
+        visited = new HashMap<>();
     }
 
     @Override
@@ -94,11 +97,18 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         return buildSimpleExpandsionList(path);
     }
 
+    public void reportVisits(int threshhold) {
+        visited.entrySet().stream().
+                filter(entry -> (entry.getValue()>=threshhold)).
+                forEach(entry -> logger.warn(format("Node %s %s count was %s",
+                        entry.getKey().getProperty(GraphStaticKeys.ID),entry.getKey().getLabels(),entry.getValue())));
+    }
+
     private Iterable<Relationship> buildSimpleExpandsionList(Path path) {
         logger.debug("Build list for: " + path);
         Node endNode = path.endNode();
-
         long endNodeId = endNode.getId();
+
         logger.debug(format("Build list for node %s, type %s, id %s", endNodeId, endNode.getLabels(),
                 endNode.getProperties(GraphStaticKeys.ID)));
 
@@ -138,10 +148,12 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
 
         if (result.size()==0) {
-            logger.debug(format("No outbound from %s %s, arrived via %s %s, excluded was %s ",
+            logger.info(format("No outbound from %s %s, arrived via %s %s, excluded was %s ",
                     endNode.getLabels(), endNode.getProperties(GraphStaticKeys.ID),
                     inbound.getStartNode().getLabels(), inbound.getStartNode().getProperties(GraphStaticKeys.ID),
                     excluded));
+            int count = visited.getOrDefault(endNode, 0);
+            visited.put(endNode, count+1);
         }
 
         if (logger.isDebugEnabled()) {

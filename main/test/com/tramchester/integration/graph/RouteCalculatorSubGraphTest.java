@@ -42,19 +42,19 @@ public class RouteCalculatorSubGraphTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         GraphFilter graphFilter = new GraphFilter();
-        graphFilter.addRoute(RouteCodesForTesting.ASH_TO_ECCLES);
-        graphFilter.addRoute(RouteCodesForTesting.ECCLES_TO_ASH);
+//        graphFilter.addRoute(RouteCodesForTesting.ASH_TO_ECCLES);
+//        graphFilter.addRoute(RouteCodesForTesting.ECCLES_TO_ASH);
 //        graphFilter.addRoute(RouteCodesForTesting.BURY_TO_ALTY);
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
 
-        graphFilter.addService("Serv003011");
-
-        graphFilter.addService("Serv003017");
-        graphFilter.addService("Serv003020");
-        graphFilter.addService("Serv003018");
-        graphFilter.addService("Serv003026");
-        graphFilter.addService("Serv003024");
-        graphFilter.addService("Serv003023");
+//        graphFilter.addService("Serv003011");
+//
+//        graphFilter.addService("Serv003017");
+//        graphFilter.addService("Serv003020");
+//        graphFilter.addService("Serv003018");
+//        graphFilter.addService("Serv003026");
+//        graphFilter.addService("Serv003024");
+//        graphFilter.addService("Serv003023");
 
         graphFilter.addStation(Stations.Cornbrook);
         graphFilter.addStation(Stations.StPetersSquare);
@@ -103,8 +103,6 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 7);
-//        List<String> ids = Arrays.asList(new String[]{Stations.StPetersSquare.getId(),
-//            Stations.Deansgate.getId(), Stations.Cornbrook.getId(), Stations.Pomona.getId()});
         creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));
     }
 

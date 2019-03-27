@@ -77,7 +77,7 @@ public class LazyTimeBasedPathExpanderEdgePerTrip  extends EasyMockSupport {
         EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
 
         LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+                serviceHeuristics, config, mockNodeOperations);
 
         replayAll();
         LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
@@ -97,7 +97,7 @@ public class LazyTimeBasedPathExpanderEdgePerTrip  extends EasyMockSupport {
         EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
 
         LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+                serviceHeuristics, config, mockNodeOperations);
 
         replayAll();
         LocalTime result = pathExpander.calculateElapsedTimeForPath(path);
@@ -122,7 +122,7 @@ public class LazyTimeBasedPathExpanderEdgePerTrip  extends EasyMockSupport {
         EasyMock.expect(path.reverseRelationships()).andReturn(relationships);
 
         LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+                serviceHeuristics, config, mockNodeOperations);
 
         replayAll();
         LocalTime result = pathExpander.calculateElapsedTimeForPath(path);

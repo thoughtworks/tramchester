@@ -91,7 +91,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics, config, mockNodeOperations, mockCostEvaluator);
+                serviceHeuristics, config, mockNodeOperations);
 
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
 
@@ -126,7 +126,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics,config, mockNodeOperations, mockCostEvaluator);
+                serviceHeuristics,config, mockNodeOperations);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
 
@@ -161,7 +161,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics,config, mockNodeOperations, mockCostEvaluator);
+                serviceHeuristics,config, mockNodeOperations);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
 
@@ -200,7 +200,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(queryTime, mockRelationshipFactory,
-                serviceHeuristics,config, mockNodeOperations, mockCostEvaluator);
+                serviceHeuristics,config, mockNodeOperations);
         Iterable<Relationship> results = pathExpander.expand(path, branchState);
         int actual = countResults(results);
         verifyAll();
