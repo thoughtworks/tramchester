@@ -16,6 +16,9 @@ import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.Traverser;
+import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.neo4j.kernel.impl.util.NoneStrictMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,11 +183,15 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        Dijkstra pathFinder = new Dijkstra(pathExpander, costEvaluator,
-                PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
+        Iterable<WeightedPath> pathIterator;
+        if (config.getEdgePerTrip()) {
+            pathIterator =  new TramNetworkTraverser(pathExpander).findPaths(startNode, endNode);
+        } else {
+            Dijkstra pathFinder = new Dijkstra(pathExpander, costEvaluator,
+                    PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
+            pathIterator = pathFinder.findAllPaths(startNode, endNode);
+        }
 
-        Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
-        
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 

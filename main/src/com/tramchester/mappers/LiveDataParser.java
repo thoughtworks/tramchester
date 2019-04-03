@@ -10,11 +10,14 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
@@ -22,6 +25,8 @@ import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
 
+    private TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
+    
     private int MAX_DUE_TRAMS = 4;
 
     public List<StationDepartureInfo> parse(String rawJson) throws ParseException {
@@ -47,14 +52,29 @@ public class LiveDataParser {
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
         String location = (String)jsonObject.get("StationLocation");
-        Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
-        LocalDateTime updateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZone).toLocalDateTime();
+        LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, stationPlatform,
                 location, message, updateTime);
         parseDueTrams(jsonObject,departureInfo);
         logger.debug("Parsed live data to " + departureInfo);
         return departureInfo;
+    }
+
+    private LocalDateTime getStationUpdateTime(String dateString) {
+        Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
+
+
+        ZonedDateTime zonedDateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZone);
+        LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
+
+        // WORKAROUND - feed always contains 'Z' at end of date/time even though feed actually switches to BST
+        boolean dst = timeZone.inDaylightTime(Date.from(instanceOfUpdate));
+        if (dst) {
+            localDateTime = localDateTime.minusSeconds(timeZone.getDSTSavings()/1000);
+        }
+
+        return localDateTime;
     }
 
     private void parseDueTrams(JSONObject jsonObject, StationDepartureInfo departureInfo) {
