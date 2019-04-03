@@ -11,11 +11,12 @@ public class LiveDataHealthCheck extends HealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHealthCheck.class);
 
     private LiveDataRepository repository;
+    private final ProvidesNow providesNow;
     private final String noEntriesPresent = "no entries present";
 
-    public LiveDataHealthCheck(LiveDataRepository repository) {
-
+    public LiveDataHealthCheck(LiveDataRepository repository, ProvidesNow providesNow) {
         this.repository = repository;
+        this.providesNow = providesNow;
     }
 
     @Override
@@ -31,6 +32,13 @@ public class LiveDataHealthCheck extends HealthCheck {
         long stale = repository.staleDataCount();
         if (stale!=0L) {
             String message = format("%s of %s entries are stale", stale, total);
+            logger.error(message);
+            return Result.unhealthy(message);
+        }
+
+        long notExpired = repository.upToDateEntries(providesNow.getNow());
+        if (notExpired!=total) {
+            String message = format("%s of %s entries are expired", total-notExpired, total);
             logger.error(message);
             return Result.unhealthy(message);
         }

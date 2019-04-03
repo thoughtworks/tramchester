@@ -111,16 +111,20 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         assertEquals(2,repository.count());
         assertEquals(0, repository.staleDataCount());
+        assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime())));
+        assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(14))));
+        assertEquals(0, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(16))));
     }
 
     @Test
     public void shouldUpdateStatusWhenRefreshingStaleData() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        LocalDateTime lastUpdate = LocalDateTime.now().minusDays(5); // stale
-        addStationInfo(info, lastUpdate, "yyy", "platformIdC", "some message", "platformLocation");
-        addStationInfo(info, lastUpdate, "303", "platformIdD", "exclude message", "platformLocation");
-        addStationInfo(info, LocalDateTime.now(), "303", "platformIdF", "exclude message", "platformLocation");
+        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime staleDate = current.minusDays(5).minusMinutes(60); // stale
+        addStationInfo(info, staleDate, "yyy", "platformIdC", "some message", "platformLocation");
+        addStationInfo(info, staleDate, "303", "platformIdD", "exclude message", "platformLocation");
+        addStationInfo(info, current, "303", "platformIdF", "exclude message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -131,6 +135,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         assertEquals(3,repository.count());
         assertEquals(2, repository.staleDataCount());
+        assertEquals(1, repository.upToDateEntries(TramTime.of(current.toLocalTime())));
     }
 
     @Test

@@ -11,6 +11,7 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.CreateQueryTimes;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.graph.*;
@@ -20,6 +21,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.healthchecks.GraphHealthCheck;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
+import com.tramchester.healthchecks.ProvidesNow;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.*;
 import com.tramchester.repository.LiveDataRepository;
@@ -43,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalTime;
 
 public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
@@ -131,6 +134,7 @@ public class Dependencies {
 
         rebuildGraph(configuration);
 
+        picoContainer.addComponent(ProvidesNow.class, (ProvidesNow) () -> TramTime.of(LocalTime.now()));
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);

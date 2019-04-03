@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
@@ -15,9 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 import static java.lang.String.format;
+import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
 
 public class LiveDataRepository {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
@@ -127,15 +128,26 @@ public class LiveDataRepository {
         StationDepartureInfo info = stationInformation.get(platformId);
 
         LocalDateTime infoLastUpdate = info.getLastUpdate();
-        TramTime updateTime = TramTime.of(infoLastUpdate.toLocalTime());
 
-        if (Math.abs(queryTime.minutesOfDay()-updateTime.minutesOfDay()) < TIME_LIMIT) {
+        if (withinTime(queryTime, infoLastUpdate.toLocalTime())) {
             logger.info(format("Adding departure info '%s' for platform %s",info, platform));
             platform.setDepartureInfo(info);
         } else {
             logger.warn(format("Not adding departure info as not within time range, query at %s, update at %s (%s)",
-                    queryTime, updateTime, infoLastUpdate));
+                    queryTime, infoLastUpdate, infoLastUpdate));
         }
+    }
+
+    private boolean withinTime(TramTime queryTime, LocalTime updateTime) {
+        return Math.abs(queryTime.minutesOfDay()-updateTime.get(MINUTE_OF_DAY)) < TIME_LIMIT;
+    }
+
+    public long upToDateEntries(TramTime queryTime) {
+        Collection<StationDepartureInfo> infos = stationInformation.values();
+
+        return infos.stream().
+                filter(info -> withinTime(queryTime, info.getLastUpdate().toLocalTime())).
+                count();
     }
 
     public int count() {
@@ -145,6 +157,7 @@ public class LiveDataRepository {
     public long staleDataCount() {
         Collection<StationDepartureInfo> infos = stationInformation.values();
         int total = infos.size();
+
         LocalDateTime cutoff = lastRefresh.minusMinutes(TIME_LIMIT);
         long withinCutof = infos.stream().filter(info -> info.getLastUpdate().isAfter(cutoff)).count();
         if (withinCutof<total) {
