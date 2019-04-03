@@ -180,7 +180,7 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
             Relationship relationship = relationshipIterator.next();
 
             cost = cost + (int) relationship.getProperty(GraphStaticKeys.COST);
-            if (relationship.isType(TO_END_SERVICE)) {
+            if (relationship.isType(TRAM_GOES_TO)) {
                 // TimeNode -> EndServiceNode
                 Node timeNode = relationship.getStartNode();
                 LocalTime lastSeenTimeNode = nodeOperations.getTime(timeNode);
@@ -191,7 +191,6 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         }
         logger.debug(format("Time for %s is %s", path.toString(), queryTime.plusMinutes(cost)));
         return queryTime.plusMinutes(cost);
-
     }
 
     public class RelationshipIterable implements Iterator<Relationship> {

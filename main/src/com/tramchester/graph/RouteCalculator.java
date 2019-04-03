@@ -16,9 +16,6 @@ import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.graphdb.traversal.Traverser;
-import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.neo4j.kernel.impl.util.NoneStrictMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +133,8 @@ public class RouteCalculator extends StationIndexs {
                     queryTime, runningServices, preferRoutes);
             LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
                     serviceHeuristics, config, nodeOperations);
-            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander);
+            Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander,
+                    serviceHeuristics);
             logger.info(format("Journey from %s to %s at %s on %s limit:%s", startNode, endNode, queryTime, queryDate, limit));
             if (!mapStreamToJourneySet(journeys, paths, limit, queryTime)) {
                 serviceHeuristics.reportReasons();
@@ -174,7 +172,8 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Stream<WeightedPath> findShortestPath(Node startNode, Node endNode, LocalTime queryTime,
-                                                  TramServiceDate queryDate, PathExpander<Double> pathExpander) {
+                                                  TramServiceDate queryDate, PathExpander<Double> pathExpander,
+                                                  ServiceHeuristics serviceHeutistics) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));
@@ -185,7 +184,8 @@ public class RouteCalculator extends StationIndexs {
 
         Iterable<WeightedPath> pathIterator;
         if (config.getEdgePerTrip()) {
-            pathIterator =  new TramNetworkTraverser(pathExpander).findPaths(startNode, endNode);
+            pathIterator =  new TramNetworkTraverser(serviceHeutistics, nodeOperations, queryTime).
+                    findPaths(startNode, endNode);
         } else {
             Dijkstra pathFinder = new Dijkstra(pathExpander, costEvaluator,
                     PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));

@@ -13,6 +13,7 @@ public class CachedNodeOperations implements NodeOperations {
     private final Map<Long, Boolean> serviceNodes;
     private final Map<Long, Boolean> hourNodes;
     private final Map<Long, Boolean> minuteNotes;
+    private final Map<Long, Boolean> stationNodes;
 
     // cached times
     private final Map<Long, LocalTime> times;
@@ -22,6 +23,7 @@ public class CachedNodeOperations implements NodeOperations {
         serviceNodes = new ConcurrentHashMap<>();
         times = new ConcurrentHashMap<>();
         minuteNotes = new ConcurrentHashMap<>();
+        stationNodes = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -50,6 +52,11 @@ public class CachedNodeOperations implements NodeOperations {
     public TramTime getServiceLatest(Node node) {
         LocalTime localTime = (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME);
         return TramTime.of(localTime);
+    }
+
+    @Override
+    public boolean isStation(Node node) {
+        return checkForLabel(stationNodes, node, TransportGraphBuilder.Labels.STATION);
     }
 
     @Override

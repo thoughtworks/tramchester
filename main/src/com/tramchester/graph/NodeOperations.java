@@ -22,4 +22,6 @@ public interface NodeOperations {
     TramTime getServiceEarliest(Node node);
 
     TramTime getServiceLatest(Node node);
+
+    boolean isStation(Node node);
 }

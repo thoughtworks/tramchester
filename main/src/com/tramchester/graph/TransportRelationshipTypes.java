@@ -15,5 +15,5 @@ public enum TransportRelationshipTypes implements RelationshipType {
     TO_SERVICE,
     TO_HOUR,
     TO_MINUTE,
-    TO_END_SERVICE
+    //TO_END_SERVICE
     }

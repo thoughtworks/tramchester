@@ -81,7 +81,7 @@ public class NodeFactoryTest extends EasyMockSupport {
 
         EasyMock.expect(node.getProperty(GraphStaticKeys.ID)).andReturn("stationId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME)).andReturn("routeName");
-        EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID)).andReturn("routeId");
+        EasyMock.expect(node.getProperty(GraphStaticKeys.ROUTE_ID)).andReturn("routeId");
         EasyMock.expect(node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME)).andReturn("stationName");
 
         replayAll();

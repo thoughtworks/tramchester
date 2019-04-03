@@ -42,7 +42,6 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
     private Path path;
     private TramchesterConfig config = new NoEdgePerTripTestConfig();
     private NodeOperations mockNodeOperations;
-    private CachingCostEvaluator mockCostEvaluator;
 
     @Before
     public void beforeEachTestRuns() {
@@ -70,7 +69,6 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         path = createMock(Path.class);
 
         mockNodeOperations = createMock(NodeOperations.class);
-        mockCostEvaluator = createMock(CachingCostEvaluator.class);
 
         queryTime = LocalTime.now();
     }

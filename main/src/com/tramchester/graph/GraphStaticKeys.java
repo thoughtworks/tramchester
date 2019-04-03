@@ -31,11 +31,10 @@ public class GraphStaticKeys {
 
     @Deprecated
     public static final String DEPART_TIME = "time";
-
+    public static final String ROUTE_ID = "route_id";
 
     public static class RouteStation {
         public static final String ROUTE_NAME = "route_name";
-        public static final String ROUTE_ID = "route_id";
         public static final String STATION_NAME = "station_name";
     }
 

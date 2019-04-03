@@ -26,6 +26,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
     private final Set<String> runningServices;
+    private final Set<String> preferRoutes;
     private final LocalTime queryTime;
     private final List<ServiceReason> reasons;
 
@@ -40,7 +41,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger dateWrong = new AtomicInteger(0);
     private final AtomicInteger timeWrong = new AtomicInteger(0);
 
-    // TODO prefer routes optimisation
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config,
                              LocalTime queryTime, Set<String> runningServices, Set<String> preferRoutes) {
         this.nodeOperations = nodeOperations;
@@ -50,6 +50,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.maxWaitMinutes = config.getMaxWait();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
+        this.preferRoutes = preferRoutes;
 
         // for none edge per trip path
         boardingTime = Optional.empty();
@@ -238,8 +239,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     public ServiceReason sameTripAndService(Path path, Relationship inbound, Relationship outbound) {
         boolean isGoesTo = inbound.isType(TRAM_GOES_TO);
 
-        if (!(isGoesTo || inbound.isType(TO_END_SERVICE))) {
-            throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO or TO_END_SERVICE relationships");
+        if (!isGoesTo) {
+            throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO relationships");
         }
 
         String inboundSvcId = inbound.getProperty(SERVICE_ID).toString();
@@ -251,12 +252,12 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         // now check inbound trip is available on this outgoing service
         String inboundTripId = inbound.getProperty(TRIP_ID).toString();
-        String outboundTrips;
-        if (isGoesTo) {
-            outboundTrips = outbound.getProperty(TRIPS).toString();
-        } else {
-            outboundTrips = outbound.getProperty(TRIP_ID).toString();
-        }
+        String outboundTrips = outbound.getProperty(TRIPS).toString();
+//        if (isGoesTo) {
+//            outboundTrips = outbound.getProperty(TRIPS).toString();
+//        } else {
+//            outboundTrips = outbound.getProperty(TRIP_ID).toString();
+//        }
 
         if (outboundTrips.contains(inboundTripId))  {
             return recordReason(ServiceReason.IsValid(path,format("[%s}%s->%s", inboundTripId, inboundSvcId, outboundSvcId)));
@@ -325,5 +326,14 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         return recordReason(ServiceReason.IsValid(path, "no reboard"));
+    }
+
+    public boolean preferedRoute(Relationship outbound) {
+        if (!outbound.isType(TO_SERVICE)) {
+            return false;
+        }
+
+        String routeId = outbound.getProperty(GraphStaticKeys.ROUTE_ID).toString();
+        return preferRoutes.contains(routeId);
     }
 }

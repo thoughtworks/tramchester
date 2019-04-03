@@ -23,7 +23,7 @@ public class BoardPointNode extends TramNode {
     public BoardPointNode(Node node) {
         this.id = node.getProperty(GraphStaticKeys.ID).toString();
         this.routeName = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_NAME).toString();
-        this.routeId = node.getProperty(GraphStaticKeys.RouteStation.ROUTE_ID).toString();
+        this.routeId = node.getProperty(GraphStaticKeys.ROUTE_ID).toString();
         this.name = node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME).toString();
     }
 

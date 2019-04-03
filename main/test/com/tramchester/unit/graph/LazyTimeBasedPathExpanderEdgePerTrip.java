@@ -37,7 +37,6 @@ public class LazyTimeBasedPathExpanderEdgePerTrip  extends EasyMockSupport {
     private Path path;
     private TramchesterConfig config = new EdgePerTripTestConfig();
     private NodeOperations mockNodeOperations;
-    private CachingCostEvaluator mockCostEvaluator;
 
     @Before
     public void beforeEachTestRuns() {
@@ -46,23 +45,22 @@ public class LazyTimeBasedPathExpanderEdgePerTrip  extends EasyMockSupport {
         MDC.put("test", testName.getMethodName());
 
         departs = createMock(Relationship.class);
-        EasyMock.expect(departs.isType(TransportRelationshipTypes.TO_END_SERVICE)).andStubReturn(false);
+        EasyMock.expect(departs.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(false);
 
         boards = createMock(Relationship.class);
-        EasyMock.expect(boards.isType(TransportRelationshipTypes.TO_END_SERVICE)).andStubReturn(false);
+        EasyMock.expect(boards.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(false);
 
         goesToA = createMock(Relationship.class);
-        EasyMock.expect(goesToA.isType(TransportRelationshipTypes.TO_END_SERVICE)).andStubReturn(true);
+        EasyMock.expect(goesToA.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(true);
 
         goesToB = createMock(Relationship.class);
-        EasyMock.expect(goesToB.isType(TransportRelationshipTypes.TO_END_SERVICE)).andStubReturn(true);
+        EasyMock.expect(goesToB.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(true);
 
         mockRelationshipFactory = createMock(RelationshipFactory.class);
         serviceHeuristics = createMock(ServiceHeuristics.class);
         path = createMock(Path.class);
 
         mockNodeOperations = createMock(NodeOperations.class);
-        mockCostEvaluator = createMock(CachingCostEvaluator.class);
 
         queryTime = LocalTime.now();
     }

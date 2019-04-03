@@ -59,7 +59,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHaveSimpleOneStopJourney() {
-        checkRouteNextNDays(Stations.Deansgate, Stations.Cornbrook, nextTuesday, LocalTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.TraffordBar, Stations.Altrincham, nextTuesday, LocalTime.of(9,0), 1);
     }
 
     @Test
