@@ -26,7 +26,7 @@ public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
 
     private TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
-    
+
     private int MAX_DUE_TRAMS = 4;
 
     public List<StationDepartureInfo> parse(String rawJson) throws ParseException {

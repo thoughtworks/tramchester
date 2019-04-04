@@ -18,12 +18,14 @@ public abstract class ServiceReason {
     private final Set<String> pathAsStrings;
 
     public ServiceReason(Path path, String diagnostics) {
-        pathAsString = path.toString();
+        pathAsString="";
+
         pathAsStrings = new HashSet<>();
         if (logger.isDebugEnabled()) {
             pathAsStrings.addAll(PathToGraphViz.map(path, diagnostics, isValid()));
         } else {
-            pathAsStrings.add(path.toString());
+//            pathAsString = path.toString();
+//            pathAsStrings.add(pathAsString);
         }
     }
 

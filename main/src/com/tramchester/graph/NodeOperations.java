@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.TramTime;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
 
@@ -19,9 +20,14 @@ public interface NodeOperations {
 
     String getServiceId(Node node);
 
+    String getServiceId(Relationship inbound);
+
     TramTime getServiceEarliest(Node node);
 
     TramTime getServiceLatest(Node node);
 
     boolean isStation(Node node);
+
+    int getCost(Relationship relationship);
+
 }

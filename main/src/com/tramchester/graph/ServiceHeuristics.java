@@ -27,6 +27,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final TramchesterConfig config;
     private final Set<String> runningServices;
     private final Set<String> preferRoutes;
+    private final String endStationId;
     private final LocalTime queryTime;
     private final List<ServiceReason> reasons;
 
@@ -42,7 +43,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger timeWrong = new AtomicInteger(0);
 
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, NodeOperations nodeOperations, TramchesterConfig config,
-                             LocalTime queryTime, Set<String> runningServices, Set<String> preferRoutes) {
+                             LocalTime queryTime, Set<String> runningServices, Set<String> preferRoutes,
+                             String endStationId) {
         this.nodeOperations = nodeOperations;
         this.config = config;
 
@@ -51,6 +53,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.queryTime = queryTime;
         this.runningServices = runningServices;
         this.preferRoutes = preferRoutes;
+        this.endStationId = endStationId;
 
         // for none edge per trip path
         boardingTime = Optional.empty();
@@ -243,8 +246,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO relationships");
         }
 
-        String inboundSvcId = inbound.getProperty(SERVICE_ID).toString();
-        String outboundSvcId = outbound.getProperty(SERVICE_ID).toString();
+        String inboundSvcId = nodeOperations.getServiceId(inbound);
+        String outboundSvcId = nodeOperations.getServiceId(outbound);
+
         if (!inboundSvcId.equals(outboundSvcId)) {
             inflightChange.getAndIncrement();
             return recordReason(ServiceReason.InflightChangeOfService(format("%s->%s", inboundSvcId, outboundSvcId), path));
@@ -253,14 +257,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // now check inbound trip is available on this outgoing service
         String inboundTripId = inbound.getProperty(TRIP_ID).toString();
         String outboundTrips = outbound.getProperty(TRIPS).toString();
-//        if (isGoesTo) {
-//            outboundTrips = outbound.getProperty(TRIPS).toString();
-//        } else {
-//            outboundTrips = outbound.getProperty(TRIP_ID).toString();
-//        }
 
         if (outboundTrips.contains(inboundTripId))  {
-            return recordReason(ServiceReason.IsValid(path,format("[%s}%s->%s", inboundTripId, inboundSvcId, outboundSvcId)));
+            return recordReason(ServiceReason.IsValid(path,format("[%s]%s->%s", inboundTripId, inboundSvcId, outboundSvcId)));
         }
         inflightChange.getAndIncrement();
         return recordReason(ServiceReason.InflightChangeOfService(inboundTripId, path));
@@ -335,5 +334,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         String routeId = outbound.getProperty(GraphStaticKeys.ROUTE_ID).toString();
         return preferRoutes.contains(routeId);
+    }
+
+    public boolean toEndStation(Relationship depart) {
+        return depart.getProperty(GraphStaticKeys.STATION_ID).toString().equals(endStationId);
     }
 }

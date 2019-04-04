@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -16,26 +17,30 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 public class RouteCalculatorTest {
 
     private static Dependencies dependencies;
+    private static TramchesterConfig testConfig;
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private boolean edgePerTrip;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        testConfig = new IntegrationTramTestConfig();
+        dependencies.initialise(testConfig);
     }
 
     @Before
     public void beforeEachTestRuns() {
+        edgePerTrip = testConfig.getEdgePerTrip();
         calculator = dependencies.get(RouteCalculator.class);
     }
 
@@ -120,6 +125,10 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindRouteEachStationToEveryOtherStream() {
+        // TODO
+        // To slow at the moment
+        assumeFalse(edgePerTrip);
+
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
         TransportData data = dependencies.get(TransportData.class);
 

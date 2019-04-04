@@ -11,7 +11,6 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import org.junit.AfterClass;
 import org.junit.Before;

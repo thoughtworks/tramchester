@@ -55,6 +55,12 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
                 stages.add(walkingStage);
         }
 
-        return Optional.empty();
+        if (rawJourneyStages.size()!=stages.size()) {
+            logger.error("Failed to create valid journey");
+            return Optional.empty();
+        }
+        Journey journey = new Journey(stages);
+        return Optional.of(journey);
+
     }
 }

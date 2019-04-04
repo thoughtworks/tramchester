@@ -31,7 +31,7 @@ import static java.lang.String.format;
 public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    private static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
+    public static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
     private final String queryNodeName = "BEGIN";
 
@@ -65,7 +65,7 @@ public class RouteCalculator extends StationIndexs {
             Node startNode = getStationNode(startStationId);
 
             gatherJounerys(startNode, endNode, queryTimes, queryDate, MAX_NUM_GRAPH_PATHS, journeys,
-                    endStation.getRoutes());
+                    endStation.getRoutes(), endStationId);
 
             tx.success();
         }
@@ -80,7 +80,8 @@ public class RouteCalculator extends StationIndexs {
             Node startNode = getAreaNode(areaB.getAreaName());
 
             Set<String> preferRoute = Collections.EMPTY_SET;
-            gatherJounerys(startNode, endNode, queryTimes, queryDate, MAX_NUM_GRAPH_PATHS, journeys, preferRoute);
+            gatherJounerys(startNode, endNode, queryTimes, queryDate, MAX_NUM_GRAPH_PATHS, journeys, preferRoute,
+                    "noEndStationId");
 
             tx.success();
         }
@@ -91,7 +92,8 @@ public class RouteCalculator extends StationIndexs {
                                           List<LocalTime> queryTimes, TramServiceDate queryDate) {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         int limit = stationWalks.isEmpty() ? MAX_NUM_GRAPH_PATHS : (MAX_NUM_GRAPH_PATHS * stationWalks.size());
-        Node endNode = getStationNode(endStation.getId());
+        String endStationId = endStation.getId();
+        Node endNode = getStationNode(endStationId);
         List<Relationship> addedWalks = new LinkedList<>();
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -112,7 +114,7 @@ public class RouteCalculator extends StationIndexs {
                 addedWalks.add(walkingRelationship);
             });
 
-            gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, journeys, endStation.getRoutes());
+            gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, journeys, endStation.getRoutes(), endStationId);
 
             // must delete relationships first, otherwise may not delete node
             addedWalks.forEach(walk -> walk.delete());
@@ -122,7 +124,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private void gatherJounerys(Node startNode, Node endNode, List<LocalTime> queryTimes, TramServiceDate queryDate,
-                                int limit, Set<RawJourney> journeys, Set<String> preferRoutes) {
+                                int limit, Set<RawJourney> journeys, Set<String> preferRoutes, String endStationId) {
         Set<String> runningServices = transportData.getServicesOnDate(queryDate).
                 stream().
                 map(svc -> svc.getServiceId()).
@@ -130,7 +132,7 @@ public class RouteCalculator extends StationIndexs {
 
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config,
-                    queryTime, runningServices, preferRoutes);
+                    queryTime, runningServices, preferRoutes, endStationId);
             LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
                     serviceHeuristics, config, nodeOperations);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander,

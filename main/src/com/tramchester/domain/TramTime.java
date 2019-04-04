@@ -12,6 +12,7 @@ public class  TramTime implements Comparable<TramTime> {
 
     private int hour;
     private int minute;
+    private int hash;
 
     private static TramTime[][] tramTimes = new TramTime[24][60];
 
@@ -59,6 +60,7 @@ public class  TramTime implements Comparable<TramTime> {
     private TramTime(int hour, int minute) {
         this.hour = hour;
         this.minute = minute;
+        this.hash = Objects.hash(hour, minute);
     }
 
     public static TramTime of(int hours, int minutes) {
@@ -113,7 +115,7 @@ public class  TramTime implements Comparable<TramTime> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(hour, minute);
+        return hash;
     }
 
     @Override

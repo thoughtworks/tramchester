@@ -260,6 +260,7 @@ public class TransportGraphBuilder extends StationIndexs {
                 // platform -> station
                 Relationship crossFromPlatform = createRelationship(platformNode, stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
                 crossFromPlatform.setProperty(COST, PLATFORM_COST);
+                crossFromPlatform.setProperty(STATION_ID, stationId);
                 // always create together
                 platforms.add(stationId + stationOrPlatformID);
             }
@@ -285,20 +286,22 @@ public class TransportGraphBuilder extends StationIndexs {
         // no boarding at the last stop of a trip
         if (!lastStop) {
             if (!hasBoarding(stationOrPlatformID, callingPointId, boardType)) {
-                Relationship interchangeRelationshipTo = createRelationship(platformNode, callingPoint, boardType);
-                interchangeRelationshipTo.setProperty(COST, boardCost);
-                interchangeRelationshipTo.setProperty(GraphStaticKeys.ID, callingPointId);
+                Relationship boardRelationship = createRelationship(platformNode, callingPoint, boardType);
+                boardRelationship.setProperty(COST, boardCost);
+                boardRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
+                boardRelationship.setProperty(ROUTE_ID, route.getId());
                 boardings.put(boardKey(callingPointId, stationOrPlatformID), boardType);
             }
         }
 
         // leave: route station -> platform/station
-        // no depart at first stop of a trip
+        // no towardsStation at first stop of a trip
         if (!firstStop) {
             if (!hasDeparting(callingPointId, stationOrPlatformID, departType)) {
                 Relationship departRelationship = createRelationship(callingPoint, platformNode, departType);
                 departRelationship.setProperty(COST, departCost);
                 departRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
+                departRelationship.setProperty(GraphStaticKeys.STATION_ID, station.getId());
                 departs.put(departKey(callingPointId, stationOrPlatformID), departType);
             }
         }
@@ -364,8 +367,8 @@ public class TransportGraphBuilder extends StationIndexs {
         LatLong destinationLatLong = endStop.getStation().getLatLong();
 
         // Node for the service
-        // -route ID here as some services can go via multiple routes, this seems to be associated with the depots
-        // -some services can go in two different directions from a station i.e. around Media City UK
+        // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
+        // -some towardsServices can go in two different directions from a station i.e. around Media City UK
         String routeIdClean = route.getId().replaceAll(" ", "");
         String beginSvcNodeId = format("%s_%s_%s_%s", startLocation.getId(), endStop.getStation().getId(),
                 service.getServiceId(), routeIdClean);
@@ -417,7 +420,7 @@ public class TransportGraphBuilder extends StationIndexs {
         Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
         goesToRelationship.setProperty(GraphStaticKeys.TRIP_ID, tripId);
 
-        // TODO should not need depart time as using check on the Node instead
+        // TODO should not need towardsStation time as using check on the Node instead
         // but for now it is used in the mapper code
         goesToRelationship.setProperty(GraphStaticKeys.DEPART_TIME, departureTime.asLocalTime());
 
@@ -478,7 +481,7 @@ public class TransportGraphBuilder extends StationIndexs {
     private void createOrUpdateRelationship(Node start, Node end,
                                             Stop beginStop, Stop endStop, Route route, Service service) {
 
-        // Confusingly some services can go different routes and hence have different outbound GOES relationships from
+        // Confusingly some towardsServices can go different routes and hence have different outbound GOES relationships from
         // the same node, so we have to check both start and end nodes for each relationship
 
         LocalTime departTime = beginStop.getDepartureTime().asLocalTime();
