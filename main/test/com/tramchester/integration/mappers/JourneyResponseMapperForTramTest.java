@@ -5,12 +5,14 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import com.tramchester.mappers.TramJourneyResponseMapper;
+import com.tramchester.mappers.SingleJourneyMapper;
+import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,18 +30,23 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
+    private static boolean edgePerTrip;
+    private static TransportDataFromFiles transportData;
     private final LocalDate when = TestConfig.nextTuesday(0);
     private LocalTime sevenAM;
     private LocalTime eightAM;
 
     private static Dependencies dependencies;
-    private TramJourneyResponseMapper mapper;
+    private SingleJourneyMapper mapper;
     private List<RawStage> stages;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
+        dependencies.initialise(testConfig);
+        transportData = dependencies.get(TransportDataFromFiles.class);
+        edgePerTrip = testConfig.getEdgePerTrip();
     }
 
     @AfterClass
@@ -49,7 +56,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Before
     public void beforeEachTestRuns() {
-        mapper = dependencies.get(TramJourneyResponseMapper.class);
+        mapper = dependencies.get(SingleJourneyMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         stages = new LinkedList<>();
         sevenAM = LocalTime.of(7, 0);
@@ -91,7 +98,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     @Test
-    public void shouldMapSimpleJourney() throws TramchesterException {
+    public void shouldMapSimpleJourney() {
         LocalTime am7 = LocalTime.of(7,0); //7 * 60;
 
         RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, when, 8);
@@ -116,7 +123,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     @Test
-    public void shouldMapTwoStageJourney() throws TramchesterException {
+    public void shouldMapTwoStageJourney() {
         LocalTime am10 = LocalTime.of(10,0);
         Location begin = Stations.Altrincham;
         Location middle = Stations.Cornbrook;
@@ -235,15 +242,27 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, LocalTime startTime,
-                                               int cost, LocalDate when, int passedStops) throws TramchesterException {
+                                               int cost, LocalDate when, int passedStops) {
 
-        String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
         RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass");
         rawVehicleStage.setCost(cost);
-        rawVehicleStage.setLastStation(finish,passedStops);
-        rawVehicleStage.setServiceId(svcId);
-        rawVehicleStage.setPlatform(new Platform(start.getId()+"1", "platform name"));
+        rawVehicleStage.setLastStation(finish, passedStops);
+        rawVehicleStage.setPlatform(new Platform(start.getId() + "1", "platform name"));
+
+        if (!edgePerTrip) {
+            String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
+
+            rawVehicleStage.setServiceId(svcId);
+        } else {
+
+            Trip validTrip = transportData.getTripsFor(start.getId()).iterator().next();
+            rawVehicleStage.setServiceId(validTrip.getServiceId());
+            rawVehicleStage.setTripId(validTrip.getTripId());
+            rawVehicleStage.setDepartTime(startTime.plusMinutes(1));
+
+        }
         return rawVehicleStage;
+
     }
 
 }

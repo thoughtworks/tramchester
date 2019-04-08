@@ -14,7 +14,7 @@ public interface NodeOperations {
 
     boolean isTime(Node node);
 
-    int getHour(Node endNode);
+    int getHour(Node node);
 
     LocalTime getTime(Node node);
 
@@ -25,8 +25,6 @@ public interface NodeOperations {
     TramTime getServiceEarliest(Node node);
 
     TramTime getServiceLatest(Node node);
-
-    boolean isStation(Node node);
 
     int getCost(Relationship relationship);
 

@@ -19,13 +19,15 @@ public class JourneyResponseMapperTest {
     protected RouteCalculator routeCalculator;
 
     // used to find a valid service id only
-    protected String findServiceId(String firstId, String secondId, LocalDate when, LocalTime queryTime) throws TramchesterException {
+    protected String findServiceId(String firstId, String secondId, LocalDate when, LocalTime queryTime) {
         List<LocalTime> queryTimes = Arrays.asList(queryTime);
 
         Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when));
         RawJourney rawJourney = found.stream().findFirst().get();
         RawStage rawStage = rawJourney.getStages().get(0);
         assertEquals(RawVehicleStage.class, rawStage.getClass());
-        return ((RawVehicleStage)rawStage).getServiceId();
+
+        RawVehicleStage rawVehicleStage = (RawVehicleStage) rawStage;
+        return rawVehicleStage.getServiceId();
     }
 }

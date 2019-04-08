@@ -186,8 +186,8 @@ public class RouteCalculator extends StationIndexs {
 
         Iterable<WeightedPath> pathIterator;
         if (config.getEdgePerTrip()) {
-            pathIterator =  new TramNetworkTraverser(serviceHeutistics, nodeOperations, queryTime).
-                    findPaths(startNode, endNode);
+            pathIterator =  new TramNetworkTraverser(serviceHeutistics, nodeOperations, queryTime, endNode).
+                    findPaths(startNode);
         } else {
             Dijkstra pathFinder = new Dijkstra(pathExpander, costEvaluator,
                     PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));

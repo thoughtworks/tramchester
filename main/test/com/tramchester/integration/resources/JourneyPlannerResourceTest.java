@@ -125,9 +125,11 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         PlatformDTO platform2 = secondStage.getPlatform();
 
         assertEquals("1", platform2.getPlatformNumber());
-        // two possible places to change
-        assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1")));
-        assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.getId()+"1", Stations.Cornbrook.getId()+"1")));
+        // multiple possible places to change depending on timetable etc
+        assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
+        assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.getId()+"1",
+                Stations.Cornbrook.getId()+"1",
+                Stations.StPetersSquare.getId()+"1")));
     }
 
     @Test

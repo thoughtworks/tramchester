@@ -20,7 +20,6 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
     private final ServiceTimes serviceTimes;
 
     public TramJourneyResponseWithTimesMapper(ServiceTimes serviceTimes) {
-
         this.serviceTimes = serviceTimes;
     }
 
@@ -39,11 +38,13 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
                 String tripId = rawTravelStage.getTripId();
 
                 Trip trip = serviceTimes.getTrip(tripId);
+                String tripHeadsign = trip.getHeadsign();
 
                 LocalTime arriveTime = currentTime.plusMinutes(rawTravelStage.getCost());
 
                 ServiceTime time = new ServiceTime(TramTime.of(currentTime), TramTime.of(arriveTime),
-                        rawTravelStage.getServiceId(), trip.getHeadsign(), tripId);
+                        rawTravelStage.getServiceId(), tripHeadsign, tripId);
+
                 VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time, decideAction(stages));
                 stages.add(stage);
             } else if (rawStage.isWalk()) {

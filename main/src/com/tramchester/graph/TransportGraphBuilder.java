@@ -410,7 +410,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
         TramTime departureTime = beginStop.getDepartureTime();
         Node hourNode = getOrCreateHourNode(beginServiceNode, beginSvcNodeId, departureTime);
-        Node timeNode = getOrCreateTimeNode(hourNode, beginSvcNodeId, departureTime);
+        Node timeNode = getOrCreateTimeNode(hourNode, beginSvcNodeId, departureTime, tripId);
         //Node endSvcNode = getOrCreateEndServiceNode(timeNode, service, tripId, routeIdClean, endStop);
 
         TransportRelationshipTypes transportRelationshipType =
@@ -431,32 +431,38 @@ public class TransportGraphBuilder extends StationIndexs {
 
     private Node getOrCreateHourNode(Node previousNode, String beginSvcNodeId, TramTime departureTime) {
         // Node for the hour
-        String hourNodeId = format("%s_%s", beginSvcNodeId, departureTime.getHourOfDay());
+        int hourOfDay = departureTime.getHourOfDay();
+        String hourNodeId = format("%s_%s", beginSvcNodeId, hourOfDay);
         Node hourNode = graphQuery.getHourNode(hourNodeId);
         if (hourNode==null) {
             hourNode = createGraphNode(Labels.HOUR);
             hourNode.setProperty(GraphStaticKeys.ID, hourNodeId);
-            hourNode.setProperty(GraphStaticKeys.HOUR, departureTime.getHourOfDay());
+            hourNode.setProperty(HOUR, hourOfDay);
 
             // service node -> time node
             Relationship fromPrevious = createRelationship(previousNode, hourNode, TransportRelationshipTypes.TO_HOUR);
             fromPrevious.setProperty(COST, 0);
+            fromPrevious.setProperty(HOUR, hourOfDay);
         }
         return hourNode;
     }
 
-    private Node getOrCreateTimeNode(Node previousNode, String baseId, TramTime departureTime) {
+    private Node getOrCreateTimeNode(Node previousNode, String baseId, TramTime departureTime, String tripId) {
         // Node for the departure time
         String timeNodeId = format("%s_%s", baseId, departureTime.toPattern());
         Node timeNode = graphQuery.getTimeNode(timeNodeId);
         if (timeNode==null) {
+            LocalTime time = departureTime.asLocalTime();
+
             timeNode = createGraphNode(Labels.MINUTE);
             timeNode.setProperty(GraphStaticKeys.ID, timeNodeId);
-            timeNode.setProperty(GraphStaticKeys.TIME, departureTime.asLocalTime());
+            timeNode.setProperty(TIME, time);
+            timeNode.setProperty(TRIP_ID, tripId);
 
             // hour node -> time node
             Relationship fromPrevious = createRelationship(previousNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
             fromPrevious.setProperty(COST, 0);
+            fromPrevious.setProperty(TIME, time);
         }
         return timeNode;
     }

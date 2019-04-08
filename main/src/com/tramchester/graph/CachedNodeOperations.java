@@ -11,13 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
 import static com.tramchester.graph.GraphStaticKeys.TIME;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class CachedNodeOperations implements NodeOperations {
     private final Map<Long, Boolean> serviceNodes;
     private final Map<Long, Boolean> hourNodes;
     private final Map<Long, Boolean> minuteNotes;
-    private final Map<Long, Boolean> stationNodes;
+//    private final Map<Long, Boolean> stationNodes;
     private final Map<Long, String> relationshipServiceIdCache;
 
     private final Map<Long, Integer> relationshipCostCache;
@@ -31,7 +30,7 @@ public class CachedNodeOperations implements NodeOperations {
         serviceNodes = new ConcurrentHashMap<>();
         times = new ConcurrentHashMap<>();
         minuteNotes = new ConcurrentHashMap<>();
-        stationNodes = new ConcurrentHashMap<>();
+//        stationNodes = new ConcurrentHashMap<>();
         relationshipServiceIdCache = new ConcurrentHashMap<>();
 
         hourCache = new HashMap<>();
@@ -77,10 +76,10 @@ public class CachedNodeOperations implements NodeOperations {
         return TramTime.of(localTime);
     }
 
-    @Override
-    public boolean isStation(Node node) {
-        return checkForLabel(stationNodes, node, TransportGraphBuilder.Labels.STATION);
-    }
+//    @Override
+//    public boolean isStation(Node node) {
+//        return checkForLabel(stationNodes, node, TransportGraphBuilder.Labels.STATION);
+//    }
 
     @Override
     public int getCost(Relationship relationship) {
