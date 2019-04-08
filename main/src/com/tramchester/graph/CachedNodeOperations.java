@@ -9,18 +9,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
-import static com.tramchester.graph.GraphStaticKeys.TIME;
+import static com.tramchester.graph.GraphStaticKeys.*;
 
-public class CachedNodeOperations implements NodeOperations {
+public class CachedNodeOperations {
     private final Map<Long, Boolean> serviceNodes;
     private final Map<Long, Boolean> hourNodes;
     private final Map<Long, Boolean> minuteNotes;
-//    private final Map<Long, Boolean> stationNodes;
-    private final Map<Long, String> relationshipServiceIdCache;
 
     private final Map<Long, Integer> relationshipCostCache;
-    private final Map<Long, Integer> hourCache;
+    private final Map<Long, Integer> hourNodeCache;
+    private final Map<Long, Integer> hourRelationshipCache;
+    private final Map<Long, LocalTime> timeRelationshipCache;
 
     // cached times
     private final Map<Long, LocalTime> times;
@@ -30,14 +29,13 @@ public class CachedNodeOperations implements NodeOperations {
         serviceNodes = new ConcurrentHashMap<>();
         times = new ConcurrentHashMap<>();
         minuteNotes = new ConcurrentHashMap<>();
-//        stationNodes = new ConcurrentHashMap<>();
-        relationshipServiceIdCache = new ConcurrentHashMap<>();
+        hourRelationshipCache = new ConcurrentHashMap<>();
+        timeRelationshipCache = new ConcurrentHashMap<>();
 
-        hourCache = new HashMap<>();
+        hourNodeCache = new HashMap<>();
         relationshipCostCache = new ConcurrentHashMap<>();
     }
 
-    @Override
     public LocalTime getTime(Node node) {
         long nodeId = node.getId();
         if (times.containsKey(nodeId)) {
@@ -48,47 +46,31 @@ public class CachedNodeOperations implements NodeOperations {
         return value;
     }
 
-    @Override
+    public LocalTime getTime(Relationship relationship) {
+        long relationshipId = relationship.getId();
+        if (timeRelationshipCache.containsKey(relationshipId)) {
+            return timeRelationshipCache.get(relationshipId);
+        }
+        LocalTime time = (LocalTime) relationship.getProperty(TIME);
+        timeRelationshipCache.put(relationshipId, time);
+        return time;
+    }
+
     public String getServiceId(Node node) {
         return node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
     }
 
-    @Override
-    public String getServiceId(Relationship inbound) {
-        long relationshipId = inbound.getId();
-        if (relationshipServiceIdCache.containsKey(relationshipId)) {
-            return relationshipServiceIdCache.get(relationshipId);
-        }
-        String serviceId = inbound.getProperty(SERVICE_ID).toString();
-        relationshipServiceIdCache.put(relationshipId, serviceId);
-        return serviceId;
-    }
-
-    @Override
     public TramTime getServiceEarliest(Node node) {
         LocalTime localTime = (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME);
         return TramTime.of(localTime);
     }
 
-    @Override
     public TramTime getServiceLatest(Node node) {
         LocalTime localTime = (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME);
         return TramTime.of(localTime);
     }
 
-//    @Override
-//    public boolean isStation(Node node) {
-//        return checkForLabel(stationNodes, node, TransportGraphBuilder.Labels.STATION);
-//    }
-
-    @Override
     public int getCost(Relationship relationship) {
-        // get type is more expensive than the getProperty
-//        TransportRelationshipTypes type = TransportRelationshipTypes.valueOf(relationship.getType().name());
-//        // these are just link relationships
-//        if (type==TO_SERVICE || type==TO_HOUR || type==TO_MINUTE ) {
-//            return 0;
-//        }
 
         long relationshipId = relationship.getId();
         if (relationshipCostCache.containsKey(relationshipId)) {
@@ -100,29 +82,35 @@ public class CachedNodeOperations implements NodeOperations {
         return cost;
     }
 
-    @Override
+    public int getHour(Relationship relationship) {
+        long relationshipId = relationship.getId();
+        if (hourRelationshipCache.containsKey(relationshipId)) {
+            return hourRelationshipCache.get(relationshipId);
+        }
+        int hour = (int) relationship.getProperty(HOUR);
+        hourRelationshipCache.put(relationshipId, hour);
+        return hour;
+    }
+
     public boolean isService(Node node) {
         return checkForLabel(serviceNodes, node, TransportGraphBuilder.Labels.SERVICE);
     }
 
-    @Override
     public boolean isHour(Node node) {
         return checkForLabel(hourNodes, node, TransportGraphBuilder.Labels.HOUR);
     }
 
-    @Override
     public boolean isTime(Node node) {
         return checkForLabel(minuteNotes, node, TransportGraphBuilder.Labels.MINUTE);
     }
 
-    @Override
     public int getHour(Node node) {
         long id = node.getId();
-        if (hourCache.containsKey(id)) {
-            return hourCache.get(id);
+        if (hourNodeCache.containsKey(id)) {
+            return hourNodeCache.get(id);
         }
         int hour = (int) node.getProperty(GraphStaticKeys.HOUR);
-        hourCache.put(id,hour);
+        hourNodeCache.put(id,hour);
         return hour;
     }
 

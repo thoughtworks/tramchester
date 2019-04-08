@@ -39,11 +39,11 @@ public class RouteCalculator extends StationIndexs {
     private final MapPathToStages pathToStages;
     private final CostEvaluator<Double> costEvaluator;
     private final TramchesterConfig config;
-    private final NodeOperations nodeOperations;
+    private final CachedNodeOperations nodeOperations;
     private final TransportData transportData;
 
     public RouteCalculator(GraphDatabaseService db, TransportData transportData, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
-                           SpatialDatabaseService spatialDatabaseService, NodeOperations nodeOperations, MapPathToStages pathToStages,
+                           SpatialDatabaseService spatialDatabaseService, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            CostEvaluator<Double> costEvaluator, TramchesterConfig config) {
         super(db, relationshipFactory, spatialDatabaseService, true);
         this.transportData = transportData;
@@ -133,8 +133,8 @@ public class RouteCalculator extends StationIndexs {
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config,
                     queryTime, runningServices, preferRoutes, endStationId);
-            LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(queryTime, relationshipFactory,
-                    serviceHeuristics, config, nodeOperations);
+            LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(relationshipFactory,
+                    serviceHeuristics);
             Stream<WeightedPath> paths = findShortestPath(startNode, endNode, queryTime, queryDate, pathExpander,
                     serviceHeuristics);
             logger.info(format("Journey from %s to %s at %s on %s limit:%s", startNode, endNode, queryTime, queryDate, limit));

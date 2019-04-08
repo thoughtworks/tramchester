@@ -21,7 +21,7 @@ public class TramNetworkTraverser implements Evaluator, PathExpander<JourneyStat
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final ServiceHeuristics serviceHeuristics;
-    private final NodeOperations nodeOperations;
+    private final CachedNodeOperations nodeOperations;
     private final LocalTime queryTime;
     private final long destinationNodeId;
 
@@ -32,7 +32,7 @@ public class TramNetworkTraverser implements Evaluator, PathExpander<JourneyStat
     private final int maxJourneyMins = 170; // longest end to end is 163?
 
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
-                                NodeOperations nodeOperations, LocalTime queryTime, Node destinationNode) {
+                                CachedNodeOperations nodeOperations, LocalTime queryTime, Node destinationNode) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.queryTime = queryTime;
@@ -261,7 +261,7 @@ public class TramNetworkTraverser implements Evaluator, PathExpander<JourneyStat
     private Iterable<Relationship> hourOrdered(Iterable<Relationship> outboundRelationships) {
         SortedMap<Integer, Relationship> ordered = new TreeMap<>();
         for (Relationship outboundRelationship : outboundRelationships) {
-            int hour = (int) outboundRelationship.getProperty(GraphStaticKeys.HOUR);
+            int hour = nodeOperations.getHour(outboundRelationship);
             ordered.put(hour,outboundRelationship);
         }
         return ordered.values();
@@ -270,7 +270,8 @@ public class TramNetworkTraverser implements Evaluator, PathExpander<JourneyStat
     private Iterable<Relationship> timeOrdered(Iterable<Relationship> outboundRelationships) {
         SortedMap<TramTime, Relationship> ordered = new TreeMap<>();
         for (Relationship outboundRelationship : outboundRelationships) {
-            LocalTime time = (LocalTime) outboundRelationship.getProperty(GraphStaticKeys.TIME);
+            LocalTime time = nodeOperations.getTime(outboundRelationship);
+//            LocalTime time = (LocalTime) outboundRelationship.getProperty(GraphStaticKeys.TIME);
             ordered.put(TramTime.of(time),outboundRelationship);
         }
         return ordered.values();

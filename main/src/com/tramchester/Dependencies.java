@@ -130,7 +130,7 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataRepository.class);
         picoContainer.addComponent(ClientForS3.class);
         picoContainer.addComponent(UploadsLiveData.class);
-        picoContainer.addComponent(NodeOperations.class, new CachedNodeOperations());
+        picoContainer.addComponent(CachedNodeOperations.class);
 
         rebuildGraph(configuration);
 

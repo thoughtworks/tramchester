@@ -59,7 +59,7 @@ public class GraphWithSimpleRouteTest {
         nodeFactory = new NodeFactory();
         relationshipFactory = new RelationshipFactory(nodeFactory);
 
-        NodeOperations nodeOperations = new CachedNodeOperations();
+        CachedNodeOperations nodeOperations = new CachedNodeOperations();
 
         TramchesterConfig configuration = new IntegrationTramTestConfig();
 
