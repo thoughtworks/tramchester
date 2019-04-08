@@ -220,7 +220,7 @@ public class RouteCalculatorTest {
     @Test
     public void shouldFindInterchangesToEndOfLines() {
         // TODO To slow at the moment
-        //assumeFalse(edgePerTrip);
+        assumeFalse(edgePerTrip);
         for (Location start : Stations.Interchanges ) {
             for (Location dest : Stations.EndOfTheLine) {
                 checkRouteNextNDays(start,dest, nextTuesday, LocalTime.of(8,0), 7);

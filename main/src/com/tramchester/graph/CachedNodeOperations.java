@@ -5,7 +5,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,6 +19,8 @@ public class CachedNodeOperations {
     private final Map<Long, Integer> hourNodeCache;
     private final Map<Long, Integer> hourRelationshipCache;
     private final Map<Long, LocalTime> timeRelationshipCache;
+    private final Map<Long, String> tripRelationshipCache;
+    private final Map<Long, String> svcIdCache;
 
     // cached times
     private final Map<Long, LocalTime> times;
@@ -31,9 +32,21 @@ public class CachedNodeOperations {
         minuteNotes = new ConcurrentHashMap<>();
         hourRelationshipCache = new ConcurrentHashMap<>();
         timeRelationshipCache = new ConcurrentHashMap<>();
+        tripRelationshipCache = new ConcurrentHashMap<>();
+        svcIdCache = new ConcurrentHashMap<>();
 
-        hourNodeCache = new HashMap<>();
+        hourNodeCache = new ConcurrentHashMap<>();
         relationshipCostCache = new ConcurrentHashMap<>();
+    }
+
+    public String getTrips(Relationship relationship) {
+        long relationshipId = relationship.getId();
+        if (tripRelationshipCache.containsKey(relationshipId)) {
+            return tripRelationshipCache.get(relationshipId);
+        }
+        String trips = relationship.getProperty(TRIPS).toString();
+        tripRelationshipCache.put(relationshipId, trips);
+        return trips;
     }
 
     public LocalTime getTime(Node node) {
@@ -57,7 +70,13 @@ public class CachedNodeOperations {
     }
 
     public String getServiceId(Node node) {
-        return node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+        long id = node.getId();
+        if (svcIdCache.containsKey(id)) {
+            return svcIdCache.get(id);
+        }
+        String svcId = node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+        svcIdCache.put(id, svcId);
+        return svcId;
     }
 
     public TramTime getServiceEarliest(Node node) {
@@ -124,4 +143,5 @@ public class CachedNodeOperations {
         map.put(id, flag);
         return flag;
     }
+
 }

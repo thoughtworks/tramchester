@@ -85,10 +85,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         LocalTime serviceStart = nodeOperations.getServiceEarliest(node).asLocalTime().minusMinutes(maxWaitMinutes);
         // BUT if arrive after service finished there is nothing to be done...
         TramTime serviceEnd = nodeOperations.getServiceLatest(node);
-        String nodeServiceId = nodeOperations.getServiceId(node);
 
         TramTime currentClock = TramTime.of(currentElapsed);
         if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
+            String nodeServiceId = nodeOperations.getServiceId(node);
             timeWrong.getAndIncrement();
             return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId,
                     path));

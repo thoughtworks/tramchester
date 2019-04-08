@@ -111,8 +111,8 @@ public class Station implements Location {
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", tram=" + tram +
-                ", platforms=" + platforms +
-                ", servesRoutes=" + servesRoutes +
+                //", platforms=" + platforms +
+                //", servesRoutes=" + servesRoutes +
                 '}';
     }
 

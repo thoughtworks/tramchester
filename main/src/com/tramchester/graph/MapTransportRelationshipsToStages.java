@@ -102,13 +102,14 @@ public class MapTransportRelationshipsToStages {
         // routeStation -> routeStation
         GoesToRelationship goesToRelationship = (GoesToRelationship) transportRelationship;
         String serviceId = goesToRelationship.getServiceId();
-        logger.info(format("Add stage service %s, elapsed %s", serviceId, state.getElapsedTime()));
 
         if (!state.isOnService()) {
             if (goesToRelationship.hasTripId()) {
                 LocalTime time = goesToRelationship.getTimeServiceRuns();
+                logger.info(format("Add stage service %s, time %s", serviceId, time));
                 state.boardService(transportRelationship, serviceId, time, goesToRelationship.getTripId());
             } else {
+                logger.info(format("Add stage service %s, elapsed %s", serviceId, state.getElapsedTime()));
                 state.boardService(transportRelationship, serviceId, Optional.empty(), Optional.empty());
             }
         }
