@@ -89,6 +89,7 @@ public class MyLocationJourneyPlannerTest {
     @Test
     public void shouldFindStationsNearPiccGardensWalkingOnly() throws JsonProcessingException, UnsupportedEncodingException, TramchesterException {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadillyGardens.getId(), 9 * 60);
+
         assertTrue(journeys.size()>0);
         JourneyDTO first = journeys.first();
         List<StageDTO> stages = first.getStages();

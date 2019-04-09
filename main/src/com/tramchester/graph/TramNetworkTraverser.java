@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -64,6 +63,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
 
         ResourceIterator<Path> iterator = traverser.iterator();
 
+        // TODO uniqueness?
         List<WeightedPath> results = new ArrayList<>();
         while (iterator.hasNext()) {
             Path path = iterator.next();
@@ -76,6 +76,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
         }
 
         results.sort(Comparator.comparingDouble(WeightedPath::weight));
+        logger.info(format("Found %s paths from node %s to %s", results.size(), startNode.getId(), destinationNodeId));
 
         return results;
     }
@@ -108,6 +109,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
+
         // is the service running today
         if (nodeOperations.isService(endNode)) {
             if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
@@ -117,12 +119,16 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
 
         JourneyState journeyState = state.getState();
         LocalTime currentElapsed = journeyState.getTime();
-        //LocalTime currentElapsed = calculateElapsedTimeForPath(path);
         TramTime visitingTime = TramTime.of(currentElapsed);
 
-        // if already tried this node at this time from this edge, don't expect a differing outcome
         Relationship inboundRelationship = path.lastRelationship();
+
         if (inboundRelationship !=null) {
+//            // for walking routes we do want to include them all even if at same time
+//            if (inboundRelationship.isType(WALKS_TO)) {
+//                return Evaluation.INCLUDE_AND_CONTINUE;
+//            }
+            // if already tried this node at this time from this edge, don't expect a differing outcome so exclude
             Arrow arrow = new Arrow(inboundRelationship.getId(), endNodeId);
             if (visited.containsKey(arrow)) {
                 if (visited.get(arrow).contains(visitingTime)) {
@@ -139,13 +145,14 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             return Evaluation.INCLUDE_AND_PRUNE;
         }
 
+        // service available to catch?
         if (nodeOperations.isService(endNode)) {
-            // service available to catch?
             if (!serviceHeuristics.checkServiceTime(path, endNode, currentElapsed).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
 
+        // check time, just hour first
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
             if (!serviceHeuristics.interestedInHour(path, hour, currentElapsed).isValid()) {
@@ -153,6 +160,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             }
         }
 
+        // check time
         if (nodeOperations.isTime(endNode)) {
             if (!serviceHeuristics.checkTime(path, endNode, currentElapsed).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
@@ -176,11 +184,11 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
         if (path.lastRelationship()!=null) {
             cost = nodeOperations.getCost(path.lastRelationship());
             if (cost>0) {
+                // only updates state for children, not for this node
                 JourneyState stateForChildren = new JourneyState(state.getState(), cost);
                 state.setState(stateForChildren);
             }
         }
-        //JourneyState currentState = state.getState();
 
         switch (nodeLabel) {
             case QUERY_NODE:
@@ -194,7 +202,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
                 state.setState(updateStateToNodeTime(endNode));
                 return outboundRelationships;
             case PLATFORM:
-                // add cost?
+                // remove trip id from state, we are not on a tram
                 LocalTime newTime = state.getState().getTime().plusMinutes(cost);
                 JourneyState newStateForChildren = new JourneyState(newTime,"");
                 state.setState(newStateForChildren); // remove tripId
@@ -275,6 +283,9 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
     private Iterable<Relationship> costOrdered(Iterable<Relationship> outboundRelationships) {
         SortedMap<Integer, Relationship> ordered = new TreeMap<>();
         for (Relationship outboundRelationship : outboundRelationships) {
+            if (serviceHeuristics.toEndStation(outboundRelationship)) {
+                return Collections.singleton(outboundRelationship);
+            }
             int cost = (int) outboundRelationship.getProperty(GraphStaticKeys.COST);
             ordered.put(cost,outboundRelationship);
         }
@@ -309,33 +320,6 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
     @Override
     public PathExpander<JourneyState> reverse() {
         return null;
-    }
-
-    private LocalTime calculateElapsedTimeForPath(Path path) {
-
-        Iterator<Relationship> relationshipIterator = path.reverseRelationships().iterator();
-        List<Relationship> pathFragment = new ArrayList<>();
-
-        LocalTime baseTime = queryTime;
-        while(relationshipIterator.hasNext()) {
-            Relationship relationship = relationshipIterator.next();
-            pathFragment.add(relationship);
-
-            if (relationship.isType(TRAM_GOES_TO)) {
-                // TimeNode -> EndServiceNode
-                Node timeNode = relationship.getStartNode();
-                baseTime = nodeOperations.getTime(timeNode);
-                break;
-            }
-        }
-        int fragmentCost = pathFragment.stream().
-                map(relationship -> nodeOperations.getCost(relationship)).
-                collect(Collectors.summingInt(item->item));
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(format("Time for %s is %s", path.toString(), queryTime.plusMinutes(fragmentCost)));
-        }
-        return baseTime.plusMinutes(fragmentCost);
     }
 
     private class Arrow {

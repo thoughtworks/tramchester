@@ -105,12 +105,13 @@ public class RouteCalculator extends StationIndexs {
             logger.info(format("Added start node at %s as node %s", origin, startNode));
 
             stationWalks.forEach(stationWalk -> {
-                String id = stationWalk.getId();
-                Node node = getStationNode(id);
+                String walkStationId = stationWalk.getStationId();
+                Node node = getStationNode(walkStationId);
                 int cost = stationWalk.getCost();
-                logger.info(format("Add walking relationship from %s to %s cost %s", startNode, id, cost));
+                logger.info(format("Add walking relationship from %s to %s cost %s", startNode, walkStationId, cost));
                 Relationship walkingRelationship = startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO);
                 walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
+                walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
                 addedWalks.add(walkingRelationship);
             });
 

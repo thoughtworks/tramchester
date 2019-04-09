@@ -7,9 +7,12 @@ import com.tramchester.repository.LiveDataObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+
+import static java.lang.String.format;
 
 public class UploadsLiveData implements LiveDataObserver {
     private static final Logger logger = LoggerFactory.getLogger(UploadsLiveData.class);
@@ -28,8 +31,9 @@ public class UploadsLiveData implements LiveDataObserver {
             return false;
         }
 
+        LocalDateTime timeStamp = extractMostRecent(liveData);
+
         try {
-            LocalDateTime timeStamp = extractMostRecent(liveData);
 
             String environment = System.getenv("PLACE");
 
@@ -40,7 +44,7 @@ public class UploadsLiveData implements LiveDataObserver {
 
             String date = timeStamp.toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE);
             String time = timeStamp.toLocalTime().format(DateTimeFormatter.ISO_TIME);
-            String key = String.format("%s/%s/%s", environment.toLowerCase(), date,time);
+            String key = format("%s/%s/%s", environment.toLowerCase(), date,time);
 
             if (s3.keyExists(date, key)) {
                 return true;
@@ -53,6 +57,8 @@ public class UploadsLiveData implements LiveDataObserver {
             return s3.upload(key, json);
         } catch (JsonProcessingException e) {
             logger.warn("Unable to upload live data to S3",e);
+        } catch (DateTimeException dateException) {
+            logger.warn(format("Unable to upload live data to S3, timestamp '%s'", timeStamp),dateException);
         }
         return false;
     }
