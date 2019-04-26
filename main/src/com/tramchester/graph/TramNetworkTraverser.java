@@ -63,7 +63,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
 
         ResourceIterator<Path> iterator = traverser.iterator();
 
-        // TODO uniqueness?
+        // TODO uniqueness && size limit?
         List<WeightedPath> results = new ArrayList<>();
         while (iterator.hasNext()) {
             Path path = iterator.next();
@@ -109,7 +109,6 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
-
         // is the service running today
         if (nodeOperations.isService(endNode)) {
             if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
@@ -123,11 +122,12 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
 
         Relationship inboundRelationship = path.lastRelationship();
 
-        if (inboundRelationship !=null) {
+        if (inboundRelationship != null) {
 //            // for walking routes we do want to include them all even if at same time
-//            if (inboundRelationship.isType(WALKS_TO)) {
-//                return Evaluation.INCLUDE_AND_CONTINUE;
-//            }
+            if (inboundRelationship.isType(WALKS_TO)) {
+                return Evaluation.INCLUDE_AND_CONTINUE;
+            }
+
             // if already tried this node at this time from this edge, don't expect a differing outcome so exclude
             Arrow arrow = new Arrow(inboundRelationship.getId(), endNodeId);
             if (visited.containsKey(arrow)) {
@@ -226,25 +226,27 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             String tripId = journeyState.getTripId();
             for (Relationship outboundRelationship : outboundRelationships) {
                 if (outboundRelationship.isType(TO_SERVICE)) {
+                    // only follow outbound if trip id matches inbound tram
                     String trips = nodeOperations.getTrips(outboundRelationship);
-//                    String trips = outboundRelationship.getProperty(GraphStaticKeys.TRIPS).toString();
                     if (trips.contains(tripId)) {
                         results.add(outboundRelationship);
                     }
                 } else {
+                    // departing current tram
                     if (serviceHeuristics.toEndStation(outboundRelationship)) {
                         return Collections.singleton(outboundRelationship);
-                    } else {
-                        results.addLast(outboundRelationship); // change tram
                     }
+                    results.addLast(outboundRelationship);
                 }
             }
         } else {
-            // No trip id means we have just boarded, ONLY depart again if at actual destination node
+            // No trip id means we have just boarded
             for (Relationship outboundRelationship : outboundRelationships) {
                 if (outboundRelationship.isType(TO_SERVICE)) {
+                    // TODO order these?
                     results.add(outboundRelationship);
                 } else {
+                    // ONLY depart again if at actual destination node
                     if (serviceHeuristics.toEndStation(outboundRelationship)) {
                         return Collections.singleton(outboundRelationship);
                     }
@@ -257,8 +259,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
     private JourneyState updateStateToNodeTime(Node endNode) {
         LocalTime time = nodeOperations.getTime(endNode);
         String tripId = endNode.getProperty(GraphStaticKeys.TRIP_ID).toString();
-        JourneyState newState = new JourneyState(time, tripId);
-        return newState;
+        return new JourneyState(time, tripId);
     }
 
     private Iterable<Relationship> hourOrdered(Iterable<Relationship> outboundRelationships) {
@@ -326,8 +327,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
         private final long relationshipId;
         private final long endNodeId;
 
-        public Arrow(long relationshipId, long endNodeId) {
-
+        Arrow(long relationshipId, long endNodeId) {
             this.relationshipId = relationshipId;
             this.endNodeId = endNodeId;
         }

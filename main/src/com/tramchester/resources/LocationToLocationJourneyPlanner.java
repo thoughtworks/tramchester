@@ -65,7 +65,7 @@ public class LocationToLocationJourneyPlanner {
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
         Station end = stationRepository.getStation(endId).get();
-        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate);
+        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {

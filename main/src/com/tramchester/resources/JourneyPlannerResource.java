@@ -110,7 +110,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         if (isFromMyLocation(startId)) {
             journeys = locToLocPlanner.quickestRouteForLocation(startId, endId, queryTimes, queryDate);
         } else {
-            journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
+            journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         }
         logger.info("number of journeys: " + journeys.size());
         JourneyDTOFactory factory = createJourneyDTOFactory(queryDate, initialQueryTime);

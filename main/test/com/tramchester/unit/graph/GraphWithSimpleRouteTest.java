@@ -73,7 +73,7 @@ public class GraphWithSimpleRouteTest {
 
         CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
 
-        MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages);
+        MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages, routeIdToClass, transportData);
         calculator = new RouteCalculator(graphDBService, transportData, nodeFactory, relationshipFactory,
                 spatialDatabaseService, nodeOperations, mapper, costEvaluator, configuration);
     }
@@ -90,7 +90,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.SECOND_STATION, queryTimes, queryDate);
+                TransportDataForTest.SECOND_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION, 0);
     }
@@ -98,7 +98,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, queryTimes, queryDate);
+                TransportDataForTest.INTERCHANGE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE, 1);
     }
@@ -106,14 +106,14 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, Collections.singletonList(LocalTime.of(9, 0)), queryDate);
+                TransportDataForTest.INTERCHANGE, Collections.singletonList(LocalTime.of(9, 0)), queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(0, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.LAST_STATION, queryTimes, queryDate);
+                TransportDataForTest.LAST_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION, 2);
     }
@@ -121,7 +121,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.STATION_FOUR, queryTimes, queryDate);
+                TransportDataForTest.STATION_FOUR, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
        assertTrue(journeys.size()>=1);
     }
 
@@ -133,7 +133,7 @@ public class GraphWithSimpleRouteTest {
         List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
         Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
 
-        Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, endStation, queryTimes, queryDate);
+        Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, endStation, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
 
         assertEquals(1, journeys.size());
     }
@@ -150,7 +150,7 @@ public class GraphWithSimpleRouteTest {
         AreaDTO areaA = new AreaDTO("areaA");
         AreaDTO areaB = new AreaDTO("areaB");
 
-        Set<RawJourney> journeys =  calculator.calculateRoute(areaA, areaB, queryTimes, queryDate);
+        Set<RawJourney> journeys =  calculator.calculateRoute(areaA, areaB, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
 
     }

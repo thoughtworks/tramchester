@@ -4,7 +4,6 @@ import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.RawStage;
 import com.tramchester.domain.RawVehicleStage;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.RouteCalculator;
 
 import java.time.LocalDate;
@@ -22,7 +21,7 @@ public class JourneyResponseMapperTest {
     protected String findServiceId(String firstId, String secondId, LocalDate when, LocalTime queryTime) {
         List<LocalTime> queryTimes = Arrays.asList(queryTime);
 
-        Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when));
+        Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         RawJourney rawJourney = found.stream().findFirst().get();
         RawStage rawStage = rawJourney.getStages().get(0);
         assertEquals(RawVehicleStage.class, rawStage.getClass());

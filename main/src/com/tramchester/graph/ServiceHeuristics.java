@@ -239,32 +239,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString(), path));
     }
 
-//    public ServiceReason sameTripAndService(Path path, Relationship inbound, Relationship outbound) {
-//        boolean isGoesTo = inbound.isType(TRAM_GOES_TO);
-//
-//        if (!isGoesTo) {
-//            throw new RuntimeException("Only call this check for inbound TRAM_GOES_TO relationships");
-//        }
-//
-//        String inboundSvcId = nodeOperations.getServiceId(inbound);
-//        String outboundSvcId = nodeOperations.getServiceId(outbound);
-//
-//        if (!inboundSvcId.equals(outboundSvcId)) {
-//            inflightChange.getAndIncrement();
-//            return recordReason(ServiceReason.InflightChangeOfService(format("%s->%s", inboundSvcId, outboundSvcId), path));
-//        }
-//
-//        // now check inbound trip is available on this outgoing service
-//        String inboundTripId = inbound.getProperty(TRIP_ID).toString();
-//        String outboundTrips = outbound.getProperty(TRIPS).toString();
-//
-//        if (outboundTrips.contains(inboundTripId))  {
-//            return recordReason(ServiceReason.IsValid(path,format("[%s]%s->%s", inboundTripId, inboundSvcId, outboundSvcId)));
-//        }
-//        inflightChange.getAndIncrement();
-//        return recordReason(ServiceReason.InflightChangeOfService(inboundTripId, path));
-//    }
-
     public void reportReasons() {
         reportStats();
         if (logger.isDebugEnabled()) {
@@ -305,36 +279,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
         return serviceReason;
     }
-
-//    public ServiceReason checkReboardAndSvcChanges(Path path, Relationship inbound, boolean inboundWasBoarding, Relationship outbound) {
-//
-//        if (outbound.isType(TO_SERVICE)) {
-//            if (inboundWasBoarding) {
-//                return recordReason(ServiceReason.IsValid(path,"board"));
-//            }
-//            return sameTripAndService(path, inbound, outbound);
-//        }
-//
-//        if (outbound.isType(TRAM_GOES_TO)) {
-//            return sameTripAndService(path, inbound, outbound);
-//        }
-//
-//        boolean departing = outbound.isType(DEPART) || outbound.isType(INTERCHANGE_DEPART);
-//        if (inboundWasBoarding && departing) {
-//            return recordReason(ServiceReason.Reboard("reboard", path));
-//        }
-//
-//        return recordReason(ServiceReason.IsValid(path, "no reboard"));
-//    }
-
-//    public boolean preferedRoute(Relationship outbound) {
-//        if (!outbound.isType(TO_SERVICE)) {
-//            return false;
-//        }
-//
-//        String routeId = outbound.getProperty(GraphStaticKeys.ROUTE_ID).toString();
-//        return preferRoutes.contains(routeId);
-//    }
 
     public boolean toEndStation(Relationship depart) {
         return depart.getProperty(GraphStaticKeys.STATION_ID).toString().equals(endStationId);

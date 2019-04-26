@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -33,8 +32,8 @@ public class MapTransportRelationshipsToStages {
         this.platformRepository = platformRepository;
     }
 
-    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime minsPastMidnight) {
-        MappingState state = new MappingState(platformRepository, stationRepository, minsPastMidnight, routeIdToClass);
+    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime queryTime) {
+        MappingState state = new MappingState(platformRepository, stationRepository, queryTime, routeIdToClass);
         int passedStops = 0;
 
         for (TransportRelationship transportRelationship : transportRelationships) {
@@ -110,7 +109,7 @@ public class MapTransportRelationshipsToStages {
                 state.boardService(transportRelationship, serviceId, time, goesToRelationship.getTripId());
             } else {
                 logger.info(format("Add stage service %s, elapsed %s", serviceId, state.getElapsedTime()));
-                state.boardService(transportRelationship, serviceId, Optional.empty(), Optional.empty());
+                state.boardService(transportRelationship, serviceId);
             }
         }
     }

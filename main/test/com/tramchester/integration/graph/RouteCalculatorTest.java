@@ -58,7 +58,7 @@ public class RouteCalculatorTest {
     public void shouldHaveSimpleJourney() {
         List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
-                minutes, new TramServiceDate(nextTuesday));
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(results.size()>0);
     }
 
@@ -94,7 +94,7 @@ public class RouteCalculatorTest {
         TramServiceDate today = new TramServiceDate(LocalDate.now());
 
         Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
-                queryTimes, today);
+                queryTimes, today, RouteCalculator.MAX_NUM_GRAPH_PATHS);
 
         assertTrue(results.size()>0);    // results is iterator
         for (RawJourney result : results) {
@@ -118,7 +118,7 @@ public class RouteCalculatorTest {
 
         List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(23, 15));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.ManAirport.getId(),
-                queryTimes, new TramServiceDate(nextTuesday));
+                queryTimes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
 
         assertTrue(results.size()>0);
     }
@@ -170,7 +170,7 @@ public class RouteCalculatorTest {
     }
 
     private Set<RawJourney> calc(Pair<Location, Location> pair, List<LocalTime> queryTimes, TramServiceDate queryDate) {
-        return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate);
+        return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
     }
 
     @Test
@@ -268,7 +268,7 @@ public class RouteCalculatorTest {
             for (int minutes = 0; minutes < 59; minutes++) {
                 LocalTime time = LocalTime.of(hour, minutes);
                 Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
-                        Collections.singletonList(time), new TramServiceDate(nextTuesday));
+                        Collections.singletonList(time), new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
                 if (journeys.size()==0) {
                     missing.add(time);
                 }
@@ -321,7 +321,7 @@ public class RouteCalculatorTest {
     private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Collections.singletonList(minsPastMid),
-                new TramServiceDate(date));
+                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS);
 
         String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);

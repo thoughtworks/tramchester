@@ -95,7 +95,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveSimpleJourney() {
         List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
-                minutes, new TramServiceDate(nextTuesday));
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(results.size()>0);
     }
 
@@ -120,7 +120,7 @@ public class RouteCalculatorSubGraphTest {
     private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Collections.singletonList(minsPastMid),
-                new TramServiceDate(date));
+                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS);
 
         String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);

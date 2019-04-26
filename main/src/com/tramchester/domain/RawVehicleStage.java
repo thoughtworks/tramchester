@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import java.time.LocalTime;
+import java.util.Objects;
 import java.util.Optional;
 
 public class RawVehicleStage implements RawStage {
@@ -8,6 +9,7 @@ public class RawVehicleStage implements RawStage {
     protected TransportMode mode;
     protected String routeName;
     private String displayClass;
+
     protected int cost;
 
     protected String serviceId;
@@ -27,6 +29,7 @@ public class RawVehicleStage implements RawStage {
         passedStops = -1;
     }
 
+    // TODO Still needed?
     public RawVehicleStage() {
         // for deserialisation
     }
@@ -120,6 +123,7 @@ public class RawVehicleStage implements RawStage {
         return platform;
     }
 
+    @Deprecated
     public long getCost() {
         return cost;
     }
@@ -143,4 +147,22 @@ public class RawVehicleStage implements RawStage {
     public int getPassedStops() {
         return passedStops;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RawVehicleStage that = (RawVehicleStage) o;
+        return firstStation.equals(that.firstStation) &&
+                Objects.equals(serviceId, that.serviceId) &&
+                Objects.equals(lastStation, that.lastStation) &&
+                Objects.equals(tripId, that.tripId) &&
+                Objects.equals(departTime, that.departTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstStation, serviceId, lastStation, tripId, departTime);
+    }
+
 }

@@ -1,9 +1,11 @@
 package com.tramchester.domain;
 
+import java.util.Objects;
+
 public class RawWalkingStage implements RawStage {
     private final Location start;
     private final Location destination;
-    private int duration;
+    private final int duration;
 
     public RawWalkingStage(Location start, Location destination, int duration) {
         this.start = start;
@@ -52,4 +54,18 @@ public class RawWalkingStage implements RawStage {
         return 0;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RawWalkingStage that = (RawWalkingStage) o;
+        return duration == that.duration &&
+                start.equals(that.start) &&
+                destination.equals(that.destination);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, destination, duration);
+    }
 }

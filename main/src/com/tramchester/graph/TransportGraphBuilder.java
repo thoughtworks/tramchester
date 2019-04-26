@@ -350,6 +350,7 @@ public class TransportGraphBuilder extends StationIndexs {
         Node routeStation = createGraphNode(Labels.ROUTE_STATION);
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
+        routeStation.setProperty(STATION_ID, station.getId());
         routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
         routeStation.setProperty(ROUTE_ID, route.getId());
         setLatLongFor(routeStation, station.getLatLong());
@@ -388,6 +389,8 @@ public class TransportGraphBuilder extends StationIndexs {
 
             beginServiceNode.setProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME, service.earliestDepartTime().asLocalTime());
             beginServiceNode.setProperty(GraphStaticKeys.SERVICE_LATEST_TIME, service.latestDepartTime().asLocalTime());
+            beginServiceNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
+
             setLatLongFor(beginServiceNode, destinationLatLong);
 
             // start route station -> svc node
@@ -466,23 +469,6 @@ public class TransportGraphBuilder extends StationIndexs {
         }
         return timeNode;
     }
-
-//    private Node getOrCreateEndServiceNode(Node previousNode, Service service, String tripId, String routeIdClean, Stop endStop) {
-//        String endSvcNodeId = format("%s_%s_%s", endStop.getStation().getId(), service.getServiceId(), routeIdClean);
-//        Node endSvcNode = graphQuery.getServiceEndNode(endSvcNodeId);
-//        if (endSvcNode==null) {
-//            endSvcNode = createGraphNode(Labels.SERVICE_END);
-//            endSvcNode.setProperty(GraphStaticKeys.ID, endSvcNodeId);
-//        }
-//        // time node -> endSvcNode
-//        if (!previousNode.hasRelationship(TransportRelationshipTypes.TO_END_SERVICE)) {
-//            Relationship fromPrevious = createRelationship(previousNode, endSvcNode, TransportRelationshipTypes.TO_END_SERVICE);
-//            fromPrevious.setProperty(COST, 0);
-//            fromPrevious.setProperty(SERVICE_ID, service.getServiceId());
-//            fromPrevious.setProperty(TRIP_ID, tripId);
-//        }
-//        return endSvcNode;
-//    }
 
     private void createOrUpdateRelationship(Node start, Node end,
                                             Stop beginStop, Stop endStop, Route route, Service service) {

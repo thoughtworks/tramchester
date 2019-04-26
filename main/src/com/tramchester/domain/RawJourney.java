@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RawJourney implements Iterable<RawStage> {
+
+    // TODO Ordering and Equality?
+
     private final List<RawStage> stages;
     private final LocalTime queryTime;
 
