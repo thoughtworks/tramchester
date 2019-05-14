@@ -6,14 +6,7 @@ output: {all: '| tee -a /var/log/cloud-init-output.log'}
 
 manage_etc_hosts: true
 
-# add a source that has oracle JRE available
-apt_sources:
- - source: "ppa:webupd8team/java"
-
 bootcmd:
- - [ sh, -c,  "echo oracle-java8-installer shared/present-oracle-license-v1-1 note | debconf-set-selections" ]
- - [ sh, -c,  "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 boolean true | debconf-set-selections" ]
- - [ sh, -c,  "echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections" ]
  - [ sh, -c,  "ln -s /usr/bin/python3 /usr/bin/python" ]
 
 packages:
@@ -21,5 +14,4 @@ packages:
  - ntp
  - uuid
  - unzip
- - oracle-java8-installer
- - oracle-java8-set-default
+ - openjdk-8-jre-headless

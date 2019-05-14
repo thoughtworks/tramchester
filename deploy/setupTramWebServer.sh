@@ -46,7 +46,7 @@ mkdir -p server
 cd server
 
 logger Attempt to fetch files from $distUrl
-wget $distUrl -O $dist
+wget -nv $distUrl -O $dist
 unzip $dist
 
 # cloudwatch logs agent setup
