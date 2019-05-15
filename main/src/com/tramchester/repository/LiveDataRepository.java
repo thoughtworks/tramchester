@@ -26,7 +26,7 @@ public class LiveDataRepository {
     public static final int TIME_LIMIT = 15; // only enrich if data is within this many minutes
 
     // some displays don't show normal messages in MessageBoard but instead a list of due trams, so exclude these
-    private List<String> displaysToExclude = Arrays.asList("303","304","461");
+    private List<String> displaysToExcludeMessageBoard = Arrays.asList("550","551","554");
 
     // platformId -> StationDepartureInfo
     private HashMap<String,StationDepartureInfo> stationInformation;
@@ -55,7 +55,7 @@ public class LiveDataRepository {
                 infos.forEach(info -> {
                     String platformId = info.getStationPlatform();
                     if (!newMap.containsKey(platformId)) {
-                        if (displaysToExclude.contains(info.getDisplayId())) {
+                        if (displaysToExcludeMessageBoard.contains(info.getDisplayId())) {
                             info.clearMessage();
                         }
                         newMap.put(platformId, info);

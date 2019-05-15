@@ -75,7 +75,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime lastUpdate = LocalDateTime.now();
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
-        addStationInfo(info, lastUpdate, "303", "platformIdB", "exclude message", "platformLocation");
+        addStationInfo(info, lastUpdate, "550", "platformIdB", "exclude message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
