@@ -29,14 +29,14 @@ public class ClientForS3Test {
     private ClientForS3 clientForS3;
 
     @Before
-    public void beforeEachTestRuns() throws InterruptedException {
+    public void beforeEachTestRuns() {
         s3 = AmazonS3ClientBuilder.defaultClient();
         clientForS3 = new ClientForS3(TestConfig.GET());
         tidyBucket();
     }
 
     @After
-    public void afterEachTestRuns() throws InterruptedException {
+    public void afterEachTestRuns() {
         tidyBucket();
         s3.shutdown();
     }
@@ -51,9 +51,11 @@ public class ClientForS3Test {
     public void checkForObjectExisting() {
         createTestBucket();
         s3.putObject(TEST_BUCKET_NAME, KEY, "contents");
-        assertTrue(clientForS3.keyExists(PREFIX,KEY));
+        s3.waiters().objectExists().run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, KEY)));
+        assertTrue(clientForS3.keyExists(PREFIX, KEY));
 
         s3.deleteObject(TEST_BUCKET_NAME, KEY);
+        s3.waiters().objectNotExists().run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, KEY)));
         assertFalse(clientForS3.keyExists(PREFIX, KEY));
     }
 
@@ -86,19 +88,17 @@ public class ClientForS3Test {
         s3.createBucket(TEST_BUCKET_NAME);
         Waiter waiter = s3.waiters().bucketExists();
         waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
-//        while (!s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
-//            Thread.sleep(100);
-//        }
     }
 
-    private void tidyBucket() throws InterruptedException {
+    private void tidyBucket() {
         if (s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
             DeleteObjectsRequest deleteObjects = new DeleteObjectsRequest(TEST_BUCKET_NAME).withKeys(KEY);
             s3.deleteObjects(deleteObjects);
             s3.deleteBucket(TEST_BUCKET_NAME);
         }
-        while (s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
-            Thread.sleep(100);
-        }
+
+        Waiter waiter = s3.waiters().bucketNotExists();
+        waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
+
     }
 }
