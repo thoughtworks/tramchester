@@ -49,12 +49,12 @@ logger Attempt to fetch files from $distUrl
 wget -nv $distUrl -O $dist
 unzip $dist
 
-# cloudwatch logs agent setup
-logger Set up amazon cloudwatch logs agent
-wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
-chmod +x ./awslogs-agent-setup.py
-sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" config/cloudwatch_logs_web.conf
-python ./awslogs-agent-setup.py -n -r eu-west-1 -c config/cloudwatch_logs_web.conf
+# cloudwatch logs agent (NEW)
+logger set up amazon cloudwatch logs agent new
+wget -nv https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" config/cloudwatch_agent.json
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:config/cloudwatch_agent.json -s
 
 # fix ownership
 chown -R ubuntu .

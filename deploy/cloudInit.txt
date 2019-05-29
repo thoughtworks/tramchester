@@ -6,18 +6,9 @@ output: {all: '| tee -a /var/log/cloud-init-output.log'}
 
 manage_etc_hosts: true
 
-bootcmd:
- - [ sh, -c,  "ln -s /usr/bin/python3 /usr/bin/python" ]
-
-# for python 3.5, need to use new cloudwatch agent instead as that removes this dependency
-sources:
-  deadsnake:
-    source: "ppa:fkrull/deadsnakes"
-
 packages:
  - language-pack-en
  - ntp
  - uuid
  - unzip
  - openjdk-8-jre-headless
- - python3.5
