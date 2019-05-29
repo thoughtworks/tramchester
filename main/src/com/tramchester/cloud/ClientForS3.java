@@ -76,7 +76,8 @@ public class ClientForS3 {
             }
         }
         catch (AmazonS3Exception exception) {
-            logger.warn(format("Cannot check if key '%s' exists in bucket '%s'", key, bucket),exception);
+            logger.warn(format("Cannot check if key '%s' exists in bucket '%s' reason '%s'",
+                    key, bucket, exception.getMessage()));
         }
         return false;
     }

@@ -46,6 +46,7 @@ public class UploadsLiveData implements LiveDataObserver {
             String time = timeStamp.toLocalTime().format(DateTimeFormatter.ISO_TIME);
             String key = format("%s/%s/%s", environment.toLowerCase(), date,time);
 
+            // already uploaded by another instance
             if (s3.keyExists(date, key)) {
                 return true;
             }
