@@ -67,6 +67,5 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
         }
         return "";
 
-
     }
 }

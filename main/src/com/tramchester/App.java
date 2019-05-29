@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
@@ -26,6 +27,7 @@ import java.io.PrintWriter;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class App extends Application<AppConfiguration>  {
@@ -109,6 +111,7 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(RouteResource.class));
         environment.jersey().register(dependencies.get(AreaResource.class));
         environment.jersey().register(dependencies.get(DeparturesResource.class));
+
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
         environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
         environment.healthChecks().register("liveData", dependencies.get(LiveDataHealthCheck.class));
@@ -126,13 +129,27 @@ public class App extends Application<AppConfiguration>  {
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
         // refresh live data
-        executor.scheduleAtFixedRate(() -> {
+        ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
             try {
                 liveDateRepository.refreshRespository();
             } catch (Exception exeception) {
                 logger.error("Unable to refresh live data", exeception);
             }
-        }, 10,10,TimeUnit.SECONDS);
+        }, 10, 10, TimeUnit.SECONDS);
+
+        // todo into own class
+        environment.healthChecks().register("liveDataJobCheck", new HealthCheck() {
+            @Override
+            protected Result check() {
+                if (liveDataFuture.isDone()) {
+                    logger.error("Live data job is done");
+                    return Result.unhealthy("Live data job is done");
+                } else if (liveDataFuture.isCancelled()) {
+                    logger.error("Live data job is cancelled");
+                    return Result.unhealthy("Live data job is cancelled");
+                } else return Result.healthy();
+            }
+        });
 
         UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
         liveDateRepository.observeUpdates(observer);

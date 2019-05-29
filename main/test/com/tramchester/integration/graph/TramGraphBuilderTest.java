@@ -82,7 +82,7 @@ public class TramGraphBuilderTest {
         });
 
         assertEquals(1, boards.size());
-        assertEquals(57, svcsToMediaCity.size());
+        assertEquals(31, svcsToMediaCity.size());
     }
 
     @Test
