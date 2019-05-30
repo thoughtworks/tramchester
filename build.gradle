@@ -284,8 +284,8 @@ task uploadSupportFiles(dependsOn: 'cfnassist') {
 
 task infra(dependsOn: cfnassist) {
     doLast {
-        ant.cfnassist(project: 'tramchesterB', env: environment, sns: 'true') {
-            Templates(target: 'deploy/infra')
+        ant.cfnassist(project: 'tramchesterB', env: environment, sns: 'true', capabilityIAM: 'true') {
+            Templates(target: 'deploy/infra/'+environment )
         }
     }
 }

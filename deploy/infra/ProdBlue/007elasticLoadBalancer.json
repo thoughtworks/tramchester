@@ -4,10 +4,9 @@
 		"Parameters" : {
 			"env" : { "Type" : "String" },
 			"vpc" : { "Type" : "String" },
-			"lbSubnetA" : { "Type" : "String", "Description" : "::lbSubnetA" },
-		    "lbSubnetB" : { "Type" : "String", "Description" : "::lbSubnetB" },
-
-		  "sgLoadBalance" : { "Type" : "String", "Description" : "::sgLoadBalance" }
+			"lbSubnetA" : { "Type" : "String", "Description" : "::lbSubnetA" }, 
+			"lbSubnetB" : { "Type" : "String", "Description" : "::lbSubnetB" }, 
+			"sgLoadBalance" : { "Type" : "String", "Description" : "::sgLoadBalance" }
 		},
 		"Resources" : {
 			"loadBalancer": {
@@ -23,12 +22,9 @@
 						"UnhealthyThreshold": "2"
 					},
 					"Listeners": [
-					{
-						"InstancePort": "8080",
-						"LoadBalancerPort": "80",
-						"Protocol": "HTTP",
-						"PolicyNames": [ ]
-					}
+					{ "InstancePort": "8080", "LoadBalancerPort": "80", "Protocol": "HTTP" },
+					{ "InstancePort": "8080", "LoadBalancerPort": "443", "Protocol": "HTTPS" ,
+						"SSLCertificateId": "arn:aws:acm:eu-west-1:300752856189:certificate/f88ff983-4e3e-421b-9ca1-2c35e848ae81" }
 					]
 				}
 			}

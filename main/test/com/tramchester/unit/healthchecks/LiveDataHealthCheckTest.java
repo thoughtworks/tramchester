@@ -79,6 +79,6 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
         verifyAll();
 
         assertFalse(result.isHealthy());
-        assertEquals("20 of 40 entries are expired", result.getMessage());
+        assertEquals("20 of 40 entries are expired at "+now.toString(), result.getMessage());
     }
 }

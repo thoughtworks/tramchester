@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
-import java.io.PrintWriter;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;

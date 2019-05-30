@@ -1,6 +1,7 @@
 package com.tramchester.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.tramchester.domain.TramTime;
 import com.tramchester.repository.LiveDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +37,11 @@ public class LiveDataHealthCheck extends HealthCheck {
             return Result.unhealthy(message);
         }
 
-        long notExpired = repository.upToDateEntries(providesNow.getNow());
+        TramTime queryTime = providesNow.getNow();
+
+        long notExpired = repository.upToDateEntries(queryTime);
         if (notExpired!=total) {
-            String message = format("%s of %s entries are expired", total-notExpired, total);
+            String message = format("%s of %s entries are expired at %s", total-notExpired, total, queryTime);
             logger.error(message);
             return Result.unhealthy(message);
         }

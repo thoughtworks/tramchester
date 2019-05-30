@@ -5,7 +5,7 @@
 			"environMap" : {
 				"Dev" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-4c619229" },
 				"UAT" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-7857a41d" },
-				"Prod" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-0c081b6e" },
+				"ProdGreen" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-0c081b6e" },
 				"ProdBlue" : { "keyName" : "tramchester2", "NatEip" : "eipalloc-03081b61" }
 			}
 		},
@@ -14,7 +14,9 @@
 			"vpc" : { "Type" : "String" },
 			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" },
 			"sgNat" : { "Type" : "String" , "Description" : "::sgNat" },
-			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" }
+			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" },
+			"keypairname": { "Type" : "String" , "Description" : "::CFN_TAG" }
+
 		},
 		"Resources" : {
 			"natInstance": {
@@ -22,10 +24,9 @@
 				"Properties": {
 					"AvailabilityZone": { "Ref" : "zoneA" },
 					"DisableApiTermination": "FALSE",
-					"ImageId": "ami-e5e2d991",
-					"InstanceType": "t1.micro",
-					"KernelId": "aki-71665e05",
-					"KeyName": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "keyName" ]} ,
+					"ImageId": "ami-0236d0cbbbe64730c",
+					"InstanceType": "t2.micro",
+					"KeyName": { "Ref" : "keypairname" } ,
 					"Monitoring": "false",
 					"SecurityGroupIds" : [ { "Ref" : "sgNat" } ],
 					"SubnetId": { "Ref" : "natSubnet" },
@@ -44,6 +45,6 @@
 			}
 		},
 		"Outputs" : {
-				"EIPAllocID" : { "Value" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]} , "Description":"::CFN_TAG" }
+				"natEip" : { "Value" : { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]} , "Description":"::CFN_TAG" }
 		}
 }

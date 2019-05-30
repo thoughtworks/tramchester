@@ -7,17 +7,15 @@
 			"env" : { "Type": "String" },
 			"vpc" : { "Type": "String" },
 			"LoadBalanacerDNS" : { "Type": "String", "Description" : "::CFN_TAG" },
-			"LoadBalanacerZoneId" : { "Type": "String", "Description" : "::CFN_TAG" },
-			"webSg" : { "Type": "String" , "Description" : "::sgWeb" },
-			"webServerName" : { "Type" : "String", "Default": "tramchesterWeb" }
+			"LoadBalanacerZoneId" : { "Type": "String", "Description" : "::CFN_TAG" }
 		},
 
 		"Mappings" : {
 			"nameMap" : {
 				"Dev" : { "host" : "alpha"  }, 
 				"UAT" : { "host" : "beta" }, 
-				"Prod" : { "host" : "www" },
-				"ProdBlue" : { "host" : "blue" }
+				"ProdBlue" : { "host" : "blue" },
+				"ProdGreen" : { "host" : "green" }
 			}
 		},
 

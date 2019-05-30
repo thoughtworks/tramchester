@@ -26,7 +26,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
 
     @Before
     public void beforeEachTestRuns() {
-        environment = System.getenv("ENV");
+        environment = System.getenv("PLACE");
         environment = environment==null ? "test" : environment.toLowerCase();
         LocalDateTime lastUpdateTime = LocalDateTime.parse("2018-11-15T15:06:32");
 

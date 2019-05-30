@@ -11,8 +11,8 @@
 			"lbAccess" : {
 				"Dev" :  { "cidr" : "10.0.0.0/16" },
 				"UAT" :  { "cidr" : "10.0.0.0/16" },
-				"Prod" : { "cidr" : "0.0.0.0/0" },
-				"ProdBlue" : { "cidr" : "0.0.0.0/0" }
+				"ProdBlue" : { "cidr" : "0.0.0.0/0" },
+				"ProdGreen" : { "cidr" : "0.0.0.0/0" }
 			}
 		},
 
@@ -72,6 +72,13 @@
 				"Properties" : {
 					"NetworkAclId" : { "Ref" : "elbAcl" },
 					"RuleNumber": "100" ,"RuleAction": "allow", "Egress": "false", "CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"80" , "To": "80" }
+				}
+			},
+			"aclELBInboundPort443" : {
+				"Type" : "AWS::EC2::NetworkAclEntry",
+				"Properties" : {
+					"NetworkAclId" : { "Ref" : "elbAcl" },
+					"RuleNumber": "101" ,"RuleAction": "allow", "Egress": "false", "CidrBlock": "0.0.0.0/0", "Protocol": "6"	, "PortRange": { "From":"443" , "To": "443" }
 				}
 			},
 			"aclELBInboundEthemeral" : {

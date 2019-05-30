@@ -64,7 +64,6 @@ public class LiveDataParser {
     private LocalDateTime getStationUpdateTime(String dateString) {
         Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
 
-
         ZonedDateTime zonedDateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZone);
         LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
 
