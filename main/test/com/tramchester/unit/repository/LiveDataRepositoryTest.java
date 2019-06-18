@@ -72,10 +72,12 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         PlatformDTO platformA = new PlatformDTO(new Platform("platformIdA", "Platform name"));
         PlatformDTO platformB = new PlatformDTO(new Platform("platformIdB", "Platform name"));
+        PlatformDTO platformC = new PlatformDTO(new Platform("platformIdC", "Platform name"));
 
         LocalDateTime lastUpdate = LocalDateTime.now();
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
-        addStationInfo(info, lastUpdate, "550", "platformIdB", "exclude message", "platformLocation");
+        addStationInfo(info, lastUpdate, "42", "platformIdB", "^F0Next exclude message", "platformLocation");
+        addStationInfo(info, lastUpdate, "43", "platformIdC", "<no message>", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -84,14 +86,17 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(2,repository.count());
+        assertEquals(3,repository.count());
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate());
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
         repository.enrich(platformA, queryDate, queryTime);
         repository.enrich(platformB, queryDate, queryTime);
+        repository.enrich(platformC, queryDate, queryTime);
 
         assertEquals("some message", platformA.getStationDepartureInfo().getMessage());
         assertEquals("", platformB.getStationDepartureInfo().getMessage());
+        assertEquals("", platformC.getStationDepartureInfo().getMessage());
+
     }
 
     @Test
@@ -100,7 +105,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime lastUpdate = LocalDateTime.now(); // up to date
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
-        addStationInfo(info, lastUpdate, "303", "platformIdB", "exclude message", "platformLocation");
+        addStationInfo(info, lastUpdate, "303", "platformIdB", "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -123,8 +128,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         LocalDateTime current = LocalDateTime.now();
         LocalDateTime staleDate = current.minusDays(5).minusMinutes(60); // stale
         addStationInfo(info, staleDate, "yyy", "platformIdC", "some message", "platformLocation");
-        addStationInfo(info, staleDate, "303", "platformIdD", "exclude message", "platformLocation");
-        addStationInfo(info, current, "303", "platformIdF", "exclude message", "platformLocation");
+        addStationInfo(info, staleDate, "303", "platformIdD", "some message", "platformLocation");
+        addStationInfo(info, current, "303", "platformIdF", "some message", "platformLocation");
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
