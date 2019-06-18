@@ -102,7 +102,7 @@ jobs:
       - run:
           name: deployProd
           environment:
-            ENV: ProdGreen
+            ENV: ProdBlue
             AWS_REGION: eu-west-1
           command: |
             source workspace/release_num.txt
