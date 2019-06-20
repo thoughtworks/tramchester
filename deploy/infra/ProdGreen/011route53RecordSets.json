@@ -1,0 +1,123 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+
+		"Description" : "Create DNS recordsets for an environment/vpc",
+
+		"Parameters" : {
+			"env" : { "Type": "String" },
+			"vpc" : { "Type": "String" },
+			"LoadBalanacerDNS" : { "Type": "String", "Description" : "::CFN_TAG" },
+			"LoadBalanacerZoneId" : { "Type": "String", "Description" : "::CFN_TAG" }
+		},
+
+		"Mappings" : {
+			"nameMap" : {
+				"Dev" : { "host" : "alpha"  }, 
+				"UAT" : { "host" : "beta" }, 
+				"ProdBlue" : { "host" : "blue" },
+				"ProdGreen" : { "host" : "green" }
+			}
+		},
+
+		"Resources" : {
+			"trambusterCom" : {
+    	    	"Type" : "AWS::Route53::RecordSetGroup",
+       	 		"Properties" : {
+       	   			"HostedZoneName" : "trambuster.com.",
+          			"RecordSets" : [ { "Name" : { "Fn::Join" : [ "", 
+								[   { "Fn::FindInMap" : [ "nameMap", { "Ref" : "env" }, "host" ] }, 
+									".", "trambuster.com" ] ] },
+			              "Type" : "A",
+			              "AliasTarget" : {
+			                  "HostedZoneId" : { "Ref" : "LoadBalanacerZoneId" },
+			                  "DNSName" : { "Ref" : "LoadBalanacerDNS" }
+			 				}
+            			} 
+					]
+        		}
+    		},
+			"trambusterCoUk" : {
+    	    	"Type" : "AWS::Route53::RecordSetGroup",
+       	 		"Properties" : {
+       	   			"HostedZoneName" : "trambuster.co.uk.",
+          			"RecordSets" : [ { "Name" : { "Fn::Join" : [ "", 
+								[   { "Fn::FindInMap" : [ "nameMap", { "Ref" : "env" }, "host" ] }, 
+									".", "trambuster.co.uk" ] ] },
+			              "Type" : "A",
+			              "AliasTarget" : {
+			                  "HostedZoneId" : { "Ref" : "LoadBalanacerZoneId" },
+			                  "DNSName" : { "Ref" : "LoadBalanacerDNS" }
+			 				}
+            			} 
+					]
+        		}
+			},
+			"trambusterInfo" : {
+    	    	"Type" : "AWS::Route53::RecordSetGroup",
+       	 		"Properties" : {
+       	   			"HostedZoneName" : "trambuster.info.",
+          			"RecordSets" : [ { "Name" : { "Fn::Join" : [ "", 
+								[   { "Fn::FindInMap" : [ "nameMap", { "Ref" : "env" }, "host" ] }, 
+									".", "trambuster.info" ] ] },
+			              "Type" : "A",
+			              "AliasTarget" : {
+			                  "HostedZoneId" : { "Ref" : "LoadBalanacerZoneId" },
+			                  "DNSName" : { "Ref" : "LoadBalanacerDNS" }
+			 				}
+            			} 
+					]
+        		}
+			},
+			"tramchesterInfo" : {
+    	    	"Type" : "AWS::Route53::RecordSetGroup",
+       	 		"Properties" : {
+       	   			"HostedZoneName" : "tramchester.info.",
+          			"RecordSets" : [ { "Name" : { "Fn::Join" : [ "", 
+								[   { "Fn::FindInMap" : [ "nameMap", { "Ref" : "env" }, "host" ] }, 
+									".", "tramchester.info" ] ] },
+			              "Type" : "A",
+			              "AliasTarget" : {
+			                  "HostedZoneId" : { "Ref" : "LoadBalanacerZoneId" },
+			                  "DNSName" : { "Ref" : "LoadBalanacerDNS" }
+			 				}
+            			} 
+					]
+        		}
+			},
+			"tramchesterCoUk" : {
+    	    	"Type" : "AWS::Route53::RecordSetGroup",
+       	 		"Properties" : {
+       	   			"HostedZoneName" : "tramchester.co.uk.",
+          			"RecordSets" : [ { "Name" : { "Fn::Join" : [ "", 
+								[   { "Fn::FindInMap" : [ "nameMap", { "Ref" : "env" }, "host" ] }, 
+									".", "tramchester.co.uk" ] ] },
+			              "Type" : "A",
+			              "AliasTarget" : {
+			                  "HostedZoneId" : { "Ref" : "LoadBalanacerZoneId" },
+			                  "DNSName" : { "Ref" : "LoadBalanacerDNS" }
+			 				}
+            			} 
+					]
+        		}
+			},
+			"tramchesterCom" : {
+    	    	"Type" : "AWS::Route53::RecordSetGroup",
+       	 		"Properties" : {
+       	   			"HostedZoneName" : "tramchester.com.",
+          			"RecordSets" : [ { "Name" : { "Fn::Join" : [ "", 
+								[   { "Fn::FindInMap" : [ "nameMap", { "Ref" : "env" }, "host" ] }, 
+									".", "tramchester.com" ] ] },
+			              "Type" : "A",
+			              "AliasTarget" : {
+			                  "HostedZoneId" : { "Ref" : "LoadBalanacerZoneId" },
+			                  "DNSName" : { "Ref" : "LoadBalanacerDNS" }
+			 				}
+            			} 
+					]
+        		}
+			}
+		},
+
+		"Outputs" : {
+		}
+}

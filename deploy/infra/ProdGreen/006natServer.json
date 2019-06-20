@@ -24,7 +24,7 @@
 				"Properties": {
 					"AvailabilityZone": { "Ref" : "zoneA" },
 					"DisableApiTermination": "FALSE",
-					"ImageId": "ami-a2971ed1",
+					"ImageId": "ami-0236d0cbbbe64730c",
 					"InstanceType": "t2.micro",
 					"KeyName": { "Ref" : "keypairname" } ,
 					"Monitoring": "false",

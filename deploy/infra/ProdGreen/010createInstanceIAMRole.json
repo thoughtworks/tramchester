@@ -20,28 +20,7 @@
                } ]
             },
             "Path":  { "Fn::Join" : ["", [ "/tramchester/", { "Ref": "env"}, "/" ] ] },
-            "Policies": [ {
-               "PolicyName": "loggingPolicy",
-               "PolicyDocument": {
-					"Version": "2012-10-17",
-						  "Statement": [
-						    {
-						      "Effect": "Allow",
-						      "Action": [
-						        "logs:*"
-						      ],
-						      "Resource": [ "arn:aws:logs:*:*:*" ]
-						    },
-						    {
-						     "Effect": "Allow",
-					             "Action": [
-					                "cloudwatch:PutMetricData"
-					             ],
-					             "Resource": [ "*" ]
-        					    }
-						  ]
-               		}
-               } ]
+            "ManagedPolicyArns": [ "arn:aws:iam::300752856189:policy/tramchesterServers" ]
             }
       	},
 		"InstanceProfile": {
