@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
@@ -143,14 +144,20 @@ public class RouteCalculatorTest {
             }
         }
 
-        List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(12, 0));
+        List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(6, 5));
 
         Map<Pair<Location, Location>, Set<RawJourney>> allJourneys = combinations.parallelStream().
                 map(stations -> Pair.of(stations, calc(stations, queryTimes, queryDate))).
                         collect(Collectors.toMap(pair -> pair.getLeft(), pair -> pair.getRight()));
 
-        long failed = allJourneys.values().stream().filter(rawJourneys -> rawJourneys.size() == 0).count();
-        assertEquals(0L, failed);
+        List<Pair<String, String>> failed = allJourneys.entrySet().
+                stream().
+                filter(journey -> journey.getValue().size() == 0).
+                map(item -> item.getKey()).
+                map(pair -> Pair.of(pair.getLeft().getName(), pair.getRight().getName())).
+                collect(Collectors.toList());
+        //long failed = allJourneys.values().stream().filter(rawJourneys -> rawJourneys.size() == 0).count();
+        assertEquals(failed.toString(), 0L, failed.size());
 
         Set<Integer> passedStops = allJourneys.values().stream().
                 flatMap(set -> set.stream()).
@@ -182,6 +189,14 @@ public class RouteCalculatorTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void shouldReproIssueWithMediaCityTrams() {
+        LocalTime time = LocalTime.of(12, 00);
+
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.MediaCityUK, time, nextTuesday);
+        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, time, nextTuesday);
     }
 
     @Test
@@ -261,11 +276,11 @@ public class RouteCalculatorTest {
 
         assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
     }
-
+    
     private int checkRangeOfTimes(Location start, Location dest) {
         List<LocalTime> missing = new LinkedList<>();
         for (int hour = 6; hour < 23; hour++) {
-            for (int minutes = 0; minutes < 59; minutes++) {
+            for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 LocalTime time = LocalTime.of(hour, minutes);
                 Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
                         Collections.singletonList(time), new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);

@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -33,9 +34,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv003556";
+    private final String svcDeansgateToVic = "Serv003218";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv003555";
+    private String svcShawAndCrompton = "Serv003218";
 
     private Collection<Service> allServices;
 
@@ -204,7 +205,7 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toList());
 
         // not date specific
-        assertEquals(6, atRequiredTimed.size());
+        assertEquals(4, atRequiredTimed.size());
     }
 
     @Test

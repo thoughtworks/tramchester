@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.google.common.collect.Lists;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
@@ -11,7 +12,9 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
+import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +33,7 @@ import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RouteCalculatorSubGraphTest {
+public class RouteCalculatorSubGraphMediaCityTest {
     private static Dependencies dependencies;
 
     private RouteCalculator calculator;
@@ -41,13 +45,25 @@ public class RouteCalculatorSubGraphTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         GraphFilter graphFilter = new GraphFilter();
-//        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
-//        graphFilter.addService("Serv003011");
+        graphFilter.addRoute(RouteCodesForTesting.ASH_TO_ECCLES);
+        graphFilter.addRoute(RouteCodesForTesting.ROCH_TO_DIDS);
 
-        graphFilter.addStation(Stations.Cornbrook);
+//        graphFilter.addService("Serv003109"); // eccles, works both before and after 6am
+//        graphFilter.addService("Serv003232"); // east dids, works both before and after 6am
+
+        graphFilter.addStation(Stations.ExchangeSquare);
         graphFilter.addStation(Stations.StPetersSquare);
         graphFilter.addStation(Stations.Deansgate);
+        graphFilter.addStation(Stations.Cornbrook);
         graphFilter.addStation(Stations.Pomona);
+        graphFilter.addStation("9400ZZMAEXC"); // Exchange Quay
+        graphFilter.addStation("9400ZZMASQY"); // Salford Quays
+        graphFilter.addStation("9400ZZMAANC"); // Anchorage
+        graphFilter.addStation(Stations.HarbourCity);
+        graphFilter.addStation(Stations.MediaCityUK);
+        graphFilter.addStation(Stations.Broadway);
+
+        graphFilter.addStation(Stations.TraffordBar);
 
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
@@ -67,36 +83,31 @@ public class RouteCalculatorSubGraphTest {
     }
 
     @Test
-    public void reproduceIssueEdgePerTrip() {
-
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, LocalTime.of(19,51), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Pomona, LocalTime.of(19,51).plusMinutes(6), nextTuesday);
-
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Cornbrook, LocalTime.of(19,51).plusMinutes(3), nextTuesday);
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Pomona, LocalTime.of(19,51).plusMinutes(3), nextTuesday);
-
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,51), nextTuesday);
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,56), nextTuesday);
+    public void reproduceMediaCityIssue() {
+        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, LocalTime.of(12,00), nextTuesday);
     }
 
     @Test
     public void shouldHaveSimpleJourney() {
-        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
-        Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
+        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(12, 0));
+        Set<RawJourney> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK.getId(),
                 minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(results.size()>0);
     }
 
     @Test
     public void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 7);
-        creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));
+        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 11);
+        List<String> stations =new LinkedList<>();
+        stations.add(Stations.Cornbrook.getId());
+        stations.add(Stations.MediaCityUK.getId());
+        creator.create(format("%s_trams.dot", "subgraph_mediacity"), stations);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         @Override
         public String getGraphName() {
-            return "int_test__sub_tramchester.db";
+            return "int_test_sub_tramchester.db";
         }
 
         @Override

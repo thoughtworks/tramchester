@@ -47,6 +47,10 @@ public class GraphFilter {
         stations.add(station.getId());
     }
 
+    public void addStation(String stationId) {
+        stations.add(stationId);
+    }
+
     public Stops filterStops(Stops stops) {
         if (stations.size()==0) {
             return stops;

@@ -165,14 +165,23 @@ public class TransportDataFromFiles implements TransportData, AreasRepository, P
         if (!trips.keySet().contains(tripId)) {
             trips.put(tripId, new Trip(tripId, tripHeadsign, serviceId, routeId));
         }
-        return trips.get(tripId);
+
+        Trip matched = trips.get(tripId);
+        if (matched.getRouteId()!=routeId || matched.getServiceId()!=serviceId || matched.getHeadsign()!=tripHeadsign) {
+            logger.error("Mismatch on trip id: " + tripId);
+        }
+        return matched;
     }
 
     private Service getOrInsertService(String serviceId, String routeId) {
         if (!services.keySet().contains(serviceId)) {
             services.put(serviceId, new Service(serviceId, routeId));
         }
-        return services.get(serviceId);
+        Service matched = services.get(serviceId);
+        if (matched.getRouteId()!=routeId || matched.getServiceId()!=serviceId) {
+            logger.error("Mismatch on service id: " + serviceId);
+        }
+        return matched;
     }
 
     public Collection<Route> getRoutes() {

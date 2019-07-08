@@ -23,7 +23,8 @@ public class DiagramCreator {
     private final GraphDatabaseService graphDatabaseService;
     private final int depthLimit;
 
-    public DiagramCreator(NodeFactory nodeFactory, RelationshipFactory relationshipFactory, GraphDatabaseService graphDatabaseService, int depthLimit) {
+    public DiagramCreator(NodeFactory nodeFactory, RelationshipFactory relationshipFactory, GraphDatabaseService graphDatabaseService,
+                          int depthLimit) {
         this.nodeFactory = nodeFactory;
         this.relationshipFactory = relationshipFactory;
         this.graphDatabaseService = graphDatabaseService;

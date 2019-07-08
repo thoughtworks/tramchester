@@ -249,6 +249,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     private void createGraphFile() {
         String fileName = format("%s_at_%s.dot", queryTime.toString(), LocalTime.now().toString());
+        fileName = fileName.replaceAll(":","");
 
         if (reasons.isEmpty()) {
             logger.warn(format("Not creating dot file %s, reasons empty", fileName));

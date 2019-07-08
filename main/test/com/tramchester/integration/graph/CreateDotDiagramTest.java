@@ -44,14 +44,23 @@ public class CreateDotDiagramTest {
 
     @Test
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
-        int depthLimit = 7;
+        int depthLimit = 2;
 
         create(Stations.Deansgate, depthLimit);
+        create(Stations.StPetersSquare, depthLimit);
+        create(Stations.Cornbrook, depthLimit);
+        create(Stations.ExchangeSquare, depthLimit);
+        create(Stations.MarketStreet, depthLimit);
+        create(Stations.Victoria, depthLimit);
+
+        create(Arrays.asList(
+                new Location[]{Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare }), 4);
+
     }
 
     @Test
     public void shouldProduceADotDiagramOfTheTramNetworkForMediaCityArea() throws IOException {
-        int depthLimit = 3;
+        int depthLimit = 5;
         create(Stations.MediaCityUK, depthLimit);
         create(Stations.HarbourCity, depthLimit);
         create(Stations.Piccadilly, depthLimit);

@@ -514,7 +514,6 @@ public class TransportGraphBuilder extends StationIndexs {
 
             // common properties
             addCommonProperties(relationship, transportRelationshipType, route, service, cost);
-
         }
     }
 
