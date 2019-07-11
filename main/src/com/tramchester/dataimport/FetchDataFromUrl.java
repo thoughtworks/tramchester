@@ -22,6 +22,8 @@ public class FetchDataFromUrl implements TransportDataFetcher {
     private Path path;
     private String dataUrl;
 
+    public static String ZIP_FILENAME = "data.zip";
+
     public FetchDataFromUrl(Path path, String dataUrl) {
         this.path = path;
         this.dataUrl = dataUrl;
@@ -42,20 +44,21 @@ public class FetchDataFromUrl implements TransportDataFetcher {
 
     @Override
     public void fetchData() throws IOException {
-        String filename = "data.zip";
-        Path zipFile = pullDataFromURL(filename);
+        Path zipFile = pullDataFromURL(ZIP_FILENAME);
         unzipData(zipFile);
     }
 
     private void unzipData(Path filename) {
         logger.info("Unziping data from " + filename);
         try {
+            // TODO Use native zip support in Java
             ZipFile zipFile = new ZipFile(filename.toFile());
             zipFile.extractAll(path.toAbsolutePath().toString());
         } catch (ZipException e) {
             logger.warn("Unable to unzip "+filename, e);
         }
     }
+
 
     private Path pullDataFromURL(String targetFile) throws IOException {
         Path destination = path.resolve(targetFile);
