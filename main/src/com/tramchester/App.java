@@ -7,6 +7,7 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.healthchecks.GraphHealthCheck;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
+import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.resources.*;
 import io.dropwizard.Application;
@@ -114,6 +115,7 @@ public class App extends Application<AppConfiguration>  {
         environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
         environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
         environment.healthChecks().register("liveData", dependencies.get(LiveDataHealthCheck.class));
+        environment.healthChecks().register("newData", dependencies.get(NewDataAvailableHealthCheck.class));
 
         filtersForStaticContent(environment);
 

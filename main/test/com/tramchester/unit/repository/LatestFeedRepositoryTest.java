@@ -3,7 +3,7 @@ package com.tramchester.unit.repository;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.healthchecks.ProvidesNow;
-import com.tramchester.repository.LatestFeedRepository;
+import com.tramchester.repository.LatestFeedInfoRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class LatestFeedRepositoryTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDate()).andReturn(LocalDate.of(2019,11,15));
         EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
 
-        LatestFeedRepository latestFeedRepository = new LatestFeedRepository(fetchData, providesNow);
+        LatestFeedInfoRepository latestFeedRepository = new LatestFeedInfoRepository(fetchData, providesNow);
 
         replayAll();
         FeedInfo feedinfo = latestFeedRepository.getFeedinfo();
@@ -56,7 +56,7 @@ public class LatestFeedRepositoryTest extends EasyMockSupport {
 
         EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
 
-        LatestFeedRepository latestFeedRepository = new LatestFeedRepository(fetchData, providesNow);
+        LatestFeedInfoRepository latestFeedRepository = new LatestFeedInfoRepository(fetchData, providesNow);
 
         replayAll();
         latestFeedRepository.getFeedinfo();
@@ -77,7 +77,7 @@ public class LatestFeedRepositoryTest extends EasyMockSupport {
         EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
         EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
 
-        LatestFeedRepository latestFeedRepository = new LatestFeedRepository(fetchData, providesNow);
+        LatestFeedInfoRepository latestFeedRepository = new LatestFeedInfoRepository(fetchData, providesNow);
 
         replayAll();
         latestFeedRepository.getFeedinfo();

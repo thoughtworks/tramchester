@@ -27,7 +27,17 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
     public void beforeEachTestRuns() {
         now = TramTime.of(LocalTime.now());
         repository = createMock(LiveDataRepository.class);
-        healthCheck = new LiveDataHealthCheck(repository, () -> now);
+        healthCheck = new LiveDataHealthCheck(repository, new ProvidesNow() {
+            @Override
+            public TramTime getNow() {
+                return now;
+            }
+
+            @Override
+            public LocalDate getDate() {
+                return null;
+            }
+        });
     }
 
     @Test

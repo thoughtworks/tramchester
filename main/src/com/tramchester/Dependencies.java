@@ -18,12 +18,10 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.healthchecks.DataExpiryHealthCheck;
-import com.tramchester.healthchecks.GraphHealthCheck;
-import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.healthchecks.ProvidesNow;
+import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.*;
+import com.tramchester.repository.LatestFeedInfoRepository;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.RoutesRepository;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -68,10 +66,12 @@ public class Dependencies {
 
     public void initialise(TramchesterConfig configuration) throws IOException {
         Path dataPath = configuration.getDataPath();
+        
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(dataPath, configuration.getTramDataUrl());
+        picoContainer.addComponent(FetchDataFromUrl.class, fetcher);
+
         if (configuration.getPullData()) {
             logger.info("Pulling data");
-
-            FetchDataFromUrl fetcher = new FetchDataFromUrl(dataPath, configuration.getTramDataUrl());
             fetcher.fetchData();
         }
 
@@ -134,6 +134,7 @@ public class Dependencies {
         picoContainer.addComponent(ClientForS3.class);
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(CachedNodeOperations.class);
+        picoContainer.addComponent(LatestFeedInfoRepository.class);
 
         rebuildGraph(configuration);
 
@@ -151,6 +152,8 @@ public class Dependencies {
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);
+        picoContainer.addComponent(NewDataAvailableHealthCheck.class);
+
     }
 
     public void cleanseData(Path inputPath, Path outputPath, TramchesterConfig config) throws IOException {

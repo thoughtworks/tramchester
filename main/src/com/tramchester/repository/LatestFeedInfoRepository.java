@@ -3,7 +3,6 @@ package com.tramchester.repository;
 import com.googlecode.jcsv.CSVStrategy;
 import com.googlecode.jcsv.reader.CSVReader;
 import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.parsers.FeedInfoDataParser;
@@ -22,15 +21,15 @@ import java.util.List;
 import static com.tramchester.Dependencies.TFGM_UNZIP_DIR;
 import static java.lang.String.format;
 
-public class LatestFeedRepository {
-    private static final Logger logger = LoggerFactory.getLogger(LatestFeedRepository.class);
+public class LatestFeedInfoRepository {
+    private static final Logger logger = LoggerFactory.getLogger(LatestFeedInfoRepository.class);
 
     private final FetchDataFromUrl fetchDataFromUrl;
     private final ProvidesNow providesNow;
     private FeedInfo currentInfo;
     private LocalDate lastUpdate;
 
-    public LatestFeedRepository(FetchDataFromUrl fetchDataFromUrl, ProvidesNow providesNow) {
+    public LatestFeedInfoRepository(FetchDataFromUrl fetchDataFromUrl, ProvidesNow providesNow) {
         this.fetchDataFromUrl = fetchDataFromUrl;
         this.providesNow = providesNow;
     }
