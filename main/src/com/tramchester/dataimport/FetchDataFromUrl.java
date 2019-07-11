@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -14,6 +15,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
 
@@ -46,6 +50,36 @@ public class FetchDataFromUrl implements TransportDataFetcher {
     public void fetchData() throws IOException {
         Path zipFile = pullDataFromURL(ZIP_FILENAME);
         unzipData(zipFile);
+    }
+
+    public ByteArrayInputStream streamForFile(String entryWithinZip) throws IOException {
+        URL website = new URL(dataUrl);
+
+        ZipInputStream zipStream = new ZipInputStream(website.openStream());
+        ZipEntry nextEntry = zipStream.getNextEntry();
+
+        while(nextEntry!=null) {
+            logger.debug("Zip stream entry " + nextEntry.getName());
+            if (nextEntry.getName().equals(entryWithinZip)) {
+                ByteArrayInputStream stream = createSteam(nextEntry, zipStream);
+                zipStream.closeEntry();
+                return stream;
+            }
+            zipStream.closeEntry();
+            nextEntry = zipStream.getNextEntry();
+        }
+        zipStream.close();
+        return new ByteArrayInputStream(new byte[0]);
+    }
+
+    // Warning: don't use for large files, holds whole file in memory
+    private ByteArrayInputStream createSteam(ZipEntry nextEntry, ZipInputStream inputStream) throws IOException {
+        Long size = nextEntry.getSize();
+
+        byte[] buffer = new byte[size.intValue()];
+        inputStream.read(buffer, 0, size.intValue());
+
+        return new ByteArrayInputStream(buffer);
     }
 
     private void unzipData(Path filename) {

@@ -13,7 +13,6 @@ import static java.lang.String.format;
 
 public class FeedInfoDataParser implements CSVEntryParser<FeedInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FeedInfoDataParser.class);
-    //private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @Override

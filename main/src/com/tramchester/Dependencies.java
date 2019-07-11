@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -136,7 +137,17 @@ public class Dependencies {
 
         rebuildGraph(configuration);
 
-        picoContainer.addComponent(ProvidesNow.class, (ProvidesNow) () -> TramTime.of(ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalTime()));
+        picoContainer.addComponent(ProvidesNow.class, new ProvidesNow() {
+            @Override
+            public TramTime getNow() {
+                return TramTime.of(ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalTime());
+            }
+
+            @Override
+            public LocalDate getDate() {
+                return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDate();
+            }
+        });
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);

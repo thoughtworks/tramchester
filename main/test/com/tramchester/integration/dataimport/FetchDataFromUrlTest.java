@@ -1,12 +1,19 @@
 package com.tramchester.integration.dataimport;
 
+import com.googlecode.jcsv.CSVStrategy;
+import com.googlecode.jcsv.reader.CSVReader;
+import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.parsers.FeedInfoDataParser;
+import com.tramchester.domain.FeedInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,7 +21,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.Dependencies.TFGM_UNZIP_DIR;
+import static java.lang.String.format;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class FetchDataFromUrlTest {
 
@@ -38,6 +48,25 @@ public class FetchDataFromUrlTest {
         }
         Files.deleteIfExists(dataCleansePath.resolve(FetchDataFromUrl.ZIP_FILENAME));
         Files.deleteIfExists(dataCleansePath);
+    }
+
+    @Test
+    public void shouldGetStreamForFeedInfoFileFromInMemoryZip() throws IOException {
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(dataCleansePath, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+
+        ByteArrayInputStream inputStream = fetcher.streamForFile(format("%s/%s.txt", TFGM_UNZIP_DIR, TransportDataReader.FEED_INFO));
+
+        InputStreamReader reader = new InputStreamReader(inputStream);
+
+        CSVStrategy csvStrategy = new CSVStrategy(',', '"', '#', true, true);
+        CSVReader<FeedInfo> cvsParser = new CSVReaderBuilder<FeedInfo>(reader).
+                entryParser(new FeedInfoDataParser()).strategy(csvStrategy).
+                build();
+        List<FeedInfo> result = cvsParser.readAll();
+        reader.close();
+
+        assertEquals(1,result.size());
+        assertEquals("http://www.tfgm.com", result.get(0).getPublisherUrl());
     }
 
     @Test
