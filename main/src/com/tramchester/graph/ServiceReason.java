@@ -18,12 +18,14 @@ public abstract class ServiceReason {
     private final Set<String> pathAsStrings;
 
     public ServiceReason(Path path, String diagnostics) {
-        pathAsString="";
 
         pathAsStrings = new HashSet<>();
         if (logger.isDebugEnabled()) {
+            pathAsString = path.toString();
             pathAsStrings.addAll(PathToGraphViz.map(path, diagnostics, isValid()));
         } else {
+            pathAsString="";
+
 //            pathAsString = path.toString();
 //            pathAsStrings.add(pathAsString);
         }
@@ -40,9 +42,6 @@ public abstract class ServiceReason {
 
     private static class IsValid extends HasDiag
     {
-        public IsValid(Path path) {
-            super("ok", path);
-        }
 
         public IsValid(Path path, String diag) {
             super("ok:"+diag, path);
@@ -58,14 +57,7 @@ public abstract class ServiceReason {
     private static class InflightChangeOfService extends HasDiag
     {
         public InflightChangeOfService(String diag, Path path) {
-            super("ChangeOfSvc"+diag, path);
-        }
-    }
-
-    private static class Reboard extends HasDiag
-    {
-        public Reboard(String diag, Path path) {
-            super(diag, path);
+            super("ChangeOfSvc:"+diag, path);
         }
     }
 
@@ -131,10 +123,6 @@ public abstract class ServiceReason {
 
     public static ServiceReason DoesNotOperateOnTime(LocalTime currentElapsed, String diagnostics, Path path) {
         return new DoesNotOperateOnTime(currentElapsed, diagnostics, path);
-    }
-
-    public static Reboard Reboard(String diag, Path path) {
-        return new Reboard(diag ,path);
     }
 
 }

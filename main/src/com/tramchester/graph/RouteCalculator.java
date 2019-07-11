@@ -14,6 +14,7 @@ import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
+import org.neo4j.graphalgo.impl.util.PathInterest;
 import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
 import org.neo4j.kernel.impl.util.NoneStrictMath;
@@ -174,8 +175,10 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
+        PathInterest<Double> pathInterest = PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS);
+
         Dijkstra pathFinder = new Dijkstra(pathExpander, costEvaluator,
-                PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS));
+                PathInterestFactory.allShortest(NoneStrictMath.EPSILON));
         Iterable<WeightedPath> pathIterator = pathFinder.findAllPaths(startNode, endNode);
 
         return StreamSupport.stream(pathIterator.spliterator(), false);
@@ -226,10 +229,12 @@ public class RouteCalculator extends StationIndexs {
         return nodeFactory.getNode(node);
     }
 
+    // should be a set
     public List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) throws TramchesterException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
     }
 
+    // should be a set
     public List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws TramchesterException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
     }

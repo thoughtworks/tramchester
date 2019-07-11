@@ -56,6 +56,8 @@ public class LiveDataRepository {
                             info.clearMessage();
                         }
                         newMap.put(platformId, info);
+                    } else {
+                        logger.warn(format("Duplicate data seen for platform id '%s'", platformId));
                     }
                 });
             } catch (ParseException exception) {

@@ -333,7 +333,7 @@ import static org.junit.Assert.*;
 
     @Test
     public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
-        List<String> changes = Collections.singletonList(Stations.TraffordBar.getName());
+        List<String> changes = Collections.singletonList(Stations.Deansgate.getName());
         List<String> headSigns = Collections.singletonList(bury);
 
         TramJourney tramJourney = new TramJourney(altrincham, Stations.ExchangeSquare.getName(), nextTuesday,

@@ -49,7 +49,6 @@ public class DeparturesResourceTest {
         mapper.registerModule(new JodaModule());
     }
 
-
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetNearbyDeparturesWithNotes() {

@@ -1,7 +1,10 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.TestConfig;
+import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.Nodes.StationNode;
@@ -18,9 +21,11 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
@@ -83,6 +88,39 @@ public class TramGraphBuilderTest {
 
         assertEquals(1, boards.size());
         assertEquals(19, svcsToMediaCity.size());
+    }
+
+    @Test
+    public void shouldReproduceIssueAtCornBrookWithBranchingAndSkippedServices() throws TramchesterException {
+        assumeFalse(edgePerTrip);
+
+        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Cornbrook.getId()
+                + RouteCodesForTesting.ASH_TO_ECCLES);
+
+        List<TramGoesToRelationship> fromCornbrook = outbounds.stream().
+                filter(TransportRelationship::isGoesTo).
+                map(relationship -> ((TramGoesToRelationship) relationship)).collect(Collectors.toList());
+
+        List<TransportRelationship> inbounds = calculator.
+                getInboundRouteStationRelationships(Stations.MediaCityUK.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
+
+        List<TramGoesToRelationship> intoMediaCity = inbounds.stream().
+                filter(TransportRelationship::isGoesTo).
+                map(relationship -> ((TramGoesToRelationship) relationship)).collect(Collectors.toList());
+
+        Set<String> serviceIdsForMC = intoMediaCity.stream().map(tram -> tram.getServiceId()).collect(Collectors.toSet());
+
+        LocalDate nextTuesday = TestConfig.nextTuesday(0);
+
+        TramServiceDate date = new TramServiceDate(nextTuesday);
+        Set<TramGoesToRelationship> cornbrookThatCallMC = fromCornbrook.stream().
+                filter(relat -> serviceIdsForMC.contains(relat.getServiceId())).
+                filter(relat -> relat.getDaysServiceRuns()[1]).
+                filter(relat -> date.within(relat.getStartDate().getDate(), relat.getEndDate().getDate())).
+                collect(Collectors.toSet());
+
+        assertFalse(cornbrookThatCallMC.isEmpty());
+
     }
 
     @Test

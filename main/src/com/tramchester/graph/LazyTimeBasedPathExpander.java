@@ -26,12 +26,12 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     private final RelationshipFactory relationshipFactory;
     private final ServiceHeuristics serviceHeuristics;
 
-    private final Map<Node, Integer> visited;
+//    private final Map<Node, Integer> visited;
 
     public LazyTimeBasedPathExpander(RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics) {
         this.relationshipFactory = relationshipFactory;
         this.serviceHeuristics = serviceHeuristics;
-        visited = new HashMap<>();
+//        visited = new HashMap<>();
     }
 
     @Override
@@ -40,10 +40,10 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     }
 
     public void reportVisits(int threshhold) {
-        visited.entrySet().stream().
-                filter(entry -> (entry.getValue()>=threshhold)).
-                forEach(entry -> logger.warn(format("Node %s %s count was %s",
-                        entry.getKey().getProperty(GraphStaticKeys.ID),entry.getKey().getLabels(),entry.getValue())));
+//        visited.entrySet().stream().
+//                filter(entry -> (entry.getValue()>=threshhold)).
+//                forEach(entry -> logger.warn(format("Node %s %s count was %s",
+//                        entry.getKey().getProperty(GraphStaticKeys.ID),entry.getKey().getLabels(),entry.getValue())));
     }
 
     public class RelationshipIterable implements Iterator<Relationship> {
@@ -82,7 +82,13 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
                     if (!departing) {
                         return true;
                     }
+                    // not interested
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(format("Skipping relationship %s %s->%s with properties %s",
+                                next.getId(), next.getStartNodeId(), next.getEndNodeId(), next.getAllProperties()));
+                    }
                 }
+
             }
             return false;
         }

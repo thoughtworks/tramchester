@@ -83,10 +83,9 @@ public class ClientForS3Test {
         assertEquals(contents, storedJson);
     }
 
-
     public void createTestBucket() {
         s3.createBucket(TEST_BUCKET_NAME);
-        Waiter waiter = s3.waiters().bucketExists();
+        Waiter<HeadBucketRequest> waiter = s3.waiters().bucketExists();
         waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
     }
 
@@ -95,10 +94,10 @@ public class ClientForS3Test {
             DeleteObjectsRequest deleteObjects = new DeleteObjectsRequest(TEST_BUCKET_NAME).withKeys(KEY);
             s3.deleteObjects(deleteObjects);
             s3.deleteBucket(TEST_BUCKET_NAME);
-        }
 
-        Waiter waiter = s3.waiters().bucketNotExists();
-        waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
+            Waiter<HeadBucketRequest> waiter = s3.waiters().bucketNotExists();
+            waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
+        }
 
     }
 }

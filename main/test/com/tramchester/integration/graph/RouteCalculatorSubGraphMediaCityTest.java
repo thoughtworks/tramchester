@@ -1,6 +1,5 @@
 package com.tramchester.integration.graph;
 
-import com.google.common.collect.Lists;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
@@ -14,7 +13,6 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
-import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,10 +22,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
@@ -51,6 +46,32 @@ public class RouteCalculatorSubGraphMediaCityTest {
 //        graphFilter.addService("Serv003109"); // eccles, works both before and after 6am
 //        graphFilter.addService("Serv003232"); // east dids, works both before and after 6am
 
+        List<Integer> services = Arrays.asList(3109, 3232,
+                3134,
+                3110, 3133,
+                3149,
+
+                3150,
+                3157,
+                3111,
+                3158,
+                3135,
+                3118,
+
+                3136,
+                3154, 3112, 3117, 3115,
+                3155, 3153,
+                3114,
+                3156, 3152,
+                3151
+
+                );
+
+//        services.forEach(svc -> {
+//            String format = format("Serv00%s", svc.toString());
+//            graphFilter.addService(format);
+//        });
+
         graphFilter.addStation(Stations.ExchangeSquare);
         graphFilter.addStation(Stations.StPetersSquare);
         graphFilter.addStation(Stations.Deansgate);
@@ -61,8 +82,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
         graphFilter.addStation("9400ZZMAANC"); // Anchorage
         graphFilter.addStation(Stations.HarbourCity);
         graphFilter.addStation(Stations.MediaCityUK);
-        graphFilter.addStation(Stations.Broadway);
-
+//
         graphFilter.addStation(Stations.TraffordBar);
 
         dependencies = new Dependencies(graphFilter);
@@ -101,6 +121,8 @@ public class RouteCalculatorSubGraphMediaCityTest {
         List<String> stations =new LinkedList<>();
         stations.add(Stations.Cornbrook.getId());
         stations.add(Stations.MediaCityUK.getId());
+        stations.add(Stations.StPetersSquare.getId());
+
         creator.create(format("%s_trams.dot", "subgraph_mediacity"), stations);
     }
 

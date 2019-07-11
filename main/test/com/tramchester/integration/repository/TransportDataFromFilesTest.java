@@ -1,6 +1,7 @@
 package com.tramchester.integration.repository;
 
 
+import com.google.common.collect.Sets;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
@@ -34,9 +35,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv003218";
+    private final String svcDeansgateToVic = "Serv005371";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv003218";
+    private String svcShawAndCrompton = "Serv005371";
 
     private Collection<Service> allServices;
 
@@ -320,6 +321,40 @@ public class TransportDataFromFilesTest {
         Set<String> tripServicesId = new HashSet<>();
         allTrips.forEach(trip -> tripServicesId.add(trip.getServiceId()));
         assertEquals(allSvcs, tripServicesId.size());
+    }
+
+    @Test
+    public void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
+        Set<Trip> allTrips = transportData.getTripsFor(Stations.Cornbrook.getId());
+
+        Set<String> toMediaCity = allTrips.stream().
+                filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).
+                filter(trip -> trip.callsAt(Stations.MediaCityUK.getId())).
+                filter(trip -> trip.getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES)).
+                map(trip -> trip.getServiceId()).collect(Collectors.toSet());
+
+        Set<Service> services = toMediaCity.stream().
+                map(svc->transportData.getServiceById(svc)).collect(Collectors.toSet());
+
+        LocalDate nextTuesday = TestConfig.nextTuesday(0);
+
+        Set<Service> onDay = services.stream().
+                filter(service -> service.operatesOn(nextTuesday)).
+                filter(service -> service.getDays().get(DaysOfWeek.Tuesday)).
+                collect(Collectors.toSet());
+
+        TramTime time = TramTime.of(12, 0);
+
+        Set<Service> onTime = onDay.stream().filter(svc -> svc.latestDepartTime().isAfter(time) && svc.earliestDepartTime().isBefore(time)).collect(Collectors.toSet());
+
+        assertFalse(onTime.isEmpty()); // at least one service (likely is just one)
+
+        TimeWindow timeWindow = new TimeWindow(time.asLocalTime(), 10);
+        onTime.forEach(running-> {
+            Optional<Trip> maybeTrip = running.getFirstTripAfter(Stations.Cornbrook.getId(), Stations.MediaCityUK.getId(), timeWindow);
+            assertTrue(maybeTrip.isPresent());
+        });
+
     }
 
     @Test

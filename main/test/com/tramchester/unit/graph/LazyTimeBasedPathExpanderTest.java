@@ -16,6 +16,8 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.BranchState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.time.LocalTime;
@@ -24,8 +26,12 @@ import java.util.*;
 import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
 import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_BOARD;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
+
+    private static final Logger logger = LoggerFactory.getLogger(LazyTimeBasedPathExpanderTest.class);
+
 
     private Relationship departs;
     private Relationship boards;
@@ -65,6 +71,11 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         endNode = createMock(Node.class);
         path = createMock(Path.class);
 
+    }
+
+    @Test
+    public void cannotRunTheseTestsWithDebuggingEnabled() {
+        assertFalse(logger.isDebugEnabled());
     }
 
     @Test

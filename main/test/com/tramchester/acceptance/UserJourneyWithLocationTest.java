@@ -75,7 +75,7 @@ public class UserJourneyWithLocationTest {
         String finalStation = Stations.Ashton.getName();
         String firstStation = Stations.NavigationRoad.getName();
 
-        List<String> changes = Arrays.asList(firstStation, Stations.Cornbrook.getName());
+        List<String> changes = Arrays.asList(firstStation, Stations.Piccadilly.getName());
         List<String> headSigns = Arrays.asList("", Stations.Piccadilly.getName(), finalStation);
 
         LocalTime time = LocalTime.parse("19:47");

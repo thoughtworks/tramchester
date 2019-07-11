@@ -345,9 +345,10 @@ public class TransportGraphBuilder extends StationIndexs {
     }
 
     private Node createCallingPoint(Location station, Route route, String routeStationId, Service service) {
-        logger.info(format("Creating route station %s route %s service %s", station.getId(),route.getId(),
-                service.getServiceId()));
         Node routeStation = createGraphNode(Labels.ROUTE_STATION);
+
+        logger.info(format("Creating route station %s route %s service %s nodeId %s", station.getId(),route.getId(),
+                service.getServiceId(), routeStation.getId()));
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
         routeStation.setProperty(STATION_ID, station.getId());
