@@ -66,7 +66,7 @@ public class Dependencies {
 
     public void initialise(TramchesterConfig configuration) throws IOException {
         Path dataPath = configuration.getDataPath();
-        
+
         FetchDataFromUrl fetcher = new FetchDataFromUrl(dataPath, configuration.getTramDataUrl());
         picoContainer.addComponent(FetchDataFromUrl.class, fetcher);
 
@@ -153,6 +153,7 @@ public class Dependencies {
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);
         picoContainer.addComponent(NewDataAvailableHealthCheck.class);
+        picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
 
     }
 

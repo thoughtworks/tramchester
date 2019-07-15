@@ -96,7 +96,6 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals("some message", platformA.getStationDepartureInfo().getMessage());
         assertEquals("", platformB.getStationDepartureInfo().getMessage());
         assertEquals("", platformC.getStationDepartureInfo().getMessage());
-
     }
 
     @Test
@@ -115,10 +114,32 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(2,repository.count());
+        assertEquals(2,repository.countMessages());
+
         assertEquals(0, repository.staleDataCount());
         assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime())));
         assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(14))));
         assertEquals(0, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(16))));
+    }
+
+    @Test
+    public void shouldUpdateMessageCountWhenRefreshingDataOK() throws ParseException {
+        List<StationDepartureInfo> info = new LinkedList<>();
+
+        LocalDateTime lastUpdate = LocalDateTime.now(); // up to date
+        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
+        addStationInfo(info, lastUpdate, "303", "platformIdB", "<no message>", "platformLocation");
+
+        EasyMock.expect(fetcher.fetch()).andReturn("someData");
+        EasyMock.expect(mapper.parse("someData")).andReturn(info);
+
+        replayAll();
+        repository.refreshRespository();
+        verifyAll();
+
+        assertEquals(2,repository.count());
+        assertEquals(1,repository.countMessages());
+
     }
 
     @Test
@@ -138,7 +159,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(3,repository.count());
+        assertEquals(3, repository.count());
+        assertEquals(3, repository.countMessages());
         assertEquals(2, repository.staleDataCount());
         assertEquals(1, repository.upToDateEntries(TramTime.of(current.toLocalTime())));
     }

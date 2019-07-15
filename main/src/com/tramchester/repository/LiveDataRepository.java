@@ -24,6 +24,7 @@ public class LiveDataRepository {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
 
     public static final int TIME_LIMIT = 15; // only enrich if data is within this many minutes
+    public static final String NO_MESSAGE = "<no message>";
 
     // platformId -> StationDepartureInfo
     private HashMap<String,StationDepartureInfo> stationInformation;
@@ -31,6 +32,7 @@ public class LiveDataRepository {
     private LiveDataFetcher fetcher;
     private LiveDataParser parser;
     private LocalDateTime lastRefresh;
+    private int messageCount;
 
     private List<LiveDataObserver> observers;
 
@@ -40,6 +42,7 @@ public class LiveDataRepository {
         stationInformation = new HashMap<>();
         lastRefresh = LocalDateTime.now();
         observers = new LinkedList<>();
+        messageCount = 0;
     }
 
     public void refreshRespository()  {
@@ -47,12 +50,19 @@ public class LiveDataRepository {
         HashMap<String,StationDepartureInfo> newMap = new HashMap<>();
         String payload  = fetcher.fetch();
         if (payload.length()>0) {
+            messageCount = 0;
             try {
                 List<StationDepartureInfo> infos = parser.parse(payload);
                 infos.forEach(info -> {
                     String platformId = info.getStationPlatform();
                     if (!newMap.containsKey(platformId)) {
-                        if (info.getMessage().startsWith("^F0Next") || info.getMessage().equals("<no message>")) {
+                        String message = info.getMessage();
+                        if (message.equals(NO_MESSAGE)) {
+                            info.clearMessage();
+                        } else {
+                            messageCount = messageCount + 1;
+                        }
+                        if (scrollingDisplay(message)) {
                             info.clearMessage();
                         }
                         newMap.put(platformId, info);
@@ -72,6 +82,10 @@ public class LiveDataRepository {
         stationInformation = newMap;
         lastRefresh = LocalDateTime.now();
         invokeObservers();
+    }
+
+    private boolean scrollingDisplay(String message) {
+        return message.startsWith("^F0Next");
     }
 
     public void invokeObservers() {
@@ -153,6 +167,11 @@ public class LiveDataRepository {
         return stationInformation.size();
     }
 
+
+    public int countMessages() {
+        return messageCount;
+    }
+
     public long staleDataCount() {
         Collection<StationDepartureInfo> infos = stationInformation.values();
         int total = infos.size();
@@ -183,4 +202,5 @@ public class LiveDataRepository {
     public void observeUpdates(LiveDataObserver observer) {
         observers.add(observer);
     }
+
 }

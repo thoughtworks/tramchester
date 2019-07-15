@@ -4,10 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.healthchecks.DataExpiryHealthCheck;
-import com.tramchester.healthchecks.GraphHealthCheck;
-import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
+import com.tramchester.healthchecks.*;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.resources.*;
 import io.dropwizard.Application;
@@ -116,6 +113,8 @@ public class App extends Application<AppConfiguration>  {
         environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
         environment.healthChecks().register("liveData", dependencies.get(LiveDataHealthCheck.class));
         environment.healthChecks().register("newData", dependencies.get(NewDataAvailableHealthCheck.class));
+        environment.healthChecks().register("liveDataMessages", dependencies.get(LiveDataMessagesHealthCheck.class));
+
 
         filtersForStaticContent(environment);
 
