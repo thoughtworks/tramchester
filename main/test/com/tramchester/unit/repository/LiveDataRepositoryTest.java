@@ -86,7 +86,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(3,repository.count());
+        assertEquals(3,repository.countEntries());
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate());
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
         repository.enrich(platformA, queryDate, queryTime);
@@ -113,7 +113,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(2,repository.count());
+        assertEquals(2,repository.countEntries());
         assertEquals(2,repository.countMessages());
 
         assertEquals(0, repository.staleDataCount());
@@ -137,7 +137,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(2,repository.count());
+        assertEquals(2,repository.countEntries());
         assertEquals(1,repository.countMessages());
 
     }
@@ -159,7 +159,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(3, repository.count());
+        assertEquals(3, repository.countEntries());
         assertEquals(3, repository.countMessages());
         assertEquals(2, repository.staleDataCount());
         assertEquals(1, repository.upToDateEntries(TramTime.of(current.toLocalTime())));

@@ -163,7 +163,7 @@ public class LiveDataRepository {
                 count();
     }
 
-    public int count() {
+    public int countEntries() {
         return stationInformation.size();
     }
 

@@ -42,7 +42,7 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportUnhealthyIfNoData() {
-        EasyMock.expect(repository.count()).andReturn(0);
+        EasyMock.expect(repository.countEntries()).andReturn(0);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
@@ -54,7 +54,7 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
-        EasyMock.expect(repository.count()).andReturn(40);
+        EasyMock.expect(repository.countEntries()).andReturn(40);
         EasyMock.expect(repository.staleDataCount()).andReturn(0L);
         EasyMock.expect(repository.upToDateEntries(now)).andReturn(40L);
 
@@ -67,7 +67,7 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportUnhealthIfStaleDate() {
-        EasyMock.expect(repository.count()).andReturn(40);
+        EasyMock.expect(repository.countEntries()).andReturn(40);
         EasyMock.expect(repository.staleDataCount()).andReturn(2L);
 
         replayAll();
@@ -80,7 +80,7 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportUnhealthIfStaleTime() {
-        EasyMock.expect(repository.count()).andReturn(40);
+        EasyMock.expect(repository.countEntries()).andReturn(40);
         EasyMock.expect(repository.upToDateEntries(now)).andReturn(20L);
         EasyMock.expect(repository.staleDataCount()).andReturn(0L);
 

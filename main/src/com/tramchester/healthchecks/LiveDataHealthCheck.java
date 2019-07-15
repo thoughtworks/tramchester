@@ -23,7 +23,7 @@ public class LiveDataHealthCheck extends HealthCheck {
     @Override
     public Result check() {
         logger.info("Checking live data health");
-        int total = repository.count();
+        int total = repository.countEntries();
 
         if (total==0) {
             logger.error(noEntriesPresent);
