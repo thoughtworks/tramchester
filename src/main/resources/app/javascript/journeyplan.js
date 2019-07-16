@@ -1,5 +1,5 @@
 
-new Vue({
+app = new Vue({
         el: '#journeyplan',
         data () {
             return {
@@ -7,7 +7,9 @@ new Vue({
                 startStop: null,
                 endStop: null,
                 time: null,
-                date: null
+                date: null,
+                journeys: [],
+                notes: []
             }
         },
         methods: {
@@ -16,11 +18,12 @@ new Vue({
                     params: {
                         start: this.startStop, end: this.endStop, departureTime: this.time, departureDate: this.date}
                 }).then(function (response) {
+                    app.journeys = response.data.journeys;
+                    app.notes = response.data.notes;
                     // handle success
                     console.log(response);
                 })
                 .catch(function (error) {
-                    // handle error
                     console.log(error);
                 });
                 
@@ -33,7 +36,6 @@ new Vue({
                 .then(response => (
                     this.stops = response.data.stations))
                 .catch(function (error) {
-                    // handle error
                     console.log(error);
                 })
         }

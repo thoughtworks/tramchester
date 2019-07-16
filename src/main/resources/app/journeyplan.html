@@ -29,12 +29,14 @@
                 <button @click="plan()">Go</button>
             </div>
 
-            <div id="inputs">
-                from:{{ startStop }}
-                to:{{ endStop }}
-                time:{{ time }}
-                date:{{ date }}
+            <div id="results">
+                <ul id="journeys">
+                    <li v-for="journey in journeys">
+                        {{ journey.begin.name }} to {{ journey.end.name }}
+                    </li>
+                </ul>
             </div>
+
         </div>
 
         <script src="/app/javascript/journeyplan.js"></script>
