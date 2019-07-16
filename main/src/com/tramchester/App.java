@@ -138,13 +138,14 @@ public class App extends Application<AppConfiguration>  {
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
         // refresh live data
+        int initialDelay = 10;
         ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
             try {
                 liveDateRepository.refreshRespository();
             } catch (Exception exeception) {
                 logger.error("Unable to refresh live data", exeception);
             }
-        }, 10, 10, TimeUnit.SECONDS);
+        }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
 
         // todo into own class
         environment.healthChecks().register("liveDataJobCheck", new HealthCheck() {

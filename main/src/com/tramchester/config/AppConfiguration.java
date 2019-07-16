@@ -101,6 +101,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("removeRouteNameSuffix")
     private boolean removeRouteNameSuffix;
 
+    @JsonProperty("liveDataRefreshPeriodSeconds")
+    private long liveDataRefreshPeriodSeconds;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -226,5 +229,8 @@ public class AppConfiguration extends TramchesterConfig {
     public boolean getRemoveRouteNameSuffix() {
         return removeRouteNameSuffix;
     }
+
+    @Override
+    public long getLiveDataRefreshPeriodSeconds() { return liveDataRefreshPeriodSeconds; }
 
 }

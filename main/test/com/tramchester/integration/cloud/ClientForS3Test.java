@@ -11,6 +11,7 @@ import com.tramchester.cloud.ClientForS3;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.support.ui.Wait;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -90,14 +91,42 @@ public class ClientForS3Test {
     }
 
     private void tidyBucket() {
+        // due to eventual consistency and unrealability of tests this has become a bit belt and braces :-(
         if (s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
+
+            //// KEY
             DeleteObjectsRequest deleteObjects = new DeleteObjectsRequest(TEST_BUCKET_NAME).withKeys(KEY);
-            s3.deleteObjects(deleteObjects);
-            s3.deleteBucket(TEST_BUCKET_NAME);
 
-            Waiter<HeadBucketRequest> waiter = s3.waiters().bucketNotExists();
-            waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
+            try {
+                s3.deleteObjects(deleteObjects);
+            }
+            catch (AmazonS3Exception deletefailed) {
+                if (deletefailed.getStatusCode()==404) {
+                    // fine, no need to delete
+                } else {
+                    throw deletefailed;
+                }
+            }
+
+            Waiter<GetObjectMetadataRequest> keyWaiter = s3.waiters().objectNotExists();
+            keyWaiter.run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, KEY)));
+
+            //// BUCKET
+            try {
+                s3.deleteBucket(TEST_BUCKET_NAME);
+            }
+            catch (AmazonS3Exception deletefailed) {
+                if (deletefailed.getStatusCode()==404) {
+                    // fine, no need to delete
+                } else {
+                    throw deletefailed;
+                }
+            }
+
+            Waiter<HeadBucketRequest> bucketWaiter = s3.waiters().bucketNotExists();
+            bucketWaiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
         }
-
     }
+
+
 }

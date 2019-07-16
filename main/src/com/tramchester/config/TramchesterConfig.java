@@ -87,4 +87,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // remove the (Purple Line) part of the route name?
     public abstract boolean getRemoveRouteNameSuffix();
+
+    public abstract long getLiveDataRefreshPeriodSeconds();
 }

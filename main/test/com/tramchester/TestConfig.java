@@ -130,6 +130,9 @@ public abstract class TestConfig extends AppConfiguration {
     public String getLiveDataS3Bucket() { return "tramchestertestlivedatabucket"; }
 
     @Override
+    public long getLiveDataRefreshPeriodSeconds() { return 10L; }
+
+    @Override
     public boolean getRemoveRouteNameSuffix() {
         // issue with truncation of source data, until this is fixed this needs to remain true
         return true; }

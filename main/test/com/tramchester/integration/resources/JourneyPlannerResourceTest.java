@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.TramServiceDate;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -84,7 +86,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Category(LiveDataTestCategory.class)
     public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() {
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, LocalTime.now(),
+        LocalTime timeForQuery = ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalTime();
+
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, timeForQuery,
                 new TramServiceDate(LocalDate.now()));
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
