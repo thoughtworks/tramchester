@@ -10,6 +10,7 @@ import com.tramchester.repository.VersionRepository;
 import com.tramchester.resources.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
@@ -27,6 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+
+// Great resource for bundles etc here: https://github.com/stve/awesome-dropwizard
 
 public class App extends Application<AppConfiguration>  {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
@@ -74,7 +78,8 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new AssetsBundle("/assets/views", "/views", null, "views"));
 
         // WIP new app pages
-        bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
+        //bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
+        bootstrap.addBundle(new ConfiguredAssetsBundle("/app", "/app", "index.html", "app"));
 
         // api/swagger.json and api/swagger
         bootstrap.addBundle(new SwaggerBundle<AppConfiguration>() {

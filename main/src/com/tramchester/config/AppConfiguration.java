@@ -2,8 +2,11 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dropwizard.bundles.assets.AssetsConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -130,6 +133,16 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
         return swaggerBundleConfiguration;
+    }
+
+    @Valid
+    @NotNull
+    @JsonProperty
+    private final AssetsConfiguration assets = AssetsConfiguration.builder().build();
+
+    @Override
+    public AssetsConfiguration getAssetsConfiguration() {
+        return assets;
     }
 
     @Override

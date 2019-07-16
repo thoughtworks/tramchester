@@ -60,3 +60,9 @@ logging:
       archivedLogFilenamePattern: log/tramchester-%d.log
       archivedFileCount: 5
       timeZone: UTC
+
+assets:
+  overrides:
+    # Override requests to /app/${1} to instead look in
+    # ${working directory}/src/main/app/${1}
+    /app: src/main/resources/app/

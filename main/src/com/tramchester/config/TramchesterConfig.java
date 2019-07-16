@@ -1,6 +1,7 @@
 package com.tramchester.config;
 
 import io.dropwizard.Configuration;
+import io.dropwizard.bundles.assets.AssetsBundleConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
@@ -8,7 +9,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
-public abstract class TramchesterConfig extends Configuration {
+public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration {
 
     public static ZoneId TimeZone = ZoneId.of("Europe/London");
 

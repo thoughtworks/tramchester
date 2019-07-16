@@ -57,12 +57,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     private ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
-    private ZoneId timeZone;
     private DateTimeFormatter timeFormatter;
 
     @Before
     public void beforeEachTestRuns() {
-        timeZone = TramchesterConfig.TimeZone;
         when = TestConfig.nextTuesday(0);
         mapper.registerModule(new JodaModule());
         timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");

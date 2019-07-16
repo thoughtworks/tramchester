@@ -14,7 +14,7 @@ var app = new Vue({
 
 axios({
   method: 'get',
-  url: 'http://localhost/api/stations/api:8080'
+  url: 'http://localhost:8080/api/stations'
 })
   .then(function (response) {
     this.posts = response.data
