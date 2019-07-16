@@ -3,13 +3,17 @@
     <head>
         <link rel="stylesheet" href="index.css">
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.js"></script>
     </head>
     <body>
 
-        <div id="app">
+        <div id="journeyplan">
             {{ message }}
+          <li v-for="item in items">
+              {{ item.message }}
+          </li>
         </div>
 
-        <script src="app/javascript/index.js"></script>
+        <script src="/app/javascript/journeyplan.js"></script>
     </body>
 </html>

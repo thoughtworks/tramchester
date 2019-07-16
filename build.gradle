@@ -27,7 +27,7 @@ def environment = System.getenv("ENV") ?: "Dev"
 version = 1.0
 
 project.ext {
-    dropwizardVersion = '1.1.3'
+    dropwizardVersion = '1.3.12'
 }
 
 repositories {
@@ -202,7 +202,7 @@ task integration(type: Test, dependsOn: compileJava) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
-            excludeCategories 'com.tramchester.LiveDataTestCategory' // hopefully temporary exclusion
+            excludeCategories "com.tramchester.LiveDataMessagesCategory" // hopefully temporary exclusion
         }
         testLogging {
             exceptionFormat "full" // default is "short"
