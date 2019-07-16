@@ -61,6 +61,7 @@ logging:
       archivedFileCount: 5
       timeZone: UTC
 
+# TODO only for dev environments
 assets:
   overrides:
     # Override requests to /app/${1} to instead look in

@@ -78,7 +78,7 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new AssetsBundle("/assets/views", "/views", null, "views"));
 
         // WIP new app pages
-        //bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
+        // TODO Use configurable assest bundle only for dev env
         bootstrap.addBundle(new ConfiguredAssetsBundle("/app", "/app", "index.html", "app"));
 
         // api/swagger.json and api/swagger
