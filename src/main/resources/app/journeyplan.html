@@ -8,10 +8,33 @@
     <body>
 
         <div id="journeyplan">
-            {{ message }}
-          <li v-for="item in items">
-              {{ item.name }}
-          </li>
+            <div id="selectStart">
+                <select v-model="startStop">
+                    <option v-for="stop in stops" :value="stop.id" :key="stop.id" :index="stop.proximityGroup.order">{{stop.name}}</option>
+                </select>
+            </div>
+            <div id="selectEnd">
+                <select v-model="endStop">
+                    <option v-for="stop in stops" :value="stop.id" :key="stop.id" :index="stop.proximityGroup.order">{{stop.name}}</option>
+                </select>
+            </div>
+            <div id="selectTime">
+                <input v-model="time" type="time">
+            </div>
+            <div id="selectDate">
+                <input v-model="date" type="date">
+            </div>
+
+            <div id="submit">
+                <button @click="plan()">Go</button>
+            </div>
+
+            <div id="inputs">
+                from:{{ startStop }}
+                to:{{ endStop }}
+                time:{{ time }}
+                date:{{ date }}
+            </div>
         </div>
 
         <script src="/app/javascript/journeyplan.js"></script>
