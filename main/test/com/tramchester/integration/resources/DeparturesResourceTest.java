@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
+import com.tramchester.LiveDataMessagesCategory;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -51,6 +52,20 @@ public class DeparturesResourceTest {
 
     @Test
     @Category(LiveDataTestCategory.class)
+    public void shouldGetDueTramsForStation() {
+        Response response = IntegrationClient.getResponse(
+                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty());
+        assertEquals(200,response.getStatus());
+
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        SortedSet<DepartureDTO> departures = departureList.getDepartures();
+        assertFalse(departures.isEmpty());
+
+        departures.forEach(depart -> assertEquals(Stations.StPetersSquare.getName(),depart.getFrom()));
+    }
+
+    @Test
+    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
     public void shouldGetNearbyDeparturesWithNotes() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
@@ -87,24 +102,18 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category(LiveDataHealthCheck.class)
-    public void shouldGetDueTramsForStation() {
+    @Category({LiveDataTestCategory.class,LiveDataMessagesCategory.class})
+    public void shouldGetDueTramsNotesForStation() {
         Response response = IntegrationClient.getResponse(
                 testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty());
         assertEquals(200,response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        SortedSet<DepartureDTO> departures = departureList.getDepartures();
-        assertFalse(departures.isEmpty());
         assertFalse(departureList.getNotes().isEmpty());
-
-        departures.forEach(depart -> {
-            assertEquals(Stations.StPetersSquare.getName(),depart.getFrom());
-        });
     }
 
     @Test
-    @Category(LiveDataHealthCheck.class)
+    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
     public void shouldGetDueTramsForStationNotesOnOrOff() {
         Response response = IntegrationClient.getResponse(
                 testRule, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()), Optional.empty());

@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.tramchester.domain.presentation.Version;
+import com.tramchester.repository.VersionRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,18 +19,16 @@ import static java.lang.String.format;
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
 public class VersionResource {
-    public VersionResource() {
+    private final VersionRepository versionRepository;
+
+    public VersionResource(VersionRepository versionRepository) {
+        this.versionRepository = versionRepository;
     }
 
     @GET
     @ApiOperation(value = "Return version of server code", response = Version.class)
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Version version() {
-        String build = System.getenv("BUILD");
-        if (StringUtils.isEmpty(build)) {
-            build = "0";
-        }
-        String version = format("%s.%s", Version.MajorVersion, build);
-        return new Version(version);
+        return versionRepository.getVersion();
     }
 }

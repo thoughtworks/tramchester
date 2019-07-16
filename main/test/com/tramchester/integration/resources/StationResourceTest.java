@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
+import com.tramchester.LiveDataMessagesCategory;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Timestamped;
@@ -111,7 +112,7 @@ public class StationResourceTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
+    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
     public void shouldGetNearestStationsWithLiveData() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;

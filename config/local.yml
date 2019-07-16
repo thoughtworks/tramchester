@@ -42,6 +42,7 @@ createLocality: false
 
 swagger:
   resourcePackage: com.tramchester.resources
+  title: tramchester
 
 logging:
   level: INFO

@@ -6,6 +6,7 @@ import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.healthchecks.*;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.VersionRepository;
 import com.tramchester.resources.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -79,10 +80,13 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new SwaggerBundle<AppConfiguration>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
-                return configuration.getSwaggerBundleConfiguration();
+                SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
+                bundleConfiguration.setVersion(VersionRepository.getVersion().getBuildNumber());
+                return bundleConfiguration;
             }
         });
 
+        // https://www.tramchester.com/swagger-ui/index.html
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
     }
 

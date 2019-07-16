@@ -3,18 +3,18 @@ package com.tramchester.domain.presentation;
 public class Version {
     public static String MajorVersion = "2";
 
-    private String buildNumber;
+    private String versionNumber;
 
     public Version() {
         // deserialization
     }
 
-    public Version(String buildNumber) {
-        this.buildNumber = buildNumber;
+    public Version(String versionNumber) {
+        this.versionNumber = versionNumber;
     }
 
     // from json
     public String getBuildNumber() {
-        return buildNumber;
+        return versionNumber;
     }
 }

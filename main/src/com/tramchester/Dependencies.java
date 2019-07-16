@@ -21,10 +21,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.*;
-import com.tramchester.repository.LatestFeedInfoRepository;
-import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.RoutesRepository;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
 import com.tramchester.services.StationLocalityService;
@@ -80,6 +77,7 @@ public class Dependencies {
         logger.info("Creating dependencies");
         // caching is on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
+        picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(DeparturesResource.class);
         picoContainer.addComponent(DeparturesMapper.class);
