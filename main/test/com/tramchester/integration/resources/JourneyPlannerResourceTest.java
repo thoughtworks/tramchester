@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.TestConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.TramServiceDate;
@@ -35,7 +34,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -44,7 +42,6 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsIn.isOneOf;
 import static org.hamcrest.collection.IsIn.oneOf;
 import static org.joda.time.DateTimeConstants.SATURDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
@@ -98,8 +95,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         // depends on up to date departure info and current query time
         StationDepartureInfo departInfo = platform.getStationDepartureInfo();
-        assertNotNull(departInfo);
-        assertEquals(Stations.Altrincham.getId()+"1",departInfo.getStationPlatform());
+        assertNotNull("departInfo was null",departInfo);
+        String expected = Stations.Altrincham.getId() + "1";
+        assertEquals("got "+departInfo.getStationPlatform(), expected,departInfo.getStationPlatform());
     }
 
     @Test
