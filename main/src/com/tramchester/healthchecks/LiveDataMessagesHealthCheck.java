@@ -11,10 +11,12 @@ public class LiveDataMessagesHealthCheck extends HealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataMessagesHealthCheck.class);
 
     private LiveDataRepository repository;
-
     public LiveDataMessagesHealthCheck(LiveDataRepository repository) {
         this.repository = repository;
     }
+
+    // seems normally al but 2 displays should have messages
+    public static final int MISSING_MSGS_LIMIT = 2;
 
     @Override
     public Result check() {
@@ -22,8 +24,9 @@ public class LiveDataMessagesHealthCheck extends HealthCheck {
         int entries = repository.countEntries();
         int messages = repository.countMessages();
 
-        // Note: Zero case will trigger LiveDataHealthCheck
-        if (messages<entries) {
+        int offset = entries - messages;
+
+        if (offset>MISSING_MSGS_LIMIT) {
             String message = format("Not enough messages present, %s out of %s entries", messages, entries);
             logger.warn(message);
             return Result.unhealthy(message);

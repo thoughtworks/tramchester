@@ -34,7 +34,30 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
         assertEquals("Not enough messages present, 0 out of 40 entries", result.getMessage());
     }
 
-    // TODO may need to add a threshhold should as 50%
+    @Test
+    public void shouldReportUnhealthyIfHaveDataAndOverThreshold() {
+        EasyMock.expect(repository.countEntries()).andReturn(40);
+        EasyMock.expect(repository.countMessages()).andReturn(37);
+
+        replayAll();
+        HealthCheck.Result result = healthCheck.check();
+        verifyAll();
+
+        assertFalse(result.isHealthy());
+    }
+
+    @Test
+    public void shouldReportHealthyIfHaveDataAndWithinThreshold() {
+        EasyMock.expect(repository.countEntries()).andReturn(40);
+        EasyMock.expect(repository.countMessages()).andReturn(38);
+
+        replayAll();
+        HealthCheck.Result result = healthCheck.check();
+        verifyAll();
+
+        assertTrue(result.isHealthy());
+    }
+
     @Test
     public void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
         EasyMock.expect(repository.countEntries()).andReturn(40);
