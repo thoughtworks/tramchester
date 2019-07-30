@@ -1,40 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="index.css">
+        <link href="index.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.js"></script>
+        <script src="javascript/lib/moment.min.js"></script>
     </head>
     <body>
 
         <div id="journeyplan">
             <div id="selectStart">
-                <select v-model="startStop">
-                    <option v-for="stop in stops" :value="stop.id" :key="stop.id" :index="stop.proximityGroup.order">{{stop.name}}</option>
+
+                <select v-model="startStop" >
+                    <option disabled value="">Please select start</option>
+                    <option v-for="stop in stops" :value="stop.id">{{stop.name}}</option>
+
+                    <!--
+                    <option :index="stop.proximityGroup.name" :key="stop.id" :value="stop.id" v-for="stop in stops">{{stop.name}}</option>
+                    -->
                 </select>
             </div>
             <div id="selectEnd">
-                <select v-model="endStop">
-                    <option v-for="stop in stops" :value="stop.id" :key="stop.id" :index="stop.proximityGroup.order">{{stop.name}}</option>
+                <select v-model="endStop" >
+                    <option disabled value="">Please select destination</option>
+                    <option :index="stop.proximityGroup.order" :key="stop.id" :value="stop.id" v-for="stop in stops">{{stop.name}}</option>
                 </select>
             </div>
             <div id="selectTime">
-                <input v-model="time" type="time">
+                <input type="time" v-model="time"  />
             </div>
             <div id="selectDate">
-                <input v-model="date" type="date">
+                <input type="date" v-model="date" />
             </div>
-
             <div id="submit">
                 <button @click="plan()">Go</button>
             </div>
 
             <div id="results">
-                <ul id="journeys">
-                    <li v-for="journey in journeys">
-                        {{ journey.begin.name }} to {{ journey.end.name }}
-                    </li>
-                </ul>
+                <table id="journeys" v-show="journeys.length > 0">
+                    <tr v-for="journey in journeys">
+                        <td>
+                            <div id="journeyHeaderDirect" v-show="journey.isDirect">Tram with no changes</div>
+                            <div id="journeyHeaderIndirect" v-show="!journey.isDirect">Tram with {{journey.stages.length}} changes</div>
+                        </td>
+                        <td>{{journey.firstDepartureTime}} from {{ journey.begin.name }}</td>
+                        <td>{{journey.expectedArrivalTime}} arrive at {{ journey.end.name }}</td>
+                        <td>{{journey.heading}}</td>
+                        <td>{{journey.summary}}</td>
+                        <td>
+                            <div v-for="stage in journey.stages">
+                                {{ stage.summary }}
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
         </div>

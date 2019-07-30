@@ -124,7 +124,6 @@ public class App extends Application<AppConfiguration>  {
         environment.healthChecks().register("newData", dependencies.get(NewDataAvailableHealthCheck.class));
         environment.healthChecks().register("liveDataMessages", dependencies.get(LiveDataMessagesHealthCheck.class));
 
-
         filtersForStaticContent(environment);
 
         // initial load of live data

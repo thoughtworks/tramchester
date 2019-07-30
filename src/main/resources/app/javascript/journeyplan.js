@@ -1,17 +1,26 @@
 
+function getCurrentTime() {
+    return moment().format("HH:mm");
+}
+
+function getCurrentDate() {
+    return moment().format("YYYY-MM-DD")
+}
+
 app = new Vue({
         el: '#journeyplan',
         data () {
             return {
-                stops: null,
-                startStop: null,
-                endStop: null,
-                time: null,
-                date: null,
+                stops: [],
+                startStop: '',
+                endStop: '',
+                time: getCurrentTime(),
+                date: getCurrentDate(),
                 journeys: [],
                 notes: []
             }
         },
+
         methods: {
             plan(){
                 axios.get('http://localhost:8080/api/journey', {
@@ -26,7 +35,6 @@ app = new Vue({
                 .catch(function (error) {
                     console.log(error);
                 });
-                
             }
         }
         ,
