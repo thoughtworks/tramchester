@@ -1,25 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+        <!-- Load polyfills to support older browsers -->
+        <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+
+        <!-- Load Vue followed by BootstrapVue -->
+        <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+        <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
         <link href="index.css" rel="stylesheet">
+        <!--
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        -->
         <script src="https://unpkg.com/axios/dist/axios.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
         <script src="javascript/lib/moment.min.js"></script>
     </head>
     <body>
 
         <div id="journeyplan">
             <div id="selectStart">
-                <select v-model="startStop" >
-                    <option disabled value="">Please select start</option>
-                    <option v-for="stop in startStops" :value="stop.id">{{stop.name}}</option>
-                </select>
+                <b-form-select v-model="startStop" class="mb-3">
+                    <optgroup v-for="group in proxGroups" :label="group.name">
+                        <option v-for="stop in startStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
+                    </optgroup>
+                </b-form-select>
             </div>
             <div id="selectEnd">
+                <b-form-select v-model="endStop" class="mb-3">
+                    <optgroup v-for="group in proxGroups" :label="group.name">
+                        <option v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
+                    </optgroup>
+                </b-form-select>
+
+                <!--
                 <select v-model="endStop" >
                     <option disabled value="">Please select destination</option>
                     <option :index="stop.proximityGroup.order" :key="stop.id" :value="stop.id" v-for="stop in endStops">{{stop.name}}</option>
-                </select>
+                </select> -->
             </div>
             <div id="selectTime">
                 <input type="time" v-model="time"  />

@@ -51,6 +51,18 @@ app = new Vue({
             startStops: function () {
                 return this.stops;
             },
+            proxGroups: function () {
+                proxGroups = [];
+                seen = [];
+                this.stops.forEach(stop =>
+                    {
+                        if (!seen.includes(stop.proximityGroup.order)) {
+                            proxGroups.push(stop.proximityGroup);
+                            seen.push(stop.proximityGroup.order);
+                        }
+                    } );
+                return _.sortBy(proxGroups, [function(grp) { return grp.order; }]);
+            },
             endStops: function () {
                 return this.stops.filter(item => item.id!=this.startStop);
             }
