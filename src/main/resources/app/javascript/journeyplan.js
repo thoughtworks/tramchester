@@ -46,5 +46,14 @@ app = new Vue({
                 .catch(function (error) {
                     console.log(error);
                 })
+        },
+        computed: {
+            startStops: function () {
+                return this.stops;
+            },
+            endStops: function () {
+                return this.stops.filter(item => item.id!=this.startStop);
+            }
         }
+
     })

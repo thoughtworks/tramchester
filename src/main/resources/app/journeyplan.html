@@ -10,20 +10,15 @@
 
         <div id="journeyplan">
             <div id="selectStart">
-
                 <select v-model="startStop" >
                     <option disabled value="">Please select start</option>
-                    <option v-for="stop in stops" :value="stop.id">{{stop.name}}</option>
-
-                    <!--
-                    <option :index="stop.proximityGroup.name" :key="stop.id" :value="stop.id" v-for="stop in stops">{{stop.name}}</option>
-                    -->
+                    <option v-for="stop in startStops" :value="stop.id">{{stop.name}}</option>
                 </select>
             </div>
             <div id="selectEnd">
                 <select v-model="endStop" >
                     <option disabled value="">Please select destination</option>
-                    <option :index="stop.proximityGroup.order" :key="stop.id" :value="stop.id" v-for="stop in stops">{{stop.name}}</option>
+                    <option :index="stop.proximityGroup.order" :key="stop.id" :value="stop.id" v-for="stop in endStops">{{stop.name}}</option>
                 </select>
             </div>
             <div id="selectTime">
