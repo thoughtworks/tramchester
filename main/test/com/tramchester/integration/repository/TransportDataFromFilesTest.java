@@ -1,7 +1,6 @@
 package com.tramchester.integration.repository;
 
 
-import com.google.common.collect.Sets;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
@@ -13,7 +12,6 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
-import net.sf.cglib.core.Local;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,7 +21,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -35,9 +32,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv005292";
+    private final String svcDeansgateToVic = "Serv004263";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv005291";
+    private String svcShawAndCrompton = "Serv004263";
 
     private Collection<Service> allServices;
 

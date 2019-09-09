@@ -17,8 +17,8 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 
 public class FeedInfoResourceTest {
-    public static LocalDate validFrom = LocalDate.of(2019, 7, 19); // year, month, day
-    public static LocalDate validUntil = LocalDate.of(2019, 9, 19);
+    public static LocalDate validFrom = LocalDate.of(2019, 8, 23); // year, month, day
+    public static LocalDate validUntil = LocalDate.of(2019, 10, 23);
 
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
