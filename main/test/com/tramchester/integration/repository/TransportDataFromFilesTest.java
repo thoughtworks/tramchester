@@ -32,9 +32,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv004263";
+    private final String svcDeansgateToVic = "Serv004128";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv004263";
+    private String svcShawAndCrompton = "Serv004128";
 
     private Collection<Service> allServices;
 
@@ -203,7 +203,7 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toList());
 
         // not date specific
-        assertEquals(4, atRequiredTimed.size());
+        assertEquals(2, atRequiredTimed.size());
     }
 
     @Test
