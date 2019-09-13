@@ -3,6 +3,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
         <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+        <link type="text/css" rel="stylesheet" href="css/tramchester.css" />
 
         <!-- Load polyfills to support older browsers -->
         <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
@@ -57,8 +58,6 @@
             <div id="results">
                 <div>
                     <b-table
-                            striped
-                            hover
                             selectable
                             :items="journeys"
                             :fields="journeyFields"
@@ -67,7 +66,8 @@
                     >
                         <template slot="row-details" slot-scope="row">
                             <b-card>
-                                <b-table :items="currentJourneyStages" :fields="stageFields">
+                                <b-table :items="currentJourneyStages" :fields="stageFields"
+                                         :tbody-tr-class="stageRowClass">
                                 </b-table>
                             </b-card>
                         </template>

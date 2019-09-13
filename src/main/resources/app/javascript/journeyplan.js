@@ -26,6 +26,7 @@ app = new Vue({
                 stageFields: [{key:'firstDepartureTime',label:'Time'},
                     {key:'prompt',label:'Action' },
                     {key:'actionStation.name',label:'Station'},
+                    {key:'platform.platformNumber', label:'Platform'},
                     {key:'headSign', label:'Towards'},
                     {key:'summary', label:'Line'},
                     {key:'passedStops', label:'Stops'}]
@@ -47,9 +48,15 @@ app = new Vue({
                     console.log(error);
                 });
             },
-            expandStages(row) {
+            expandStages(row,index) {
                 app.currentJourneyStages = row.stages;
                 row._showDetails = !row._showDetails;
+            },
+            stageRowClass(item,type) {
+                if (item && type === 'row') {
+                    return item.displayClass;
+                }
+                return null;
             }
         }
         ,
