@@ -12,11 +12,15 @@ app = new Vue({
         data () {
             return {
                 stops: [],
-                startStop: '',
-                endStop: '',
+                startStop: null,
+                endStop: null,
                 time: getCurrentTime(),
                 date: getCurrentDate(),
                 journeys: [],
+                journeyFields: [
+                    {key:'firstDepartureTime',label:'Departs',sortable:true},
+                    {key:'expectedArrivalTime',label:'Arrives',sortable:true},
+                    {key:'summary', label:'Changes'},{key:'heading',label:'Summary'}, ],
                 notes: []
             }
         },

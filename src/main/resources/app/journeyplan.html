@@ -12,9 +12,7 @@
         <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 
         <link href="index.css" rel="stylesheet">
-        <!--
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        -->
+
         <script src="https://unpkg.com/axios/dist/axios.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
         <script src="javascript/lib/moment.min.js"></script>
@@ -22,54 +20,44 @@
     <body>
 
         <div id="journeyplan">
-            <div id="selectStart">
-                <b-form-select v-model="startStop" class="mb-3">
-                    <optgroup v-for="group in proxGroups" :label="group.name">
-                        <option v-for="stop in startStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
-                    </optgroup>
-                </b-form-select>
-            </div>
-            <div id="selectEnd">
-                <b-form-select v-model="endStop" class="mb-3">
-                    <optgroup v-for="group in proxGroups" :label="group.name">
-                        <option v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
-                    </optgroup>
-                </b-form-select>
+            <b-card bg-variant="light">
+                <div id="selectStart">
+                    <b-form-select v-model="startStop" class="mb-3">
+                        <option :value="null" disabled>Please select start</option>
+                        <optgroup v-for="group in proxGroups" :label="group.name">
+                            <option v-for="stop in startStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
+                        </optgroup>
+                    </b-form-select>
+                </div>
+                <div id="selectEnd">
+                    <b-form-select v-model="endStop" class="mb-3">
+                        <option :value="null" disabled>Please select destination</option>
+                        <optgroup v-for="group in proxGroups" :label="group.name">
+                            <option v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
+                        </optgroup>
+                    </b-form-select>
+                </div>
+                <b-form-group id="time" label="Time" label-cols-lg="1">
+                    <div id="selectTime">
+                        <b-form-input v-model="time" type="time"></b-form-input>
+                    </div>
+                </b-form-group>
 
-                <!--
-                <select v-model="endStop" >
-                    <option disabled value="">Please select destination</option>
-                    <option :index="stop.proximityGroup.order" :key="stop.id" :value="stop.id" v-for="stop in endStops">{{stop.name}}</option>
-                </select> -->
-            </div>
-            <div id="selectTime">
-                <input type="time" v-model="time"  />
-            </div>
-            <div id="selectDate">
-                <input type="date" v-model="date" />
-            </div>
-            <div id="submit">
-                <button @click="plan()">Go</button>
-            </div>
+                <b-form-group id="date" label="Date" label-cols-lg="1">
+                    <div id="selectDate">
+                        <b-form-input v-model="date" placeholder="Choose a date" type="date"></b-form-input>
+                    </div>
+                </b-form-group>
+
+                <div id="submit">
+                    <button @click="plan()">Find Trams</button>
+                </div>
+            </b-card>
 
             <div id="results">
-                <table id="journeys" v-show="journeys.length > 0">
-                    <tr v-for="journey in journeys">
-                        <td>
-                            <div id="journeyHeaderDirect" v-show="journey.isDirect">Tram with no changes</div>
-                            <div id="journeyHeaderIndirect" v-show="!journey.isDirect">Tram with {{journey.stages.length}} changes</div>
-                        </td>
-                        <td>{{journey.firstDepartureTime}} from {{ journey.begin.name }}</td>
-                        <td>{{journey.expectedArrivalTime}} arrive at {{ journey.end.name }}</td>
-                        <td>{{journey.heading}}</td>
-                        <td>{{journey.summary}}</td>
-                        <td>
-                            <div v-for="stage in journey.stages">
-                                {{ stage.summary }}
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                <div>
+                    <b-table striped hover :items="journeys" :fields="journeyFields"></b-table>
+                </div>
             </div>
 
         </div>
