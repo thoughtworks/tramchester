@@ -56,7 +56,22 @@
 
             <div id="results">
                 <div>
-                    <b-table striped hover :items="journeys" :fields="journeyFields"></b-table>
+                    <b-table
+                            striped
+                            hover
+                            selectable
+                            :items="journeys"
+                            :fields="journeyFields"
+                            select-mode='single'
+                            @row-clicked="expandStages"
+                    >
+                        <template slot="row-details" slot-scope="row">
+                            <b-card>
+                                <b-table :items="currentJourneyStages" :fields="stageFields">
+                                </b-table>
+                            </b-card>
+                        </template>
+                    </b-table>
                 </div>
             </div>
 

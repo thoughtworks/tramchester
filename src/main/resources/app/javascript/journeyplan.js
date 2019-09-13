@@ -20,8 +20,15 @@ app = new Vue({
                 journeyFields: [
                     {key:'firstDepartureTime',label:'Departs',sortable:true},
                     {key:'expectedArrivalTime',label:'Arrives',sortable:true},
-                    {key:'summary', label:'Changes'},{key:'heading',label:'Summary'}, ],
-                notes: []
+                    {key:'summary', label:'Changes'},{key:'heading',label:'Summary'} ],
+                notes: [],
+                currentJourneyStages: [],
+                stageFields: [{key:'firstDepartureTime',label:'Time'},
+                    {key:'prompt',label:'Action' },
+                    {key:'actionStation.name',label:'Station'},
+                    {key:'headSign', label:'Towards'},
+                    {key:'summary', label:'Line'},
+                    {key:'passedStops', label:'Stops'}]
             }
         },
 
@@ -39,6 +46,10 @@ app = new Vue({
                 .catch(function (error) {
                     console.log(error);
                 });
+            },
+            expandStages(row) {
+                app.currentJourneyStages = row.stages;
+                row._showDetails = !row._showDetails;
             }
         }
         ,
