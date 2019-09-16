@@ -54,7 +54,7 @@ public class FetchDataFromUrlTest {
     public void shouldGetStreamForFeedInfoFileFromInMemoryZip() throws IOException {
         FetchDataFromUrl fetcher = new FetchDataFromUrl(dataCleansePath, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
 
-        ByteArrayInputStream inputStream = fetcher.streamForFile(format("%s/%s.txt", TFGM_UNZIP_DIR, TransportDataReader.FEED_INFO));
+        ByteArrayInputStream inputStream = fetcher.streamForSingleFile(format("%s/%s.txt", TFGM_UNZIP_DIR, TransportDataReader.FEED_INFO));
 
         InputStreamReader reader = new InputStreamReader(inputStream);
 

@@ -74,9 +74,59 @@
                     </b-table>
                 </div>
             </div>
+            <div id="footer">
+                <b-card bg-variant="light">
+                    <div>
+                        Built by <a href="www.thoughtworks.com">ThoughtWorks</a> in Manchester
+                        <a href="https://twitter.com/intent/user?screen_name=Tramchester">Follow @Tramchester</a>
+                    </div>
+                    <div id="disclaimer">© 2016-2018 ThoughtWorks Ltd. <b-button variant="link" v-b-modal.modal-disclaimer>Disclaimer</b-button></div>
 
-        </div>
+                    <div id="license">
+                        Contains Transport for Greater Manchester data.
+                        Contains public sector information licensed under the Open Government Licence v2.0 by
+                        <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
+
+                    </div>
+                </b-card>
+                <b-container class="bv-example-row">
+                    <b-row>
+                        <b-col>Build {{buildNumber}}</b-col>
+                        <b-col>From: {{feedinfo.validFrom}}</b-col>
+                        <b-col>&nbsp;Until: {{feedinfo.validUntil}}</b-col>
+                    </b-row>
+                </b-container>
+            </b-card>
+
+            </div>
+
+            <b-modal ok-only id="modal-disclaimer" title="Disclaimer">
+                <div>
+                    <p>Whilst every effort has been made to ensure that the contents of this website are correct,
+                        ThoughtWorks does not guarantee and makes no warranty, express or implied, as to
+                        the quality, accuracy, completeness, timeliness, appropriateness, or suitability of the
+                        information we provide on this website.</p>
+
+                    <p>ThoughtWorks also takes no responsibility for the accuracy of information contained on
+                        external sources linked to this site.</p>
+
+                    <p>ThoughtWorks assumes no obligation to update the information and the information may
+                        be changed from time to time without notice.</p>
+
+                    <p>To the extent permitted by law ThoughtWorks expressly disclaims all liability for any direct,
+                        indirect or consequential loss or damage occasioned from the use or inability to use this
+                        websites, whether directly or indirectly resulting from inaccuracies, defects, viruses, errors -
+                        whether typographical or otherwise, omissions, out of date information or otherwise.</p>
+
+                    <p>Accessing and using the website and the downloading of material from the site (if
+                        applicable) is done entirely at the user's own risk. The user will be entirely responsible for
+                        any resulting damage to software or computer systems and/or any resulting loss of data.</p>
+                </div>
+            </b-modal>
+        </div> <!-- end of app -->
 
         <script src="/app/javascript/journeyplan.js"></script>
+
     </body>
+
 </html>

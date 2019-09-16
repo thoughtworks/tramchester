@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -52,20 +52,23 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         unzipData(zipFile);
     }
 
-    public ByteArrayInputStream streamForFile(String entryWithinZip) throws IOException {
+    public ByteArrayInputStream streamForSingleFile(String entryWithinZip) throws IOException {
+        logger.info(String.format("Get Single file %s from %s", entryWithinZip, dataUrl));
         URL website = new URL(dataUrl);
 
         ZipInputStream zipStream = new ZipInputStream(website.openStream());
         ZipEntry nextEntry = zipStream.getNextEntry();
 
         while(nextEntry!=null) {
-            logger.debug("Zip stream entry " + nextEntry.getName());
+            logger.debug("Found zip stream entry " + nextEntry.getName());
             if (nextEntry.getName().equals(entryWithinZip)) {
+                logger.info("Found " + entryWithinZip);
                 ByteArrayInputStream stream = createSteam(nextEntry, zipStream);
                 zipStream.closeEntry();
                 return stream;
             }
             zipStream.closeEntry();
+            logger.warn("Could not find " + entryWithinZip);
             nextEntry = zipStream.getNextEntry();
         }
         zipStream.close();
@@ -96,14 +99,21 @@ public class FetchDataFromUrl implements TransportDataFetcher {
 
     private Path pullDataFromURL(String targetFile) throws IOException {
         Path destination = path.resolve(targetFile);
+
         URL website = new URL(dataUrl);
         logger.info(format("Downloading data from %s to %s", website, destination));
+        HttpURLConnection connection = (HttpURLConnection) website.openConnection();
+        //connection.setRequestProperty("Accept-Encoding", "gzip");
+
+        long len = connection.getContentLengthLong();
+        logger.info("Content length is " + len);
+        logger.info("Encoding " + connection.getContentType());
 
         FileUtils.forceMkdir(path.toFile());
         try {
-            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
             FileOutputStream fos = new FileOutputStream(destination.toFile());
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            fos.getChannel().transferFrom(rbc, 0, len);
             logger.info("Finished download");
             fos.close();
         }

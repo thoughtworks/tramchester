@@ -35,7 +35,7 @@ public class LatestFeedRepositoryTest extends EasyMockSupport {
     public void shouldFetchIfNotFetchedYet() throws IOException {
 
         EasyMock.expect(providesNow.getDate()).andReturn(LocalDate.of(2019,11,15));
-        EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
+        EasyMock.expect(fetchData.streamForSingleFile("gtdf-out/feed_info.txt")).andReturn(stream);
 
         LatestFeedInfoRepository latestFeedRepository = new LatestFeedInfoRepository(fetchData, providesNow);
 
@@ -54,7 +54,7 @@ public class LatestFeedRepositoryTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDate()).andReturn(LocalDate.of(2019,11,15));
         EasyMock.expect(providesNow.getDate()).andReturn(LocalDate.of(2019,11,15));
 
-        EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
+        EasyMock.expect(fetchData.streamForSingleFile("gtdf-out/feed_info.txt")).andReturn(stream);
 
         LatestFeedInfoRepository latestFeedRepository = new LatestFeedInfoRepository(fetchData, providesNow);
 
@@ -73,9 +73,9 @@ public class LatestFeedRepositoryTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDate()).andReturn(LocalDate.of(2019,11,17));
         EasyMock.expect(providesNow.getDate()).andReturn(LocalDate.of(2019,11,17));
 
-        EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
-        EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
-        EasyMock.expect(fetchData.streamForFile("gtdf-out/feed_info.txt")).andReturn(stream);
+        EasyMock.expect(fetchData.streamForSingleFile("gtdf-out/feed_info.txt")).andReturn(stream);
+        EasyMock.expect(fetchData.streamForSingleFile("gtdf-out/feed_info.txt")).andReturn(stream);
+        EasyMock.expect(fetchData.streamForSingleFile("gtdf-out/feed_info.txt")).andReturn(stream);
 
         LatestFeedInfoRepository latestFeedRepository = new LatestFeedInfoRepository(fetchData, providesNow);
 

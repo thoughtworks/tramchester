@@ -62,10 +62,12 @@ public class App extends Application<AppConfiguration>  {
             }
             logger.info(String.format("Environment %s=%s", name, value));
         });
+        logger.info("Logged environmental vars");
     }
 
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
+        logger.info("initialize");
         bootstrap.setConfigurationSourceProvider(
                 new SubstitutingSourceProvider(
                         bootstrap.getConfigurationSourceProvider(),
@@ -93,10 +95,12 @@ public class App extends Application<AppConfiguration>  {
 
         // https://www.tramchester.com/swagger-ui/index.html
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
+        logger.info("initialize finished");
     }
 
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
+        logger.info("App run");
         dependencies.initialise(configuration);
 
         ScheduledExecutorServiceBuilder builder = environment.lifecycle().scheduledExecutorService("tramchester-%d");

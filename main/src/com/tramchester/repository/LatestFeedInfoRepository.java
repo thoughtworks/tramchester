@@ -58,7 +58,7 @@ public class LatestFeedInfoRepository {
         List<FeedInfo> result = new LinkedList<>();
 
         try {
-            ByteArrayInputStream inputStream = fetchDataFromUrl.streamForFile(format("%s/%s.txt", TFGM_UNZIP_DIR,
+            ByteArrayInputStream inputStream = fetchDataFromUrl.streamForSingleFile(format("%s/%s.txt", TFGM_UNZIP_DIR,
                     TransportDataReader.FEED_INFO));
 
             InputStreamReader reader = new InputStreamReader(inputStream);

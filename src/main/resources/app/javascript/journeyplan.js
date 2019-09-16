@@ -22,7 +22,9 @@ app = new Vue({
                     {key:'expectedArrivalTime',label:'Arrives',sortable:true},
                     {key:'summary', label:'Changes'},{key:'heading',label:'Summary'} ],
                 notes: [],
+                buildNumber: '',
                 currentJourneyStages: [],
+                feedinfo: [],
                 stageFields: [{key:'firstDepartureTime',label:'Time'},
                     {key:'prompt',label:'Action' },
                     {key:'actionStation.name',label:'Station'},
@@ -35,14 +37,12 @@ app = new Vue({
 
         methods: {
             plan(){
-                axios.get('http://localhost:8080/api/journey', {
+                axios.get('/api/journey', {
                     params: {
                         start: this.startStop, end: this.endStop, departureTime: this.time, departureDate: this.date}
                 }).then(function (response) {
                     app.journeys = response.data.journeys;
                     app.notes = response.data.notes;
-                    // handle success
-                    console.log(response);
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -62,12 +62,26 @@ app = new Vue({
         ,
         mounted () {
             axios
-                .get('http://localhost:8080/api/stations')
+                .get('/api/stations')
                 .then(response => (
                     this.stops = response.data.stations))
                 .catch(function (error) {
                     console.log(error);
-                })
+                });
+            axios
+                .get('/api/feedinfo')
+                .then(response => (
+                    this.feedinfo = response.data))
+                .catch(function (error) {
+                    console.log(error);
+                });
+            axios
+                .get('/api/version')
+                .then(response => (
+                    this.buildNumber = response.data.buildNumber))
+                .catch(function (error) {
+                    console.log(error);
+                });
         },
         computed: {
             startStops: function () {
