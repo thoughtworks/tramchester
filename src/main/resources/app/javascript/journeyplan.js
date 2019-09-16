@@ -23,7 +23,6 @@ app = new Vue({
                     {key:'summary', label:'Changes'},{key:'heading',label:'Summary'} ],
                 notes: [],
                 buildNumber: '',
-                currentJourneyStages: [],
                 feedinfo: [],
                 stageFields: [{key:'firstDepartureTime',label:'Time'},
                     {key:'prompt',label:'Action' },
@@ -49,7 +48,6 @@ app = new Vue({
                 });
             },
             expandStages(row,index) {
-                app.currentJourneyStages = row.stages;
                 row._showDetails = !row._showDetails;
             },
             stageRowClass(item,type) {

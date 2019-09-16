@@ -62,11 +62,10 @@
                             :items="journeys"
                             :fields="journeyFields"
                             select-mode='single'
-                            @row-clicked="expandStages"
-                    >
-                        <template slot="row-details" slot-scope="row">
+                            @row-clicked="expandStages">
+                        <template v-slot:row-details="row">
                             <b-card>
-                                <b-table :items="currentJourneyStages" :fields="stageFields"
+                                <b-table :items="row.item.stages" :fields="stageFields"
                                          :tbody-tr-class="stageRowClass">
                                 </b-table>
                             </b-card>
@@ -96,8 +95,6 @@
                         <b-col>&nbsp;Until: {{feedinfo.validUntil}}</b-col>
                     </b-row>
                 </b-container>
-            </b-card>
-
             </div>
 
             <b-modal ok-only id="modal-disclaimer" title="Disclaimer">
