@@ -1,29 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+        <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
         <link type="text/css" rel="stylesheet" href="css/tramchester.css" />
 
         <!-- Load polyfills to support older browsers -->
+        <!--
         <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+        -->
 
         <!-- Load Vue followed by BootstrapVue -->
-        <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
-        <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
-
-        <link href="index.css" rel="stylesheet">
-
+        <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+        <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
         <script src="javascript/lib/moment.min.js"></script>
     </head>
     <body>
 
-        <div id="journeyplan">
-            <b-card bg-variant="light">
+        <div id="journeyplan" class="tramchesterApp w-75">
+            <b-form @submit="plan">
                 <div id="selectStart">
-                    <b-form-select v-model="startStop" class="mb-3">
+                    <b-form-select v-model="startStop" class="mb-3" required>
                         <option :value="null" disabled>Please select start</option>
                         <optgroup v-for="group in proxGroups" :label="group.name">
                             <option v-for="stop in startStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
@@ -31,55 +30,50 @@
                     </b-form-select>
                 </div>
                 <div id="selectEnd">
-                    <b-form-select v-model="endStop" class="mb-3">
+                    <b-form-select v-model="endStop" class="mb-3" required>
                         <option :value="null" disabled>Please select destination</option>
                         <optgroup v-for="group in proxGroups" :label="group.name">
                             <option v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
                         </optgroup>
                     </b-form-select>
                 </div>
-                <b-form-group id="time" label="Time" label-cols-lg="1">
+                <b-form-group label="Time" label-cols-lg="1" label-for="selectTime">
                     <div id="selectTime">
-                        <b-form-input v-model="time" type="time"></b-form-input>
+                        <b-form-input v-model="time" type="time" required></b-form-input>
                     </div>
                 </b-form-group>
 
-                <b-form-group id="date" label="Date" label-cols-lg="1">
+                <b-form-group label="Date" label-cols-lg="1" label-for="selectTime">
                     <div id="selectDate">
-                        <b-form-input v-model="date" placeholder="Choose a date" type="date"></b-form-input>
+                        <b-form-input v-model="date" type="date" required></b-form-input>
                     </div>
                 </b-form-group>
 
-                <div id="submit">
-                    <button @click="plan()">Find Trams</button>
-                </div>
-            </b-card>
+                <b-button type="submit" variant="light">Find Trams</b-button>
+            </b-form>
 
-            <div id="results">
-                <div>
-                    <b-table
-                            selectable
-                            :items="journeys"
-                            :fields="journeyFields"
-                            select-mode='single'
-                            @row-clicked="expandStages">
-                        <template v-slot:row-details="row">
-                            <b-card>
-                                <b-table :items="row.item.stages" :fields="stageFields"
-                                         :tbody-tr-class="stageRowClass">
-                                </b-table>
-                            </b-card>
-                        </template>
-                    </b-table>
-                </div>
-            </div>
-            <div id="footer">
-                <b-card bg-variant="light">
+            <b-table id="results"
+                           selectable v-if="journeys.length>0"
+                           :items="journeys"
+                           :fields="journeyFields"
+                           select-mode='single'
+                           @row-clicked="expandStages" >
+                    <template v-slot:row-details="row">
+                        <b-card>
+                            <b-table :items="row.item.stages" :fields="stageFields"
+                                     :tbody-tr-class="stageRowClass">
+                            </b-table>
+                        </b-card>
+                    </template>
+            </b-table>
+
+            <div id="footer" class="tramchesterFooter">
+                <b-card bg-variant="light" >
                     <div>
-                        Built by <a href="www.thoughtworks.com">ThoughtWorks</a> in Manchester
+                        Built by <a href="http://www.thoughtworks.com">ThoughtWorks</a> in Manchester
                         <a href="https://twitter.com/intent/user?screen_name=Tramchester">Follow @Tramchester</a>
                     </div>
-                    <div id="disclaimer">© 2016-2018 ThoughtWorks Ltd. <b-button variant="link" v-b-modal.modal-disclaimer>Disclaimer</b-button></div>
+                    <div id="disclaimer">© 2016-2019 ThoughtWorks Ltd.<b-button class="align-baseline text-decoration-none" variant="link" v-b-modal.modal-disclaimer>Disclaimer</b-button></div>
 
                     <div id="license">
                         Contains Transport for Greater Manchester data.
@@ -87,14 +81,15 @@
                         <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
 
                     </div>
+                    <b-container class="bv-example-row">
+                        <b-row>
+                            <b-col>Build {{buildNumber}}</b-col>
+                            <b-col>From: {{feedinfo.validFrom}}</b-col>
+                            <b-col>&nbsp;Until: {{feedinfo.validUntil}}</b-col>
+                        </b-row>
+                    </b-container>
                 </b-card>
-                <b-container class="bv-example-row">
-                    <b-row>
-                        <b-col>Build {{buildNumber}}</b-col>
-                        <b-col>From: {{feedinfo.validFrom}}</b-col>
-                        <b-col>&nbsp;Until: {{feedinfo.validUntil}}</b-col>
-                    </b-row>
-                </b-container>
+
             </div>
 
             <b-modal ok-only id="modal-disclaimer" title="Disclaimer">

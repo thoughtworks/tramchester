@@ -35,7 +35,8 @@ app = new Vue({
         },
 
         methods: {
-            plan(){
+            plan(event){
+                event.preventDefault() // stop page reload
                 axios.get('/api/journey', {
                     params: {
                         start: this.startStop, end: this.endStop, departureTime: this.time, departureDate: this.date}
