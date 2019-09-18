@@ -19,8 +19,8 @@
     </head>
     <body>
 
-        <div id="journeyplan" class="tramchesterApp w-75">
-            <b-form @submit="plan">
+        <div id="journeyplan" class="tramchesterApp">
+            <b-form @submit="plan" class="w-75 tramchesterApp">
                 <div id="selectStart">
                     <b-form-select v-model="startStop" class="mb-3" required>
                         <option :value="null" disabled>Please select start</option>

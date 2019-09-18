@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <link rel="stylesheet" href="index.css">
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    </head>
-    <body>
+<head>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+    <link type="text/css" rel="stylesheet" href="css/tramchester.css" />
 
-        <div id="app">
-            {{ message }}
+    <!-- Load Vue followed by BootstrapVue -->
+    <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+    <script src="javascript/lib/moment.min.js"></script>
+
+    <script src="https://unpkg.com/vue-cookies@1.5.12/vue-cookies.js"></script>
+</head>
+    <body>
+        <div id="welcome" class="tramchesterApp w-75">
+            <h1>Tramchester</h1>
+
+            <p>Welcome to Tramchester, a quick and easy way to plan your travel in Manchester by Metrolink tram</p>
+
+            <p>Tramchester uses cookies to store information in your browser about previous usages and recent
+                journeys. Please click Plan Journey if you agree to this usage</p>
+
+            <b-button v-on:click="setCookie()">Plan Journey</b-button>
+
         </div>
 
-        <script src="app/javascript/index.js"></script>
+        <script src="javascript/index.js"></script>
     </body>
 </html>
