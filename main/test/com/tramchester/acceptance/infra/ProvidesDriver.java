@@ -1,5 +1,6 @@
 package com.tramchester.acceptance.infra;
 
+import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
@@ -18,6 +19,7 @@ import static java.lang.String.format;
 public abstract class ProvidesDriver {
     public abstract void init();
     public abstract WelcomePage getWelcomePage();
+    public abstract AppPage getAppPage();
     public abstract Cookie getCookieNamed(String name);
     public abstract RoutePlannerPage getRoutePlannerPage();
     public abstract void setStubbedLocation(LatLong place) throws IOException;

@@ -22,7 +22,7 @@
         <div id="journeyplan" class="tramchesterApp">
             <b-form @submit="plan" class="w-75 tramchesterApp">
                 <div id="selectStart">
-                    <b-form-select v-model="startStop" class="mb-3" required>
+                    <b-form-select id="fromStop" v-model="startStop" class="mb-3" required>
                         <option :value="null" disabled>Please select start</option>
                         <optgroup v-for="group in proxGroups" :label="group.name">
                             <option v-for="stop in startStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
@@ -30,7 +30,7 @@
                     </b-form-select>
                 </div>
                 <div id="selectEnd">
-                    <b-form-select v-model="endStop" class="mb-3" required>
+                    <b-form-select id="toStop" v-model="endStop" class="mb-3" required>
                         <option :value="null" disabled>Please select destination</option>
                         <optgroup v-for="group in proxGroups" :label="group.name">
                             <option v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
@@ -38,18 +38,18 @@
                     </b-form-select>
                 </div>
                 <b-form-group label="Time" label-cols-lg="1" label-for="selectTime">
-                    <div id="selectTime">
-                        <b-form-input v-model="time" type="time" required></b-form-input>
+                    <div>
+                        <b-form-input id="time" v-model="time" type="time" required></b-form-input>
                     </div>
                 </b-form-group>
 
                 <b-form-group label="Date" label-cols-lg="1" label-for="selectTime">
-                    <div id="selectDate">
-                        <b-form-input v-model="date" type="date" required></b-form-input>
+                    <div>
+                        <b-form-input id="date" v-model="date" type="date" required></b-form-input>
                     </div>
                 </b-form-group>
 
-                <b-button type="submit" variant="light">Find Trams</b-button>
+                <b-button id="plan" type="submit" variant="light">Find Trams</b-button>
             </b-form>
 
             <b-table id="results"

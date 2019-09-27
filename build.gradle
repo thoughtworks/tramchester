@@ -241,6 +241,17 @@ task localAppium(type: Test, dependsOn: compileJava) {
     }
 }
 
+task localApp(type: Test, dependsOn: compileJava) {
+    useJUnit {
+        filter {
+            includeTestsMatching "com.tramchester.appAcceptance.*"
+        }
+        testLogging {
+            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
+        }
+    }
+}
+
 task uploadData(dependsOn: ['cfnassist', 'pullData']) {
     doLast {
         ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {

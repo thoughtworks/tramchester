@@ -15,6 +15,7 @@ import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertTrue;
 
+@Deprecated
 public class AcceptanceTestHelper {
 
     public static LatLong NearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
@@ -27,7 +28,7 @@ public class AcceptanceTestHelper {
 
     public JourneyDetailsPage checkJourney(String url, TramJourney tramJourney,
                                               TramJourneyExpectations tramJourneyExpectations,
-                                              int selectedJourney, boolean onlyWalk) throws InterruptedException {
+                                              int selectedJourney, boolean onlyWalk) {
 
         RouteDetailsPage routeDetailsPage = enterRouteSelection(url, tramJourney);
         checkDetailsAndJourneysPresent(routeDetailsPage, tramJourney, tramJourneyExpectations, onlyWalk);

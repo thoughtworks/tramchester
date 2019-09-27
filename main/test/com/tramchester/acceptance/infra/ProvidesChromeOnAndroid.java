@@ -1,5 +1,6 @@
 package com.tramchester.acceptance.infra;
 
+import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
@@ -66,6 +67,11 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     @Override
     public WelcomePage getWelcomePage() {
         return new WelcomePage(driver, providesDateInput);
+    }
+
+    @Override
+    public AppPage getAppPage() {
+        return new AppPage(driver, providesDateInput);
     }
 
     @Override
