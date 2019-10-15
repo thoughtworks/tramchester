@@ -12,8 +12,8 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.CreateQueryTimes;
 import com.tramchester.domain.TramTime;
-import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
@@ -41,8 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
 public class Dependencies {
@@ -59,7 +57,6 @@ public class Dependencies {
     public Dependencies(GraphFilter graphFilter) {
         this.graphFilter = graphFilter;
     }
-
 
     public void initialise(TramchesterConfig configuration) throws IOException {
         Path dataPath = configuration.getDataPath();

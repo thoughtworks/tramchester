@@ -12,18 +12,19 @@ app = new Vue({
         data () {
             return {
                 stops: [],
+                stopToProxGroup: new Map(),
                 startStop: null,
                 endStop: null,
                 time: getCurrentTime(),
                 date: getCurrentDate(),
                 journeys: [],
+                notes: [],
+                buildNumber: '',
+                feedinfo: [],
                 journeyFields: [
                     {key:'firstDepartureTime',label:'Departs',sortable:true},
                     {key:'expectedArrivalTime',label:'Arrives',sortable:true},
                     {key:'summary', label:'Changes'},{key:'heading',label:'Summary'} ],
-                notes: [],
-                buildNumber: '',
-                feedinfo: [],
                 stageFields: [{key:'firstDepartureTime',label:'Time'},
                     {key:'prompt',label:'Action' },
                     {key:'actionStation.name',label:'Station'},
@@ -33,20 +34,42 @@ app = new Vue({
                     {key:'passedStops', label:'Stops'}]
             }
         },
-
         methods: {
             plan(event){
-                event.preventDefault() // stop page reload
+                event.preventDefault(); // stop page reload
                 axios.get('/api/journey', {
                     params: {
                         start: this.startStop, end: this.endStop, departureTime: this.time, departureDate: this.date}
                 }).then(function (response) {
                     app.journeys = response.data.journeys;
                     app.notes = response.data.notes;
+                    app.getStations(); // recent stations will have changed
                 })
                 .catch(function (error) {
                     console.log(error);
                 });
+            },
+            getStations() {
+                axios
+                    .get('/api/stations')
+                    .then(function (response) {
+                        // respect way vue bindings work, can't just assign/overwrite existing list
+                        changes = response.data.stations.filter(station =>
+                            station.proximityGroup.order != app.stopToProxGroup.get(station.id) );
+                        changes.forEach(function(change) {
+                            app.stopToProxGroup.set(change.id, change.proximityGroup.order);
+                        });
+
+                        app.stops = app.stops.filter(stop =>
+                            stop.proximityGroup.order === app.stopToProxGroup.get(stop.id) ); // keep unchanged
+
+                        changes.forEach(function(change) {
+                            app.stops.push(change);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
             },
             expandStages(row,index) {
                 row._showDetails = !row._showDetails;
@@ -60,13 +83,7 @@ app = new Vue({
         }
         ,
         mounted () {
-            axios
-                .get('/api/stations')
-                .then(response => (
-                    this.stops = response.data.stations))
-                .catch(function (error) {
-                    console.log(error);
-                });
+            this.getStations();
             axios
                 .get('/api/feedinfo')
                 .then(response => (
@@ -83,9 +100,9 @@ app = new Vue({
                 });
         },
         computed: {
-            startStops: function () {
-                return this.stops;
-            },
+            // startStops: function () {
+            //     return app.stops;
+            // },
             proxGroups: function () {
                 proxGroups = [];
                 seen = [];

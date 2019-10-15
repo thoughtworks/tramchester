@@ -36,6 +36,7 @@ public class Page {
     }
 
     public WebElement findElementById(String id) {
+        waitForElement(id, timeOut);
         return driver.findElement(By.id(id));
     }
 

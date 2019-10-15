@@ -16,16 +16,13 @@ import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class AppUserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
-    private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
@@ -79,9 +76,9 @@ public class AppUserJourneyTest {
     public void shouldRedirectDirectToJourneyPageAfterFirstVisit() throws UnsupportedEncodingException {
         AppPage welcomePage = providesDriver.getAppPage();
         welcomePage.load(url);
-        assertTrue(welcomePage.hasPlanButton());
+        assertTrue(welcomePage.hasConsentButton());
 
-        assertTrue(providesDriver.getCookieNamed("tramchesterVisited") == null);
+        assertNull(providesDriver.getCookieNamed("tramchesterVisited"));
         welcomePage.consent();
 
         // cookie should now be set
@@ -96,36 +93,43 @@ public class AppUserJourneyTest {
     }
 
     @Test
-    public void shouldCheckAltrinchamToBury() {
-
-        // prepare
-        AppPage appPage = providesDriver.getAppPage();
-        appPage.load(url);
-        appPage.consent();
-        appPage.waitForToStops();
-
-        // inputs
-        appPage.setStart(altrincham);
-        appPage.setDest(bury);
-        appPage.setDate(nextTuesday);
-        appPage.setTime(LocalTime.parse("10:15"));
+    public void shouldInputsSetCorrectly() {
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
 
         // check values set as expected
         assertEquals(altrincham, appPage.getFromStop());
         assertEquals(bury, appPage.getToStop());
         assertEquals("10:15", appPage.getTime());
         assertEquals(nextTuesday, appPage.getDate());
+    }
 
-//        appPage.planJourney();
+    @Test
+    public void shouldTravelAltyToBuryAndSetRecents() {
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
+        appPage.planAJourney();
+        assertTrue(appPage.resultsSelectable());
 
         // check recents are set
-//        List<WebElement> recentFrom = plannerPage.getRecentFromStops();
-//        assertEquals(2, recentFrom.size());
-//
-//        // Need to select an element other than alty for 'from' recent stops to show in 'to'
-//        plannerPage.setFromStop(Stations.Ashton.getName());
-//        List<WebElement> recentTo = plannerPage.getRecentToStops();
-//        assertEquals(2, recentTo.size());
+        List<String> fromRecent = appPage.getRecentFromStops();
+        assertTrue(fromRecent.contains(altrincham));
+        assertTrue(fromRecent.contains(bury));
+    }
+
+    private AppPage prepare() {
+        AppPage appPage = providesDriver.getAppPage();
+        appPage.load(url);
+        appPage.consent();
+        appPage.waitForToStops();
+        return appPage;
+    }
+
+    private void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time) {
+        appPage.setStart(start);
+        appPage.setDest(dest);
+        appPage.setDate(date);
+        appPage.setTime(time);
     }
 
 }

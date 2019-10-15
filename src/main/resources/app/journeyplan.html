@@ -24,16 +24,16 @@
                 <div id="selectStart">
                     <b-form-select id="fromStop" v-model="startStop" class="mb-3" required>
                         <option :value="null" disabled>Please select start</option>
-                        <optgroup v-for="group in proxGroups" :label="group.name">
-                            <option v-for="stop in startStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
+                        <optgroup v-for="group in proxGroups" :label="group.name" :name="group.name" :id="'fromGroup' + group.name">
+                            <option class="stop" v-for="stop in stops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
                         </optgroup>
                     </b-form-select>
                 </div>
                 <div id="selectEnd">
                     <b-form-select id="toStop" v-model="endStop" class="mb-3" required>
                         <option :value="null" disabled>Please select destination</option>
-                        <optgroup v-for="group in proxGroups" :label="group.name">
-                            <option v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
+                        <optgroup v-for="group in proxGroups" :label="group.name" :id="'toGroup' + group.name">
+                            <option class="stop" v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
                         </optgroup>
                     </b-form-select>
                 </div>

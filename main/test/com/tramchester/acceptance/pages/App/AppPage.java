@@ -12,15 +12,19 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AppPage extends Page {
     public static final String DATE = "date";
+    //public static final String PLAN_JOURNEY = "plan";
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 30;
 
     private String FROM_STOP = "fromStop";
     private String TO_STOP = "toStop";
     private String TIME = "time";
+    private String RESULTS = "results";
 
     public AppPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
@@ -38,9 +42,9 @@ public class AppPage extends Page {
         wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.Altrincham.getName()));
     }
 
-    public boolean hasPlanButton() {
+    public boolean hasConsentButton() {
         try {
-            findElementById("planJourney");
+            findElementById("consent");
             return true;
         }
         catch (NoSuchElementException ex) {
@@ -48,8 +52,12 @@ public class AppPage extends Page {
         }
     }
 
+    public void planAJourney() {
+        findElementById("plan").click();
+    }
+
     public void consent() {
-        WebElement button = findElementById("planJourney");
+        WebElement button = findElementById("consent");
         button.click();
     }
 
@@ -120,4 +128,26 @@ public class AppPage extends Page {
         String rawDate = getDateElement().getAttribute("value");
         return LocalDate.parse(rawDate);
     }
+
+    public boolean resultsSelectable() {
+        try {
+            waitForElement(RESULTS, timeoutInSeconds);
+            return true;
+        }
+        catch (TimeoutException exception) {
+            return false;
+        }
+    }
+
+    public List<String> getRecentFromStops() {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+
+        By fromGroupRecent = By.id("fromGroupRecent");
+        wait.until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
+        WebElement recentElement = driver.findElement(fromGroupRecent);
+
+        List<WebElement> stopElements = recentElement.findElements(By.className("stop"));
+        return stopElements.stream().map(element -> element.getText()).collect(Collectors.toList());
+    }
+
 }

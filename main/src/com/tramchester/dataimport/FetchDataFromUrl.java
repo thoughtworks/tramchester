@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.tramchester.config.TramchesterConfig;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
@@ -16,6 +17,11 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -96,31 +102,51 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         }
     }
 
-
     private Path pullDataFromURL(String targetFile) throws IOException {
         Path destination = path.resolve(targetFile);
 
         URL website = new URL(dataUrl);
         logger.info(format("Downloading data from %s to %s", website, destination));
         HttpURLConnection connection = (HttpURLConnection) website.openConnection();
-        //connection.setRequestProperty("Accept-Encoding", "gzip");
 
         long len = connection.getContentLengthLong();
         logger.info("Content length is " + len);
         logger.info("Encoding " + connection.getContentType());
 
-        FileUtils.forceMkdir(path.toFile());
-        try {
-            ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-            FileOutputStream fos = new FileOutputStream(destination.toFile());
-            fos.getChannel().transferFrom(rbc, 0, len);
-            logger.info("Finished download");
-            fos.close();
-        }
-        catch(UnknownHostException unknownhost) {
-            logger.error("Unable to download data from " + dataUrl,unknownhost);
+        long serverModMillis = connection.getLastModified() ;
+
+        long localModMillis = 0;
+        if (destination.toFile().exists()) {
+            localModMillis = destination.toFile().lastModified();
+
+            LocalDateTime serverMod = LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
+            LocalDateTime localMod = LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
+
+            logger.info(format("Server mod time: %s File mod time: %s ", serverMod, localMod));
+        } else {
+            logger.info("No local " + destination);
         }
 
+        FileUtils.forceMkdir(path.toFile());
+
+        if (serverModMillis>localModMillis) {
+            logger.info("Server mod time newer, or no local file");
+            try {
+                ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+                FileOutputStream fos = new FileOutputStream(destination.toFile());
+                fos.getChannel().transferFrom(rbc, 0, len);
+                logger.info("Finished download");
+                fos.close();
+            } catch (UnknownHostException unknownhost) {
+                logger.error("Unable to download data from " + dataUrl, unknownhost);
+            }
+
+            if (!destination.toFile().setLastModified(serverModMillis)) {
+                logger.warn("Unable to set mod time on " + path);
+            }
+        } else {
+            logger.info("Skip file download, mod time is not newer");
+        }
         return destination;
     }
 }

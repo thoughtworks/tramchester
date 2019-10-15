@@ -23,12 +23,10 @@ public class RoutePlannerPage extends Page {
     private long timeoutInSeconds = 30;
     private String toStop = "toStop";
     private String fromStop = "fromStop";
-    private Locale locale;
 
     public RoutePlannerPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
         this.providesDateInput = providesDateInput;
-        locale = Locale.getDefault();
     }
 
     public void setFromStop(String name) {
