@@ -112,7 +112,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldCheckAltrinchamToBuryThenBackToStart() throws InterruptedException {
+    public void shouldCheckAltrinchamToBuryThenBackToStart() {
         List<String> headSigns = Collections.singletonList(bury);
 
         TramJourney tramJourney = new TramJourney(altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
@@ -158,7 +158,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldShowNoRoutesMessage() throws InterruptedException {
+    public void shouldShowNoRoutesMessage() {
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
 

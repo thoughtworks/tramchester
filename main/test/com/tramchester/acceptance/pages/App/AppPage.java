@@ -146,8 +146,40 @@ public class AppPage extends Page {
         wait.until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
         WebElement recentElement = driver.findElement(fromGroupRecent);
 
+        return getStopNames(recentElement);
+    }
+
+    public List<String> getAllStopsFromStops() {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+
+        By fromGroupRecent = By.id("fromGroupAll Stops");
+        wait.until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
+        WebElement recentElement = driver.findElement(fromGroupRecent);
+
+        return getStopNames(recentElement);
+    }
+
+    public List<String> getToStops() {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        By toStops = By.id(TO_STOP);
+        wait.until(ExpectedConditions.elementToBeClickable(toStops));
+        WebElement elements = driver.findElement(toStops);
+
+        return getStopNames(elements);
+    }
+
+    private List<String> getStopNames(WebElement recentElement) {
         List<WebElement> stopElements = recentElement.findElements(By.className("stop"));
         return stopElements.stream().map(element -> element.getText()).collect(Collectors.toList());
     }
 
+    public boolean noResults() {
+        try {
+            waitForElement("noResults",timeoutInSeconds);
+            return true;
+        }
+        catch (TimeoutException notFound) {
+            return false;
+        }
+    }
 }

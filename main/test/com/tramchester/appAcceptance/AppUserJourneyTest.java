@@ -98,10 +98,7 @@ public class AppUserJourneyTest {
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
 
         // check values set as expected
-        assertEquals(altrincham, appPage.getFromStop());
-        assertEquals(bury, appPage.getToStop());
-        assertEquals("10:15", appPage.getTime());
-        assertEquals(nextTuesday, appPage.getDate());
+        assertJourney(appPage, altrincham, bury, "10:15", nextTuesday);
     }
 
     @Test
@@ -115,6 +112,32 @@ public class AppUserJourneyTest {
         List<String> fromRecent = appPage.getRecentFromStops();
         assertTrue(fromRecent.contains(altrincham));
         assertTrue(fromRecent.contains(bury));
+        // check "non recents" don't contain these two stations now
+        List<String> remainingStops = appPage.getAllStopsFromStops();
+        assertFalse(remainingStops.contains(altrincham));
+        assertFalse(remainingStops.contains(bury));
+        // still displaying all stations
+        assertEquals(93, remainingStops.size()+fromRecent.size());
+
+        // inputs still set
+        assertJourney(appPage, altrincham, bury, "10:15", nextTuesday);
+    }
+
+    @Test
+    public void shouldHideStationInToListWhenSelectedInFromList() {
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
+        List<String> toStops = appPage.getToStops();
+        assertFalse(toStops.contains(altrincham));
+    }
+
+    @Test
+    public void shouldShowNoRoutesMessage() {
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("03:15"));
+        appPage.planAJourney();
+
+        assertTrue(appPage.noResults());
     }
 
     private AppPage prepare() {
@@ -130,6 +153,13 @@ public class AppUserJourneyTest {
         appPage.setDest(dest);
         appPage.setDate(date);
         appPage.setTime(time);
+    }
+
+    private void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date) {
+        assertEquals(start, appPage.getFromStop());
+        assertEquals(dest, appPage.getToStop());
+        assertEquals(time, appPage.getTime());
+        assertEquals(date, appPage.getDate());
     }
 
 }

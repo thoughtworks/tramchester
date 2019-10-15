@@ -21,6 +21,7 @@ app = new Vue({
                 notes: [],
                 buildNumber: '',
                 feedinfo: [],
+                noResults: false,
                 journeyFields: [
                     {key:'firstDepartureTime',label:'Departs',sortable:true},
                     {key:'expectedArrivalTime',label:'Arrives',sortable:true},
@@ -42,6 +43,7 @@ app = new Vue({
                         start: this.startStop, end: this.endStop, departureTime: this.time, departureDate: this.date}
                 }).then(function (response) {
                     app.journeys = response.data.journeys;
+                    app.noResults = app.journeys.length==0;
                     app.notes = response.data.notes;
                     app.getStations(); // recent stations will have changed
                 })

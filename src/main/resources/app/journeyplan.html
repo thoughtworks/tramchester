@@ -42,7 +42,6 @@
                         <b-form-input id="time" v-model="time" type="time" required></b-form-input>
                     </div>
                 </b-form-group>
-
                 <b-form-group label="Date" label-cols-lg="1" label-for="selectTime">
                     <div>
                         <b-form-input id="date" v-model="date" type="date" required></b-form-input>
@@ -66,6 +65,8 @@
                         </b-card>
                     </template>
             </b-table>
+
+            <div id="noResults" selectable v-if="noResults">No results were found</div>
 
             <div id="footer" class="tramchesterFooter">
                 <b-card bg-variant="light" >
