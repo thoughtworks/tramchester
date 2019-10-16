@@ -178,7 +178,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldSetDateAndTimeCorrectly() throws InterruptedException {
+    public void shouldSetDateAndTimeCorrectly() {
         WelcomePage welcomePage = providesDriver.getWelcomePage();
         welcomePage.load(testRule.getUrl());
 
@@ -210,7 +210,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldCheckAirportToDeangateThenBackToRoute() throws InterruptedException {
+    public void shouldCheckAirportToDeangateThenBackToRoute() {
         List<String> headSigns = Collections.singletonList(Stations.Victoria.getName());
         TramJourney tramJourney = new TramJourney(Stations.ManAirport.getName(), deansgate, nextTuesday, LocalTime.of(10,15));
         TramJourneyExpectations tramJourneyExpectations = new TramJourneyExpectations(headSigns, expectedNumberJourneyResults, false);
@@ -222,7 +222,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldHaveSecondCityCrossingRoutes() throws InterruptedException {
+    public void shouldHaveSecondCityCrossingRoutes() {
         List<String> headsignRochdale = ImmutableList.of(Stations.ShawAndCrompton.getName());
 
         TramJourney tramJourney = new TramJourney(Stations.StPetersSquare.getName(), Stations.ExchangeSquare.getName(),
@@ -236,7 +236,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldCheckAltrinchamToDeansgate() throws InterruptedException {
+    public void shouldCheckAltrinchamToDeansgate() {
 
         List<String> headsignEtihadCampus = Collections.singletonList(Stations.Piccadilly.getName());
         List<String> headSignsBury = Collections.singletonList(bury);

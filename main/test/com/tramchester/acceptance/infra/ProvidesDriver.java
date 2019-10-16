@@ -5,9 +5,9 @@ import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
 import org.junit.rules.TestName;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,6 +42,17 @@ public abstract class ProvidesDriver {
         }
     }
 
-    protected abstract TakesScreenshot getDriver();
+    protected abstract RemoteWebDriver getDriver();
 
+    public void moveTo(WebElement webElement){
+        new Actions(getDriver()).moveToElement(webElement).perform();
+    }
+
+    public void click(WebElement webElement) {
+        webElement.click();
+    }
+
+    public void quit() {
+        getDriver().quit();
+    }
 }

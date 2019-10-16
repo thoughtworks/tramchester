@@ -1,13 +1,14 @@
 package com.tramchester.acceptance.infra;
 
 
+import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.logging.Level;
 
@@ -29,8 +30,21 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
     }
 
     @Override
-    protected TakesScreenshot getDriver() {
-        return (TakesScreenshot) driver;
+    public void commonAfter(TestName testName) {
+        try {
+            if (driver!=null) {
+                takeScreenShot(testName);
+            }
+        } finally {
+            if (driver!=null) {
+                driver.close();
+            }
+        }
+    }
+
+    @Override
+    protected RemoteWebDriver getDriver() {
+        return (RemoteWebDriver) driver;
     }
 
     @Override

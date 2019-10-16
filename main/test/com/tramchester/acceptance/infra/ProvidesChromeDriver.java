@@ -46,20 +46,20 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         providesDateInput = new ProvidesChromeDateInput();
     }
 
-    @Override
-    public void commonAfter(TestName testName) {
-        try {
-            if (driver!=null) {
-                takeScreenShot(testName);
-                LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-                logs.forEach(log -> System.out.println(log));
-            }
-        } finally {
-            if (driver!=null) {
-                driver.close();
-            }
-        }
-    }
+//    @Override
+//    public void commonAfter(TestName testName) {
+//        try {
+//            if (driver!=null) {
+//                takeScreenShot(testName);
+//                LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
+//                logs.forEach(log -> System.out.println(log));
+//            }
+//        } finally {
+//            if (driver!=null) {
+//                driver.close();
+//            }
+//        }
+//    }
 
     @Override
     public void init() {

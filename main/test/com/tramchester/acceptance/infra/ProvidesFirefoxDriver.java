@@ -7,9 +7,12 @@ import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TestName;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.IOException;
@@ -30,19 +33,6 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
         capabilities = createCapabilities();
         this.enableGeo = enableGeo;
-    }
-
-    @Override
-    public void commonAfter(TestName testName) {
-        try {
-            if (driver!=null) {
-                takeScreenShot(testName);
-            }
-        } finally {
-            if (driver!=null) {
-                driver.close();
-            }
-        }
     }
 
     @Override
@@ -122,4 +112,20 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
             // this is asserted later
         }
     }
+
+    // Actions(getDriver()).moveToElement() broken since start on geckodriver, no sign of it ever being fixed
+    @Override
+    public void moveTo(WebElement webElement){
+        //new Actions(getDriver()).moveToElement(webElement).perform();
+        JavascriptExecutor executor = (JavascriptExecutor)driver;
+        executor.executeScript("arguments[0].scrollIntoView(true);", webElement);
+    }
+
+    // element click() unrealabile on geckodriver.....
+    @Override
+    public void click(WebElement webElement) {
+        JavascriptExecutor executor = (JavascriptExecutor)driver;
+        executor.executeScript("arguments[0].click();", webElement);
+    }
+
 }

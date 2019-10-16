@@ -56,17 +56,21 @@
                            :items="journeys"
                            :fields="journeyFields"
                            select-mode='single'
-                           @row-clicked="expandStages" >
+                           @row-clicked="expandStages" tbody-tr-class='journeySummary'>
                     <template v-slot:row-details="row">
                         <b-card>
-                            <b-table :items="row.item.stages" :fields="stageFields"
-                                     :tbody-tr-class="stageRowClass">
+                            <b-table :items="row.item.stages" :fields="stageFields" id="stages"
+                                     tbody-tr-class='stageSummary'>
                             </b-table>
                         </b-card>
                     </template>
             </b-table>
 
-            <div id="noResults" selectable v-if="noResults">No results were found</div>
+            <div id="noResults" selectable v-if="noResults" class="w-75 tramchesterApp">
+                <b-card bg-variant="light" >
+                    No results were found
+                </b-card>
+            </div>
 
             <div id="footer" class="tramchesterFooter">
                 <b-card bg-variant="light" >

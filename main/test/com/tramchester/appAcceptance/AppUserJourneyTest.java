@@ -4,6 +4,8 @@ import com.tramchester.App;
 import com.tramchester.TestConfig;
 import com.tramchester.acceptance.infra.*;
 import com.tramchester.acceptance.pages.App.AppPage;
+import com.tramchester.acceptance.pages.App.Stage;
+import com.tramchester.acceptance.pages.App.SummaryResult;
 import com.tramchester.integration.Stations;
 import org.junit.*;
 import org.junit.rules.TestName;
@@ -93,12 +95,24 @@ public class AppUserJourneyTest {
     }
 
     @Test
-    public void shouldInputsSetCorrectly() {
+    public void shouldHaveInitialValuesAndSetInputsSetCorrectly() {
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
 
-        // check values set as expected
+        LocalTime now = LocalTime.now();
+        String timeOnPageRaw = appPage.getTime();
+        LocalTime timeOnPage = LocalTime.parse(timeOnPageRaw);
+
+        int diff = Math.abs(now.toSecondOfDay() - timeOnPage.toSecondOfDay());
+        assertTrue(diff<=60); // allow for page render and webdriver overheads
+
+        assertEquals(LocalDate.now(), appPage.getDate());
+
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
         assertJourney(appPage, altrincham, bury, "10:15", nextTuesday);
+        desiredJourney(appPage, altrincham, bury, nextTuesday.plusMonths(1), LocalTime.parse("03:15"));
+        assertJourney(appPage, altrincham, bury, "03:15", nextTuesday.plusMonths(1));
+        desiredJourney(appPage, altrincham, bury, nextTuesday.plusYears(1), LocalTime.parse("20:15"));
+        assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1));
     }
 
     @Test
@@ -106,7 +120,7 @@ public class AppUserJourneyTest {
         AppPage appPage = prepare();
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
         appPage.planAJourney();
-        assertTrue(appPage.resultsSelectable());
+        assertTrue(appPage.resultsClickable());
 
         // check recents are set
         List<String> fromRecent = appPage.getRecentFromStops();
@@ -121,6 +135,32 @@ public class AppUserJourneyTest {
 
         // inputs still set
         assertJourney(appPage, altrincham, bury, "10:15", nextTuesday);
+    }
+
+    @Test
+    public void shouldCheckAltrinchamToDeansgate() {
+        AppPage appPage = prepare();
+        LocalTime planTime = LocalTime.parse("10:15");
+        desiredJourney(appPage, altrincham, deansgate, nextTuesday, planTime);
+        appPage.planAJourney();
+
+        assertTrue(appPage.resultsClickable());
+
+        List<SummaryResult> results = appPage.getResults();
+        assertEquals(6, results.size());
+
+        for (SummaryResult result : results) {
+            assertTrue(result.getDepartTime().isAfter(planTime));
+            assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
+            assertEquals("Direct", result.getChanges());
+            assertEquals("Tram with No Changes - 23 minutes", result.getSummary());
+        }
+
+        SummaryResult firstResult = results.get(0);
+        firstResult.moveTo(providesDriver);
+        appPage.waitForClickable(firstResult.getElement());
+        firstResult.click(providesDriver);
+        List<Stage> stages = firstResult.getStages();
     }
 
     @Test

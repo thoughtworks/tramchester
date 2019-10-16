@@ -12,9 +12,11 @@ import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
@@ -56,11 +58,12 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
             if (driver!=null) {
                 driver.close();
             }
+            driver.quit();
         }
     }
 
     @Override
-    protected TakesScreenshot getDriver() {
+    protected RemoteWebDriver getDriver() {
         return driver;
     }
 

@@ -23,15 +23,16 @@ app = new Vue({
                 feedinfo: [],
                 noResults: false,
                 journeyFields: [
-                    {key:'firstDepartureTime',label:'Departs',sortable:true},
-                    {key:'expectedArrivalTime',label:'Arrives',sortable:true},
-                    {key:'summary', label:'Changes'},{key:'heading',label:'Summary'} ],
+                    {key:'firstDepartureTime',label:'Departs',sortable:true, tdClass:'departTime'},
+                    {key:'expectedArrivalTime',label:'Arrives',sortable:true, tdClass:'arriveTime'},
+                    {key:'summary', label:'Changes', tdClass:'changes'},
+                    {key:'heading',label:'Summary',tdClass:'summary'} ],
                 stageFields: [{key:'firstDepartureTime',label:'Time'},
                     {key:'prompt',label:'Action' },
                     {key:'actionStation.name',label:'Station'},
                     {key:'platform.platformNumber', label:'Platform'},
                     {key:'headSign', label:'Towards'},
-                    {key:'summary', label:'Line'},
+                    {key:'summary', label:'Line', tdClass: this.stageRowClass },
                     {key:'passedStops', label:'Stops'}]
             }
         },
@@ -76,8 +77,9 @@ app = new Vue({
             expandStages(row,index) {
                 row._showDetails = !row._showDetails;
             },
-            stageRowClass(item,type) {
-                if (item && type === 'row') {
+            //tdClass(value, key, item)
+            stageRowClass(value, header, item) {
+                if (value && header === 'summary') {
                     return item.displayClass;
                 }
                 return null;

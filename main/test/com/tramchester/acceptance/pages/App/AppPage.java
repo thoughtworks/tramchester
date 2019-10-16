@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,9 +130,11 @@ public class AppPage extends Page {
         return LocalDate.parse(rawDate);
     }
 
-    public boolean resultsSelectable() {
+    public boolean resultsClickable() {
         try {
-            waitForElement(RESULTS, timeoutInSeconds);
+            By locateResults = By.id((RESULTS));
+
+            waitForClickable(locateResults);
             return true;
         }
         catch (TimeoutException exception) {
@@ -139,32 +142,46 @@ public class AppPage extends Page {
         }
     }
 
-    public List<String> getRecentFromStops() {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+    private void waitForClickable(By locator) {
+        waitForClickableLocator(locator);
+    }
 
+    public List<SummaryResult> getResults() {
+        List<SummaryResult> results = new ArrayList<>();
+        By findResults = By.id(RESULTS);
+        WebElement resultsDiv = driver.findElement(findResults);
+
+        WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
+        List<WebElement> rows = tableBody.findElements(By.className("journeySummary"));
+        rows.forEach(row -> results.add(new SummaryResult(row, tableBody)));
+
+        return results;
+    }
+
+    public List<String> getRecentFromStops() {
         By fromGroupRecent = By.id("fromGroupRecent");
-        wait.until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
+
+        waitForClickableLocator(fromGroupRecent);
+
         WebElement recentElement = driver.findElement(fromGroupRecent);
 
         return getStopNames(recentElement);
     }
 
     public List<String> getAllStopsFromStops() {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-
         By fromGroupRecent = By.id("fromGroupAll Stops");
-        wait.until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
+
+        waitForClickableLocator(fromGroupRecent);
         WebElement recentElement = driver.findElement(fromGroupRecent);
 
         return getStopNames(recentElement);
     }
 
     public List<String> getToStops() {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         By toStops = By.id(TO_STOP);
-        wait.until(ExpectedConditions.elementToBeClickable(toStops));
-        WebElement elements = driver.findElement(toStops);
+        waitForClickable(toStops);
 
+        WebElement elements = driver.findElement(toStops);
         return getStopNames(elements);
     }
 
@@ -181,5 +198,15 @@ public class AppPage extends Page {
         catch (TimeoutException notFound) {
             return false;
         }
+    }
+
+    public void waitForClickable(WebElement element) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+    }
+
+    private void waitForClickableLocator(By fromGroupRecent) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
     }
 }
