@@ -12,6 +12,10 @@
     /* nothing yet */
 }
 
+.JourneyNotes {
+    list-style-type:circle;
+}
+
 .RouteClass1  {
     background-color: #308c2c;
     stroke: #308c2c;

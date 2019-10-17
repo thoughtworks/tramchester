@@ -37,15 +37,24 @@ app = new Vue({
             }
         },
         methods: {
+            clearJourneysAndNotes() {
+                while(app.journeys.length>0) {
+                    app.journeys.pop();
+                }
+                 while(app.notes.length>0) {
+                    app.notes.pop();
+                }
+            },
             plan(event){
+                app.clearJourneysAndNotes();
                 event.preventDefault(); // stop page reload
                 axios.get('/api/journey', {
                     params: {
                         start: this.startStop, end: this.endStop, departureTime: this.time, departureDate: this.date}
                 }).then(function (response) {
-                    app.journeys = response.data.journeys;
+                    app.journeys = app.journeys.concat(response.data.journeys);
                     app.noResults = app.journeys.length==0;
-                    app.notes = response.data.notes;
+                    app.notes = app.notes.concat(response.data.notes);
                     app.getStations(); // recent stations will have changed
                 })
                 .catch(function (error) {
@@ -77,7 +86,6 @@ app = new Vue({
             expandStages(row,index) {
                 row._showDetails = !row._showDetails;
             },
-            //tdClass(value, key, item)
             stageRowClass(value, header, item) {
                 if (value && header === 'summary') {
                     return item.displayClass;
@@ -104,9 +112,6 @@ app = new Vue({
                 });
         },
         computed: {
-            // startStops: function () {
-            //     return app.stops;
-            // },
             proxGroups: function () {
                 proxGroups = [];
                 seen = [];

@@ -274,7 +274,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldNotDisplayNotesOnWeekday() throws InterruptedException {
+    public void shouldNotDisplayNotesOnWeekday() {
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, nextTuesday,
                 LocalTime.parse("10:00")));
@@ -284,7 +284,7 @@ import static org.junit.Assert.*;
 
     @Test
     public void shouldDisplayNotesOnSaturday() {
-        LocalDate aSaturday = TestConfig.nextSaturday(); //nextTuesday.minusDays(3);
+        LocalDate aSaturday = TestConfig.nextSaturday();
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, aSaturday,
                 LocalTime.parse("10:00")));

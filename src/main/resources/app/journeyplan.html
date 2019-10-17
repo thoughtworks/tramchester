@@ -51,6 +51,14 @@
                 <b-button id="plan" type="submit" variant="light">Find Trams</b-button>
             </b-form>
 
+            <b-card bg-variant="light" v-if="notes.length>0" title="Notes" class="w-75 tramchesterApp">
+                <ul id="NotesList" class="JourneyNotes">
+                    <li v-for="note in notes" id="NoteItem">
+                        <span v-html="note"></span>
+                    </li>
+                </ul>
+            </b-card>
+
             <b-table id="results"
                            selectable v-if="journeys.length>0"
                            :items="journeys"

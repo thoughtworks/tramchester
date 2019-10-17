@@ -20,7 +20,7 @@ public class AppPage extends Page {
     public static final String DATE = "date";
     //public static final String PLAN_JOURNEY = "plan";
     private final ProvidesDateInput providesDateInput;
-    private long timeoutInSeconds = 30;
+    private long timeoutInSeconds = 2;
 
     private String FROM_STOP = "fromStop";
     private String TO_STOP = "toStop";
@@ -37,7 +37,7 @@ public class AppPage extends Page {
     }
 
     public void waitForToStops() {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        WebDriverWait wait = createWait();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(FROM_STOP)));
         WebElement fromStopElement = findElementById(FROM_STOP);
         wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.Altrincham.getName()));
@@ -104,6 +104,10 @@ public class AppPage extends Page {
     private WebElement getTimeElement() {
         waitForElement(TIME, timeoutInSeconds);
         return findElementById(TIME);
+    }
+
+    private WebDriverWait createWait() {
+        return new WebDriverWait(driver, timeoutInSeconds);
     }
 
     private WebElement getDateElement() {
@@ -201,12 +205,21 @@ public class AppPage extends Page {
     }
 
     public void waitForClickable(WebElement element) {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        wait.until(ExpectedConditions.elementToBeClickable(element));
+        createWait().until(ExpectedConditions.elementToBeClickable(element));
     }
 
+
     private void waitForClickableLocator(By fromGroupRecent) {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        wait.until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
+        createWait().until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
+    }
+
+    public boolean notesPresent() {
+        try {
+            createWait().until(ExpectedConditions.presenceOfElementLocated(By.id("NotesList")));
+            return true;
+        }
+        catch(TimeoutException notPresent) {
+            return false;
+        }
     }
 }

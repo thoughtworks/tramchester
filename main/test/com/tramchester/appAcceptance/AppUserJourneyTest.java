@@ -20,6 +20,8 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
@@ -169,7 +171,7 @@ public class AppUserJourneyTest {
             assertEquals("Tram with No Changes - 23 minutes", result.getSummary());
         }
 
-        // select first stage
+        // select first journey
         SummaryResult firstResult = results.get(0);
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
@@ -178,13 +180,8 @@ public class AppUserJourneyTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
-        assertEquals(firstResult.getDepartTime(), stage.getDepartTime());
-        assertEquals("Board tram at", stage.getAction());
-        assertEquals(altrincham, stage.getActionStation());
-        assertEquals(1, stage.getPlatform());
-        assertEquals(Stations.Bury.getName(), stage.getHeadsign());
-        assertEquals("Altrincham - Manchester - Bury Tram line", stage.getLine("RouteClass1"));
-        assertEquals(9, stage.getPassedStops());
+        validateAStage(stage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
+                "Altrincham - Manchester - Bury Tram line", "RouteClass1", Stations.Bury.getName(), 9);
     }
 
     @Test
@@ -202,6 +199,92 @@ public class AppUserJourneyTest {
         appPage.planAJourney();
 
         assertTrue(appPage.noResults());
+    }
+
+    @Test
+    public void shouldUpdateWhenNewJourneyIsEntered() {
+        LocalTime tenFifteen = LocalTime.parse("10:15");
+        LocalTime eightFifteen = LocalTime.parse("08:15");
+
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen);
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+
+        List<SummaryResult> results = appPage.getResults();
+        assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
+
+        desiredJourney(appPage, altrincham, bury, nextTuesday, eightFifteen);
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+
+        results = appPage.getResults();
+        assertTrue(results.get(0).getDepartTime().isBefore(tenFifteen));
+        assertTrue(results.get(0).getDepartTime().isAfter(eightFifteen));
+
+    }
+
+    @Test
+    public void shouldHaveMultistageJourney() {
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, LocalTime.parse("10:15"));
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+
+        List<SummaryResult> results = appPage.getResults();
+        assertEquals(6, results.size());
+
+
+        // select first journey
+        SummaryResult firstResult = results.get(0);
+        firstResult.moveTo(providesDriver);
+        appPage.waitForClickable(firstResult.getElement());
+        firstResult.click(providesDriver);
+
+        List<Stage> stages = firstResult.getStages();
+        assertEquals(2, stages.size());
+
+        Stage firstStage = stages.get(0);
+        Stage secondStage = stages.get(1);
+
+        validateAStage(firstStage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
+                "Altrincham - Manchester - Bury Tram line", "RouteClass1",
+                Stations.Bury.getName(), 7);
+        validateAStage(secondStage, LocalTime.parse("10:48"), "Change tram at", Stations.TraffordBar.getName(),
+                2, "Victoria - Manchester Airport Tram line", "RouteClass6",
+                Stations.ManAirport.getName(), 17);
+
+        assertEquals(Stations.TraffordBar.getName(), secondStage.getActionStation());
+        assertEquals("Change tram at", secondStage.getAction());
+
+    }
+
+
+    @Test
+    public void shouldDisplayWeekendWorkNoteOnlyOnWeekends() {
+        LocalTime time = LocalTime.parse("10:15");
+        String weekendMsg = "At the weekend your journey may be affected by improvement works.Please check TFGM for details.";
+
+        AppPage appPage = prepare();
+        LocalDate aSaturday = TestConfig.nextSaturday();
+
+        desiredJourney(appPage, altrincham, bury, aSaturday, time);
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.notesPresent());
+        assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
+
+        desiredJourney(appPage, altrincham, bury, nextTuesday, time);
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+        assertFalse(appPage.notesPresent());
+
+        desiredJourney(appPage, altrincham, bury, aSaturday.plusDays(1), time);
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.notesPresent());
+        assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
+
     }
 
     private AppPage prepare() {
@@ -224,6 +307,17 @@ public class AppUserJourneyTest {
         assertEquals(dest, appPage.getToStop());
         assertEquals(time, appPage.getTime());
         assertEquals(date, appPage.getDate());
+    }
+
+    private void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
+                                String lineName, String lineClass, String headsign, int stops) {
+        assertEquals(departTime, stage.getDepartTime());
+        assertEquals(action, stage.getAction());
+        assertEquals(actionStation, stage.getActionStation());
+        assertEquals(platform, stage.getPlatform());
+        assertEquals(headsign, stage.getHeadsign());
+        assertEquals(lineName, stage.getLine(lineClass));
+        assertEquals(stops, stage.getPassedStops());
     }
 
 }
