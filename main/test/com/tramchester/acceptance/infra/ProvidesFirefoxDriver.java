@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TestName;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -37,33 +38,32 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
     @Override
     public void init() {
-        providesDateInput = new ProvidesFirefoxDateInput();
-        String firefoxPath = System.getenv("FIREFOX_PATH");
-        if (firefoxPath!=null) {
-            System.setProperty("webdriver.firefox.bin", firefoxPath);
+        if (driver==null) {
+            providesDateInput = new ProvidesFirefoxDateInput();
+            String firefoxPath = System.getenv("FIREFOX_PATH");
+            if (firefoxPath != null) {
+                System.setProperty("webdriver.firefox.bin", firefoxPath);
+            }
+            String geckoDriver = System.getenv("GECKODRIVER_PATH");
+            if (geckoDriver != null) {
+                System.setProperty("webdriver.gecko.driver", geckoDriver);
+            }
+
+            if (!enableGeo) {
+                FirefoxProfile geoDisabled = new FirefoxProfile();
+                geoDisabled.setPreference("geo.enabled", false);
+                geoDisabled.setPreference("geo.provider.use_corelocation", false);
+                geoDisabled.setPreference("geo.prompt.testing", false);
+                geoDisabled.setPreference("geo.prompt.testing.allow", false);
+
+                capabilities.setCapability(FirefoxDriver.PROFILE, geoDisabled);
+            }
+
+            FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
+            firefoxOptions.setHeadless(true);
+
+            driver = new FirefoxDriver(firefoxOptions);
         }
-        String geckoDriver = System.getenv("GECKODRIVER_PATH");
-        if (geckoDriver!=null) {
-            System.setProperty("webdriver.gecko.driver", geckoDriver);
-        }
-
-        if (!enableGeo) {
-            FirefoxProfile geoDisabled = new FirefoxProfile();
-            geoDisabled.setPreference("geo.enabled", false);
-            geoDisabled.setPreference("geo.provider.use_corelocation", false);
-            geoDisabled.setPreference("geo.prompt.testing", false);
-            geoDisabled.setPreference("geo.prompt.testing.allow", false);
-
-            capabilities.setCapability(FirefoxDriver.PROFILE, geoDisabled);
-        }
-        //capabilities.setCapability("log","trace");
-
-        FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
-        firefoxOptions.setHeadless(true);
-        //firefoxOptions.headless -- TODO newer version of selenium
-
-        driver = new FirefoxDriver(firefoxOptions);
-        driver.manage().deleteAllCookies();
     }
 
     @Override
@@ -126,6 +126,24 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     public void click(WebElement webElement) {
         JavascriptExecutor executor = (JavascriptExecutor)driver;
         executor.executeScript("arguments[0].click();", webElement);
+    }
+
+    @Override
+    public void quit() {
+        try {
+            if (driver != null) {
+                driver.quit();
+                driver = null;
+            }
+        }
+        catch (NoSuchSessionException quitMustHaveAlreadyClosedTheSession) {
+            driver=null;
+        }
+    }
+
+    @Override
+    public boolean isEnabledGeo() {
+        return enableGeo;
     }
 
 }

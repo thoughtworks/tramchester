@@ -27,6 +27,7 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(Parameterized.class)
 public class UserJourneyWithLocationTest {
     private static final String configPath = "config/localAcceptance.yml";
+    private static DriverFactory driverFactory;
     private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     private String myLocation = "My Location";
@@ -48,15 +49,21 @@ public class UserJourneyWithLocationTest {
     @Parameterized.Parameter
     public String browserName;
 
+    @BeforeClass
+    public static void beforeAnyTestsRun() {
+        driverFactory = new DriverFactory();
+    }
+
     @Before
     public void beforeEachTestRuns() throws IOException {
         url = testRule.getUrl();
 
-        providesDriver = DriverFactory.create(true, browserName);
+        providesDriver = driverFactory.get(true, browserName);
 
         providesDriver.setStubbedLocation(AcceptanceTestHelper.NearAltrincham);
 
         providesDriver.init();
+        providesDriver.clearCookies();
 
         helper = new AcceptanceTestHelper(providesDriver);
 
@@ -67,6 +74,12 @@ public class UserJourneyWithLocationTest {
     @After
     public void afterEachTestRuns() {
         providesDriver.commonAfter(testName);
+    }
+
+    @AfterClass
+    public static void afterAllTestsRun() {
+        driverFactory.close();
+        driverFactory.quit();
     }
 
     @Test
@@ -103,7 +116,6 @@ public class UserJourneyWithLocationTest {
         }
 
     }
-
 
     @Test
     public void shouldCheckNearAltrinchamToCornbrook() {

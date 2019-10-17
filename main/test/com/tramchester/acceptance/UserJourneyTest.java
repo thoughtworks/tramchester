@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tramchester.TestConfig.dateFormatDashes;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -39,7 +40,8 @@ import static org.junit.Assert.*;
  @RunWith(Parameterized.class)
  public class UserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
-    private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
+     private static DriverFactory driverFactory;
+     private int expectedNumberJourneyResults = 3; // depends on frequency and timewindow
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
@@ -74,17 +76,29 @@ import static org.junit.Assert.*;
     @Parameterized.Parameter
     public String browserName;
 
-    @Before
+     @BeforeClass
+     public static void beforeAnyTestsRun() {
+         driverFactory = new DriverFactory();
+     }
+
+     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl();
 
-        providesDriver = DriverFactory.create(false, browserName);
+        providesDriver = driverFactory.get(false, browserName);
         providesDriver.init();
+        providesDriver.clearCookies();
         helper = new AcceptanceTestHelper(providesDriver);
 
         // TODO offset for when tfgm data is expiring
         nextTuesday = TestConfig.nextTuesday(0);
     }
+
+     @AfterClass
+     public static void afterAllTestsRun() {
+         driverFactory.close();
+         driverFactory.quit();
+     }
 
     @After
     public void afterEachTestRuns() {
@@ -121,6 +135,7 @@ import static org.junit.Assert.*;
 
         JourneyDetailsPage journeyDetailsPage = helper.checkJourney(url, tramJourney, expectations, 0, false);
 
+        providesDriver.clearCookies();
         RoutePlannerPage plannerPage = journeyDetailsPage.planNewJourney();
         plannerPage.waitForToStops();
         // check values remembered
@@ -129,13 +144,17 @@ import static org.junit.Assert.*;
         assertEquals("10:15", plannerPage.getTime());
 
         // check recents are set
-        List<WebElement> recentFrom = plannerPage.getRecentFromStops();
-        assertEquals(2, recentFrom.size());
-        //
+        List<String> recentFrom = plannerPage.getRecentFromStops().stream().
+                map(element -> element.getText()).collect(Collectors.toList());
+        assertTrue(recentFrom.contains(altrincham));
+        assertTrue(recentFrom.contains(bury));
+
         // Need to select an element other than alty for 'from' recent stops to show in 'to'
         plannerPage.setFromStop(Stations.Ashton.getName());
-        List<WebElement> recentTo = plannerPage.getRecentToStops();
-        assertEquals(2, recentTo.size());
+        List<String> recentTo = plannerPage.getRecentToStops().stream().
+                map(element -> element.getText()).collect(Collectors.toList());
+        assertTrue(recentTo.contains(altrincham));
+        assertTrue(recentTo.contains(bury));
     }
 
     @Test
@@ -264,7 +283,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldDisplayNotesOnSaturday() throws InterruptedException {
+    public void shouldDisplayNotesOnSaturday() {
         LocalDate aSaturday = TestConfig.nextSaturday(); //nextTuesday.minusDays(3);
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, aSaturday,
@@ -273,7 +292,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldDisplayNotesOnSunday() throws InterruptedException {
+    public void shouldDisplayNotesOnSunday() {
         LocalDate aSunday = TestConfig.nextSunday();
 
         RouteDetailsPage routeDetailsPage = helper.enterRouteSelection(url, new TramJourney(altrincham, deansgate, aSunday,
@@ -282,7 +301,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldCheckAshtonToPiccadilyGardens() throws InterruptedException {
+    public void shouldCheckAshtonToPiccadilyGardens() {
         List<String> noChanges = new LinkedList<>();
         List<String> headSigns = Collections.singletonList(Stations.Eccles.getName());
 
@@ -332,7 +351,7 @@ import static org.junit.Assert.*;
     }
 
     @Test
-    public void shouldCheckAltrinchamToExchangeSquare() throws InterruptedException {
+    public void shouldCheckAltrinchamToExchangeSquare() {
         List<String> changes = Collections.singletonList(Stations.Deansgate.getName());
         List<String> headSigns = Collections.singletonList(bury);
 

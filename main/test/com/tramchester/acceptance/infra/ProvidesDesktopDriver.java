@@ -14,7 +14,7 @@ import java.util.logging.Level;
 
 public abstract class ProvidesDesktopDriver extends ProvidesDriver {
 
-    protected WebDriver driver;
+    protected WebDriver driver = null;
 
     protected DesiredCapabilities createCapabilities() {
         DesiredCapabilities caps = new DesiredCapabilities();
@@ -31,14 +31,8 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
 
     @Override
     public void commonAfter(TestName testName) {
-        try {
-            if (driver!=null) {
-                takeScreenShot(testName);
-            }
-        } finally {
-            if (driver!=null) {
-                driver.close();
-            }
+        if (driver!=null) {
+            takeScreenShot(testName);
         }
     }
 

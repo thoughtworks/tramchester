@@ -21,6 +21,7 @@ import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_VERBO
 public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     private final DesiredCapabilities capabilities;
     private final ChromeOptions chromeOptions;
+    private final boolean enableGeo;
     private LatLong location;
     private ProvidesDateInput providesDateInput;
 
@@ -34,7 +35,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
-
+        this.enableGeo = enableGeo;
         if (enableGeo) {
             // geolocation fails on headless chrome, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
             chromeOptions.addArguments("--enable-geolocation");
@@ -46,34 +47,28 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         providesDateInput = new ProvidesChromeDateInput();
     }
 
-//    @Override
-//    public void commonAfter(TestName testName) {
-//        try {
-//            if (driver!=null) {
-//                takeScreenShot(testName);
-//                LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-//                logs.forEach(log -> System.out.println(log));
-//            }
-//        } finally {
-//            if (driver!=null) {
-//                driver.close();
-//            }
-//        }
-//    }
-
     @Override
     public void init() {
 
-        chromeOptions.merge(capabilities);
+        if (driver == null) {
+            chromeOptions.merge(capabilities);
 
-        ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
-        chromeDriver.setLogLevel(Level.SEVERE);
+            ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
+            chromeDriver.setLogLevel(Level.SEVERE);
 
-        driver = chromeDriver;
-        driver.manage().deleteAllCookies();
+            driver = chromeDriver;
 
-        if (location!=null) {
-            chromeDriver.setLocation(new Location(location.getLat(),location.getLon(),0));
+            if (location != null) {
+                chromeDriver.setLocation(new Location(location.getLat(), location.getLon(), 0));
+            }
+        }
+     }
+
+    @Override
+    public void quit() {
+        if (driver!=null) {
+            driver.quit();
+            driver=null;
         }
     }
 
@@ -95,5 +90,10 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     @Override
     public void setStubbedLocation(LatLong location) {
         this.location = location;
+    }
+
+    @Override
+    public boolean isEnabledGeo() {
+        return enableGeo;
     }
 }

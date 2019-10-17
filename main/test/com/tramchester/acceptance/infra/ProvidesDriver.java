@@ -52,7 +52,14 @@ public abstract class ProvidesDriver {
         webElement.click();
     }
 
-    public void quit() {
-        getDriver().quit();
+    public abstract void quit();
+
+    public void close() {
+        getDriver().close(); }
+
+    public abstract boolean isEnabledGeo();
+
+    public void clearCookies() {
+        getDriver().manage().deleteAllCookies();
     }
 }

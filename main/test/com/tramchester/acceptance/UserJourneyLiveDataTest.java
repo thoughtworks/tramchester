@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class UserJourneyLiveDataTest {
     private static final String configPath = "config/localAcceptance.yml";
+    private static DriverFactory driverFactory;
 
     private String url;
     private ProvidesDriver providesDriver;
@@ -38,16 +39,28 @@ public class UserJourneyLiveDataTest {
     @Parameterized.Parameter
     public String browserName;
 
+    @BeforeClass
+    public static void beforeAnyTestsRun() {
+        driverFactory = new DriverFactory();
+    }
+
+
     @Before
     public void beforeEachTestRuns() throws IOException {
         url = testRule.getUrl();
 
-        providesDriver = DriverFactory.create(true, browserName);
+        providesDriver = driverFactory.get(true, browserName);
 
         providesDriver.setStubbedLocation(AcceptanceTestHelper.NearAltrincham);
 
         providesDriver.init();
 
+    }
+
+    @AfterClass
+    public static void afterAllTestsRun() {
+        driverFactory.close();
+        driverFactory.quit();
     }
 
     @After

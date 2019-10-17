@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 @RunWith(Parameterized.class)
 public class AppUserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
+    private static DriverFactory driverFactory;
 
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
@@ -32,7 +33,6 @@ public class AppUserJourneyTest {
     private final String bury = Stations.Bury.getName();
     private final String altrincham = Stations.Altrincham.getName();
     private final String deansgate = Stations.Deansgate.getName();
-    private final String cornbrook = Stations.Cornbrook.getName();
 
     @Rule
     public TestName testName = new TestName();
@@ -58,11 +58,16 @@ public class AppUserJourneyTest {
     @Parameterized.Parameter
     public String browserName;
 
+    @BeforeClass
+    public static void beforeAnyTestsRun() {
+        driverFactory = new DriverFactory();
+    }
+
     @Before
     public void beforeEachTestRuns() {
         url = testRule.getUrl()+"/app/index.html";
 
-        providesDriver = DriverFactory.create(false, browserName);
+        providesDriver = driverFactory.get(false, browserName);
         providesDriver.init();
 
         // TODO offset for when tfgm data is expiring
@@ -72,6 +77,12 @@ public class AppUserJourneyTest {
     @After
     public void afterEachTestRuns() {
         providesDriver.commonAfter(testName);
+    }
+
+    @AfterClass
+    public static void afterAllTestsRun() {
+        driverFactory.close();
+        driverFactory.quit();
     }
 
     @Test

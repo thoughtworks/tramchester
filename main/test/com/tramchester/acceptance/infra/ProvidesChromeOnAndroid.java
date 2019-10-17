@@ -31,40 +31,48 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     @Override
     public void init() {
+        if (driver==null) {
 
-        providesDateInput = new ProvidesChromeDateInput();
+            providesDateInput = new ProvidesChromeDateInput();
 
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
-        //capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "4.4");
-        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Pixel_API_25");
-        capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Chrome");
-        capabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, 10);
-        capabilities.setCapability(MobileCapabilityType.TAKES_SCREENSHOT, "true");
-        capabilities.setCapability(MobileCapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.DISMISS);
+            DesiredCapabilities capabilities = new DesiredCapabilities();
+            capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
+            //capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "4.4");
+            capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Pixel_API_25");
+            capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Chrome");
+            capabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, 10);
+            capabilities.setCapability(MobileCapabilityType.TAKES_SCREENSHOT, "true");
+            capabilities.setCapability(MobileCapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.DISMISS);
 
-        driver = new AndroidDriver(capabilities);
+            driver = new AndroidDriver(capabilities);
+        }
+    }
+
+    @Override
+    public void quit() {
+        if (driver!=null) {
+            driver.quit();
+            driver=null;
+        }
     }
 
     @Override
     public void commonAfter(TestName testName) {
-        try {
-            if (driver!=null) {
-                takeScreenShot(testName);
-                LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-                logs.forEach(log -> System.out.println(log));
-            }
-        } finally {
-            if (driver!=null) {
-                driver.close();
-            }
-            driver.quit();
+        if (driver!=null) {
+            takeScreenShot(testName);
+            LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
+            logs.forEach(log -> System.out.println(log));
         }
     }
 
     @Override
     protected RemoteWebDriver getDriver() {
         return driver;
+    }
+
+    @Override
+    public boolean isEnabledGeo() {
+        return enableGeo;
     }
 
     @Override
