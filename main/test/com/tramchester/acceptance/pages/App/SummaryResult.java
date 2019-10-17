@@ -45,9 +45,10 @@ public class SummaryResult {
     }
 
     public List<Stage> getStages() {
-        // TODO
+        List<Stage> stages = new ArrayList<>();
         List<WebElement> rows = parent.findElements(By.className("stageSummary"));
-        return new ArrayList<>();
+        rows.forEach(row -> stages.add(new Stage(row)));
+        return stages;
     }
 
     public void click(ProvidesDriver providesDriver) {

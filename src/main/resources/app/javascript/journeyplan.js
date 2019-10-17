@@ -27,13 +27,13 @@ app = new Vue({
                     {key:'expectedArrivalTime',label:'Arrives',sortable:true, tdClass:'arriveTime'},
                     {key:'summary', label:'Changes', tdClass:'changes'},
                     {key:'heading',label:'Summary',tdClass:'summary'} ],
-                stageFields: [{key:'firstDepartureTime',label:'Time'},
-                    {key:'prompt',label:'Action' },
-                    {key:'actionStation.name',label:'Station'},
-                    {key:'platform.platformNumber', label:'Platform'},
-                    {key:'headSign', label:'Towards'},
+                stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
+                    {key:'prompt',label:'Action',tdClass:'action' },
+                    {key:'actionStation.name',label:'Station', tdClass:'actionStation'},
+                    {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
+                    {key:'headSign', label:'Towards', tdClass:'headsign'},
                     {key:'summary', label:'Line', tdClass: this.stageRowClass },
-                    {key:'passedStops', label:'Stops'}]
+                    {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
             }
         },
         methods: {

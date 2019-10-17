@@ -45,6 +45,7 @@ public class AppUserJourneyTest {
         if (System.getenv("CIRCLECI") == null) {
             return Arrays.asList("chrome", "firefox");
         }
+        // TODO - confirm this is still an issue
         // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
         // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
         return Arrays.asList("firefox");
@@ -69,6 +70,7 @@ public class AppUserJourneyTest {
 
         providesDriver = driverFactory.get(false, browserName);
         providesDriver.init();
+        providesDriver.clearCookies();
 
         // TODO offset for when tfgm data is expiring
         nextTuesday = TestConfig.nextTuesday(0);
@@ -167,11 +169,22 @@ public class AppUserJourneyTest {
             assertEquals("Tram with No Changes - 23 minutes", result.getSummary());
         }
 
+        // select first stage
         SummaryResult firstResult = results.get(0);
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);
+
         List<Stage> stages = firstResult.getStages();
+        assertEquals(1, stages.size());
+        Stage stage = stages.get(0);
+        assertEquals(firstResult.getDepartTime(), stage.getDepartTime());
+        assertEquals("Board tram at", stage.getAction());
+        assertEquals(altrincham, stage.getActionStation());
+        assertEquals(1, stage.getPlatform());
+        assertEquals(Stations.Bury.getName(), stage.getHeadsign());
+        assertEquals("Altrincham - Manchester - Bury Tram line", stage.getLine("RouteClass1"));
+        assertEquals(9, stage.getPassedStops());
     }
 
     @Test
