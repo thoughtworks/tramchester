@@ -40,3 +40,4 @@ testData/output/
 .envrc
 *.dot
 *.gradle~
+*.png

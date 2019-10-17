@@ -1,7 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -19,9 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -137,6 +134,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
                 fos.getChannel().transferFrom(rbc, 0, len);
                 logger.info("Finished download");
                 fos.close();
+                rbc.close();
             } catch (UnknownHostException unknownhost) {
                 logger.error("Unable to download data from " + dataUrl, unknownhost);
             }
@@ -145,7 +143,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
                 logger.warn("Unable to set mod time on " + path);
             }
         } else {
-            logger.info("Skip file download, mod time is not newer");
+            logger.warn("Skip file download, mod time is not newer");
         }
         return destination;
     }

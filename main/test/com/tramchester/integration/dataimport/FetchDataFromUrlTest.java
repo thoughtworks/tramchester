@@ -14,17 +14,14 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.Dependencies.TFGM_UNZIP_DIR;
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class FetchDataFromUrlTest {
 
@@ -46,8 +43,17 @@ public class FetchDataFromUrlTest {
             }
             Files.delete(unpackedDir);
         }
-        Files.deleteIfExists(dataCleansePath.resolve(FetchDataFromUrl.ZIP_FILENAME));
-        Files.deleteIfExists(dataCleansePath);
+        Path zipPath = dataCleansePath.resolve(FetchDataFromUrl.ZIP_FILENAME);
+        if (Files.exists(zipPath)) {
+            Files.deleteIfExists(zipPath);
+        }
+
+        try {
+            Files.deleteIfExists(dataCleansePath);
+        }
+        catch (DirectoryNotEmptyException exception) {
+           // workaround for windows
+        }
     }
 
     @Test
@@ -64,6 +70,7 @@ public class FetchDataFromUrlTest {
                 build();
         List<FeedInfo> result = cvsParser.readAll();
         reader.close();
+        inputStream.close();
 
         assertEquals(1,result.size());
         assertEquals("http://www.tfgm.com", result.get(0).getPublisherUrl());

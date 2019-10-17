@@ -8,7 +8,7 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
