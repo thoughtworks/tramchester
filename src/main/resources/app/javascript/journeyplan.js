@@ -91,10 +91,19 @@ app = new Vue({
                     return item.displayClass;
                 }
                 return null;
+            },
+            setCookie() {
+                var cookie = { 'visited' : true };
+                var expiry = moment().add(100, 'days').toDate();
+                this.$cookies.set("tramchesterVisited",cookie,"1d");
             }
         }
         ,
         mounted () {
+            var cookie = this.$cookies.get("tramchesterVisited");
+            if (cookie==null) {
+                this.$refs.cookieModal.show();
+            }
             this.getStations();
             axios
                 .get('/api/feedinfo')

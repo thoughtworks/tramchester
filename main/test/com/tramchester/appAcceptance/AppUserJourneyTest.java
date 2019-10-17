@@ -92,26 +92,6 @@ public class AppUserJourneyTest {
     }
 
     @Test
-    public void shouldRedirectDirectToJourneyPageAfterFirstVisit() throws UnsupportedEncodingException {
-        AppPage welcomePage = providesDriver.getAppPage();
-        welcomePage.load(url);
-        assertTrue(welcomePage.hasConsentButton());
-
-        assertNull(providesDriver.getCookieNamed("tramchesterVisited"));
-        welcomePage.consent();
-
-        // cookie should now be set
-        Cookie cookie = providesDriver.getCookieNamed("tramchesterVisited");
-        String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
-        assertEquals("{\"visited\":true}", cookieContents);
-
-        // check redirect
-        AppPage shouldBeRedirected = providesDriver.getAppPage();
-        shouldBeRedirected.load(url);
-        shouldBeRedirected.waitForToStops();
-    }
-
-    @Test
     public void shouldHaveInitialValuesAndSetInputsSetCorrectly() {
         AppPage appPage = prepare();
 
@@ -305,6 +285,28 @@ public class AppUserJourneyTest {
     }
 
     @Test
+    public void shouldDisplayCookieAgreementIfNotVisited() throws UnsupportedEncodingException {
+        AppPage appPage = providesDriver.getAppPage();
+        appPage.load(url);
+
+        assertNull(providesDriver.getCookieNamed("tramchesterVisited"));
+
+        assertTrue(appPage.waitForCookieAgreementVisible());
+
+        appPage.agreeToCookies();
+
+        // cookie should now be set
+        Cookie cookie = providesDriver.getCookieNamed("tramchesterVisited");
+        String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
+        assertEquals("{\"visited\":true}", cookieContents);
+        assertTrue(appPage.waitForCookieAgreementInvisible());
+
+        AppPage afterReload = providesDriver.getAppPage();
+        assertTrue(afterReload.waitForCookieAgreementInvisible());
+        afterReload.waitForToStops();
+    }
+
+    @Test
     public void shouldDisplayDisclaimer() {
         AppPage appPage = prepare();
 
@@ -321,7 +323,9 @@ public class AppUserJourneyTest {
     private AppPage prepare() {
         AppPage appPage = providesDriver.getAppPage();
         appPage.load(url);
-        appPage.consent();
+        appPage.waitForCookieAgreementVisible();
+        appPage.agreeToCookies();
+        appPage.waitForCookieAgreementInvisible();
         appPage.waitForToStops();
         return appPage;
     }

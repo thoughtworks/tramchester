@@ -26,10 +26,14 @@ public class AppPage extends Page {
     private String TO_STOP = "toStop";
     private String TIME = "time";
     private String RESULTS = "results";
+    private By disclaimer;
+    private By cookieDialogue;
 
     public AppPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
         this.providesDateInput = providesDateInput;
+        disclaimer = By.id("modal-disclaimer");
+        cookieDialogue = By.id("modal-cookieConsent");
     }
 
     public void load(String url) {
@@ -43,23 +47,8 @@ public class AppPage extends Page {
         wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.Altrincham.getName()));
     }
 
-    public boolean hasConsentButton() {
-        try {
-            findElementById("consent");
-            return true;
-        }
-        catch (NoSuchElementException ex) {
-            return false;
-        }
-    }
-
     public void planAJourney() {
         findElementById("plan").click();
-    }
-
-    public void consent() {
-        WebElement button = findElementById("consent");
-        button.click();
     }
 
     public void setStart(String start) {
@@ -189,7 +178,7 @@ public class AppPage extends Page {
 
     private List<String> getStopNames(WebElement recentElement) {
         List<WebElement> stopElements = recentElement.findElements(By.className("stop"));
-        return stopElements.stream().map(element -> element.getText()).collect(Collectors.toList());
+        return stopElements.stream().map(WebElement::getText).collect(Collectors.toList());
     }
 
     public boolean noResults() {
@@ -237,17 +226,28 @@ public class AppPage extends Page {
     }
 
     public boolean waitForDisclaimerVisible() {
-        return waitForCondition(ExpectedConditions.visibilityOfElementLocated(By.id("modal-disclaimer")));
+        return waitForVisability(disclaimer);
     }
 
     public boolean waitForDisclaimerInvisible() {
-        return waitForCondition(ExpectedConditions.invisibilityOfElementLocated(By.id("modal-disclaimer")));
+        return waitForInvisability(disclaimer);
+    }
+
+
+    public boolean waitForCookieAgreementInvisible() {
+        return waitForInvisability(cookieDialogue);
+    }
+
+    public boolean waitForCookieAgreementVisible() {
+        return waitForVisability(cookieDialogue);
     }
 
     public void dismissDisclaimer() {
-        WebElement diag = driver.findElement(By.id("modal-disclaimer"));
-        WebElement button = diag.findElement(By.tagName("button"));
-        button.click();
+        okToModal(disclaimer);
+    }
+
+    public void agreeToCookies() {
+        okToModal(cookieDialogue);
     }
 
     private boolean waitForCondition(ExpectedCondition<?> expectedCondition) {
@@ -257,6 +257,20 @@ public class AppPage extends Page {
         } catch (TimeoutException notShown) {
             return false;
         }
+    }
+
+    private boolean waitForVisability(By locator) {
+        return waitForCondition(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    private boolean waitForInvisability(By locator) {
+        return waitForCondition(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
+
+    private void okToModal(By locator) {
+        WebElement diag = driver.findElement(locator);
+        WebElement button = diag.findElement(By.tagName("button"));
+        button.click();
     }
 
 }
