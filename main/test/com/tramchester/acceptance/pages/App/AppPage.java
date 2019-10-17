@@ -5,6 +5,7 @@ import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.integration.Stations;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 
 public class AppPage extends Page {
     public static final String DATE = "date";
-    //public static final String PLAN_JOURNEY = "plan";
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 2;
 
@@ -164,9 +164,7 @@ public class AppPage extends Page {
 
     public List<String> getRecentFromStops() {
         By fromGroupRecent = By.id("fromGroupRecent");
-
         waitForClickableLocator(fromGroupRecent);
-
         WebElement recentElement = driver.findElement(fromGroupRecent);
 
         return getStopNames(recentElement);
@@ -208,18 +206,57 @@ public class AppPage extends Page {
         createWait().until(ExpectedConditions.elementToBeClickable(element));
     }
 
-
     private void waitForClickableLocator(By fromGroupRecent) {
         createWait().until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
     }
 
     public boolean notesPresent() {
+        return waitForCondition(ExpectedConditions.presenceOfElementLocated(By.id("NotesList")));
+    }
+
+    public String getBuild() {
+        return waitForAndGet(By.id("buildNumber"));
+    }
+
+    public String getValidFrom() {
+        return waitForAndGet(By.id("validFrom"));
+    }
+
+    public String getValidUntil() {
+        return waitForAndGet(By.id("validUntil"));
+    }
+
+    private String waitForAndGet(By locator) {
+        createWait().until(ExpectedConditions.presenceOfElementLocated(locator));
+        return driver.findElement(locator).getText();
+    }
+
+    public void displayDisclaimer() {
+        WebElement button = createWait().until(ExpectedConditions.presenceOfElementLocated(By.id("disclaimerButton")));
+        button.click();
+    }
+
+    public boolean waitForDisclaimerVisible() {
+        return waitForCondition(ExpectedConditions.visibilityOfElementLocated(By.id("modal-disclaimer")));
+    }
+
+    public boolean waitForDisclaimerInvisible() {
+        return waitForCondition(ExpectedConditions.invisibilityOfElementLocated(By.id("modal-disclaimer")));
+    }
+
+    public void dismissDisclaimer() {
+        WebElement diag = driver.findElement(By.id("modal-disclaimer"));
+        WebElement button = diag.findElement(By.tagName("button"));
+        button.click();
+    }
+
+    private boolean waitForCondition(ExpectedCondition<?> expectedCondition) {
         try {
-            createWait().until(ExpectedConditions.presenceOfElementLocated(By.id("NotesList")));
+            createWait().until(expectedCondition);
             return true;
-        }
-        catch(TimeoutException notPresent) {
+        } catch (TimeoutException notShown) {
             return false;
         }
     }
+
 }

@@ -54,4 +54,12 @@ public class Page {
         return listItems.stream().map(WebElement::getText).collect(Collectors.toList());
     }
 
+    public String getExpectedBuildNumberFromEnv() {
+        String build = System.getenv("CIRCLE_BUILD_NUM");
+        if (build==null) {
+            build = "0";
+        }
+        return build;
+    }
+
 }

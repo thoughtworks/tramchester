@@ -10,7 +10,6 @@ import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.integration.Stations;
 import com.tramchester.integration.resources.FeedInfoResourceTest;
-import com.tramchester.integration.resources.JourneyPlannerHelper;
 
 import org.junit.*;
 import org.junit.rules.TestName;
@@ -18,13 +17,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebElement;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -365,9 +362,10 @@ import static org.junit.Assert.*;
 
     @Test
     public void shouldHaveBuildAndVersionNumberInFooter() {
-        String build = selectBuildNumber();
 
         RoutePlannerPage page = providesDriver.getWelcomePage().load(testRule.getUrl()).begin();
+
+        String build = page.getExpectedBuildNumberFromEnv();
 
         String result = page.getBuild();
         assertEquals("Build 2."+build, result);
@@ -388,12 +386,6 @@ import static org.junit.Assert.*;
         return routeDetailsPage.getAllNotes();
     }
 
-    private String selectBuildNumber() {
-        String build = System.getenv("CIRCLE_BUILD_NUM");
-        if (build==null) {
-            build = "0";
-        }
-        return build;
-    }
+
 
 }

@@ -7,6 +7,7 @@ import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
 import com.tramchester.integration.Stations;
+import com.tramchester.integration.resources.FeedInfoResourceTest;
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.tramchester.TestConfig.dateFormatDashes;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
@@ -259,7 +261,6 @@ public class AppUserJourneyTest {
 
     }
 
-
     @Test
     public void shouldDisplayWeekendWorkNoteOnlyOnWeekends() {
         LocalTime time = LocalTime.parse("10:15");
@@ -284,7 +285,37 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
         assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
+    }
 
+    @Test
+    public void shouldHaveBuildAndVersionNumberInFooter() {
+        AppPage appPage = prepare();
+
+        String build = appPage.getExpectedBuildNumberFromEnv();
+
+        String result = appPage.getBuild();
+        assertEquals("2."+build, result);
+
+        String dataBegin = appPage.getValidFrom();
+        assertEquals(FeedInfoResourceTest.validFrom.format(dateFormatDashes), dataBegin);
+
+        String dataEnd = appPage.getValidUntil();
+        assertEquals(FeedInfoResourceTest.validUntil.format(dateFormatDashes), dataEnd);
+
+    }
+
+    @Test
+    public void shouldDisplayDisclaimer() {
+        AppPage appPage = prepare();
+
+        assertFalse(appPage.waitForDisclaimerVisible());
+
+        appPage.displayDisclaimer();
+        assertTrue(appPage.waitForDisclaimerVisible());
+
+        appPage.dismissDisclaimer();
+        // chrome takes a while to close it, so wait for it to go
+        assertTrue(appPage.waitForDisclaimerInvisible());
     }
 
     private AppPage prepare() {

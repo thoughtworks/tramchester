@@ -41,7 +41,6 @@ public class Stage {
         return Integer.parseInt(getFieldText("passedStops"));
     }
 
-
     private String getFieldText(String fieldName) {
         return row.findElement(By.className(fieldName)).getText();
     }
