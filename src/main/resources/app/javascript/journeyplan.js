@@ -96,6 +96,12 @@ app = new Vue({
                 var cookie = { 'visited' : true };
                 var expiry = moment().add(100, 'days').toDate();
                 this.$cookies.set("tramchesterVisited",cookie,"1d");
+            },
+            timeToNow() {
+                app.time = getCurrentTime();
+            },
+            dateToNow() {
+                app.date = getCurrentDate();
             }
         }
         ,

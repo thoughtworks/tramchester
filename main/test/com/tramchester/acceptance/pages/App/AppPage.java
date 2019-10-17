@@ -273,4 +273,13 @@ public class AppPage extends Page {
         button.click();
     }
 
+    public void selectNow() {
+        WebElement nowButton = driver.findElement(By.id("nowButton"));
+        nowButton.click();
+    }
+
+    public void selectToday() {
+        WebElement todayButton = driver.findElement(By.id("todayButton"));
+        todayButton.click();
+    }
 }

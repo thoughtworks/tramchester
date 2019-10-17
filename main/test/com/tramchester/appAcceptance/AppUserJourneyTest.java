@@ -95,12 +95,7 @@ public class AppUserJourneyTest {
     public void shouldHaveInitialValuesAndSetInputsSetCorrectly() {
         AppPage appPage = prepare();
 
-        LocalTime now = LocalTime.now();
-        String timeOnPageRaw = appPage.getTime();
-        LocalTime timeOnPage = LocalTime.parse(timeOnPageRaw);
-
-        int diff = Math.abs(now.toSecondOfDay() - timeOnPage.toSecondOfDay());
-        assertTrue(diff<=60); // allow for page render and webdriver overheads
+        validateCurrentTimeIsSelected(appPage);
 
         assertEquals(LocalDate.now(), appPage.getDate());
 
@@ -110,6 +105,24 @@ public class AppUserJourneyTest {
         assertJourney(appPage, altrincham, bury, "03:15", nextTuesday.plusMonths(1));
         desiredJourney(appPage, altrincham, bury, nextTuesday.plusYears(1), LocalTime.parse("20:15"));
         assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1));
+
+        appPage.selectNow();
+        validateCurrentTimeIsSelected(appPage);
+
+        appPage.selectToday();
+        assertEquals(LocalDate.now(), appPage.getDate());
+    }
+
+    private void validateCurrentTimeIsSelected(AppPage appPage) {
+        LocalTime timeOnPage = timeSelectedOnPage(appPage);
+        LocalTime now = LocalTime.now();
+        int diff = Math.abs(now.toSecondOfDay() - timeOnPage.toSecondOfDay());
+        assertTrue(diff<=60); // allow for page render and webdriver overheads
+    }
+
+    private LocalTime timeSelectedOnPage(AppPage appPage) {
+        String timeOnPageRaw = appPage.getTime();
+        return LocalTime.parse(timeOnPageRaw);
     }
 
     @Test
