@@ -1,0 +1,26 @@
+{
+  "name": "tramchester",
+  "version": "1.0.0",
+  "description": "Plan journeys on Manchester Metrolink",
+  "main": "javascript/journeyplan.js",
+  "scripts": {
+    "test": "todo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThoughtWorksInc/tramchester.git"
+  },
+  "author": "Ian Cartwright",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ThoughtWorksInc/tramchester/issues"
+  },
+  "homepage": "https://github.com/ThoughtWorksInc/tramchester#readme",
+  "dependencies": {
+    "moment": "^2.24.0"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9"
+  }
+}

@@ -87,6 +87,12 @@ sourceSets {
     }
 }
 
+processResources {
+    exclude('**/app/node_modules')
+    exclude('**/app/javascript')
+    exclude('**/app/package.json')
+}
+
 task cfnassist {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
@@ -101,7 +107,6 @@ tasks.withType(JavaCompile) {
     options.deprecation = true
     options.compilerArgs.addAll(['-Xlint'])
 }
-
 
 task stage(dependsOn: ['clean', 'installApp'])
 
@@ -128,6 +133,7 @@ clean {
 }
 
 run {
+    dependsOn 'webpack'
     args 'server', 'config/local.yml'
 }
 
@@ -216,6 +222,7 @@ task integration(type: Test, dependsOn: compileJava) {
 task appium(type: Test) {
     dependsOn 'allowhost'
     dependsOn 'compileJava'
+    dependsOn 'webpack'
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"
@@ -231,10 +238,11 @@ task appium(type: Test) {
     }
 }
 
-task localAppium(type: Test, dependsOn: compileJava) {
+task localAppium(type: Test, dependsOn: ['compileJava','webpack']) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"
+            includeTestsMatching "com.tramchester.appAcceptance.*"
         }
         testLogging {
             events "passed", "skipped", "failed", "started", "standardError", "standardOut"
@@ -242,7 +250,7 @@ task localAppium(type: Test, dependsOn: compileJava) {
     }
 }
 
-task localApp(type: Test, dependsOn: compileJava) {
+task localApp(type: Test, dependsOn: ['compileJava','webpack']) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.appAcceptance.*"
@@ -270,12 +278,23 @@ task diagrams(dependsOn: cfnassist) {
     }
 }
 
+task webpack(type: Exec) {
+    inputs.file("src/main/resources/app/package-lock.json")
+    inputs.dir("src/main/resources/app/")
+    // NOTE: Add inputs.file("webpack.config.js") for projects that have it
+    outputs.dir("src/main/resources/app/dist")
+
+    commandLine "webpack",
+            "src/main/resources/app/javascript/journeyplan.js",
+            "src/main/resources/app/dist/main.js",
+            "--mode=development"
+}
+
 distZip {
     into('config') {
         from 'config'
     }
 }
-
 task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
     doLast {
         ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {

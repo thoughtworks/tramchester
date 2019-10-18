@@ -1,4 +1,6 @@
 
+var moment = require('moment');
+
 function getCurrentTime() {
     return moment().format("HH:mm");
 }
