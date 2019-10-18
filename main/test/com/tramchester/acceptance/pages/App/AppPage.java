@@ -2,6 +2,7 @@ package com.tramchester.acceptance.pages.App;
 
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.Stations;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -18,10 +19,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AppPage extends Page {
-    public static final String DATE = "date";
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 2;
 
+    public static LatLong NearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
+
+    public static final String DATE = "date";
     private String FROM_STOP = "fromStop";
     private String TO_STOP = "toStop";
     private String TIME = "time";
@@ -44,7 +47,7 @@ public class AppPage extends Page {
         WebDriverWait wait = createWait();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(FROM_STOP)));
         WebElement fromStopElement = findElementById(FROM_STOP);
-        wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.Altrincham.getName()));
+        wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.ManAirport.getName()));
     }
 
     public void planAJourney() {
@@ -152,20 +155,24 @@ public class AppPage extends Page {
     }
 
     public List<String> getRecentFromStops() {
-        By fromGroupRecent = By.id("fromGroupRecent");
-        waitForClickableLocator(fromGroupRecent);
-        WebElement recentElement = driver.findElement(fromGroupRecent);
+        return getStopsByGroupName("fromGroupRecent");
+    }
 
-        return getStopNames(recentElement);
+    public List<String> getRecentToStops() {
+        return getStopsByGroupName("toGroupRecent");
     }
 
     public List<String> getAllStopsFromStops() {
-        By fromGroupRecent = By.id("fromGroupAll Stops");
+        return getStopsByGroupName("fromGroupAll Stops");
+    }
 
-        waitForClickableLocator(fromGroupRecent);
-        WebElement recentElement = driver.findElement(fromGroupRecent);
 
-        return getStopNames(recentElement);
+    public List<String> getAllStopsToStops() {
+        return getStopsByGroupName("toGroupAll Stops");
+    }
+
+    public List<String> getNearbyFromStops() {
+        return getStopsByGroupName("fromGroupNearest Stops");
     }
 
     public List<String> getToStops() {
@@ -281,5 +288,22 @@ public class AppPage extends Page {
     public void selectToday() {
         WebElement todayButton = driver.findElement(By.id("todayButton"));
         todayButton.click();
+    }
+
+    private List<String> getStopsByGroupName(String groupName) {
+        By fromGroupRecent = By.id(groupName);
+        waitForClickableLocator(fromGroupRecent);
+        WebElement recentElement = driver.findElement(fromGroupRecent);
+        return getStopNames(recentElement);
+    }
+
+    public boolean hasLocation() {
+        return "true".equals(findElementById("havePos").getText());
+    }
+
+    public void waitForReady() {
+        // geo loc on firefox can be slow even when stubbing location via a file....
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("plan")));
     }
 }

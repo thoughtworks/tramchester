@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Stations {
+    public static int NumberOf = 93;
     // TEST DATA For stations
 
     private static LatLong position = new LatLong(1,1);

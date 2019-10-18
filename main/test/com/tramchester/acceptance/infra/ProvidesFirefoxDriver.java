@@ -58,6 +58,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
             }
 
             FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
+
             firefoxOptions.setHeadless(true);
 
             driver = new FirefoxDriver(firefoxOptions);

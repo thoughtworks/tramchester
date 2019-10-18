@@ -1,0 +1,169 @@
+package com.tramchester.appAcceptance;
+
+import com.tramchester.App;
+import com.tramchester.TestConfig;
+import com.tramchester.acceptance.infra.AcceptanceTestRun;
+import com.tramchester.acceptance.infra.DriverFactory;
+import com.tramchester.acceptance.infra.ProvidesDriver;
+import com.tramchester.acceptance.pages.App.AppPage;
+import com.tramchester.acceptance.pages.App.Stage;
+import com.tramchester.acceptance.pages.App.SummaryResult;
+import com.tramchester.integration.Stations;
+import org.junit.*;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.tramchester.appAcceptance.AppUserJourneyTest.desiredJourney;
+import static com.tramchester.appAcceptance.AppUserJourneyTest.validateAStage;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(Parameterized.class)
+public class AppUserJourneyLoactionsTest {
+    private static final String configPath = "config/localAcceptance.yml";
+    private static DriverFactory driverFactory;
+
+    @ClassRule
+    public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
+
+    private final String bury = Stations.Bury.getName();
+    private final String altrincham = Stations.Altrincham.getName();
+    private final String deansgate = Stations.Deansgate.getName();
+
+    @Rule
+    public TestName testName = new TestName();
+
+    private LocalDate nextTuesday;
+    private String url;
+    private ProvidesDriver providesDriver;
+
+    public static List<String> getBrowserList() {
+        if (System.getenv("CIRCLECI") == null) {
+            return Arrays.asList("chrome", "firefox");
+        }
+        // TODO - confirm this is still an issue
+        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
+        return Arrays.asList("firefox");
+    }
+
+    @Parameterized.Parameters
+    public static Iterable<? extends Object> data() {
+        return getBrowserList();
+    }
+
+    @Parameterized.Parameter
+    public String browserName;
+
+    @BeforeClass
+    public static void beforeAnyTestsRun() {
+        driverFactory = new DriverFactory();
+    }
+
+    @Before
+    public void beforeEachTestRuns() throws IOException {
+        url = testRule.getUrl()+"/app/index.html";
+
+        providesDriver = driverFactory.get(true, browserName);
+        providesDriver.setStubbedLocation(AppPage.NearAltrincham);
+        providesDriver.init();
+        providesDriver.clearCookies();
+
+        // TODO offset for when tfgm data is expiring
+        nextTuesday = TestConfig.nextTuesday(0);
+    }
+
+    @After
+    public void afterEachTestRuns() {
+        providesDriver.commonAfter(testName);
+    }
+
+    @AfterClass
+    public static void afterAllTestsRun() {
+        driverFactory.close();
+        driverFactory.quit();
+    }
+
+    @Test
+    public void shouldHaveCorrectNearbyStops() {
+        AppPage appPage = prepare();
+
+        assertTrue(appPage.hasLocation());
+
+        // from
+        List<String> nearestFromStops = appPage.getNearbyFromStops();
+        assertThat(nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName(), "Timperley"));
+        List<String> allFrom = appPage.getAllStopsFromStops();
+        assertThat(allFrom, not(contains(nearestFromStops)));
+        assertEquals(Stations.NumberOf, nearestFromStops.size()+allFrom.size());
+
+        // to
+        List<String> nearestToStops = appPage.getNearbyFromStops();
+        assertThat(nearestToStops, hasItems(altrincham, Stations.NavigationRoad.getName(), "Timperley"));
+        List<String> allTo = appPage.getAllStopsToStops();
+        assertThat(allTo, not(contains(nearestToStops)));
+        assertEquals(Stations.NumberOf, nearestToStops.size()+allTo.size());
+
+        // check recents works as expected
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
+        appPage.planAJourney();
+        appPage.waitForReady();
+        List<String> fromRecent = appPage.getRecentFromStops();
+        assertThat(fromRecent, hasItems(altrincham, bury));
+        nearestFromStops = appPage.getNearbyFromStops();
+        assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName(), "Timperley"));
+        // TODO to recent just bury, not alty
+
+        // TODO "Nearby" aka my location
+    }
+
+    @Test
+    @Ignore("WIP")
+    public void shouldCheckNearAltrinchamToDeansgate() {
+        AppPage appPage = prepare();
+        LocalTime planTime = LocalTime.parse("10:15");
+        desiredJourney(appPage, "My Location", deansgate, nextTuesday, planTime);
+        appPage.planAJourney();
+
+        assertTrue(appPage.resultsClickable());
+
+        List<SummaryResult> results = appPage.getResults();
+        assertEquals(6, results.size());
+
+        for (SummaryResult result : results) {
+            assertTrue(result.getDepartTime().isAfter(planTime));
+            assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
+            assertEquals("Direct", result.getChanges());
+            assertEquals("Tram with No Changes - 23 minutes", result.getSummary());
+        }
+
+        // select first journey
+        SummaryResult firstResult = results.get(0);
+        firstResult.moveTo(providesDriver);
+        appPage.waitForClickable(firstResult.getElement());
+        firstResult.click(providesDriver);
+
+        List<Stage> stages = firstResult.getStages();
+        assertEquals(1, stages.size());
+        Stage stage = stages.get(0);
+        validateAStage(stage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
+                "Altrincham - Manchester - Bury Tram line", "RouteClass1", Stations.Bury.getName(), 9);
+    }
+
+    private AppPage prepare() {
+        return AppUserJourneyTest.prepare(providesDriver, url);
+    }
+
+}
+

@@ -35,7 +35,7 @@
                 <div id="selectEnd">
                     <b-form-select id="toStop" v-model="endStop" class="mb-3" required>
                         <option :value="null" disabled>Please select destination</option>
-                        <optgroup v-for="group in proxGroups" :label="group.name" :id="'toGroup' + group.name">
+                        <optgroup v-for="group in proxGroups" :label="group.name" :name="group.name" :id="'toGroup' + group.name">
                             <option class="stop" v-for="stop in endStops" v-if="stop.proximityGroup.name==group.name" :value="stop.id">{{stop.name}}</option>
                         </optgroup>
                     </b-form-select>
@@ -57,7 +57,7 @@
                     </b-input-group>
                 </b-form-group>
 
-                <b-button id="plan" type="submit" variant="light">
+                <b-button :disabled='!ready' id="plan" type="submit" variant="light">
                     Find Trams
                     <b-spinner v-if="searchInProgress" id="spinner" small type="grow" ref="planSpinner"></b-spinner>
                 </b-button>
@@ -120,6 +120,7 @@
                             <b-col>Build <div id="buildNumber">{{buildNumber}}</div></b-col>
                             <b-col>From: <div id="validFrom">{{feedinfo.validFrom}}</div></b-col>
                             <b-col>Until: <div id="validUntil">{{feedinfo.validUntil}}</div></b-col>
+                            <b-col>Geolocation: <div id="havePos">{{havePos}}</div></b-col>
                         </b-row>
                     </b-container>
                 </b-card>

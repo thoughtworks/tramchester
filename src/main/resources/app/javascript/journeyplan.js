@@ -7,10 +7,51 @@ function getCurrentDate() {
     return moment().format("YYYY-MM-DD")
 }
 
+function stationsUrl(app) {
+    base = '/api/stations';
+    if (!app.hasGeo) {
+        return base;
+    }
+    place = app.location;
+    if (place!=null) {
+        return base + '/' + place.coords.latitude + '/' + place.coords.longitude;
+    }
+    return base;
+}
+
+function getStationsFromServer(app) {
+     axios
+         .get(stationsUrl(app))
+         .then(function (response) {
+             app.networkError = false;
+             // respect way vue bindings work, can't just assign/overwrite existing list
+             changes = response.data.stations.filter(station =>
+                 station.proximityGroup.order != app.stopToProxGroup.get(station.id) );
+             changes.forEach(function(change) {
+                 app.stopToProxGroup.set(change.id, change.proximityGroup.order);
+             });
+
+             app.stops = app.stops.filter(stop =>
+                 stop.proximityGroup.order === app.stopToProxGroup.get(stop.id) ); // keep unchanged
+
+             changes.forEach(function(change) {
+                 app.stops.push(change);
+             });
+             app.ready=true;
+
+         })
+         .catch(function (error) {
+             app.networkError = true;
+             app.ready=true;
+             console.log(error);
+         });
+ }
+
 app = new Vue({
         el: '#journeyplan',
         data () {
             return {
+                ready: false,
                 stops: [],
                 stopToProxGroup: new Map(),
                 startStop: null,
@@ -24,6 +65,8 @@ app = new Vue({
                 noResults: false,
                 searchInProgress: false,
                 networkError: false,
+                hasGeo: false,
+                location: null,
                 journeyFields: [
                     {key:'firstDepartureTime',label:'Departs',sortable:true, tdClass:'departTime'},
                     {key:'expectedArrivalTime',label:'Arrives',sortable:true, tdClass:'arriveTime'},
@@ -51,6 +94,7 @@ app = new Vue({
                 event.preventDefault(); // stop page reload on form submission
                 app.searchInProgress = true;
                 app.clearJourneysAndNotes();
+                app.ready = false;
                 this.$nextTick(function () {
                     app.queryServer();
                 });
@@ -75,30 +119,18 @@ app = new Vue({
                     console.log(error);
                 });
             },
-
             getStations() {
-                axios
-                    .get('/api/stations')
-                    .then(function (response) {
-                        app.networkError = false;
-                        // respect way vue bindings work, can't just assign/overwrite existing list
-                        changes = response.data.stations.filter(station =>
-                            station.proximityGroup.order != app.stopToProxGroup.get(station.id) );
-                        changes.forEach(function(change) {
-                            app.stopToProxGroup.set(change.id, change.proximityGroup.order);
-                        });
-
-                        app.stops = app.stops.filter(stop =>
-                            stop.proximityGroup.order === app.stopToProxGroup.get(stop.id) ); // keep unchanged
-
-                        changes.forEach(function(change) {
-                            app.stops.push(change);
-                        });
+                if (this.hasGeo) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                          this.location = pos;
+                          getStationsFromServer(this);
+                    }, err => {
+                          this.location = null;
+                          getStationsFromServer(this);
                     })
-                    .catch(function (error) {
-                        app.networkError = true;
-                        console.log(error);
-                    });
+                } else {
+                    getStationsFromServer(this);
+                }
             },
             expandStages(row,index) {
                 row._showDetails = !row._showDetails;
@@ -148,6 +180,11 @@ app = new Vue({
             this.getStations();
 
         },
+        created() {
+            if("geolocation" in navigator) {
+                this.hasGeo = true;
+            }
+        },
         computed: {
             proxGroups: function () {
                 proxGroups = [];
@@ -163,6 +200,9 @@ app = new Vue({
             },
             endStops: function () {
                 return this.stops.filter(item => item.id!=this.startStop);
+            },
+            havePos: function () {
+                return this.hasGeo && (this.location!=null);
             }
         }
 

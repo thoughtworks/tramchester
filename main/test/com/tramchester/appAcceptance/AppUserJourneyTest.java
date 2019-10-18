@@ -2,7 +2,9 @@ package com.tramchester.appAcceptance;
 
 import com.tramchester.App;
 import com.tramchester.TestConfig;
-import com.tramchester.acceptance.infra.*;
+import com.tramchester.acceptance.infra.AcceptanceTestRun;
+import com.tramchester.acceptance.infra.DriverFactory;
+import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
@@ -22,8 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.tramchester.TestConfig.dateFormatDashes;
-import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
@@ -132,19 +135,24 @@ public class AppUserJourneyTest {
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
-        // check recents are set
+        // check 'from' recents are set
         List<String> fromRecent = appPage.getRecentFromStops();
-        assertTrue(fromRecent.contains(altrincham));
-        assertTrue(fromRecent.contains(bury));
-        // check "non recents" don't contain these two stations now
-        List<String> remainingStops = appPage.getAllStopsFromStops();
-        assertFalse(remainingStops.contains(altrincham));
-        assertFalse(remainingStops.contains(bury));
+        assertThat(fromRecent, hasItems(altrincham, bury));
+        List<String> remainingFromStops = appPage.getAllStopsFromStops();
+        assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations
-        assertEquals(93, remainingStops.size()+fromRecent.size());
+        assertEquals(Stations.NumberOf, remainingFromStops.size()+fromRecent.size());
+
+        // check 'to' recents are set
+        appPage.setStart(Stations.ExchangeSquare.getName()); // so alty is available in the recents list
+        List<String> toRecent = appPage.getRecentToStops();
+        assertThat(toRecent, hasItems(altrincham,bury));
+        List<String> remainingToStops = appPage.getAllStopsToStops();
+        assertThat(remainingToStops, not(contains(toRecent)));
+        assertEquals(Stations.NumberOf-1, remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, altrincham, bury, "10:15", nextTuesday);
+        assertJourney(appPage, Stations.ExchangeSquare.getName(), bury, "10:15", nextTuesday);
     }
 
     @Test
@@ -228,7 +236,6 @@ public class AppUserJourneyTest {
 
         List<SummaryResult> results = appPage.getResults();
         assertEquals(6, results.size());
-
 
         // select first journey
         SummaryResult firstResult = results.get(0);
@@ -334,30 +341,35 @@ public class AppUserJourneyTest {
     }
 
     private AppPage prepare() {
+        return prepare(providesDriver, url);
+    }
+
+    public static AppPage prepare(ProvidesDriver providesDriver, String url) {
         AppPage appPage = providesDriver.getAppPage();
         appPage.load(url);
         appPage.waitForCookieAgreementVisible();
         appPage.agreeToCookies();
         appPage.waitForCookieAgreementInvisible();
+        appPage.waitForReady();
         appPage.waitForToStops();
         return appPage;
     }
 
-    private void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time) {
+    public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time) {
         appPage.setStart(start);
         appPage.setDest(dest);
         appPage.setDate(date);
         appPage.setTime(time);
     }
 
-    private void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date) {
+    public static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date) {
         assertEquals(start, appPage.getFromStop());
         assertEquals(dest, appPage.getToStop());
         assertEquals(time, appPage.getTime());
         assertEquals(date, appPage.getDate());
     }
 
-    private void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
+    public static void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
                                 String lineName, String lineClass, String headsign, int stops) {
         assertEquals(departTime, stage.getDepartTime());
         assertEquals(action, stage.getAction());
