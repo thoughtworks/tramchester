@@ -155,4 +155,8 @@ public class RoutePlannerPage extends Page {
         return webElement.getText();
     }
 
+    public void waitForFooter() {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("footer")));
+    }
 }

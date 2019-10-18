@@ -367,6 +367,8 @@ import static org.junit.Assert.*;
 
         String build = page.getExpectedBuildNumberFromEnv();
 
+        page.waitForFooter();
+
         String result = page.getBuild();
         assertEquals("Build 2."+build, result);
 
