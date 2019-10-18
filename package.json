@@ -2,9 +2,10 @@
   "name": "tramchester",
   "version": "1.0.0",
   "description": "Plan journeys on Manchester Metrolink",
-  "main": "javascript/journeyplan.js",
+  "main": "src/main/resources/app/javascript/journeyplan.js",
+  "private": true,
   "scripts": {
-    "test": "todo"
+    "build": "webpack --progress --mode=production"
   },
   "repository": {
     "type": "git",

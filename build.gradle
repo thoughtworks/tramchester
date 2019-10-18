@@ -88,9 +88,7 @@ sourceSets {
 }
 
 processResources {
-    exclude('**/app/node_modules')
-    exclude('**/app/javascript')
-    exclude('**/app/package.json')
+    exclude('**/app/javascript') // dist via webpack
 }
 
 task cfnassist {
@@ -281,13 +279,10 @@ task diagrams(dependsOn: cfnassist) {
 task webpack(type: Exec) {
     inputs.file("src/main/resources/app/package-lock.json")
     inputs.dir("src/main/resources/app/")
-    // NOTE: Add inputs.file("webpack.config.js") for projects that have it
+    inputs.file("webpack.config.js")
     outputs.dir("src/main/resources/app/dist")
 
-    commandLine "webpack",
-            "src/main/resources/app/javascript/journeyplan.js",
-            "src/main/resources/app/dist/main.js",
-            "--mode=development"
+    commandLine "webpack"
 }
 
 distZip {
