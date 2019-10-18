@@ -3,7 +3,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
         <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
-        <link type="text/css" rel="stylesheet" href="css/tramchester.css" />
+        <link type="text/css" rel="stylesheet" href="/app/css/tramchester.css" />
 
         <!-- Load polyfills to support older browsers -->
         <!--
@@ -15,13 +15,14 @@
         <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
-        <script src="javascript/lib/moment.min.js"></script>
+        <script src="/app/javascript/lib/moment.min.js"></script>
         <script src="https://unpkg.com/vue-cookies@1.5.12/vue-cookies.js"></script>
 
     </head>
     <body>
 
-        <b-input-group id="journeyplan" class="tramchesterApp">
+
+        <div id="journeyplan" class="tramchesterApp">
             <b-form @submit="plan" class="w-75 tramchesterApp">
                 <div id="selectStart">
                     <b-form-select id="fromStop" v-model="startStop" class="mb-3" required>
@@ -56,8 +57,17 @@
                     </b-input-group>
                 </b-form-group>
 
-                <b-button id="plan" type="submit" variant="light">Find Trams</b-button>
+                <b-button id="plan" type="submit" variant="light">
+                    Find Trams
+                    <b-spinner v-if="searchInProgress" id="spinner" small type="grow" ref="planSpinner"></b-spinner>
+                </b-button>
             </b-form>
+
+            <div id="networkError" selectable v-if="networkError" class="w-75 tramchesterApp">
+                <b-card bg-variant="danger" text-variant="white">
+                    Unable to commmunicate with server
+                </b-card>
+            </div>
 
             <b-card bg-variant="light" v-if="notes.length>0" title="Notes" class="w-75 tramchesterApp">
                 <ul id="NotesList" class="JourneyNotes">
@@ -148,6 +158,7 @@
                     <p>Tramchester uses <b>cookies</b> to store information in your browser about previous usages and recent journeys.</p>
                 </div>
             </b-modal>
+
         </div> <!-- end of app -->
 
         <script src="/app/javascript/journeyplan.js"></script>

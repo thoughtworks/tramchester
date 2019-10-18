@@ -22,6 +22,8 @@ app = new Vue({
                 buildNumber: '',
                 feedinfo: [],
                 noResults: false,
+                searchInProgress: false,
+                networkError: false,
                 journeyFields: [
                     {key:'firstDepartureTime',label:'Departs',sortable:true, tdClass:'departTime'},
                     {key:'expectedArrivalTime',label:'Arrives',sortable:true, tdClass:'arriveTime'},
@@ -46,25 +48,39 @@ app = new Vue({
                 }
             },
             plan(event){
+                event.preventDefault(); // stop page reload on form submission
+                app.searchInProgress = true;
                 app.clearJourneysAndNotes();
-                event.preventDefault(); // stop page reload
+                this.$nextTick(function () {
+                    app.queryServer();
+                });
+
+            },
+            queryServer() {
                 axios.get('/api/journey', {
-                    params: {
-                        start: this.startStop, end: this.endStop, departureTime: this.time, departureDate: this.date}
+                    params: { start: this.startStop, end: this.endStop,
+                    departureTime: this.time, departureDate: this.date},
+                        timeout: 5000
                 }).then(function (response) {
+                    app.networkError = false;
+                    app.searchInProgress = false;
                     app.journeys = app.journeys.concat(response.data.journeys);
                     app.noResults = app.journeys.length==0;
                     app.notes = app.notes.concat(response.data.notes);
                     app.getStations(); // recent stations will have changed
                 })
                 .catch(function (error) {
+                    app.searchInProgress = false;
+                    app.networkError = true;
                     console.log(error);
                 });
             },
+
             getStations() {
                 axios
                     .get('/api/stations')
                     .then(function (response) {
+                        app.networkError = false;
                         // respect way vue bindings work, can't just assign/overwrite existing list
                         changes = response.data.stations.filter(station =>
                             station.proximityGroup.order != app.stopToProxGroup.get(station.id) );
@@ -80,6 +96,7 @@ app = new Vue({
                         });
                     })
                     .catch(function (error) {
+                        app.networkError = true;
                         console.log(error);
                     });
             },
@@ -110,21 +127,26 @@ app = new Vue({
             if (cookie==null) {
                 this.$refs.cookieModal.show();
             }
-            this.getStations();
             axios
                 .get('/api/feedinfo')
-                .then(response => (
-                    this.feedinfo = response.data))
+                .then(function (response) {
+                    app.networkError = false;
+                    app.feedinfo = response.data;})
                 .catch(function (error) {
+                    this.networkError = true;
                     console.log(error);
                 });
             axios
                 .get('/api/version')
-                .then(response => (
-                    this.buildNumber = response.data.buildNumber))
+                .then(function (response) {
+                    app.networkError = false;
+                    app.buildNumber = response.data.buildNumber;})
                 .catch(function (error) {
+                    app.networkError = true;
                     console.log(error);
                 });
+            this.getStations();
+
         },
         computed: {
             proxGroups: function () {

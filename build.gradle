@@ -219,6 +219,7 @@ task appium(type: Test) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"
+            includeTestsMatching "com.tramchester.appAcceptance.*"
         }
         testLogging {
             exceptionFormat "full" // default is "short"
