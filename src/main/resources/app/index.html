@@ -1,27 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
-        <link type="text/css" rel="stylesheet" href="/app/css/tramchester.css" />
-
-        <!-- Load polyfills to support older browsers -->
-        <!--
-        <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
-        -->
-
-        <!-- Load Vue followed by BootstrapVue -->
-        <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
-        <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
-        <script src="https://unpkg.com/axios/dist/axios.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
-
-        <script src="https://unpkg.com/vue-cookies@1.5.12/vue-cookies.js"></script>
-
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     </head>
     <body>
-
-
         <div id="journeyplan" class="tramchesterApp">
             <b-form @submit="plan" class="w-75 tramchesterApp">
                 <div id="selectStart">

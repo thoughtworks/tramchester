@@ -276,9 +276,17 @@ task diagrams(dependsOn: cfnassist) {
     }
 }
 
-task webpack(type: Exec) {
-    inputs.file("src/main/resources/app/package-lock.json")
-    inputs.dir("src/main/resources/app/")
+task npmInstall(type: Exec) {
+    inputs.file("package.json")
+    outputs.dir("node_modules")
+
+    commandLine "npm", "install"
+}
+
+task webpack(type: Exec, dependsOn: npmInstall) {
+    inputs.file("src/main/resources/app/index.html")
+    inputs.dir("src/main/resources/app/javascript")
+    inputs.dir("src/main/resources/app/css")
     inputs.file("webpack.config.js")
     outputs.dir("src/main/resources/app/dist")
 

@@ -1,5 +1,14 @@
 
 var moment = require('moment');
+const axios = require('axios');
+var _ = require('lodash');
+var Vue = require('vue');
+Vue.use(require('vue-cookies'));
+Vue.use(require('bootstrap-vue'));
+
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+import './../css/tramchester.css'
 
 function getCurrentTime() {
     return moment().format("HH:mm");
@@ -10,11 +19,11 @@ function getCurrentDate() {
 }
 
 function stationsUrl(app) {
-    base = '/api/stations';
+    var base = '/api/stations';
     if (!app.hasGeo) {
         return base;
     }
-    place = app.location;
+    var place = app.location;
     if (place!=null) {
         return base + '/' + place.coords.latitude + '/' + place.coords.longitude;
     }
@@ -27,7 +36,7 @@ function getStationsFromServer(app) {
          .then(function (response) {
              app.networkError = false;
              // respect way vue bindings work, can't just assign/overwrite existing list
-             changes = response.data.stations.filter(station =>
+             var changes = response.data.stations.filter(station =>
                  station.proximityGroup.order != app.stopToProxGroup.get(station.id) );
              changes.forEach(function(change) {
                  app.stopToProxGroup.set(change.id, change.proximityGroup.order);
@@ -49,7 +58,7 @@ function getStationsFromServer(app) {
          });
  }
 
-app = new Vue({
+const app = new Vue({
         el: '#journeyplan',
         data () {
             return {
@@ -189,8 +198,8 @@ app = new Vue({
         },
         computed: {
             proxGroups: function () {
-                proxGroups = [];
-                seen = [];
+                var proxGroups = [];
+                var seen = [];
                 this.stops.forEach(stop =>
                     {
                         if (!seen.includes(stop.proximityGroup.order)) {
