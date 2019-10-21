@@ -290,7 +290,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.file("webpack.config.js")
     outputs.dir("src/main/resources/app/dist")
 
-    commandLine "webpack"
+    commandLine "node_modules/.bin/webpack"
 }
 
 distZip {
