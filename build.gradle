@@ -283,6 +283,10 @@ task npmInstall(type: Exec) {
     commandLine "npm", "install"
 }
 
+jar {
+    dependsOn 'webpack'
+}
+
 task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.file("src/main/resources/app/index.html")
     inputs.dir("src/main/resources/app/javascript")
