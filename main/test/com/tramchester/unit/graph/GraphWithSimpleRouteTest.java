@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
@@ -69,7 +70,9 @@ public class GraphWithSimpleRouteTest {
 
         RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
         PathToTransportRelationship pathToRelationships  = new PathToTransportRelationship(relationshipFactory);
-        MapTransportRelationshipsToStages relationshipsToStages = new MapTransportRelationshipsToStages(routeIdToClass, transportData, transportData);
+        MyLocationFactory myLocationFactory = new MyLocationFactory(new ObjectMapper());
+        MapTransportRelationshipsToStages relationshipsToStages =
+                new MapTransportRelationshipsToStages(routeIdToClass, transportData, transportData, myLocationFactory);
 
         CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
 

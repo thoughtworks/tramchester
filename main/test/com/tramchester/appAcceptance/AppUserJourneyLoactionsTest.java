@@ -18,13 +18,16 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.appAcceptance.AppUserJourneyTest.desiredJourney;
 import static com.tramchester.appAcceptance.AppUserJourneyTest.validateAStage;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -48,14 +51,14 @@ public class AppUserJourneyLoactionsTest {
     private String url;
     private ProvidesDriver providesDriver;
 
-    public static List<String> getBrowserList() {
+    private static List<String> getBrowserList() {
         if (System.getenv("CIRCLECI") == null) {
             return Arrays.asList("chrome", "firefox");
         }
         // TODO - confirm this is still an issue
         // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
         // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
-        return Arrays.asList("firefox");
+        return Collections.singletonList("firefox");
     }
 
     @Parameterized.Parameters
@@ -102,34 +105,60 @@ public class AppUserJourneyLoactionsTest {
         assertTrue(appPage.hasLocation());
 
         // from
-        List<String> nearestFromStops = appPage.getNearbyFromStops();
+        List<String> myLocationStops = appPage.getNearbyFromStops();
+        assertEquals(1, myLocationStops.size());
+
+        List<String> nearestFromStops = appPage.getNearestFromStops();
         assertThat(nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName(), "Timperley"));
         List<String> allFrom = appPage.getAllStopsFromStops();
         assertThat(allFrom, not(contains(nearestFromStops)));
-        assertEquals(Stations.NumberOf, nearestFromStops.size()+allFrom.size());
+        int recentFromCount = appPage.getRecentFromStops().size();
+        assertEquals(Stations.NumberOf, nearestFromStops.size()+allFrom.size()+recentFromCount);
 
         // to
-        List<String> nearestToStops = appPage.getNearbyFromStops();
+        List<String> nearestToStops = appPage.getNearestFromStops();
         assertThat(nearestToStops, hasItems(altrincham, Stations.NavigationRoad.getName(), "Timperley"));
         List<String> allTo = appPage.getAllStopsToStops();
         assertThat(allTo, not(contains(nearestToStops)));
-        assertEquals(Stations.NumberOf, nearestToStops.size()+allTo.size());
+        int recentToCount = appPage.getRecentToStops().size();
+        assertEquals(Stations.NumberOf, nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
         appPage.planAJourney();
         appPage.waitForReady();
+
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));
-        nearestFromStops = appPage.getNearbyFromStops();
+        nearestFromStops = appPage.getNearestFromStops();
         assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName(), "Timperley"));
         // TODO to recent just bury, not alty
 
-        // TODO "Nearby" aka my location
+
     }
 
     @Test
     @Ignore("WIP")
+    public void shouldUseUpdatedLocationCorrectly() {
+        // check if we change location only have on 'My Location' entry
+        // check new location is use
+        // HOW to get stubbed location to update in the browsers??
+
+        // check if we change location only have on 'My Location' entry
+//        providesDriver.updateStubbedLocation(NearPiccGardens);
+//        desiredJourney(appPage, altrincham, deansgate, nextTuesday, LocalTime.parse("10:15"));
+//        appPage.planAJourney();
+//        appPage.waitForReady();
+//
+//        nearestFromStops = appPage.getNearestFromStops();
+//        assertThat(nearestFromStops, hasItems(Stations.PiccadillyGardens.getName(), Stations.MarketStreet.getName()));
+//
+//        myLocationStops = appPage.getNearbyFromStops();
+//        assertEquals(1, myLocationStops.size());
+//        assertEquals("My Location", myLocationStops.get(0));
+    }
+
+    @Test
     public void shouldCheckNearAltrinchamToDeansgate() {
         AppPage appPage = prepare();
         LocalTime planTime = LocalTime.parse("10:15");
@@ -145,7 +174,8 @@ public class AppUserJourneyLoactionsTest {
             assertTrue(result.getDepartTime().isAfter(planTime));
             assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
             assertEquals("Direct", result.getChanges());
-            assertEquals("Tram with No Changes - 23 minutes", result.getSummary());
+            assertThat(result.getSummary(), startsWith("Walk and Tram with No Changes - "));
+            assertThat(result.getSummary(), endsWith(" minutes"));
         }
 
         // select first journey
@@ -155,10 +185,14 @@ public class AppUserJourneyLoactionsTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        assertEquals(1, stages.size());
-        Stage stage = stages.get(0);
-        validateAStage(stage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
-                "Altrincham - Manchester - Bury Tram line", "RouteClass1", Stations.Bury.getName(), 9);
+        assertEquals(2, stages.size());
+        Stage firstStage = stages.get(0);
+        validateAStage(firstStage, planTime, "Walk to",
+                Stations.NavigationRoad.getName(), -1, "RouteWalking", "Walking", "WalkingHeadSign", 0);
+
+        Stage secondStage = stages.get(1);
+        validateAStage(secondStage, firstResult.getDepartTime(), "Board tram at", Stations.NavigationRoad.getName(), 1,
+                "RouteClass2", "Altrincham - Piccadilly Tram line", "Piccadilly", 8);
     }
 
     private AppPage prepare() {

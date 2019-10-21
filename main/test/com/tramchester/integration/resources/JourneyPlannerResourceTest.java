@@ -7,15 +7,14 @@ import com.tramchester.App;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Location;
-import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationClient;
@@ -42,6 +41,7 @@ import java.util.*;
 import static com.tramchester.TestConfig.dateFormatDashes;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.oneOf;
@@ -261,7 +261,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().format(timeFormatter);
         String date = LocalDate.now().format(dateFormatDashes);
-        Response result = getResponseForJourney(testRule, start, end, time, date);
+        Response result = getResponseForJourney(testRule, start, end, time, date, null);
 
         assertEquals(200, result.getStatus());
 
@@ -304,14 +304,15 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
-        String start = "%7B%22lat%22:53.3949553,%22lon%22:-2.3580997999999997%7D";
+        //String latlong = "%7B%22lat%22:53.3949553,%22lon%22:-2.3580997999999997%7D";
+        LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
+        String start = MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().format(timeFormatter);
         String date = LocalDate.now().format(dateFormatDashes);
-        Response response = getResponseForJourney(testRule, start, end, time, date);
+        Response response = getResponseForJourney(testRule, start, end, time, date, latlong);
 
-        assertEquals(200, response.getStatus()
-        );
+        assertEquals(200, response.getStatus());
         RecentJourneys result = getRecentJourneysFromCookie(response);
         Set<Timestamped> recents = result.getRecentIds();
         assertEquals(1, recents.size());
@@ -336,16 +337,21 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime,
                                                        TramServiceDate queryDate) {
         String date = queryDate.getDate().format(dateFormatDashes);
-        //String time = LocalTime.MIDNIGHT.plusMinutes(queryTime).format(timeFormatter);
         String time = queryTime.format(timeFormatter);
-        Response response = getResponseForJourney(testRule, start.getId(), end.getId(), time, date);
+        Response response = getResponseForJourney(testRule, start.getId(), end.getId(), time, date, null);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    public static Response getResponseForJourney(IntegrationTestRun rule, String start, String end, String time, String date) {
-        return IntegrationClient.getResponse(rule,
-                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
-                Optional.empty());
+    public static Response getResponseForJourney(IntegrationTestRun rule, String start, String end, String time,
+                                                 String date, LatLong latlong) {
+        String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date);
+        if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(start)) {
+            if (latlong==null) {
+                fail("must provide latlong");
+            }
+            queryString = String.format("%s&lat=%f&lon=%f", queryString, latlong.getLat(), latlong.getLon());
+        }
+        return IntegrationClient.getResponse(rule, queryString, Optional.empty());
     }
 }

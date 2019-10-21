@@ -21,6 +21,7 @@ import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.TestConfig.dateFormatDashes;
@@ -48,14 +49,14 @@ public class AppUserJourneyTest {
     private String url;
     private ProvidesDriver providesDriver;
 
-    public static List<String> getBrowserList() {
+    private static List<String> getBrowserList() {
         if (System.getenv("CIRCLECI") == null) {
             return Arrays.asList("chrome", "firefox");
         }
         // TODO - confirm this is still an issue
         // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
         // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
-        return Arrays.asList("firefox");
+        return Collections.singletonList("firefox");
     }
 
     @Parameterized.Parameters
@@ -184,7 +185,7 @@ public class AppUserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
         validateAStage(stage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
-                "Altrincham - Manchester - Bury Tram line", "RouteClass1", Stations.Bury.getName(), 9);
+                "RouteClass1", "Altrincham - Manchester - Bury Tram line", Stations.Bury.getName(), 9);
     }
 
     @Test
@@ -250,10 +251,10 @@ public class AppUserJourneyTest {
         Stage secondStage = stages.get(1);
 
         validateAStage(firstStage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
-                "Altrincham - Manchester - Bury Tram line", "RouteClass1",
+                "RouteClass1", "Altrincham - Manchester - Bury Tram line",
                 Stations.Bury.getName(), 7);
         validateAStage(secondStage, LocalTime.parse("10:48"), "Change tram at", Stations.TraffordBar.getName(),
-                2, "Victoria - Manchester Airport Tram line", "RouteClass6",
+                2, "RouteClass6", "Victoria - Manchester Airport Tram line",
                 Stations.ManAirport.getName(), 17);
 
         assertEquals(Stations.TraffordBar.getName(), secondStage.getActionStation());
@@ -370,13 +371,13 @@ public class AppUserJourneyTest {
     }
 
     public static void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
-                                String lineName, String lineClass, String headsign, int stops) {
+                                      String lineClass, String lineName, String headsign, int stops) {
         assertEquals(departTime, stage.getDepartTime());
         assertEquals(action, stage.getAction());
         assertEquals(actionStation, stage.getActionStation());
         assertEquals(platform, stage.getPlatform());
-        assertEquals(headsign, stage.getHeadsign());
         assertEquals(lineName, stage.getLine(lineClass));
+        assertEquals(headsign, stage.getHeadsign());
         assertEquals(stops, stage.getPassedStops());
     }
 

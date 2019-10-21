@@ -18,11 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Fail.fail;
+
 public class AppPage extends Page {
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 2;
 
     public static LatLong NearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
+    public static LatLong NearPiccGardens = new LatLong(53.480972D,-2.2380073D);
 
     public static final String DATE = "date";
     private String FROM_STOP = "fromStop";
@@ -171,8 +174,13 @@ public class AppPage extends Page {
         return getStopsByGroupName("toGroupAll Stops");
     }
 
-    public List<String> getNearbyFromStops() {
+    public List<String> getNearestFromStops() {
         return getStopsByGroupName("fromGroupNearest Stops");
+    }
+
+
+    public List<String> getNearbyFromStops() {
+        return getStopsByGroupName("fromGroupNearby");
     }
 
     public List<String> getToStops() {
@@ -183,9 +191,10 @@ public class AppPage extends Page {
         return getStopNames(elements);
     }
 
-    private List<String> getStopNames(WebElement recentElement) {
-        List<WebElement> stopElements = recentElement.findElements(By.className("stop"));
-        return stopElements.stream().map(WebElement::getText).collect(Collectors.toList());
+    private List<String> getStopNames(WebElement groupElement) {
+        List<WebElement> stopElements = groupElement.findElements(By.className("stop"));
+        List<String> results = stopElements.stream().map(WebElement::getText).collect(Collectors.toList());
+        return results;
     }
 
     public boolean noResults() {
@@ -291,10 +300,10 @@ public class AppPage extends Page {
     }
 
     private List<String> getStopsByGroupName(String groupName) {
-        By fromGroupRecent = By.id(groupName);
-        waitForClickableLocator(fromGroupRecent);
-        WebElement recentElement = driver.findElement(fromGroupRecent);
-        return getStopNames(recentElement);
+        By fromGroup = By.id(groupName);
+        waitForClickableLocator(fromGroup);
+        WebElement groupElement = driver.findElement(fromGroup);
+        return getStopNames(groupElement);
     }
 
     public boolean hasLocation() {
@@ -306,4 +315,5 @@ public class AppPage extends Page {
         WebDriverWait wait = new WebDriverWait(driver, 10);
         wait.until(ExpectedConditions.elementToBeClickable(By.id("plan")));
     }
+
 }

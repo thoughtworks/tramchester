@@ -151,7 +151,8 @@ public class StationResourceTest {
 
         StationDTO station = stations.get(0);
         assertEquals(ProximityGroup.MY_LOCATION, station.getProximityGroup());
-        assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getId());
+        assertEquals("MyLocationPlaceholderId", station.getId());
+        assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getArea());
         assertEquals("My Location", station.getName());
         // the nearest stops show come next
         assertEquals(ProximityGroup.NEAREST_STOPS, stations.get(1).getProximityGroup());

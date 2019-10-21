@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.MyLocationFactory;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.UpdateRecentJourneys;
 import org.slf4j.Logger;
@@ -47,9 +48,10 @@ public class UsesRecentCookie {
         logger.info(format("Updating recent stations cookie with %s and %s ",fromId, endId));
         RecentJourneys recentJourneys = recentFromCookie(cookie);
         if (!isFromMyLocation(fromId)) {
+            // don't add MyLocation to recents list
             recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, fromId);
         }
-        recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys,endId);
+        recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, endId);
 
         int maxAgeSecs = 60 * 60 * 24 * 100;
         return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper,recentJourneys)
@@ -58,7 +60,6 @@ public class UsesRecentCookie {
     }
 
     protected boolean isFromMyLocation(String startId) {
-        // euk!
-        return startId.startsWith("{") && startId.endsWith("}");
+        return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
     }
 }

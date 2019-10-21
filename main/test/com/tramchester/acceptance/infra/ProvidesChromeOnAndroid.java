@@ -9,14 +9,13 @@ import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
 import org.junit.rules.TestName;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.UnexpectedAlertBehaviour;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.io.IOException;
 
 public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
@@ -76,6 +75,11 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     }
 
     @Override
+    public void updateStubbedLocation(LatLong newLatLong) throws IOException {
+        throw new InvalidArgumentException("Not implemented yet");
+    }
+
+    @Override
     public WelcomePage getWelcomePage() {
         return new WelcomePage(driver, providesDateInput);
     }
@@ -97,6 +101,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     @Override
     public void setStubbedLocation(LatLong location) {
-        // TODO
+        throw new InvalidArgumentException("Not implemented yet");
     }
 }

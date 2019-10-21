@@ -24,12 +24,16 @@ public class MapTransportRelationshipsToStages {
     private RouteCodeToClassMapper routeIdToClass;
     private StationRepository stationRepository;
     private PlatformRepository platformRepository;
+    private final MyLocationFactory myLocationFactory;
 
     public MapTransportRelationshipsToStages(RouteCodeToClassMapper routeIdToClass,
-                                             StationRepository stationRepository, PlatformRepository platformRepository) {
+                                             StationRepository stationRepository,
+                                             PlatformRepository platformRepository,
+                                             MyLocationFactory myLocationFactory) {
         this.routeIdToClass = routeIdToClass;
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
+        this.myLocationFactory = myLocationFactory;
     }
 
     public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime queryTime) {
@@ -77,7 +81,7 @@ public class MapTransportRelationshipsToStages {
         Location begin;
         if (firstNode.isQuery()) {
             QueryNode queryNode = (QueryNode) firstNode;
-            begin = new MyLocation(queryNode.getLatLon());
+            begin = myLocationFactory.create(queryNode.getLatLon());
         } else {
             begin = stationRepository.getStation(firstNodeId).get();
         }

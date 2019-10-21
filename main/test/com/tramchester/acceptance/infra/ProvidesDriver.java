@@ -62,4 +62,6 @@ public abstract class ProvidesDriver {
     public void clearCookies() {
         getDriver().manage().deleteAllCookies();
     }
+
+    public abstract void updateStubbedLocation(LatLong newLatLong) throws IOException;
 }

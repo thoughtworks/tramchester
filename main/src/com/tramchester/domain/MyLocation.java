@@ -1,27 +1,37 @@
 package com.tramchester.domain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
 
 public class MyLocation implements Location {
 
-    private LatLong latLong;
+    private String area;
+    private final LatLong latLong;
+
+    public static MyLocation create(ObjectMapper mapper, LatLong latLong) {
+        try {
+            return new MyLocation(mapper.writeValueAsString(latLong), latLong);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public String toString() {
-        return "MyLocation{" +
-                "latLong=" + latLong +
-                '}';
+        return "MyLocation{" + area + '}';
     }
 
-    public MyLocation(LatLong latLong) {
+    private MyLocation(String area, LatLong latLong) {
+        this.area = area;
         this.latLong = latLong;
     }
 
     @Override
     public String getId() {
-        return latLong.toString();
+        return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
     }
 
     @Override
@@ -41,7 +51,7 @@ public class MyLocation implements Location {
 
     @Override
     public String getArea() {
-        return "My Area";
+        return area;
     }
 
     @Override

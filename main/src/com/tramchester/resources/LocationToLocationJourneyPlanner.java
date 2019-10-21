@@ -40,16 +40,9 @@ public class LocationToLocationJourneyPlanner {
         objectMapper = new ObjectMapper();
     }
 
-    public Set<RawJourney> quickestRouteForLocation(String startId, String endId, List<LocalTime> queryTimes,
-                                                    TramServiceDate queryDate) throws TramchesterException {
-        LatLong latLong;
-        try {
-            latLong = objectMapper.readValue(startId, LatLong.class);
-        } catch (IOException e) {
-            String msg = "Unable to process lat/long" + startId;
-            logger.error(msg,e);
-            throw new TramchesterException(msg, e);
-        }
+    public Set<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<LocalTime> queryTimes,
+                                                    TramServiceDate queryDate) {
+
         List<String> starts = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
         logger.info(format("Found %s stations close to %s", starts.size(), latLong));

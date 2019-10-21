@@ -6,9 +6,11 @@ techLabApp.controller('RouteDetailsController',
         var end = $location.search().end;
         var departureTime = $location.search().departureTime;
         var departureDate = $location.search().departureDate;
+        var lat = $location.search().lat;
+        var lon = $location.search().lon;
 
         if (journeyPlanService.getPlan() == null) {
-            journeyPlanner.quickestRoute(start, end, departureTime, departureDate).get(function (journeyPlan) {
+            journeyPlanner.quickestRoute(start, end, departureTime, departureDate,lat,lon).get(function (journeyPlan) {
                 journeyPlanService.setPlan(journeyPlan, start, end, departureTime, departureDate);
                 $scope.journeyPlan = journeyPlanService.getPlan();
                 if($scope.journeyPlan.journeys.length == 0){

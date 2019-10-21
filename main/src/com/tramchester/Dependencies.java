@@ -9,10 +9,7 @@ import com.tramchester.dataimport.TransportDataImporter;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
-import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.CreateQueryTimes;
-import com.tramchester.domain.TramTime;
-import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -130,6 +127,7 @@ public class Dependencies {
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(LatestFeedInfoRepository.class);
+        picoContainer.addComponent(MyLocationFactory.class);
 
         rebuildGraph(configuration);
 

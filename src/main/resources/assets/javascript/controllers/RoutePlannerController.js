@@ -3,6 +3,7 @@
 techLabApp.controller('RoutePlannerController',
     function RoutePlannerController($scope, transportStops, journeyPlanner, $location, journeyPlanService, feedinfoService) {
         $scope.selectedStop = null;
+        $scope.position = null;
         $scope.departureTime = getCurrentTime(); // in model
         $scope.departureDate = getCurrentDate(); // in model
         $scope.fromStop = journeyPlanService.getStart();
@@ -24,11 +25,14 @@ techLabApp.controller('RoutePlannerController',
             if (journeyPlanForm.$valid) {
                 var time = moment(departureTime).format('HH:mm');
                 var date = moment(departureDate).format('YYYY-MM-DD');
-                $location.url('/routeDetails?start=' + fromStop +
+                var url = '/routeDetails?start=' + fromStop +
                     '&end=' + toStop +
                     '&departureTime=' + time +
-                        '&departureDate=' + date
-                );
+                    '&departureDate=' + date;
+                if (fromStop=='MyLocationPlaceholderId'){
+                    url = url + '&lat=' + $scope.position.lat + '&lon=' + $scope.position.lon;
+                }
+                $location.url(url);
             }
         };
 
@@ -75,6 +79,7 @@ techLabApp.controller('RoutePlannerController',
         }
 
         function getNearStops(position) {
+            $scope.position = { "lat": position.coords.latitude, "lon": position.coords.longitude };
             transportStops.getNearStops(position.coords.latitude, position.coords.longitude).get(function (stopList) {
                 $scope.stops = stopList.stations;
                 $scope.filterDestinationStop($scope.fromStop);

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
+import com.tramchester.domain.MyLocationFactory;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -115,7 +116,7 @@ public class MyLocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindRouteNearEndOfServiceTimes() throws JsonProcessingException, UnsupportedEncodingException {
+    public void shouldFindRouteNearEndOfServiceTimes() {
         Location destination = Stations.Deansgate;
 
         int queryTime = 23 * 60;
@@ -129,21 +130,21 @@ public class MyLocationJourneyPlannerTest {
     private JourneyPlanRepresentation getPlanFor(Location start, Location end, int minsPastMid) {
         String date = when.format(dateFormatDashes);
         String time = LocalTime.MIDNIGHT.plusMinutes(minsPastMid).format(DateTimeFormatter.ofPattern("HH:mm:00"));
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, start.getId(), end.getId(), time, date);
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, start.getId(), end.getId(), time, date, null);
         Assert.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    private SortedSet<JourneyDTO> validateJourneyFromLocation(LatLong location, String destination, int queryTime)
-            throws JsonProcessingException, UnsupportedEncodingException {
-        String startId = URLEncoder.encode(JourneyPlannerTest.formId(location), "UTF-8");
+    private SortedSet<JourneyDTO> validateJourneyFromLocation(LatLong location, String destination, int queryTime) {
 
         String date = when.format(dateFormatDashes);
         String time = LocalTime.MIDNIGHT.plusMinutes(queryTime).format(DateTimeFormatter.ofPattern("HH:mm:00"));
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId, destination, time, date);
-        Assert.assertEquals(200, response.getStatus());
-        JourneyPlanRepresentation plan = response.readEntity(JourneyPlanRepresentation.class);
 
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule,
+                MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, destination, time, date, location);
+        Assert.assertEquals(200, response.getStatus());
+
+        JourneyPlanRepresentation plan = response.readEntity(JourneyPlanRepresentation.class);
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         List<StageDTO> stages = journeys.first().getStages();

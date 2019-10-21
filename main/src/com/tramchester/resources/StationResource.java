@@ -4,10 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
@@ -49,19 +46,22 @@ public class StationResource extends UsesRecentCookie {
     private final StationRepository stationRepository;
     private final LiveDataRepository liveDataRepository;
     private ProvidesNotes providesNotes;
+    private final MyLocationFactory locationFactory;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
                            LiveDataRepository liveDataRepository,
-                           ProvidesNotes providesNotes) {
+                           ProvidesNotes providesNotes,
+                           MyLocationFactory locationFactory) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
         this.liveDataRepository = liveDataRepository;
         this.providesNotes = providesNotes;
+        this.locationFactory = locationFactory;
         allStationsSorted = new ArrayList<>();
     }
 
@@ -182,8 +182,8 @@ public class StationResource extends UsesRecentCookie {
             });
         });
 
-        // TODO use MyLocation instead of Station
-        Station myLocation = new Station(formId(lat,lon), "", "My Location", latLong, false);
+
+        MyLocation myLocation = locationFactory.create(latLong);
         orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
 
         return Response.ok(new StationListDTO(orderedStations)).build();

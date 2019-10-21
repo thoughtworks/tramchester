@@ -6,6 +6,7 @@ import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
 import org.junit.rules.TestName;
+import org.openqa.selenium.InvalidArgumentException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.html5.Location;
@@ -24,6 +25,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     private final boolean enableGeo;
     private LatLong location;
     private ProvidesDateInput providesDateInput;
+    private ChromeDriver chromeDriver;
 
     public ProvidesChromeDriver(boolean enableGeo) {
         String chromedriverPath = System.getenv("CHROMEDRIVER_PATH");
@@ -53,7 +55,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         if (driver == null) {
             chromeOptions.merge(capabilities);
 
-            ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
+            chromeDriver = new ChromeDriver(chromeOptions);
             chromeDriver.setLogLevel(Level.SEVERE);
 
             driver = chromeDriver;
@@ -95,5 +97,10 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     @Override
     public boolean isEnabledGeo() {
         return enableGeo;
+    }
+
+    @Override
+    public void updateStubbedLocation(LatLong newLatLong) {
+        chromeDriver.setLocation(new Location(location.getLat(), location.getLon(), 0));
     }
 }

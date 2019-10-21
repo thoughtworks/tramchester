@@ -112,36 +112,29 @@ const app = new Vue({
 
             },
             queryServer() {
-                axios.get('/api/journey', {
-                    params: { start: this.startStop, end: this.endStop,
-                    departureTime: this.time, departureDate: this.date},
-                        timeout: 5000
-                }).then(function (response) {
-                    app.networkError = false;
-                    app.searchInProgress = false;
-                    app.journeys = app.journeys.concat(response.data.journeys);
-                    app.noResults = app.journeys.length==0;
-                    app.notes = app.notes.concat(response.data.notes);
-                    app.getStations(); // recent stations will have changed
-                })
-                .catch(function (error) {
-                    app.searchInProgress = false;
-                    app.networkError = true;
-                    console.log(error);
+                var urlParams = { start: this.startStop, end: this.endStop, departureTime: this.time,
+                    departureDate: this.date};
+                if (this.startStop=='MyLocationPlaceholderId') {
+                    const place = app.location;
+                    urlParams.lat = place.coords.latitude;
+                    urlParams.lon = place.coords.longitude;
+                }
+                axios.get('/api/journey', { params: urlParams, timeout: 11000
+                    }).then(function (response) {
+                        app.networkError = false;
+                        app.searchInProgress = false;
+                        app.journeys = app.journeys.concat(response.data.journeys);
+                        app.noResults = app.journeys.length==0;
+                        app.notes = app.notes.concat(response.data.notes);
+                        app.getStations(); // recent stations will have changed
+                    }).catch(function (error) {
+                        app.searchInProgress = false;
+                        app.networkError = true;
+                        console.log(error);
                 });
             },
             getStations() {
-                if (this.hasGeo) {
-                    navigator.geolocation.getCurrentPosition(pos => {
-                          this.location = pos;
-                          getStationsFromServer(this);
-                    }, err => {
-                          this.location = null;
-                          getStationsFromServer(this);
-                    })
-                } else {
-                    getStationsFromServer(this);
-                }
+                getStationsFromServer(this);
             },
             expandStages(row,index) {
                 row._showDetails = !row._showDetails;
@@ -188,8 +181,17 @@ const app = new Vue({
                     app.networkError = true;
                     console.log(error);
                 });
-            this.getStations();
-
+            if (this.hasGeo) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                      this.location = pos;
+                      getStationsFromServer(this);
+                }, err => {
+                      this.location = null;
+                      getStationsFromServer(this);
+                })
+            } else {
+                getStationsFromServer(this);
+            }
         },
         created() {
             if("geolocation" in navigator) {

@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
@@ -64,7 +65,9 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         EasyMock.expect(routeCodeMapper.map("routeIdA")).andReturn("cssCodeAAA");
 
         platformRepository = createMock(PlatformRepository.class);
-        mapper = new MapTransportRelationshipsToStages(routeCodeMapper, stationRepository, platformRepository);
+        MyLocationFactory myLocationFactory = new MyLocationFactory(new ObjectMapper());
+
+        mapper = new MapTransportRelationshipsToStages(routeCodeMapper, stationRepository, platformRepository, myLocationFactory);
 
         relationships = new LinkedList<>();
     }

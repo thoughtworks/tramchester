@@ -6,6 +6,7 @@ import com.tramchester.acceptance.pages.RoutePlannerPage;
 import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.InvalidArgumentException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebElement;
@@ -82,6 +83,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
     @Override
     public void setStubbedLocation(LatLong location) throws IOException {
+
         createGeoFile(location);
 
         FirefoxProfile profile = new FirefoxProfile();
@@ -143,6 +145,11 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     @Override
     public boolean isEnabledGeo() {
         return enableGeo;
+    }
+
+    @Override
+    public void updateStubbedLocation(LatLong newLatLong) throws IOException {
+        createGeoFile(newLatLong);
     }
 
 }

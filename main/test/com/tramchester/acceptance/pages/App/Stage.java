@@ -26,7 +26,11 @@ public class Stage {
     }
 
     public int getPlatform() {
-        return Integer.parseInt(getFieldText("platform"));
+        String platform = getFieldText("platform");
+        if (platform.isEmpty()) {
+            return -1;
+        }
+        return Integer.parseInt(platform);
     }
 
     public String getHeadsign() {

@@ -35,9 +35,11 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     private Location stationB = new Station("stationB", "area", "nameB", new LatLong(-3, 1), false);
     private StageDTOFactory stageFactory;
     private JourneyDTOFactory factory;
+    private MyLocationFactory myLocationFactory;
 
     @Before
     public void beforeEachTestRuns() {
+        myLocationFactory = new MyLocationFactory(new ObjectMapper());
         stageFactory = createMock(StageDTOFactory.class);
         factory = new JourneyDTOFactory(stageFactory, new HeadsignMapper());
     }
@@ -124,7 +126,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldHaveCorrectSummaryAndHeadingForWalkAndTram() throws TramchesterException {
         List<TransportStage> stages = new LinkedList<>();
-        Location start = new MyLocation(new LatLong(-2,1));
+        Location start = myLocationFactory.create(new LatLong(-2,1));
         Location destination = Stations.Cornbrook;
         stages.add(new WalkingStage(new RawWalkingStage(start, destination, 3), java.time.LocalTime.of(10,00)));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
@@ -203,7 +205,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() throws TramchesterException {
         List<TransportStage> stages = new LinkedList<>();
-        MyLocation myLocation = new MyLocation(new LatLong(-1, 2));
+        MyLocation myLocation = myLocationFactory.create(new LatLong(-1, 2));
         stages.add(new WalkingStage(new RawWalkingStage(myLocation, Stations.Victoria, 2), LocalTime.of(10,00)));
 
         EasyMock.expect(stageFactory.build(isA(TransportStage.class))).andStubReturn(new StageDTO());
@@ -236,7 +238,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     public void reproduceIssueWithJourneyWithJustWalking() throws JsonProcessingException, TramchesterException {
         List<TransportStage> stages = new LinkedList<>();
-        MyLocation start = new MyLocation(new LatLong(1, 2));
+        MyLocation start = myLocationFactory.create(new LatLong(1, 2));
         RawWalkingStage rawWalkingStage = new RawWalkingStage(start, Stations.Altrincham, 8*60);
         stages.add(new WalkingStage(rawWalkingStage, LocalTime.of(8,0)));
 
