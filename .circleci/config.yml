@@ -29,6 +29,7 @@ jobs:
           keys:
             - v1-npm-deps-{{ checksum "package-lock.json" }}
 
+      - run: gradle dependencies --no-daemon
       # run unit tests
       - run:
           command: gradle ci_unit --no-daemon
