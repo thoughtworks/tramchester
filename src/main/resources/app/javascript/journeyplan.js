@@ -94,7 +94,7 @@ const app = new Vue({
                     {key:'prompt',label:'Action',tdClass:'action' },
                     {key:'actionStation.name',label:'Station', tdClass:'actionStation'},
                     {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
-                    {key:'headSign', label:'Towards', tdClass:'headsign'},
+                    {key:'headSign', label:'Towards', tdClass: this.stageHeadsignClass },
                     {key:'summary', label:'Line', tdClass: this.stageRowClass },
                     {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
             }
@@ -151,6 +151,12 @@ const app = new Vue({
                     return item.displayClass;
                 }
                 return null;
+            },
+            stageHeadsignClass(value, header, item) {
+                if (value === 'WalkingHeadSign') {
+                    return 'HideWalkingHeadSign';
+                }
+                return "";
             },
             setCookie() {
                 var cookie = { 'visited' : true };
@@ -210,18 +216,6 @@ const app = new Vue({
                 // nearby not available for destinations yet...
                 return this.proximityGroups.filter(group => group.name!=='Nearby');
             },
-            // proxGroups: function () {
-                // var proximityGroups = [];
-                // var seen = [];
-                // this.stops.forEach(stop =>
-                //     {
-                //         if (!seen.includes(stop.proximityGroup.order)) {
-                //             proximityGroups.push(stop.proximityGroup);
-                //             seen.push(stop.proximityGroup.order);
-                //         }
-                //     } );
-            //     return _.sortBy(this.proximityGroups, [function(group) { return group.order; }]);
-            // },
             endStops: function () {
                 return this.stops.filter(item => item.id!=this.startStop);
             },

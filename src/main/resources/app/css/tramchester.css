@@ -8,6 +8,10 @@
     margin-top: 15px;
 }
 
+.HideWalkingHeadSign {
+    visibility: hidden;
+}
+
 .RouteWalking  {
     /* nothing yet */
 }
