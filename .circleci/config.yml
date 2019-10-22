@@ -24,24 +24,10 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          - v1-gradle-deps-{{ checksum "build.gradle" }}
       - restore_cache:
           keys:
             - v1-npm-deps-{{ checksum "package-lock.json" }}
-            - v1-npm-deps-
-
-      - run: gradle dependencies --no-daemon
-
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}
-      - save_cache:
-          paths:
-            - ~/node_modules
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
 
       # run unit tests
       - run:
@@ -54,6 +40,16 @@ jobs:
       - run:
           command: gradle integration --no-daemon
           name: integration
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-gradle-deps-{{ checksum "build.gradle" }}
+      - save_cache:
+          paths:
+            - ~/node_modules
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+
       - run:
           command: gradle upload --no-daemon
           name: upload
@@ -100,12 +96,10 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}
-          - v1-dependencies-
+          - v1-gradle-deps-{{ checksum "build.gradle" }}
       - restore_cache:
           keys:
           - v1-npm-deps-{{ checksum "package-lock.json" }}
-          - v1-npm-deps-
       - run: gradle dependencies --no-daemon
       - attach_workspace:
         # Must be absolute path or relative path from working_directory
