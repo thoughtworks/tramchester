@@ -156,7 +156,7 @@ const app = new Vue({
                 if (value === 'WalkingHeadSign') {
                     return 'HideWalkingHeadSign';
                 }
-                return "";
+                return "headsign";
             },
             setCookie() {
                 var cookie = { 'visited' : true };
