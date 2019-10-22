@@ -79,9 +79,10 @@ const app = new Vue({
                 hasGeo: false,
                 location: null,
                 journeyFields: [
-                    {key:'firstDepartureTime',label:'Departs',sortable:true, tdClass:'departTime'},
-                    {key:'expectedArrivalTime',label:'Arrives',sortable:true, tdClass:'arriveTime'},
-                    {key:'summary', label:'Changes', tdClass:'changes'},
+                    {key:'firstDepartureTime',label:'Depart',sortable:true, tdClass:'departTime'},
+                    {key:'expectedArrivalTime',label:'Arrive',sortable:true, tdClass:'arriveTime'},
+                    {key:'summary', label:'Change', tdClass:'changes'},
+                    {key:'dueTram', label:'Due', tdClass: 'dueTram'},
                     {key:'heading',label:'Summary',tdClass:'summary'} ],
                 stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
                     {key:'prompt',label:'Action',tdClass:'action' },
