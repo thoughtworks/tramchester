@@ -35,11 +35,16 @@ function getStationsFromServer(app) {
          .get(stationsUrl(app))
          .then(function (response) {
              app.networkError = false;
+             var groupSeen = [];
              // respect way vue bindings work, can't just assign/overwrite existing list
              var changes = response.data.stations.filter(station =>
                  station.proximityGroup.order != app.stopToProxGroup.get(station.id) );
              changes.forEach(function(change) {
                  app.stopToProxGroup.set(change.id, change.proximityGroup.order);
+                 if (!groupSeen.includes(change.proximityGroup.order)) {
+                     app.proximityGroups.push(change.proximityGroup);
+                     groupSeen.push(change.proximityGroup.order);
+                 }
              });
 
              app.stops = app.stops.filter(stop =>
@@ -65,6 +70,7 @@ const app = new Vue({
                 ready: false,
                 stops: [],
                 stopToProxGroup: new Map(),
+                proximityGroups: [],
                 startStop: null,
                 endStop: null,
                 time: getCurrentTime(),
@@ -200,18 +206,22 @@ const app = new Vue({
             }
         },
         computed: {
-            proxGroups: function () {
-                var proxGroups = [];
-                var seen = [];
-                this.stops.forEach(stop =>
-                    {
-                        if (!seen.includes(stop.proximityGroup.order)) {
-                            proxGroups.push(stop.proximityGroup);
-                            seen.push(stop.proximityGroup.order);
-                        }
-                    } );
-                return _.sortBy(proxGroups, [function(grp) { return grp.order; }]);
+            endProximityGroups: function () {
+                // nearby not available for destinations yet...
+                return this.proximityGroups.filter(group => group.name!=='Nearby');
             },
+            // proxGroups: function () {
+                // var proximityGroups = [];
+                // var seen = [];
+                // this.stops.forEach(stop =>
+                //     {
+                //         if (!seen.includes(stop.proximityGroup.order)) {
+                //             proximityGroups.push(stop.proximityGroup);
+                //             seen.push(stop.proximityGroup.order);
+                //         }
+                //     } );
+            //     return _.sortBy(this.proximityGroups, [function(group) { return group.order; }]);
+            // },
             endStops: function () {
                 return this.stops.filter(item => item.id!=this.startStop);
             },

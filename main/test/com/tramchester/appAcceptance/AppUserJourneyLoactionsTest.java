@@ -116,6 +116,9 @@ public class AppUserJourneyLoactionsTest {
         assertEquals(Stations.NumberOf, nearestFromStops.size()+allFrom.size()+recentFromCount);
 
         // to
+        List<String> myLocationToStops = appPage.getNearbyToStops();
+        assertEquals(0, myLocationToStops.size());
+
         List<String> nearestToStops = appPage.getNearestFromStops();
         assertThat(nearestToStops, hasItems(altrincham, Stations.NavigationRoad.getName(), "Timperley"));
         List<String> allTo = appPage.getAllStopsToStops();
@@ -133,8 +136,6 @@ public class AppUserJourneyLoactionsTest {
         nearestFromStops = appPage.getNearestFromStops();
         assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName(), "Timperley"));
         // TODO to recent just bury, not alty
-
-
     }
 
     @Test

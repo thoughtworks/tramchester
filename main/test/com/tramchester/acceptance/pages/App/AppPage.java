@@ -158,17 +158,26 @@ public class AppPage extends Page {
     }
 
     public List<String> getRecentFromStops() {
-        return getStopsByGroupName("fromGroupRecent");
+        try {
+            return getStopsByGroupName("fromGroupRecent");
+        }
+        catch (TimeoutException notFound) {
+            return new ArrayList<>();
+        }
     }
 
     public List<String> getRecentToStops() {
-        return getStopsByGroupName("toGroupRecent");
+        try {
+            return getStopsByGroupName("toGroupRecent");
+        }
+        catch (TimeoutException notFound) {
+            return new ArrayList<>();
+        }
     }
 
     public List<String> getAllStopsFromStops() {
         return getStopsByGroupName("fromGroupAll Stops");
     }
-
 
     public List<String> getAllStopsToStops() {
         return getStopsByGroupName("toGroupAll Stops");
@@ -178,9 +187,22 @@ public class AppPage extends Page {
         return getStopsByGroupName("fromGroupNearest Stops");
     }
 
+    public List<String> getNearbyToStops() {
+        try {
+            return getStopsByGroupName("toGroupNearby");
+        }
+        catch (TimeoutException notFound) {
+            return new ArrayList<>();
+        }
+    }
 
     public List<String> getNearbyFromStops() {
-        return getStopsByGroupName("fromGroupNearby");
+        try {
+            return getStopsByGroupName("fromGroupNearby");
+        }
+        catch (TimeoutException notFound) {
+            return new ArrayList<>();
+        }
     }
 
     public List<String> getToStops() {
@@ -315,5 +337,6 @@ public class AppPage extends Page {
         WebDriverWait wait = new WebDriverWait(driver, 10);
         wait.until(ExpectedConditions.elementToBeClickable(By.id("plan")));
     }
+
 
 }
