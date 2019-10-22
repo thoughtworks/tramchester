@@ -28,7 +28,7 @@
 		"Dev":{ "keyName":"redirect", "flag":"false" }, 
 		"UAT":{ "keyName":"redirect", "flag":"true" }, 
 		"ProdGreen":{ "keyName":"redirect", "flag":"true" },
-		"ProdBlue":{ "keyName":"redirect", "flag":"false" }
+		"ProdBlue":{ "keyName":"redirect", "flag":"true" }
 
 	}	}, 
 	"Resources":{
