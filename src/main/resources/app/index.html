@@ -77,6 +77,9 @@
                                 <b-table :items="row.item.stages" :fields="stageFields"
                                          id="stages"
                                          tbody-tr-class='stageSummary' :small="true">
+                                    <template v-slot:cell(actionStation.name)="data">
+                                        <span v-html="data.value"></span>
+                                    </template>
                                 </b-table>
                             </b-card>
                         </template>

@@ -188,12 +188,23 @@ public class AppUserJourneyLoactionsTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
-        validateAStage(firstStage, planTime, "Walk to",
-                Stations.NavigationRoad.getName(), -1, "RouteWalking", "Walking", "WalkingHeadSign", 0);
+        validateWalkingStage(firstStage, planTime, "Walk to",
+                Stations.NavigationRoad.getName(), -1, "RouteWalking", "Walking", 0);
 
         Stage secondStage = stages.get(1);
         validateAStage(secondStage, firstResult.getDepartTime(), "Board tram at", Stations.NavigationRoad.getName(), 1,
                 "RouteClass2", "Altrincham - Piccadilly Tram line", "Piccadilly", 8);
+    }
+
+    private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
+                                      String lineClass, String lineName, int stops) {
+        assertEquals(departTime, stage.getDepartTime());
+        assertEquals(action, stage.getAction());
+        assertEquals(actionStation, stage.getActionStation());
+        assertEquals(platform, stage.getPlatform());
+        assertEquals(lineName, stage.getLine(lineClass));
+        //assertEquals(headsign, stage.getHeadsign());
+        assertEquals(stops, stage.getPassedStops());
     }
 
     private AppPage prepare() {

@@ -92,7 +92,7 @@ const app = new Vue({
                     {key:'heading',label:'Summary',tdClass:'summary'} ],
                 stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
                     {key:'prompt',label:'Action',tdClass:'action' },
-                    {key:'actionStation.name',label:'Station', tdClass:'actionStation'},
+                    {key:'actionStation.name',label:'Station', tdClass:'actionStation', formatter: this.stationFormatter},
                     {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                     {key:'headSign', label:'Towards', tdClass: this.stageHeadsignClass },
                     {key:'summary', label:'Line', tdClass: this.stageRowClass },
@@ -151,6 +151,12 @@ const app = new Vue({
                     return item.displayClass;
                 }
                 return null;
+            },
+            stationFormatter(value, header, item) {
+                var url = 'https://www.google.com/maps/search/?api=1&query='
+                    + item.actionStation.latLong.lat + ',' + item.actionStation.latLong.lon;
+                return `<a href='${url}' target="_blank">${item.actionStation.name}</a>`
+                //return item.actionStation.name;
             },
             stageHeadsignClass(value, header, item) {
                 if (value === 'WalkingHeadSign') {
