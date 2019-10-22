@@ -41,19 +41,17 @@ jobs:
       - run:
           command: gradle integration --no-daemon
           name: integration
-
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-gradle-deps-{{ checksum "build.gradle" }}
+      - run:
+          command: gradle upload --no-daemon
+          name: upload
       - save_cache:
           paths:
             - ~/node_modules
           key: v1-npm-deps-{{ checksum "package-lock.json" }}
-
-      - run:
-          command: gradle upload --no-daemon
-          name: upload
       - run:
           name: deployDev
           command: gradle deploy updateLB tidy --no-daemon

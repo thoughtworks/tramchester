@@ -35,9 +35,6 @@ repositories {
         url "http://download.osgeo.org/webdav/geotools/"
     }
     mavenCentral()
-//    maven {
-//        url "http://m2.neo4j.org/content/repositories/releases"
-//    }
     maven {
         url "http://maven.geo-solutions.it"
     }
@@ -115,6 +112,7 @@ task cleanGraph {
 }
 
 clean {
+    delete 'src/main/resources/app/dist/main.js'
     delete 'data/tram/data.zip', 'data/bus/data.zip'
     delete fileTree('data/tram') {
         include '*.txt'
@@ -222,7 +220,6 @@ task integration(type: Test, dependsOn: compileJava) {
 task appium(type: Test) {
     dependsOn 'allowhost'
     dependsOn 'compileJava'
-    dependsOn 'webpack'
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"
@@ -287,6 +284,9 @@ task npmInstall(type: Exec) {
 
 jar {
     dependsOn 'webpack'
+    into 'app', {
+        from 'src/main/resources/app'
+    }
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
@@ -294,6 +294,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.dir("src/main/resources/app/javascript")
     inputs.dir("src/main/resources/app/css")
     inputs.file("webpack.config.js")
+
     outputs.dir("src/main/resources/app/dist")
 
     commandLine "node_modules/.bin/webpack"
