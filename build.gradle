@@ -22,6 +22,7 @@ def candidate = System.getenv("CIRCLE_BUILD_NUM") ?: "0"
 // override build number if RELEASE_NUMBER set, needed because of way circle ci workflows operate
 def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
+def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
 
 // this is used in the generated dist zip filename
 version = 1.0
@@ -279,7 +280,12 @@ task npmInstall(type: Exec) {
     inputs.file("package.json")
     outputs.dir("node_modules")
 
-    commandLine "npm", "install"
+    if (isWindows) {
+        commandLine "npm.cmd", "install"
+    }
+    else {
+        commandLine "npm", "install"
+    }
 }
 
 jar {
@@ -297,7 +303,11 @@ task webpack(type: Exec, dependsOn: npmInstall) {
 
     outputs.dir("src/main/resources/app/dist")
 
-    commandLine "node_modules/.bin/webpack"
+    if (isWindows) {
+        commandLine "./node_modules/.bin/webpack.cmd"
+    } else {
+        commandLine "./node_modules/.bin/webpack"
+    }
 }
 
 distZip {
