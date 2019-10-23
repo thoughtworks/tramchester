@@ -85,6 +85,7 @@ const app = new Vue({
                 hasGeo: false,
                 location: null,
                 journeyFields: [
+                    {key:'_showDetails',label:'', formatter: this.rowExpandedFormatter},
                     {key:'firstDepartureTime',label:'Depart',sortable:true, tdClass:'departTime'},
                     {key:'expectedArrivalTime',label:'Arrive',sortable:true, tdClass:'arriveTime'},
                     {key:'summary', label:'Change', tdClass:'changes'},
@@ -156,7 +157,13 @@ const app = new Vue({
                 var url = 'https://www.google.com/maps/search/?api=1&query='
                     + item.actionStation.latLong.lat + ',' + item.actionStation.latLong.lon;
                 return `<a href='${url}' target="_blank">${item.actionStation.name}</a>`
-                //return item.actionStation.name;
+            },
+            rowExpandedFormatter(value, header, item) {
+                if (item._showDetails!=null && item._showDetails) {
+                    return "&#8897;";
+                } else {
+                    return "&#8811;";
+                }
             },
             stageHeadsignClass(value, header, item) {
                 if (value === 'WalkingHeadSign') {
