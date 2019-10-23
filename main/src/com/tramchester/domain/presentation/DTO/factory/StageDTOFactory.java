@@ -26,7 +26,7 @@ public class StageDTOFactory {
                 source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
                 source.getDuration(), source.getSummary(),source.getPrompt(), source.getHeadSign(),
                 source.getMode(), source.isWalk(), source.getIsAVehicle(), source.getDisplayClass(),
-                source.getPassedStops());
+                source.getPassedStops(), source.getRouteName(), source.getAction());
     }
 
     private PlatformDTO createPlatform(Optional<Platform> maybe) {

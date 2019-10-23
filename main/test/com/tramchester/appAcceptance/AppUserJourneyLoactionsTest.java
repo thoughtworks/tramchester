@@ -175,8 +175,6 @@ public class AppUserJourneyLoactionsTest {
             assertTrue(result.getDepartTime().isAfter(planTime));
             assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
             assertEquals("Direct", result.getChanges());
-            assertThat(result.getSummary(), startsWith("Walk and Tram with No Changes - "));
-            assertThat(result.getSummary(), endsWith(" minutes"));
         }
 
         // select first journey
@@ -188,12 +186,12 @@ public class AppUserJourneyLoactionsTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
-        validateWalkingStage(firstStage, planTime, "Walk to",
-                Stations.NavigationRoad.getName(), -1, "RouteWalking", "Walking", 0);
+        validateWalkingStage(firstStage, planTime, "Walk",
+                Stations.NavigationRoad.getName(), -1, "RouteWalking", "Walk", 0);
 
         Stage secondStage = stages.get(1);
-        validateAStage(secondStage, firstResult.getDepartTime(), "Board tram at", Stations.NavigationRoad.getName(), 1,
-                "RouteClass2", "Altrincham - Piccadilly Tram line", "Piccadilly", 8);
+        validateAStage(secondStage, firstResult.getDepartTime(), "Board", Stations.NavigationRoad.getName(), 1,
+                "RouteClass2", "Altrincham - Piccadilly", "Piccadilly", 8);
     }
 
     private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,

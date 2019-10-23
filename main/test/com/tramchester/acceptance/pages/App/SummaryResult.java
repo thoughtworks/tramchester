@@ -12,7 +12,6 @@ public class SummaryResult {
     private final LocalTime departTime;
     private final LocalTime arriveTime;
     private final String changes;
-    private final String summary;
     private final WebElement row;
     private final WebElement parent;
 
@@ -25,7 +24,6 @@ public class SummaryResult {
         String arriveTimeTxt = row.findElement(By.className("arriveTime")).getText();
         arriveTime = LocalTime.parse(arriveTimeTxt);
         changes = row.findElement(By.className("changes")).getText();
-        summary = row.findElement(By.className("summary")).getText();
     }
 
     public LocalTime getDepartTime() {
@@ -38,10 +36,6 @@ public class SummaryResult {
 
     public String getChanges() {
         return changes;
-    }
-
-    public String getSummary() {
-        return summary;
     }
 
     public List<Stage> getStages() {

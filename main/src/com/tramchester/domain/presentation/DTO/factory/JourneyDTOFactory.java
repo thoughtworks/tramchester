@@ -13,6 +13,7 @@ import com.tramchester.mappers.HeadsignMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -49,8 +50,8 @@ public class JourneyDTOFactory {
         LocationDTO end = new LocationDTO(getEnd(transportStages));
 
         JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(transportStages),
-                getFirstDepartureTime(transportStages), summary,
-                heading, isDirect);
+                getFirstDepartureTime(transportStages),
+                summary, heading, isDirect, getChangeStationNames(transportStages));
 
         addDueTramIfPresent(journeyDTO);
 
@@ -132,27 +133,44 @@ public class JourneyDTOFactory {
         return false;
     }
 
+    @Deprecated
     private String getSummary(List<TransportStage> allStages) {
-        if (isDirect(allStages)) {
+        List<String> changeNames = getChangeStationNames(allStages);
+
+        if (changeNames.isEmpty()) {
             return "Direct";
         }
 
-        int size = allStages.size();
+        int size = changeNames.size();
         StringBuilder result = new StringBuilder();
-        for(int index = 1; index< size; index++) {
-            TransportStage stage = allStages.get(index);
-            if (index>1) {
-                if (index< size -1) {
+        for(int index = 0; index < size; index++) {
+            if (index>0) {
+                if (index < size-1) {
                     result.append(", ");
                 } else {
                     result.append(" and ");
                 }
             }
-            result.append(stage.getFirstStation().getName());
+            result.append(changeNames.get(index));
         }
-        return format("Change at %s",result.toString());
+        return format("Change at %s", result.toString());
     }
 
+    private List<String> getChangeStationNames(List<TransportStage> allStages) {
+        List<String> result = new ArrayList<>();
+
+        if (isDirect(allStages)) {
+            return result;
+        }
+
+        for(int index = 1; index< allStages.size(); index++) {
+            result.add(allStages.get(index).getFirstStation().getName());
+        }
+
+        return result;
+    }
+
+    @Deprecated
     private String getHeading(List<TransportStage> allStages, long embeddedWalk) throws TramchesterException {
         String mode;
         if (firstStageIsWalk(allStages)) {

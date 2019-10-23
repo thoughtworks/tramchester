@@ -168,11 +168,12 @@ public class AppUserJourneyTest {
         List<SummaryResult> results = appPage.getResults();
         assertEquals(6, results.size());
 
+        LocalTime previous = planTime;
         for (SummaryResult result : results) {
-            assertTrue(result.getDepartTime().isAfter(planTime));
+            assertTrue(result.getDepartTime().isAfter(previous));
             assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
             assertEquals("Direct", result.getChanges());
-            assertEquals("Tram with No Changes - 23 minutes", result.getSummary());
+            previous = result.getDepartTime();
         }
 
         // select first journey
@@ -184,8 +185,8 @@ public class AppUserJourneyTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
-        validateAStage(stage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
-                "RouteClass1", "Altrincham - Manchester - Bury Tram line", Stations.Bury.getName(), 9);
+        validateAStage(stage, firstResult.getDepartTime(), "Board", altrincham, 1,
+                "RouteClass1", "Altrincham - Manchester - Bury", Stations.Bury.getName(), 9);
     }
 
     @Test
@@ -231,12 +232,20 @@ public class AppUserJourneyTest {
     @Test
     public void shouldHaveMultistageJourney() {
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, LocalTime.parse("10:15"));
+        LocalTime planTime = LocalTime.parse("10:15");
+        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, planTime);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
         assertEquals(6, results.size());
+        LocalTime previous = planTime;
+        for (SummaryResult result : results) {
+            assertTrue(result.getDepartTime().isAfter(previous));
+            assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
+            assertEquals(result.getChanges(), Stations.TraffordBar.getName());
+            previous = result.getDepartTime();
+        }
 
         // select first journey
         SummaryResult firstResult = results.get(0);
@@ -250,15 +259,15 @@ public class AppUserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
-        validateAStage(firstStage, firstResult.getDepartTime(), "Board tram at", altrincham, 1,
-                "RouteClass1", "Altrincham - Manchester - Bury Tram line",
+        validateAStage(firstStage, firstResult.getDepartTime(), "Board", altrincham, 1,
+                "RouteClass1", "Altrincham - Manchester - Bury",
                 Stations.Bury.getName(), 7);
-        validateAStage(secondStage, LocalTime.parse("10:48"), "Change tram at", Stations.TraffordBar.getName(),
-                2, "RouteClass6", "Victoria - Manchester Airport Tram line",
+        validateAStage(secondStage, LocalTime.parse("10:48"), "Change", Stations.TraffordBar.getName(),
+                2, "RouteClass6", "Victoria - Manchester Airport",
                 Stations.ManAirport.getName(), 17);
 
         assertEquals(Stations.TraffordBar.getName(), secondStage.getActionStation());
-        assertEquals("Change tram at", secondStage.getAction());
+        assertEquals("Change", secondStage.getAction());
 
     }
 

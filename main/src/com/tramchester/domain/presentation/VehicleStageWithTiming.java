@@ -41,6 +41,7 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
                 '}';
     }
 
+    @Deprecated
     public String getSummary() {
         switch (mode) {
             case Bus : {
@@ -54,6 +55,7 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
         }
     }
 
+    @Deprecated
     public String getPrompt() {
         String verb;
         switch (action) {
@@ -82,6 +84,11 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
     @Override
     public String getHeadSign() {
         return serviceTime.getHeadSign();
+    }
+
+    @Override
+    public TravelAction getAction() {
+        return action;
     }
 
 

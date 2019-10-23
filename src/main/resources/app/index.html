@@ -39,7 +39,7 @@
                     </b-input-group>
                 </b-form-group>
 
-                <b-button :disabled='!ready' id="plan" type="submit" variant="light">
+                <b-button :disabled='!ready' id="plan" type="submit" variant="primary">
                     Find Trams
                     <b-spinner v-if="searchInProgress" id="spinner" small type="grow" ref="planSpinner"></b-spinner>
                 </b-button>
@@ -51,11 +51,9 @@
                 </b-card>
             </div>
 
-            <div class="mt-3 ml-3 mr-3">
+            <div class="mt-3 ml-1 mr-1">
 
-                <b-card bg-variant="light" v-if="notes.length>0"
-                        title="Notes"
-                        title-tag="h5"
+                <b-card bg-variant="light" border-variant="dark" header="Notes" align="center" v-if="notes.length>0"
                         class="mb-2">
                     <b-card-text>
                         <ul id="NotesList" class="JourneyNotes list-group list-group-flush">
@@ -76,21 +74,19 @@
                         <span v-html="data.value">XXX</span>
                     </template>
                     <template v-slot:row-details="row">
-                        <b-card>
-                            <b-table :items="row.item.stages" :fields="stageFields"
-                                     id="stages"
-                                     tbody-tr-class='stageSummary' small>
-                                <template v-slot:cell(actionStation.name)="data">
-                                    <span v-html="data.value"></span>
-                                </template>
-                            </b-table>
-                        </b-card>
+                        <b-table :items="row.item.stages" :fields="stageFields"
+                                 id="stages"
+                                 tbody-tr-class='stageSummary' small outlined>
+                            <template v-slot:cell(actionStation.name)="data">
+                                <span v-html="data.value"></span>
+                            </template>
+                        </b-table>
                     </template>
                 </b-table>
             </div>
 
             <div id="noResults" selectable v-if="noResults" class="w-75 tramchesterApp">
-                <b-card bg-variant="light" >
+                <b-card bg-variant="warning" >
                     No results were found
                 </b-card>
             </div>

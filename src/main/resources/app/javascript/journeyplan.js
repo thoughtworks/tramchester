@@ -86,17 +86,16 @@ const app = new Vue({
                 location: null,
                 journeyFields: [
                     {key:'_showDetails',label:'', formatter: this.rowExpandedFormatter},
-                    {key:'firstDepartureTime',label:'Depart',sortable:true, tdClass:'departTime'},
-                    {key:'expectedArrivalTime',label:'Arrive',sortable:true, tdClass:'arriveTime'},
-                    {key:'summary', label:'Change', tdClass:'changes'},
-                    {key:'dueTram', label:'Due', tdClass: 'dueTram'},
-                    {key:'heading',label:'Summary',tdClass:'summary'} ],
+                    {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
+                    {key:'expectedArrivalTime',label:'Arrive', sortable:false, tdClass:'arriveTime'},
+                    {key:'changeStations', label:'Change', tdClass:'changes', formatter: this.changesFormatter},
+                    {key:'dueTram', label:'Due', tdClass: 'dueTram'}],
                 stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
-                    {key:'prompt',label:'Action',tdClass:'action' },
+                    {key:'action',label:'Action',tdClass:'action' },
                     {key:'actionStation.name',label:'Station', tdClass:'actionStation', formatter: this.stationFormatter},
                     {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                     {key:'headSign', label:'Towards', tdClass: this.stageHeadsignClass },
-                    {key:'summary', label:'Line', tdClass: this.stageRowClass },
+                    {key:'routeName', label:'Line', tdClass: this.stageRowClass },
                     {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
             }
         },
@@ -147,25 +146,35 @@ const app = new Vue({
             expandStages(row,index) {
                 row._showDetails = !row._showDetails;
             },
-            stageRowClass(value, header, item) {
-                if (value && header === 'summary') {
+            stageRowClass(value, key, item) {
+                if (value && key === 'routeName') {
                     return item.displayClass;
                 }
                 return null;
             },
-            stationFormatter(value, header, item) {
+            stationFormatter(value, key, row) {
                 var url = 'https://www.google.com/maps/search/?api=1&query='
-                    + item.actionStation.latLong.lat + ',' + item.actionStation.latLong.lon;
-                return `<a href='${url}' target="_blank">${item.actionStation.name}</a>`
+                    + row.actionStation.latLong.lat + ',' + row.actionStation.latLong.lon;
+                return `<a href='${url}' target="_blank">${row.actionStation.name}</a>`
             },
-            rowExpandedFormatter(value, header, item) {
-                if (item._showDetails!=null && item._showDetails) {
+            changesFormatter(value, key, row) {
+                if (value.length==0) {
+                    return "Direct";
+                }
+                var result = "";
+                value.forEach(change => {
+                    if (result.length>0) result = result.concat(", ");
+                    result = result.concat(change)});
+                return result;
+            },
+            rowExpandedFormatter(value, key, row) {
+                if (row._showDetails!=null && row._showDetails) {
                     return "&#8897;";
                 } else {
                     return "&#8811;";
                 }
             },
-            stageHeadsignClass(value, header, item) {
+            stageHeadsignClass(value, key, item) {
                 if (value === 'WalkingHeadSign') {
                     return 'HideWalkingHeadSign';
                 }

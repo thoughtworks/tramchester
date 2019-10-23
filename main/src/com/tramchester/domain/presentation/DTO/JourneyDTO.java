@@ -16,10 +16,14 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     private List<StageDTO> stages;
     private TramTime expectedArrivalTime;
     private TramTime firstDepartureTime;
-    private String summary;
-    private String heading;
     private String dueTram;
     private boolean isDirect;
+    private List<String> changeStations;
+
+    @Deprecated
+    private String summary;
+    @Deprecated
+    private String heading;
 
     public JourneyDTO() {
         // Deserialization
@@ -27,7 +31,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
 
     public JourneyDTO(LocationDTO begin, LocationDTO end, List<StageDTO> stages,
                       TramTime expectedArrivalTime, TramTime firstDepartureTime,
-                      String summary, String heading, boolean isDirect) {
+                      String summary, String heading, boolean isDirect, List<String> changeStations) {
         this.begin = begin;
         this.end = end;
         this.stages = stages;
@@ -36,16 +40,19 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         this.summary = summary;
         this.heading = heading;
         this.isDirect = isDirect;
+        this.changeStations = changeStations;
     }
 
     public List<StageDTO> getStages() {
         return stages;
     }
 
+    @Deprecated
     public String getSummary() {
         return summary;
     }
 
+    @Deprecated
     public String getHeading() {
         return heading;
     }
@@ -108,5 +115,9 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
 
     public boolean getIsDirect() {
         return isDirect;
+    }
+
+    public List<String> getChangeStations() {
+        return changeStations;
     }
 }

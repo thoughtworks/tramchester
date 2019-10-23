@@ -27,8 +27,8 @@ import java.util.List;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.*;
 
 public class JourneyDTOFactoryTest extends EasyMockSupport {
     private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
@@ -137,6 +137,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(new Journey(stages));
         verifyAll();
 
+        assertTrue(journey.getChangeStations().isEmpty());
         assertEquals("Direct", journey.getSummary());
         assertTrue(journey.getIsDirect());
         assertEquals("Walk and Tram with No Changes - 20 minutes", journey.getHeading());
@@ -154,6 +155,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(new Journey(stages));
         verifyAll();
 
+        assertThat(journey.getChangeStations(), contains("Cornbrook"));
         assertEquals("Change at Cornbrook", journey.getSummary());
         assertFalse(journey.getIsDirect());
         assertEquals("Tram with 1 change - 12 minutes", journey.getHeading());
@@ -169,6 +171,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(new Journey(stages));
         verifyAll();
 
+        assertThat(journey.getChangeStations(), contains("Cornbrook", "Victoria"));
         assertEquals("Change at Cornbrook and Victoria", journey.getSummary());
         assertEquals("Tram with 2 changes - 12 minutes", journey.getHeading());
     }
@@ -198,6 +201,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(new Journey(stages));
         verifyAll();
 
+        assertThat(journey.getChangeStations(), contains("Cornbrook", "Victoria", "Exchange Square"));
         assertEquals("Change at Cornbrook, Victoria and Exchange Square", journey.getSummary());
         assertEquals("Tram with 3 changes - 12 minutes", journey.getHeading());
     }
@@ -214,6 +218,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(new Journey(stages));
         verifyAll();
 
+        assertTrue(journey.getChangeStations().isEmpty());
         assertEquals("Direct", journey.getSummary());
         assertEquals("Walk with No Changes - 2 minutes", journey.getHeading());
     }
@@ -231,6 +236,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(new Journey(stages));
         verifyAll();
 
+        assertThat(journey.getChangeStations(), contains("Deansgate-Castlefield", "Market Street"));
         assertEquals("Change at Deansgate-Castlefield and Market Street", journey.getSummary());
         assertEquals("Tram and Walk with 2 changes - 12 minutes", journey.getHeading());
     }
@@ -279,7 +285,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         return vehicleStageWithTiming;
     }
 
-    private StageDTO createStageDTOWithDueTram(String matchingHeadsign, LocalDateTime whenTime, int wait) throws TramchesterException {
+    private StageDTO createStageDTOWithDueTram(String matchingHeadsign, LocalDateTime whenTime, int wait) {
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
                 "platform", "platformLocation", "message", whenTime);
 
@@ -300,6 +306,6 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
                 TramTime.of(when.plusMinutes(durationOfStage)),
                 durationOfStage, "summary", "prompt",
                 matchingHeadsign, TransportMode.Tram,
-                false, true, "displayClass", 23);
+                false, true, "displayClass", 23,"routeName", TravelAction.Board);
     }
 }

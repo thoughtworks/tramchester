@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.time.LocalTime;
@@ -44,6 +45,16 @@ public class WalkingStage implements TransportStage {
     @Override
     public String getHeadSign() {
         return "WalkingHeadSign";
+    }
+
+    @Override
+    public String getRouteName() {
+        return "Walk";
+    }
+
+    @Override
+    public TravelAction getAction() {
+        return TravelAction.Walk;
     }
 
     @Override

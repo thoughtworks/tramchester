@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
@@ -28,11 +29,13 @@ public class StageDTO {
     private boolean isAVehicle;
     private String displayClass;
     private int passedStops;
+    private String routeName;
+    private String action;
 
     public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
                     PlatformDTO platform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
                     String summary, String prompt, String headSign, TransportMode mode, boolean walk,
-                    boolean isAVehicle, String displayClass, int passedStops) {
+                    boolean isAVehicle, String displayClass, int passedStops, String routeName, TravelAction action) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
@@ -49,16 +52,20 @@ public class StageDTO {
         this.isAVehicle = isAVehicle;
         this.displayClass = displayClass;
         this.passedStops = passedStops;
+        this.routeName = routeName;
+        this.action = action.toString();
     }
 
     public StageDTO() {
         // deserialisation
     }
 
+    @Deprecated
     public String getSummary() {
         return summary;
     }
 
+    @Deprecated
     public String getPrompt() {
         return prompt;
     }
@@ -122,5 +129,13 @@ public class StageDTO {
 
     public int getPassedStops() {
         return passedStops;
+    }
+
+    public String getRouteName() {
+        return routeName;
+    }
+
+    public String getAction() {
+        return action;
     }
 }

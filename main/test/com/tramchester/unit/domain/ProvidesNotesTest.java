@@ -7,18 +7,15 @@ import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.integration.Stations;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -32,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 public class ProvidesNotesTest {
     private ProvidesNotes provider = new ProvidesNotes(TestConfig.GET());
     private SortedSet<JourneyDTO> decoratedJourneys;
+    private List<String> changeStations = new ArrayList<>();
 
     @Before
     public void beforeEachTestRuns() {
@@ -99,7 +97,8 @@ public class ProvidesNotesTest {
         stages.add(stageA);
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading", false));
+                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading",
+                false, changeStations));
 
         LocalDate date = LocalDate.now();
         if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
@@ -135,7 +134,7 @@ public class ProvidesNotesTest {
         List<StageDTO> stages = stages1;
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading", false));
+                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading", false, changeStations));
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
 
@@ -181,14 +180,15 @@ public class ProvidesNotesTest {
         return stationDTO;
     }
 
-    private StageDTO createStage(TransportMode transportMode, String platformLocation, String platformId, String message, String displayUnitId) {
+    private StageDTO createStage(TransportMode transportMode, String platformLocation, String platformId,
+                                 String message, String displayUnitId) {
         boolean isWalk = transportMode.equals(TransportMode.Walk);
         PlatformDTO platformDTO = createPlatformDTO(platformLocation, platformId, message, displayUnitId);
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
                 platformDTO, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), 42,
                 "summary", "prompt", "headSign", transportMode, isWalk,
-                !isWalk, "displayClass", 12);
+                !isWalk, "displayClass", 12, "routeName", TravelAction.Board);
     }
 
     private PlatformDTO createPlatformDTO(String platformLocation, String platformId, String message, String displayUnitId) {
