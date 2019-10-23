@@ -136,6 +136,7 @@ const app = new Vue({
                         app.getStations(); // recent stations will have changed
                     }).catch(function (error) {
                         app.searchInProgress = false;
+                        app.ready = true;
                         app.networkError = true;
                         console.log(error);
                 });
