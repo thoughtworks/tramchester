@@ -40,13 +40,20 @@ function livedataUrl(app) {
 }
 
 function displayLiveData(app) {
-    axios.get( livedataUrl(app), { timeout: 11000 }).
-        then(function (response) {
-            app.localDueTrams = response.data.departures;
-        }).
-        catch(function (error) {
-            console.log(error);
-        });
+    var queryDate = moment(app.date, "YYYY-MM-DD");
+    var today = moment();
+    if (today.month()==queryDate.month()
+        && today.year()==queryDate.year()
+        && today.date()==queryDate.date()) {
+        axios.get( livedataUrl(app), { timeout: 11000 }).
+            then(function (response) {
+                app.localDueTrams = response.data.departures;
+            }).
+            catch(function (error) {
+                console.log(error);
+            });
+    }
+
 }
 
 function getStationsFromServer(app) {
