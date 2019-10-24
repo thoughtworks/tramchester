@@ -27,7 +27,7 @@ public class FeedInfoResourceTest {
     public void shouldGetFeedinfoCorrectly() {
         String endPoint = "feedinfo";
 
-        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
+        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
 
         FeedInfo result = responce.readEntity(FeedInfo.class);
 

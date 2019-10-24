@@ -41,7 +41,7 @@ public class AreaResourceTest {
     }
 
     private List<AreaDTO> getAll() {
-        Response result = IntegrationClient.getResponse(testRule, "areas", Optional.empty());
+        Response result = IntegrationClient.getResponse(testRule, "areas", Optional.empty(), 200);
         return result.readEntity(new GenericType<ArrayList<AreaDTO>>(){});
     }
 }

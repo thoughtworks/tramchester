@@ -18,6 +18,8 @@ import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 @Path("/departures")
 @Produces(MediaType.APPLICATION_JSON)
 public class DeparturesResource {
+    private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final SpatialService spatialService;
     private final LiveDataRepository liveDataRepository;
@@ -86,6 +89,7 @@ public class DeparturesResource {
     public Response getDepartureForStation(@PathParam("station") String stationId,
                                            @DefaultValue("1") @QueryParam("notes") String notesParam) {
 
+        logger.info("Get departs for station " + stationId);
         boolean includeNotes = true;
         if (!notesParam.isEmpty()) {
             includeNotes = !notesParam.equals("0");
@@ -94,6 +98,7 @@ public class DeparturesResource {
         Optional<Station> maybeStation = stationRepository.getStation(stationId);
 
         if (maybeStation.isPresent()) {
+            logger.info("Found stations, now find departures");
             Station station = maybeStation.get();
             List<StationDepartureInfo> departs = liveDataRepository.departuresFor(station);
 
@@ -102,6 +107,7 @@ public class DeparturesResource {
             return Response.ok(departureList).build();
         }
 
+        logger.warn("Unable to find station " + stationId);
         return Response.status(Response.Status.NOT_FOUND).build();
 
     }

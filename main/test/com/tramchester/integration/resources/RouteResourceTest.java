@@ -39,7 +39,7 @@ public class RouteResourceTest {
 
     @Test
     public void shouldGetAllRoutes() {
-        Response result = IntegrationClient.getResponse(testRule, String.format("routes"), Optional.empty());
+        Response result = IntegrationClient.getResponse(testRule, String.format("routes"), Optional.empty(), 200);
         List<RouteDTO> routes = result.readEntity(new GenericType<List<RouteDTO>>(){});
 
         assertEquals(12, routes.size());

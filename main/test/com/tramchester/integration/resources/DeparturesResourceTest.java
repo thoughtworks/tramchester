@@ -6,10 +6,8 @@ import com.tramchester.App;
 import com.tramchester.LiveDataMessagesCategory;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.TramTime;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
-import com.tramchester.healthchecks.LiveDataHealthCheck;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -54,7 +52,7 @@ public class DeparturesResourceTest {
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStation() {
         Response response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty());
+                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty(), 200);
         assertEquals(200,response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -74,7 +72,7 @@ public class DeparturesResourceTest {
         TramTime queryTime = TramTime.of(LocalTime.now().minusMinutes(5));
 
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s", lat, lon),
-                Optional.empty());
+                Optional.empty(), 200);
         assertEquals(200,response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -105,7 +103,7 @@ public class DeparturesResourceTest {
     @Category({LiveDataTestCategory.class,LiveDataMessagesCategory.class})
     public void shouldGetDueTramsNotesForStation() {
         Response response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty());
+                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty(), 200);
         assertEquals(200,response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -116,14 +114,14 @@ public class DeparturesResourceTest {
     @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
     public void shouldGetDueTramsForStationNotesOnOrOff() {
         Response response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()), Optional.empty());
+                testRule, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()), Optional.empty(), 200);
         assertEquals(200,response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
         assertFalse(departureList.getNotes().isEmpty());
 
         response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.getId()), Optional.empty());
+                testRule, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.getId()), Optional.empty(), 200);
         assertEquals(200,response.getStatus());
 
         departureList = response.readEntity(DepartureListDTO.class);

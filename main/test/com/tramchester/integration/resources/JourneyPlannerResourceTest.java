@@ -288,7 +288,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         // journey to bury
         Response response = IntegrationClient.getResponse(testRule,
                 String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
-                Optional.of(cookie));
+                Optional.of(cookie), 200);
 
         assertEquals(200, response.getStatus());
 
@@ -352,6 +352,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             }
             queryString = String.format("%s&lat=%f&lon=%f", queryString, latlong.getLat(), latlong.getLon());
         }
-        return IntegrationClient.getResponse(rule, queryString, Optional.empty());
+        return IntegrationClient.getResponse(rule, queryString, Optional.empty(), 200);
     }
 }

@@ -215,18 +215,21 @@ public class AppUserJourneyTest {
         desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.searchEnabled());
 
         List<SummaryResult> results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
 
         desiredJourney(appPage, altrincham, bury, nextTuesday, eightFifteen);
         appPage.planAJourney();
+        // need way to delay response for this test to be useful
+        //assertFalse(appPage.searchEnabled());
         assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.searchEnabled());
 
         results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isBefore(tenFifteen));
         assertTrue(results.get(0).getDepartTime().isAfter(eightFifteen));
-
     }
 
     @Test

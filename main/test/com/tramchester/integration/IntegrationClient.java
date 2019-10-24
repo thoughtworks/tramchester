@@ -14,13 +14,13 @@ import static org.junit.Assert.assertEquals;
 
 public class IntegrationClient {
 
-    public static Response getResponse(IntegrationTestRun testRule, String endPoint, Optional<Cookie> cookie) {
+    public static Response getResponse(IntegrationTestRun testRule, String endPoint, Optional<Cookie> cookie, int expectedStatusCode) {
         Client client = ClientBuilder.newClient();
         WebTarget target = client.target("http://localhost:" + testRule.getLocalPort() + "/api/"+ endPoint);
         Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON);
         cookie.ifPresent(theCookie -> builder.cookie(theCookie));
         Response responce = builder.get();
-        assertEquals(200, responce.getStatus());
+        assertEquals(expectedStatusCode, responce.getStatus());
         return responce;
     }
 }

@@ -19,7 +19,6 @@ import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -57,7 +56,7 @@ public class StationResourceTest {
     public void shouldGetSingleStationWithPlatforms() {
         String id = Stations.StPetersSquare.getId();
         String endPoint = "stations/" + id;
-        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
+        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
         assertEquals(200,response.getStatus());
         StationDTO result = response.readEntity(StationDTO.class);
 
@@ -76,7 +75,7 @@ public class StationResourceTest {
     public void shouldGetSingleStationWithLiveData() {
         String id = Stations.StPetersSquare.getId();
         String endPoint = "stations/live/" + id;
-        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
+        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
         assertEquals(200,response.getStatus());
         StationDTO result = response.readEntity(StationDTO.class);
 
@@ -118,7 +117,7 @@ public class StationResourceTest {
         double lon = -2.2392436d;
 
         Response response = IntegrationClient.getResponse(testRule, String.format("stations/live/%s/%s", lat, lon),
-                Optional.empty());
+                Optional.empty(), 200);
         assertEquals(200,response.getStatus());
 
         StationListDTO stationList =  response.readEntity(StationListDTO.class);
@@ -205,13 +204,13 @@ public class StationResourceTest {
     }
 
     private StationListDTO getNearest(double lat, double lon, Optional<Cookie> cookie) {
-        Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie);
+        Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie, 200);
         assertEquals(200,result.getStatus());
         return result.readEntity(StationListDTO.class);
     }
 
     private StationListDTO getAll(Optional<Cookie> cookie) {
-        Response result = IntegrationClient.getResponse(testRule, "stations", cookie);
+        Response result = IntegrationClient.getResponse(testRule, "stations", cookie, 200);
         assertEquals(200,result.getStatus());
         return result.readEntity(StationListDTO.class);
     }

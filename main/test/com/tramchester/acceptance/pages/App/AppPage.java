@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Fail.fail;
-
 public class AppPage extends Page {
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 2;
@@ -54,7 +52,16 @@ public class AppPage extends Page {
     }
 
     public void planAJourney() {
-        findElementById("plan").click();
+        findPlanButton().click();
+    }
+
+
+    public boolean searchEnabled() {
+        return findPlanButton().isEnabled();
+    }
+
+    private WebElement findPlanButton() {
+        return findElementById("plan");
     }
 
     public void setStart(String start) {

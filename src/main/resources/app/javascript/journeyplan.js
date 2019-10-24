@@ -30,6 +30,25 @@ function stationsUrl(app) {
     return base;
 }
 
+function livedataUrl(app) {
+    if (app.startStop==='MyLocationPlaceholderId') {
+        var place = app.location; // should not have location place holder without a valid location
+        return '/api/departures/' + place.coords.latitude + '/' + place.coords.longitude;
+    } else {
+        return '/api/departures/station/'+app.startStop;
+    }
+}
+
+function displayLiveData(app) {
+    axios.get( livedataUrl(app), { timeout: 11000 }).
+        then(function (response) {
+            app.localDueTrams = response.data.departures;
+        }).
+        catch(function (error) {
+            console.log(error);
+        });
+}
+
 function getStationsFromServer(app) {
      axios
          .get(stationsUrl(app))
@@ -79,39 +98,53 @@ const app = new Vue({
                 notes: [],
                 buildNumber: '',
                 feedinfo: [],
+                localDueTrams: [],
                 noResults: false,
                 searchInProgress: false,
                 networkError: false,
                 hasGeo: false,
                 location: null,
+                currentPage: 1,
                 journeyFields: [
                     {key:'_showDetails',label:'', formatter: this.rowExpandedFormatter},
                     {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
                     {key:'expectedArrivalTime',label:'Arrive', sortable:false, tdClass:'arriveTime'},
-                    {key:'changeStations', label:'Change', tdClass:'changes', formatter: this.changesFormatter},
-                    {key:'dueTram', label:'Due', tdClass: 'dueTram'}],
+                    {key:'changeStations', label:'Change', tdClass:'changes', formatter: this.changesFormatter}
+                    //{key:'dueTram', label:'Due', tdClass: 'dueTram'}
+                    ],
                 stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
                     {key:'action',label:'Action',tdClass:'action' },
                     {key:'actionStation.name',label:'Station', tdClass:'actionStation', formatter: this.stationFormatter},
                     {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                     {key:'headSign', label:'Towards', tdClass: this.stageHeadsignClass },
                     {key:'routeName', label:'Line', tdClass: this.stageRowClass },
-                    {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
+                    {key:'passedStops', label:'Stops', tdClass:'passedStops'}],
+                departureFields: [
+                            {key:'from', label:'From', tdClass:'departureDueFrom'},
+                            {key:'when', label:'Time', tdClass:'departureDueTime'},
+                            {key:'carriages', label:'', tdClass:'departureCarriages'},
+                            {key:'status', label:'Status', tdClass:'departureStatus'},
+                            {key:'destination', label:'Towards', tdClass:'departureTowards'}
+                ]
             }
         },
         methods: {
-            clearJourneysAndNotes() {
+            clearResults() {
                 while(app.journeys.length>0) {
                     app.journeys.pop();
                 }
-                 while(app.notes.length>0) {
+                while(app.notes.length>0) {
                     app.notes.pop();
                 }
+                while(app.localDueTrams.length>0) {
+                    app.localDueTrams.pop();
+                }
+                app.currentPage = 1;
             },
             plan(event){
                 event.preventDefault(); // stop page reload on form submission
                 app.searchInProgress = true;
-                app.clearJourneysAndNotes();
+                app.clearResults();
                 app.ready = false;
                 this.$nextTick(function () {
                     app.queryServer();
@@ -126,20 +159,21 @@ const app = new Vue({
                     urlParams.lat = place.coords.latitude;
                     urlParams.lon = place.coords.longitude;
                 }
-                axios.get('/api/journey', { params: urlParams, timeout: 11000
-                    }).then(function (response) {
+                axios.get('/api/journey', { params: urlParams, timeout: 11000}).
+                    then(function (response) {
                         app.networkError = false;
                         app.searchInProgress = false;
                         app.journeys = app.journeys.concat(response.data.journeys);
                         app.noResults = app.journeys.length==0;
                         app.notes = app.notes.concat(response.data.notes);
-                        app.getStations(); // recent stations will have changed
-                    }).catch(function (error) {
+                        app.getStations(); }).
+                    catch(function (error) {
                         app.searchInProgress = false;
                         app.ready = true;
                         app.networkError = true;
                         console.log(error);
-                });
+                    });
+                displayLiveData(this);
             },
             getStations() {
                 getStationsFromServer(this);

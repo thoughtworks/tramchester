@@ -23,7 +23,7 @@ public class VersionResourceTest {
     public void shouldGetVersion() {
         String endPoint = "version";
 
-        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty());
+        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
 
         Version version = responce.readEntity(Version.class);
 
