@@ -27,7 +27,7 @@ jobs:
           - v1-gradle-deps-{{ checksum "build.gradle" }}
       - restore_cache:
           keys:
-            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            - v2-npm-deps-{{ checksum "package-lock.json" }}
 
       - run: gradle dependencies --no-daemon
       # run unit tests
@@ -50,8 +50,8 @@ jobs:
           name: upload
       - save_cache:
           paths:
-            - ~/node_modules
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+            - ./node_modules
+          key: v2-npm-deps-{{ checksum "package-lock.json" }}
       - run:
           name: deployDev
           command: gradle deploy updateLB tidy --no-daemon
@@ -74,7 +74,7 @@ jobs:
           name: deployUAT
           environment:
             ENV: UAT
-          command: ./gradlew deploy updateLB tidy --no-daemon
+          command: gradle deploy updateLB tidy --no-daemon
       - run: mkdir -p workspace
       - run: echo "export RELEASE_NUMBER=$CIRCLE_BUILD_NUM" > workspace/release_num.txt
       - persist_to_workspace:
@@ -98,7 +98,7 @@ jobs:
           - v1-gradle-deps-{{ checksum "build.gradle" }}
       - restore_cache:
           keys:
-          - v1-npm-deps-{{ checksum "package-lock.json" }}
+          - v2-npm-deps-{{ checksum "package-lock.json" }}
       - run: gradle dependencies --no-daemon
       - attach_workspace:
         # Must be absolute path or relative path from working_directory
@@ -111,8 +111,8 @@ jobs:
           command: |
             source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
-            ./gradlew deploy --no-daemon
-            ./gradlew updateLB --no-daemon
+            gradle deploy --no-daemon
+            gradle updateLB --no-daemon
 workflows:
   version: 2
   buildStep:
