@@ -31,7 +31,7 @@ function stationsUrl(app) {
 }
 
 function livedataUrl(app) {
-    if (app.startStop==='MyLocationPlaceholderId') {
+    if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
         var place = app.location; // should not have location place holder without a valid location
         return '/api/departures/' + place.coords.latitude + '/' + place.coords.longitude;
     } else {
@@ -157,6 +157,15 @@ const app = new Vue({
                 });
 
             },
+            queryNearbyTrams() {
+                while(app.localDueTrams.length>0) {
+                    app.localDueTrams.pop();
+                }
+                app.currentPage = 1;
+                this.$nextTick(function () {
+                    displayLiveData(this);
+                });
+            },
             queryServer() {
                 var urlParams = { start: this.startStop, end: this.endStop, departureTime: this.time,
                     departureDate: this.date};
@@ -168,11 +177,12 @@ const app = new Vue({
                 axios.get('/api/journey', { params: urlParams, timeout: 11000}).
                     then(function (response) {
                         app.networkError = false;
-                        app.searchInProgress = false;
                         app.journeys = app.journeys.concat(response.data.journeys);
                         app.noResults = app.journeys.length==0;
                         app.notes = app.notes.concat(response.data.notes);
-                        app.getStations(); }).
+                        app.getStations();
+                        app.searchInProgress = false;
+                        }).
                     catch(function (error) {
                         app.searchInProgress = false;
                         app.ready = true;
@@ -284,6 +294,8 @@ const app = new Vue({
             },
             havePos: function () {
                 return this.hasGeo && (this.location!=null);
+            },
+            placeName: function () {
             }
         }
 
