@@ -30,10 +30,14 @@ function stationsUrl(app) {
     return base;
 }
 
+function livedataUrlFromLocation(app) {
+    var place = app.location; // should not have location place holder without a valid location
+    return '/api/departures/' + place.coords.latitude + '/' + place.coords.longitude;
+}
+
 function livedataUrl(app) {
     if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
-        var place = app.location; // should not have location place holder without a valid location
-        return '/api/departures/' + place.coords.latitude + '/' + place.coords.longitude;
+        return livedataUrlFromLocation(app);
     } else {
         return '/api/departures/station/'+app.startStop;
     }
@@ -45,7 +49,12 @@ function displayLiveData(app) {
     if (today.month()==queryDate.month()
         && today.year()==queryDate.year()
         && today.date()==queryDate.date()) {
-        axios.get( livedataUrl(app), { timeout: 11000 }).
+        queryLiveData(livedataUrl(app));
+    }
+}
+
+function queryLiveData(url) {
+ axios.get( url, { timeout: 11000 }).
             then(function (response) {
                 app.localDueTrams = response.data.departures;
                 app.noLiveResults = (app.localDueTrams.length==0);
@@ -57,7 +66,6 @@ function displayLiveData(app) {
                app.liveInProgress = false;
                console.log(error);
             });
-    }
 }
 
 function getStationsFromServer(app) {
@@ -97,10 +105,9 @@ const app = new Vue({
         el: '#journeyplan',
         data () {
             return {
-                ready: false,
-
+                ready: false,                   // ready to respond
                 stops: [],
-                stopToProxGroup: new Map(),
+                stopToProxGroup: new Map(),     // stop -> prox group
                 proximityGroups: [],
                 startStop: null,
                 endStop: null,
@@ -111,14 +118,14 @@ const app = new Vue({
                 buildNumber: '',
                 feedinfo: [],
                 localDueTrams: [],
-                noResults: false,
-                noLiveResults: false,
-                searchInProgress: false,
-                liveInProgress: false,
-                networkError: false,
+                noResults: false,           // no routes found
+                noLiveResults: false,       // no live data found
+                searchInProgress: false,    // searching for routes
+                liveInProgress: false,      // looking for live data
+                networkError: false,        // network error on either query
                 hasGeo: false,
                 location: null,
-                currentPage: 1,
+                currentPage: 1,             // current page for due trams
                 journeyFields: [
                     {key:'_showDetails',label:'', formatter: this.rowExpandedFormatter},
                     {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
@@ -171,7 +178,7 @@ const app = new Vue({
                 }
                 app.currentPage = 1;
                 this.$nextTick(function () {
-                    displayLiveData(this);
+                    queryLiveData(livedataUrlFromLocation(this));
                 });
             },
             queryServer() {

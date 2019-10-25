@@ -55,7 +55,11 @@ public abstract class ProvidesDriver {
     public abstract void quit();
 
     public void close() {
-        getDriver().close(); }
+        RemoteWebDriver driver = getDriver();
+        if (driver!=null) {
+            driver.close();
+        }
+     }
 
     public abstract boolean isEnabledGeo();
 

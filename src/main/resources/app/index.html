@@ -44,7 +44,7 @@
                     Plan
                     <b-spinner v-if="searchInProgress" id="spinner" small type="grow"></b-spinner>
                 </b-button>
-                <b-button :disable='!havePos' id="liveTrams"
+                <b-button :disabled='!havePos' id="liveTrams"
                           variant="info" v-if="havePos" @click="queryNearbyTrams">
                     Nearby
                     <b-spinner v-if="liveInProgress" id="nearbySpinner" small type="grow"></b-spinner>
