@@ -48,9 +48,14 @@ function displayLiveData(app) {
         axios.get( livedataUrl(app), { timeout: 11000 }).
             then(function (response) {
                 app.localDueTrams = response.data.departures;
+                app.noLiveResults = (app.localDueTrams.length==0);
+                app.networkError = false;
+                app.liveInProgress = false;
             }).
             catch(function (error) {
-                console.log(error);
+               app.networkError = true;
+               app.liveInProgress = false;
+               console.log(error);
             });
     }
 }
@@ -93,6 +98,7 @@ const app = new Vue({
         data () {
             return {
                 ready: false,
+
                 stops: [],
                 stopToProxGroup: new Map(),
                 proximityGroups: [],
@@ -106,7 +112,9 @@ const app = new Vue({
                 feedinfo: [],
                 localDueTrams: [],
                 noResults: false,
+                noLiveResults: false,
                 searchInProgress: false,
+                liveInProgress: false,
                 networkError: false,
                 hasGeo: false,
                 location: null,
@@ -116,7 +124,6 @@ const app = new Vue({
                     {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
                     {key:'expectedArrivalTime',label:'Arrive', sortable:false, tdClass:'arriveTime'},
                     {key:'changeStations', label:'Change', tdClass:'changes', formatter: this.changesFormatter}
-                    //{key:'dueTram', label:'Due', tdClass: 'dueTram'}
                     ],
                 stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
                     {key:'action',label:'Action',tdClass:'action' },
@@ -158,6 +165,7 @@ const app = new Vue({
 
             },
             queryNearbyTrams() {
+                app.liveInProgress = true;
                 while(app.localDueTrams.length>0) {
                     app.localDueTrams.pop();
                 }

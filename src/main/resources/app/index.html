@@ -42,14 +42,12 @@
 
                 <b-button :disabled='!ready' id="plan" type="submit" variant="primary">
                     Plan
-                    <b-spinner v-if="searchInProgress" id="spinner" small type="grow" ref="planSpinner"></b-spinner>
+                    <b-spinner v-if="searchInProgress" id="spinner" small type="grow"></b-spinner>
                 </b-button>
                 <b-button :disable='!havePos' id="liveTrams"
-                          variant="primary" v-if="havePos" @click="queryNearbyTrams">
+                          variant="info" v-if="havePos" @click="queryNearbyTrams">
                     Nearby
-                    <!--
-                    <b-spinner v-if="searchInProgress" id="spinner" small type="grow" ref="planSpinner"></b-spinner>
-                    -->
+                    <b-spinner v-if="liveInProgress" id="nearbySpinner" small type="grow"></b-spinner>
                 </b-button>
             </b-form>
 
@@ -79,7 +77,7 @@
                              :items="localDueTrams" small responsive="sm"
                              :fields="departureFields" per-page="4"
                              tbody-tr-class='departuresSummary' caption-top>
-                        <template v-slot:table-caption>Departures From</template>
+                        <template v-slot:table-caption>Live Departures</template>
                     </b-table>
                     <b-pagination v-if="localDueTrams.length>0 && localDueTrams.length>4"
                                   v-model="currentPage"
@@ -110,11 +108,18 @@
                         </b-table>
                     </template>
                 </b-table>
+
             </div>
 
             <div id="noResults" selectable v-if="noResults" class="w-75 tramchesterApp">
                 <b-card bg-variant="warning" >
-                    No results were found
+                    No suggested routes were found for this date and time
+                </b-card>
+            </div>
+
+            <div id="noLiveResults" selectable v-if="noLiveResults" class="w-75 tramchesterApp">
+                <b-card bg-variant="light" >
+                    No real time departure information found
                 </b-card>
             </div>
 
