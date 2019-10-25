@@ -8,6 +8,14 @@
     margin-top: 15px;
 }
 
+.tramchesterHeading {
+    margin: auto;
+    text-align: center;
+    font-family: Arial;
+    border-top: 2px solid black;
+    border-bottom: 2px solid #191c1f;
+}
+
 .HideWalkingHeadSign {
     visibility: hidden;
 }

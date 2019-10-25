@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     </head>
     <body>
+    <h1 class="tramchesterHeading w-75">Tramchester</h1>
         <div id="journeyplan" class="tramchesterApp">
             <b-form @submit="plan" class="w-75 tramchesterApp">
                 <div id="selectStart">
@@ -40,7 +41,7 @@
                 </b-form-group>
 
                 <b-button :disabled='!ready' id="plan" type="submit" variant="primary">
-                    Find Trams
+                    Plan
                     <b-spinner v-if="searchInProgress" id="spinner" small type="grow" ref="planSpinner"></b-spinner>
                 </b-button>
             </b-form>
@@ -66,27 +67,28 @@
 
                 <div id="departuesView">
                     <b-table id="departures"
-                             :current-page="currentPage"
                              selectable v-if="localDueTrams.length>0"
+                             :current-page="currentPage" sort-icon-left
                              :items="localDueTrams" small responsive="sm"
                              :fields="departureFields" per-page="3"
                              tbody-tr-class='departuresSummary' caption-top>
                         <template v-slot:table-caption>Departures From</template>
                     </b-table>
-                    <b-pagination v-if="localDueTrams.length>0"
+                    <b-pagination v-if="localDueTrams.length>0 && localDueTrams.length>4"
                                   v-model="currentPage"
                                   :total-rows="localDueTrams.length"
-                                  per-page="3"
+                                  per-page="4" align="center"
                                   aria-controls="departures"
                     ></b-pagination>
                 </div>
 
                 <b-table id="results"
-                               selectable v-if="journeys.length>0"
-                               :items="journeys" small responsive="sm"
-                               :fields="journeyFields"
-                               select-mode='single' caption-top
-                               @row-clicked="expandStages" tbody-tr-class='journeySummary'>
+                    selectable v-if="journeys.length>0"
+                    sort-icon-left
+                    :items="journeys" small responsive="sm"
+                    :fields="journeyFields"
+                    select-mode='single' caption-top
+                    @row-clicked="expandStages" tbody-tr-class='journeySummary'>
                     <template v-slot:table-caption>Suggested Routes</template>
                     <template v-slot:cell(_showDetails)="data">
                         <span v-html="data.value">XXX</span>

@@ -53,7 +53,6 @@ function displayLiveData(app) {
                 console.log(error);
             });
     }
-
 }
 
 function getStationsFromServer(app) {
@@ -127,11 +126,11 @@ const app = new Vue({
                     {key:'routeName', label:'Line', tdClass: this.stageRowClass },
                     {key:'passedStops', label:'Stops', tdClass:'passedStops'}],
                 departureFields: [
-                            {key:'from', label:'From', tdClass:'departureDueFrom'},
-                            {key:'when', label:'Time', tdClass:'departureDueTime'},
-                            {key:'carriages', label:'', tdClass:'departureCarriages'},
-                            {key:'status', label:'Status', tdClass:'departureStatus'},
-                            {key:'destination', label:'Towards', tdClass:'departureTowards'}
+                    {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
+                    {key:'when', label:'Time', tdClass:'departureDueTime', sortable:true},
+                    {key:'carriages', label:'', tdClass:'departureCarriages'},
+                    {key:'status', label:'Status', tdClass:'departureStatus'},
+                    {key:'destination', label:'Towards', tdClass:'departureTowards'}
                 ]
             }
         },
@@ -225,7 +224,7 @@ const app = new Vue({
             setCookie() {
                 var cookie = { 'visited' : true };
                 var expiry = moment().add(100, 'days').toDate();
-                this.$cookies.set("tramchesterVisited",cookie,"1d");
+                this.$cookies.set("tramchesterVisited",cookie,"128d");
             },
             timeToNow() {
                 app.time = getCurrentTime();
