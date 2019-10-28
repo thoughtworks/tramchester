@@ -221,9 +221,10 @@ task integration(type: Test, dependsOn: compileJava) {
 task appium(type: Test) {
     dependsOn 'allowhost'
     dependsOn 'compileJava'
+    dependsOn 'webpack'
     useJUnit {
         filter {
-            includeTestsMatching "com.tramchester.appAcceptance.*"
+            includeTestsMatching "com.tramchester.acceptance.*"
         }
         testLogging {
             exceptionFormat "full" // default is "short"
@@ -235,10 +236,12 @@ task appium(type: Test) {
     }
 }
 
-task localAppium(type: Test, dependsOn: ['compileJava','webpack']) {
+task localAppium(type: Test) {
+    dependsOn 'compileJava'
+    dependsOn 'webpack'
     useJUnit {
         filter {
-            includeTestsMatching "com.tramchester.appAcceptance.*"
+            includeTestsMatching "com.tramchester.acceptance.*"
         }
         testLogging {
             events "passed", "skipped", "failed", "started", "standardError", "standardOut"
