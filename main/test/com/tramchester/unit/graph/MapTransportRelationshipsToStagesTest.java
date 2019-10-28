@@ -101,7 +101,6 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         assertEquals( stationA, stage.getActionStation());
         assertEquals( "cssCodeAAA", stage.getDisplayClass());
         assertEquals(TransportMode.Tram, stage.getMode());
-        assertTrue(stage.getIsAVehicle());
         assertEquals( "svcId", stage.getServiceId());
         assertEquals(0, stage.getPassedStops());
     }
@@ -154,7 +153,6 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         assertEquals( stationA, stage.getActionStation());
         assertEquals( "cssCodeAAA", stage.getDisplayClass());
         assertEquals(TransportMode.Tram, stage.getMode());
-        assertTrue(stage.getIsAVehicle());
         assertEquals( "svcId", stage.getServiceId());
         assertTrue( stage.getBoardingPlatform().isPresent());
         assertEquals(platformA, stage.getBoardingPlatform().get());

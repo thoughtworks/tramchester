@@ -243,7 +243,8 @@ public class JourneyDTOFactory {
             logger.error("No stages in the journey");
             return false;
         }
-        return !allStages.get(0).getIsAVehicle();
+
+        return allStages.get(0).getMode()==TransportMode.Walk;
     }
 
 }

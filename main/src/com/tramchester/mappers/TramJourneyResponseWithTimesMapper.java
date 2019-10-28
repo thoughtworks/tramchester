@@ -31,7 +31,7 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
         LocalTime currentTime = rawJourney.getQueryTime();
 
         for(RawStage rawStage : rawJourneyStages)
-            if (rawStage.getIsAVehicle()) {
+            if (rawStage.getMode().isVehicle()) {
                 RawVehicleStage rawTravelStage = (RawVehicleStage) rawStage;
 
                 currentTime = rawTravelStage.getDepartTime();
@@ -47,7 +47,7 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
 
                 VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time, decideAction(stages));
                 stages.add(stage);
-            } else if (rawStage.isWalk()) {
+            } else if (rawStage.getMode().isWalk()) {
                 RawWalkingStage stage = (RawWalkingStage) rawStage;
                 TransportStage walkingStage = new WalkingStage(stage, currentTime);
                 int cost = stage.getDuration();

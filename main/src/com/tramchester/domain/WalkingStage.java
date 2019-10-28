@@ -23,16 +23,6 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
-    public boolean getIsAVehicle() {
-        return false;
-    }
-
-    @Override
-    public boolean isWalk() {
-        return true;
-    }
-
-    @Override
     public String getHeadSign() {
         return "WalkingHeadSign";
     }

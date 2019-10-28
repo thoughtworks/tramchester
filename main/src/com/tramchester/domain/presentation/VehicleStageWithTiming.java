@@ -5,8 +5,6 @@ import com.tramchester.domain.TramTime;
 
 import java.time.LocalTime;
 
-import static java.lang.String.format;
-
 public class VehicleStageWithTiming extends RawVehicleStage implements TransportStage {
     private TravelAction action;
     private ServiceTime serviceTime;
@@ -39,46 +37,6 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
                 "rawTravelStage=" + super.toString() +
                 ", serviceTime=" + serviceTime +
                 '}';
-    }
-
-    @Deprecated
-    public String getSummary() {
-        switch (mode) {
-            case Bus : {
-                return format("%s Bus route", routeName);
-            }
-            case Tram: {
-                return format("%s Tram line", routeName);
-            }
-            default:
-                return "Unknown transport mode " + mode;
-        }
-    }
-
-    @Deprecated
-    public String getPrompt() {
-        String verb;
-        switch (action) {
-            case Board: verb = "Board";
-                break;
-            case Leave: verb = "Leave";
-                break;
-            case Change: verb = "Change";
-                break;
-            default:
-                verb = "Unknown transport action " + action;
-        }
-
-        switch (mode) {
-            case Bus : {
-                return format("%s bus at", verb);
-            }
-            case Tram: {
-                return format("%s tram at", verb);
-            }
-            default:
-                return "Unknown transport mode " + mode;
-        }
     }
 
     @Override

@@ -292,6 +292,6 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
                 TramTime.of(when.plusMinutes(durationOfStage)),
                 durationOfStage,
                 matchingHeadsign, TransportMode.Tram,
-                false, true, "displayClass", 23,"routeName", TravelAction.Board);
+                "displayClass", 23,"routeName", TravelAction.Board);
     }
 }

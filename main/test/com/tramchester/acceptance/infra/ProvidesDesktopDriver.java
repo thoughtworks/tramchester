@@ -21,8 +21,8 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
 
         LoggingPreferences loggingPrefs = new LoggingPreferences();
 
-        loggingPrefs.enable(LogType.BROWSER, Level.WARNING);
-        loggingPrefs.enable(LogType.DRIVER, Level.WARNING);
+        loggingPrefs.enable(LogType.BROWSER, Level.SEVERE);
+        loggingPrefs.enable(LogType.DRIVER, Level.SEVERE);
 
         caps.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
 

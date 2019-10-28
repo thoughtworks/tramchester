@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class RawVehicleStage implements RawStage {
-    protected Location firstStation;
+    private Location firstStation;
     protected TransportMode mode;
     protected String routeName;
     private String displayClass;
@@ -13,7 +13,7 @@ public class RawVehicleStage implements RawStage {
     protected int cost;
 
     protected String serviceId;
-    protected Location lastStation;
+    private Location lastStation;
     private int passedStops;
     private Optional<Platform> platform;
 
@@ -27,11 +27,6 @@ public class RawVehicleStage implements RawStage {
         this.displayClass = displayClass;
         platform = Optional.empty();
         passedStops = -1;
-    }
-
-    // TODO Still needed?
-    public RawVehicleStage() {
-        // for deserialisation
     }
 
     public RawVehicleStage(RawVehicleStage other) {
@@ -78,16 +73,6 @@ public class RawVehicleStage implements RawStage {
     @Override
     public TransportMode getMode() {
         return mode;
-    }
-
-    @Override
-    public boolean getIsAVehicle() {
-        return (mode.equals(TransportMode.Bus)) || (mode.equals(TransportMode.Tram));
-    }
-
-    @Override
-    public boolean isWalk() {
-        return mode.equals(TransportMode.Walk);
     }
 
     public String getDisplayClass() {

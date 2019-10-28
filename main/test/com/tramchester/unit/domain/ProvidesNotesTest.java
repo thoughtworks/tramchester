@@ -187,8 +187,8 @@ public class ProvidesNotesTest {
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
                 platformDTO, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), 42,
-                "headSign", transportMode, isWalk,
-                !isWalk, "displayClass", 12, "routeName", TravelAction.Board);
+                "headSign", transportMode,
+                "displayClass", 12, "routeName", TravelAction.Board);
     }
 
     private PlatformDTO createPlatformDTO(String platformLocation, String platformId, String message, String displayUnitId) {

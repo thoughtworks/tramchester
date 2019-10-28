@@ -29,9 +29,9 @@ public class TramJourneyResponseMapper extends SingleJourneyMapper {
         TimeWindow timeWindow = new TimeWindow(queryTime, withinMins);
 
         for (RawStage rawStage : rawJourneyStages) {
-            if (rawStage.getIsAVehicle()) {
+            if (rawStage.getMode().isVehicle()) {
                 timeWindow = mapVehicleStage(timeWindow, stages, rawStage);
-            } else if (rawStage.isWalk()) {
+            } else if (rawStage.getMode().isWalk()) {
                 RawWalkingStage stage = (RawWalkingStage) rawStage;
                 TransportStage walkingStage = new WalkingStage(stage, timeWindow.queryTime());
                 logger.info("Adding walking stage " + stage);

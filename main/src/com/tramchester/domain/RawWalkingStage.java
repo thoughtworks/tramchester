@@ -17,17 +17,7 @@ public class RawWalkingStage implements RawStage {
     public TransportMode getMode() {
         return TransportMode.Walk;
     }
-
-    @Override
-    public boolean getIsAVehicle() {
-        return false;
-    }
-
-    @Override
-    public boolean isWalk() {
-        return true;
-    }
-
+    
     public int getDuration() {
         return duration;
     }
