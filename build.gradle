@@ -223,7 +223,6 @@ task appium(type: Test) {
     dependsOn 'compileJava'
     useJUnit {
         filter {
-            includeTestsMatching "com.tramchester.acceptance.*"
             includeTestsMatching "com.tramchester.appAcceptance.*"
         }
         testLogging {
@@ -237,18 +236,6 @@ task appium(type: Test) {
 }
 
 task localAppium(type: Test, dependsOn: ['compileJava','webpack']) {
-    useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.acceptance.*"
-            includeTestsMatching "com.tramchester.appAcceptance.*"
-        }
-        testLogging {
-            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
-        }
-    }
-}
-
-task localApp(type: Test, dependsOn: ['compileJava','webpack']) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.appAcceptance.*"

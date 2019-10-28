@@ -23,6 +23,7 @@ public class RedirectHttpFilter implements Filter {
 
     private TramchesterConfig config;
 
+    // no cert for these hosts
     List<String> unsecureHosts = Arrays.asList(new String[]{
             "trambuster.com",
             "trambuster.info",
@@ -42,7 +43,7 @@ public class RedirectHttpFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String header = httpServletRequest.getHeader("X-Forwarded-Proto");
+        String header = httpServletRequest.getHeader("X-Forwarded-Proto"); // https is terminated by the ELB
         try {
             if (header != null) {
                 if ("http".equals(header.toLowerCase())) {

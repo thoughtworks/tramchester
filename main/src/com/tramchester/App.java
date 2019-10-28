@@ -13,6 +13,7 @@ import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -108,11 +109,17 @@ public class App extends Application<AppConfiguration>  {
 
         environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(dependencies,executor));
 
+        MutableServletContextHandler applicationContext = environment.getApplicationContext();
+        // http -> https redirect
         if (configuration.getRedirectHTTP()) {
             RedirectHttpFilter redirectHttpFilter = new RedirectHttpFilter(configuration);
-            environment.getApplicationContext().addFilter(new FilterHolder(redirectHttpFilter),
+            applicationContext.addFilter(new FilterHolder(redirectHttpFilter),
                     "/*", EnumSet.of(DispatcherType.REQUEST));
         }
+        // / -> /app redirect
+        RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter(configuration);
+        applicationContext.addFilter(new FilterHolder(redirectToAppFilter),
+                "/", EnumSet.of(DispatcherType.REQUEST));
 
         environment.jersey().register(dependencies.get(StationResource.class));
         environment.jersey().register(dependencies.get(VersionResource.class));

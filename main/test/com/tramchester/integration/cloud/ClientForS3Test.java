@@ -124,7 +124,8 @@ public class ClientForS3Test {
             }
 
             Waiter<HeadBucketRequest> bucketWaiter = s3.waiters().bucketNotExists();
-            bucketWaiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));
+            WaiterParameters<HeadBucketRequest> waiterParameters = new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME));
+            bucketWaiter.run(waiterParameters);
         }
     }
 
