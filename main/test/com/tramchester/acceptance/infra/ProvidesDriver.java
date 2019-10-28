@@ -1,8 +1,6 @@
 package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.App.AppPage;
-import com.tramchester.acceptance.pages.RoutePlannerPage;
-import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
 import org.junit.rules.TestName;
 import org.openqa.selenium.*;
@@ -12,16 +10,13 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import static java.lang.String.format;
 
 public abstract class ProvidesDriver {
     public abstract void init();
-    public abstract WelcomePage getWelcomePage();
     public abstract AppPage getAppPage();
     public abstract Cookie getCookieNamed(String name);
-    public abstract RoutePlannerPage getRoutePlannerPage();
     public abstract void setStubbedLocation(LatLong place) throws IOException;
     public abstract void commonAfter(TestName testName);
 

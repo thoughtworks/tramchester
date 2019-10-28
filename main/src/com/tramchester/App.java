@@ -74,14 +74,7 @@ public class App extends Application<AppConfiguration>  {
                         bootstrap.getConfigurationSourceProvider(),
                         new EnvironmentVariableSubstitutor(false)));
 
-        bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.htm", "static"));
-        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
-        bootstrap.addBundle(new AssetsBundle("/assets/images", "/images", null, "images"));
-        bootstrap.addBundle(new AssetsBundle("/assets/javascript", "/javascript", null, "js"));
-        bootstrap.addBundle(new AssetsBundle("/assets/views", "/views", null, "views"));
-
-        // WIP new app pages
-        // TODO Use configurable assest bundle only for dev env
+        // TODO Use configurable assest bundle only for dev env?
         bootstrap.addBundle(new ConfiguredAssetsBundle("/app", "/app", "index.html", "app"));
 
         // api/swagger.json and api/swagger
@@ -183,14 +176,10 @@ public class App extends Application<AppConfiguration>  {
     }
 
     private void filtersForStaticContent(Environment environment) {
-        int lifeTime = 1 * 24 * 60 * 60;
+        int lifeTime = 5 * 60; // 5 minutes
         StaticAssetFilter filter = new StaticAssetFilter(lifeTime);
-        setFilterFor(environment, filter, "javascript", "/javascript/*");
-        setFilterFor(environment, filter, "css", "/css/*");
-        setFilterFor(environment, filter, "templates", "*.html");
-        setFilterFor(environment, filter, "images", "/images/*");
-        setFilterFor(environment, filter, "fonts", "/fonts/*");
-        setFilterFor(environment, filter, "webfonts", "/webfonts/*");
+        setFilterFor(environment, filter, "dist", "/app/dist/*");
+        setFilterFor(environment, filter, "html", "/app/index.html");
     }
 
     private void setFilterFor(Environment environment, StaticAssetFilter filter, String name, String pattern) {

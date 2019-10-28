@@ -20,19 +20,9 @@ public class Page {
         this.driver = driver;
     }
 
-    protected String getTextFor(String idPrefix, int index) {
-        WebElement element = driver.findElement(By.id(idPrefix + index));
-        return element.getText();
-    }
-
     protected WebElement waitForElement(String elementId, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         return wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementId)));
-    }
-
-    protected void setSelectorTo(String id, String name) {
-        Select selector = new Select(driver.findElement(By.id(id)));
-        selector.selectByVisibleText(name);
     }
 
     public WebElement findElementById(String id) {

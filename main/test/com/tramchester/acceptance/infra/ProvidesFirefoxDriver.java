@@ -2,11 +2,8 @@ package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
-import com.tramchester.acceptance.pages.RoutePlannerPage;
-import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.InvalidArgumentException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebElement;
@@ -67,18 +64,8 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     }
 
     @Override
-    public RoutePlannerPage getRoutePlannerPage() {
-        return new RoutePlannerPage(driver, providesDateInput);
-    }
-
-    @Override
     public AppPage getAppPage() {
         return new AppPage(driver, providesDateInput);
-    }
-
-    @Override
-    public WelcomePage getWelcomePage() {
-        return new WelcomePage(driver, providesDateInput);
     }
 
     @Override

@@ -2,8 +2,6 @@ package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
-import com.tramchester.acceptance.pages.RoutePlannerPage;
-import com.tramchester.acceptance.pages.WelcomePage;
 import com.tramchester.domain.presentation.LatLong;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
@@ -80,11 +78,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     }
 
     @Override
-    public WelcomePage getWelcomePage() {
-        return new WelcomePage(driver, providesDateInput);
-    }
-
-    @Override
     public AppPage getAppPage() {
         return new AppPage(driver, providesDateInput);
     }
@@ -92,11 +85,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     @Override
     public Cookie getCookieNamed(String name) {
         return driver.manage().getCookieNamed(name);
-    }
-
-    @Override
-    public RoutePlannerPage getRoutePlannerPage() {
-        return new RoutePlannerPage(driver, providesDateInput);
     }
 
     @Override
