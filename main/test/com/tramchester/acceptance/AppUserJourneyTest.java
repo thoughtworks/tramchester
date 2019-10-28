@@ -1,4 +1,4 @@
-package com.tramchester.appAcceptance;
+package com.tramchester.acceptance;
 
 import com.tramchester.App;
 import com.tramchester.TestConfig;

@@ -20,8 +20,6 @@ public class StageDTO {
     private TramTime expectedArrivalTime;
     private int duration;
 
-    private String summary;
-    private String prompt;
     private String headSign;
 
     private TransportMode mode;
@@ -34,7 +32,7 @@ public class StageDTO {
 
     public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
                     PlatformDTO platform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
-                    String summary, String prompt, String headSign, TransportMode mode, boolean walk,
+                    String headSign, TransportMode mode, boolean walk,
                     boolean isAVehicle, String displayClass, int passedStops, String routeName, TravelAction action) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
@@ -44,8 +42,6 @@ public class StageDTO {
         this.firstDepartureTime = firstDepartureTime;
         this.expectedArrivalTime = expectedArrivalTime;
         this.duration = duration;
-        this.summary = summary;
-        this.prompt = prompt;
         this.headSign = headSign;
         this.mode = mode;
         this.walk = walk;
@@ -58,16 +54,6 @@ public class StageDTO {
 
     public StageDTO() {
         // deserialisation
-    }
-
-    @Deprecated
-    public String getSummary() {
-        return summary;
-    }
-
-    @Deprecated
-    public String getPrompt() {
-        return prompt;
     }
 
     public String getHeadSign() {

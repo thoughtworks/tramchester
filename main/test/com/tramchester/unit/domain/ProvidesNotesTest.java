@@ -97,7 +97,7 @@ public class ProvidesNotesTest {
         stages.add(stageA);
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading",
+                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()),
                 false, changeStations));
 
         LocalDate date = LocalDate.now();
@@ -134,7 +134,7 @@ public class ProvidesNotesTest {
         List<StageDTO> stages = stages1;
 
         decoratedJourneys.add(new JourneyDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.ExchangeSquare)
-                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), "summary", "heading", false, changeStations));
+                , stages, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), false, changeStations));
 
         TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
 
@@ -187,7 +187,7 @@ public class ProvidesNotesTest {
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
                 platformDTO, TramTime.of(LocalTime.now()), TramTime.of(LocalTime.now()), 42,
-                "summary", "prompt", "headSign", transportMode, isWalk,
+                "headSign", transportMode, isWalk,
                 !isWalk, "displayClass", 12, "routeName", TravelAction.Board);
     }
 

@@ -116,8 +116,6 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         assertEquals(TramTime.create(8,16),stageSecond.getExpectedArrivalTime());
         assertEquals(TramTime.create(8,3),stageFirst.getFirstDepartureTime());
 
-        assertEquals("Board bus at", stageFirst.getPrompt());
-        assertEquals("Change bus at", stageSecond.getPrompt());
     }
 
     private RawJourney createSimpleRawJourney(int costA, int costB, LocalTime queryTime) {

@@ -25,10 +25,10 @@ public class JourneyDTOTest {
     public void beforeEachTestRuns() throws TramchesterException {
         journeyA = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.create(10, 20), TramTime.create(10, 8),
-                "summary", "heading", false, changeStations);
+                false, changeStations);
         journeyB = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.create(10, 25), TramTime.create(10, 8),
-                "summary", "heading", false, changeStations);
+                false, changeStations);
     }
 
     @Test
@@ -49,11 +49,11 @@ public class JourneyDTOTest {
     public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() throws TramchesterException {
         JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.create(00, 10), TramTime.create(10, 8),
-                "summary", "heading", false, changeStations);
+                false, changeStations);
 
         JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.create(23, 50), TramTime.create(10, 8),
-                "summary", "heading", false, changeStations);
+                false, changeStations);
 
         SortedSet<JourneyDTO> set = new TreeSet<>();
         set.add(afterMidnight);
@@ -67,11 +67,11 @@ public class JourneyDTOTest {
     public void shouldHaveSortedSetInExpectedOrderLateNight() throws TramchesterException {
         JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.create(23, 42), TramTime.create(10, 8),
-                "summary", "heading", false, changeStations);
+                false, changeStations);
 
         JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.create(23, 12), TramTime.create(10, 8),
-                "summary", "heading", false, changeStations);
+                false, changeStations);
 
         SortedSet<JourneyDTO> set = new TreeSet<>();
         set.add(afterMidnight);

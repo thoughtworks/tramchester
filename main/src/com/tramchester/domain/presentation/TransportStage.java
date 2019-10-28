@@ -8,11 +8,6 @@ import com.tramchester.domain.TramTime;
 import java.util.Optional;
 
 public interface TransportStage extends RawStage {
-    @Deprecated
-    String getSummary();
-    @Deprecated
-    String getPrompt();
-
     String getHeadSign();
     String getRouteName();
 

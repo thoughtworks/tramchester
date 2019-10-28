@@ -33,16 +33,6 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
-    public String getSummary() {
-        return "Walking";
-    }
-
-    @Override
-    public String getPrompt()  {
-        return "Walk to";
-    }
-
-    @Override
     public String getHeadSign() {
         return "WalkingHeadSign";
     }

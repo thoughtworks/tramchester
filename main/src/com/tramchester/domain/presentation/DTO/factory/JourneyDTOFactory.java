@@ -51,7 +51,7 @@ public class JourneyDTOFactory {
 
         JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(transportStages),
                 getFirstDepartureTime(transportStages),
-                summary, heading, isDirect, getChangeStationNames(transportStages));
+                isDirect, getChangeStationNames(transportStages));
 
         addDueTramIfPresent(journeyDTO);
 

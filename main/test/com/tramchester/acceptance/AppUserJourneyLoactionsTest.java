@@ -1,4 +1,4 @@
-package com.tramchester.appAcceptance;
+package com.tramchester.acceptance;
 
 import com.tramchester.App;
 import com.tramchester.TestConfig;
@@ -21,13 +21,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.appAcceptance.AppUserJourneyTest.desiredJourney;
-import static com.tramchester.appAcceptance.AppUserJourneyTest.validateAStage;
+import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
+import static com.tramchester.acceptance.AppUserJourneyTest.validateAStage;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

@@ -38,12 +38,6 @@ public class WalkingStageTest {
     }
 
     @Test
-    public void shouldGetSummaryAndPrompt() {
-        assertEquals("Walking",walkingStage.getSummary());
-        assertEquals("Walk to",walkingStage.getPrompt());
-    }
-
-    @Test
     public void shouldReportModeCorrectly() {
         assertEquals(TransportMode.Walk, walkingStage.getMode());
     }

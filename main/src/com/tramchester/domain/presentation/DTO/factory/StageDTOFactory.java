@@ -24,7 +24,7 @@ public class StageDTOFactory {
                 source.getBoardingPlatform().isPresent(),
                 createPlatform(source.getBoardingPlatform()),
                 source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
-                source.getDuration(), source.getSummary(),source.getPrompt(), source.getHeadSign(),
+                source.getDuration(), source.getHeadSign(),
                 source.getMode(), source.isWalk(), source.getIsAVehicle(), source.getDisplayClass(),
                 source.getPassedStops(), source.getRouteName(), source.getAction());
     }

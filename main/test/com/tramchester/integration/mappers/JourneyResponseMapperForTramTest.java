@@ -4,7 +4,6 @@ package com.tramchester.integration.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.TransportStage;
@@ -64,7 +63,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     @Test
-    public void shouldEnsureTripsAreOrderByEarliestFirst() throws TramchesterException {
+    public void shouldEnsureTripsAreOrderByEarliestFirst() {
         LocalTime time = LocalTime.of(15,30);
 
         RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, when, 16);
@@ -80,7 +79,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     @Test
-    public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() throws TramchesterException {
+    public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() {
         LocalTime pm1044  = LocalTime.of(22,44);
 
         RawVehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
@@ -99,7 +98,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapSimpleJourney() {
-        LocalTime am7 = LocalTime.of(7,0); //7 * 60;
+        LocalTime am7 = LocalTime.of(7,0);
 
         RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, when, 8);
 
@@ -153,7 +152,6 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(stage2.getBoardingPlatform().isPresent());
         assertEquals(middle.getId()+"1", stage2.getBoardingPlatform().get().getId());
 
-        assertEquals("Change tram at", stage2.getPrompt());
     }
 
     @Test
@@ -173,11 +171,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
         assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
 
-        assertEquals("Walk to",stage.getPrompt());
     }
 
     @Test
-    public void shouldMapThreeStageJourneyWithWalk() throws TramchesterException {
+    public void shouldMapThreeStageJourneyWithWalk() {
         LocalTime am10 = LocalTime.of(10,0);
         Location begin = Stations.Altrincham;
         Location middleA = Stations.Deansgate;
@@ -200,19 +197,16 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertEquals(3, journey.getStages().size());
 
         TransportStage stage1 = journey.getStages().get(0);
-        assertEquals("Board tram at",stage1.getPrompt());
         assertTrue(stage1.getBoardingPlatform().isPresent());
         assertEquals(begin.getId()+"1", stage1.getBoardingPlatform().get().getId());
 
         TransportStage stage2 = journey.getStages().get(1);
         assertEquals(middleB.getId(),stage2.getActionStation().getId());
         assertEquals(middleB.getId(),stage2.getLastStation().getId());
-        assertEquals("Walk to",stage2.getPrompt());
         assertEquals(walkCost, stage2.getDuration());
         assertFalse(stage2.getBoardingPlatform().isPresent());
 
         TransportStage stage3 = journey.getStages().get(2);
-        assertEquals("Board tram at",stage3.getPrompt());
         assertEquals(middleB.getId(),stage3.getFirstStation().getId());
         assertEquals(end.getId(),stage3.getLastStation().getId());
         assertTrue(stage3.getBoardingPlatform().isPresent());
@@ -224,7 +218,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     }
 
     @Test
-    public void shouldMapEndOfDayJourneyCorrectly() throws TramchesterException {
+    public void shouldMapEndOfDayJourneyCorrectly() {
         LocalTime startTime = LocalTime.of(22,50);
         Location start = Stations.Altrincham;
         Location middle = Stations.TraffordBar;
