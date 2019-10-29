@@ -110,7 +110,7 @@ public class App extends Application<AppConfiguration>  {
                     "/*", EnumSet.of(DispatcherType.REQUEST));
         }
         // / -> /app redirect
-        RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter(configuration);
+        RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
         applicationContext.addFilter(new FilterHolder(redirectToAppFilter),
                 "/", EnumSet.of(DispatcherType.REQUEST));
 

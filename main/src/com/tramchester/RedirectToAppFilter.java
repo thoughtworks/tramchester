@@ -15,14 +15,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import static java.lang.String.format;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class RedirectToAppFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(RedirectToAppFilter.class);
 
-    private TramchesterConfig config;
-
-    public RedirectToAppFilter(TramchesterConfig config) {
-        this.config = config;
+    public RedirectToAppFilter() {
     }
 
     @Override
@@ -32,14 +30,22 @@ public class RedirectToAppFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        String userAgent = httpServletRequest.getHeader("User-Agent");
+        HttpServletResponse servletResponse = (HttpServletResponse) response;
+        if (userAgent.startsWith("ELB-HealthChecker")) {
+            servletResponse.setStatus(SC_OK);
+            return;
+        }
+
         String location = httpServletRequest.getRequestURL().toString().toLowerCase();
         URL url = new URL(location);
         if (url.getPath().equals("/")) {
             String redirection = url.toString() + "app";
-            logger.info(format("Redirect from %s to %s", url , redirection));
-            ((HttpServletResponse) response).sendRedirect(redirection);
+            logger.info(format("Redirect from %s to %s", url, redirection));
+            servletResponse.sendRedirect(redirection);
             return;
         }
+
         chain.doFilter(request, response);
     }
 
