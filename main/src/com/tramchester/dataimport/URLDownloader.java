@@ -30,6 +30,7 @@ public class URLDownloader {
         logger.info(format("Check mod time for %s", url));
 
         HttpURLConnection connection = createConnection();
+        connection.connect();
         long serverModMillis = connection.getLastModified();
         connection.disconnect();
 
@@ -43,6 +44,7 @@ public class URLDownloader {
         try {
             File targetFile = path.toFile();
             HttpURLConnection connection = createConnection();
+            connection.connect();
             long len = connection.getContentLengthLong();
             long serverModMillis = connection.getLastModified();
 

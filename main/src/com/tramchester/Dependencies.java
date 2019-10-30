@@ -61,11 +61,11 @@ public class Dependencies {
         Path dataPath = configuration.getDataPath();
 
         URLDownloader downloader = new URLDownloader(configuration.getTramDataUrl());
-        picoContainer.addComponent(URLDownloader.class, downloader);
-
         FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, dataPath);
-        picoContainer.addComponent(FetchDataFromUrl.class, fetcher);
         Unzipper unzipper = new Unzipper();
+
+        picoContainer.addComponent(URLDownloader.class, downloader);
+        picoContainer.addComponent(FetchDataFromUrl.class, fetcher);
         picoContainer.addComponent(Unzipper.class, unzipper);
 
         if (configuration.getPullData()) {

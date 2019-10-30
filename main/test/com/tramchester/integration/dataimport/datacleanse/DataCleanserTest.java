@@ -1,88 +1,75 @@
 package com.tramchester.integration.dataimport.datacleanse;
 
+import com.tramchester.App;
 import com.tramchester.Dependencies;
 import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
+import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-public class DataCleanserTest implements TransportDataFetcher {
+import static junit.framework.TestCase.assertTrue;
 
-    private static String path = "testData";
-    private static final Path INPUT = Paths.get(path, Dependencies.TFGM_UNZIP_DIR);
-    private static final Path OUTPUT = Paths.get(path, "output");
-    private static Path dataCleansePath = Paths.get("data","testCleanse");
-    private static IntegrationTramTestConfig integrationTramTestConfig;
+public class DataCleanserTest {
 
-    @BeforeClass
-    public static void beforeAllTestRuns() throws IOException {
-        integrationTramTestConfig = new IntegrationTramTestConfig();
+    private IntegrationTramTestConfig integrationTramTestConfig = new IntegrationTramTestConfig();
+    private Dependencies dependencies;
+    private Path dataOutputFolder;
+    private Path unpackedZipPath;
+    private List<TransportDataReader.InputFiles> files;
 
-        tidyFiles();
-        File outputDir = OUTPUT.toFile();
-        if (!outputDir.exists()) {
-            outputDir.mkdirs();
-        }
-    }
-
-    @AfterClass
-    public static void afterAllTestsRun() throws IOException {
+    @Before
+    public void beforeAllTestRuns() throws IOException {
+        files = Arrays.asList(TransportDataReader.InputFiles.values());
+        dataOutputFolder = integrationTramTestConfig.getDataFolder();
+        unpackedZipPath = integrationTramTestConfig.getDataFolder().resolve(Dependencies.TFGM_UNZIP_DIR);
+        dependencies = new Dependencies();
         tidyFiles();
     }
 
-    private static void tidyFiles() throws IOException {
-        FileUtils.deleteDirectory(INPUT.toFile());
-        File directory = OUTPUT.toFile();
-        if (directory.exists()) {
-            FileUtils.cleanDirectory(directory);
-        }
-        File dataCleanse = dataCleansePath.toFile();
-        if (dataCleanse.exists()) {
-            FileUtils.deleteDirectory(dataCleanse);
-        }
+    @After
+    public void afterAllTestsRun() throws IOException {
+        tidyFiles();
     }
 
-    @Test
-    @Ignore("Primarily for performance testing")
-    public void shouldCleanseTramData() throws IOException {
-        DataCleanser dataCleanser = getDataCleanser(new Unzipper());
-        dataCleanser.run(integrationTramTestConfig.getAgencies());
+    private void tidyFiles() throws IOException {
+        if (unpackedZipPath.toFile().exists()) {
+            FileUtils.cleanDirectory(unpackedZipPath.toFile());
+            FileUtils.deleteDirectory(unpackedZipPath.toFile());
+        }
+        files.forEach(file-> {
+            Path pathToOutputFile = dataOutputFolder.resolve(file.name()+".txt");
+            if (pathToOutputFile.toFile().exists()) {
+                pathToOutputFile.toFile().delete();
+            }
+        });
     }
 
     @Test
     public void cleanseCurrentDataWithNoErrors() throws IOException {
 
-        URLDownloader downloader = new URLDownloader("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, dataCleansePath);
-        fetcher.fetchData(new Unzipper());
-        Dependencies dependencies = new Dependencies();
-        Set<String> agencies = new HashSet<>();
-        agencies.add("MET");
-        dependencies.cleanseData(dataCleansePath, dataCleansePath, integrationTramTestConfig);
+        dependencies.initialise(integrationTramTestConfig); // this calls cleanse
+
+        assertTrue(dataOutputFolder.toFile().exists());
+        assertTrue(unpackedZipPath.toFile().exists());
+
+        files.forEach(file -> {
+            assertTrue(file.name(), unpackedZipPath.resolve(file.name()+".txt").toFile().exists());
+            assertTrue(file.name(), dataOutputFolder.resolve(file.name()+".txt").toFile().exists());
+        });
+
+
     }
 
-    private DataCleanser getDataCleanser(Unzipper unzipper) {
-        fetchData(unzipper);
-        TransportDataReader reader = new TransportDataReader(INPUT, false);
-        TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
-        return new DataCleanser(reader, writeFactory, new ErrorCount(), integrationTramTestConfig);
-    }
-
-    @Override
-    public void fetchData(Unzipper unzipper) {
-        Path filename = Paths.get(path, "data.zip");
-        unzipper.unpack(filename, Paths.get(path));
-    }
 }

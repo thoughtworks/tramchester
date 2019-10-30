@@ -1,4 +1,4 @@
-package com.tramchester.unit.network;
+package com.tramchester.integration.network;
 
 import org.junit.Test;
 

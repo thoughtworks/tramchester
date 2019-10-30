@@ -29,6 +29,11 @@ public class IntegrationTramTestConfig extends TestConfig {
     }
 
     @Override
+    public boolean getPullData() {
+        return true;
+    }
+
+    @Override
     public Path getDataFolder() {
         return Paths.get("data/tram");
     }

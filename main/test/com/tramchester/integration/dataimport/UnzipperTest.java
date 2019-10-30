@@ -2,6 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.Unzipper;
+import com.tramchester.repository.TransportData;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.tramchester.Dependencies.TFGM_UNZIP_DIR;
 import static junit.framework.TestCase.assertTrue;
@@ -51,16 +54,15 @@ public class UnzipperTest {
         assertTrue(Files.isDirectory(targetDirectory));
         assertTrue(Files.isDirectory(unpackedDir));
 
-        assertTrue(Files.isRegularFile(formFilename(TransportDataReader.CALENDAR)));
-        assertTrue(Files.isRegularFile(formFilename(TransportDataReader.FEED_INFO)));
-        assertTrue(Files.isRegularFile(formFilename(TransportDataReader.ROUTES)));
-        assertTrue(Files.isRegularFile(formFilename(TransportDataReader.STOP_TIMES)));
-        assertTrue(Files.isRegularFile(formFilename(TransportDataReader.STOPS)));
-        assertTrue(Files.isRegularFile(formFilename(TransportDataReader.TRIPS)));
+        List<TransportDataReader.InputFiles> files = Arrays.asList(TransportDataReader.InputFiles.values());
+        files.forEach(file -> {
+            assertTrue(file.name(), Files.isRegularFile(formFilename(file)));
+        });
+
     }
 
-    private Path formFilename(String dataFile) {
-        return unpackedDir.resolve(dataFile +".txt");
+    private Path formFilename(TransportDataReader.InputFiles dataFile) {
+        return unpackedDir.resolve(dataFile.name() +".txt");
     }
 
 }

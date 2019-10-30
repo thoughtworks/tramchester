@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,28 +39,33 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         logger.info(format("Loading %s to path %s file %s", theUrl, folder, zipFilename));
         URLDownloader downloader = new URLDownloader(theUrl);
         FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, folder);
-        fetcher.pullDataFromURL(zipFilename);
+        fetcher.refreshDataIfNewerAvailable(zipFilename);
     }
 
     @Override
     public void fetchData(Unzipper unzipper) throws IOException {
-        Path zipFile = pullDataFromURL(ZIP_FILENAME);
+        Path zipFile = refreshDataIfNewerAvailable(ZIP_FILENAME);
         if (!unzipper.unpack(zipFile, downloadDirectory)) {
             logger.error("unable to unpack zip file " + zipFile.toAbsolutePath());
         }
     }
 
-    private Path pullDataFromURL(String targetFile) throws IOException {
+    private Path refreshDataIfNewerAvailable(String targetFile) throws IOException {
         Path destination = this.downloadDirectory.resolve(targetFile);
 
         if (Files.exists(destination)) {
-            // check mod times
-            LocalDateTime serverMod = downloader.getModTime();
-            LocalDateTime localMod = getFileModLocalTime(destination);
-            logger.info(format("Server mod time: %s File mod time: %s ", serverMod, localMod));
+            try {
+                // check mod times
+                LocalDateTime serverMod = downloader.getModTime();
+                LocalDateTime localMod = getFileModLocalTime(destination);
+                logger.info(format("Server mod time: %s File mod time: %s ", serverMod, localMod));
 
-            if (serverMod.isAfter(localMod)) {
-                downloader.downloadTo(destination);
+                if (serverMod.isAfter(localMod)) {
+                    downloader.downloadTo(destination);
+                }
+            }
+            catch (UnknownHostException disconnected) {
+                logger.error("Cannot connect to check or refresh data", disconnected);
             }
         } else {
             logger.info("No local file " + destination);
