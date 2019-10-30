@@ -1,43 +1,49 @@
 package com.tramchester.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.domain.FeedInfo;
-import com.tramchester.repository.LatestFeedInfoRepository;
-import com.tramchester.repository.ProvidesFeedInfo;
-import org.neo4j.graphdb.GraphDatabaseService;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.FileModTime;
+import com.tramchester.dataimport.URLDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class NewDataAvailableHealthCheck extends HealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
-    private final LatestFeedInfoRepository repository;
-    private final ProvidesFeedInfo current;
+    private final TramchesterConfig config;
+    private final URLDownloader urlDownloader;
+    private final FileModTime fileModTime;
 
-    public NewDataAvailableHealthCheck(LatestFeedInfoRepository repository, ProvidesFeedInfo current){
-
-        this.repository = repository;
-        this.current = current;
+    public NewDataAvailableHealthCheck(TramchesterConfig config, URLDownloader urlDownloader, FileModTime fileModTime) {
+        this.config = config;
+        this.urlDownloader = urlDownloader;
+        this.fileModTime = fileModTime;
     }
 
     @Override
     protected Result check() {
-        FeedInfo currentFeedInfo = current.getFeedInfo();
-        FeedInfo newFeedInfo = repository.getFeedinfo();
+        try {
+            Path dataPath = config.getDataPath();
+            Path latestZipFile = dataPath.resolve(FetchDataFromUrl.ZIP_FILENAME);
+            LocalDateTime serverModTime = urlDownloader.getModTime();
+            LocalDateTime zipModTime = fileModTime.getFor(latestZipFile);
 
-        logger.info("Checking if newer timetable data available");
-
-        LocalDate currentEnd = currentFeedInfo.validUntil();
-        LocalDate newStart = newFeedInfo.validFrom();
-
-        if (currentEnd.equals(newFeedInfo.validUntil()) && newStart.equals(currentFeedInfo.validFrom())) {
-            logger.info("No new feedinfo available");
-            return Result.healthy();
+            String diag = String.format("Local zip mod time: %s Server mod time: %s", zipModTime, serverModTime);
+            if (serverModTime.isAfter(zipModTime)) {
+                return Result.unhealthy("Newer timetable is available " + diag);
+            } else {
+                return Result.healthy("No newer timetable is available " + diag);
+            }
+        } catch (IOException ioException) {
+            logger.warn("Unable to check for newer timetable data", ioException);
+            return Result.unhealthy("Unable to check for newer data " + ioException.getMessage());
         }
-
-        return Result.unhealthy("Newer timetable is available " + newFeedInfo.toString());
-
     }
+
 }

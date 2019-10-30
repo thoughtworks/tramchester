@@ -3,10 +3,7 @@ package com.tramchester;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.cloud.*;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.ErrorCount;
-import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.TransportDataImporter;
-import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.*;
@@ -44,7 +41,7 @@ public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
     public static final String TFGM_UNZIP_DIR = "gtdf-out";
-    protected final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
+    private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private final GraphFilter graphFilter;
 
     public Dependencies() {
@@ -56,21 +53,31 @@ public class Dependencies {
     }
 
     public void initialise(TramchesterConfig configuration) throws IOException {
+        picoContainer.addComponent(TramchesterConfig.class, configuration);
+        picoContainer.addComponent(FileModTime.class);
+
+        // TODO SORT THIS MESS OUT
+        //////
         Path dataPath = configuration.getDataPath();
 
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(dataPath, configuration.getTramDataUrl());
+        URLDownloader downloader = new URLDownloader(configuration.getTramDataUrl());
+        picoContainer.addComponent(URLDownloader.class, downloader);
+
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, dataPath);
         picoContainer.addComponent(FetchDataFromUrl.class, fetcher);
+        Unzipper unzipper = new Unzipper();
+        picoContainer.addComponent(Unzipper.class, unzipper);
 
         if (configuration.getPullData()) {
             logger.info("Pulling data");
-            fetcher.fetchData();
+            fetcher.fetchData(unzipper);
         }
 
         cleanseData(dataPath, dataPath, configuration);
+        /////
 
         logger.info("Creating dependencies");
         // caching is on by default
-        picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(DeparturesResource.class);
@@ -103,8 +110,8 @@ public class Dependencies {
 
         TransportDataReader dataReader = new TransportDataReader(dataPath, false);
         TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
-
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
+
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
@@ -126,7 +133,6 @@ public class Dependencies {
         picoContainer.addComponent(ClientForS3.class);
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(CachedNodeOperations.class);
-        picoContainer.addComponent(LatestFeedInfoRepository.class);
         picoContainer.addComponent(MyLocationFactory.class);
 
         rebuildGraph(configuration);
@@ -147,7 +153,6 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataHealthCheck.class);
         picoContainer.addComponent(NewDataAvailableHealthCheck.class);
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
-
     }
 
     public void cleanseData(Path inputPath, Path outputPath, TramchesterConfig config) throws IOException {

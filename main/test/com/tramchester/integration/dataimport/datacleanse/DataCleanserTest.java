@@ -1,15 +1,10 @@
 package com.tramchester.integration.dataimport.datacleanse;
 
 import com.tramchester.Dependencies;
-import com.tramchester.dataimport.ErrorCount;
-import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.TransportDataFetcher;
-import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,8 +21,8 @@ import java.util.Set;
 public class DataCleanserTest implements TransportDataFetcher {
 
     private static String path = "testData";
-    public static final Path INPUT = Paths.get(path, Dependencies.TFGM_UNZIP_DIR);
-    public static final Path OUTPUT = Paths.get(path, "output");
+    private static final Path INPUT = Paths.get(path, Dependencies.TFGM_UNZIP_DIR);
+    private static final Path OUTPUT = Paths.get(path, "output");
     private static Path dataCleansePath = Paths.get("data","testCleanse");
     private static IntegrationTramTestConfig integrationTramTestConfig;
 
@@ -62,36 +57,32 @@ public class DataCleanserTest implements TransportDataFetcher {
     @Test
     @Ignore("Primarily for performance testing")
     public void shouldCleanseTramData() throws IOException {
-        DataCleanser dataCleanser = getDataCleanser();
+        DataCleanser dataCleanser = getDataCleanser(new Unzipper());
         dataCleanser.run(integrationTramTestConfig.getAgencies());
     }
 
     @Test
     public void cleanseCurrentDataWithNoErrors() throws IOException {
 
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(dataCleansePath, "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
-        fetcher.fetchData();
+        URLDownloader downloader = new URLDownloader("http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip");
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, dataCleansePath);
+        fetcher.fetchData(new Unzipper());
         Dependencies dependencies = new Dependencies();
         Set<String> agencies = new HashSet<>();
         agencies.add("MET");
         dependencies.cleanseData(dataCleansePath, dataCleansePath, integrationTramTestConfig);
     }
 
-    private DataCleanser getDataCleanser() throws IOException {
-        fetchData();
+    private DataCleanser getDataCleanser(Unzipper unzipper) {
+        fetchData(unzipper);
         TransportDataReader reader = new TransportDataReader(INPUT, false);
         TransportDataWriterFactory writeFactory = new TransportDataWriterFactory(OUTPUT);
         return new DataCleanser(reader, writeFactory, new ErrorCount(), integrationTramTestConfig);
     }
 
     @Override
-    public void fetchData() throws IOException {
+    public void fetchData(Unzipper unzipper) {
         Path filename = Paths.get(path, "data.zip");
-        try {
-            ZipFile zipFile = new ZipFile(filename.toFile());
-            zipFile.extractAll(path);
-        } catch (ZipException e) {
-            e.printStackTrace();
-        }
+        unzipper.unpack(filename, Paths.get(path));
     }
 }

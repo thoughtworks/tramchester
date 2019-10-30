@@ -1,62 +1,66 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.domain.FeedInfo;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.FileModTime;
+import com.tramchester.dataimport.URLDownloader;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
-import com.tramchester.repository.LatestFeedInfoRepository;
-import com.tramchester.repository.ProvidesFeedInfo;
+import com.tramchester.integration.IntegrationTramTestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
-    private LatestFeedInfoRepository repository;
-    private ProvidesFeedInfo current;
+    private URLDownloader urlDownloader;
+    private TramchesterConfig config = new IntegrationTramTestConfig();
+    private FileModTime fileModTime;
+    private Path expectedPath;
+    private NewDataAvailableHealthCheck healthCheck;
 
     @Before
     public void beforeEachTestRuns() {
-        repository = createMock(LatestFeedInfoRepository.class);
-        current = createMock(ProvidesFeedInfo.class);
+        urlDownloader = createMock(URLDownloader.class);
+        fileModTime = createMock(FileModTime.class);
+        expectedPath = config.getDataPath().resolve(FetchDataFromUrl.ZIP_FILENAME);
+
+        healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime);
     }
 
     @Test
-    public void shouldReportHealthyWhenNewDataAvailable() {
-        NewDataAvailableHealthCheck healthCheck = new NewDataAvailableHealthCheck(repository, current);
+    public void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
+        LocalDateTime time = LocalDateTime.now();
 
-        EasyMock.expect(repository.getFeedinfo()).andReturn(createFeedinfo(LocalDate.of(2019, 11, 15), LocalDate.of(2019, 12, 14)));
-        EasyMock.expect(current.getFeedInfo()).andReturn(createFeedinfo(LocalDate.of(2019, 11, 15), LocalDate.of(2019, 12, 14)));
+        EasyMock.expect(urlDownloader.getModTime()).andReturn(time.minusDays(1));
+        EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();
         HealthCheck.Result result = healthCheck.execute();
         assertTrue(result.isHealthy());
-
         verifyAll();
     }
 
     @Test
-    public void shouldReportUnHealthyWhenNewDataAvailable() {
-        NewDataAvailableHealthCheck healthCheck = new NewDataAvailableHealthCheck(repository, current);
+    public void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
+        LocalDateTime time = LocalDateTime.now();
 
-        EasyMock.expect(repository.getFeedinfo()).andReturn(createFeedinfo(LocalDate.of(2019, 11, 15), LocalDate.of(2019, 12, 14)));
-        EasyMock.expect(current.getFeedInfo()).andReturn(createFeedinfo(LocalDate.of(2019, 11, 30), LocalDate.of(2019, 12, 24)));
+        EasyMock.expect(urlDownloader.getModTime()).andReturn(time.plusDays(1));
+        EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();
         HealthCheck.Result result = healthCheck.execute();
         assertFalse(result.isHealthy());
-
         verifyAll();
     }
 
-    private FeedInfo createFeedinfo(LocalDate validFrom, LocalDate validUntil) {
-        return new FeedInfo("publisherName", "publisherUrl", "timezone",
-                "lang", validFrom,
-                validUntil, "version");
-    }
 }

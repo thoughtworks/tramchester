@@ -1,39 +1,30 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
 
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
-    private Path path;
-    private String dataUrl;
+
+    private Path downloadDirectory;
+    private URLDownloader downloader;
 
     public static String ZIP_FILENAME = "data.zip";
 
-    public FetchDataFromUrl(Path path, String dataUrl) {
-        this.path = path;
-        this.dataUrl = dataUrl;
+    public FetchDataFromUrl(URLDownloader downloader, Path downloadDirectory) {
+        this.downloader = downloader;
+        this.downloadDirectory = downloadDirectory;
     }
 
     // used during build to download latest tram data from tfgm site
@@ -42,109 +33,45 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             throw new Exception("Expected 2 arguments, path and url");
         }
         String theUrl = args[0];
-        Path thePath = Paths.get(args[1]);
-        String theFile = args[2];
-        logger.info(format("Loading %s to path %s file %s", theUrl, thePath, theFile));
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(thePath, theUrl);
-        fetcher.pullDataFromURL(theFile);
+        Path folder = Paths.get(args[1]);
+        String zipFilename = args[2];
+        logger.info(format("Loading %s to path %s file %s", theUrl, folder, zipFilename));
+        URLDownloader downloader = new URLDownloader(theUrl);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, folder);
+        fetcher.pullDataFromURL(zipFilename);
     }
 
     @Override
-    public void fetchData() throws IOException {
+    public void fetchData(Unzipper unzipper) throws IOException {
         Path zipFile = pullDataFromURL(ZIP_FILENAME);
-        unzipData(zipFile);
-    }
-
-    public ByteArrayInputStream streamForSingleFile(String entryWithinZip) throws IOException {
-        logger.info(String.format("Get Single file %s from %s", entryWithinZip, dataUrl));
-        URL website = new URL(dataUrl);
-
-        ZipInputStream zipStream = new ZipInputStream(website.openStream());
-        ZipEntry nextEntry = zipStream.getNextEntry();
-
-        while(nextEntry!=null) {
-            logger.debug("Found zip stream entry " + nextEntry.getName());
-            if (nextEntry.getName().equals(entryWithinZip)) {
-                logger.info("Found " + entryWithinZip);
-                ByteArrayInputStream stream = createSteam(nextEntry, zipStream);
-                zipStream.closeEntry();
-                return stream;
-            }
-            zipStream.closeEntry();
-            logger.warn("Could not find " + entryWithinZip);
-            nextEntry = zipStream.getNextEntry();
-        }
-        zipStream.close();
-        return new ByteArrayInputStream(new byte[0]);
-    }
-
-    // Warning: don't use for large files, holds whole file in memory
-    private ByteArrayInputStream createSteam(ZipEntry nextEntry, ZipInputStream inputStream) throws IOException {
-        Long size = nextEntry.getSize();
-
-        byte[] buffer = new byte[size.intValue()];
-        inputStream.read(buffer, 0, size.intValue());
-
-        return new ByteArrayInputStream(buffer);
-    }
-
-    private void unzipData(Path filename) {
-        logger.info("Unziping data from " + filename);
-        try {
-            // TODO Use native zip support in Java
-            ZipFile zipFile = new ZipFile(filename.toFile());
-            zipFile.extractAll(path.toAbsolutePath().toString());
-        } catch (ZipException e) {
-            logger.warn("Unable to unzip "+filename, e);
+        if (!unzipper.unpack(zipFile, downloadDirectory)) {
+            logger.error("unable to unpack zip file " + zipFile.toAbsolutePath());
         }
     }
 
     private Path pullDataFromURL(String targetFile) throws IOException {
-        Path destination = path.resolve(targetFile);
+        Path destination = this.downloadDirectory.resolve(targetFile);
 
-        URL website = new URL(dataUrl);
-        logger.info(format("Downloading data from %s to %s", website, destination));
-        HttpURLConnection connection = (HttpURLConnection) website.openConnection();
-
-        long len = connection.getContentLengthLong();
-        logger.info("Content length is " + len);
-        logger.info("Encoding " + connection.getContentType());
-
-        long serverModMillis = connection.getLastModified() ;
-
-        long localModMillis = 0;
-        if (destination.toFile().exists()) {
-            localModMillis = destination.toFile().lastModified();
-
-            LocalDateTime serverMod = LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
-            LocalDateTime localMod = LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
-
+        if (Files.exists(destination)) {
+            // check mod times
+            LocalDateTime serverMod = downloader.getModTime();
+            LocalDateTime localMod = getFileModLocalTime(destination);
             logger.info(format("Server mod time: %s File mod time: %s ", serverMod, localMod));
-        } else {
-            logger.info("No local " + destination);
-        }
 
-        FileUtils.forceMkdir(path.toFile());
-
-        if (serverModMillis>localModMillis) {
-            logger.info("Server mod time newer, or no local file");
-            try {
-                ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-                FileOutputStream fos = new FileOutputStream(destination.toFile());
-                fos.getChannel().transferFrom(rbc, 0, len);
-                logger.info("Finished download");
-                fos.close();
-                rbc.close();
-            } catch (UnknownHostException unknownhost) {
-                logger.error("Unable to download data from " + dataUrl, unknownhost);
-            }
-
-            if (!destination.toFile().setLastModified(serverModMillis)) {
-                logger.warn("Unable to set mod time on " + path);
+            if (serverMod.isAfter(localMod)) {
+                downloader.downloadTo(destination);
             }
         } else {
-            logger.warn("Skip file download, mod time is not newer");
+            logger.info("No local file " + destination);
+            FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
+            downloader.downloadTo(destination);
         }
         return destination;
     }
+
+    private LocalDateTime getFileModLocalTime(Path destination) {
+        long localModMillis = destination.toFile().lastModified();
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
+    }
+
 }
