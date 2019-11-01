@@ -1,5 +1,6 @@
 package com.tramchester.unit.dataimport.datacleanse;
 
+import com.tramchester.config.DownloadConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloader;
 import com.tramchester.dataimport.Unzipper;
@@ -18,7 +19,6 @@ import java.time.LocalDateTime;
 public class FetchDataFromUrlTest extends EasyMockSupport {
 
     private Path path = Paths.get(Files.temporaryFolderPath());
-    //private String url = "http://remote.location.com/path/to/theZip.zip";
     private URLDownloader downloader;
     private FetchDataFromUrl fetchDataFromUrl;
     private Path zipFilename;
@@ -30,7 +30,24 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
         zipFilename = path.resolve(FetchDataFromUrl.ZIP_FILENAME);
         unzipper = createMock(Unzipper.class);
 
-        fetchDataFromUrl = new FetchDataFromUrl(downloader, path);
+        DownloadConfig downloadConfig = new DownloadConfig() {
+            @Override
+            public String getTramDataUrl() {
+                return null;
+            }
+
+            @Override
+            public Path getDataPath() {
+                return path;
+            }
+
+            @Override
+            public Path getUnzipPath() {
+                return Paths.get("gtdf-out");
+            }
+        };
+
+        fetchDataFromUrl = new FetchDataFromUrl(downloader, downloadConfig);
         removeTmpFile();
     }
 

@@ -1,26 +1,47 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.config.DownloadConfig;
 import com.tramchester.dataimport.TransportDataImporter;
-import com.tramchester.dataimport.TransportDataReader;
-import com.tramchester.domain.*;
+import com.tramchester.dataimport.TransportDataReaderFactory;
+import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.repository.TransportData;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TramTransportDataImporterTest {
-    private static String PATH = "data/test/";
+
+    private DownloadConfig config = new DownloadConfig() {
+        @Override
+        public String getTramDataUrl() {
+            return null;
+        }
+
+        @Override
+        public Path getDataPath() {
+            return Paths.get("data","test");
+        }
+
+        @Override
+        public Path getUnzipPath() {
+            return Paths.get("test");
+        }
+    };
 
     @Test
     public void shouldLoadTransportData() throws TramchesterException {
-        TransportDataReader transportDataReader = new TransportDataReader(Paths.get(PATH), false);
-        TransportDataImporter transportDataImporter = new TransportDataImporter(transportDataReader);
+        TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
+        TransportDataImporter transportDataImporter = new TransportDataImporter(factory);
 
         TransportData transportData = transportDataImporter.load();
 

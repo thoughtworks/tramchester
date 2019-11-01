@@ -4,12 +4,11 @@ import io.dropwizard.Configuration;
 import io.dropwizard.bundles.assets.AssetsBundleConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
-public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration {
+public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration, DownloadConfig {
 
     public static ZoneId TimeZone = ZoneId.of("Europe/London");
 
@@ -30,12 +29,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
-
-    // url to load timetable data from
-    public abstract String getTramDataUrl();
-
-    // where to load timetable data from and place preprocessed data
-    public abstract Path getDataPath();
 
     public abstract int getTimeWindow();
 

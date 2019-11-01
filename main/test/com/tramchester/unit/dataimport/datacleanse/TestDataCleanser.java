@@ -2,8 +2,8 @@ package com.tramchester.unit.dataimport.datacleanse;
 
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.ErrorCount;
 import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.ServicesAndTrips;
@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -33,8 +32,9 @@ public class TestDataCleanser extends EasyMockSupport {
     private TransportDataReader reader;
     private TransportDataWriter writer;
     private DataCleanser cleanser;
-    private TransportDataWriterFactory factory;
+    private TransportDataWriterFactory writerFactory;
     private TramchesterConfig config;
+    private TransportDataReaderFactory readerFactory;
 
     @Before
     public void beforeEachTestRuns() {
@@ -42,8 +42,9 @@ public class TestDataCleanser extends EasyMockSupport {
 
         reader = createMock(TransportDataReader.class);
         writer = createMock(TransportDataWriter.class);
-        factory = createMock(TransportDataWriterFactory.class);
-        cleanser = new DataCleanser(reader, factory, new ErrorCount(), config);
+        writerFactory = createMock(TransportDataWriterFactory.class);
+        readerFactory = createMock(TransportDataReaderFactory.class);
+        cleanser = new DataCleanser(readerFactory, writerFactory, config);
     }
 
     @Test
@@ -52,6 +53,7 @@ public class TestDataCleanser extends EasyMockSupport {
         RouteData routeA = new RouteData("R2", "CODE2", "CtoD name", "NOT");
         RouteData routeB = new RouteData("R1", "CODE1", "AtoB name with issue (ignore me", "MET");
         Stream<RouteData> routes = Stream.of(routeA, routeB);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         EasyMock.expect(reader.getRoutes()).andReturn(routes);
         validateWriter("routes", "R1,MET,CODE1,AtoB name with issue,0");
@@ -70,6 +72,8 @@ public class TestDataCleanser extends EasyMockSupport {
         RouteData routeB = new RouteData("R1", "CODE1", "AtoB", "XYX");
         Stream<RouteData> routes = Stream.of(routeA, routeB);
 
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
+
         EasyMock.expect(reader.getRoutes()).andReturn(routes);
         validateWriter("routes", "R1,XYX,CODE1,AtoB,0", "R2,ANY,CODE2,CtoD,0");
 
@@ -86,6 +90,7 @@ public class TestDataCleanser extends EasyMockSupport {
         StopData stopA = new StopData("1122IdA", "codeA", "areaA", "nameA", 0.11, 0.22, true);
         StopData stopB = new StopData("9400IdB", "codeB", "areaB", "nameB", 0.33, 0.44, true);
         Stream<StopData> stops = Stream.of(stopA, stopB);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         EasyMock.expect(reader.getStops()).andReturn(stops);
         validateWriter("stops", "9400IdB,codeB,\"areaB,nameB (Manchester Metrolink)\",0.33,0.44");
@@ -103,6 +108,7 @@ public class TestDataCleanser extends EasyMockSupport {
         StopData stopA = new StopData("1800EB05551", "mantdwgj", "Rusholme", "Anson Road/St. Anselm Hall (Stop B)",
                 53.45412,-2.21209, false);
         Stream<StopData> stops = Stream.of(stopA);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         EasyMock.expect(reader.getStops()).andReturn(stops);
         validateWriter("stops",
@@ -122,6 +128,7 @@ public class TestDataCleanser extends EasyMockSupport {
         TripData tripB = new TripData("METrouteIdB", "svcIdB", "tripIdB","headsignB");
         TripData tripC = new TripData("METrouteIdB", "svcIdB", "tripIdC","headsignC");
         Stream<TripData> trips = Stream.of(tripA, tripB, tripC);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         EasyMock.expect(reader.getTrips()).andReturn(trips);
         validateWriter("trips", "METrouteIdB,svcIdB,tripIdB,headsignB", "METrouteIdB,svcIdB,tripIdC,headsignC");
@@ -156,6 +163,7 @@ public class TestDataCleanser extends EasyMockSupport {
                 "9400stopIdB", "stopSeqB", "pickupB", "dropB");
 
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeA, stopTimeB);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         EasyMock.expect(reader.getStopTimes()).andReturn(stopTimes);
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -188,6 +196,7 @@ public class TestDataCleanser extends EasyMockSupport {
         CalendarData dayD = new CalendarData("svcIDD", true, true, true, true, true, true, true, start, end);
 
         Stream<CalendarData> calendar = Stream.of(dayA, dayB, dayC, dayD);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
         EasyMock.expect(reader.getCalendar()).andReturn(calendar);
         validateWriter("calendar", "svcIDA,0,0,0,0,0,0,0,20151025,20151026",
                 "svcIDB,1,1,1,1,1,1,1,20151025,20151026",
@@ -205,6 +214,7 @@ public class TestDataCleanser extends EasyMockSupport {
                 LocalDate.of(2016,11,30), "versionA");
 
         Stream<FeedInfo> feedInfoStream = Stream.of(lineA);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         EasyMock.expect(reader.getFeedInfo()).andReturn(feedInfoStream);
         validateWriter("feed_info",  "pubA,urlA,tzA,landA,20161129,20161130,versionA");
@@ -215,7 +225,7 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     private void validateWriter(String filename, String... lines) throws IOException {
-        EasyMock.expect(factory.getWriter(filename)).andReturn(writer);
+        EasyMock.expect(writerFactory.getWriter(filename)).andReturn(writer);
         for (String line : lines) {
             writer.writeLine(line);
             EasyMock.expectLastCall();

@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.tramchester.Dependencies.TFGM_UNZIP_DIR;
 import static junit.framework.TestCase.assertTrue;
 
 public class UnzipperTest {
@@ -28,7 +27,7 @@ public class UnzipperTest {
     public void beforeEachTestRuns() throws IOException {
         zipFilename = Paths.get("testData", "data.zip");
         targetDirectory = Paths.get(FileUtils.getTempDirectoryPath(),"unpackTarget");
-        unpackedDir = targetDirectory.resolve(TFGM_UNZIP_DIR);
+        unpackedDir = targetDirectory.resolve("gtdf-out");
         cleanOutputFiles();
     }
 

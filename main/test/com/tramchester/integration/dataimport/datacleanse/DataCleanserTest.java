@@ -1,23 +1,17 @@
 package com.tramchester.integration.dataimport.datacleanse;
 
-import com.tramchester.App;
 import com.tramchester.Dependencies;
-import com.tramchester.dataimport.*;
-import com.tramchester.dataimport.datacleanse.DataCleanser;
-import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -33,7 +27,7 @@ public class DataCleanserTest {
     public void beforeAllTestRuns() throws IOException {
         files = Arrays.asList(TransportDataReader.InputFiles.values());
         dataOutputFolder = integrationTramTestConfig.getDataFolder();
-        unpackedZipPath = integrationTramTestConfig.getDataFolder().resolve(Dependencies.TFGM_UNZIP_DIR);
+        unpackedZipPath = integrationTramTestConfig.getDataFolder().resolve("gtdf-out");
         dependencies = new Dependencies();
         tidyFiles();
     }

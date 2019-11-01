@@ -14,19 +14,12 @@ public class TransportDataReader {
         trips, stops, routes, feed_info, calendar, stop_times;
     }
 
-//    public static final String TRIPS = "trips";
-//    public static final String STOPS = "stops";
-//    public static final String ROUTES = "routes";
-//    public static final String FEED_INFO = "feed_info";
-//    public static String CALENDAR = "calendar";
-//    public static String STOP_TIMES = "stop_times";
-
+    private final boolean skipHeaders;
     private final Path path;
-    private boolean skipHeader;
 
-    public TransportDataReader(Path path, boolean skipHeader) {
+    public TransportDataReader(Path path, boolean skipHeaders) {
         this.path = path;
-        this.skipHeader = skipHeader;
+        this.skipHeaders = skipHeaders;
     }
 
     private String formPath(String filename) {
@@ -34,26 +27,26 @@ public class TransportDataReader {
     }
 
     public Stream<CalendarData> getCalendar() {
-        return new DataLoader<>(formPath(InputFiles.calendar.name()), new CalendarDataParser()).loadAll(skipHeader);
+        return new DataLoader<>(formPath(InputFiles.calendar.name()), new CalendarDataParser()).loadAll(skipHeaders);
     }
 
     public Stream<StopTimeData> getStopTimes() {
-        return new DataLoader<>(formPath(InputFiles.stop_times.name()), new StopTimeDataParser()).loadAll(skipHeader);
+        return new DataLoader<>(formPath(InputFiles.stop_times.name()), new StopTimeDataParser()).loadAll(skipHeaders);
     }
 
     public Stream<TripData> getTrips() {
-        return new DataLoader<>(formPath(InputFiles.trips.name()), new TripDataParser()).loadAll(skipHeader);
+        return new DataLoader<>(formPath(InputFiles.trips.name()), new TripDataParser()).loadAll(skipHeaders);
     }
 
     public Stream<StopData> getStops() {
-        return new DataLoader<>(formPath(InputFiles.stops.name()), new StopDataParser()).loadAll(skipHeader);
+        return new DataLoader<>(formPath(InputFiles.stops.name()), new StopDataParser()).loadAll(skipHeaders);
     }
 
     public Stream<RouteData> getRoutes() {
-        return new DataLoader<>(formPath(InputFiles.routes.name()), new RouteDataParser()).loadAll(skipHeader);
+        return new DataLoader<>(formPath(InputFiles.routes.name()), new RouteDataParser()).loadAll(skipHeaders);
     }
 
     public Stream<FeedInfo> getFeedInfo() {
-        return new DataLoader<>(formPath(InputFiles.feed_info.name()), new FeedInfoDataParser()).loadAll(skipHeader);
+        return new DataLoader<>(formPath(InputFiles.feed_info.name()), new FeedInfoDataParser()).loadAll(skipHeaders);
     }
 }

@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.tramchester.config.DownloadConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -23,12 +24,13 @@ public class FetchDataFromUrl implements TransportDataFetcher {
 
     public static String ZIP_FILENAME = "data.zip";
 
-    public FetchDataFromUrl(URLDownloader downloader, Path downloadDirectory) {
+    public FetchDataFromUrl(URLDownloader downloader, DownloadConfig config) {
         this.downloader = downloader;
-        this.downloadDirectory = downloadDirectory;
+        this.downloadDirectory = config.getDataPath();
     }
 
     // used during build to download latest tram data from tfgm site
+    @Deprecated
     public static void main(String[] args) throws Exception {
         if (args.length!=3) {
             throw new Exception("Expected 2 arguments, path and url");
@@ -37,8 +39,24 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         Path folder = Paths.get(args[1]);
         String zipFilename = args[2];
         logger.info(format("Loading %s to path %s file %s", theUrl, folder, zipFilename));
-        URLDownloader downloader = new URLDownloader(theUrl);
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, folder);
+        DownloadConfig downloadConfig = new DownloadConfig() {
+            @Override
+            public String getTramDataUrl() {
+                return theUrl;
+            }
+
+            @Override
+            public Path getDataPath() {
+                return folder;
+            }
+
+            @Override
+            public Path getUnzipPath() {
+                return Paths.get("gtdf-out");
+            }
+        };
+        URLDownloader downloader = new URLDownloader(downloadConfig);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, downloadConfig);
         fetcher.refreshDataIfNewerAvailable(zipFilename);
     }
 

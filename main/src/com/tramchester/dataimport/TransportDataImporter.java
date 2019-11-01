@@ -12,11 +12,12 @@ public class TransportDataImporter {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataImporter.class);
     private final TransportDataReader transportDataReader;
 
-    public TransportDataImporter(TransportDataReader transportDataReader) {
-        this.transportDataReader = transportDataReader;
+    public TransportDataImporter(TransportDataReaderFactory factory) {
+        this.transportDataReader = factory.getForLoader();
     }
 
     public TransportDataFromFiles load() {
+        boolean skipHeader = true;
         Stream<StopData> stopData = transportDataReader.getStops();
         Stream<RouteData> routeData = transportDataReader.getRoutes();
         Stream<TripData> tripData = transportDataReader.getTrips();

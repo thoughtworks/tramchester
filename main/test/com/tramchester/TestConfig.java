@@ -61,6 +61,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public Path getUnzipPath() {
+        return Paths.get("gtdf-out");
+    }
+
+    @Override
     public Path getDataPath() {
         return getDataFolder();
     }

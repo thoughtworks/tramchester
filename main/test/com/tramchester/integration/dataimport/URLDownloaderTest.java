@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.config.DownloadConfig;
 import com.tramchester.dataimport.URLDownloader;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -36,7 +37,24 @@ public class URLDownloaderTest {
 
     @Test
     public void shouldDownloadSomething() throws IOException {
-        URLDownloader urlDownloader = new URLDownloader("https://github.com/fluidicon.png");
+        DownloadConfig downloadConfig = new DownloadConfig() {
+            @Override
+            public String getTramDataUrl() {
+                return "https://github.com/fluidicon.png";
+            }
+
+            @Override
+            public Path getDataPath() {
+                return null;
+            }
+
+            @Override
+            public Path getUnzipPath() {
+                return null;
+            }
+        };
+
+        URLDownloader urlDownloader = new URLDownloader(downloadConfig);
 
         LocalDateTime modTime = urlDownloader.getModTime();
         assertTrue(modTime.isBefore(LocalDateTime.now()));

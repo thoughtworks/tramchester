@@ -11,6 +11,7 @@ redirectHTTP: ${REDIRECTHTTP:- false}
 secureHost: tramchester.com
 
 rebuildGraph: true
+unzipPath: gtdf-out
 pullData: ${TRAM_PULLDATA:- false}
 graphName: tramchester.db
 closedStations: []

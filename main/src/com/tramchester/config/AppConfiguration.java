@@ -8,6 +8,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -104,6 +105,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveDataRefreshPeriodSeconds")
     private long liveDataRefreshPeriodSeconds;
 
+    @JsonProperty("unzipPath")
+    private String unzipPath;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -116,6 +120,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Path getDataPath() {
         return dataPath;
+    }
+
+    @Override
+    public Path getUnzipPath() {
+        return Paths.get(unzipPath);
     }
 
     @Override

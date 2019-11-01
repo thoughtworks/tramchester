@@ -17,6 +17,7 @@ secureHost: tramchester.com
 rebuildGraph: true
 pullData: ${TRAM_PULLDATA:- true}
 graphName: tramchester.db
+unzipPath: gtdf-out
 closedStations: []
 agencies:
   - MET

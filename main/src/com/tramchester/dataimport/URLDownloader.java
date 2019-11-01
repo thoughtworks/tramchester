@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.tramchester.config.DownloadConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,8 @@ public class URLDownloader {
 
     private String url;
 
-    public URLDownloader(String url) {
-        this.url = url;
+    public URLDownloader(DownloadConfig config) {
+        this.url = config.getTramDataUrl();
     }
 
     public LocalDateTime getModTime() throws IOException {

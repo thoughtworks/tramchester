@@ -40,7 +40,6 @@ import java.time.ZonedDateTime;
 public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
-    public static final String TFGM_UNZIP_DIR = "gtdf-out";
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
     private final GraphFilter graphFilter;
 
@@ -53,30 +52,15 @@ public class Dependencies {
     }
 
     public void initialise(TramchesterConfig configuration) throws IOException {
+        logger.info("Creating dependencies");
+
         picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(FileModTime.class);
 
-        // TODO SORT THIS MESS OUT
-        //////
-        Path dataPath = configuration.getDataPath();
+        picoContainer.addComponent(URLDownloader.class);
+        picoContainer.addComponent(FetchDataFromUrl.class);
+        picoContainer.addComponent(Unzipper.class);
 
-        URLDownloader downloader = new URLDownloader(configuration.getTramDataUrl());
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, dataPath);
-        Unzipper unzipper = new Unzipper();
-
-        picoContainer.addComponent(URLDownloader.class, downloader);
-        picoContainer.addComponent(FetchDataFromUrl.class, fetcher);
-        picoContainer.addComponent(Unzipper.class, unzipper);
-
-        if (configuration.getPullData()) {
-            logger.info("Pulling data");
-            fetcher.fetchData(unzipper);
-        }
-
-        cleanseData(dataPath, dataPath, configuration);
-        /////
-
-        logger.info("Creating dependencies");
         // caching is on by default
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
@@ -95,6 +79,7 @@ public class Dependencies {
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
+        picoContainer.addComponent(TransportDataReaderFactory.class);
 
         if (configuration.getEdgePerTrip()) {
             picoContainer.addComponent(TramJourneyResponseWithTimesMapper.class);
@@ -105,12 +90,11 @@ public class Dependencies {
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
 
+        // TODO still needed now jodatime removed?
         ObjectMapper objectMapper = new ObjectMapper();
         picoContainer.addComponent(objectMapper);
 
-        TransportDataReader dataReader = new TransportDataReader(dataPath, false);
-        TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
-        picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
+        //TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
 
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);
@@ -134,8 +118,9 @@ public class Dependencies {
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(MyLocationFactory.class);
-
-        rebuildGraph(configuration);
+        picoContainer.addComponent(TransportDataImporter.class);
+        picoContainer.addComponent(DataCleanser.class);
+        picoContainer.addComponent(TransportDataWriterFactory.class);
 
         picoContainer.addComponent(ProvidesNow.class, new ProvidesNow() {
             @Override
@@ -153,16 +138,26 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataHealthCheck.class);
         picoContainer.addComponent(NewDataAvailableHealthCheck.class);
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
+
+        FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
+        Unzipper unzipper = get(Unzipper.class);
+        if (configuration.getPullData()) {
+            logger.info("Pulling data");
+            fetcher.fetchData(unzipper);
+        }
+
+        cleanseData(configuration);
+
+        // TODO sort this out
+        TransportDataImporter transportDataImporter = get(TransportDataImporter.class);
+        picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
+        rebuildGraph(configuration);
     }
 
-    public void cleanseData(Path inputPath, Path outputPath, TramchesterConfig config) throws IOException {
-        Path inputDir = inputPath.resolve(TFGM_UNZIP_DIR);
-        TransportDataReader reader = new TransportDataReader(inputDir, true);
-        TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(outputPath);
+    private void cleanseData(TramchesterConfig config) throws IOException {
 
-        ErrorCount count = new ErrorCount();
-        DataCleanser dataCleanser = new DataCleanser(reader, writerFactory, count, config);
-        dataCleanser.run(config.getAgencies());
+        ErrorCount count = get(DataCleanser.class).run(config.getAgencies());
+
         if (!count.noErrors()) {
             logger.warn("Errors encounted during parsing data " + count);
         }
