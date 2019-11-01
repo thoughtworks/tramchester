@@ -28,8 +28,6 @@ public abstract class TestConfig extends AppConfiguration {
 
     private List<String> closedStations = asList("St Peters Square");
 
-    private Path zipFilePath = Paths.get("data.zip");
-
     private boolean graphExists() {
         return new File(getGraphName()).exists();
     }
@@ -37,12 +35,6 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public boolean getRebuildGraph() {
         return !graphExists();
-    }
-
-    @Override
-    public boolean getPullData() {
-        File file = getDataFolder().resolve(zipFilePath).toFile();
-        return !file.exists();
     }
 
     @Override

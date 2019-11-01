@@ -204,12 +204,7 @@ public class AppConfiguration extends TramchesterConfig {
     public boolean getRebuildGraph() {
         return rebuildGraph;
     }
-
-    @Override
-    public boolean getPullData() {
-        return pullData;
-    }
-
+    
     @Override
     public boolean getCreateLocality() { return createLocality; }
 

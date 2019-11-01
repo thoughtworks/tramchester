@@ -15,9 +15,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // do full rebuild of the graph DB
     public abstract boolean getRebuildGraph();
 
-    // pull new copy of timetable data
-    public abstract boolean getPullData();
-
     // name of the graph DB to use
     public abstract String getGraphName();
 

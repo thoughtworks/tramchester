@@ -29,8 +29,8 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         this.downloadDirectory = config.getDataPath();
     }
 
-    // used during build to download latest tram data from tfgm site
-    @Deprecated
+    // used during build to download latest tram data from tfgm site during deployment
+    // which is subsequently uploaded into S3
     public static void main(String[] args) throws Exception {
         if (args.length!=3) {
             throw new Exception("Expected 2 arguments, path and url");

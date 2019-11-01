@@ -35,8 +35,10 @@ public class DataCleanser {
         this.config = config;
     }
 
-    public ErrorCount run(Set<String> agencies) throws IOException {
+    public ErrorCount run() throws IOException {
         this.count = new ErrorCount();
+
+        Set<String> agencies = config.getAgencies();
 
         List<String> routeCodes = cleanseRoutes(agencies);
 

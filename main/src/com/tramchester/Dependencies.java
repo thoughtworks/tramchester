@@ -15,7 +15,10 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.*;
-import com.tramchester.repository.*;
+import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.RoutesRepository;
+import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.repository.VersionRepository;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
 import com.tramchester.services.StationLocalityService;
@@ -33,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
@@ -54,14 +56,13 @@ public class Dependencies {
     public void initialise(TramchesterConfig configuration) throws IOException {
         logger.info("Creating dependencies");
 
+        // caching is on by default
+
         picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(FileModTime.class);
-
         picoContainer.addComponent(URLDownloader.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
         picoContainer.addComponent(Unzipper.class);
-
-        // caching is on by default
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(DeparturesResource.class);
@@ -90,12 +91,6 @@ public class Dependencies {
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
 
-        // TODO still needed now jodatime removed?
-        ObjectMapper objectMapper = new ObjectMapper();
-        picoContainer.addComponent(objectMapper);
-
-        //TransportDataImporter transportDataImporter = new TransportDataImporter(dataReader);
-
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
@@ -122,6 +117,10 @@ public class Dependencies {
         picoContainer.addComponent(DataCleanser.class);
         picoContainer.addComponent(TransportDataWriterFactory.class);
 
+        // TODO still needed now jodatime removed?
+        ObjectMapper objectMapper = new ObjectMapper();
+        picoContainer.addComponent(objectMapper);
+
         picoContainer.addComponent(ProvidesNow.class, new ProvidesNow() {
             @Override
             public TramTime getNow() {
@@ -133,6 +132,7 @@ public class Dependencies {
                 return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDate();
             }
         });
+
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);
@@ -141,22 +141,18 @@ public class Dependencies {
 
         FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
         Unzipper unzipper = get(Unzipper.class);
-        if (configuration.getPullData()) {
-            logger.info("Pulling data");
-            fetcher.fetchData(unzipper);
-        }
 
-        cleanseData(configuration);
+        fetcher.fetchData(unzipper);
 
-        // TODO sort this out
+        cleanseData();
+
         TransportDataImporter transportDataImporter = get(TransportDataImporter.class);
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
         rebuildGraph(configuration);
     }
 
-    private void cleanseData(TramchesterConfig config) throws IOException {
-
-        ErrorCount count = get(DataCleanser.class).run(config.getAgencies());
+    private void cleanseData() throws IOException {
+        ErrorCount count = get(DataCleanser.class).run();
 
         if (!count.noErrors()) {
             logger.warn("Errors encounted during parsing data " + count);
