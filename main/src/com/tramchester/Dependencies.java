@@ -148,7 +148,7 @@ public class Dependencies {
 
         TransportDataImporter transportDataImporter = get(TransportDataImporter.class);
         picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
-        rebuildGraph(configuration);
+        createGraph(configuration);
     }
 
     private void cleanseData() throws IOException {
@@ -160,25 +160,30 @@ public class Dependencies {
         logger.info("Data cleansing finished");
     }
 
-    private void rebuildGraph(TramchesterConfig configuration) throws IOException {
+    private void createGraph(TramchesterConfig configuration) throws IOException {
         String graphName = configuration.getGraphName();
-        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
-
+        logger.info("Create or load graph " + graphName);
         File graphFile = new File(graphName);
-        GraphDatabaseBuilder builder = graphDatabaseFactory.
-                newEmbeddedDatabaseBuilder(graphFile).
-                loadPropertiesFromFile("config/neo4j.conf");
 
         if (configuration.getRebuildGraph()) {
             logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
             try {
                 FileUtils.deleteDirectory(graphFile);
             } catch (IOException e) {
-                logger.error("Error deleting the graph!",e);
+                logger.error("Error deleting the graph!", e);
                 throw e;
             }
-            picoContainer.addComponent(GraphDatabaseService.class, builder.newGraphDatabase());
+        }
+        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
 
+        GraphDatabaseBuilder builder = graphDatabaseFactory.
+                newEmbeddedDatabaseBuilder(graphFile).
+                loadPropertiesFromFile("config/neo4j.conf");
+
+        picoContainer.addComponent(GraphDatabaseService.class, builder.newGraphDatabase());
+
+        if (configuration.getRebuildGraph()) {
+            logger.info("Rebuild of graph DB for " + graphName);
             TransportGraphBuilder graphBuilder = picoContainer.getComponent(TransportGraphBuilder.class);
             if (graphFilter==null) {
                 graphBuilder.buildGraph();
@@ -186,9 +191,6 @@ public class Dependencies {
                 graphBuilder.buildGraphwithFilter(graphFilter);
             }
             logger.info("Graph rebuild is finished for " + graphName);
-        } else {
-            logger.info("Not rebuilding graph " + graphFile.getAbsolutePath() + ". Loading graph");
-            picoContainer.addComponent(GraphDatabaseService.class, builder.newGraphDatabase());
         }
 
         if (configuration.getCreateLocality()) {
@@ -203,14 +205,22 @@ public class Dependencies {
     }
 
     public void close() {
+        logger.info("Dependencies close");
+        try {
         GraphDatabaseService graphService = picoContainer.getComponent(GraphDatabaseService.class);
-        if (graphService==null) {
-                logger.error("Unable to obtain GraphDatabaseService for shutdown");
-        } else {
-            if (graphService.isAvailable(1)) {
-                logger.info("Shutting down graphDB");
-                graphService.shutdown();
+            if (graphService==null) {
+                    logger.error("Unable to obtain GraphDatabaseService for shutdown");
+            } else {
+                if (graphService.isAvailable(1)) {
+                    logger.info("Shutting down graphDB");
+                    graphService.shutdown();
+                } else {
+                    logger.warn("Graph reported unavailable, attempt shutdown anyway");
+                    graphService.shutdown();
+                }
             }
+        } catch (Exception exceptionInClose) {
+            logger.error("Exception during close down", exceptionInClose);
         }
     }
 }
