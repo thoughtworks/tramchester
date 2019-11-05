@@ -35,9 +35,13 @@ public class NewDataAvailableHealthCheck extends HealthCheck {
 
             String diag = String.format("Local zip mod time: %s Server mod time: %s", zipModTime, serverModTime);
             if (serverModTime.isAfter(zipModTime)) {
-                return Result.unhealthy("Newer timetable is available " + diag);
+                String msg = "Newer timetable is available " + diag;
+                logger.warn(msg);
+                return Result.unhealthy(msg);
             } else {
-                return Result.healthy("No newer timetable is available " + diag);
+                String msg = "No newer timetable is available " + diag;
+                logger.info(msg);
+                return Result.healthy(msg);
             }
         } catch (IOException ioException) {
             logger.warn("Unable to check for newer timetable data", ioException);

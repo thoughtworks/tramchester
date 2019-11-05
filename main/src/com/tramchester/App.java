@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class App extends Application<AppConfiguration>  {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
-    public static final String SERVICE_NAME = "tramchester";
+    private static final String SERVICE_NAME = "tramchester";
 
     private final Dependencies dependencies;
     private ScheduledExecutorService executor;

@@ -13,7 +13,7 @@ public class CloudWatchReporter extends ScheduledReporter {
     private final SendMetricsToCloudWatch client;
     private ConfigFromInstanceUserData providesConfig;
 
-    private String PREFIX = "com.tramchester";
+    private String PREFIX = "com.tramchester.";
 
     protected CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
                                  TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
@@ -33,7 +33,7 @@ public class CloudWatchReporter extends ScheduledReporter {
         timers.forEach((name, timer) -> {
             logger.debug("Add timer " + name + " to cloud watch metric");
             if (name.startsWith(PREFIX)) {
-                toSubmit.put(name,timer);
+                toSubmit.put(name.replace(PREFIX,""),timer);
             }
         });
         logger.info(String.format("Send %s cloudwatch metrics", toSubmit.size()));
@@ -44,6 +44,9 @@ public class CloudWatchReporter extends ScheduledReporter {
         String currentEnvironment = providesConfig.get("ENV");
         if (currentEnvironment==null) {
             currentEnvironment = "Unknown";
+        }
+        if (namespace.endsWith(".")) {
+            namespace = namespace.substring(0,namespace.length()-1);
         }
         return currentEnvironment + ":" + namespace.replaceAll("\\.",":");
     }

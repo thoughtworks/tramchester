@@ -8,6 +8,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
+import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
@@ -17,10 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedMap;
+import java.util.*;
 
 public class SendMetricsToCloudWatch {
     private static final Logger logger = LoggerFactory.getLogger(SendMetricsToCloudWatch.class);
@@ -39,15 +37,27 @@ public class SendMetricsToCloudWatch {
         }
     }
 
-    private MetricDatum createDatum(String name, Timer timer) {
-        Date timestamp = Date.from(Instant.now());
+    private List<MetricDatum> createDatum(String name, Timer timer) {
+        List<MetricDatum> result = new ArrayList<>();
 
-        MetricDatum datum = new MetricDatum()
-                .withMetricName(name + "_count")
+        Date timestamp = Date.from(Instant.now());
+        Dimension resourcesDimension = new Dimension().withName("tramchester").withValue("api");
+
+        MetricDatum datumCount = new MetricDatum()
+                .withMetricName(name)
                 .withTimestamp(timestamp)
                 .withValue(Double.valueOf(timer.getCount()))
+                .withUnit(StandardUnit.Count)
+                .withDimensions(resourcesDimension);
+        result.add(datumCount);
+        MetricDatum datumRate = new MetricDatum()
+                .withMetricName(name+"_15minsRate")
+                .withTimestamp(timestamp)
+                .withValue(timer.getFifteenMinuteRate())
+                .withDimensions(resourcesDimension)
                 .withUnit(StandardUnit.Count);
-        return datum;
+        result.add(datumRate);
+        return result;
     }
 
     public void putMetricData(SortedMap<String, Timer> toSubmit, String nameSpace) {
@@ -57,17 +67,33 @@ public class SendMetricsToCloudWatch {
         }
 
         List<MetricDatum> metricDatum = new LinkedList<>();
-        toSubmit.forEach((name,timer) -> metricDatum.add(createDatum(name,timer)));
+        toSubmit.forEach((name,timer) -> metricDatum.addAll(createDatum(name,timer)));
 
-        try {
-            PutMetricDataRequest request = new PutMetricDataRequest()
-                    .withNamespace(nameSpace)
-                    .withMetricData(metricDatum);
-            client.putMetricData(request);
-            logger.info("Sent metric with namespace " + nameSpace);
+        int batchSize = 20;
+        List<MetricDatum> batch = formBatch(metricDatum, batchSize);
+        while (!batch.isEmpty()) {
+
+            try {
+                PutMetricDataRequest request = new PutMetricDataRequest()
+                        .withNamespace(nameSpace)
+                        .withMetricData(batch);
+                client.putMetricData(request);
+                logger.info("Sent metrics with namespace " + nameSpace);
+            }
+            catch (AmazonServiceException exception) {
+                logger.warn("Unable to log metrics to cloudwatch with namespace "+nameSpace,exception);
+            }
+            batch = formBatch(metricDatum, batchSize);
         }
-        catch (AmazonServiceException exception) {
-            logger.warn("Unable to log metrics to cloudwatch with namespace "+nameSpace,exception);
+
+    }
+
+    private List<MetricDatum> formBatch(List<MetricDatum> source, int batchSize) {
+        List<MetricDatum> result = new ArrayList<>();
+        int top = (batchSize>source.size()) ? source.size() : batchSize;
+        for (int i = 0; i < top; i++) {
+            result.add(source.remove(0));
         }
+        return result;
     }
 }
