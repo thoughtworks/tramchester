@@ -13,7 +13,7 @@ public class Unzipper {
     private static final Logger logger = LoggerFactory.getLogger(Unzipper.class);
 
     public boolean unpack(Path filename, Path targetDirectory) {
-        logger.info(format("Unziping data from ", filename, targetDirectory));
+        logger.info(format("Unziping data from %s to %s ", filename, targetDirectory));
         try {
             // TODO Use native zip support in Java
             ZipFile zipFile = new ZipFile(filename.toFile());

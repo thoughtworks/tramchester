@@ -59,7 +59,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
             return "";
         }
         catch (IOException e) {
-            logger.warn("Unable to getPlatformById instance user data, likely not running in cloud", e);
+            logger.warn("Unable to getPlatformById instance user data, likely not running in cloud");
             return "";
         }
     }

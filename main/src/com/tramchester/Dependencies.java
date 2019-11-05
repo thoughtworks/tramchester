@@ -165,7 +165,9 @@ public class Dependencies {
         logger.info("Create or load graph " + graphName);
         File graphFile = new File(graphName);
 
-        if (configuration.getRebuildGraph()) {
+        boolean rebuildGraph = configuration.getRebuildGraph();
+
+        if (rebuildGraph) {
             logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
             try {
                 FileUtils.deleteDirectory(graphFile);
@@ -180,9 +182,13 @@ public class Dependencies {
                 newEmbeddedDatabaseBuilder(graphFile).
                 loadPropertiesFromFile("config/neo4j.conf");
 
-        picoContainer.addComponent(GraphDatabaseService.class, builder.newGraphDatabase());
+        GraphDatabaseService graphDatabaseService = builder.newGraphDatabase();
+        if (!graphDatabaseService.isAvailable(1000)) {
+            logger.error("DB Service is not available");
+        }
+        picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseService);
 
-        if (configuration.getRebuildGraph()) {
+        if (rebuildGraph) {
             logger.info("Rebuild of graph DB for " + graphName);
             TransportGraphBuilder graphBuilder = picoContainer.getComponent(TransportGraphBuilder.class);
             if (graphFilter==null) {
@@ -211,7 +217,7 @@ public class Dependencies {
             if (graphService==null) {
                     logger.error("Unable to obtain GraphDatabaseService for shutdown");
             } else {
-                if (graphService.isAvailable(1)) {
+                if (graphService.isAvailable(1000)) {
                     logger.info("Shutting down graphDB");
                     graphService.shutdown();
                 } else {
