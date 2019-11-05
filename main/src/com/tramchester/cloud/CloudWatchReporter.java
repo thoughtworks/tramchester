@@ -28,16 +28,30 @@ public class CloudWatchReporter extends ScheduledReporter {
                        SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,
                        SortedMap<String, Timer> timers) {
 
-        SortedMap<String, Timer> toSubmit = new TreeMap<>();
-
+        SortedMap<String, Timer> timersToSend = new TreeMap<>();
         timers.forEach((name, timer) -> {
             logger.debug("Add timer " + name + " to cloud watch metric");
-            if (name.startsWith(PREFIX)) {
-                toSubmit.put(name.replace(PREFIX,""),timer);
+            if (isScoped(name)) {
+                timersToSend.put(createName(name),timer);
             }
         });
-        logger.info(String.format("Send %s cloudwatch metrics", toSubmit.size()));
-        client.putMetricData(toSubmit, formNamespace(PREFIX, providesConfig));
+        SortedMap<String, Gauge<Integer>> gaugesToSend = new TreeMap<>();
+        gauges.forEach((name, gauge) -> {
+            if (isScoped(name)) {
+                // assumes all gauges in scope are integer
+                gaugesToSend.put(createName(name),gauge);
+            }
+        });
+        logger.info(String.format("Send %s cloudwatch metrics", timersToSend.size()));
+        client.putMetricData(formNamespace(PREFIX, providesConfig), timersToSend, gaugesToSend);
+    }
+
+    private String createName(String name) {
+        return name.replace(PREFIX, "");
+    }
+
+    private boolean isScoped(String name) {
+        return name.startsWith(PREFIX);
     }
 
     public static String formNamespace(String namespace, ConfigFromInstanceUserData providesConfig) {

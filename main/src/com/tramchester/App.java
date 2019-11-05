@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.cloud.*;
@@ -131,12 +132,18 @@ public class App extends Application<AppConfiguration>  {
         filtersForStaticContent(environment);
 
         // initial load of live data
-        LiveDataRepository liveDateRepository = dependencies.get(LiveDataRepository.class);
-        liveDateRepository.refreshRespository();
+        LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
+        liveDataRepository.refreshRespository();
 
-        // cloudwatch
-        MetricRegistry registry = environment.metrics();
-        final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(registry,
+        // custom metrics
+        MetricRegistry metricRegistry = environment.metrics();
+        metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "number"),
+                (Gauge<Integer>) () -> liveDataRepository.countEntries());
+        metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
+                (Gauge<Integer>) () -> liveDataRepository.countMessages());
+
+        // report specific metrics to cloudwatch
+        final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                 dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
@@ -144,7 +151,7 @@ public class App extends Application<AppConfiguration>  {
         int initialDelay = 10;
         ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
             try {
-                liveDateRepository.refreshRespository();
+                liveDataRepository.refreshRespository();
             } catch (Exception exeception) {
                 logger.error("Unable to refresh live data", exeception);
             }
@@ -165,7 +172,7 @@ public class App extends Application<AppConfiguration>  {
         });
 
         UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
-        liveDateRepository.observeUpdates(observer);
+        liveDataRepository.observeUpdates(observer);
 
         // ready to serve traffic
         logger.info("Prepare to signal cloud formation if running in cloud");
