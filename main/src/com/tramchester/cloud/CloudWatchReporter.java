@@ -13,7 +13,9 @@ public class CloudWatchReporter extends ScheduledReporter {
     private final SendMetricsToCloudWatch client;
     private ConfigFromInstanceUserData providesConfig;
 
-    private String PREFIX = "com.tramchester.";
+    private static final String PREFIX_LOG_NAMESPACE = "ch.qos.logback.core.Appender.";
+
+    private static final String PREFIX = "com.tramchester.";
 
     protected CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
                                  TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
@@ -42,8 +44,18 @@ public class CloudWatchReporter extends ScheduledReporter {
                 gaugesToSend.put(createName(name),gauge);
             }
         });
+        SortedMap<String, Meter> metersToSend = new TreeMap<>();
+        meters.forEach((name,meter) -> {
+            if (name.startsWith(PREFIX_LOG_NAMESPACE)) {
+                    metersToSend.put(createLogMetricName(name), meter);
+            }
+        });
         logger.info(String.format("Send %s cloudwatch metrics", timersToSend.size()));
-        client.putMetricData(formNamespace(PREFIX, providesConfig), timersToSend, gaugesToSend);
+        client.putMetricData(formNamespace(PREFIX, providesConfig), timersToSend, gaugesToSend, metersToSend);
+    }
+
+    private String createLogMetricName(String name) {
+        return name.replace(PREFIX_LOG_NAMESPACE, "");
     }
 
     private String createName(String name) {

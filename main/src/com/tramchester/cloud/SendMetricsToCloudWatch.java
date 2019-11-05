@@ -8,6 +8,7 @@ import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,25 +40,22 @@ public class SendMetricsToCloudWatch {
     private List<MetricDatum> createTimerDatum(Date timestamp, String name, Timer timer) {
         List<MetricDatum> result = new ArrayList<>();
 
-        MetricDatum datumCount = new MetricDatum()
+        result.add(new MetricDatum()
                 .withMetricName(name)
                 .withTimestamp(timestamp)
                 .withValue((double) timer.getCount())
                 .withUnit(StandardUnit.Count)
-                .withDimensions(resourcesDimension);
-        result.add(datumCount);
-        MetricDatum datumRate = new MetricDatum()
+                .withDimensions(resourcesDimension));
+        result.add(new MetricDatum()
                 .withMetricName(name+"_15minsRate")
                 .withTimestamp(timestamp)
                 .withValue(timer.getFifteenMinuteRate())
                 .withDimensions(resourcesDimension)
-                .withUnit(StandardUnit.Count);
-        result.add(datumRate);
+                .withUnit(StandardUnit.Count));
         return result;
     }
 
     private MetricDatum createGaugeDatum(Date timestamp, String name, Gauge<Integer> gauge) {
-
         return new MetricDatum()
                 .withMetricName(name)
                 .withTimestamp(timestamp)
@@ -67,8 +65,29 @@ public class SendMetricsToCloudWatch {
 
     }
 
+    private List<MetricDatum> createMeterDatum(Date timestamp, String name, Meter meter) {
+        List<MetricDatum> result = new ArrayList<>();
+
+        result.add(new MetricDatum()
+                .withMetricName(name)
+                .withTimestamp(timestamp)
+                .withValue(Double.valueOf(meter.getCount()))
+                .withUnit(StandardUnit.Count)
+                .withDimensions(countersDimenion));
+
+        result.add(new MetricDatum()
+                .withMetricName(name+"_1minsRate")
+                .withTimestamp(timestamp)
+                .withValue(Double.valueOf(meter.getOneMinuteRate()))
+                .withUnit(StandardUnit.Count)
+                .withDimensions(countersDimenion));
+
+        return result;
+
+    }
+
     public void putMetricData(String nameSpace, SortedMap<String, Timer> timers,
-                              SortedMap<String, Gauge<Integer>> gauges) {
+                              SortedMap<String, Gauge<Integer>> gauges, SortedMap<String, Meter> metersToSend) {
         if (client==null) {
             logger.warn("No cloud watch client available, will not send metrics");
             return;
@@ -78,6 +97,7 @@ public class SendMetricsToCloudWatch {
         List<MetricDatum> metricDatum = new LinkedList<>();
         timers.forEach((name,timer) -> metricDatum.addAll(createTimerDatum(timestamp, name, timer)));
         gauges.forEach((name,gauge)-> metricDatum.add(createGaugeDatum(timestamp, name, gauge)));
+        metersToSend.forEach((name, meter) -> metricDatum.addAll(createMeterDatum(timestamp, name, meter)));
 
         int batchSize = 20;
         List<MetricDatum> batch = formBatch(metricDatum, batchSize);
@@ -96,7 +116,6 @@ public class SendMetricsToCloudWatch {
             batch = formBatch(metricDatum, batchSize);
         }
     }
-
 
     private List<MetricDatum> formBatch(List<MetricDatum> source, int batchSize) {
         List<MetricDatum> result = new ArrayList<>();
