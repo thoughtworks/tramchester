@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class NewDataAvailableHealthCheck extends HealthCheck {
@@ -31,7 +30,7 @@ public class NewDataAvailableHealthCheck extends HealthCheck {
         try {
             Path dataPath = config.getDataPath();
             Path latestZipFile = dataPath.resolve(FetchDataFromUrl.ZIP_FILENAME);
-            LocalDateTime serverModTime = urlDownloader.getModTime();
+            LocalDateTime serverModTime = urlDownloader.getModTime(config.getTramDataCheckUrl());
             LocalDateTime zipModTime = fileModTime.getFor(latestZipFile);
 
             String diag = String.format("Local zip mod time: %s Server mod time: %s", zipModTime, serverModTime);

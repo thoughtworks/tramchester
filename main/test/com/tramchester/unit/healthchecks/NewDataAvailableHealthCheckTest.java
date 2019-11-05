@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import static junit.framework.TestCase.assertFalse;
@@ -27,12 +26,14 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     private FileModTime fileModTime;
     private Path expectedPath;
     private NewDataAvailableHealthCheck healthCheck;
+    private String expectedURL;
 
     @Before
     public void beforeEachTestRuns() {
         urlDownloader = createMock(URLDownloader.class);
         fileModTime = createMock(FileModTime.class);
         expectedPath = config.getDataPath().resolve(FetchDataFromUrl.ZIP_FILENAME);
+        expectedURL = config.getTramDataCheckUrl();
 
         healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime);
     }
@@ -41,7 +42,7 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     public void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
         LocalDateTime time = LocalDateTime.now();
 
-        EasyMock.expect(urlDownloader.getModTime()).andReturn(time.minusDays(1));
+        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.minusDays(1));
         EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();
@@ -54,7 +55,7 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     public void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
         LocalDateTime time = LocalDateTime.now();
 
-        EasyMock.expect(urlDownloader.getModTime()).andReturn(time.plusDays(1));
+        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.plusDays(1));
         EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();

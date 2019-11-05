@@ -23,6 +23,7 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
     private FetchDataFromUrl fetchDataFromUrl;
     private Path zipFilename;
     private Unzipper unzipper;
+    private String expectedDownloadURL = "http://should.be.used/somefile.zip";
 
     @Before
     public void beforeEachTestRuns() {
@@ -33,7 +34,12 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
         DownloadConfig downloadConfig = new DownloadConfig() {
             @Override
             public String getTramDataUrl() {
-                return null;
+                return "http://should.be.used/somefile.zip";
+            }
+
+            @Override
+            public String getTramDataCheckUrl() {
+                return "unusedHere";
             }
 
             @Override
@@ -66,8 +72,8 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
     public void shouldFetchIfModTimeIsNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = LocalDateTime.now();
-        EasyMock.expect(downloader.getModTime()).andReturn(time.plusMinutes(30));
-        downloader.downloadTo(zipFilename);
+        EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(time.plusMinutes(30));
+        downloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
@@ -78,7 +84,7 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
 
     @Test
     public void shouldFetchIfLocalFileNotPresent() throws IOException {
-        downloader.downloadTo(zipFilename);
+        downloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
@@ -91,7 +97,7 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
     public void shouldNotFetchIfModTimeIsNotNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = LocalDateTime.now();
-        EasyMock.expect(downloader.getModTime()).andReturn(time.minusDays(1));
+        EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(time.minusDays(1));
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();

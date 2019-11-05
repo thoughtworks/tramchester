@@ -37,30 +37,15 @@ public class URLDownloaderTest {
 
     @Test
     public void shouldDownloadSomething() throws IOException {
-        DownloadConfig downloadConfig = new DownloadConfig() {
-            @Override
-            public String getTramDataUrl() {
-                return "https://github.com/fluidicon.png";
-            }
+        String url = "https://github.com/fluidicon.png";
 
-            @Override
-            public Path getDataPath() {
-                return null;
-            }
+        URLDownloader urlDownloader = new URLDownloader();
 
-            @Override
-            public Path getUnzipPath() {
-                return null;
-            }
-        };
-
-        URLDownloader urlDownloader = new URLDownloader(downloadConfig);
-
-        LocalDateTime modTime = urlDownloader.getModTime();
+        LocalDateTime modTime = urlDownloader.getModTime(url);
         assertTrue(modTime.isBefore(LocalDateTime.now()));
         assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
 
-        urlDownloader.downloadTo(temporaryFile);
+        urlDownloader.downloadTo(temporaryFile, url);
 
         assertTrue(temporaryFile.toFile().exists());
         assertTrue(temporaryFile.toFile().length()>0);

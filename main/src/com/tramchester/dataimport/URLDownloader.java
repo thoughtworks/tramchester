@@ -1,6 +1,5 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.config.DownloadConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +20,10 @@ import static java.lang.String.format;
 public class URLDownloader {
     private static final Logger logger = LoggerFactory.getLogger(URLDownloader.class);
 
-    private String url;
-
-    public URLDownloader(DownloadConfig config) {
-        this.url = config.getTramDataUrl();
-    }
-
-    public LocalDateTime getModTime() throws IOException {
+    public LocalDateTime getModTime(String url) throws IOException {
         logger.info(format("Check mod time for %s", url));
 
-        HttpURLConnection connection = createConnection();
+        HttpURLConnection connection = createConnection(url);
         connection.connect();
         long serverModMillis = connection.getLastModified();
         connection.disconnect();
@@ -41,10 +34,10 @@ public class URLDownloader {
         return modTime;
     }
 
-    public void downloadTo(Path path) throws IOException {
+    public void downloadTo(Path path, String url) throws IOException {
         try {
             File targetFile = path.toFile();
-            HttpURLConnection connection = createConnection();
+            HttpURLConnection connection = createConnection(url);
             connection.connect();
             long len = connection.getContentLengthLong();
             long serverModMillis = connection.getLastModified();
@@ -74,7 +67,7 @@ public class URLDownloader {
         }
     }
 
-    private HttpURLConnection createConnection() throws IOException {
+    private HttpURLConnection createConnection(String url) throws IOException {
         return (HttpURLConnection) new URL(url).openConnection();
     }
 }

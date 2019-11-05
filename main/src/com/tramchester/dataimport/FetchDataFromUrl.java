@@ -23,10 +23,12 @@ public class FetchDataFromUrl implements TransportDataFetcher {
     private URLDownloader downloader;
 
     public static String ZIP_FILENAME = "data.zip";
+    private String url;
 
     public FetchDataFromUrl(URLDownloader downloader, DownloadConfig config) {
         this.downloader = downloader;
         this.downloadDirectory = config.getDataPath();
+        url = config.getTramDataUrl();
     }
 
     // used during build to download latest tram data from tfgm site during deployment
@@ -46,6 +48,11 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             }
 
             @Override
+            public String getTramDataCheckUrl() {
+                return null;
+            }
+
+            @Override
             public Path getDataPath() {
                 return folder;
             }
@@ -55,7 +62,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
                 return Paths.get("gtdf-out");
             }
         };
-        URLDownloader downloader = new URLDownloader(downloadConfig);
+        URLDownloader downloader = new URLDownloader();
         FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, downloadConfig);
         fetcher.refreshDataIfNewerAvailable(zipFilename);
     }
@@ -74,12 +81,12 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         if (Files.exists(destination)) {
             try {
                 // check mod times
-                LocalDateTime serverMod = downloader.getModTime();
+                LocalDateTime serverMod = downloader.getModTime(url);
                 LocalDateTime localMod = getFileModLocalTime(destination);
                 logger.info(format("Server mod time: %s File mod time: %s ", serverMod, localMod));
 
                 if (serverMod.isAfter(localMod)) {
-                    downloader.downloadTo(destination);
+                    downloader.downloadTo(destination, url);
                 }
             }
             catch (UnknownHostException disconnected) {
@@ -88,7 +95,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         } else {
             logger.info("No local file " + destination);
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
-            downloader.downloadTo(destination);
+            downloader.downloadTo(destination, url);
         }
         return destination;
     }

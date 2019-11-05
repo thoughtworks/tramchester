@@ -35,6 +35,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("tramDataUrl")
     private String tramDataUrl;
 
+    @JsonProperty("tramDataCheckUrl")
+    private String tramDataCheckUrl;
+
     @JsonProperty("agencies")
     private List<String> agencies;
 
@@ -115,6 +118,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getTramDataUrl() {
         return tramDataUrl;
+    }
+
+    @Override
+    public String getTramDataCheckUrl() {
+        return tramDataCheckUrl;
     }
 
     @Override

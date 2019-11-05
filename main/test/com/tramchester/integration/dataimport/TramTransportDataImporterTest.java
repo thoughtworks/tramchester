@@ -28,6 +28,11 @@ public class TramTransportDataImporterTest {
         }
 
         @Override
+        public String getTramDataCheckUrl() {
+            return null;
+        }
+
+        @Override
         public Path getDataPath() {
             return Paths.get("data","test");
         }
