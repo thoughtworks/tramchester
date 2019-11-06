@@ -5,6 +5,7 @@ public class GraphStaticKeys {
     // ID Common across both
     public static final String ID = "id";
     public static final String STATION_ID = "station_id";
+    public static final String PLATFORM_ID = "platform_id";
 
     // relationship properties
     public static final String DAYS = "days";

@@ -1,7 +1,8 @@
 package com.tramchester.integration.dataimport.datacleanse;
 
-import com.tramchester.Dependencies;
-import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.*;
+import com.tramchester.dataimport.datacleanse.DataCleanser;
+import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -17,8 +18,7 @@ import static junit.framework.TestCase.assertTrue;
 
 public class DataCleanserTest {
 
-    private IntegrationTramTestConfig integrationTramTestConfig = new IntegrationTramTestConfig();
-    private Dependencies dependencies;
+    private IntegrationTramTestConfig config = new IntegrationTramTestConfig();
     private Path dataOutputFolder;
     private Path unpackedZipPath;
     private List<TransportDataReader.InputFiles> files;
@@ -26,9 +26,8 @@ public class DataCleanserTest {
     @Before
     public void beforeAllTestRuns() throws IOException {
         files = Arrays.asList(TransportDataReader.InputFiles.values());
-        dataOutputFolder = integrationTramTestConfig.getDataFolder();
-        unpackedZipPath = integrationTramTestConfig.getDataFolder().resolve("gtdf-out");
-        dependencies = new Dependencies();
+        dataOutputFolder = config.getDataFolder();
+        unpackedZipPath = config.getDataFolder().resolve("gtdf-out");
         tidyFiles();
     }
 
@@ -53,7 +52,16 @@ public class DataCleanserTest {
     @Test
     public void cleanseCurrentDataWithNoErrors() throws IOException {
 
-        dependencies.initialise(integrationTramTestConfig); // this calls cleanse
+        TransportDataReaderFactory readerFactory = new TransportDataReaderFactory(config);
+        TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(config);
+        DataCleanser dataCleanser = new DataCleanser(readerFactory, writerFactory, config);
+
+        URLDownloader downloader = new URLDownloader();
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, config);
+        Unzipper unzipper = new Unzipper();
+        fetcher.fetchData(unzipper);
+
+        dataCleanser.run();
 
         assertTrue(dataOutputFolder.toFile().exists());
         assertTrue(unpackedZipPath.toFile().exists());
@@ -62,7 +70,6 @@ public class DataCleanserTest {
             assertTrue(file.name(), unpackedZipPath.resolve(file.name()+".txt").toFile().exists());
             assertTrue(file.name(), dataOutputFolder.resolve(file.name()+".txt").toFile().exists());
         });
-
 
     }
 

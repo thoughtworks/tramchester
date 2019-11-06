@@ -3,8 +3,10 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphalgo.WeightedPath;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 
@@ -27,13 +30,18 @@ public class MapPathToStages {
     private final MapTransportRelationshipsToStages mapTransportRelationshipsToStages;
     private final RouteCodeToClassMapper routeIdToClass;
     private final StationRepository stationRepository;
+    private final MyLocationFactory myLocationFactory;
+    private PlatformRepository platformRepository;
 
-    public MapPathToStages(PathToTransportRelationship pathToTransportRelationship, MapTransportRelationshipsToStages mapTransportRelationshipsToStages,
-                           RouteCodeToClassMapper routeIdToClass, StationRepository stationRepository) {
+    public MapPathToStages(PathToTransportRelationship pathToTransportRelationship,
+                           MapTransportRelationshipsToStages mapTransportRelationshipsToStages,
+                           RouteCodeToClassMapper routeIdToClass, StationRepository stationRepository, MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
         this.pathToTransportRelationship = pathToTransportRelationship;
         this.mapTransportRelationshipsToStages = mapTransportRelationshipsToStages;
         this.routeIdToClass = routeIdToClass;
         this.stationRepository = stationRepository;
+        this.myLocationFactory = myLocationFactory;
+        this.platformRepository = platformRepository;
     }
 
     public List<RawStage> map(WeightedPath path, LocalTime queryTime) {
@@ -41,15 +49,13 @@ public class MapPathToStages {
         return mapTransportRelationshipsToStages.mapStages(relationships, queryTime);
     }
 
-    public List<RawStage> mapDirect(WeightedPath path, LocalTime queryTime) {
+    public List<RawStage> mapDirect(WeightedPath path) {
         ArrayList<RawStage> results = new ArrayList<>();
-        State state = new State(stationRepository);
+        State state = new State(stationRepository, myLocationFactory, platformRepository);
 
         for(Relationship relationship : path.relationships()) {
             TransportRelationshipTypes type = TransportRelationshipTypes.valueOf(relationship.getType().name());
             logger.debug("Mapping type " + type);
-            Node endNode = relationship.getEndNode();
-            Node startNode = relationship.getStartNode();
 
             switch (type) {
                 case BOARD:
@@ -60,39 +66,36 @@ public class MapPathToStages {
                 case INTERCHANGE_DEPART:
                     results.add(state.getVehicleStage(relationship));
                     break;
-                case TO_HOUR:
-                    break;
                 case TO_MINUTE:
                     state.beginTrip(relationship);
                     break;
                 case TRAM_GOES_TO:
                     state.passStop(relationship);
                     break;
-                case ENTER_PLATFORM:
-                    break;
-                case LEAVE_PLATFORM:
-                    break;
-
                 case WALKS_TO:
-//                    state.beginWalk();
-//                    state.endWalk(endNode);
+                    results.add(state.walk(relationship));
                     break;
                 case TO_SERVICE:
                     state.toService(relationship);
                     break;
-
+                case ENTER_PLATFORM:
+                    break;
+                case LEAVE_PLATFORM:
+                    break;
+                case TO_HOUR:
+                    break;
                 default:
                     throw new RuntimeException("Unexpected relationship in path " + path.toString());
 
             }
         }
-
         return results;
-
     }
 
     private class State {
         private final StationRepository stationRepository;
+        private final MyLocationFactory myLocationFactory;
+        private final PlatformRepository platformRepository;
 
         private LocalTime boardingTime;
         private Station boardingStation;
@@ -101,15 +104,20 @@ public class MapPathToStages {
         private String serviceId;
         private int passedStops;
         private int tripCost;
+        private Optional<Platform> boardingPlatform;
 
-        private State(StationRepository stationRepository) {
+        private State(StationRepository stationRepository, MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
             this.stationRepository = stationRepository;
+            this.myLocationFactory = myLocationFactory;
+            this.platformRepository = platformRepository;
             reset();
         }
 
         public void board(Relationship relationship) {
             boardingStation = stationRepository.getStation(relationship.getProperty(STATION_ID).toString()).get();
             routeCode = relationship.getProperty(ROUTE_ID).toString();
+            String stopId = relationship.getProperty(PLATFORM_ID).toString();
+            boardingPlatform = platformRepository.getPlatformById(stopId);
         }
 
         public RawVehicleStage getVehicleStage(Relationship relationship) {
@@ -121,9 +129,9 @@ public class MapPathToStages {
             rawVehicleStage.setDepartTime(boardingTime);
             rawVehicleStage.setServiceId(serviceId);
             rawVehicleStage.setLastStation(departStation, passedStops);
-//            LocalTime arrivalTime = currentTime.plusMinutes(currentCost);
-//            int cost = TramTime.diffenceAsMinutes(TramTime.of(boardingTime), TramTime.of(arrivalTime));
+            boardingPlatform.ifPresent(rawVehicleStage::setPlatform);
             rawVehicleStage.setCost(tripCost);
+
             reset();
             return rawVehicleStage;
         }
@@ -134,6 +142,7 @@ public class MapPathToStages {
             routeCode = "";
             tripId = "";
             serviceId = "";
+            boardingPlatform = Optional.empty();
         }
 
         public void beginTrip(Relationship relationship) {
@@ -147,100 +156,25 @@ public class MapPathToStages {
         }
 
         public void passStop(Relationship relationship) {
-            tripCost = tripCost + (int)relationship.getProperty(COST);
+            tripCost = tripCost + getCost(relationship);
             passedStops = passedStops + 1;
         }
-    }
 
-    private class OLDState {
-        private final RouteCodeToClassMapper routeIdToClass;
-        private final StationRepository stationRepository;
-
-        private boolean onTram = false;
-        private LocalTime currentTime;
-        private String tripId;
-        private String serviceId;
-        private String routeCode;
-        private boolean isWalking;
-        private int currentCost;
-        private Location firstLocation;
-        private LocalTime boardingTime;
-        private int boardingPending = -1;
-
-        public OLDState(RouteCodeToClassMapper routeIdToClass, StationRepository stationRepository, LocalTime queryTime) {
-            this.routeIdToClass = routeIdToClass;
-            this.stationRepository = stationRepository;
-            this.currentTime = queryTime;
+        private int getCost(Relationship relationship) {
+            return (int)relationship.getProperty(COST);
         }
 
-        public void board(Node boardingNode) {
-            boardingPending = currentCost;
-            //boardingTime = currentTime.plusMinutes(currentCost);
-            onTram = true;
-            serviceId = boardingNode.getProperty(GraphStaticKeys.SERVICE_ID).toString();
-            routeCode = boardingNode.getProperty(GraphStaticKeys.ROUTE_ID).toString();
-        }
+        public RawWalkingStage walk(Relationship relationship) {
+            int cost = getCost(relationship);
+            String stationId = relationship.getProperty(STATION_ID).toString();
+            Location destination = stationRepository.getStation(stationId).get();
+            Node startNode = relationship.getStartNode();
 
-        public boolean isOnTram() {
-            return onTram;
-        }
-
-        public RawVehicleStage departTram() {
-            RawVehicleStage rawVehicleStage = new RawVehicleStage(firstLocation, routeCode,
-                    TransportMode.Tram, routeIdToClass.map(routeCode));
-            rawVehicleStage.setTripId(tripId);
-            rawVehicleStage.setDepartTime(boardingTime);
-            rawVehicleStage.setServiceId(serviceId);
-            LocalTime arrivalTime = currentTime.plusMinutes(currentCost);
-            int cost = TramTime.diffenceAsMinutes(TramTime.of(boardingTime), TramTime.of(arrivalTime));
-            rawVehicleStage.setCost(cost);
-            return rawVehicleStage;
-        }
-
-        public void currentTime(LocalTime currentTime) {
-            if (boardingPending>0) {
-                boardingTime = currentTime.minusMinutes(currentCost-boardingPending);
-                boardingPending = -1;
-            }
-            this.currentTime = currentTime;
-            this.currentCost = 0;
-        }
-
-        public void currentTrip(String tripId) {
-            this.tripId = tripId;
-        }
-
-        public void beginWalk() {
-            isWalking = true;
-        }
-
-        public boolean isWalking() {
-            return isWalking;
-        }
-
-        public RawStage endWalk(Node node) {
-            String stationId = node.getProperty(GraphStaticKeys.STATION_ID).toString();
-            Location dest = stationRepository.getStation(stationId).get();
-            return new RawWalkingStage(firstLocation, dest, currentCost);
-        }
-
-        public void recordCost(Iterable<Relationship> relationships) {
-            Relationship relationship = relationships.iterator().next();
-            recordCost(relationship);
-        }
-
-        public void recordCost(Relationship relationship) {
-            int cost = (int) relationship.getProperty(COST);
-            currentCost = currentCost + cost;
-        }
-
-        public void recordLocation(Node node) {
-            if (!onTram) {
-                String id = node.getProperty(STATION_ID).toString();
-                firstLocation = stationRepository.getStation(id).get();
-            }
+            double lat = (double)startNode.getProperty(GraphStaticKeys.Station.LAT);
+            double lon =  (double)startNode.getProperty(GraphStaticKeys.Station.LONG);
+            Location start = myLocationFactory.create(new LatLong(lat,lon));
+            return new RawWalkingStage(start, destination, cost);
         }
     }
-
 
 }

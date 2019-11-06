@@ -33,7 +33,8 @@ public abstract class JourneyPlannerHelper {
                     String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
                             firstDepartureTime, previousArrive, stage);
                     if (stage.getMode()!= TransportMode.Walk) {
-                        assertTrue(prefix + message, firstDepartureTime.asLocalTime().isAfter(previousArrive.asLocalTime()));
+//                        assertTrue(prefix + message, firstDepartureTime.asLocalTime().isAfter(previousArrive.asLocalTime()));
+                        assertTrue(prefix + message, firstDepartureTime.isAfter(previousArrive));
                     }
                 }
                 previousArrive = stage.getExpectedArrivalTime();

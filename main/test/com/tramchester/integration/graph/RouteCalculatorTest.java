@@ -309,6 +309,7 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Stations.Cornbrook, Stations.Ashton, date, LocalTime.of(9,0), 7);
     }
 
+
     @Test
     public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
         // TODO To slow at the moment

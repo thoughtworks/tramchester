@@ -27,6 +27,15 @@ public abstract class TestConfig extends AppConfiguration {
         };
     }
 
+    ////// WORK IN PROGRESS
+
+    @Override
+    public boolean getEdgePerTrip() {
+        return false;
+    }
+
+    //////
+
     private List<String> closedStations = asList("St Peters Square");
 
     private boolean graphExists() {
@@ -136,12 +145,6 @@ public abstract class TestConfig extends AppConfiguration {
         return true; }
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
-
-    ////// WORK IN PROGRESS
-    @Override
-    public boolean getEdgePerTrip() {
-        return false;
-    }
 
     public static LocalDate nextTuesday(int offsetDays) {
         DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;

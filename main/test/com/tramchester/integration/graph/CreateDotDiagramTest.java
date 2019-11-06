@@ -17,9 +17,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static org.junit.Assume.assumeFalse;
 
 public class CreateDotDiagramTest {
     private static Dependencies dependencies;
+    private static boolean edgePerTrip;
     private GraphDatabaseService graphService;
     private RelationshipFactory relationshipFactory;
     private NodeFactory nodeFactory;
@@ -27,7 +29,9 @@ public class CreateDotDiagramTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
+        edgePerTrip = configuration.getEdgePerTrip();
+        dependencies.initialise(configuration);
     }
 
     @Before
@@ -44,6 +48,7 @@ public class CreateDotDiagramTest {
 
     @Test
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
+        assumeFalse(edgePerTrip);
         int depthLimit = 2;
 
         create(Stations.Deansgate, depthLimit);
@@ -60,6 +65,8 @@ public class CreateDotDiagramTest {
 
     @Test
     public void shouldProduceADotDiagramOfTheTramNetworkForMediaCityArea() throws IOException {
+        assumeFalse(edgePerTrip);
+
         int depthLimit = 5;
         create(Stations.MediaCityUK, depthLimit);
         create(Stations.HarbourCity, depthLimit);

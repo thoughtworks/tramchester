@@ -48,7 +48,6 @@ public class GraphWithSimpleRouteTest {
     private Station firstStation;
     private LocalTime queryTime;
 
-    // TODO Use dependency init instead, this is messy
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
         transportData = new TransportDataForTest();
@@ -94,6 +93,12 @@ public class GraphWithSimpleRouteTest {
 
         Set<RawJourney> journeys = calculator.calculateRoute(origin, walks, endStation, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertFalse(journeys.isEmpty());
+        journeys.forEach(journey ->{
+            List<RawStage> stages = journey.getStages();
+            assertEquals(2, stages.size());
+            assertTrue(stages.get(0).getMode().isWalk());
+            assertTrue(stages.get(1).getMode().isVehicle());
+        });
     }
 
     @Test
@@ -102,6 +107,13 @@ public class GraphWithSimpleRouteTest {
                 TransportDataForTest.INTERCHANGE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE, 1, "eAId");
+        checkForPlatforms(journeys);
+    }
+
+    private void checkForPlatforms(Set<RawJourney> journeys) {
+        journeys.forEach(journey ->{
+            journey.getStages().forEach(stage -> assertTrue(((RawVehicleStage)stage).getBoardingPlatform().isPresent()));
+        });
     }
 
     @Test
@@ -124,6 +136,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.STATION_FOUR, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
        assertTrue(journeys.size()>=1);
+       checkForPlatforms(journeys);
     }
 
     @Test
@@ -164,10 +177,11 @@ public class GraphWithSimpleRouteTest {
         RawJourney journey = (RawJourney)journeys.toArray()[0];
         List<RawStage> stages = journey.getStages();
         RawVehicleStage vehicleStage = (RawVehicleStage) stages.get(0);
-        assertEquals(firstStation,vehicleStage.getFirstStation().getId());
-        assertEquals(secondStation,vehicleStage.getLastStation().getId());
-        assertEquals(passedStops, vehicleStage.getPassedStops());
+        assertEquals(firstStation, vehicleStage.getFirstStation().getId());
+        assertEquals(secondStation, vehicleStage.getLastStation().getId());
+        assertEquals(passedStops,  vehicleStage.getPassedStops());
         assertEquals(displayClass, vehicleStage.getDisplayClass());
+        assertTrue(vehicleStage.getBoardingPlatform().isPresent());
         if (config.getEdgePerTrip()) {
             LocalTime departTime = vehicleStage.getDepartTime();
             assertTrue(departTime.isAfter(queryTime));

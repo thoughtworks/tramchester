@@ -128,11 +128,11 @@ public class TramGraphBuilderEdgePerTripTest {
     public void shouldCheckOutboundSvcRelationships() throws TramchesterException {
         assumeTrue(edgePerTrip);
 
-        checkOutboundConsistency(Stations.Cornbrook.getId(), RouteCodesForTesting.ALTY_TO_BURY);
-        checkOutboundConsistency(Stations.Cornbrook.getId(), RouteCodesForTesting.BURY_TO_ALTY);
-
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ALTY_TO_BURY);
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.BURY_TO_ALTY);
+
+        checkOutboundConsistency(Stations.Cornbrook.getId(), RouteCodesForTesting.BURY_TO_ALTY);
+        checkOutboundConsistency(Stations.Cornbrook.getId(), RouteCodesForTesting.ALTY_TO_BURY);
 
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
@@ -181,11 +181,11 @@ public class TramGraphBuilderEdgePerTripTest {
 
         assertTrue(graphOutbounds.size()>0);
 
-        List<TramNode> graphOutboundSvcs = graphOutbounds.stream().
+        Set<String> serviceRelatIds = graphOutbounds.stream().
                 filter(TransportRelationship::isServiceLink).
-                map(svc -> (ServiceRelationship) svc).
-                map(TransportCostRelationship::getEndNode).
-                collect(Collectors.toList());
+                map(relationship -> (ServiceRelationship) relationship).
+                map(svc -> svc.getServiceId()).
+                collect(Collectors.toSet());
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRouteId().equals(routeId)).
@@ -199,8 +199,14 @@ public class TramGraphBuilderEdgePerTripTest {
                 collect(Collectors.toSet());
 
         // each svc should be one outbound, no dups, so use list not set of ids
-        assertEquals(fileSvcIdFromTrips.size(), graphOutboundSvcs.size());
+        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
+        assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
 
+        Set<TramNode> graphOutboundSvcs = graphOutbounds.stream().
+                filter(TransportRelationship::isServiceLink).
+                map(relationship -> (ServiceRelationship) relationship).
+                map(svc -> svc.getEndNode()).
+                collect(Collectors.toSet());
         // service earliest/latest at nodes should match those from trips/stops
         graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
                 forEach(serviceNode -> {
@@ -216,7 +222,7 @@ public class TramGraphBuilderEdgePerTripTest {
                 });
     }
 
-    public void checkInboundConsistency(String stationId, String routeId) throws TramchesterException {
+    private void checkInboundConsistency(String stationId, String routeId) throws TramchesterException {
         List<TransportRelationship> inbounds = calculator.getInboundRouteStationRelationships(stationId + routeId);
 
         List<BoardRelationship> graphBoardAtStation = new LinkedList<>();

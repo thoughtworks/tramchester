@@ -256,6 +256,7 @@ public class TransportGraphBuilder extends StationIndexs {
                 // station -> platform
                 Relationship crossToPlatform = createRelationship(stationNode, platformNode, TransportRelationshipTypes.ENTER_PLATFORM);
                 crossToPlatform.setProperty(COST, PLATFORM_COST);
+                crossToPlatform.setProperty(GraphStaticKeys.PLATFORM_ID, stationOrPlatformID);
 
                 // platform -> station
                 Relationship crossFromPlatform = createRelationship(platformNode, stationNode, TransportRelationshipTypes.LEAVE_PLATFORM);
@@ -286,11 +287,13 @@ public class TransportGraphBuilder extends StationIndexs {
         // no boarding at the last stop of a trip
         if (!lastStop) {
             if (!hasBoarding(stationOrPlatformID, callingPointId, boardType)) {
+                stationOrPlatformID = stop.getId();
                 Relationship boardRelationship = createRelationship(platformNode, callingPoint, boardType);
                 boardRelationship.setProperty(COST, boardCost);
                 boardRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
                 boardRelationship.setProperty(ROUTE_ID, route.getId());
                 boardRelationship.setProperty(STATION_ID, station.getId());
+                boardRelationship.setProperty(PLATFORM_ID, stationOrPlatformID);
                 boardings.put(boardKey(callingPointId, stationOrPlatformID), boardType);
             }
         }

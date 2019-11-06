@@ -208,7 +208,7 @@ public class RouteCalculator extends StationIndexs {
             logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
             List<RawStage> stages;
             if (config.getEdgePerTrip()) {
-                stages = pathToStages.mapDirect(path, queryTime);
+                stages = pathToStages.mapDirect(path);
             } else {
                 stages = pathToStages.map(path, queryTime);
             }

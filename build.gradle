@@ -204,6 +204,7 @@ task ci_unit(type: Test) {
 }
 
 task integration(type: Test, dependsOn: compileJava) {
+    //maxHeapSize = '4g' // needed for edge per trip testing
     maxHeapSize = '2000m'
     useJUnit {
         filter {
@@ -237,8 +238,8 @@ task appium(type: Test) {
 }
 
 task localAppium(type: Test) {
-    dependsOn 'compileJava'
     dependsOn 'webpack'
+    dependsOn 'compileJava'
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"
