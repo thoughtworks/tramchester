@@ -101,8 +101,10 @@ public class TripTest {
         assertEquals(TramTime.create(23,46), times.first().getDepartureTime());
 
         times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(00,10), 30));
-        assertEquals(1, times.size());
-        assertEquals(TramTime.create(23,46), times.first().getDepartureTime());
+        assertEquals(0, times.size());
+
+        times = trip.getServiceTimes("statB", "statC", new TimeWindow(LocalTime.of(23,59), 30));
+        assertEquals(2, times.size());
 
         assertEquals(TramTime.create(6,30), trip.earliestDepartTime());
     }

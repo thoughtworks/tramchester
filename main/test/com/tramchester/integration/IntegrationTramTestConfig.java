@@ -35,7 +35,10 @@ public class IntegrationTramTestConfig extends TestConfig {
 
     // just getPlatformById one query time by doing this
     @Override
-    public int getQueryInterval() { return getMaxWait()+1; }
+    public int getQueryInterval() {
+        return 6;
+//        return getMaxWait()+1;
+    }
 
     @Override
     public ServerFactory getServerFactory() {

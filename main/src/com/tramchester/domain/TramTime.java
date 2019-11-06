@@ -84,6 +84,34 @@ public class  TramTime implements Comparable<TramTime> {
         }
     }
 
+    public static boolean checkTimingOfStops(TimeWindow timeWindow, TramTime firstStopDepartureTime, TramTime secondStopArriveTime) {
+        TramTime queryTime = TramTime.of(timeWindow.queryTime());
+        int window = timeWindow.withinMins();
+
+        // In the past
+        if (firstStopDepartureTime.isBefore(TramTime.of(timeWindow.queryTime()))) {
+            return false;
+        }
+//        if (firstStopDepartureTime.asLocalTime().isBefore(timeWindow.queryTime())) {
+//            if (!TramTime.isEarlyMorning(firstStopDepartureTime.getHourOfDay())) {
+//                return false;
+//            }
+//        }
+
+        if (secondStopArriveTime.asLocalTime().isBefore(firstStopDepartureTime.asLocalTime())) {
+            if (!TramTime.isEarlyMorning(secondStopArriveTime.getHourOfDay())) {
+                return false;
+            }
+        }
+
+        // too long to wait
+        if (TramTime.diffenceAsMinutes(firstStopDepartureTime,  queryTime) >= window) {
+            return false;
+        }
+
+        return true;
+    }
+
     public static boolean isLateNight(int hour) {
         return hour==23 || hour==22;
     }

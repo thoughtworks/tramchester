@@ -32,6 +32,13 @@ public class StopTimeDataParser implements CSVEntryParser<StopTimeData> {
         String pickupType = data[5];
         String dropOffType = data[6];
 
+        if (!arrivalTime.isPresent()) {
+            logger.error("Failed to parse arrival time from fields", data);
+        }
+        if (!departureTime.isPresent()) {
+            logger.error("Failed to parse arrival time from fields", data);
+        }
+
         return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
     }
 

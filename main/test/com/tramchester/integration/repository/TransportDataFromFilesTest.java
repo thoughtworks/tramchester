@@ -169,9 +169,20 @@ public class TransportDataFromFilesTest {
     public void shouldGetTripsCrossingMidnight() {
         // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById(svcShawAndCrompton);
-        Optional<Trip> trips = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
+        Optional<Trip> trip = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(LocalTime.of(23,35), 30));
-        assertTrue(trips.isPresent());
+        assertTrue(trip.isPresent());
+    }
+
+    @Test
+    public void shouldGetTripJustAfterMidnight() {
+        Service svc = transportData.getServiceById("Serv000444");
+        Optional<Trip> trip = svc.getFirstTripAfter(Stations.TraffordBar.getId(), Stations.Altrincham.getId(),
+                new TimeWindow(LocalTime.of(0,1), 60));
+        trip.ifPresent(result -> {
+            TramTime depart = result.earliestDepartTime();
+            assertTrue(depart.between(TramTime.of(0,1), TramTime.of(1,1)));
+        });
     }
 
     @Test

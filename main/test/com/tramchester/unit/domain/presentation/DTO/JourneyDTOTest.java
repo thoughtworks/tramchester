@@ -32,6 +32,18 @@ public class JourneyDTOTest {
     }
 
     @Test
+    public void shouldCompareJourneysNearMidnight() throws TramchesterException {
+        JourneyDTO journeyC = new JourneyDTO(stationA, stationB, new LinkedList<>(),
+                TramTime.create(23, 27), TramTime.create(23, 47),
+                false, changeStations);
+        JourneyDTO journeyD = new JourneyDTO(stationA, stationB, new LinkedList<>(),
+                TramTime.create(0, 3), TramTime.create(23, 23),
+                false, changeStations);
+        assertTrue(journeyC.compareTo(journeyD)<0);
+        assertTrue(journeyD.compareTo(journeyC)>0);
+    }
+
+    @Test
     public void shouldCompareJourneysBasedOnEarliestArrival() {
         assertTrue(journeyA.compareTo(journeyB)<0);
         assertTrue(journeyB.compareTo(journeyA)>0);

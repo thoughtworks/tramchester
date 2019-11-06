@@ -40,6 +40,7 @@ public class Stations {
     public static Location MarketStreet = createStation("9400ZZMAMKT", "Market Street Area", "Market Street");
     public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
     public static Location StWerburghsRoad = createStation("9400ZZMASTW", "Chorlton", "St Werburgh's Road");
+    public static Location Shudehill = createStation("9400ZZMASHU","Manchester City Centre", "Shudehill");
 
     private static List<Location> EndOfTheLineWest = Arrays.asList(Altrincham,
             ManAirport,

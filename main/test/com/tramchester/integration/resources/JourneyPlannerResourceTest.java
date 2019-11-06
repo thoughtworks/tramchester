@@ -105,6 +105,19 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldReproLateNightIssueShudehillToAltrincham() {
+        LocalTime timeForQuery = LocalTime.of(23,11);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, timeForQuery,
+                new TramServiceDate(LocalDate.now()));
+
+        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        assertTrue(journeys.size()>0);
+        journeys.forEach(journeyDTO -> {
+            assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime()));
+        });
+    }
+
+    @Test
     public void shouldPlanSimpleJourneyFromAltyToAshton() {
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, LocalTime.of(17,45),

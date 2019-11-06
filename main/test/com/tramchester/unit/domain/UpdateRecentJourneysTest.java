@@ -55,12 +55,12 @@ public class UpdateRecentJourneysTest {
         updated = updateWithPause(updated, "id1");
 
         Set<Timestamped> from = updated.getRecentIds();
-        assertEquals(3, from.size());
+        assertEquals(4, from.size());
         assertTrue(from.containsAll(ts("id1", "id2", "id3")));
 
         updated = updateWithPause(updated, "id5");
         from = updated.getRecentIds();
-        assertEquals(3, from.size());
+        assertEquals(5, from.size());
         assertTrue(from.containsAll(ts("id1", "id2", "id5")));
     }
 

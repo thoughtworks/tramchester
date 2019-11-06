@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.junit.Test;
@@ -35,21 +36,23 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldParseHMS() throws TramchesterException {
+    public void shouldParseHMS() {
         checkCorrectTimePresent(TramTime.parse("11:23:00"), 11, 23);
         checkCorrectTimePresent(TramTime.parse("00:15:00"), 00, 15);
         checkCorrectTimePresent(TramTime.parse("23:35:00"), 23, 35);
     }
 
     @Test
-    public void shouldParseHM() throws TramchesterException {
+    public void shouldParseHM() {
         checkCorrectTimePresent(TramTime.parse("11:23"), 11, 23);
         checkCorrectTimePresent(TramTime.parse("00:15"), 00, 15);
         checkCorrectTimePresent(TramTime.parse("23:35"), 23, 35);
+        checkCorrectTimePresent(TramTime.parse("23:47"), 23, 47);
+
     }
 
     @Test
-    public void shouldParseEmptyIfInvalid() throws TramchesterException {
+    public void shouldParseEmptyIfInvalid() {
         assertFalse(TramTime.parse("43:12").isPresent());
         assertFalse(TramTime.parse("12:99").isPresent());
     }
@@ -101,9 +104,77 @@ public class TramTimeTest {
     }
 
     @Test
+    public void shouldTestTimeWindowsIntervalNearMidnight() {
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(0,1),60);
+        TramTime firstStopDepart = TramTime.of(23,9);
+        TramTime secondStopArrival = TramTime.of(23, 27);
+        assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+    }
+
+    @Test
+    public void shouldTestTimeWindowsIntervalAfterMidnight() {
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(0,1),60);
+        TramTime firstStopDepart = TramTime.of(0,9);
+        TramTime secondStopArrival = TramTime.of(0, 27);
+        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+    }
+
+    @Test
+    public void shouldTestTimeWindowsEarlyMorning() {
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(1,1),60);
+        TramTime firstStopDepart = TramTime.of(1,9);
+        TramTime secondStopArrival = TramTime.of(1, 27);
+        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+    }
+
+    @Test
+    public void shouldTestTimeWindowsIntervalBeforeMidnight() {
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(23,10),60);
+        TramTime firstStopDepart = TramTime.of(23,20);
+        TramTime secondStopArrival = TramTime.of(23, 55);
+        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+    }
+
+    @Test
+    public void shouldTestTimeWindowsIntervalOverMidnight() {
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(23,45),60);
+        TramTime firstStopDepart = TramTime.of(23,55);
+        TramTime secondStopArrival = TramTime.of(0, 15);
+        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+    }
+
+    @Test
+    public void shouldTestTimeWindows() {
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(10, 1), 60);
+        TramTime firstStopDepart = TramTime.of(10, 30);
+        TramTime secondStopArrival = TramTime.of(10, 35);
+        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+    }
+
+    @Test
+    public void shouldTestTimeWindowsNoMatch() {
+        TimeWindow timeWindow = new TimeWindow(LocalTime.of(10,1),60);
+        TramTime firstStopDepart = TramTime.of(9,9);
+        TramTime secondStopArrival = TramTime.of(9, 27);
+        assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+    }
+
+    @Test
     public void shouldOrderTramTimesCorrectlyOverMidnight() throws TramchesterException {
         TramTime timeA = TramTime.create(00,10);
         TramTime timeB =  TramTime.create(23,10); // show first
+
+        SortedSet<TramTime> set = new TreeSet<>();
+        set.add(timeA);
+        set.add(timeB);
+
+        assertEquals(timeB,set.first());
+    }
+
+    @Test
+    public void shouldOrderTramTimesNearMidnight() throws TramchesterException {
+        TramTime timeA = TramTime.create(23,47);
+        TramTime timeB =  TramTime.create(23,23); // show first
 
         SortedSet<TramTime> set = new TreeSet<>();
         set.add(timeA);

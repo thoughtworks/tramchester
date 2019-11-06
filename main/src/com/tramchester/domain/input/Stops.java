@@ -90,29 +90,10 @@ public class Stops  implements Iterable<Stop> {
     private boolean checkTiming(Stop firstStop, Stop secondStop, TimeWindow timeWindow) {
         TramTime firstStopDepartureTime = firstStop.getDepartureTime();
         TramTime secondStopArriveTime = secondStop.getArrivalTime();
-        TramTime queryTime = TramTime.of(timeWindow.queryTime());
-        int window = timeWindow.withinMins();
-
-        // In the past
-        if (firstStopDepartureTime.asLocalTime().isBefore(timeWindow.queryTime())) {
-            if (!TramTime.isEarlyMorning(firstStopDepartureTime.getHourOfDay())) {
-                return false;
-            }
-        }
-
-        if (secondStopArriveTime.asLocalTime().isBefore(firstStopDepartureTime.asLocalTime())) {
-            if (!TramTime.isEarlyMorning(secondStopArriveTime.getHourOfDay())) {
-                return false;
-            }
-        }
-
-        // too long to wait
-        if (TramTime.diffenceAsMinutes(firstStopDepartureTime,  queryTime) >= window) {
-            return false;
-        }
-
-        return true;
+        return TramTime.checkTimingOfStops(timeWindow, firstStopDepartureTime, secondStopArriveTime);
     }
+
+
 
     public int size() {
         return stops.size();
