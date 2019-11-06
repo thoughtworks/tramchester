@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
@@ -12,12 +13,11 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.TransportDataSource;
 import com.tramchester.resources.RouteCodeToClassMapper;
+import com.tramchester.services.SpatialService;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -27,58 +27,45 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GraphWithSimpleRouteTest {
 
     private static final String TMP_DB = "tmp.db";
 
-    private static TransportDataForTest transportData;
+    private static TransportDataSource transportData;
     private static RouteCalculator calculator;
-    private static GraphDatabaseService graphDBService;
-    private static RelationshipFactory relationshipFactory;
-    private static NodeFactory nodeFactory;
+    private static Dependencies dependencies;
+    private static IntegrationTramTestConfig config;
+
     private TramServiceDate queryDate;
     private List<LocalTime> queryTimes;
     private Station firstStation;
+    private LocalTime queryTime;
 
     // TODO Use dependency init instead, this is messy
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
         transportData = new TransportDataForTest();
 
-        File dbFile = new File(TMP_DB);
-        FileUtils.deleteDirectory(dbFile);
-        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
-        graphDBService = graphDatabaseFactory.newEmbeddedDatabase(dbFile);
-        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
+        dependencies = new Dependencies();
+        config = new IntegrationTramTestConfig(TMP_DB);
+        FileUtils.deleteDirectory( new File(TMP_DB));
 
-        nodeFactory = new NodeFactory();
-        relationshipFactory = new RelationshipFactory(nodeFactory);
+        dependencies.initialise(config, transportData);
 
-        CachedNodeOperations nodeOperations = new CachedNodeOperations();
+        calculator = dependencies.get(RouteCalculator.class);
+    }
 
-        TramchesterConfig configuration = new IntegrationTramTestConfig();
-
-        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
-                spatialDatabaseService, configuration);
-        builder.buildGraph();
-
-        RouteCodeToClassMapper routeIdToClass = new RouteCodeToClassMapper();
-        PathToTransportRelationship pathToRelationships  = new PathToTransportRelationship(relationshipFactory);
-        MyLocationFactory myLocationFactory = new MyLocationFactory(new ObjectMapper());
-        MapTransportRelationshipsToStages relationshipsToStages =
-                new MapTransportRelationshipsToStages(routeIdToClass, transportData, transportData, myLocationFactory);
-
-        CostEvaluator<Double> costEvaluator = new CachingCostEvaluator();
-
-        MapPathToStages mapper = new MapPathToStages(pathToRelationships, relationshipsToStages, routeIdToClass, transportData);
-        calculator = new RouteCalculator(graphDBService, transportData, nodeFactory, relationshipFactory,
-                spatialDatabaseService, nodeOperations, mapper, costEvaluator, configuration);
+    @AfterClass
+    public static void onceAfterAllTestsRun() throws IOException {
+        dependencies.close();
+        FileUtils.deleteDirectory( new File(TMP_DB));
     }
 
     @Before
@@ -87,7 +74,8 @@ public class GraphWithSimpleRouteTest {
         // note: trams only run at specific times so still only getPlatformById one journey in results
         //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
-        queryTimes = Collections.singletonList(LocalTime.of(7, 57));
+        queryTime = LocalTime.of(7, 57);
+        queryTimes = Collections.singletonList(queryTime);
     }
 
     @Test
@@ -95,7 +83,17 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.SECOND_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION, 0);
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION, 0, "eAId");
+    }
+
+    @Test
+    public void shouldHaveSimpleWalkAndTramTrip() {
+        LatLong origin = new LatLong(180.001, 270.001);
+        Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
+        List<StationWalk> walks = Collections.singletonList(new StationWalk(firstStation, 1));
+
+        Set<RawJourney> journeys = calculator.calculateRoute(origin, walks, endStation, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        assertFalse(journeys.isEmpty());
     }
 
     @Test
@@ -103,7 +101,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.INTERCHANGE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE, 1);
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE, 1, "eAId");
     }
 
     @Test
@@ -118,7 +116,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
                 TransportDataForTest.LAST_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION, 2);
+        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION, 2, "eAId");
     }
 
     @Test
@@ -143,6 +141,10 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void createDiagramOfTestNetwork() throws IOException {
+        NodeFactory nodeFactory = dependencies.get(NodeFactory.class);
+        RelationshipFactory relationshipFactory = dependencies.get(RelationshipFactory.class);
+        GraphDatabaseService graphDBService = dependencies.get(GraphDatabaseService.class);
+
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphDBService, Integer.MAX_VALUE);
         creator.create("test_network.dot", TransportDataForTest.FIRST_STATION);
     }
@@ -158,12 +160,18 @@ public class GraphWithSimpleRouteTest {
 
     }
 
-    private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation, int passedStops) {
+    private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation, int passedStops, String displayClass) {
         RawJourney journey = (RawJourney)journeys.toArray()[0];
         List<RawStage> stages = journey.getStages();
         RawVehicleStage vehicleStage = (RawVehicleStage) stages.get(0);
         assertEquals(firstStation,vehicleStage.getFirstStation().getId());
         assertEquals(secondStation,vehicleStage.getLastStation().getId());
         assertEquals(passedStops, vehicleStage.getPassedStops());
+        assertEquals(displayClass, vehicleStage.getDisplayClass());
+        if (config.getEdgePerTrip()) {
+            LocalTime departTime = vehicleStage.getDepartTime();
+            assertTrue(departTime.isAfter(queryTime));
+        }
+        assertTrue(vehicleStage.getCost()>0);
     }
 }

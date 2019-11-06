@@ -13,9 +13,19 @@ import java.util.Set;
 
 public class IntegrationTramTestConfig extends TestConfig {
 
+    private final String dbName;
+
+    public IntegrationTramTestConfig() {
+       this("int_test_tramchester.db");
+    }
+
+    public IntegrationTramTestConfig(String dbName) {
+        this.dbName = dbName;
+    }
+
     @Override
     public String getGraphName() {
-        return "int_test_tramchester.db";
+        return dbName;
     }
 
     @Override
@@ -33,11 +43,9 @@ public class IntegrationTramTestConfig extends TestConfig {
         return Paths.get("data/tram");
     }
 
-    // just getPlatformById one query time by doing this
     @Override
     public int getQueryInterval() {
         return 6;
-//        return getMaxWait()+1;
     }
 
     @Override

@@ -6,10 +6,13 @@ import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
+import com.tramchester.repository.TransportDataSource;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,7 +22,7 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.Station.METROLINK_PREFIX;
 import static java.lang.String.format;
 
-public class TransportDataForTest implements TransportData, StationRepository, PlatformRepository {
+public class TransportDataForTest implements TransportDataSource {
     private String serviceAId = "serviceAId";
     private String serviceBId = "serviceBId";
     private String serviceCId = "serviceCId";
@@ -178,5 +181,20 @@ public class TransportDataForTest implements TransportData, StationRepository, P
     @Override
     public Optional<Platform> getPlatformById(String platformId) {
         return Optional.ofNullable(platforms.get(platformId));
+    }
+
+    @Override
+    public List<AreaDTO> getAreas() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public Trip getTrip(String tripId) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation, TimeWindow window) {
+        throw new RuntimeException("Not implemented");
     }
 }

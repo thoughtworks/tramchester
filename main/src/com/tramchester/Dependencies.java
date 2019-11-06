@@ -15,10 +15,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.*;
-import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.RoutesRepository;
-import com.tramchester.repository.TransportDataFromFiles;
-import com.tramchester.repository.VersionRepository;
+import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
 import com.tramchester.services.StationLocalityService;
@@ -54,15 +51,40 @@ public class Dependencies {
     }
 
     public void initialise(TramchesterConfig configuration) throws IOException {
-        logger.info("Creating dependencies");
-
         // caching is on by default
-
         picoContainer.addComponent(TramchesterConfig.class, configuration);
-        picoContainer.addComponent(FileModTime.class);
+
+        // only needed if loading data?
+        picoContainer.addComponent(TransportDataReaderFactory.class);
+        picoContainer.addComponent(TransportDataWriterFactory.class);
+        picoContainer.addComponent(DataCleanser.class);
         picoContainer.addComponent(URLDownloader.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
         picoContainer.addComponent(Unzipper.class);
+        picoContainer.addComponent(TransportDataImporter.class);
+
+        FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
+        Unzipper unzipper = get(Unzipper.class);
+        fetcher.fetchData(unzipper);
+        cleanseData();
+
+        TransportDataImporter transportDataImporter = get(TransportDataImporter.class);
+        TransportDataSource transportData = transportDataImporter.load();
+
+        initialise(configuration, transportData);
+
+    }
+
+    public void initialise(TramchesterConfig configuration, TransportDataSource transportData) throws IOException {
+        logger.info("Creating dependencies");
+
+        // caching is on by default
+        if (picoContainer.getComponent(TramchesterConfig.class)==null) {
+            picoContainer.addComponent(TramchesterConfig.class, configuration);
+        }
+        picoContainer.addComponent(TransportDataSource.class, transportData);
+
+        picoContainer.addComponent(FileModTime.class);
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(DeparturesResource.class);
@@ -80,7 +102,6 @@ public class Dependencies {
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
-        picoContainer.addComponent(TransportDataReaderFactory.class);
 
         if (configuration.getEdgePerTrip()) {
             picoContainer.addComponent(TramJourneyResponseWithTimesMapper.class);
@@ -113,9 +134,6 @@ public class Dependencies {
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(MyLocationFactory.class);
-        picoContainer.addComponent(TransportDataImporter.class);
-        picoContainer.addComponent(DataCleanser.class);
-        picoContainer.addComponent(TransportDataWriterFactory.class);
 
         // TODO still needed now jodatime removed?
         ObjectMapper objectMapper = new ObjectMapper();
@@ -139,15 +157,6 @@ public class Dependencies {
         picoContainer.addComponent(NewDataAvailableHealthCheck.class);
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
 
-        FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
-        Unzipper unzipper = get(Unzipper.class);
-
-        fetcher.fetchData(unzipper);
-
-        cleanseData();
-
-        TransportDataImporter transportDataImporter = get(TransportDataImporter.class);
-        picoContainer.addComponent(TransportDataFromFiles.class, transportDataImporter.load());
         createGraph(configuration);
     }
 

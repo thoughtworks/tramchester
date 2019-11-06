@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class TransportDataFromFiles implements TransportData, AreasRepository, PlatformRepository, ServiceTimes {
+public class TransportDataFromFiles implements TransportDataSource {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip

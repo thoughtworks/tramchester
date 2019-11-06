@@ -166,7 +166,7 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(6, results.size());
+        assertEquals(3, results.size());
 
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
@@ -186,7 +186,7 @@ public class AppUserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
         validateAStage(stage, firstResult.getDepartTime(), "Board", altrincham, 1,
-                "RouteClass1", "Altrincham - Manchester - Bury", Stations.Bury.getName(), 9);
+                "RouteClass2", "Altrincham - Piccadilly", Stations.Piccadilly.getName(), 9);
     }
 
     @Test
@@ -241,7 +241,7 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(6, results.size());
+        assertEquals(3, results.size());
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
             assertTrue(result.getDepartTime().isAfter(previous));

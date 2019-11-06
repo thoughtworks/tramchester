@@ -1,12 +1,10 @@
 package com.tramchester.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.repository.StationRepository;
@@ -14,7 +12,6 @@ import com.tramchester.services.SpatialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +22,6 @@ import static java.lang.String.format;
 public class LocationToLocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationToLocationJourneyPlanner.class);
 
-    private final ObjectMapper objectMapper;
     private final double walkingSpeed;
     private SpatialService spatialService;
     private RouteCalculator routeCalculator;
@@ -37,7 +33,6 @@ public class LocationToLocationJourneyPlanner {
         this.walkingSpeed = config.getWalkingMPH();
         this.routeCalculator = routeCalculator;
         this.stationRepository = stationRepository;
-        objectMapper = new ObjectMapper();
     }
 
     public Set<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<LocalTime> queryTimes,

@@ -46,7 +46,6 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private RouteCalculator routeCalculator;
     private JourneysMapper journeysMapper;
     private CreateQueryTimes createQueryTimes;
-    private final ObjectMapper objectMapper;
     private ProvidesNotes providesNotes;
     private LiveDataRepository liveDataRepositoy;
 
@@ -60,7 +59,6 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
         this.createQueryTimes = createQueryTimes;
-        this.objectMapper = objectMapper;
         this.providesNotes = providesNotes;
         this.liveDataRepositoy = liveDataRepositoy;
     }

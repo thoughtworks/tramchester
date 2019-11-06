@@ -290,6 +290,7 @@ public class TransportGraphBuilder extends StationIndexs {
                 boardRelationship.setProperty(COST, boardCost);
                 boardRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
                 boardRelationship.setProperty(ROUTE_ID, route.getId());
+                boardRelationship.setProperty(STATION_ID, station.getId());
                 boardings.put(boardKey(callingPointId, stationOrPlatformID), boardType);
             }
         }
@@ -467,6 +468,7 @@ public class TransportGraphBuilder extends StationIndexs {
             Relationship fromPrevious = createRelationship(previousNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
             fromPrevious.setProperty(COST, 0);
             fromPrevious.setProperty(TIME, time);
+            fromPrevious.setProperty(TRIP_ID, tripId);
         }
         return timeNode;
     }
