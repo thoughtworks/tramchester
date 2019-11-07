@@ -56,6 +56,18 @@ public class SendMetricsToCloudWatch {
                 .withValue(zeroFilter(timer.getFifteenMinuteRate()))
                 .withDimensions(resourcesDimension)
                 .withUnit(StandardUnit.Count));
+        result.add(new MetricDatum()
+                .withMetricName(name+"_1minsRate")
+                .withTimestamp(timestamp)
+                .withValue(zeroFilter(timer.getOneMinuteRate()))
+                .withDimensions(resourcesDimension)
+                .withUnit(StandardUnit.Count));
+        result.add(new MetricDatum()
+                .withMetricName(name+"_mean")
+                .withTimestamp(timestamp)
+                .withValue(zeroFilter(timer.getMeanRate()))
+                .withDimensions(resourcesDimension)
+                .withUnit(StandardUnit.Count));
         return result;
     }
 
