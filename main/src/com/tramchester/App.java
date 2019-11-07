@@ -3,6 +3,7 @@ package com.tramchester;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.healthchecks.*;
@@ -123,26 +124,20 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(AreaResource.class));
         environment.jersey().register(dependencies.get(DeparturesResource.class));
 
-        environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
-        environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
-        environment.healthChecks().register("liveData", dependencies.get(LiveDataHealthCheck.class));
-        environment.healthChecks().register("newData", dependencies.get(NewDataAvailableHealthCheck.class));
-        environment.healthChecks().register("liveDataMessages", dependencies.get(LiveDataMessagesHealthCheck.class));
-
         filtersForStaticContent(environment);
 
         // initial load of live data
         LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
         liveDataRepository.refreshRespository();
 
-        // custom metrics
+        // custom metrics for live data and messages
         MetricRegistry metricRegistry = environment.metrics();
         metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "number"),
                 (Gauge<Integer>) () -> liveDataRepository.countEntries());
         metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
                 (Gauge<Integer>) () -> liveDataRepository.countMessages());
 
-        // report specific metrics to cloudwatch
+        // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                 dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
@@ -156,10 +151,24 @@ public class App extends Application<AppConfiguration>  {
                 logger.error("Unable to refresh live data", exeception);
             }
         }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
-        environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
 
+        // archive live data in S3
         UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
         liveDataRepository.observeUpdates(observer);
+
+        // health check registration
+        environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
+        environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
+        environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
+        environment.healthChecks().register("liveData", dependencies.get(LiveDataHealthCheck.class));
+        environment.healthChecks().register("newData", dependencies.get(NewDataAvailableHealthCheck.class));
+        environment.healthChecks().register("liveDataMessages", dependencies.get(LiveDataMessagesHealthCheck.class));
+
+        // serve healthcheck (additionally) on seperate URL as we don't want to expose whole of Admin pages
+        environment.servlets().addServlet(
+                "HealthCheckServlet",
+                new HealthCheckServlet(environment.healthChecks())
+            ).addMapping("/healthcheck");
 
         // ready to serve traffic
         logger.info("Prepare to signal cloud formation if running in cloud");
