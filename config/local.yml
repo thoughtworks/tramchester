@@ -1,11 +1,13 @@
 server:
-  type: simple
   applicationContextPath: /
   rootPath: /api/*
+  applicationConnectors:
+    - type: http
+      port: 8080
   adminContextPath: /admin
-  connector:
-    type: http
-    port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
   gzip:
     enabled: true
     bufferSize: 8KiB

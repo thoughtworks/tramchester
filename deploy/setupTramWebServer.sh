@@ -35,9 +35,8 @@ logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $PLACE
 distUrl=$ARTIFACTSURL/$BUILD/tramchester-1.0.zip
 dist=`basename $distUrl`
 
-# set up overrides for server config so data is pulled at start up
+# set up overrides for server config so data is pulled from S3 at start up
 export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
-export TRAM_PULLDATA=true
 
 target=tramchester-1.0
 
