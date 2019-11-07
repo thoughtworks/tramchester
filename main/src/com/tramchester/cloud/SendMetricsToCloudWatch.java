@@ -16,10 +16,14 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.*;
 
+import static java.lang.String.format;
+
 public class SendMetricsToCloudWatch {
     private static final Logger logger = LoggerFactory.getLogger(SendMetricsToCloudWatch.class);
     private final Dimension countersDimenion;
     private final Dimension resourcesDimension;
+    // lower limit set by AWS, request will thrown exception if between zero and this number
+    public static final double LOWER_LIMIT = 8.515920e-109;
 
     private AmazonCloudWatch client;
 
@@ -43,13 +47,13 @@ public class SendMetricsToCloudWatch {
         result.add(new MetricDatum()
                 .withMetricName(name)
                 .withTimestamp(timestamp)
-                .withValue((double) timer.getCount())
+                .withValue(zeroFilter(timer.getCount()))
                 .withUnit(StandardUnit.Count)
                 .withDimensions(resourcesDimension));
         result.add(new MetricDatum()
                 .withMetricName(name+"_15minsRate")
                 .withTimestamp(timestamp)
-                .withValue(timer.getFifteenMinuteRate())
+                .withValue(zeroFilter(timer.getFifteenMinuteRate()))
                 .withDimensions(resourcesDimension)
                 .withUnit(StandardUnit.Count));
         return result;
@@ -59,7 +63,7 @@ public class SendMetricsToCloudWatch {
         return new MetricDatum()
                 .withMetricName(name)
                 .withTimestamp(timestamp)
-                .withValue(Double.valueOf(gauge.getValue()))
+                .withValue(zeroFilter(gauge.getValue()))
                 .withUnit(StandardUnit.Count)
                 .withDimensions(countersDimenion);
 
@@ -71,19 +75,25 @@ public class SendMetricsToCloudWatch {
         result.add(new MetricDatum()
                 .withMetricName(name)
                 .withTimestamp(timestamp)
-                .withValue(Double.valueOf(meter.getCount()))
+                .withValue(zeroFilter(meter.getCount()))
                 .withUnit(StandardUnit.Count)
                 .withDimensions(countersDimenion));
 
         result.add(new MetricDatum()
                 .withMetricName(name+"_1minsRate")
                 .withTimestamp(timestamp)
-                .withValue(Double.valueOf(meter.getOneMinuteRate()))
+                .withValue(zeroFilter(meter.getOneMinuteRate()))
                 .withUnit(StandardUnit.Count)
                 .withDimensions(countersDimenion));
 
         return result;
+    }
 
+    public static Double zeroFilter(double value) {
+        if (value<=LOWER_LIMIT) {
+            return 0D;
+        }
+        return value;
     }
 
     public void putMetricData(String nameSpace, SortedMap<String, Timer> timers,
@@ -111,7 +121,8 @@ public class SendMetricsToCloudWatch {
                 client.putMetricData(request);
             }
             catch (AmazonServiceException exception) {
-                logger.warn("Unable to log metrics to cloudwatch with namespace "+nameSpace,exception);
+                logger.error(format("Unable to log metrics to cloudwatch with namespace %s and batch %s",
+                        nameSpace, batch), exception);
             }
             batch = formBatch(metricDatum, batchSize);
         }

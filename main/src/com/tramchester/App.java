@@ -156,20 +156,7 @@ public class App extends Application<AppConfiguration>  {
                 logger.error("Unable to refresh live data", exeception);
             }
         }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
-
-        // todo into own class
-        environment.healthChecks().register("liveDataJobCheck", new HealthCheck() {
-            @Override
-            protected Result check() {
-                if (liveDataFuture.isDone()) {
-                    logger.error("Live data job is done");
-                    return Result.unhealthy("Live data job is done");
-                } else if (liveDataFuture.isCancelled()) {
-                    logger.error("Live data job is cancelled");
-                    return Result.unhealthy("Live data job is cancelled");
-                } else return Result.healthy();
-            }
-        });
+        environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
 
         UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
         liveDataRepository.observeUpdates(observer);

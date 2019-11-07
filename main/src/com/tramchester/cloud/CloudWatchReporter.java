@@ -50,7 +50,8 @@ public class CloudWatchReporter extends ScheduledReporter {
                     metersToSend.put(createLogMetricName(name), meter);
             }
         });
-        logger.info(String.format("Send %s cloudwatch metrics", timersToSend.size()));
+        logger.info(String.format("Send %s timers %s gauges %s meters to cloudwatch metrics",
+                timersToSend.size(),gaugesToSend.size(),metersToSend.size()));
         client.putMetricData(formNamespace(PREFIX, providesConfig), timersToSend, gaugesToSend, metersToSend);
     }
 
