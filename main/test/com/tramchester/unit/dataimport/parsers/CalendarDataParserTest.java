@@ -1,10 +1,13 @@
 package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.CalendarData;
-import com.tramchester.dataimport.parsers.CalendarDataParser;
+import com.tramchester.dataimport.parsers.CalendarDataMapper;
+import com.tramchester.dataimport.parsers.DataRecord;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,9 +15,10 @@ public class CalendarDataParserTest {
     private String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
 
     @Test
-    public void shouldParseTrip() throws Exception {
-        CalendarDataParser calendarParserTest = new CalendarDataParser();
-        CalendarData calendarData = calendarParserTest.parseEntry(this.calendar.split(","));
+    public void shouldParseTrip() throws IOException {
+        CalendarDataMapper calendarParserTest = new CalendarDataMapper(Collections.emptySet());
+
+        CalendarData calendarData = calendarParserTest.parseEntry(ParserBuilder.getRecordFor(calendar));
 
         assertThat(calendarData.getServiceId()).isEqualTo("Serv000001");
         assertThat(calendarData.isMonday()).isEqualTo(true);

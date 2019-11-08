@@ -1,9 +1,8 @@
 package com.tramchester.dataimport;
 
-import com.googlecode.jcsv.CSVStrategy;
-import com.googlecode.jcsv.reader.CSVEntryParser;
-import com.googlecode.jcsv.reader.CSVReader;
-import com.googlecode.jcsv.reader.internal.CSVReaderBuilder;
+import com.tramchester.dataimport.parsers.CSVEntryMapper;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,63 +10,49 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class DataLoader<T> {
     private final String fileName;
-    private final CSVEntryParser<T> parser;
+    private final CSVEntryMapper<T> mapper;
     private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
-    private Optional<Reader> reader;
 
-
-    public DataLoader(String fileName, CSVEntryParser<T> parser) {
+    public DataLoader(String fileName, CSVEntryMapper<T> mapper) {
         this.fileName = fileName;
-        this.parser = parser;
-        reader = Optional.empty();
+        this.mapper = mapper;
     }
 
-    private void close() {
-        reader.ifPresent(r -> {
+    public Stream<T> loadAll(boolean skipHeaders) {
             try {
-                r.close();
-            } catch (IOException e) {
-                logger.warn("could not close "+fileName, e);
-            }
-        });
-    }
-
-
-    public Stream<T> loadAll(boolean skipHeader) {
-        logger.info("Loading data from " + fileName + ".txt file.");
-        try {
-            FileReader theReader = new FileReader(String.format("%s.txt", fileName));
-            reader = Optional.of(theReader);
-
-            CSVStrategy csvStrategy;
-            if (skipHeader) {
-                csvStrategy = new CSVStrategy(',', '"', '#', true, true);
-            } else
-            {
-                csvStrategy = CSVStrategy.UK_DEFAULT;
-            }
-
-            CSVReader<T> csvPersonReader = new CSVReaderBuilder<T>(theReader)
-                    .entryParser(parser)
-                    .strategy(csvStrategy)
-                    .build();
-
-            logger.info("Finished loading data from " + fileName + ".txt file.");
-
-            Stream<T> resultStream = StreamSupport.stream(csvPersonReader.spliterator(), false);
-            Runnable closeHandler = () -> close();
-            resultStream.onClose(closeHandler);
-            return resultStream;
-
+            Reader in = new FileReader(fileName);
+                CSVParser parser = createParser(in);
+                if (skipHeaders) {
+                    parser.iterator().next();
+                }
+                Stream<T> result = StreamSupport.stream(parser.spliterator(), false)
+                        .filter(mapper::filter).map(mapper::parseEntry);
+            result.onClose(() -> {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    logger.error("Exception while closing file "+fileName, e);
+                }
+            });
+                return result;
         } catch (FileNotFoundException e) {
-            logger.error("File not found: " + fileName + ".txt",e);
+            String msg = "Unable to load from file " + fileName;
+            logger.error(msg,e);
+            throw new RuntimeException(msg,e);
+        } catch (IOException e) {
+            logger.error("Unable to parse file "+fileName, e);
+            return Stream.empty();
         }
-        return Stream.empty();
     }
+
+    public static CSVParser createParser(Reader in) throws IOException {
+        CSVFormat csvFormat = CSVFormat.DEFAULT;
+        return csvFormat.parse(in);
+    }
+
 }

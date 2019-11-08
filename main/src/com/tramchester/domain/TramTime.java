@@ -42,7 +42,7 @@ public class  TramTime implements Comparable<TramTime> {
     public static Optional<TramTime> parse(String text) {
         String[] split = text.split(":",3);
 
-        Integer hour = Integer.parseInt(split[0]);
+        int hour = Integer.parseInt(split[0]);
         // Received Tram data contains 24 and 25 as an hour
         if (hour==24) {
             hour = 0;
@@ -50,7 +50,7 @@ public class  TramTime implements Comparable<TramTime> {
         if (hour==25) {
             hour = 1;
         }
-        Integer minutes = Integer.parseInt(split[1]);
+        int minutes = Integer.parseInt(split[1]);
         if (hour>23 || minutes>59) {
             return Optional.empty();
         }

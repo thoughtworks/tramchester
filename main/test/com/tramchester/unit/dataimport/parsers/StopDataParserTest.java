@@ -1,29 +1,41 @@
 package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopData;
-import com.tramchester.dataimport.parsers.StopDataParser;
+import com.tramchester.dataimport.parsers.StopDataMapper;
+import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 
 public class StopDataParserTest {
 
-    private StopDataParser stopDataParser;
+    private String stopA = "9400ZZMAWYT2,mantwjdt,\"Wythenshawe,Wythenshawe Town Centre (Manchester Metrolink)\",53.38003," +
+            "-2.26381,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT2";
 
-    @Before
-    public void beforeEachTestRuns() {
-        stopDataParser = new StopDataParser();
+    private String stopB = "800NEH0341,missing,\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\",53.53509,-2.19333"+
+            ",http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341";
+
+
+    @Test
+    public void shouldFilterCorrectly() throws IOException {
+        StopDataMapper stopDataParser = new StopDataMapper(Collections.singleton("9400ZZMAWYT2"));
+
+        assertTrue(stopDataParser.filter(ParserBuilder.getRecordFor(stopA)));
+        assertFalse(stopDataParser.filter(ParserBuilder.getRecordFor(stopB)));
     }
 
     @Test
-    public void shouldParseTramStop() throws Exception {
-        String[] stop = new String[] {"9400ZZMAWYT2", "mantwjdt",
-                "\"Wythenshawe,Wythenshawe Town Centre (Manchester Metrolink)\""
-                , "53.38003", "-2.26381",
-                "http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT2"};
+    public void shouldParseTramStop() throws IOException {
+        StopDataMapper stopDataParser = new StopDataMapper(Collections.emptySet());
 
-        StopData stopData = stopDataParser.parseEntry(stop);
+        StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(stopA));
 
         assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT2");
         assertThat(stopData.getCode()).isEqualTo("mantwjdt");
@@ -35,11 +47,10 @@ public class StopDataParserTest {
     }
 
     @Test
-    public void shouldParseTramStopMultipleCommas() throws Exception {
-        String[] stop = new String[] {"800NEH0341","missing","\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\"",
-                "53.53509","-2.19333",
-                "http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341" };
-        StopData stopData = stopDataParser.parseEntry(stop);
+    public void shouldParseTramStopMultipleCommas() throws IOException {
+        StopDataMapper stopDataParser = new StopDataMapper(Collections.emptySet());
+
+        StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(stopB));
 
         assertThat(stopData.getId()).isEqualTo("800NEH0341");
         assertThat(stopData.getCode()).isEqualTo("missing");

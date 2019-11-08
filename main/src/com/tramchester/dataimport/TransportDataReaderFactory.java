@@ -16,14 +16,16 @@ public class TransportDataReaderFactory {
     public TransportDataReader getForCleanser() {
         if (readerForCleanser==null) {
             Path path = config.getDataPath().resolve(config.getUnzipPath());
-            readerForCleanser = new TransportDataReader(path, true);
+            DataLoaderFactory factory = new DataLoaderFactory(path);
+            readerForCleanser = new TransportDataReader(factory, true);
         }
         return readerForCleanser;
     }
 
     public TransportDataReader getForLoader() {
         if (readerForLoader==null) {
-            readerForLoader = new TransportDataReader(config.getDataPath(), false);
+            DataLoaderFactory factory = new DataLoaderFactory(config.getDataPath());
+            readerForLoader = new TransportDataReader(factory,  false);
         }
         return readerForLoader;
     }

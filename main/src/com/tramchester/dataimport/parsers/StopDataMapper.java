@@ -1,16 +1,25 @@
 package com.tramchester.dataimport.parsers;
 
-import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.dataimport.data.StopData;
+import org.apache.commons.csv.CSVRecord;
 
-public class StopDataParser implements CSVEntryParser<StopData> {
+import java.util.Set;
+
+public class StopDataMapper implements CSVEntryMapper<StopData> {
 
     public static String tramStation = " (Manchester Metrolink)";
+    private final boolean includeAll;
+    private final Set<String> stopIds;
 
-    public StopData parseEntry(String... data) {
-        String id = data[0];
-        String code = data[1];
-        String name = data[2];
+    public StopDataMapper(Set<String> stopIds) {
+        includeAll = stopIds.isEmpty();
+        this.stopIds = stopIds;
+    }
+
+    public StopData parseEntry(CSVRecord data) {
+        String id = getStopId(data);
+        String code = data.get(1);
+        String name = data.get(2);
 
         String[] nameParts = name.split(",");
         String area;
@@ -36,17 +45,29 @@ public class StopDataParser implements CSVEntryParser<StopData> {
         }
 
         double latitude = 0;
-        String latStr = data[3];
+        String latStr = data.get(3);
         if (latStr.contains(".")) {
             latitude = Double.parseDouble(latStr);
         }
 
         double longitude = 0;
-        String longStr = data[4];
+        String longStr = data.get(4);
         if (longStr.contains(".")) {
             longitude = Double.parseDouble(longStr);
         }
 
         return new StopData(id, code, area, stopName, latitude, longitude, isTram);
+    }
+
+    private String getStopId(CSVRecord data) {
+        return data.get(0);
+    }
+
+    @Override
+    public boolean filter(CSVRecord data) {
+        if (includeAll) {
+            return true;
+        }
+        return stopIds.contains(getStopId(data));
     }
 }

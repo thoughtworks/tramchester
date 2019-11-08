@@ -1,8 +1,7 @@
 package com.tramchester.dataimport.parsers;
 
-import com.googlecode.jcsv.reader.CSVEntryParser;
 import com.tramchester.domain.FeedInfo;
-
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,21 +10,26 @@ import java.time.format.DateTimeFormatter;
 
 import static java.lang.String.format;
 
-public class FeedInfoDataParser implements CSVEntryParser<FeedInfo> {
-    private static final Logger logger = LoggerFactory.getLogger(FeedInfoDataParser.class);
+public class FeedInfoDataMapper implements CSVEntryMapper<FeedInfo> {
+    private static final Logger logger = LoggerFactory.getLogger(FeedInfoDataMapper.class);
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @Override
-    public FeedInfo parseEntry(String... data) {
-        String publisherName = data[0];
-        String publisherUrl = data[1];
-        String timezone = data[2];
-        String lang = data[3];
-        LocalDate validFrom = parseDate(data[4]);
-        LocalDate validTo = parseDate(data[5]);
-        String version = data[6];
+    public FeedInfo parseEntry(CSVRecord data) {
+        String publisherName = data.get(0);
+        String publisherUrl = data.get(1);
+        String timezone = data.get(2);
+        String lang = data.get(3);
+        LocalDate validFrom = parseDate(data.get(4));
+        LocalDate validTo = parseDate(data.get(5));
+        String version = data.get(6);
 
         return new FeedInfo(publisherName, publisherUrl, timezone, lang, validFrom, validTo, version);
+    }
+
+    @Override
+    public boolean filter(CSVRecord data) {
+        return true;
     }
 
     private LocalDate parseDate(String str) {

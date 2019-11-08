@@ -7,6 +7,9 @@ import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +22,8 @@ public class TramDataLoaderTest {
 
     @Test
     public void shouldLoadRouteData() {
-        DataLoader<RouteData> dataLoader = new DataLoader<>("data/test/routes", new RouteDataParser());
+        HashSet<String> agencies = new HashSet<>(Arrays.asList("MET"));
+        DataLoader<RouteData> dataLoader = new DataLoader<>("data/test/routes.txt", new RouteDataMapper(agencies));
         List<RouteData> routeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);
@@ -31,21 +35,8 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadAgencyData() {
-        DataLoader<AgencyData> dataLoader = new DataLoader<>("data/test/agency", new AgencyDataParser());
-        List<AgencyData> agencyData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
-
-        assertThat(agencyData).hasSize(43);
-        agencyData.removeIf(agent -> !agent.getId().equals("MET"));
-        assertThat(agencyData).hasSize(1);
-        AgencyData anAgent = agencyData.get(0);
-        assertThat(anAgent.getName()).isEqualTo("Metrolink");
-        assertThat(anAgent.getUrl()).isEqualTo("http://www.tfgm.com");
-    }
-
-    @Test
     public void shouldLoadCalendarData() {
-        DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar", new CalendarDataParser());
+        DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar.txt", new CalendarDataMapper(Collections.EMPTY_SET));
         List<CalendarData> calendarData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(12);
@@ -56,7 +47,7 @@ public class TramDataLoaderTest {
 
     @Test
     public void shouldLoadStopData() {
-        DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops", new StopDataParser());
+        DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops.txt", new StopDataMapper(Collections.EMPTY_SET));
         List<StopData> stopData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(stopData).hasSize(178);
@@ -70,7 +61,8 @@ public class TramDataLoaderTest {
 
     @Test
     public void shouldLoadStopTimeData() throws TramchesterException {
-        DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times", new StopTimeDataParser());
+        DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times.txt",
+                new StopTimeDataMapper(Collections.emptySet()));
         List<StopTimeData> stopTimeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(20);
@@ -85,7 +77,7 @@ public class TramDataLoaderTest {
 
     @Test
     public void shouldLoadTripData() {
-        DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips", new TripDataParser());
+        DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips.txt", new TripDataMapper(Collections.EMPTY_SET));
         List<TripData> tripData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(tripData).hasSize(20);
