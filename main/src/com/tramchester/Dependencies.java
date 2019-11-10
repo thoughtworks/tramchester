@@ -134,6 +134,7 @@ public class Dependencies {
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(MyLocationFactory.class);
+        picoContainer.addComponent(TramRouteReachable.class);
 
         // TODO still needed now jodatime removed?
         ObjectMapper objectMapper = new ObjectMapper();

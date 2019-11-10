@@ -175,7 +175,7 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        PathInterest<Double> pathInterest = PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS);
+        //PathInterest<Double> pathInterest = PathInterestFactory.numberOfShortest(NoneStrictMath.EPSILON, MAX_NUM_GRAPH_PATHS);
 
         Dijkstra pathFinder = new Dijkstra(pathExpander, costEvaluator,
                 PathInterestFactory.allShortest(NoneStrictMath.EPSILON));
