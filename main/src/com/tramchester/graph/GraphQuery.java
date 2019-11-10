@@ -100,7 +100,7 @@ public class GraphQuery {
         }
         List<TransportRelationship> result = new LinkedList<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            routeStationNode.getRelationships(direction).forEach(
+            routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(
                     relationship -> result.add(relationshipFactory.getRelationship(relationship)));
             tx.success();
         }

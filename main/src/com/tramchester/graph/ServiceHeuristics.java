@@ -42,8 +42,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger dateWrong = new AtomicInteger(0);
     private final AtomicInteger timeWrong = new AtomicInteger(0);
 
-    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations, TramchesterConfig config,
-                             LocalTime queryTime, Set<String> runningServices, Set<String> preferRoutes,
+    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations,
+                             TramchesterConfig config, LocalTime queryTime, Set<String> runningServices,
+                             Set<String> preferRoutes,
                              String endStationId) {
         this.nodeOperations = nodeOperations;
         this.config = config;
@@ -283,5 +284,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public boolean toEndStation(Relationship depart) {
         return depart.getProperty(GraphStaticKeys.STATION_ID).toString().equals(endStationId);
+    }
+
+    public boolean matchesRoute(String routeId) {
+        return preferRoutes.contains(routeId);
     }
 }

@@ -56,15 +56,19 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
 
         departs = createMock(Relationship.class);
         EasyMock.expect(departs.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(false);
+        EasyMock.expect(departs.isType(TransportRelationshipTypes.ON_ROUTE)).andStubReturn(false);
 
         boards = createMock(Relationship.class);
         EasyMock.expect(boards.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(false);
+        EasyMock.expect(boards.isType(TransportRelationshipTypes.ON_ROUTE)).andStubReturn(false);
 
         goesToA = createMock(Relationship.class);
         EasyMock.expect(goesToA.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(true);
+        EasyMock.expect(goesToA.isType(TransportRelationshipTypes.ON_ROUTE)).andStubReturn(false);
 
         goesToB = createMock(Relationship.class);
         EasyMock.expect(goesToB.isType(TransportRelationshipTypes.TRAM_GOES_TO)).andStubReturn(true);
+        EasyMock.expect(goesToB.isType(TransportRelationshipTypes.ON_ROUTE)).andStubReturn(false);
 
         mockRelationshipFactory = createMock(RelationshipFactory.class);
         serviceHeuristics = createMock(ServiceHeuristics.class);

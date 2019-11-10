@@ -80,7 +80,7 @@ public class DiagramCreator {
     }
 
     private void visitInbounds(Node rawNode, StringBuilder builder, List<String> seen, int depth, String currentNodeId) {
-        rawNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.values()).forEach(inboundEdge -> {
+        rawNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.forPlanning()).forEach(inboundEdge -> {
             TransportRelationship inboundRelationship = relationshipFactory.getRelationship(inboundEdge);
 
             Node rawSourceNode = inboundEdge.getStartNode();
@@ -130,7 +130,7 @@ public class DiagramCreator {
     private void visitOutbounds(Node rawNode, StringBuilder builder, List<String> seen, int depth, String currentNodeId) {
         Set<TramGoesToRelationship> tramGoesToRelationships = new HashSet<>();
 
-        rawNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.values()).forEach(outputBoundEdge -> {
+        rawNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.forPlanning()).forEach(outputBoundEdge -> {
             TransportRelationship outboundRelationship = relationshipFactory.getRelationship(outputBoundEdge);
 
             Node rawEndNode = outputBoundEdge.getEndNode();

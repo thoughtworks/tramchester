@@ -144,4 +144,7 @@ public class CachedNodeOperations {
         return flag;
     }
 
+    public String getRoute(Relationship outboundRelationship) {
+        return outboundRelationship.getProperty(ROUTE_ID).toString();
+    }
 }

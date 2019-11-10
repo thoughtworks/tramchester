@@ -9,6 +9,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
+import com.tramchester.integration.Stations;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
@@ -30,7 +31,7 @@ public class TransportDataForTest implements TransportDataSource {
     public static final String FIRST_STATION = METROLINK_PREFIX+"_ST_FIRST";
     public static final String SECOND_STATION = METROLINK_PREFIX+"_ST_SECOND";
     public static final String LAST_STATION = METROLINK_PREFIX+"_ST_LAST";
-    public static final String INTERCHANGE = TramInterchanges.CORNBROOK;
+    public static final String INTERCHANGE = Stations.Cornbrook.getId();
     public static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
 
     private Map<String, Station> stationMap = new HashMap<>();

@@ -15,7 +15,7 @@ public class StationTest {
 
     @Test
     public void shouldHaveCorrectTestDataForStationInterchanges() {
-        assertEquals(TramInterchanges.stations().size(),Stations.Interchanges.size());
+        assertEquals(TramInterchanges.stations().size(), Stations.Interchanges.size());
     }
 
     @Test

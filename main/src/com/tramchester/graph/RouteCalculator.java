@@ -194,8 +194,8 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        Iterable<WeightedPath> pathIterator = new TramNetworkTraverser(serviceHeutistics, nodeOperations, queryTime, endNode).
-                findPaths(startNode);
+        Iterable<WeightedPath> pathIterator = new TramNetworkTraverser(serviceHeutistics, nodeOperations,
+                queryTime, endNode, MAX_NUM_GRAPH_PATHS).findPaths(startNode);
 
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }

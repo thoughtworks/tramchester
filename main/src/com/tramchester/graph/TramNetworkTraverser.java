@@ -24,19 +24,23 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
     private final CachedNodeOperations nodeOperations;
     private final LocalTime queryTime;
     private final long destinationNodeId;
+    private int success;
 
     private final Map<Arrow, Set<TramTime>> visited;
 
     // TODO CALC these
-    private final int pathLimit = 400;
+    private final int pathLimit = 400; // path length limit, includes *all* edges
     private final int maxJourneyMins = 170; // longest end to end is 163?
+    private final int pathsLimit;
 
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
-                                CachedNodeOperations nodeOperations, LocalTime queryTime, Node destinationNode) {
+                                CachedNodeOperations nodeOperations, LocalTime queryTime, Node destinationNode, int pathsLimit) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.queryTime = queryTime;
         this.destinationNodeId = destinationNode.getId();
+        this.pathsLimit = pathsLimit;
+        success = 0;
 
         visited = new HashMap<>();
     }
@@ -58,7 +62,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
                 expand(this, JourneyState.initialState(queryTime)).
                 evaluator(this).
                 uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST).
+                order(BranchOrderingPolicies.PREORDER_DEPTH_FIRST).
                 traverse(startNode);
 
         ResourceIterator<Path> iterator = traverser.iterator();
@@ -97,10 +101,15 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
     @Override
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
 
+        if (success>=pathsLimit) {
+            return Evaluation.EXCLUDE_AND_PRUNE;
+        }
+
         Node endNode = path.endNode();
         long endNodeId = endNode.getId();
 
         if (endNodeId==destinationNodeId) {
+            success = success + 1;
             return Evaluation.INCLUDE_AND_PRUNE;
         }
 
@@ -218,7 +227,8 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
         }
     }
 
-    private Iterable<Relationship> fromRSfilteredByTripAndDepart(JourneyState journeyState, Iterable<Relationship> outboundRelationships) {
+    private Iterable<Relationship> fromRSfilteredByTripAndDepart(JourneyState journeyState,
+                                                                 Iterable<Relationship> outboundRelationships) {
         LinkedList<Relationship> results = new LinkedList<>();
 
         if (journeyState.hasIdTrip()) {
@@ -244,7 +254,12 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             for (Relationship outboundRelationship : outboundRelationships) {
                 if (outboundRelationship.isType(TO_SERVICE)) {
                     // TODO order these?
-                    results.add(outboundRelationship);
+                    String routeId = nodeOperations.getRoute(outboundRelationship);
+                    if (serviceHeuristics.matchesRoute(routeId)) {
+                        results.addFirst(outboundRelationship);
+                    } else {
+                        results.addLast(outboundRelationship);
+                    }
                 } else {
                     // ONLY depart again if at actual destination node
                     if (serviceHeuristics.toEndStation(outboundRelationship)) {

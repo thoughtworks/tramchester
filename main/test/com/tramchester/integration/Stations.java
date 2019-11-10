@@ -55,7 +55,8 @@ public class Stations {
     public static List<Location> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 
     public static List<Location> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
-            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
+            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly);
+            //,HarbourCity, ShawAndCrompton);
 
     public static Station createStation(String id, String area, String name) {
         return new Station(id, area, name, position, true);

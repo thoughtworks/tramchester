@@ -69,6 +69,9 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
         public boolean hasNext() {
             while (relationships.hasNext()) {
                 next = relationships.next();
+                if (next.isType(ON_ROUTE)) {
+                    continue;
+                }
                 if (next.isType(TRAM_GOES_TO)) {
                     if (interestedIn(next)) {
                         return true;

@@ -49,6 +49,7 @@ public class CreateDotDiagramTest {
     @Test
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
         assumeFalse(edgePerTrip);
+
         int depthLimit = 2;
 
         create(Stations.Deansgate, depthLimit);
@@ -59,7 +60,7 @@ public class CreateDotDiagramTest {
         create(Stations.Victoria, depthLimit);
 
         create(Arrays.asList(
-                new Location[]{Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare }), 4);
+                Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare), 4);
 
     }
 
@@ -73,7 +74,7 @@ public class CreateDotDiagramTest {
         create(Stations.Piccadilly, depthLimit);
 
         create(Arrays.asList(
-                new Location[]{Stations.StPetersSquare,Stations.Deansgate,Stations.Cornbrook,Stations.Pomona }), 5);
+                Stations.StPetersSquare,Stations.Deansgate,Stations.Cornbrook,Stations.Pomona), 5);
     }
 
 
