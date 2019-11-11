@@ -47,6 +47,7 @@ public class RelationshipFactory {
                 case TO_SERVICE: return new ServiceRelationship(graphRelationship, nodeFactory);
                 case TO_HOUR: return new HourRelationship(graphRelationship, nodeFactory);
                 case TO_MINUTE: return new MinuteRelationship(graphRelationship,nodeFactory);
+                case ON_ROUTE: return new RouteRelationship(graphRelationship, nodeFactory);
                 default:
                     throw new IllegalArgumentException("Unexpected relationship type: " + relationshipType);
             }

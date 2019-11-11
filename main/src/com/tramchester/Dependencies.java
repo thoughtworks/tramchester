@@ -135,6 +135,7 @@ public class Dependencies {
         picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(MyLocationFactory.class);
         picoContainer.addComponent(TramRouteReachable.class);
+        picoContainer.addComponent(ReachabilityRepository.class);
 
         // TODO still needed now jodatime removed?
         ObjectMapper objectMapper = new ObjectMapper();
@@ -159,6 +160,9 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
 
         createGraph(configuration);
+
+        ReachabilityRepository reachabilityRepository = get(ReachabilityRepository.class);
+        reachabilityRepository.buildRepository();
     }
 
     private void cleanseData() throws IOException {

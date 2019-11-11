@@ -16,7 +16,7 @@ public interface TransportRelationship {
     boolean isHourLink();
     boolean isMinuteLink();
     boolean isEndServiceLink();
-
+    boolean isRoute();
 
     int getCost();
     String getId();

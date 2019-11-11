@@ -9,12 +9,12 @@ import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
-import org.neo4j.graphalgo.impl.util.PathInterest;
 import org.neo4j.graphalgo.impl.util.PathInterestFactory;
 import org.neo4j.graphdb.*;
 import org.neo4j.kernel.impl.util.NoneStrictMath;
@@ -42,10 +42,11 @@ public class RouteCalculator extends StationIndexs {
     private final TramchesterConfig config;
     private final CachedNodeOperations nodeOperations;
     private final TransportData transportData;
+    private final ReachabilityRepository reachabilityRepository;
 
     public RouteCalculator(GraphDatabaseService db, TransportData transportData, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
                            SpatialDatabaseService spatialDatabaseService, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
-                           CostEvaluator<Double> costEvaluator, TramchesterConfig config) {
+                           CostEvaluator<Double> costEvaluator, TramchesterConfig config, ReachabilityRepository reachabilityRepository) {
         super(db, relationshipFactory, spatialDatabaseService, true);
         this.transportData = transportData;
         this.nodeFactory = nodeFactory;
@@ -53,6 +54,7 @@ public class RouteCalculator extends StationIndexs {
         this.pathToStages = pathToStages;
         this.costEvaluator = costEvaluator;
         this.config = config;
+        this.reachabilityRepository = reachabilityRepository;
     }
 
     public Set<RawJourney> calculateRoute(String startStationId, String endStationId, List<LocalTime> queryTimes,
@@ -138,7 +140,7 @@ public class RouteCalculator extends StationIndexs {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
 
         queryTimes.forEach(queryTime -> {
-            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config,
+            ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
                     queryTime, runningServicesIds, preferRoutes, endStationId);
 
             logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",

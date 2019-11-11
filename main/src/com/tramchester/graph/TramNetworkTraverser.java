@@ -16,6 +16,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
+import static org.neo4j.graphdb.traversal.Uniqueness.RELATIONSHIP_GLOBAL;
 
 public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
@@ -61,8 +62,8 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
                 relationships(TO_MINUTE, Direction.OUTGOING).
                 expand(this, JourneyState.initialState(queryTime)).
                 evaluator(this).
-                uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_DEPTH_FIRST).
+                uniqueness(RELATIONSHIP_GLOBAL).
+                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST). //DEPTH FIRST causes visiting all stages
                 traverse(startNode);
 
         ResourceIterator<Path> iterator = traverser.iterator();
@@ -86,11 +87,11 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
     }
 
     private WeightedPath calculateWeight(Path path) {
-        Integer result = 0;
+        int result = 0;
         for (Relationship relat: path.relationships()) {
             result = result + nodeOperations.getCost(relat);
         }
-        return new WeightedPathImpl(result.doubleValue(), path);
+        return new WeightedPathImpl(result, path);
     }
 
     @Override
@@ -125,6 +126,12 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             }
         }
 
+        if (nodeOperations.isRouteStation(endNode)) {
+            if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
+        }
+
         JourneyState journeyState = state.getState();
         LocalTime currentElapsed = journeyState.getTime();
         TramTime visitingTime = TramTime.of(currentElapsed);
@@ -151,7 +158,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
 
         // journey too long?
         if (TramTime.diffenceAsMinutes( TramTime.of(queryTime), visitingTime)>maxJourneyMins) {
-            return Evaluation.INCLUDE_AND_PRUNE;
+            return Evaluation.INCLUDE_AND_PRUNE; // TODO EXCLUDE??
         }
 
         // service available to catch?
@@ -241,7 +248,7 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
                     if (trips.contains(tripId)) {
                         results.add(outboundRelationship);
                     }
-                } else {
+                } else if (TransportRelationshipTypes.isForPlanning(outboundRelationship.getType())){
                     // departing current tram
                     if (serviceHeuristics.toEndStation(outboundRelationship)) {
                         return Collections.singleton(outboundRelationship);
@@ -253,14 +260,13 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
             // No trip id means we have just boarded
             for (Relationship outboundRelationship : outboundRelationships) {
                 if (outboundRelationship.isType(TO_SERVICE)) {
-                    // TODO order these?
                     String routeId = nodeOperations.getRoute(outboundRelationship);
                     if (serviceHeuristics.matchesRoute(routeId)) {
                         results.addFirst(outboundRelationship);
                     } else {
                         results.addLast(outboundRelationship);
                     }
-                } else {
+                } else if (TransportRelationshipTypes.isForPlanning(outboundRelationship.getType())){
                     // ONLY depart again if at actual destination node
                     if (serviceHeuristics.toEndStation(outboundRelationship)) {
                         return Collections.singleton(outboundRelationship);

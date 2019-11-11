@@ -9,6 +9,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
+import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
@@ -33,6 +34,8 @@ public class TransportDataForTest implements TransportDataSource {
     public static final String LAST_STATION = METROLINK_PREFIX+"_ST_LAST";
     public static final String INTERCHANGE = Stations.Cornbrook.getId();
     public static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
+    public static final String STATION_FIVE = METROLINK_PREFIX+"_ST_FIVE";
+
 
     private Map<String, Station> stationMap = new HashMap<>();
     private Map<String,Platform> platforms;
@@ -46,19 +49,21 @@ public class TransportDataForTest implements TransportDataSource {
         routes = new LinkedList<>();
         services = new HashSet<>();
         platforms = new HashMap<>();
-        Route routeA = new Route("routeAId", "routeACode", "routeA", "MET");
-        Route routeB = new Route("routeBId", "routeBCode", "routeB", "MET");
+        Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", "MET");
+        Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", "MET");
+        Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", "MET");
 
         routes.add(routeA);
         routes.add(routeB);
+        routes.add(routeC);
 
         Service serviceA = new Service(serviceAId, routeA.getId());
-        routeA.addService(serviceA);
-
         Service serviceB = new Service(serviceBId, routeB.getId());
-        Service serviceC = new Service(serviceCId, routeB.getId());
+        Service serviceC = new Service(serviceCId, routeC.getId());
+
+        routeA.addService(serviceA);
         routeB.addService(serviceB);
-        routeB.addService(serviceC);
+        routeC.addService(serviceC);
 
         serviceA.setDays(true, false, false, false, false, false, false);
         serviceB.setDays(true, false, false, false, false, false, false);
@@ -100,16 +105,19 @@ public class TransportDataForTest implements TransportDataSource {
         // service
         serviceA.addTrip(tripA);
 
-        // INTERTERCHANGE -> LAST_STATION
-        Trip tripC = new Trip("tripCId", "headSign", serviceAId, routeA.getId());
-        Stop stopG = createStop(interchangeStation, TramTime.create(9, 05), TramTime.create(9, 15), routeB.getId(), serviceCId, 1);
-        Stop stopH = createStop(last, TramTime.create(9, 16), TramTime.create(9, 20), routeB.getId(), serviceCId, 2);
+        Station four = new Station(STATION_FOUR, "area4", "Station4", new LatLong(170.00, 160.00), true);
+        addStation(four);
+
+        Station five = new Station(STATION_FIVE, "area5", "Station5", new LatLong(170.00, 160.00), true);
+        addStation(five);
+
+        //
+        Trip tripC = new Trip("tripCId", "headSignC", serviceCId, routeC.getId());
+        Stop stopG = createStop(interchangeStation, TramTime.create(8, 26), TramTime.create(8, 27), routeC.getId(), serviceCId, 1);
+        Stop stopH = createStop(five, TramTime.create(8, 31), TramTime.create(8, 33), routeC.getId(), serviceCId, 2);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         serviceC.addTrip(tripC);
-
-        Station four = new Station(STATION_FOUR, "area5", "Station4", new LatLong(170.00, 160.00), true);
-        addStation(four);
 
         // INTERCHANGE -> STATION_FOUR
         createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(8, 26), "tripBId");

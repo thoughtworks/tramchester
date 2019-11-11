@@ -123,5 +123,8 @@ public abstract class TransportCostRelationship implements TransportRelationship
     @Override
     public boolean isEndServiceLink() { return false; }
 
+    @Override
+    public boolean isRoute() { return false; }
+
 
 }

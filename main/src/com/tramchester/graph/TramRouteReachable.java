@@ -18,8 +18,8 @@ public class TramRouteReachable extends StationIndexs {
         super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
     }
 
-    public boolean getRouteReachable(String startStationId, String endStationId, String routeId) {
-        Evaluator evaluator = new ExactMatchEvaluator(endStationId, routeId);
+    public boolean getRouteReachable(String startStationId, String targetStationId, String routeId) {
+        Evaluator evaluator = new ExactMatchEvaluator(targetStationId, routeId);
         return evaluatePaths(startStationId, evaluator);
     }
 
@@ -55,8 +55,8 @@ public class TramRouteReachable extends StationIndexs {
         private final String routeId;
         private final String finishNodeId;
 
-        public ExactMatchEvaluator(String finishNodeId, String routeId) {
-            this.finishNodeId = finishNodeId;
+        public ExactMatchEvaluator(String targetStationId, String routeId) {
+            this.finishNodeId = targetStationId;
             this.routeId = routeId;
         }
 
@@ -64,6 +64,7 @@ public class TramRouteReachable extends StationIndexs {
         public Evaluation evaluate(Path path) {
             Node queryNode = path.endNode();
 
+            // route stations include the ID of the final station
             if (queryNode.hasLabel(ROUTE_STATION)) {
                 String routeStationId = queryNode.getProperty(STATION_ID).toString();
                 if (finishNodeId.equals(routeStationId)) {
@@ -99,11 +100,11 @@ public class TramRouteReachable extends StationIndexs {
             Node queryNode = path.endNode();
 
             if (queryNode.hasLabel(ROUTE_STATION)) {
-                String routeStationId = queryNode.getProperty(STATION_ID).toString();
-                if (endStationId.equals(routeStationId)) {
+                String currentStationId = queryNode.getProperty(STATION_ID).toString();
+                if (endStationId.equals(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE;
                 }
-                if (TramInterchanges.has(routeStationId)) {
+                if (TramInterchanges.has(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE;
                 }
             }

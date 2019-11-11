@@ -86,7 +86,6 @@ public class MapPathToStages {
                     break;
                 default:
                     throw new RuntimeException("Unexpected relationship in path " + path.toString());
-
             }
         }
         return results;

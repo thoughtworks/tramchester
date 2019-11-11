@@ -181,14 +181,15 @@ public class TramGraphBuilderEdgePerTripTest {
 
         assertTrue(graphOutbounds.size()>0);
 
-        Set<String> serviceRelatIds = graphOutbounds.stream().
+        List<String> serviceRelatIds = graphOutbounds.stream().
                 filter(TransportRelationship::isServiceLink).
                 map(relationship -> (ServiceRelationship) relationship).
-                map(svc -> svc.getServiceId()).
-                collect(Collectors.toSet());
+                map(ServiceRelationship::getServiceId).
+                collect(Collectors.toList());
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRouteId().equals(routeId)).
+                filter(svc -> svc.isRunning()).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.callsAt(stationId)).

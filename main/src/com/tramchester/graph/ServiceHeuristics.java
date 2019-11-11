@@ -5,6 +5,7 @@ import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
+import com.tramchester.repository.ReachabilityRepository;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -19,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
 public class ServiceHeuristics implements PersistsBoardingTime {
@@ -30,6 +30,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final String endStationId;
     private final LocalTime queryTime;
     private final List<ServiceReason> reasons;
+    private final ReachabilityRepository reachabilityRepository;
 
     private final CostEvaluator<Double> costEvaluator;
     private final CachedNodeOperations nodeOperations;
@@ -37,16 +38,15 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final int maxWaitMinutes;
 
     // stats
+    private final Map<ServiceReason.ReasonCode,AtomicInteger> statistics;
     private final AtomicInteger totalChecked = new AtomicInteger(0);
-    private final AtomicInteger inflightChange = new AtomicInteger(0);
-    private final AtomicInteger dateWrong = new AtomicInteger(0);
-    private final AtomicInteger timeWrong = new AtomicInteger(0);
 
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations,
-                             TramchesterConfig config, LocalTime queryTime, Set<String> runningServices,
+                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, LocalTime queryTime, Set<String> runningServices,
                              Set<String> preferRoutes,
                              String endStationId) {
         this.nodeOperations = nodeOperations;
+        this.reachabilityRepository = reachabilityRepository;
         this.config = config;
 
         this.costEvaluator = costEvaluator;
@@ -61,6 +61,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         // diagnostics, needs debug
         reasons = new LinkedList<>();
+
+        statistics = new HashMap<>();
+        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
     
     // edge per trip
@@ -74,9 +77,12 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return recordReason(ServiceReason.IsValid(path,"dateDay"));
         }
 
-        dateWrong.incrementAndGet();
         return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
 
+    }
+
+    private void incrementStat(ServiceReason.ReasonCode reasonCode) {
+        statistics.get(reasonCode).incrementAndGet();
     }
 
     public ServiceReason checkServiceTime(Path path, Node node, LocalTime currentElapsed) {
@@ -90,8 +96,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         TramTime currentClock = TramTime.of(currentElapsed);
         if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
             String nodeServiceId = nodeOperations.getServiceId(node);
-            timeWrong.getAndIncrement();
-            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId,
+            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId,
                     path));
         }
 
@@ -106,7 +111,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         if (operatesWithinTime(nodeTime, currentElapsed)) {
             return recordReason(ServiceReason.IsValid(path, "timeNode"));
         }
-        timeWrong.incrementAndGet();
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString(), path));
     }
 
@@ -128,19 +132,17 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // already checked via service node for edge per trip
         String serviceId = goesToRelationship.getServiceId();
         if (!runningServices.contains(serviceId)) {
-            dateWrong.incrementAndGet();
             return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId, path));
         }
 
         ServiceReason inflightChange = sameService(path, incoming, goesToRelationship);
         if (!inflightChange.isValid()) {
-            return inflightChange;
+            return recordReason(inflightChange);
         }
 
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
         // all times for the service per edge
         if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
-            timeWrong.incrementAndGet();
             return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
                     elapsedTimeProvider.getElapsedTime().toString(), path));
         }
@@ -160,7 +162,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return recordReason(ServiceReason.IsValid(path, "svcMatch"));
         }
 
-        inflightChange.incrementAndGet();
+        //incrementStat(ServiceReason.ReasonCode.InflightChangeOfService);
         return recordReason(ServiceReason.InflightChangeOfService(service, path));
     }
 
@@ -213,9 +215,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public void reportStats() {
         logger.info("Total checked: " + totalChecked.get());
-        logger.info("Date mismatch: " + dateWrong.get());
-        logger.info("Service change: " + inflightChange.get());
-        logger.info("Time wrong: " + timeWrong.get());
+        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(
+                code -> logger.info(format("%s: %s", code, statistics.get(code))));
     }
 
     public ServiceReason interestedInHour(Path path, int hour, LocalTime journeyClockTime) {
@@ -236,7 +237,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return recordReason(ServiceReason.IsValid(path, "Hour"));
         }
 
-        timeWrong.getAndIncrement();
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, earliestTimeInHour.toString(), path));
     }
 
@@ -279,6 +279,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         if (logger.isDebugEnabled()) {
             reasons.add(serviceReason);
         }
+        incrementStat(serviceReason.getReasonCode());
         return serviceReason;
     }
 
@@ -288,5 +289,15 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public boolean matchesRoute(String routeId) {
         return preferRoutes.contains(routeId);
+    }
+
+    public ServiceReason canReachDestination(Node endNode, Path path) {
+        String stationId = endNode.getProperty(ID).toString();
+        boolean flag = reachabilityRepository.reachable(stationId, endStationId);
+        if (flag) {
+            return recordReason(ServiceReason.IsValid(path, "reachable station"));
+        }
+        return recordReason(ServiceReason.StationNotReachable(path, "unreachable from current stations"));
+
     }
 }

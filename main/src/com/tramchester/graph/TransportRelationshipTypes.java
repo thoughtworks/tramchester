@@ -31,5 +31,9 @@ public enum TransportRelationshipTypes implements RelationshipType {
     public static TransportRelationshipTypes[] forPlanning() {
         return forPlanning;
     }
+
+    public static boolean isForPlanning(RelationshipType type) {
+        return !ON_ROUTE.name().equals(type.name());
+    }
 }
 

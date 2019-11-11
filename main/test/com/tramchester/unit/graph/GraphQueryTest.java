@@ -68,14 +68,14 @@ public class GraphQueryTest {
     }
 
     @Test
-    public void shouldHaveCorrectEndNodesForRoute() throws IOException {
+    public void shouldHaveCorrectEndNodesForRoute() {
 
         try (Transaction tx = graphDBService.beginTx()) {
             ArrayList<Node> nodes = graphQuery.findStartNodesFor("routeA");
             assertEquals(1, nodes.size());
             Node node = nodes.get(0);
 
-            assertEquals(TransportDataForTest.FIRST_STATION+"routeAId",node.getProperty(GraphStaticKeys.ID).toString());
+            assertEquals(TransportDataForTest.FIRST_STATION+"MET:   1:I:",node.getProperty(GraphStaticKeys.ID).toString());
             tx.success();
         }
     }

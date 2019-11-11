@@ -6,6 +6,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Relationships.*;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.ReachabilityRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -39,6 +40,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     private Set<String> runningServices;
     private Set<String> preferRoutes;
     private Path path;
+    private ReachabilityRepository reachabilityRepository;
 
     @Before
     public void beforeEachTestRuns() {
@@ -47,13 +49,14 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         runningServices = new HashSet<>();
         preferRoutes = Collections.emptySet();
         path = createMock(Path.class);
+        reachabilityRepository = createMock(ReachabilityRepository.class);
     }
 
     @Test
     public void shouldCheckNodeBasedOnServiceId() {
         LocalTime queryTime = LocalTime.of(8,1);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         runningServices.add("serviceIdA");
@@ -78,7 +81,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         LocalTime queryTime = LocalTime.of(8,1);
         LocalTime elaspsedTime = LocalTime.of(9,1);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         //runningServices.add("serviceIdA");
@@ -135,7 +138,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     public void shouldBeInterestedInCorrectHours() {
         LocalTime queryTime = LocalTime.of(9,1);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         // querytime + costSoFar + maxWait (for board) = latest time could arrive here
@@ -154,7 +157,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     public void shouldBeInterestedInCorrectHoursCrossesNextHour() {
         LocalTime queryTime = LocalTime.of(9,50);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         int costSoFar = 39; // 10.29
@@ -170,7 +173,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     public void shouldBeInterestedInCorrectHoursOverMidnight() {
         LocalTime queryTime = LocalTime.of(23,10);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         int costSoFar = 15;  // 23.25
@@ -186,7 +189,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     public void shouldCheckTimeAtNodeCorrectly() {
         LocalTime queryTime = LocalTime.of(7,00);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         LocalTime nodeTime = LocalTime.of(8, 00);
@@ -290,7 +293,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     @Test
     public void shouldBeInterestedInCorrectHoursOverMidnightLongerJourney() {
         LocalTime queryTime = LocalTime.of(23,10);
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         int costSoFar = 51;
@@ -320,7 +323,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         ElapsedTime providerI = createNoMatchProvider(am640.plusMinutes(601));
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerA));
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerB));
@@ -353,7 +356,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         replayAll();
         TramchesterConfig configuration = new NeedMaxWaitConfig(15);
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, configuration,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, configuration,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerA));
         assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerB));
@@ -379,7 +382,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         ElapsedTime providerC = createNoMatchProvider(am640.plusMinutes(51));
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
         assertFalse(serviceHeuristics.operatesOnTime(time, providerA));
         assertTrue(serviceHeuristics.operatesOnTime(time, providerB));
@@ -396,7 +399,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(provider.startNotSet()).andReturn(false);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
         assertTrue(serviceHeuristics.operatesOnTime(time, provider));
         verifyAll();
@@ -421,7 +424,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
                 endDate, "destB", null, null, tripId);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
         assertTrue(serviceHeuristics.sameService(path, board, outA).isValid());
         assertTrue(serviceHeuristics.sameService(path, depart, outA).isValid());
@@ -433,7 +436,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldCheckEndStationId() {
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, config30MinsWait,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
         Relationship departA = createMock(Relationship.class);
         EasyMock.expect(departA.getProperty(STATION_ID)).andReturn("endStationId");

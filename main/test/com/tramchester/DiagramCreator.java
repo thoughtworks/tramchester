@@ -3,6 +3,7 @@ package com.tramchester;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.*;
 import com.tramchester.graph.Relationships.RelationshipFactory;
+import com.tramchester.graph.Relationships.RouteRelationship;
 import com.tramchester.graph.Relationships.TramGoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -80,7 +81,7 @@ public class DiagramCreator {
     }
 
     private void visitInbounds(Node rawNode, StringBuilder builder, List<String> seen, int depth, String currentNodeId) {
-        rawNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.forPlanning()).forEach(inboundEdge -> {
+        rawNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.values()).forEach(inboundEdge -> {
             TransportRelationship inboundRelationship = relationshipFactory.getRelationship(inboundEdge);
 
             Node rawSourceNode = inboundEdge.getStartNode();
@@ -104,6 +105,10 @@ public class DiagramCreator {
                 addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "T"));
             } else if (inboundRelationship.isEndServiceLink()) {
                 addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "End"));
+            } else if (inboundRelationship.isRoute()) {
+                RouteRelationship routeRelationship = (RouteRelationship) inboundRelationship;
+                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId,
+                        "ROUTE:"+routeRelationship.getRouteId()));
             }
             else {
                 // boarding and depart
@@ -155,6 +160,10 @@ public class DiagramCreator {
                 addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, "H"));
             } else if (outboundRelationship.isMinuteLink()) {
                 addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, "T"));
+            } else if (outboundRelationship.isRoute()) {
+                RouteRelationship routeRelationship = (RouteRelationship) outboundRelationship;
+                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId,
+                        "ROUTE:"+routeRelationship.getRouteId()));
             }
             else {
                 // boarding and depart

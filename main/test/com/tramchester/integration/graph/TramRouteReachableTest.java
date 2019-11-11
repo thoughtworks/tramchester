@@ -22,13 +22,11 @@ public class TramRouteReachableTest {
     private String manAirportToVictoria = "MET:   6:O:";
     private String victoriaToManAirport = "MET:   6:I:";
 
-
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
-
     }
 
     @AfterClass

@@ -100,7 +100,7 @@ public class RouteCalculatorTest {
         assertTrue(results.size()>0);    // results is iterator
         for (RawJourney result : results) {
             List<RawStage> stages = result.getStages();
-            assertTrue(stages.size()>=2);
+            assertEquals(2,stages.size());
             RawVehicleStage firstStage = (RawVehicleStage) stages.get(0);
             assertEquals(Stations.Altrincham, firstStage.getFirstStation());
             assertEquals(Stations.TraffordBar, firstStage.getLastStation());

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 
 public class CachedNodeOperations {
     private final Map<Long, Boolean> serviceNodes;
@@ -146,5 +147,9 @@ public class CachedNodeOperations {
 
     public String getRoute(Relationship outboundRelationship) {
         return outboundRelationship.getProperty(ROUTE_ID).toString();
+    }
+
+    public boolean isRouteStation(Node endNode) {
+        return endNode.hasLabel(ROUTE_STATION);
     }
 }
