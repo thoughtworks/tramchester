@@ -205,7 +205,6 @@ task ci_unit(type: Test) {
 }
 
 task integration(type: Test, dependsOn: compileJava) {
-    //maxHeapSize = '4g' // needed for edge per trip testing
     maxHeapSize = '2000m'
     useJUnit {
         filter {
@@ -293,7 +292,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.dir("src/main/resources/app/css")
     inputs.file("webpack.config.js")
 
-    outputs.dir("src/main/resources/app/dist")
+    outputs.file("src/main/resources/app/dist/main.js")
 
     if (isWindows) {
         commandLine "./node_modules/.bin/webpack.cmd"

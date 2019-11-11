@@ -104,21 +104,30 @@ public class TransportGraphBuilder extends StationIndexs {
 
         createIndexs();
 
-        try (Transaction tx = graphDatabaseService.beginTx()) {
+        Transaction tx = graphDatabaseService.beginTx();
+        try {
             logger.info("Rebuilding the graph...");
             for (Route route : transportData.getRoutes()) {
                 for (Service service : route.getServices()) {
                     for (Trip trip : service.getTrips()) {
                         AddRouteServiceTrip(route, service, trip);
                     }
+                    if (edgePerTrip) {
+                        tx.success();
+                        tx.close();
+                        tx = graphDatabaseService.beginTx();
+                    }
                 }
             }
             tx.success();
+
             Duration duration = Duration.between(start, LocalTime.now());
             logger.info("Graph rebuild finished, took " + duration.getSeconds());
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
+        } finally {
+            tx.close();
         }
         reportStats();
     }

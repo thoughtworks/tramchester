@@ -48,7 +48,7 @@ public class CreateDotDiagramTest {
 
     @Test
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
-        assumeFalse(edgePerTrip);
+        //assumeFalse(edgePerTrip);
 
         int depthLimit = 2;
 

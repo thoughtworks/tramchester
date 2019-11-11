@@ -126,9 +126,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindRouteEachStationToEveryOtherStream() {
-        // TODO
-        // To slow at the moment
-        assumeFalse(edgePerTrip);
 
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
         TransportData data = dependencies.get(TransportData.class);
@@ -201,8 +198,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindEndOfLinesToEndOfLines() {
-        // TODO To slow at the moment
-        assumeFalse(edgePerTrip);
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
                 checkRouteNextNDays(start, dest, nextTuesday, LocalTime.of(9,0), 7);
@@ -212,8 +207,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindInterchangesToInterchanges() {
-        // TODO To slow at the moment
-        assumeFalse(edgePerTrip);
         for (Location start :  Stations.Interchanges) {
             for (Location dest : Stations.Interchanges) {
                 checkRouteNextNDays(start, dest, nextTuesday, LocalTime.of(9,0), 7);
@@ -223,8 +216,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindEndOfLinesToInterchanges() {
-        // TODO To slow at the moment
-        assumeFalse(edgePerTrip);
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.Interchanges) {
                 checkRouteNextNDays(start, dest, nextTuesday, LocalTime.of(9,0), 7);
@@ -234,8 +225,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindInterchangesToEndOfLines() {
-        // TODO To slow at the moment
-        assumeFalse(edgePerTrip);
         for (Location start : Stations.Interchanges ) {
             for (Location dest : Stations.EndOfTheLine) {
                 checkRouteNextNDays(start,dest, nextTuesday, LocalTime.of(8,0), 7);
@@ -271,9 +260,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
-        // TODO To slow at the moment
-        assumeFalse(edgePerTrip);
-
         assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
     }
     
@@ -312,9 +298,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
-        // TODO To slow at the moment
-        assumeFalse(edgePerTrip);
-
         for(int i=0; i<60; i++) {
             LocalTime time = LocalTime.of(8,i);
             validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, nextTuesday);
