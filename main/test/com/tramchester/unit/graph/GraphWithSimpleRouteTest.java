@@ -79,13 +79,29 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void shouldHaveSimpleWalkAndTramTrip() {
+    public void shouldHaveWalkAndTramTripWithChange() {
         LatLong origin = new LatLong(180.001, 270.001);
-        Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
+        Station endStation = transportData.getStation(TransportDataForTest.LAST_STATION).get();
         List<StationWalk> walks = Collections.singletonList(new StationWalk(firstStation, 1));
+        List<LocalTime> walkStartTimes = Arrays.asList(LocalTime.of(7,55));
 
-        Set<RawJourney> journeys = calculator.calculateRoute(origin, walks, endStation, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        Set<RawJourney> journeys = calculator.calculateRoute(origin, walks, endStation, walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    public void shouldTestJourneyWithLocationBasedStart() {
+        LatLong origin = new LatLong(180.001, 270.001);
+        int walkCost = 1;
+
+        List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
+        Station destination = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
+
+        List<LocalTime> walkStartTimes = Arrays.asList(LocalTime.of(7,55));
+        Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, destination,
+                walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+
+        assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
             List<RawStage> stages = journey.getStages();
             assertEquals(2, stages.size());
@@ -167,20 +183,7 @@ public class GraphWithSimpleRouteTest {
 
     }
 
-    @Test
-    public void shouldTestJourneyWithLocationBasedStart() {
-        LatLong origin = new LatLong(180.001, 270.001);
-        int walkCost = 1;
 
-        List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
-        Station endStation = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
-
-        Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, endStation, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
-
-        assertEquals(1, journeys.size());
-        journeys.forEach(journey->assertEquals(2, journey.getStages().size()));
-
-    }
 
     @Test
     public void createDiagramOfTestNetwork() throws IOException {
@@ -203,7 +206,8 @@ public class GraphWithSimpleRouteTest {
 
     }
 
-    private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation, int passedStops, String displayClass) {
+    private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation,
+                                    int passedStops, String displayClass) {
         RawJourney journey = (RawJourney)journeys.toArray()[0];
         List<RawStage> stages = journey.getStages();
         RawVehicleStage vehicleStage = (RawVehicleStage) stages.get(0);

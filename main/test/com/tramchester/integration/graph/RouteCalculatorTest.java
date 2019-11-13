@@ -18,10 +18,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeFalse;
 
 public class RouteCalculatorTest {
 
@@ -30,7 +28,6 @@ public class RouteCalculatorTest {
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
-    private boolean edgePerTrip;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -41,7 +38,6 @@ public class RouteCalculatorTest {
 
     @Before
     public void beforeEachTestRuns() {
-        edgePerTrip = testConfig.getEdgePerTrip();
         calculator = dependencies.get(RouteCalculator.class);
     }
 
@@ -76,6 +72,27 @@ public class RouteCalculatorTest {
     @Test
     public void shouldHaveSimpleManyStopJourneyViaInterchange() {
         checkRouteNextNDays(Stations.Altrincham, Stations.Bury, nextTuesday, LocalTime.of(9,0), 1);
+    }
+
+    @Test
+    public void shouldHaveReasonableJourneyAltyToDeansgate() {
+        List<LocalTime> queryTimes = Arrays.asList(LocalTime.of(10,15));
+        TramServiceDate today = new TramServiceDate(nextTuesday);
+        Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Deansgate.getId(),
+                queryTimes, today, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        results.forEach(journey -> {
+            assertEquals(1, journey.getStages().size()); // should be one stage only
+            journey.getStages().stream().
+                    map(raw -> (RawVehicleStage) raw).
+                    map(stage -> stage.getCost()).
+                    forEach(cost -> assertTrue(cost>0));
+            Optional<Long> total = journey.getStages().stream().
+                    map(raw -> (RawVehicleStage) raw).
+                    map(stage -> stage.getCost()).
+                    reduce((a, b) -> a + b);
+            assertTrue(total.isPresent());
+            assertTrue(total.get()>20);
+        });
     }
 
     // over max wait, catch failure to accumulate journey times correctly

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphStaticKeys.RouteStation.ROUTE_NAME;
+import static java.lang.String.format;
 
 
 public class MapPathToStages {
@@ -64,7 +66,7 @@ public class MapPathToStages {
                     break;
                 case DEPART:
                 case INTERCHANGE_DEPART:
-                    results.add(state.getVehicleStage(relationship));
+                    results.add(state.depart(relationship));
                     break;
                 case TO_MINUTE:
                     state.beginTrip(relationship);
@@ -104,6 +106,7 @@ public class MapPathToStages {
         private int passedStops;
         private int tripCost;
         private Optional<Platform> boardingPlatform;
+        private String routeName;
 
         private State(StationRepository stationRepository, MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
             this.stationRepository = stationRepository;
@@ -115,14 +118,15 @@ public class MapPathToStages {
         public void board(Relationship relationship) {
             boardingStation = stationRepository.getStation(relationship.getProperty(STATION_ID).toString()).get();
             routeCode = relationship.getProperty(ROUTE_ID).toString();
+            routeName = relationship.getProperty(ROUTE_NAME).toString();
             String stopId = relationship.getProperty(PLATFORM_ID).toString();
             boardingPlatform = platformRepository.getPlatformById(stopId);
         }
 
-        public RawVehicleStage getVehicleStage(Relationship relationship) {
+        public RawVehicleStage depart(Relationship relationship) {
             String stationId = relationship.getProperty(STATION_ID).toString();
             Station departStation = stationRepository.getStation(stationId).get();
-            RawVehicleStage rawVehicleStage = new RawVehicleStage(boardingStation, routeCode,
+            RawVehicleStage rawVehicleStage = new RawVehicleStage(boardingStation, routeName,
                     TransportMode.Tram, routeIdToClass.map(routeCode));
             rawVehicleStage.setTripId(tripId);
             rawVehicleStage.setDepartTime(boardingTime);
@@ -130,7 +134,6 @@ public class MapPathToStages {
             rawVehicleStage.setLastStation(departStation, passedStops);
             boardingPlatform.ifPresent(rawVehicleStage::setPlatform);
             rawVehicleStage.setCost(tripCost);
-
             reset();
             return rawVehicleStage;
         }
@@ -141,13 +144,19 @@ public class MapPathToStages {
             routeCode = "";
             tripId = "";
             serviceId = "";
+            tripCost = 0;
             boardingPlatform = Optional.empty();
         }
 
         public void beginTrip(Relationship relationship) {
-            tripCost = 0;
-            tripId = relationship.getProperty(TRIP_ID).toString();
-            boardingTime = (LocalTime) relationship.getProperty(TIME);
+            String newTripId = relationship.getProperty(TRIP_ID).toString();
+
+            if (tripId.isEmpty() || tripId.equals(newTripId)) {
+                this.tripId = newTripId;
+                boardingTime = (LocalTime) relationship.getProperty(TIME);
+            } else {
+                throw new RuntimeException(format("Mid flight change of trip from %s to %s", tripId, newTripId));
+            }
         }
 
         public void toService(Relationship relationship) {
@@ -159,10 +168,6 @@ public class MapPathToStages {
             passedStops = passedStops + 1;
         }
 
-        private int getCost(Relationship relationship) {
-            return (int)relationship.getProperty(COST);
-        }
-
         public RawWalkingStage walk(Relationship relationship) {
             int cost = getCost(relationship);
             String stationId = relationship.getProperty(STATION_ID).toString();
@@ -172,8 +177,15 @@ public class MapPathToStages {
             double lat = (double)startNode.getProperty(GraphStaticKeys.Station.LAT);
             double lon =  (double)startNode.getProperty(GraphStaticKeys.Station.LONG);
             Location start = myLocationFactory.create(new LatLong(lat,lon));
-            return new RawWalkingStage(start, destination, cost);
+
+            RawWalkingStage rawWalkingStage = new RawWalkingStage(start, destination, cost);
+            return rawWalkingStage;
         }
+
+        private int getCost(Relationship relationship) {
+            return (int)relationship.getProperty(COST);
+        }
+
     }
 
 }

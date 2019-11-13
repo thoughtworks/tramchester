@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphStaticKeys.RouteStation.ROUTE_NAME;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -36,7 +37,11 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final int DEPARTS_COST = 1;
     public static final int BOARDING_COST = 2;
 
-    private static final int PLATFORM_COST = 0;
+    // TODO compute actual costs depend on physical coniguration of platforms at the station?? No data available yet.
+    private static final int ENTER_PLATFORM_COST = 0;
+    private static final int LEAVE_PLATFORM_COST = 0;
+    private static final int ENTER_INTER_PLATFORM_COST = 0;
+    private static final int LEAVE_INTER_PLATFORM_COST = 0;
 
     private int numberNodes = 0;
     private int numberRelationships = 0;
@@ -267,6 +272,14 @@ public class TransportGraphBuilder extends StationIndexs {
         if ( callingPoint == null) {
              callingPoint = createCallingPoint(station, route, callingPointId, service);
         }
+        boolean isInterchange = TramInterchanges.has(station);
+        int enterPlatformCost = ENTER_PLATFORM_COST;
+        int leavePlatformCost = LEAVE_PLATFORM_COST;
+
+        if (isInterchange) {
+            enterPlatformCost = ENTER_INTER_PLATFORM_COST;
+            leavePlatformCost = LEAVE_INTER_PLATFORM_COST;
+        }
 
         Node stationNode = getOrCreateStation(station);
 
@@ -281,13 +294,13 @@ public class TransportGraphBuilder extends StationIndexs {
                 // station -> platform
                 Relationship crossToPlatform = createRelationships(stationNode, platformNode,
                         TransportRelationshipTypes.ENTER_PLATFORM);
-                crossToPlatform.setProperty(COST, PLATFORM_COST);
+                crossToPlatform.setProperty(COST, enterPlatformCost);
                 crossToPlatform.setProperty(GraphStaticKeys.PLATFORM_ID, stationOrPlatformID);
 
                 // platform -> station
                 Relationship crossFromPlatform = createRelationships(platformNode, stationNode,
                         TransportRelationshipTypes.LEAVE_PLATFORM);
-                crossFromPlatform.setProperty(COST, PLATFORM_COST);
+                crossFromPlatform.setProperty(COST, leavePlatformCost);
                 crossFromPlatform.setProperty(STATION_ID, stationId);
                 // always create together
                 platforms.add(stationId + stationOrPlatformID);
@@ -298,7 +311,8 @@ public class TransportGraphBuilder extends StationIndexs {
         TransportRelationshipTypes departType;
         int boardCost;
         int departCost;
-        if (TramInterchanges.has(station)) {
+
+        if (isInterchange) {
             boardType = TransportRelationshipTypes.INTERCHANGE_BOARD;
             boardCost = INTERCHANGE_BOARD_COST;
             departType = TransportRelationshipTypes.INTERCHANGE_DEPART;
@@ -319,6 +333,7 @@ public class TransportGraphBuilder extends StationIndexs {
                 boardRelationship.setProperty(COST, boardCost);
                 boardRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
                 boardRelationship.setProperty(ROUTE_ID, route.getId());
+                boardRelationship.setProperty(ROUTE_NAME, route.getName());
                 boardRelationship.setProperty(STATION_ID, station.getId());
                 boardRelationship.setProperty(PLATFORM_ID, stationOrPlatformID);
                 boardings.put(boardKey(callingPointId, stationOrPlatformID), boardType);
@@ -383,7 +398,7 @@ public class TransportGraphBuilder extends StationIndexs {
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(GraphStaticKeys.RouteStation.STATION_NAME, station.getName());
         routeStation.setProperty(STATION_ID, station.getId());
-        routeStation.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
+        routeStation.setProperty(ROUTE_NAME, route.getName());
         routeStation.setProperty(ROUTE_ID, route.getId());
         setLatLongFor(routeStation, station.getLatLong());
         return routeStation;
@@ -561,7 +576,7 @@ public class TransportGraphBuilder extends StationIndexs {
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
         if (transportRelationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO)) {
-            relationship.setProperty(GraphStaticKeys.RouteStation.ROUTE_NAME, route.getName());
+            relationship.setProperty(ROUTE_NAME, route.getName());
         }
     }
 

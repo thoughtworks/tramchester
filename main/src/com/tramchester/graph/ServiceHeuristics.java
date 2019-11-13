@@ -108,6 +108,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         totalChecked.getAndIncrement();
 
         LocalTime nodeTime = nodeOperations.getTime(node);
+        if (currentElapsed.isAfter(nodeTime)) { // already departed
+            return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString(), path));
+        }
+
         if (operatesWithinTime(nodeTime, currentElapsed)) {
             return recordReason(ServiceReason.IsValid(path, "timeNode"));
         }
@@ -223,7 +227,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         totalChecked.getAndIncrement();
 
         int queryTimeHour = queryTime.getHour();
-        if (hour== queryTimeHour) {
+        if (hour == queryTimeHour) {
             // quick win
             return recordReason(ServiceReason.IsValid(path, "Hour"));
         }
