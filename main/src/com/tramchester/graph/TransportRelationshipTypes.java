@@ -35,5 +35,13 @@ public enum TransportRelationshipTypes implements RelationshipType {
     public static boolean isForPlanning(RelationshipType type) {
         return !ON_ROUTE.name().equals(type.name());
     }
+
+    public static boolean isBoarding(RelationshipType type) {
+        return (type.name().equals(INTERCHANGE_BOARD.name()) || (type.name().equals(BOARD.name())));
+    }
+
+    public static boolean isDeparting(RelationshipType type) {
+        return (type.name().equals(INTERCHANGE_DEPART.name()) || (type.name().equals(DEPART.name())));
+    }
 }
 

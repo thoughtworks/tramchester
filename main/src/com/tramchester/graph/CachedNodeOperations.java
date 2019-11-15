@@ -152,4 +152,11 @@ public class CachedNodeOperations {
     public boolean isRouteStation(Node endNode) {
         return endNode.hasLabel(ROUTE_STATION);
     }
+
+    public String getTrip(Node endNode) {
+        if (!endNode.hasProperty(TRIP_ID)) {
+            return "";
+        }
+        return endNode.getProperty(TRIP_ID).toString();
+    }
 }

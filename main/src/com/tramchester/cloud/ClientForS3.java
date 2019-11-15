@@ -65,6 +65,7 @@ public class ClientForS3 {
         String bucket = config.getLiveDataS3Bucket();
         try {
             if (!s3Client.doesBucketExistV2(bucket)) {
+                logger.error(format("Bucket %s does not exist", bucket));
                 return false;
             }
             // limit by prefix to avoid very large requests
@@ -79,6 +80,7 @@ public class ClientForS3 {
             logger.warn(format("Cannot check if key '%s' exists in bucket '%s' reason '%s'",
                     key, bucket, exception.getMessage()));
         }
+        logger.warn(format("Could not find %s in bucket %s", key, bucket));
         return false;
     }
 

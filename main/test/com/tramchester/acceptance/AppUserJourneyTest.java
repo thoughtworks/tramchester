@@ -48,6 +48,8 @@ public class AppUserJourneyTest {
     private LocalDate nextTuesday;
     private String url;
     private ProvidesDriver providesDriver;
+    private String altyToBuryClass;
+    private String altyToBuryLineName;
 
     private static List<String> getBrowserList() {
         if (System.getenv("CIRCLECI") == null) {
@@ -82,6 +84,9 @@ public class AppUserJourneyTest {
 
         // TODO offset for when tfgm data is expiring
         nextTuesday = TestConfig.nextTuesday(0);
+
+        altyToBuryClass = "RouteClass1";
+        altyToBuryLineName = "Altrincham - Manchester - Bury";
     }
 
     @After
@@ -166,7 +171,7 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(3, results.size());
+        assertEquals(6, results.size());
 
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
@@ -185,8 +190,9 @@ public class AppUserJourneyTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
+
         validateAStage(stage, firstResult.getDepartTime(), "Board", altrincham, 1,
-                "RouteClass2", "Altrincham - Piccadilly", Stations.Piccadilly.getName(), 9);
+                altyToBuryClass, altyToBuryLineName, Stations.Bury.getName(), 9);
     }
 
     @Test
@@ -241,7 +247,7 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(3, results.size());
+        assertEquals(6, results.size());
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
             assertTrue(result.getDepartTime().isAfter(previous));

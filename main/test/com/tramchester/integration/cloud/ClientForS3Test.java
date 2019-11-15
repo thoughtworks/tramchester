@@ -3,7 +3,6 @@ package com.tramchester.integration.cloud;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
-import com.amazonaws.waiters.PollingStrategy;
 import com.amazonaws.waiters.Waiter;
 import com.amazonaws.waiters.WaiterParameters;
 import com.tramchester.TestConfig;
@@ -11,10 +10,8 @@ import com.tramchester.cloud.ClientForS3;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.support.ui.Wait;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
@@ -44,26 +41,26 @@ public class ClientForS3Test {
 
     @Test
     public void shouldUploadOkIfBucketExist() throws IOException {
-        createTestBucket();
+        createTestBucketAndWait();
         validateUpload();
     }
 
     @Test
     public void checkForObjectExisting() {
-        createTestBucket();
+        createTestBucketAndWait();
         s3.putObject(TEST_BUCKET_NAME, KEY, "contents");
         s3.waiters().objectExists().run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, KEY)));
-        assertTrue(clientForS3.keyExists(PREFIX, KEY));
+        assertTrue("exists", clientForS3.keyExists(PREFIX, KEY)); //waiter will throw if times out
 
         s3.deleteObject(TEST_BUCKET_NAME, KEY);
         s3.waiters().objectNotExists().run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, KEY)));
-        assertFalse(clientForS3.keyExists(PREFIX, KEY));
+        assertFalse("deleted",clientForS3.keyExists(PREFIX, KEY));
     }
 
     private void validateUpload() throws IOException {
         String contents = "someJsonData";
         boolean uploaded = clientForS3.upload(KEY, contents);
-        assertTrue(uploaded);
+        assertTrue("uploaded",uploaded);
 
         // the different S3 clients involved get out of sync, so the one sees the bucket and the the other does not
         Waiter<HeadBucketRequest> waiter = s3.waiters().bucketExists();
@@ -84,7 +81,7 @@ public class ClientForS3Test {
         assertEquals(contents, storedJson);
     }
 
-    public void createTestBucket() {
+    public void createTestBucketAndWait() {
         s3.createBucket(TEST_BUCKET_NAME);
         Waiter<HeadBucketRequest> waiter = s3.waiters().bucketExists();
         waiter.run(new WaiterParameters<>(new HeadBucketRequest(TEST_BUCKET_NAME)));

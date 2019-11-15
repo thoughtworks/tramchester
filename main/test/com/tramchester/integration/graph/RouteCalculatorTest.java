@@ -223,6 +223,11 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, LocalTime.of(9,0), nextTuesday.plusDays(5));
+    }
+
+    @Test
     public void shouldFindInterchangesToInterchanges() {
         for (Location start :  Stations.Interchanges) {
             for (Location dest : Stations.Interchanges) {
