@@ -306,6 +306,7 @@ distZip {
         from 'config'
     }
 }
+
 task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
     doLast {
         ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
