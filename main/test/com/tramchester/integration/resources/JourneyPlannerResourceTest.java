@@ -211,7 +211,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, LocalTime.of(23,31), when);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, LocalTime.of(23,41), when);
     }
 
     @Test

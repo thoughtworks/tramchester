@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.TramTime;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.graph.states.NotStartedState;
+import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
@@ -15,39 +15,29 @@ import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
-import static org.neo4j.graphdb.traversal.Uniqueness.RELATIONSHIP_GLOBAL;
 
-public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathExpander<JourneyState> {
+public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
     private final LocalTime queryTime;
     private final long destinationNodeId;
-    private int success;
-
-    private final Map<Arrow, Set<TramTime>> visited;
-
-    // TODO CALC these
-    private final int pathLimit = 400; // path length limit, includes *all* edges
-    private final int maxJourneyMins = 170; // longest end to end is 163?
-    private final int pathsLimit;
 
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
-                                CachedNodeOperations nodeOperations, LocalTime queryTime, Node destinationNode, int pathsLimit) {
+                                CachedNodeOperations nodeOperations, LocalTime queryTime, Node destinationNode) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.queryTime = queryTime;
         this.destinationNodeId = destinationNode.getId();
-        this.pathsLimit = pathsLimit;
-        success = 0;
-
-        visited = new HashMap<>();
     }
 
     public Iterable<WeightedPath> findPaths(Node startNode) {
+
+        // TODO Move this
+        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations,
+                destinationNodeId);
 
         Traverser traverser = new MonoDirectionalTraversalDescription().
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
@@ -61,9 +51,9 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
                 relationships(TO_SERVICE, Direction.OUTGOING).
                 relationships(TO_HOUR, Direction.OUTGOING).
                 relationships(TO_MINUTE, Direction.OUTGOING).
-                expand(this, JourneyState.initialState(queryTime)).
-                evaluator(this).
-                uniqueness(RELATIONSHIP_GLOBAL).
+                expand(this, JourneyState.initialState(queryTime, new NotStartedState(nodeOperations, destinationNodeId))).
+                evaluator(tramRouteEvaluator).
+                uniqueness(NONE).
                 order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST). //DEPTH FIRST causes visiting all stages
                 traverse(startNode);
 
@@ -101,162 +91,79 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
     }
 
     @Override
-    public Evaluation evaluate(Path path) {
-        return null;
-    }
-
-    @Override
-    public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
-
-        if (success>=pathsLimit) {
-            return Evaluation.EXCLUDE_AND_PRUNE;
-        }
-
-        Node endNode = path.endNode();
-        long endNodeId = endNode.getId();
-
-        if (endNodeId==destinationNodeId) {
-            success = success + 1;
-            return Evaluation.INCLUDE_AND_PRUNE;
-        }
-
-        // no journey longer than N stages
-        if (path.length()>pathLimit) {
-            return Evaluation.EXCLUDE_AND_PRUNE;
-        }
-
-        // is the service running today
-        if (nodeOperations.isService(endNode)) {
-            if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
-        }
-
-        if (nodeOperations.isRouteStation(endNode)) {
-            if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
-        }
-
-        JourneyState journeyState = state.getState();
-        LocalTime currentElapsed = journeyState.getJourneyClock();
-        TramTime visitingTime = TramTime.of(currentElapsed);
-
-        Relationship inboundRelationship = path.lastRelationship();
-
-        if (inboundRelationship != null) {
-//            // for walking routes we do want to include them all even if at same time
-            if (inboundRelationship.isType(WALKS_TO)) {
-                return Evaluation.INCLUDE_AND_CONTINUE;
-            }
-
-            // if already tried this node at this time from this edge, don't expect a differing outcome so exclude
-            Arrow arrow = new Arrow(inboundRelationship.getId(), endNodeId);
-            if (visited.containsKey(arrow)) {
-                if (visited.get(arrow).contains(visitingTime)) {
-                    return Evaluation.EXCLUDE_AND_PRUNE;
-                }
-            } else {
-                visited.put(arrow, new HashSet<>());
-            }
-            visited.get(arrow).add(visitingTime);
-        }
-
-        // journey too long?
-        if (TramTime.diffenceAsMinutes( TramTime.of(queryTime), visitingTime)>maxJourneyMins) {
-            return Evaluation.INCLUDE_AND_PRUNE; // TODO EXCLUDE??
-        }
-
-        // service available to catch?
-        if (nodeOperations.isService(endNode)) {
-            if (!serviceHeuristics.checkServiceTime(path, endNode, currentElapsed).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
-        }
-
-        // check time, just hour first
-        if (nodeOperations.isHour(endNode)) {
-            int hour = nodeOperations.getHour(endNode);
-            if (!serviceHeuristics.interestedInHour(path, hour, currentElapsed).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
-        }
-
-        // check time
-        if (nodeOperations.isTime(endNode)) {
-            if (!serviceHeuristics.checkTime(path, endNode, currentElapsed).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
-        }
-
-        return Evaluation.INCLUDE_AND_CONTINUE;
-    }
-
-    @Override
     public Iterable<Relationship> expand(Path path, BranchState<JourneyState> graphState) {
 
+        JourneyState journeyState = graphState.getState();
+
         Node endNode = path.endNode();
-
-        Iterable<Relationship> outboundRelationships = endNode.getRelationships(OUTGOING);
-
         Label firstLabel = endNode.getLabels().iterator().next();
         TransportGraphBuilder.Labels nodeLabel = TransportGraphBuilder.Labels.valueOf(firstLabel.toString());
 
-        int cost = 0;
-        JourneyState currentState = graphState.getState();
-        if (path.lastRelationship()!=null) {
-            cost = nodeOperations.getCost(path.lastRelationship());
-            if (cost>0) {
-                // only updates state for children, not for this node
-//                JourneyState stateForChildren = new JourneyState(state.getState(), cost);
-                JourneyState stateForChildren = JourneyState.fromPrevious(currentState).updateJourneyClock(getTotalCost(path));
-                graphState.setState(stateForChildren);
-            }
-        }
+        TraversalState traversalState = journeyState.getTraversalState();
+        TraversalState newTraversalState = traversalState.nextState(path, nodeLabel, endNode, journeyState);
 
-        try {
-            switch (nodeLabel) {
-                case QUERY_NODE:
-                    return costOrdered(outboundRelationships);
-                case STATION:
-                    if (endNode.getId() == destinationNodeId) {
-                        return new LinkedList<>();
-                    }
-                    return outboundRelationships;
-                case MINUTE:
-                    //state.setState(updateStateToNodeTime(endNode));
-                    LocalTime time = nodeOperations.getTime(endNode);
-                    String tripId = nodeOperations.getTrip(endNode);
-                    graphState.setState(JourneyState.fromPrevious(currentState).recordTramDetails(time, getTotalCost(path), tripId));
-                    // TODO TRIP ID check?
-                    return outboundRelationships;
-                case PLATFORM:
-                    // remove trip id from state, we are not on a tram
-//                    LocalTime newTime = currentState.getTime().plusMinutes(cost);
-//                    JourneyState newStateForChildren = new JourneyState(newTime, "");
-                    if (TransportRelationshipTypes.isDeparting(path.lastRelationship().getType())) {
-                        JourneyState newStateForChildren = JourneyState.fromPrevious(currentState).leaveTram(getTotalCost(path));
-                        graphState.setState(newStateForChildren);
-                    }
-                    return fromPlatformOrderedDeparts(path.lastRelationship(), outboundRelationships);
-                case SERVICE:
-                    return hourOrdered(outboundRelationships);
-                case HOUR:
-                    return timeOrdered(outboundRelationships);
-                case ROUTE_STATION:
-                    if (TransportRelationshipTypes.isBoarding(path.lastRelationship().getType())) {
-                        JourneyState newState = JourneyState.fromPrevious(currentState).boardTram();
-                        graphState.setState(newState);
-                    }
-                    return fromRSfilteredByTripAndDepart(currentState, outboundRelationships);
-                default:
-                    throw new RuntimeException("Unexpected node type " + nodeLabel.name());
-            }
-        }
-        catch(TramchesterException exception) {
-            logger.error("Unable to process node", exception);
-            throw new RuntimeException(exception);
-        }
+        JourneyState stateForChildren = JourneyState.fromPrevious(journeyState).updateTraversalState(newTraversalState);
+
+        graphState.setState(stateForChildren);
+        logger.info(stateForChildren.toString());
+
+        return  newTraversalState.getRelationships();
+
+//        int cost;
+//        JourneyState currentState = graphState.getState();
+//        if (path.lastRelationship()!=null) {
+//            cost = nodeOperations.getCost(path.lastRelationship());
+//            if (cost>0) {
+//                // only updates state for children, not for this node
+////                JourneyState stateForChildren = new JourneyState(state.getState(), cost);
+//                JourneyState stateForChildren = JourneyState.fromPrevious(currentState).updateJourneyClock(getTotalCost(path));
+//                graphState.setState(stateForChildren);
+//            }
+//        }
+
+//        try {
+//            switch (nodeLabel) {
+////                case QUERY_NODE:
+////                    return costOrdered(outboundRelationships);
+//                case STATION:
+////                    if (endNode.getId() == destinationNodeId) {
+////                        return new LinkedList<>();
+////                    }
+////                    return outboundRelationships;
+//                case MINUTE:
+//                    //state.setState(updateStateToNodeTime(endNode));
+//                    LocalTime time = nodeOperations.getTime(endNode);
+//                    String tripId = nodeOperations.getTrip(endNode);
+//                    graphState.setState(JourneyState.fromPrevious(currentState).recordTramDetails(time, getTotalCost(path), tripId));
+//                    // TODO TRIP ID check?
+//                    return outboundRelationships;
+//                case PLATFORM:
+//                    // remove trip id from state, we are not on a tram
+////                    LocalTime newTime = currentState.getTime().plusMinutes(cost);
+////                    JourneyState newStateForChildren = new JourneyState(newTime, "");
+//                    if (TransportRelationshipTypes.isDeparting(path.lastRelationship().getType())) {
+//                        JourneyState newStateForChildren = JourneyState.fromPrevious(currentState).leaveTram(getTotalCost(path));
+//                        graphState.setState(newStateForChildren);
+//                    }
+//                    return fromPlatformOrderedDeparts(path.lastRelationship(), outboundRelationships);
+//                case SERVICE:
+//                    return hourOrdered(outboundRelationships);
+//                case HOUR:
+//                    return timeOrdered(outboundRelationships);
+//                case ROUTE_STATION:
+//                    if (TransportRelationshipTypes.isBoarding(path.lastRelationship().getType())) {
+//                        JourneyState newState = JourneyState.fromPrevious(currentState).boardTram();
+//                        graphState.setState(newState);
+//                    }
+//                    return fromRSfilteredByTripAndDepart(currentState, outboundRelationships);
+//                default:
+//                    throw new RuntimeException("Unexpected node type " + nodeLabel.name());
+//            }
+//        }
+//        catch(TramchesterException exception) {
+//            logger.error("Unable to process node", exception);
+//            throw new RuntimeException(exception);
+//        }
     }
 
     private Iterable<Relationship> fromRSfilteredByTripAndDepart(JourneyState journeyState,
@@ -308,38 +215,6 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
 //        return new JourneyState(time, tripId);
 //    }
 
-    private Iterable<Relationship> hourOrdered(Iterable<Relationship> outboundRelationships) {
-        SortedMap<Integer, Relationship> ordered = new TreeMap<>();
-        for (Relationship outboundRelationship : outboundRelationships) {
-            int hour = nodeOperations.getHour(outboundRelationship);
-            ordered.put(hour,outboundRelationship);
-        }
-        return ordered.values();
-    }
-
-    private Iterable<Relationship> timeOrdered(Iterable<Relationship> outboundRelationships) {
-        SortedMap<TramTime, Relationship> ordered = new TreeMap<>();
-        for (Relationship outboundRelationship : outboundRelationships) {
-            LocalTime time = nodeOperations.getTime(outboundRelationship);
-            ordered.put(TramTime.of(time),outboundRelationship);
-        }
-        return ordered.values();
-    }
-
-
-    private Iterable<Relationship> costOrdered(Iterable<Relationship> outboundRelationships) {
-        SortedMap<Integer, Relationship> ordered = new TreeMap<>();
-        for (Relationship outboundRelationship : outboundRelationships) {
-            if (serviceHeuristics.toEndStation(outboundRelationship)) {
-                return Collections.singleton(outboundRelationship);
-            }
-            int cost = (int) outboundRelationship.getProperty(GraphStaticKeys.COST);
-            ordered.put(cost,outboundRelationship);
-        }
-        return ordered.values();
-    }
-
-
     private Iterable<Relationship> fromPlatformOrderedDeparts(Relationship inbound,
                                                               Iterable<Relationship> outboundRelationships) {
         LinkedList<Relationship> result = new LinkedList<>();
@@ -369,27 +244,5 @@ public class TramNetworkTraverser implements PathEvaluator<JourneyState>, PathEx
         return null;
     }
 
-    private class Arrow {
-        private final long relationshipId;
-        private final long endNodeId;
 
-        Arrow(long relationshipId, long endNodeId) {
-            this.relationshipId = relationshipId;
-            this.endNodeId = endNodeId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Arrow arrow = (Arrow) o;
-            return relationshipId == arrow.relationshipId &&
-                    endNodeId == arrow.endNodeId;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(relationshipId, endNodeId);
-        }
-    }
 }

@@ -36,7 +36,6 @@ public class TransportDataForTest implements TransportDataSource {
     public static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
     public static final String STATION_FIVE = METROLINK_PREFIX+"_ST_FIVE";
 
-
     private Map<String, Station> stationMap = new HashMap<>();
     private Map<String,Platform> platforms;
     private Collection<Route> routes;

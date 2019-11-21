@@ -34,8 +34,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     private final CostEvaluator<Double> costEvaluator;
     private final CachedNodeOperations nodeOperations;
+    private final int maxJourneyDuration;
+
     private Optional<LocalTime> boardingTime;
     private final int maxWaitMinutes;
+//    private final int maxJourneyMins = 170; // longest end to end is 163?
 
     // stats
     private final Map<ServiceReason.ReasonCode,AtomicInteger> statistics;
@@ -51,6 +54,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = config.getMaxWait();
+        this.maxJourneyDuration = config.getMaxJourneyDuration();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
         this.preferRoutes = preferRoutes;
@@ -303,5 +307,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
         return recordReason(ServiceReason.StationNotReachable(path, "unreachable from current stations"));
 
+    }
+
+    public boolean journeyTookTooLong(TramTime visitingTime) {
+        return TramTime.diffenceAsMinutes( TramTime.of(queryTime), visitingTime)>maxJourneyDuration;
     }
 }

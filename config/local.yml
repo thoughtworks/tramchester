@@ -33,6 +33,7 @@ dataPath: data/tram
 removeRouteNameSuffix: true
 timeWindow: 60
 maxWait: 25
+maxJourneyDuration: 170
 queryInterval: 6
 nearestStopRangeKM: 2
 numOfNearestStops: 5

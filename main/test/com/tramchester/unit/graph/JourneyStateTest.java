@@ -1,7 +1,10 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
+import com.tramchester.graph.TramNetworkTraverser;
+import com.tramchester.graph.states.NotStartedState;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,15 +18,17 @@ import static org.junit.Assert.assertFalse;
 public class JourneyStateTest {
 
     private LocalTime queryTime;
+    private NotStartedState traversalState;
 
     @Before
     public void onceBeforeEachTestRuns() {
+        traversalState = new NotStartedState(new CachedNodeOperations(), 42);
         queryTime = LocalTime.of(9, 15);
     }
 
     @Test
     public void shouldBeginJourney() {
-        JourneyState state = new JourneyState(queryTime);
+        JourneyState state = new JourneyState(queryTime, traversalState);
         assertFalse(state.isOnTram());
 
         int currentCost = 0;
@@ -40,7 +45,7 @@ public class JourneyStateTest {
 
     @Test
     public void shouldBoardATram() throws TramchesterException {
-        JourneyState state = new JourneyState(queryTime);
+        JourneyState state = new JourneyState(queryTime, traversalState);
         assertFalse(state.isOnTram());
 
         int currentCost = 10;
@@ -55,7 +60,7 @@ public class JourneyStateTest {
 
     @Test
     public void shouldNotBoardATramIfAlreadyOnATram() throws TramchesterException {
-        JourneyState state = new JourneyState(queryTime);
+        JourneyState state = new JourneyState(queryTime, traversalState);
 
         state.boardTram();
         try {
@@ -69,7 +74,7 @@ public class JourneyStateTest {
 
     @Test
     public void shouldNotLeaveATramIfAlreadyOffATram() throws TramchesterException {
-        JourneyState state = new JourneyState(queryTime);
+        JourneyState state = new JourneyState(queryTime, traversalState);
         LocalTime boardingTime = LocalTime.of(9, 30);
 
         int currentCost = 14;
@@ -87,7 +92,7 @@ public class JourneyStateTest {
 
     @Test
     public void shouldHaveCorrectTripIdAndClockDuringATrip() throws TramchesterException {
-        JourneyState state = new JourneyState(queryTime);
+        JourneyState state = new JourneyState(queryTime, traversalState);
 
         LocalTime boardingTime = LocalTime.of(9, 30);
         state.boardTram();
@@ -103,7 +108,7 @@ public class JourneyStateTest {
 
     @Test
     public void shouldHaveCorrectTimeWhenDepartingTram() throws TramchesterException {
-        JourneyState state = new JourneyState(queryTime);
+        JourneyState state = new JourneyState(queryTime, traversalState);
         assertFalse(state.isOnTram());
 
         state.boardTram();
@@ -122,7 +127,7 @@ public class JourneyStateTest {
 
     @Test
     public void shouldHaveCorrectTimeWhenDepartingAndBoardingTram() throws TramchesterException {
-        JourneyState state = new JourneyState(queryTime);
+        JourneyState state = new JourneyState(queryTime, traversalState);
 
         state.boardTram();
         state.recordTramDetails(LocalTime.of(9,30),10,"tripId1");         // 10 mins cost
@@ -142,7 +147,7 @@ public class JourneyStateTest {
 
     @Test
     public void shouldCreateNewState() throws TramchesterException {
-        JourneyState journeyState = new JourneyState(LocalTime.of(7,55));
+        JourneyState journeyState = new JourneyState(LocalTime.of(7,55), traversalState);
 
         JourneyState newStateA = JourneyState.fromPrevious(journeyState);
         assertEquals(LocalTime.of(7,55), journeyState.getJourneyClock());

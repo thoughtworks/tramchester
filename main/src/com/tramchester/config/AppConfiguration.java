@@ -111,6 +111,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("unzipPath")
     private String unzipPath;
 
+    @JsonProperty("maxJourneyDuration")
+    private int maxJourneyDuration;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -244,5 +247,10 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Override
     public long getLiveDataRefreshPeriodSeconds() { return liveDataRefreshPeriodSeconds; }
+
+    @Override
+    public int getMaxJourneyDuration() {
+        return maxJourneyDuration;
+    }
 
 }

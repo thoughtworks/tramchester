@@ -197,7 +197,7 @@ public class RouteCalculator extends StationIndexs {
         }
 
         Iterable<WeightedPath> pathIterator = new TramNetworkTraverser(serviceHeutistics, nodeOperations,
-                queryTime, endNode, MAX_NUM_GRAPH_PATHS).findPaths(startNode);
+                queryTime, endNode).findPaths(startNode);
 
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }

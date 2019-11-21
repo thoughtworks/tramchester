@@ -32,9 +32,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv004555";
+    private final String svcDeansgateToVic = "Serv006098";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv004552";
+    private String svcShawAndCrompton = "Serv006091";
 
     private Collection<Service> allServices;
 
@@ -161,7 +161,7 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
-                new TimeWindow(LocalTime.of(23,31), 30));
+                new TimeWindow(LocalTime.of(23,45), 30));
         assertTrue(trips.isPresent());
     }
 
@@ -203,7 +203,7 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toList());
 
         // not date specific
-        assertEquals(4, atRequiredTimed.size());
+        assertEquals(8, atRequiredTimed.size());
     }
 
     @Test

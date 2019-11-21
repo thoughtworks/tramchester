@@ -58,6 +58,9 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // how many stops show in Recent on the stations dropdowns
     public abstract int getRecentStopsToShow();
 
+    // maximum length of a journey
+    public abstract int getMaxJourneyDuration();
+
     public abstract SwaggerBundleConfiguration getSwaggerBundleConfiguration();
 
     // number of days before data expiry to start warning

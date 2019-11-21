@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
@@ -14,11 +15,26 @@ public class JourneyState {
     private String tripId;
     private LocalTime boardingTime;
 
-    public JourneyState(LocalTime queryTime) {
+    @Override
+    public String toString() {
+        return "JourneyState{" +
+                "journeyClock=" + journeyClock +
+                ", onTram=" + onTram +
+                ", journeyOffset=" + journeyOffset +
+                ", tripId='" + tripId + '\'' +
+                ", boardingTime=" + boardingTime +
+                ", traversalState=" + traversalState +
+                '}';
+    }
+
+    private TraversalState traversalState;
+
+    public JourneyState(LocalTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
         journeyOffset = 0;
         onTram = false;
         tripId = "";
+        this.traversalState = traversalState;
     }
 
     public static JourneyState fromPrevious(JourneyState previousState) {
@@ -30,6 +46,7 @@ public class JourneyState {
         this.tripId = previousState.tripId;
         this.onTram = previousState.onTram;
         this.journeyOffset = previousState.journeyOffset;
+        this.traversalState = previousState.traversalState;
         if (onTram) {
             this.tripId = previousState.tripId;
             this.boardingTime = previousState.boardingTime;
@@ -43,10 +60,11 @@ public class JourneyState {
 //        return tripId;
 //    }
 
-    public static InitialBranchState<JourneyState> initialState(LocalTime queryTime) {
+    public static InitialBranchState<JourneyState> initialState(LocalTime queryTime,
+                                                                TraversalState traversalState) {
         return new InitialBranchState<JourneyState>() {
             @Override
-            public JourneyState initialState(Path path) { return new JourneyState(queryTime);
+            public JourneyState initialState(Path path) { return new JourneyState(queryTime, traversalState);
             }
 
             @Override
@@ -92,6 +110,7 @@ public class JourneyState {
         journeyOffset = currentTotalCost;
         onTram = false;
         tripId = "";
+        boardingTime = null;
         return this;
     }
 
@@ -108,6 +127,15 @@ public class JourneyState {
             throw new TramchesterException("Already on a tram");
         }
         onTram = true;
+        return this;
+    }
+
+    public TraversalState getTraversalState() {
+        return traversalState;
+    }
+
+    public JourneyState updateTraversalState(TraversalState traversalState) {
+        this.traversalState = traversalState;
         return this;
     }
 }

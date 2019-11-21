@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
@@ -91,22 +92,31 @@ public class ClientForS3Test {
         // due to eventual consistency and unrealability of tests this has become a bit belt and braces :-(
         if (s3.doesBucketExistV2(TEST_BUCKET_NAME)) {
 
-            //// KEY
-            DeleteObjectsRequest deleteObjects = new DeleteObjectsRequest(TEST_BUCKET_NAME).withKeys(KEY);
+            ObjectListing listing = s3.listObjects(TEST_BUCKET_NAME);
+            List<S3ObjectSummary> items = listing.getObjectSummaries();
 
-            try {
-                s3.deleteObjects(deleteObjects);
-            }
-            catch (AmazonS3Exception deletefailed) {
-                if (deletefailed.getStatusCode()==404) {
-                    // fine, no need to delete
-                } else {
-                    throw deletefailed;
+            items.forEach(item -> {
+                String key = item.getKey();
+                DeleteObjectsRequest deleteObjects = new DeleteObjectsRequest(TEST_BUCKET_NAME).withKeys(key);
+                try {
+                    s3.deleteObjects(deleteObjects);
+                    Waiter<GetObjectMetadataRequest> keyWaiter = s3.waiters().objectNotExists();
+                    keyWaiter.run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, key)));
                 }
-            }
+                catch (AmazonS3Exception deletefailed) {
+                    if (deletefailed.getStatusCode()==404) {
+                        // fine, no need to delete
+                    } else {
+                        throw deletefailed;
+                    }
+                }
+            });
 
-            Waiter<GetObjectMetadataRequest> keyWaiter = s3.waiters().objectNotExists();
-            keyWaiter.run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, KEY)));
+            //// KEY
+//            DeleteObjectsRequest deleteObjects = new DeleteObjectsRequest(TEST_BUCKET_NAME).withKeys(KEY);
+
+//            Waiter<GetObjectMetadataRequest> keyWaiter = s3.waiters().objectNotExists();
+//            keyWaiter.run(new WaiterParameters<>(new GetObjectMetadataRequest(TEST_BUCKET_NAME, KEY)));
 
             //// BUCKET
             try {

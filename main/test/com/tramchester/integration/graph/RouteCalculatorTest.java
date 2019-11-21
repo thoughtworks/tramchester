@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 public class RouteCalculatorTest {
 
@@ -28,12 +29,14 @@ public class RouteCalculatorTest {
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private static boolean edgePerTrip;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
+        edgePerTrip = testConfig.getEdgePerTrip();
     }
 
     @Before
@@ -234,6 +237,25 @@ public class RouteCalculatorTest {
                 checkRouteNextNDays(start, dest, nextTuesday, LocalTime.of(9,0), 7);
             }
         }
+    }
+
+    @Test
+    public void shouldNotGenerateDuplicateJourneys() {
+        assumeTrue(edgePerTrip);
+
+        Set<List<RawStage>> stages = new HashSet<>();
+
+        List<LocalTime> queryTimes = new LinkedList<>();
+        queryTimes.add(LocalTime.of(11,45));
+        Set<RawJourney> journeys = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham.getId(), queryTimes,
+                new TramServiceDate(nextTuesday), 100);
+        assertTrue(journeys.size()>0);
+
+        journeys.forEach(journey -> {
+            assertFalse(stages.toString(), stages.contains(journey.getStages()));
+            stages.add(journey.getStages());
+        });
+
     }
 
     @Test
