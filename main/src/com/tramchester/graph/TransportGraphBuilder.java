@@ -461,7 +461,6 @@ public class TransportGraphBuilder extends StationIndexs {
         TramTime departureTime = beginStop.getDepartureTime();
         Node hourNode = getOrCreateHourNode(beginServiceNode, beginSvcNodeId, departureTime);
         Node timeNode = getOrCreateTimeNode(hourNode, beginSvcNodeId, departureTime, tripId);
-        //Node endSvcNode = getOrCreateEndServiceNode(timeNode, service, tripId, routeIdClean, endStop);
 
         TransportRelationshipTypes transportRelationshipType =
                 route.isTram() ? TransportRelationshipTypes.TRAM_GOES_TO : TransportRelationshipTypes.BUS_GOES_TO;

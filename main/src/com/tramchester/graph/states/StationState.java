@@ -1,6 +1,5 @@
 package com.tramchester.graph.states;
 
-import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
@@ -13,8 +12,8 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class StationState extends TraversalState {
 
-    public StationState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> relationships, long destinationNodeId) {
-        super(parent, nodeOperations, relationships, destinationNodeId);
+    public StationState(TraversalState parent, Iterable<Relationship> relationships) {
+        super(parent, relationships);
     }
 
     @Override
@@ -29,11 +28,11 @@ public class StationState extends TraversalState {
         journeyState.updateJourneyClock(getTotalCost(path));
 
         if (node.getId()==destinationNodeId) {
-            return new DestinationState(this, nodeOperations, destinationNodeId);
+            return new DestinationState(this);
         }
         if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
-            return new PlatformState(this, nodeOperations,
-                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), destinationNodeId);
+            return new PlatformState(this,
+                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId());
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
 

@@ -10,8 +10,16 @@ import java.util.LinkedList;
 
 public class DestinationState extends TraversalState
 {
-    public DestinationState(TraversalState parent, CachedNodeOperations nodeOperations, long destinationNodeId) {
-        super(parent, nodeOperations, new LinkedList<>(), destinationNodeId);
+    public DestinationState(TraversalState parent) {
+        super(parent, new LinkedList<>());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DestinationState)) return false;
+        TraversalState that = (TraversalState) o;
+        return that.destinationNodeId == this.destinationNodeId;
     }
 
     @Override

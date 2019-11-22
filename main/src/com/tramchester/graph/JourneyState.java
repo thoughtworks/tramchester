@@ -6,13 +6,14 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class JourneyState {
+    // TODO Use tram time, more efficient
     private LocalTime journeyClock;
     private boolean onTram;
-    private int journeyOffset;
 
-    private String tripId;
+    private int journeyOffset;
     private LocalTime boardingTime;
 
     @Override
@@ -21,7 +22,6 @@ public class JourneyState {
                 "journeyClock=" + journeyClock +
                 ", onTram=" + onTram +
                 ", journeyOffset=" + journeyOffset +
-                ", tripId='" + tripId + '\'' +
                 ", boardingTime=" + boardingTime +
                 ", traversalState=" + traversalState +
                 '}';
@@ -33,7 +33,6 @@ public class JourneyState {
         this.journeyClock = queryTime;
         journeyOffset = 0;
         onTram = false;
-        tripId = "";
         this.traversalState = traversalState;
     }
 
@@ -43,22 +42,13 @@ public class JourneyState {
 
     private JourneyState(JourneyState previousState) {
         this.journeyClock = previousState.journeyClock;
-        this.tripId = previousState.tripId;
         this.onTram = previousState.onTram;
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
         if (onTram) {
-            this.tripId = previousState.tripId;
             this.boardingTime = previousState.boardingTime;
         }
     }
-
-//    public String getTripId() {
-//        if (tripId.isEmpty()) {
-//            throw new RuntimeException("Empty TripId");
-//        }
-//        return tripId;
-//    }
 
     public static InitialBranchState<JourneyState> initialState(LocalTime queryTime,
                                                                 TraversalState traversalState) {
@@ -89,14 +79,13 @@ public class JourneyState {
         return this;
     }
 
-    public JourneyState recordTramDetails(LocalTime boardingTime, int currentCost, String tripId) throws TramchesterException {
+    public JourneyState recordTramDetails(LocalTime boardingTime, int currentCost) throws TramchesterException {
         if (!onTram) {
             throw new TramchesterException("Not on a tram");
         }
         this.journeyClock = boardingTime;
         this.boardingTime = boardingTime;
         this.journeyOffset = currentCost;
-        this.tripId = tripId;
         return this;
     }
 
@@ -109,17 +98,12 @@ public class JourneyState {
 
         journeyOffset = currentTotalCost;
         onTram = false;
-        tripId = "";
         boardingTime = null;
         return this;
     }
 
     public boolean isOnTram() {
         return onTram;
-    }
-
-    public String getTripId() {
-        return tripId;
     }
 
     public JourneyState boardTram() throws TramchesterException {
@@ -137,5 +121,19 @@ public class JourneyState {
     public JourneyState updateTraversalState(TraversalState traversalState) {
         this.traversalState = traversalState;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JourneyState that = (JourneyState) o;
+        return onTram == that.onTram &&
+                Objects.equals(journeyClock, that.journeyClock);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(journeyClock, onTram);
     }
 }

@@ -50,6 +50,17 @@ public class CachedNodeOperations {
         return trips;
     }
 
+
+    public String getTrip(Relationship relationship) {
+        long relationshipId = relationship.getId();
+        if (tripRelationshipCache.containsKey(relationshipId)) {
+            return tripRelationshipCache.get(relationshipId);
+        }
+        String trip = relationship.getProperty(TRIP_ID).toString();
+        tripRelationshipCache.put(relationshipId, trip);
+        return trip;
+    }
+
     public LocalTime getTime(Node node) {
         long nodeId = node.getId();
         if (times.containsKey(nodeId)) {
@@ -159,4 +170,5 @@ public class CachedNodeOperations {
         }
         return endNode.getProperty(TRIP_ID).toString();
     }
+
 }

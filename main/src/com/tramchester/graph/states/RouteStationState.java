@@ -1,12 +1,15 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+
+import java.util.Collections;
+import java.util.Optional;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -14,22 +17,21 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class RouteStationState extends TraversalState {
     private final long routeStationNodeId;
     private final boolean justBoarded;
-    private final String tripId;
+    private Optional<String> maybeExistingTrip;
 
-    public RouteStationState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> relationships,
-                             long routeStationNodeId, long destinationNodeId) {
-        super(parent, nodeOperations, relationships, destinationNodeId);
+    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId) {
+        super(parent, relationships);
         this.routeStationNodeId = routeStationNodeId;
         this.justBoarded = true;
-        tripId = null;
+        maybeExistingTrip = Optional.empty();
     }
 
-    public RouteStationState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> relationships,
-                             long routeStationNodeId, String tripId, long destinationNodeId) {
-        super(parent, nodeOperations, relationships, destinationNodeId);
+    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships,
+                             long routeStationNodeId, String tripId) {
+        super(parent, relationships);
         this.routeStationNodeId = routeStationNodeId;
         this.justBoarded = false;
-        this.tripId = tripId;
+        maybeExistingTrip = Optional.of(tripId);
     }
 
     @Override
@@ -37,28 +39,44 @@ public class RouteStationState extends TraversalState {
         return "RouteStationState{" +
                 "routeStationNodeId=" + routeStationNodeId +
                 ", justBoarded=" + justBoarded +
-                ", tripId='" + tripId + '\'' +
+                ", maybeExistingTrip='" + maybeExistingTrip + '\'' +
                 ", parent=" + parent +
                 '}';
     }
 
     @Override
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+        if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
+            return toPlatform(path, node, journeyState);
+        }
+
+        if (nodeLabel == TransportGraphBuilder.Labels.SERVICE) {
+            return toService(node);
+        }
+        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+    }
+
+    private TraversalState toService(Node node) {
+        Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_HOUR);
+        return new ServiceState(this, hourOrdered(relationships), maybeExistingTrip);
+    }
+
+    private TraversalState toPlatform(Path path, Node node, JourneyState journeyState) {
         try {
-            if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
-                journeyState.leaveTram(getTotalCost(path));
-                Iterable<Relationship> relationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
-                return new PlatformState(this, nodeOperations,
-                        filterByEndNode(relationships, routeStationNodeId), node.getId(), destinationNodeId);
+            journeyState.leaveTram(getTotalCost(path));
+            // if towards destination just return that one relationship
+            for(Relationship relationship :  node.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
+                if (relationship.getProperty(GraphStaticKeys.STATION_ID).equals(destinationStationdId)) {
+                    return new PlatformState(this, Collections.singleton(relationship), routeStationNodeId);
+                }
             }
+            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+
+            return new PlatformState(this,
+                    filterExcludingEndNode(relationships, routeStationNodeId), node.getId());
         }
         catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process platform", exception);
         }
-
-        if (nodeLabel == TransportGraphBuilder.Labels.SERVICE) {
-            return new ServiceState(this, nodeOperations, hourOrdered(node.getRelationships(OUTGOING, TO_HOUR)), destinationNodeId);
-        }
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }
 }

@@ -93,7 +93,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // journey too long?
         if (serviceHeuristics.journeyTookTooLong(visitingTime)) {
 //                TramTime.diffenceAsMinutes( TramTime.of(queryTime), visitingTime)>maxJourneyMins) {
-            return Evaluation.INCLUDE_AND_PRUNE; // TODO EXCLUDE??
+            return Evaluation.EXCLUDE_AND_PRUNE; // TODO EXCLUDE??
         }
 
 

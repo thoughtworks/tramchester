@@ -80,6 +80,22 @@ public class RouteCalculatorSubGraphTest {
     }
 
     @Test
+    public void shouldHaveSimpleOneStopJourney() {
+        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
+        Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        assertTrue(results.size()>0);
+    }
+
+    @Test
+    public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
+        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
+        Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        assertTrue(results.size()>0);
+    }
+
+    @Test
     public void shouldHaveSimpleJourney() {
         List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),

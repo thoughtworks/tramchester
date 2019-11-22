@@ -1,6 +1,5 @@
 package com.tramchester.graph.states;
 
-import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
@@ -12,8 +11,8 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
-    public WalkingState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> relationships, long destinationNodeId) {
-        super(parent, nodeOperations, relationships, destinationNodeId);
+    public WalkingState(TraversalState parent, Iterable<Relationship> relationships) {
+        super(parent, relationships);
     }
 
     @Override
@@ -28,6 +27,6 @@ public class WalkingState extends TraversalState {
         if (!TransportGraphBuilder.Labels.STATION.equals(nodeLabel)) {
             throw new RuntimeException("Unexpected node type: " + nodeLabel);
         }
-        return new StationState(this, nodeOperations, node.getRelationships(OUTGOING, ENTER_PLATFORM), destinationNodeId);
+        return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM));
     }
 }

@@ -10,8 +10,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class TraversalState {
@@ -19,13 +18,28 @@ public abstract class TraversalState {
     protected final CachedNodeOperations nodeOperations;
     protected final long destinationNodeId;
     protected final TraversalState parent;
+    protected final String destinationStationdId;
 
-    protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> relationships, long destinationNodeId) {
+    @Override
+    public int hashCode() {
+        return Objects.hash(parent);
+    }
+
+    protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> relationships,
+                             long destinationNodeId, String destinationStationdId) {
         this.parent = parent;
         this.nodeOperations = nodeOperations;
         this.relationships = relationships;
         this.destinationNodeId = destinationNodeId;
+        this.destinationStationdId = destinationStationdId;
+    }
 
+    protected TraversalState(TraversalState parent, Iterable<Relationship> relationships) {
+        this.nodeOperations = parent.nodeOperations;
+        this.destinationNodeId = parent.destinationNodeId;
+        this.destinationStationdId = parent.destinationStationdId;
+        this.parent = parent;
+        this.relationships = relationships;
     }
 
     public abstract TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
@@ -35,7 +49,7 @@ public abstract class TraversalState {
         return relationships;
     }
 
-    protected Iterable<Relationship> filterByEndNode(Iterable<Relationship> relationships, long nodeIdToSkip) {
+    protected List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, long nodeIdToSkip) {
         return Streams.stream(relationships).
                 filter(relationship -> relationship.getEndNode().getId()!= nodeIdToSkip).
                 collect(Collectors.toList());
@@ -59,7 +73,6 @@ public abstract class TraversalState {
         return ordered.values();
     }
 
-
     protected int getTotalCost(Path path) {
         int result = 0;
         for (Relationship relat: path.relationships()) {
@@ -67,4 +80,16 @@ public abstract class TraversalState {
         }
         return result;
     }
+
+    protected List<Relationship> filterByTripId(Iterable<Relationship> relationships, String tripId) {
+        List<Relationship> results = new ArrayList<>();
+        relationships.forEach(relationship -> {
+            String trips = nodeOperations.getTrips(relationship);
+            if (trips.contains(tripId)) {
+                results.add(relationship);
+            }
+        });
+        return results;
+    }
+
 }

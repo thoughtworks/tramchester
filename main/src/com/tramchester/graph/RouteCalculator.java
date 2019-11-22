@@ -150,7 +150,7 @@ public class RouteCalculator extends StationIndexs {
             Stream<WeightedPath> paths;
             if (config.getEdgePerTrip()) {
                 paths = findShortestPathEdgePerTrip(startNode, endNode, queryTime, queryDate,
-                        serviceHeuristics);
+                        serviceHeuristics, endStationId);
                 journeys.addAll(mapStreamToJourneySet(paths, limit, queryTime));
                 if (journeys.isEmpty()) {
                     serviceHeuristics.reportReasons();
@@ -187,7 +187,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Stream<WeightedPath> findShortestPathEdgePerTrip(Node startNode, Node endNode, LocalTime queryTime,
-                                                             TramServiceDate queryDate, ServiceHeuristics serviceHeutistics) {
+                                                             TramServiceDate queryDate, ServiceHeuristics serviceHeutistics, String endStationId) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
                 startNode.getProperty(GraphStaticKeys.Station.NAME),
                 endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));
@@ -196,10 +196,10 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        Iterable<WeightedPath> pathIterator = new TramNetworkTraverser(serviceHeutistics, nodeOperations,
-                queryTime, endNode).findPaths(startNode);
+        return new TramNetworkTraverser(serviceHeutistics, nodeOperations,
+                queryTime, endNode, endStationId).findPaths(startNode);
 
-        return StreamSupport.stream(pathIterator.spliterator(), false);
+//        return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
     private Set<RawJourney> mapStreamToJourneySet(Stream<WeightedPath> paths, int limit, LocalTime queryTime) {

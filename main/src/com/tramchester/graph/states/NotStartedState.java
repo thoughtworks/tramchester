@@ -1,6 +1,9 @@
 package com.tramchester.graph.states;
 
-import com.tramchester.graph.*;
+import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.JourneyState;
+import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -9,13 +12,14 @@ import java.util.ArrayList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.ENTER_PLATFORM;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId) {
-        super(null, nodeOperations, new ArrayList<>(), destinationNodeId);
+    public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId, String destinationStationId) {
+        super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationId);
     }
 
     @Override
@@ -26,9 +30,9 @@ public class NotStartedState extends TraversalState {
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
         switch(nodeLabel) {
             case QUERY_NODE:
-                return new WalkingState(this, nodeOperations, costOrdered(node.getRelationships(OUTGOING, WALKS_TO)), destinationNodeId);
+                return new WalkingState(this, costOrdered(node.getRelationships(OUTGOING, WALKS_TO)));
             case STATION: // we walked here
-                return new StationState(this, nodeOperations, node.getRelationships(OUTGOING, ENTER_PLATFORM), destinationNodeId);
+                return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM));
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }
