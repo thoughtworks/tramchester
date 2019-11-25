@@ -290,10 +290,37 @@ public class TramTimeTest {
 
     @Test
     public void shouldSubstractMins() {
+        TramTime reference = TramTime.of(12,04);
+        TramTime result = reference.minusMinutes(30);
+
+        assertEquals(11, result.getHourOfDay());
+        assertEquals(34, result.getMinuteOfHour());
+
+        reference = TramTime.of(12,04);
+        result = reference.minusMinutes(90);
+
+        assertEquals(10, result.getHourOfDay());
+        assertEquals(34, result.getMinuteOfHour());
+
+        reference = TramTime.of(00,04);
+        result = reference.minusMinutes(30);
+
+        assertEquals(23, result.getHourOfDay());
+        assertEquals(34, result.getMinuteOfHour());
+
+        reference = TramTime.of(00,04);
+        result = reference.minusMinutes(90);
+
+        assertEquals(22, result.getHourOfDay());
+        assertEquals(34, result.getMinuteOfHour());
+    }
+
+    @Test
+    public void shouldSubstractMinsViaLocalTime() {
         LocalTime reference = LocalTime.of(12, 04);
         TramTime result = TramTime.of(reference.minusMinutes(30));
 
-        assertEquals(11,result.getHourOfDay());
+        assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
     }
 

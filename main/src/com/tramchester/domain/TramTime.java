@@ -247,4 +247,23 @@ public class  TramTime implements Comparable<TramTime> {
 
         return this.isAtOrAfter(other);
     }
+
+    public TramTime minusMinutes(int amount) {
+        if (amount>3600) {
+            throw new RuntimeException("Cannot subtract more than a hour");
+        }
+        int hoursToSubtract = Integer.divideUnsigned(amount, 60);
+        int minutesToSubtract = amount - ( hoursToSubtract * 60);
+
+        int newMins = minute - minutesToSubtract;
+        if (newMins<0) {
+            hoursToSubtract=hoursToSubtract+1;
+            newMins = 60 + newMins;
+        }
+        int newHours = hour - hoursToSubtract;
+        if (newHours<0) {
+            newHours = 24 + newHours;
+        }
+        return TramTime.of(newHours, newMins);
+    }
 }

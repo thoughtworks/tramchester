@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TramTime;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphalgo.WeightedPath;
@@ -28,8 +29,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final long destinationNodeId;
     private final String endStationId;
 
-    private final Map<JourneyState, List<Long>> visited;
-
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
                                 CachedNodeOperations nodeOperations, LocalTime queryTime, Node destinationNode, String endStationId) {
         this.serviceHeuristics = serviceHeuristics;
@@ -38,7 +37,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.destinationNodeId = destinationNode.getId();
         this.endStationId = endStationId;
 
-        visited = new HashMap<>();
     }
 
     public Stream<WeightedPath> findPaths(Node startNode) {
@@ -46,8 +44,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         // TODO Move this
         TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations,
                 destinationNodeId);
-
         NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationId);
+
+        logger.info("Begin traversal");
 
         Traverser traverser = new MonoDirectionalTraversalDescription().
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
@@ -69,26 +68,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         ResourceIterator<Path> iterator = traverser.iterator();
 
+        logger.info("Return traversal stream");
         return iterator.stream().filter(path -> path.endNode().getId()==destinationNodeId)
-                .map(path -> calculateWeight(path));
+                .map(this::calculateWeight);
 
-
-//        // TODO uniqueness && size limit?
-//        List<WeightedPath> results = new ArrayList<>();
-//        while (iterator.hasNext()) {
-//            Path path = iterator.next();
-//            if (path.endNode().getId()==destinationNodeId) {
-//                results.add(calculateWeight(path));
-//            }
-////            if (results.size()>=MAX_NUM_GRAPH_PATHS) {
-////                break;
-////            }
-//        }
-//
-//        results.sort(Comparator.comparingDouble(WeightedPath::weight));
-//        logger.info(format("Found %s paths from node %s to %s", results.size(), startNode.getId(), destinationNodeId));
-//
-//        return results;
     }
 
     private WeightedPath calculateWeight(Path path) {
@@ -111,12 +94,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         TraversalState traversalState = currentState.getTraversalState();
         Node endNode = path.endNode();
 
-        long endNodeId = endNode.getId();
-        if (haveVisited(currentState, endNodeId)) {
-            return Collections.EMPTY_LIST;
-        }
-        recordVisit(currentState, endNodeId);
-
         if (path.lastRelationship()!=null) {
             int cost = nodeOperations.getCost(path.lastRelationship());
             if (cost>0) {
@@ -136,152 +113,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
 //        logger.info(stateForChildren.toString());
 
-        return newTraversalState.getRelationships();
+        Iterable<Relationship> relationships = newTraversalState.getRelationships();
+
+        return relationships;
     }
-
-    private boolean haveVisited(JourneyState currentState, long nodeId) {
-        if (visited.containsKey(currentState)) {
-            visited.get(currentState).contains(nodeId);
-        }
-        return false;
-    }
-
-//        int cost;
-//        JourneyState currentState = graphState.getState();
-//        if (path.lastRelationship()!=null) {
-//            cost = nodeOperations.getCost(path.lastRelationship());
-//            if (cost>0) {
-//                // only updates state for children, not for this node
-////                JourneyState stateForChildren = new JourneyState(state.getState(), cost);
-//                JourneyState stateForChildren = JourneyState.fromPrevious(currentState).updateJourneyClock(getTotalCost(path));
-//                graphState.setState(stateForChildren);
-//            }
-//        }
-
-//        try {
-//            switch (nodeLabel) {
-////                case QUERY_NODE:
-////                    return costOrdered(outboundRelationships);
-//                case STATION:
-////                    if (endNode.getId() == destinationNodeId) {
-////                        return new LinkedList<>();
-////                    }
-////                    return outboundRelationships;
-//                case MINUTE:
-//                    //state.setState(updateStateToNodeTime(endNode));
-//                    LocalTime time = nodeOperations.getTime(endNode);
-//                    String tripId = nodeOperations.getTrip(endNode);
-//                    graphState.setState(JourneyState.fromPrevious(currentState).recordTramDetails(time, getTotalCost(path), tripId));
-//                    // TODO TRIP ID check?
-//                    return outboundRelationships;
-//                case PLATFORM:
-//                    // remove trip id from state, we are not on a tram
-////                    LocalTime newTime = currentState.getTime().plusMinutes(cost);
-////                    JourneyState newStateForChildren = new JourneyState(newTime, "");
-//                    if (TransportRelationshipTypes.isDeparting(path.lastRelationship().getType())) {
-//                        JourneyState newStateForChildren = JourneyState.fromPrevious(currentState).leaveTram(getTotalCost(path));
-//                        graphState.setState(newStateForChildren);
-//                    }
-//                    return fromPlatformOrderedDeparts(path.lastRelationship(), outboundRelationships);
-//                case SERVICE:
-//                    return hourOrdered(outboundRelationships);
-//                case HOUR:
-//                    return timeOrdered(outboundRelationships);
-//                case ROUTE_STATION:
-//                    if (TransportRelationshipTypes.isBoarding(path.lastRelationship().getType())) {
-//                        JourneyState newState = JourneyState.fromPrevious(currentState).boardTram();
-//                        graphState.setState(newState);
-//                    }
-//                    return fromRSfilteredByTripAndDepart(currentState, outboundRelationships);
-//                default:
-//                    throw new RuntimeException("Unexpected node type " + nodeLabel.name());
-//            }
-//        }
-//        catch(TramchesterException exception) {
-//            logger.error("Unable to process node", exception);
-//            throw new RuntimeException(exception);
-//        }
-
-    private void recordVisit(JourneyState currentState, long nodeId) {
-        if (!visited.containsKey(currentState)) {
-            visited.put(currentState, new ArrayList<>());
-        }
-        visited.get(currentState).add(nodeId);
-
-    }
-
-//    private Iterable<Relationship> fromRSfilteredByTripAndDepart(JourneyState journeyState,
-//                                                                 Iterable<Relationship> outboundRelationships) {
-//        LinkedList<Relationship> results = new LinkedList<>();
-//
-//        if (journeyState.isOnTram()) {
-//            // If we have trip then just "arrived" on a tram
-//            String tripId = journeyState.getTripId();
-//            for (Relationship outboundRelationship : outboundRelationships) {
-//                if (outboundRelationship.isType(TO_SERVICE)) {
-//                    // only follow outbound if trip id matches inbound tram
-//                    String trips = nodeOperations.getTrips(outboundRelationship);
-//                    if (trips.contains(tripId)) {
-//                        results.add(outboundRelationship);
-//                    }
-//                } else if (TransportRelationshipTypes.isForPlanning(outboundRelationship.getType())){
-//                    // departing current tram
-//                    if (serviceHeuristics.toEndStation(outboundRelationship)) {
-//                        return Collections.singleton(outboundRelationship);
-//                    }
-//                    results.addLast(outboundRelationship);
-//                }
-//            }
-//        } else {
-//            // No trip id means we have just boarded
-//            for (Relationship outboundRelationship : outboundRelationships) {
-//                if (outboundRelationship.isType(TO_SERVICE)) {
-//                    String routeId = nodeOperations.getRoute(outboundRelationship);
-//                    if (serviceHeuristics.matchesRoute(routeId)) {
-//                        results.addFirst(outboundRelationship);
-//                    } else {
-//                        results.addLast(outboundRelationship);
-//                    }
-//                } else if (TransportRelationshipTypes.isForPlanning(outboundRelationship.getType())){
-//                    // ONLY depart again if at actual destination node
-//                    if (serviceHeuristics.toEndStation(outboundRelationship)) {
-//                        return Collections.singleton(outboundRelationship);
-//                    }
-//                }
-//            }
-//        }
-//        return results;
-//    }
-
-//    private JourneyState updateStateToNodeTime(Node endNode) {
-//        LocalTime time = nodeOperations.getTime(endNode);
-//        String tripId = endNode.getProperty(GraphStaticKeys.TRIP_ID).toString();
-//        return new JourneyState(time, tripId);
-//    }
-//
-//    private Iterable<Relationship> fromPlatformOrderedDeparts(Relationship inbound,
-//                                                              Iterable<Relationship> outboundRelationships) {
-//        LinkedList<Relationship> result = new LinkedList<>();
-//
-//        for (Relationship outboundRelationship : outboundRelationships) {
-//            if (outboundRelationship.isType(LEAVE_PLATFORM)) {
-//                if (serviceHeuristics.toEndStation(outboundRelationship)) {
-//                    // destination
-//                    return Collections.singleton(outboundRelationship);
-//                }
-//                //else
-//                if (!inbound.isType(ENTER_PLATFORM)) {
-//                    // dont immediately enter then leave a platform
-//                    result.addLast(outboundRelationship);
-//                }
-//            } else {
-//                result.addLast(outboundRelationship);
-//            }
-//
-//        }
-//        return result;
-//
-//    }
 
     @Override
     public PathExpander<JourneyState> reverse() {

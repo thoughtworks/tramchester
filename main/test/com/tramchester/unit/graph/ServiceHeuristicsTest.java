@@ -2,6 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Relationships.*;
@@ -80,6 +81,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     public void shouldCheckNodeBasedOnServiceIdAndTimeOverlaps() {
         LocalTime queryTime = LocalTime.of(8,1);
         LocalTime elaspsedTime = LocalTime.of(9,1);
+        TramTime elaspsedTramTime = TramTime.of(elaspsedTime);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, preferRoutes, "endStationId");
@@ -122,14 +124,14 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         replayAll();
         assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTime, "unused", path),
-                serviceHeuristics.checkServiceTime(path, tooEarlyNode, elaspsedTime));
+                serviceHeuristics.checkServiceTime(path, tooEarlyNode, elaspsedTramTime));
         assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTime, "unused", path),
-                serviceHeuristics.checkServiceTime(path, tooLateNode, elaspsedTime));
+                serviceHeuristics.checkServiceTime(path, tooLateNode, elaspsedTramTime));
 
-        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBefore, elaspsedTime).isValid());
-        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsAfter, elaspsedTime).isValid());
-        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBeforeFinishesAfter, elaspsedTime).isValid());
-        assertTrue(serviceHeuristics.checkServiceTime(path, endsAfterMidnight, elaspsedTime).isValid());
+        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBefore, elaspsedTramTime).isValid());
+        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsAfter, elaspsedTramTime).isValid());
+        assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBeforeFinishesAfter, elaspsedTramTime).isValid());
+        assertTrue(serviceHeuristics.checkServiceTime(path, endsAfterMidnight, elaspsedTramTime).isValid());
 
         verifyAll();
     }
@@ -145,7 +147,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         // querytime + costSoFar + 0 = earlier time could arrive here
 
         int costSoFar = 58; // 9.59
-        LocalTime elapsed = queryTime.plusMinutes(costSoFar);
+        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
 
         assertFalse(serviceHeuristics.interestedInHour(path, 8, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
@@ -161,7 +163,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         int costSoFar = 39; // 10.29
-        LocalTime elapsed = queryTime.plusMinutes(costSoFar);
+        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
 
         assertFalse(serviceHeuristics.interestedInHour(path, 8, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
@@ -177,7 +179,8 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         int costSoFar = 15;  // 23.25
-        LocalTime elapsed = queryTime.plusMinutes(costSoFar);
+        //LocalTime elapsed = queryTime.plusMinutes(costSoFar);
+        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
 
         assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
@@ -221,7 +224,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(node.getProperty(GraphStaticKeys.TIME)).andStubReturn(nodeTime);
 
         replayAll();
-        assertEquals(expect, serviceHeuristics.checkTime(path, node, currentElapsed).isValid());
+        assertEquals(expect, serviceHeuristics.checkTime(path, node, TramTime.of(currentElapsed)).isValid());
         verifyAll();
     }
 
@@ -297,7 +300,8 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
                 queryTime, runningServices, preferRoutes, "endStationId");
 
         int costSoFar = 51;
-        LocalTime elapsed = queryTime.plusMinutes(costSoFar);
+        //LocalTime elapsed = queryTime.plusMinutes(costSoFar);
+        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
 
         assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());

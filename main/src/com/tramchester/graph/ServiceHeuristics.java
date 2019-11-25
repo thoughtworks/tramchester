@@ -89,7 +89,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         statistics.get(reasonCode).incrementAndGet();
     }
 
-    public ServiceReason checkServiceTime(Path path, Node node, LocalTime currentElapsed) {
+    public ServiceReason checkServiceTime(Path path, Node node, TramTime currentClock) {
         totalChecked.incrementAndGet();
 
         // prepared to wait up to max wait for start of a service...
@@ -97,10 +97,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         // BUT if arrive after service finished there is nothing to be done...
         TramTime serviceEnd = nodeOperations.getServiceLatest(node);
 
-        TramTime currentClock = TramTime.of(currentElapsed);
+        //TramTime currentClock = TramTime.of(currentElapsed);
         if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
             String nodeServiceId = nodeOperations.getServiceId(node);
-            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentElapsed, "ServiceNotRunning:"+nodeServiceId,
+            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, "ServiceNotRunning:"+nodeServiceId,
                     path));
         }
 
@@ -108,10 +108,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     }
 
     // edge per trip
-    public ServiceReason checkTime(Path path, Node node, LocalTime currentElapsed) {
+    public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed) {
         totalChecked.getAndIncrement();
 
-        LocalTime nodeTime = nodeOperations.getTime(node);
+        TramTime nodeTime = TramTime.of(nodeOperations.getTime(node));
         if (currentElapsed.isAfter(nodeTime)) { // already departed
             return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString(), path));
         }
@@ -122,11 +122,11 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime, currentElapsed.toString(), path));
     }
 
-    private boolean operatesWithinTime(LocalTime nodeTime, LocalTime elapsedTimed) {
-        TramTime earliest = TramTime.of(nodeTime.minusMinutes(maxWaitMinutes));
-        TramTime clock = TramTime.of(elapsedTimed);
+    private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
+        TramTime earliest = nodeTime.minusMinutes(maxWaitMinutes);
+        //TramTime clock = TramTime.of(elapsedTimed);
 
-        return clock.between(earliest, TramTime.of(nodeTime));
+        return elapsedTimed.between(earliest, nodeTime);
     }
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
@@ -227,7 +227,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
                 code -> logger.info(format("%s: %s", code, statistics.get(code))));
     }
 
-    public ServiceReason interestedInHour(Path path, int hour, LocalTime journeyClockTime) {
+    public ServiceReason interestedInHour(Path path, int hour, TramTime journeyClockTime) {
         totalChecked.getAndIncrement();
 
         int queryTimeHour = queryTime.getHour();
@@ -239,9 +239,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         TramTime latestTimeInHour = TramTime.of(hour, 59);
 
         TramTime earliestTimeInHour = TramTime.of(LocalTime.of(hour,0).minusMinutes(maxWaitMinutes));
-        TramTime earliestTime = TramTime.of(journeyClockTime);
+        //TramTime earliestTime = TramTime.of(journeyClockTime);
 
-        if (earliestTime.between(earliestTimeInHour,latestTimeInHour)) {
+        if (journeyClockTime.between(earliestTimeInHour,latestTimeInHour)) {
             return recordReason(ServiceReason.IsValid(path, "Hour"));
         }
 

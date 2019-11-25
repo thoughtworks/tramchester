@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TramTime;
 import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,8 +148,8 @@ public abstract class ServiceReason {
     }
 
 
-    public static ServiceReason ServiceNotRunningAtTime(LocalTime currentElapsed, String diag, Path path) {
-        return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed, diag, path) ;
+    public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, String diag, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed.asLocalTime(), diag, path) ;
     }
 
 }

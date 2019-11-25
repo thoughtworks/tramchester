@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphdb.Path;
@@ -64,8 +65,8 @@ public class JourneyState {
         };
     }
 
-    public LocalTime getJourneyClock() {
-        return journeyClock;
+    public TramTime getJourneyClock() {
+        return TramTime.of(journeyClock);
     }
 
     public JourneyState updateJourneyClock(int currentTotalCost) {

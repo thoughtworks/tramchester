@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.TramTime;
+import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -8,24 +9,25 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.PathEvaluator;
 
-import java.time.LocalTime;
 import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
-    private final Map<Arrow, Set<TramTime>> visited;
     private final int maxPathLength = 400; // path length limit, includes *all* edges
 
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
 
+    private final Map<Long, Pair<TramTime, Evaluation>> previousSuccessfulVisit;
+
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.destinationNodeId = destinationNodeId;
-        visited = new HashMap<>();
+
+        previousSuccessfulVisit = new HashMap<>();
     }
 
     @Override
@@ -35,13 +37,34 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     @Override
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
+        JourneyState journeyState = state.getState();
+        TramTime journeyClock = journeyState.getJourneyClock();
+
+        Node endNode = path.endNode();
+        long nodeId = endNode.getId();
+
+        if (previousSuccessfulVisit.containsKey(nodeId)) {
+            Pair<TramTime, Evaluation> previous = previousSuccessfulVisit.get(nodeId);
+            if (previous.getLeft().isBefore(journeyClock)) {
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
+        }
+
+        Evaluation result = doEvaluate(path, journeyState, endNode, nodeId);
+        if (result.continues()) {
+            // must be earlier, or more successful, from above
+            previousSuccessfulVisit.put(nodeId, Pair.of(journeyClock, result));
+        }
+
+        return result;
+
+    }
+
+    public Evaluation doEvaluate(Path path, JourneyState journeyState, Node endNode, long endNodeId) {
 
 //        if (success>=pathLimit) {
 //            return Evaluation.EXCLUDE_AND_PRUNE;
 //        }
-
-        Node endNode = path.endNode();
-        long endNodeId = endNode.getId();
 
         if (endNodeId==destinationNodeId) {
             //success = success + 1;
@@ -73,33 +96,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             if (inboundRelationship.isType(WALKS_TO)) {
                 return Evaluation.INCLUDE_AND_CONTINUE;
             }
-
-            // if already tried this node at this time from this edge, don't expect a differing outcome so exclude
-//            Arrow arrow = new Arrow(inboundRelationship.getId(), endNodeId);
-//            if (visited.containsKey(arrow)) {
-//                if (visited.get(arrow).contains(visitingTime)) {
-//                    return Evaluation.EXCLUDE_AND_PRUNE;
-//                }
-//            } else {
-//                visited.put(arrow, new HashSet<>());
-//            }
-//            visited.get(arrow).add(visitingTime);
         }
 
-        JourneyState journeyState = state.getState();
-        LocalTime currentElapsed = journeyState.getJourneyClock();
-        TramTime visitingTime = TramTime.of(currentElapsed);
-
+        TramTime visitingTime = journeyState.getJourneyClock();
         // journey too long?
         if (serviceHeuristics.journeyTookTooLong(visitingTime)) {
-//                TramTime.diffenceAsMinutes( TramTime.of(queryTime), visitingTime)>maxJourneyMins) {
             return Evaluation.EXCLUDE_AND_PRUNE; // TODO EXCLUDE??
         }
 
-
         // service available to catch?
         if (nodeOperations.isService(endNode)) {
-            if (!serviceHeuristics.checkServiceTime(path, endNode, currentElapsed).isValid()) {
+            if (!serviceHeuristics.checkServiceTime(path, endNode, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
@@ -107,44 +114,19 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // check time, just hour first
         if (nodeOperations.isHour(endNode)) {
             int hour = nodeOperations.getHour(endNode);
-            if (!serviceHeuristics.interestedInHour(path, hour, currentElapsed).isValid()) {
+            if (!serviceHeuristics.interestedInHour(path, hour, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
 
         // check time
         if (nodeOperations.isTime(endNode)) {
-            if (!serviceHeuristics.checkTime(path, endNode, currentElapsed).isValid()) {
+            if (!serviceHeuristics.checkTime(path, endNode, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
 
         return Evaluation.INCLUDE_AND_CONTINUE;
-    }
-
-
-    private class Arrow {
-        private final long relationshipId;
-        private final long endNodeId;
-
-        Arrow(long relationshipId, long endNodeId) {
-            this.relationshipId = relationshipId;
-            this.endNodeId = endNodeId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Arrow arrow = (Arrow) o;
-            return relationshipId == arrow.relationshipId &&
-                    endNodeId == arrow.endNodeId;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(relationshipId, endNodeId);
-        }
     }
 
 }

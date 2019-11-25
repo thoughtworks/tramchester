@@ -165,7 +165,7 @@ public class RouteCalculatorTest {
 
         Map<Pair<Location, Location>, Set<RawJourney>> allJourneys = combinations.parallelStream().
                 map(stations -> Pair.of(stations, calc(stations, queryTimes, queryDate))).
-                        collect(Collectors.toMap(pair -> pair.getLeft(), pair -> pair.getRight()));
+                        collect(Collectors.toConcurrentMap(pair -> pair.getLeft(), pair -> pair.getRight()));
 
         List<Pair<String, String>> failed = allJourneys.entrySet().
                 stream().

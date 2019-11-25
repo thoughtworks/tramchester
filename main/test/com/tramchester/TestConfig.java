@@ -31,7 +31,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public boolean getEdgePerTrip() {
-        return true;
+        return false;
     }
 
     //////
