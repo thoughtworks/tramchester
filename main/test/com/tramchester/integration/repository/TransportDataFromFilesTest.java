@@ -203,7 +203,7 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toList());
 
         // not date specific
-        assertEquals(8, atRequiredTimed.size());
+        assertEquals(4, atRequiredTimed.size());
     }
 
     @Test
