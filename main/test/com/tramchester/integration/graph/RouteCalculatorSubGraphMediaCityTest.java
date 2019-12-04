@@ -13,10 +13,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
@@ -46,26 +43,26 @@ public class RouteCalculatorSubGraphMediaCityTest {
 //        graphFilter.addService("Serv003109"); // eccles, works both before and after 6am
 //        graphFilter.addService("Serv003232"); // east dids, works both before and after 6am
 
-        List<Integer> services = Arrays.asList(3109, 3232,
-                3134,
-                3110, 3133,
-                3149,
-
-                3150,
-                3157,
-                3111,
-                3158,
-                3135,
-                3118,
-
-                3136,
-                3154, 3112, 3117, 3115,
-                3155, 3153,
-                3114,
-                3156, 3152,
-                3151
-
-                );
+//        List<Integer> services = Arrays.asList(3109, 3232,
+//                3134,
+//                3110, 3133,
+//                3149,
+//
+//                3150,
+//                3157,
+//                3111,
+//                3158,
+//                3135,
+//                3118,
+//
+//                3136,
+//                3154, 3112, 3117, 3115,
+//                3155, 3153,
+//                3114,
+//                3156, 3152,
+//                3151
+//
+//                );
 
 //        services.forEach(svc -> {
 //            String format = format("Serv00%s", svc.toString());
@@ -116,6 +113,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     }
 
     @Test
+    @Ignore
     public void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 11);
         List<String> stations =new LinkedList<>();

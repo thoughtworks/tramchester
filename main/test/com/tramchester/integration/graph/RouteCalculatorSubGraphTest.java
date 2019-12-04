@@ -12,10 +12,7 @@ import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
@@ -104,6 +101,7 @@ public class RouteCalculatorSubGraphTest {
     }
 
     @Test
+    @Ignore
     public void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 7);
         creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));

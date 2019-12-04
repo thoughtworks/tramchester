@@ -1,23 +1,21 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.TramTime;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.*;
+import org.neo4j.graphdb.traversal.BranchOrderingPolicies;
+import org.neo4j.graphdb.traversal.BranchState;
+import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
-import java.util.*;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static java.lang.String.format;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
@@ -36,7 +34,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.queryTime = queryTime;
         this.destinationNodeId = destinationNode.getId();
         this.endStationId = endStationId;
-
     }
 
     public Stream<WeightedPath> findPaths(Node startNode) {
@@ -63,7 +60,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 expand(this, JourneyState.initialState(queryTime, traversalState)).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST). //DEPTH FIRST causes visiting all stages
+                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST). //DEPTH FIRST causes visiting all stages??
                 traverse(startNode);
 
         ResourceIterator<Path> iterator = traverser.iterator();
@@ -108,7 +105,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         TraversalState newTraversalState = traversalState.nextState(path, nodeLabel, endNode, stateForChildren);
 
         stateForChildren.updateTraversalState(newTraversalState);
-
         graphState.setState(stateForChildren);
 
 //        logger.info(stateForChildren.toString());

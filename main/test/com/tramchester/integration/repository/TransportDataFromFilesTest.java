@@ -32,9 +32,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv006098";
+    private final String svcDeansgateToVic = "Serv006837";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv006091";
+    private String svcShawAndCrompton = "Serv006830";
 
     private Collection<Service> allServices;
 
@@ -70,7 +70,7 @@ public class TransportDataFromFilesTest {
         assertTrue(result.isTram());
 
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals(4, headsigns.size());
+        assertEquals(5, headsigns.size());
         assertTrue(headsigns.contains("Eccles"));
     }
 

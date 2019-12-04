@@ -45,14 +45,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         if (previousSuccessfulVisit.containsKey(nodeId)) {
             Pair<TramTime, Evaluation> previous = previousSuccessfulVisit.get(nodeId);
-            if (previous.getLeft().isBefore(journeyClock)) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
+            if (previous.getLeft().equals(journeyClock)) {
+                return Evaluation.EXCLUDE_AND_PRUNE; // been here before at same time, so no need to continue
             }
         }
 
         Evaluation result = doEvaluate(path, journeyState, endNode, nodeId);
         if (result.continues()) {
-            // must be earlier, or more successful, from above
             previousSuccessfulVisit.put(nodeId, Pair.of(journeyClock, result));
         }
 
@@ -101,7 +100,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         TramTime visitingTime = journeyState.getJourneyClock();
         // journey too long?
         if (serviceHeuristics.journeyTookTooLong(visitingTime)) {
-            return Evaluation.EXCLUDE_AND_PRUNE; // TODO EXCLUDE??
+            return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
         // service available to catch?
