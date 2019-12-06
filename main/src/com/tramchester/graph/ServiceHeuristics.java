@@ -6,6 +6,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.ReachabilityRepository;
+import com.tramchester.repository.RunningServices;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -25,7 +26,7 @@ import static java.lang.String.format;
 public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
-    private final Set<String> runningServices;
+    private final RunningServices runningServices;
     private final Set<String> preferRoutes;
     private final String endStationId;
     private final LocalTime queryTime;
@@ -45,7 +46,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final AtomicInteger totalChecked = new AtomicInteger(0);
 
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations,
-                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, LocalTime queryTime, Set<String> runningServices,
+                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, LocalTime queryTime, RunningServices runningServices,
                              Set<String> preferRoutes,
                              String endStationId) {
         this.nodeOperations = nodeOperations;
@@ -77,7 +78,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         String nodeServiceId = nodeOperations.getServiceId(node);
 
-        if (runningServices.contains(nodeServiceId)) {
+        if (runningServices.isRunning(nodeServiceId)) {
             return recordReason(ServiceReason.IsValid(path,"dateDay"));
         }
 
@@ -139,7 +140,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         totalChecked.incrementAndGet();
         // already checked via service node for edge per trip
         String serviceId = goesToRelationship.getServiceId();
-        if (!runningServices.contains(serviceId)) {
+        if (!runningServices.isRunning(serviceId)) {
             return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId, path));
         }
 

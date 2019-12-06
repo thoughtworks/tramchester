@@ -227,7 +227,8 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, LocalTime.of(9,0), nextTuesday.plusDays(5));
+        LocalTime time = LocalTime.of(11, 0);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, time, nextTuesday.plusDays(5));
     }
 
     @Test

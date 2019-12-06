@@ -10,6 +10,7 @@ import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.ReachabilityRepository;
+import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphalgo.CostEvaluator;
@@ -131,11 +132,7 @@ public class RouteCalculator extends StationIndexs {
     private Set<RawJourney> gatherJounerys(Node startNode, Node endNode, List<LocalTime> queryTimes, TramServiceDate queryDate,
                                            int limit, Set<String> preferRoutes, String endStationId) {
 
-        Set<String> runningServicesIds = transportData.getServicesOnDate(queryDate).
-                stream().
-                map(Service::getServiceId).
-                collect(Collectors.toSet());
-
+        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
 
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
 
@@ -199,7 +196,6 @@ public class RouteCalculator extends StationIndexs {
         return new TramNetworkTraverser(serviceHeutistics, nodeOperations,
                 queryTime, endNode, endStationId).findPaths(startNode);
 
-//        return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
     private Set<RawJourney> mapStreamToJourneySet(Stream<WeightedPath> paths, int limit, LocalTime queryTime) {

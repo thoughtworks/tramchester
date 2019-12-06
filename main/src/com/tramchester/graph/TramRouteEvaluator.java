@@ -19,6 +19,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
+    private int success;
 
     private final Map<Long, Pair<TramTime, Evaluation>> previousSuccessfulVisit;
 
@@ -26,7 +27,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.destinationNodeId = destinationNodeId;
-
+        success = 0;
         previousSuccessfulVisit = new HashMap<>();
     }
 
@@ -61,12 +62,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public Evaluation doEvaluate(Path path, JourneyState journeyState, Node endNode, long endNodeId) {
 
-//        if (success>=pathLimit) {
-//            return Evaluation.EXCLUDE_AND_PRUNE;
-//        }
+        // TODO RISK this won't always surface
+        if (success>=RouteCalculator.MAX_NUM_GRAPH_PATHS) {
+            return Evaluation.EXCLUDE_AND_PRUNE;
+        }
 
         if (endNodeId==destinationNodeId) {
-            //success = success + 1;
+            success = success + 1;
             return Evaluation.INCLUDE_AND_PRUNE;
         }
 

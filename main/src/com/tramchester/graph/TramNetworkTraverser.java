@@ -38,9 +38,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     public Stream<WeightedPath> findPaths(Node startNode) {
 
-        // TODO Move this
-        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations,
-                destinationNodeId);
+        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId);
         NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationId);
 
         logger.info("Begin traversal");
@@ -60,7 +58,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 expand(this, JourneyState.initialState(queryTime, traversalState)).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST). //DEPTH FIRST causes visiting all stages??
+                order(BranchOrderingPolicies.PREORDER_DEPTH_FIRST).
                 traverse(startNode);
 
         ResourceIterator<Path> iterator = traverser.iterator();

@@ -23,6 +23,7 @@ public class Trip {
     private final Stops stops;
     private TramTime earliestDepart = null;
     private TramTime latestDepart = null;
+    private int lastIndex;
 
     public Trip(String tripId, String headSign, String serviceId, String routeId) {
         this.tripId = tripId.intern();
@@ -30,6 +31,7 @@ public class Trip {
         this.serviceId = serviceId.intern();
         this.routeId = routeId.intern();
         stops = new Stops();
+        lastIndex = 0;
     }
 
     @Override
@@ -58,14 +60,12 @@ public class Trip {
     public void addStop(Stop stop) {
         stops.add(stop);
         TramTime departureTime = stop.getDepartureTime();
-        if (earliestDepart==null) {
-            earliestDepart = departureTime;
-        } else if (departureTime.isBefore(earliestDepart)) {
+        int stopIndex = stop.getGetSequenceNumber();
+        if (stopIndex ==1) {
             earliestDepart = departureTime;
         }
-        if (latestDepart==null) {
-            latestDepart = departureTime;
-        } else if (departureTime.isAfter(latestDepart)) {
+        if (stopIndex > lastIndex) {
+            lastIndex = stopIndex;
             latestDepart = departureTime;
         }
     }

@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -84,14 +85,14 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetServicesByDate() {
-        LocalDate localDate = TestConfig.nextSaturday();
-        TramServiceDate date = new TramServiceDate(localDate);
+        LocalDate nextSaturday = TestConfig.nextSaturday();
+        TramServiceDate date = new TramServiceDate(nextSaturday);
         Set<Service> results = transportData.getServicesOnDate(date);
 
         assertFalse(results.isEmpty());
         long saturdays = results.stream().filter(svc -> svc.getDays().get(DaysOfWeek.Saturday)).count();
         assertEquals(results.size(), saturdays);
-        long onDate = results.stream().filter(svc -> svc.operatesOn(localDate)).count();
+        long onDate = results.stream().filter(svc -> svc.operatesOn(nextSaturday)).count();
         assertEquals(results.size(), onDate);
 
         LocalDate noTramsDate = transportData.getFeedInfo().validUntil().plusMonths(12);
@@ -172,6 +173,21 @@ public class TransportDataFromFilesTest {
         Optional<Trip> trip = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
                 new TimeWindow(LocalTime.of(23,35), 30));
         assertTrue(trip.isPresent());
+    }
+
+    @Test
+    public void shouldHaveSundayServicesFromCornbrook() {
+        LocalDate nextTuesday = TestConfig.nextSunday();
+
+        Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextTuesday));
+        Set<String> sundayServiceIds = sundayServices.stream().map(svc -> svc.getServiceId()).collect(Collectors.toSet());
+
+        Set<Trip> cornbrookTrips = transportData.getTrips().stream().
+                filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).collect(Collectors.toSet());
+
+        Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.contains(trip.getServiceId())).collect(Collectors.toSet());
+
+        assertFalse(sundayTrips.isEmpty());
     }
 
     @Test
