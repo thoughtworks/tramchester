@@ -91,8 +91,7 @@ public class TransportDataFromFiles implements TransportDataSource {
                 Station station = stations.get(stationId);
                 station.addRoute(trip.getRouteId());
                 int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
-                Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(),
-                        stopTimeData.getDepartureTime(), trip.getRouteId() , trip.getServiceId());
+                Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 trip.addStop(stop);
             } else {
                 logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));

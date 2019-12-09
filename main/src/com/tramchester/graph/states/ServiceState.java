@@ -15,8 +15,8 @@ public class ServiceState extends TraversalState {
 
     private Optional<String> maybeExistingTrip;
 
-    public ServiceState(TraversalState parent, Iterable<Relationship> relationships, Optional<String> maybeExistingTrip) {
-        super(parent, relationships);
+    public ServiceState(TraversalState parent, Iterable<Relationship> relationships, Optional<String> maybeExistingTrip, int cost) {
+        super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
@@ -29,10 +29,10 @@ public class ServiceState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == TransportGraphBuilder.Labels.HOUR) {
             Iterable<Relationship> relationships = timeOrdered(node.getRelationships(OUTGOING, TO_MINUTE));
-            return new HourState(this, relationships, maybeExistingTrip);
+            return new HourState(this, relationships, maybeExistingTrip, cost);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

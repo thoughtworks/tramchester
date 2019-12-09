@@ -2,7 +2,6 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.Platform;
@@ -11,9 +10,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
-import com.tramchester.repository.PlatformRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataSource;
 
 import java.time.LocalDate;
@@ -142,7 +138,7 @@ public class TransportDataForTest implements TransportDataSource {
     private Stop createStop(Location startStation, TramTime arrivalTime, TramTime departureTime, String routeId, String serviceId, int seuqenceId) {
         String platformId = startStation.getId() + "1";
         platforms.put(platformId, new Platform(platformId, format("%s platform 1", startStation.getName())));
-        return new Stop(platformId, startStation, seuqenceId, arrivalTime, departureTime, routeId, serviceId);
+        return new Stop(platformId, startStation, seuqenceId, arrivalTime, departureTime);
     }
 
     @Override

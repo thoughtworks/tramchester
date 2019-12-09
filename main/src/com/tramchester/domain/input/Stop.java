@@ -8,19 +8,14 @@ public class Stop {
     private final TramTime arrivalTime;
     private final TramTime departureTime;
     private final String stopId;
-    private final String routeId;
-    private final String serviceId;
     private final int sequenceNumber;
 
-    public Stop(String stopId, Location station, int sequenceNumber, TramTime arrivalTime, TramTime departureTime, String routeId, String serviceId) {
-
+    public Stop(String stopId, Location station, int sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
         this.stopId = stopId.intern();
         this.sequenceNumber = sequenceNumber;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.station = station;
-        this.routeId = routeId.intern();
-        this.serviceId = serviceId.intern();
     }
 
     public TramTime getArrivalTime() {
@@ -42,8 +37,6 @@ public class Stop {
                 ", arrivalTime=" + arrivalTime +
                 ", departureTime=" + departureTime +
                 ", stopId='" + stopId + '\'' +
-                ", serviceId='" + serviceId + '\'' +
-                ", routeId='" + routeId + '\'' +
                 '}';
     }
 

@@ -89,10 +89,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         TraversalState traversalState = currentState.getTraversalState();
         Node endNode = path.endNode();
 
+        int cost = 0;
         if (path.lastRelationship()!=null) {
-            int cost = nodeOperations.getCost(path.lastRelationship());
+            cost = nodeOperations.getCost(path.lastRelationship());
             if (cost>0) {
-                currentState.updateJourneyClock(getTotalCost(path));
+                int total = traversalState.getTotalCost() + cost;
+                currentState.updateJourneyClock(total);
             }
         }
 
@@ -100,14 +102,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         TransportGraphBuilder.Labels nodeLabel = TransportGraphBuilder.Labels.valueOf(firstLabel.toString());
 
         JourneyState stateForChildren = JourneyState.fromPrevious(currentState);
-        TraversalState newTraversalState = traversalState.nextState(path, nodeLabel, endNode, stateForChildren);
+        TraversalState newTraversalState = traversalState.nextState(path, nodeLabel, endNode, stateForChildren, cost);
 
         stateForChildren.updateTraversalState(newTraversalState);
         graphState.setState(stateForChildren);
 
 //        logger.info(stateForChildren.toString());
 
-        Iterable<Relationship> relationships = newTraversalState.getRelationships();
+        Iterable<Relationship> relationships = newTraversalState.getOutbounds();
 
         return relationships;
     }

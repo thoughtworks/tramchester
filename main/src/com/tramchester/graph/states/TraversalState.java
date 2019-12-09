@@ -1,6 +1,5 @@
 package com.tramchester.graph.states;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
@@ -12,9 +11,12 @@ import org.neo4j.graphdb.Relationship;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public abstract class TraversalState {
-    protected final Iterable<Relationship> relationships;
+    protected final Iterable<Relationship> outbounds;
+    private final int costForLastEdge;
+    private final int parentCost;
     protected final CachedNodeOperations nodeOperations;
     protected final long destinationNodeId;
     protected final TraversalState parent;
@@ -25,44 +27,50 @@ public abstract class TraversalState {
         return Objects.hash(parent);
     }
 
-    protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> relationships,
-                             long destinationNodeId, String destinationStationdId) {
+    protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> outbounds,
+                             long destinationNodeId, String destinationStationdId, int costForLastEdge) {
         this.parent = parent;
         this.nodeOperations = nodeOperations;
-        this.relationships = relationships;
+        this.outbounds = outbounds;
         this.destinationNodeId = destinationNodeId;
         this.destinationStationdId = destinationStationdId;
+        this.costForLastEdge = costForLastEdge;
+        parentCost = 0;
     }
 
-    protected TraversalState(TraversalState parent, Iterable<Relationship> relationships) {
+    protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
         this.destinationStationdId = parent.destinationStationdId;
+
         this.parent = parent;
-        this.relationships = relationships;
+        this.outbounds = outbounds;
+        this.costForLastEdge = costForLastEdge;
+        this.parentCost = parent.getTotalCost();
     }
 
     public abstract TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
-                                      JourneyState journeyState);
+                                             JourneyState journeyState, int cost);
 
-    public Iterable<Relationship> getRelationships() {
-        return relationships;
+    public Iterable<Relationship> getOutbounds() {
+        return outbounds;
     }
 
     protected List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, long nodeIdToSkip) {
-        return Streams.stream(relationships).
+
+        return  StreamSupport.stream(relationships.spliterator(), false).
                 filter(relationship -> relationship.getEndNode().getId()!= nodeIdToSkip).
                 collect(Collectors.toList());
     }
 
-    protected Iterable<Relationship> hourOrdered(Iterable<Relationship> outboundRelationships) {
-        SortedMap<Integer, Relationship> ordered = new TreeMap<>();
-        for (Relationship outboundRelationship : outboundRelationships) {
-            int hour = nodeOperations.getHour(outboundRelationship);
-            ordered.put(hour,outboundRelationship);
-        }
-        return ordered.values();
-    }
+//    protected Iterable<Relationship> hourOrdered(Iterable<Relationship> outboundRelationships) {
+//        SortedMap<Integer, Relationship> ordered = new TreeMap<>();
+//        for (Relationship outboundRelationship : outboundRelationships) {
+//            int hour = nodeOperations.getHour(outboundRelationship);
+//            ordered.put(hour,outboundRelationship);
+//        }
+//        return ordered.values();
+//    }
 
     protected Iterable<Relationship> timeOrdered(Iterable<Relationship> outboundRelationships) {
         SortedMap<TramTime, Relationship> ordered = new TreeMap<>();
@@ -73,12 +81,17 @@ public abstract class TraversalState {
         return ordered.values();
     }
 
-    protected int getTotalCost(Path path) {
-        int result = 0;
-        for (Relationship relat: path.relationships()) {
-            result = result + nodeOperations.getCost(relat);
-        }
-        return result;
+    public int getTotalCost() {
+        return parentCost + getCurrentCost();
+//        int result = 0;
+//        for (Relationship relat: path.relationships()) {
+//            result = result + nodeOperations.getCost(relat);
+//        }
+//        return result;
+    }
+
+    protected int getCurrentCost() {
+        return costForLastEdge;
     }
 
     protected List<Relationship> filterByTripId(Iterable<Relationship> relationships, String tripId) {

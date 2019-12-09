@@ -183,8 +183,6 @@ public class GraphWithSimpleRouteTest {
 
     }
 
-
-
     @Test
     public void createDiagramOfTestNetwork() throws IOException {
         NodeFactory nodeFactory = dependencies.get(NodeFactory.class);

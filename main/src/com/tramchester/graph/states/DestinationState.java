@@ -1,6 +1,5 @@
 package com.tramchester.graph.states;
 
-import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
@@ -10,8 +9,8 @@ import java.util.LinkedList;
 
 public class DestinationState extends TraversalState
 {
-    public DestinationState(TraversalState parent) {
-        super(parent, new LinkedList<>());
+    public DestinationState(TraversalState parent, int cost) {
+        super(parent, new LinkedList<>(), cost);
     }
 
     @Override
@@ -23,7 +22,7 @@ public class DestinationState extends TraversalState
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         throw new RuntimeException("Already at destination, id is " + destinationNodeId);
     }
 

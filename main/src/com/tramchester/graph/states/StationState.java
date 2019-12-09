@@ -12,8 +12,8 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class StationState extends TraversalState {
 
-    public StationState(TraversalState parent, Iterable<Relationship> relationships) {
-        super(parent, relationships);
+    public StationState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
+        super(parent, relationships, cost);
     }
 
     @Override
@@ -24,15 +24,15 @@ public class StationState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
-        journeyState.updateJourneyClock(getTotalCost(path));
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+        journeyState.updateJourneyClock(getTotalCost());
 
         if (node.getId()==destinationNodeId) {
-            return new DestinationState(this);
+            return new DestinationState(this, cost);
         }
         if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
             return new PlatformState(this,
-                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId());
+                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
 

@@ -20,16 +20,16 @@ public class HourState extends TraversalState {
     private Optional<String> maybeExistingTrip;
 
     public HourState(TraversalState parent, Iterable<Relationship> relationships,
-                     Optional<String> maybeExistingTrip) {
-        super(parent, relationships);
+                     Optional<String> maybeExistingTrip, int cost) {
+        super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         try {
             if (nodeLabel == TransportGraphBuilder.Labels.MINUTE) {
-                return toMinute(path, node, journeyState);
+                return toMinute(node, journeyState, cost);
             }
         } catch(TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);
@@ -37,21 +37,21 @@ public class HourState extends TraversalState {
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }
 
-    private TraversalState toMinute(Path path, Node node, JourneyState journeyState) throws TramchesterException {
+    private TraversalState toMinute(Node node, JourneyState journeyState, int cost) throws TramchesterException {
         LocalTime time = nodeOperations.getTime(node);
 
         if (maybeExistingTrip.isPresent()) {
             // continuing an existing trip
             String existingTripId = maybeExistingTrip.get();
-            journeyState.recordTramDetails(time, getTotalCost(path));
+            journeyState.recordTramDetails(time, getTotalCost());
             Iterable<Relationship> relationships = filterBySingleTripId(node.getRelationships(OUTGOING, TRAM_GOES_TO), existingTripId);
-            return new MinuteState(this, relationships, existingTripId);
+            return new MinuteState(this, relationships, existingTripId, cost);
         } else {
             // starting a brand new journey
             Iterable<Relationship> relationships = timeOrdered(node.getRelationships(OUTGOING, TRAM_GOES_TO));
             String tripId = nodeOperations.getTrip(node);
-            journeyState.recordTramDetails(time, getTotalCost(path));
-            return new MinuteState(this, relationships, tripId);
+            journeyState.recordTramDetails(time, getTotalCost());
+            return new MinuteState(this, relationships, tripId, cost);
         }
     }
 

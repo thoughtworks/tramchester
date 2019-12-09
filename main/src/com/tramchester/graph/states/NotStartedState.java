@@ -19,7 +19,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId, String destinationStationId) {
-        super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationId);
+        super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationId, 0);
     }
 
     @Override
@@ -27,12 +27,17 @@ public class NotStartedState extends TraversalState {
         return "NotStartedState{}";
     }
 
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    @Override
+    public int getTotalCost() {
+        return 0;
+    }
+
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
-                return new WalkingState(this, costOrdered(node.getRelationships(OUTGOING, WALKS_TO)));
+                return new WalkingState(this, costOrdered(node.getRelationships(OUTGOING, WALKS_TO)), cost);
             case STATION: // we walked here
-                return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM));
+                return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }

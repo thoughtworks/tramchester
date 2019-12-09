@@ -11,8 +11,8 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
-    public WalkingState(TraversalState parent, Iterable<Relationship> relationships) {
-        super(parent, relationships);
+    public WalkingState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
+        super(parent, relationships, cost);
     }
 
     @Override
@@ -23,10 +23,10 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (!TransportGraphBuilder.Labels.STATION.equals(nodeLabel)) {
             throw new RuntimeException("Unexpected node type: " + nodeLabel);
         }
-        return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM));
+        return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
     }
 }

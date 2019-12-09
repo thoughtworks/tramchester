@@ -62,7 +62,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public Evaluation doEvaluate(Path path, JourneyState journeyState, Node endNode, long endNodeId) {
 
-        // TODO RISK this won't always surface
+        // TODO RISK this won't always surface fatest paths?
         if (success>=RouteCalculator.MAX_NUM_GRAPH_PATHS) {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
@@ -78,7 +78,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // is the service running today
-        if (nodeOperations.isService(endNode)) {
+        boolean isService = nodeOperations.isService(endNode);
+        if (isService) {
             if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
@@ -106,7 +107,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // service available to catch?
-        if (nodeOperations.isService(endNode)) {
+        if (isService) {
             if (!serviceHeuristics.checkServiceTime(path, endNode, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }

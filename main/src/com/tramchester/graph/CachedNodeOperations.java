@@ -15,10 +15,11 @@ public class CachedNodeOperations {
     private final Map<Long, Boolean> serviceNodes;
     private final Map<Long, Boolean> hourNodes;
     private final Map<Long, Boolean> minuteNotes;
+    private final Map<Long, Boolean> routeStationNodes;
 
     private final Map<Long, Integer> relationshipCostCache;
     private final Map<Long, Integer> hourNodeCache;
-    private final Map<Long, Integer> hourRelationshipCache;
+//    private final Map<Long, Integer> hourRelationshipCache;
     private final Map<Long, LocalTime> timeRelationshipCache;
     private final Map<Long, String> tripRelationshipCache;
     private final Map<Long, String> svcIdCache;
@@ -31,7 +32,9 @@ public class CachedNodeOperations {
         serviceNodes = new ConcurrentHashMap<>();
         times = new ConcurrentHashMap<>();
         minuteNotes = new ConcurrentHashMap<>();
-        hourRelationshipCache = new ConcurrentHashMap<>();
+        routeStationNodes = new ConcurrentHashMap<>();
+
+//        hourRelationshipCache = new ConcurrentHashMap<>();
         timeRelationshipCache = new ConcurrentHashMap<>();
         tripRelationshipCache = new ConcurrentHashMap<>();
         svcIdCache = new ConcurrentHashMap<>();
@@ -49,7 +52,6 @@ public class CachedNodeOperations {
         tripRelationshipCache.put(relationshipId, trips);
         return trips;
     }
-
 
     public String getTrip(Relationship relationship) {
         long relationshipId = relationship.getId();
@@ -113,15 +115,15 @@ public class CachedNodeOperations {
         return cost;
     }
 
-    public int getHour(Relationship relationship) {
-        long relationshipId = relationship.getId();
-        if (hourRelationshipCache.containsKey(relationshipId)) {
-            return hourRelationshipCache.get(relationshipId);
-        }
-        int hour = (int) relationship.getProperty(HOUR);
-        hourRelationshipCache.put(relationshipId, hour);
-        return hour;
-    }
+//    public int getHour(Relationship relationship) {
+//        long relationshipId = relationship.getId();
+//        if (hourRelationshipCache.containsKey(relationshipId)) {
+//            return hourRelationshipCache.get(relationshipId);
+//        }
+//        int hour = (int) relationship.getProperty(HOUR);
+//        hourRelationshipCache.put(relationshipId, hour);
+//        return hour;
+//    }
 
     public boolean isService(Node node) {
         return checkForLabel(serviceNodes, node, TransportGraphBuilder.Labels.SERVICE);
@@ -133,6 +135,10 @@ public class CachedNodeOperations {
 
     public boolean isTime(Node node) {
         return checkForLabel(minuteNotes, node, TransportGraphBuilder.Labels.MINUTE);
+    }
+
+    public boolean isRouteStation(Node endNode) {
+        return checkForLabel(routeStationNodes, endNode, ROUTE_STATION);
     }
 
     public int getHour(Node node) {
@@ -156,13 +162,9 @@ public class CachedNodeOperations {
         return flag;
     }
 
-    public String getRoute(Relationship outboundRelationship) {
-        return outboundRelationship.getProperty(ROUTE_ID).toString();
-    }
-
-    public boolean isRouteStation(Node endNode) {
-        return endNode.hasLabel(ROUTE_STATION);
-    }
+//    public String getRoute(Relationship outboundRelationship) {
+//        return outboundRelationship.getProperty(ROUTE_ID).toString();
+//    }
 
     public String getTrip(Node endNode) {
         if (!endNode.hasProperty(TRIP_ID)) {

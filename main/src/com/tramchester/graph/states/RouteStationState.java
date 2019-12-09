@@ -19,16 +19,16 @@ public class RouteStationState extends TraversalState {
     private final boolean justBoarded;
     private Optional<String> maybeExistingTrip;
 
-    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId) {
-        super(parent, relationships);
+    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId, int cost) {
+        super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.justBoarded = true;
         maybeExistingTrip = Optional.empty();
     }
 
     public RouteStationState(TraversalState parent, Iterable<Relationship> relationships,
-                             long routeStationNodeId, String tripId) {
-        super(parent, relationships);
+                             long routeStationNodeId, String tripId, int cost) {
+        super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.justBoarded = false;
         maybeExistingTrip = Optional.of(tripId);
@@ -45,35 +45,36 @@ public class RouteStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
-            return toPlatform(path, node, journeyState);
+            return toPlatform(node, journeyState, cost);
         }
 
         if (nodeLabel == TransportGraphBuilder.Labels.SERVICE) {
-            return toService(node);
+            return toService(node, cost);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }
 
-    private TraversalState toService(Node node) {
+    private TraversalState toService(Node node, int cost) {
         Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_HOUR);
-        return new ServiceState(this, hourOrdered(relationships), maybeExistingTrip);
+        return new ServiceState(this, relationships, maybeExistingTrip, cost);
+        //return new ServiceState(this, hourOrdered(relationships), maybeExistingTrip, cost);
     }
 
-    private TraversalState toPlatform(Path path, Node node, JourneyState journeyState) {
+    private TraversalState toPlatform(Node node, JourneyState journeyState, int cost) {
         try {
-            journeyState.leaveTram(getTotalCost(path));
+            journeyState.leaveTram(getTotalCost());
             // if towards destination just return that one relationship
             for(Relationship relationship :  node.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
                 if (relationship.getProperty(GraphStaticKeys.STATION_ID).equals(destinationStationdId)) {
-                    return new PlatformState(this, Collections.singleton(relationship), routeStationNodeId);
+                    return new PlatformState(this, Collections.singleton(relationship), routeStationNodeId, cost);
                 }
             }
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
             return new PlatformState(this,
-                    filterExcludingEndNode(relationships, routeStationNodeId), node.getId());
+                    filterExcludingEndNode(relationships, routeStationNodeId), node.getId(), cost);
         }
         catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process platform", exception);

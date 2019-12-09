@@ -24,34 +24,34 @@ public class MinuteState extends TraversalState {
                 '}';
     }
 
-    public MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId) {
-        super(parent,relationships);
+    public MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
+        super(parent,relationships, cost);
         this.tripId = tripId;
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
-            return toRouteStation(node);
+            return toRouteStation(node, cost);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }
 
-    private TraversalState toRouteStation(Node node) {
+    private TraversalState toRouteStation(Node node, int cost) {
         Iterable<Relationship> departs = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
 
         // towards final desintion, just follow this one
         for (Relationship depart : departs) {
             if (depart.getProperty(GraphStaticKeys.STATION_ID).equals(destinationStationdId)) {
                 return new RouteStationState(this,
-                        Collections.singleton(depart), node.getId(), tripId);
+                        Collections.singleton(depart), node.getId(), tripId, cost);
             }
         }
 
         List<Relationship> outgoing = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), tripId);
         departs.forEach(depart->outgoing.add(depart));
 
-        return new RouteStationState(this, outgoing, node.getId(), tripId);
+        return new RouteStationState(this, outgoing, node.getId(), tripId, cost);
     }
 
 

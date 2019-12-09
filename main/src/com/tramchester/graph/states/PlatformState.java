@@ -25,20 +25,20 @@ public class PlatformState extends TraversalState {
                 '}';
     }
 
-    public PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId) {
-        super(parent, relationships);
+    public PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId, int cost) {
+        super(parent, relationships, cost);
         this.platformNodeId = platformNodeId;
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
 
         if (nodeLabel == TransportGraphBuilder.Labels.STATION) {
             if (node.getId()==destinationNodeId) {
-                return new DestinationState(this);
+                return new DestinationState(this, cost);
             }
             return new StationState(this,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId));
+                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId), cost);
         }
 
         if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
@@ -49,7 +49,7 @@ public class PlatformState extends TraversalState {
             }
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId);
             node.getRelationships(OUTGOING, TO_SERVICE).forEach(relationship -> outbounds.add(relationship));
-            return new RouteStationState(this, outbounds, node.getId());
+            return new RouteStationState(this, outbounds, node.getId(), cost);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
