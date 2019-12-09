@@ -47,7 +47,8 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     @Before
     public void beforeEachTestRuns() {
         costEvaluator = new CachingCostEvaluator();
-        nodeOperations = new CachedNodeOperations();
+        NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
+        nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
         runningServices = new RunningServices(new HashSet<>());
         preferRoutes = Collections.emptySet();
         path = createMock(Path.class);

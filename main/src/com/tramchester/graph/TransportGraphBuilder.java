@@ -60,12 +60,14 @@ public class TransportGraphBuilder extends StationIndexs {
     private Map<Long, LocalTime[]> timesForRelationship;
 
     private TransportData transportData;
+    private final NodeIdLabelMap nodeIdLabelMap;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
                                  RelationshipFactory relationshipFactory, SpatialDatabaseService spatialDatabaseService,
-                                 TramchesterConfig config) {
+                                 TramchesterConfig config, NodeIdLabelMap nodeIdLabelMap) {
         super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
         this.transportData = transportData;
+        this.nodeIdLabelMap = nodeIdLabelMap;
         boardings = new HashMap<>();
         departs = new HashMap<>();
         relationToSvcId = new HashMap<>();
@@ -240,7 +242,9 @@ public class TransportGraphBuilder extends StationIndexs {
 
     private Node createGraphNode(Labels label) {
         numberNodes++;
-        return graphDatabaseService.createNode(label);
+        Node node = graphDatabaseService.createNode(label);
+        nodeIdLabelMap.put(node.getId(), label);
+        return node;
     }
 
     private Node getOrCreatePlatform(Stop stop) {

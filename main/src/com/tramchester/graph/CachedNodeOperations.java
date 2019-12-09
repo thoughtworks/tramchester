@@ -12,29 +12,21 @@ import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 
 public class CachedNodeOperations {
-    private final Map<Long, Boolean> serviceNodes;
-    private final Map<Long, Boolean> hourNodes;
-    private final Map<Long, Boolean> minuteNotes;
-    private final Map<Long, Boolean> routeStationNodes;
 
     private final Map<Long, Integer> relationshipCostCache;
     private final Map<Long, Integer> hourNodeCache;
-//    private final Map<Long, Integer> hourRelationshipCache;
     private final Map<Long, LocalTime> timeRelationshipCache;
     private final Map<Long, String> tripRelationshipCache;
     private final Map<Long, String> svcIdCache;
 
     // cached times
     private final Map<Long, LocalTime> times;
+    private final NodeIdLabelMap nodeIdLabelMap;
 
-    public CachedNodeOperations() {
-        hourNodes = new ConcurrentHashMap<>();
-        serviceNodes = new ConcurrentHashMap<>();
+    public CachedNodeOperations(NodeIdLabelMap nodeIdLabelMap) {
+        this.nodeIdLabelMap = nodeIdLabelMap;
         times = new ConcurrentHashMap<>();
-        minuteNotes = new ConcurrentHashMap<>();
-        routeStationNodes = new ConcurrentHashMap<>();
 
-//        hourRelationshipCache = new ConcurrentHashMap<>();
         timeRelationshipCache = new ConcurrentHashMap<>();
         tripRelationshipCache = new ConcurrentHashMap<>();
         svcIdCache = new ConcurrentHashMap<>();
@@ -126,19 +118,23 @@ public class CachedNodeOperations {
 //    }
 
     public boolean isService(Node node) {
-        return checkForLabel(serviceNodes, node, TransportGraphBuilder.Labels.SERVICE);
+        return checkForLabel(node, TransportGraphBuilder.Labels.SERVICE);
+    }
+
+    private boolean checkForLabel(Node node, TransportGraphBuilder.Labels label) {
+        return nodeIdLabelMap.getLabel(node.getId())==label;
     }
 
     public boolean isHour(Node node) {
-        return checkForLabel(hourNodes, node, TransportGraphBuilder.Labels.HOUR);
+        return checkForLabel(node, TransportGraphBuilder.Labels.HOUR);
     }
 
     public boolean isTime(Node node) {
-        return checkForLabel(minuteNotes, node, TransportGraphBuilder.Labels.MINUTE);
+        return checkForLabel(node, TransportGraphBuilder.Labels.MINUTE);
     }
 
     public boolean isRouteStation(Node endNode) {
-        return checkForLabel(routeStationNodes, endNode, ROUTE_STATION);
+        return checkForLabel(endNode, ROUTE_STATION);
     }
 
     public int getHour(Node node) {
@@ -150,21 +146,6 @@ public class CachedNodeOperations {
         hourNodeCache.put(id,hour);
         return hour;
     }
-
-    public boolean checkForLabel(Map<Long, Boolean> map, Node node, TransportGraphBuilder.Labels label) {
-        long id = node.getId();
-        if (map.containsKey(id)) {
-            return map.get(id);
-        }
-
-        boolean flag = node.hasLabel(label);
-        map.put(id, flag);
-        return flag;
-    }
-
-//    public String getRoute(Relationship outboundRelationship) {
-//        return outboundRelationship.getProperty(ROUTE_ID).toString();
-//    }
 
     public String getTrip(Node endNode) {
         if (!endNode.hasProperty(TRIP_ID)) {

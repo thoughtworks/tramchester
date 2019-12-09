@@ -5,6 +5,7 @@ import com.tramchester.TestConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -37,6 +38,7 @@ public class GraphQueryTest {
     private static GraphDatabaseService graphDBService;
     private static File dbFile;
     private static NodeFactory nodeFactory;
+    private static NodeIdLabelMap nodeLabelIdMap;
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
@@ -52,8 +54,9 @@ public class GraphQueryTest {
         graphQuery = new GraphQuery(graphDBService, relationshipFactory, spatialDatabaseService);
 
         TransportDataForTest transportData = new TransportDataForTest();
+        nodeLabelIdMap = new NodeIdLabelMap();
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
-                spatialDatabaseService, TestConfig.GET());
+                spatialDatabaseService, TestConfig.GET(), nodeLabelIdMap);
         builder.buildGraph();
     }
 

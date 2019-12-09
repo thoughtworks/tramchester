@@ -136,6 +136,7 @@ public class Dependencies {
         picoContainer.addComponent(MyLocationFactory.class);
         picoContainer.addComponent(TramRouteReachable.class);
         picoContainer.addComponent(ReachabilityRepository.class);
+        picoContainer.addComponent(NodeIdLabelMap.class);
 
         // TODO still needed now jodatime removed?
         ObjectMapper objectMapper = new ObjectMapper();

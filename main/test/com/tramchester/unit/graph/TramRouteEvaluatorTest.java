@@ -24,10 +24,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
     private CachedNodeOperations nodeOperations;
     private Path path;
     private Node node;
+    private NodeIdLabelMap nodeIdLabelMap;
 
     @Before
     public void onceBeforeEachTestRuns() {
-        nodeOperations = new CachedNodeOperations();
+        nodeIdLabelMap = createMock(NodeIdLabelMap.class);
+        nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
         path = createMock(Path.class);
@@ -77,7 +79,9 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(path.length()).andReturn(50);
         BranchState<JourneyState> state = new TestBranchState();
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(true);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(true);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.SERVICE);
+
         EasyMock.expect(serviceHeuristics.checkServiceDate(node,path)).
                 andReturn(ServiceReason.DoesNotRunOnQueryDate("not running", path));
 
@@ -101,8 +105,10 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         state.setState(new JourneyState(time, traversalState));
 
         EasyMock.expect(path.length()).andReturn(50);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(true);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(true);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.ROUTE_STATION);
+
         EasyMock.expect(serviceHeuristics.canReachDestination(node,path)).
                 andReturn(ServiceReason.StationNotReachable(path,"unreachable"));
 
@@ -118,8 +124,10 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.QUERY_NODE);
+
         Relationship relationship = createMock(Relationship.class);
         EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(true);
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
@@ -140,8 +148,8 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.QUERY_NODE);
+
         Relationship relationship = createMock(Relationship.class);
         EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
@@ -164,8 +172,10 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(true);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(true);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.SERVICE);
+
         Relationship relationship = createMock(Relationship.class);
         EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
@@ -191,9 +201,11 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.HOUR)).andReturn(true);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.HOUR)).andReturn(true);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.HOUR);
+
         EasyMock.expect(node.getProperty("hour")).andReturn(8);
 
         Relationship relationship = createMock(Relationship.class);
@@ -220,10 +232,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.HOUR)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.MINUTE)).andReturn(true);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.HOUR)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.MINUTE)).andReturn(true);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.MINUTE);
+
 
         Relationship relationship = createMock(Relationship.class);
         EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
@@ -249,10 +263,11 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.HOUR)).andReturn(false);
-        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.MINUTE)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.SERVICE)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.HOUR)).andReturn(false);
+//        EasyMock.expect(node.hasLabel(TransportGraphBuilder.Labels.MINUTE)).andReturn(false);
+        EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.QUERY_NODE);
 
         Relationship relationship = createMock(Relationship.class);
         EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
