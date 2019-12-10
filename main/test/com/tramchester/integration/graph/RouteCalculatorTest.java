@@ -144,7 +144,7 @@ public class RouteCalculatorTest {
         assertTrue(results.size()>0);
     }
 
-    @Test
+    @Test(timeout=60000)
     public void shouldFindRouteEachStationToEveryOtherStream() {
 
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
@@ -197,7 +197,7 @@ public class RouteCalculatorTest {
         return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void shouldFindEndOfLinesToEndOfLinesTuesday() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -216,7 +216,7 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, time, nextTuesday);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void shouldFindEndOfLinesToEndOfLines() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -231,7 +231,7 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, time, nextTuesday.plusDays(5));
     }
 
-    @Test
+    @Test(timeout=30000)
     public void shouldFindInterchangesToInterchanges() {
         for (Location start :  Stations.Interchanges) {
             for (Location dest : Stations.Interchanges) {
@@ -259,7 +259,7 @@ public class RouteCalculatorTest {
 
     }
 
-    @Test
+    @Test(timeout=30000)
     public void shouldFindEndOfLinesToInterchanges() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.Interchanges) {
@@ -268,7 +268,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    @Test
+    @Test(timeout=30000)
     public void shouldFindInterchangesToEndOfLines() {
         for (Location start : Stations.Interchanges ) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -303,7 +303,7 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, LocalTime.of(6,1), nextTuesday);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
     }
@@ -330,8 +330,13 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void reproduceIssueWithTramsSunday() {
-        checkRouteNextNDays(Stations.StPetersSquare, Stations.Deansgate, TestConfig.nextSunday(), LocalTime.of(9,0), 1);
+    public void reproduceIssueWithTramsSundayStPetersToDeansgate() {
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, LocalTime.of(9,0), TestConfig.nextSunday());
+    }
+
+    @Test
+    public void reproduceIssueWithTramsSundayAshtonToEccles() {
+        validateAtLeastOneJourney(Stations.Ashton, Stations.Eccles, LocalTime.of(9,0), TestConfig.nextSunday());
     }
 
     @Test

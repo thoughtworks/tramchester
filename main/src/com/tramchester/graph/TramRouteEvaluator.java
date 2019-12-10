@@ -46,8 +46,21 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         if (previousSuccessfulVisit.containsKey(nodeId)) {
             Pair<TramTime, Evaluation> previous = previousSuccessfulVisit.get(nodeId);
-            if (previous.getLeft().equals(journeyClock)) {
-                return Evaluation.EXCLUDE_AND_PRUNE; // been here before at same time, so no need to continue
+            TramTime previousVisitTime = previous.getLeft();
+
+            if (previousVisitTime.equals(journeyClock)) {
+                return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue
+            }
+            if (!serviceHeuristics.overMaxWait(journeyClock, previousVisitTime, path).isValid()) {
+                // over max wait time later, so no need to consider
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
+
+            if (previous.getRight().continues()) {
+                // if we found a route from here at at earlier time no need to continue
+                if (previousVisitTime.isBefore(journeyClock)) {
+                    return Evaluation.EXCLUDE_AND_PRUNE;
+                }
             }
         }
 
@@ -57,15 +70,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         return result;
-
     }
 
     public Evaluation doEvaluate(Path path, JourneyState journeyState, Node endNode, long endNodeId) {
 
         // TODO RISK this won't always surface fatest paths?
-        if (success>=RouteCalculator.MAX_NUM_GRAPH_PATHS) {
-            return Evaluation.EXCLUDE_AND_PRUNE;
-        }
+//        if (success>=RouteCalculator.MAX_NUM_GRAPH_PATHS) {
+//            return Evaluation.EXCLUDE_AND_PRUNE;
+//        }
 
         if (endNodeId==destinationNodeId) {
             success = success + 1;

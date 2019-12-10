@@ -266,15 +266,15 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerA));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerB));
-        assertTrue(serviceHeuristics.operatesOnTime(tramTimes, providerC));
-        assertTrue(serviceHeuristics.operatesOnTime(tramTimes, providerD));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerE));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerF));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerG));
-        assertTrue(serviceHeuristics.operatesOnTime(tramTimes, providerH));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerI));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerA));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerB));
+        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerC));
+        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerD));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerE));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerF));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerG));
+        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerH));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerI));
         verifyAll();
     }
 
@@ -299,16 +299,16 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         TramchesterConfig configuration = new NeedMaxWaitConfig(15);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, configuration,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerA));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerB));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerC));
-        assertTrue(serviceHeuristics.operatesOnTime(tramTimes, providerD));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerE));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerF));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerG));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerH));
-        assertTrue(serviceHeuristics.operatesOnTime(tramTimes, providerI));
-        assertFalse(serviceHeuristics.operatesOnTime(tramTimes, providerJ));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerA));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerB));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerC));
+        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerD));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerE));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerF));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerG));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerH));
+        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerI));
+        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerJ));
         verifyAll();
     }
 
@@ -325,9 +325,9 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertFalse(serviceHeuristics.operatesOnTime(time, providerA));
-        assertTrue(serviceHeuristics.operatesOnTime(time, providerB));
-        assertFalse(serviceHeuristics.operatesOnTime(time, providerC));
+        assertFalse(serviceHeuristics.overMaxWait(time, providerA));
+        assertTrue(serviceHeuristics.overMaxWait(time, providerB));
+        assertFalse(serviceHeuristics.overMaxWait(time, providerC));
         verifyAll();
     }
 
@@ -342,7 +342,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertTrue(serviceHeuristics.operatesOnTime(time, provider));
+        assertTrue(serviceHeuristics.overMaxWait(time, provider));
         verifyAll();
     }
 

@@ -23,11 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static java.lang.String.format;
 
-public class ServiceHeuristics implements PersistsBoardingTime {
+public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
     private final RunningServices runningServices;
-    private final Set<String> preferRoutes;
+//    private final Set<String> preferRoutes;
     private final String endStationId;
     private final LocalTime queryTime;
     private final List<ServiceReason> reasons;
@@ -58,7 +58,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.maxJourneyDuration = config.getMaxJourneyDuration();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
-        this.preferRoutes = preferRoutes;
+//        this.preferRoutes = preferRoutes;
         this.endStationId = endStationId;
 
         // for none edge per trip path
@@ -151,7 +151,7 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
         // all times for the service per edge
-        if (!operatesOnTime(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
+        if (!overMaxWait(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
             return recordReason(ServiceReason.DoesNotOperateOnTime(queryTime,
                     elapsedTimeProvider.getElapsedTime().toString(), path));
         }
@@ -171,11 +171,10 @@ public class ServiceHeuristics implements PersistsBoardingTime {
             return recordReason(ServiceReason.IsValid(path, "svcMatch"));
         }
 
-        //incrementStat(ServiceReason.ReasonCode.InflightChangeOfService);
         return recordReason(ServiceReason.InflightChangeOfService(service, path));
     }
 
-    public boolean operatesOnTime(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
+    public boolean overMaxWait(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
         if (times.length==0) {
             logger.warn("No times provided");
         }
@@ -296,9 +295,9 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return depart.getProperty(GraphStaticKeys.STATION_ID).toString().equals(endStationId);
     }
 
-    public boolean matchesRoute(String routeId) {
-        return preferRoutes.contains(routeId);
-    }
+//    public boolean matchesRoute(String routeId) {
+//        return preferRoutes.contains(routeId);
+//    }
 
     public ServiceReason canReachDestination(Node endNode, Path path) {
         String stationId = endNode.getProperty(ID).toString();
@@ -312,5 +311,15 @@ public class ServiceHeuristics implements PersistsBoardingTime {
 
     public boolean journeyTookTooLong(TramTime visitingTime) {
         return TramTime.diffenceAsMinutes( TramTime.of(queryTime), visitingTime)>maxJourneyDuration;
+    }
+
+    public ServiceReason overMaxWait(TramTime journeyClock, TramTime previousVisit, Path path) {
+        int diffenceAsMinutes = TramTime.diffenceAsMinutes(previousVisit, journeyClock);
+
+        if (journeyClock.isAfter(previousVisit) && diffenceAsMinutes > maxWaitMinutes) {
+            return recordReason(ServiceReason.DoesNotOperateOnTime(journeyClock.asLocalTime(), "Previously visited", path));
+        }
+
+        return recordReason(ServiceReason.IsValid(path, "Early visit or within 30 mins"));
     }
 }

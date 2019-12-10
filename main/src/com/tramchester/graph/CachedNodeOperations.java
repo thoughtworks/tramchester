@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.TramTime;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -154,4 +155,15 @@ public class CachedNodeOperations {
         return endNode.getProperty(TRIP_ID).toString();
     }
 
+    public Node createNode(GraphDatabaseService graphDatabaseService, TransportGraphBuilder.Labels label) {
+        Node result = graphDatabaseService.createNode(label);
+        nodeIdLabelMap.put(result.getId(), label);
+        return result;
+    }
+
+    public void deleteNode(Node node) {
+        long id = node.getId();
+        node.delete();
+        nodeIdLabelMap.removeId(id);
+    }
 }

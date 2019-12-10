@@ -22,6 +22,7 @@ import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.logging.slf4j.Slf4jLogProvider;
@@ -212,6 +213,9 @@ public class Dependencies {
                 graphBuilder.buildGraphwithFilter(graphFilter);
             }
             logger.info("Graph rebuild is finished for " + graphName);
+        } else {
+            logger.info("Load existing graph");
+            populateNodeLabelMap(graphDatabaseService);
         }
 
         if (configuration.getCreateLocality()) {
@@ -219,6 +223,18 @@ public class Dependencies {
         }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
 
+    }
+
+    private void populateNodeLabelMap(GraphDatabaseService graphDatabaseService) {
+        logger.info("Rebuilding node->label index");
+        NodeIdLabelMap nodeIdLabelMap = get(NodeIdLabelMap.class);
+        TransportGraphBuilder.Labels[] labels = TransportGraphBuilder.Labels.values();
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            for (TransportGraphBuilder.Labels label : labels) {
+                graphDatabaseService.findNodes(label).stream().forEach(node -> nodeIdLabelMap.put(node.getId(), label));
+            }
+            tx.success();
+        }
     }
 
     public <T> T get(Class<T> klass) {

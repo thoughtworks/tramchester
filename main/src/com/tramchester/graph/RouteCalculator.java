@@ -103,7 +103,7 @@ public class RouteCalculator extends StationIndexs {
         Set<RawJourney> journeys;
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
-            Node startNode = graphDatabaseService.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
+            Node startNode = nodeOperations.createNode(graphDatabaseService, TransportGraphBuilder.Labels.QUERY_NODE);
             startNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
             startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
             startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
@@ -124,7 +124,7 @@ public class RouteCalculator extends StationIndexs {
 
             // must delete relationships first, otherwise may not delete node
             addedWalks.forEach(Relationship::delete);
-            startNode.delete();
+            nodeOperations.deleteNode(startNode);
         }
         return journeys;
     }
@@ -203,7 +203,8 @@ public class RouteCalculator extends StationIndexs {
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
 
         paths.limit(limit).forEach(path -> {
-            logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
+//        paths.sorted(Comparator.comparingDouble(WeightedPath::weight)).limit(limit).forEach(path -> {
+        logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
             List<RawStage> stages;
             if (config.getEdgePerTrip()) {
                 stages = pathToStages.mapDirect(path);

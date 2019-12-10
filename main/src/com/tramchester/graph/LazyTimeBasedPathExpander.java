@@ -24,11 +24,11 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     private static final Logger logger = LoggerFactory.getLogger(LazyTimeBasedPathExpander.class);
 
     private final RelationshipFactory relationshipFactory;
-    private final ServiceHeuristics serviceHeuristics;
+    private final BasicServiceHeuristics serviceHeuristics;
 
 //    private final Map<Node, Integer> visited;
 
-    public LazyTimeBasedPathExpander(RelationshipFactory relationshipFactory, ServiceHeuristics serviceHeuristics) {
+    public LazyTimeBasedPathExpander(RelationshipFactory relationshipFactory, BasicServiceHeuristics serviceHeuristics) {
         this.relationshipFactory = relationshipFactory;
         this.serviceHeuristics = serviceHeuristics;
 //        visited = new HashMap<>();
