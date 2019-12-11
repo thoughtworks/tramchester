@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.Station;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
@@ -18,22 +19,48 @@ public class PathToGraphViz {
         Set<String> edges = new HashSet<>();
         Iterable<Relationship> relationships = path.relationships();
 
+        long lastId = path.endNode().getId();
+
         if (relationships!=null) {
             relationships.forEach(relationship -> {
-                String start = relationship.getStartNode().getProperty(GraphStaticKeys.ID).toString().
-                        replace(prefixToRemove, "");
-                String end = relationship.getEndNode().getProperty(GraphStaticKeys.ID).toString().
-                        replace(prefixToRemove, "");
+                Node startNode = relationship.getStartNode();
+                String startId = getId(startNode);
+                if (hasTrip(startNode)) {
+                    startId = startId + addTripId(startNode);
+                }
+
+                Node endNode = relationship.getEndNode();
+                String endId = getId(endNode);
+                if (hasTrip(endNode)) {
+                    endId = endId + addTripId(endNode);
+                }
+
                 String relat = relationship.getType().name();
                 String shape = valid ? "box" : "oval";
-                nodes.add(format("\"%s\" [shape=%s];\n", end, shape));
-                edges.add(format("\"%s\"->\"%s\" [label=\"%s %s\"];\n",
-                        start, end, relat, diagnostics));
-
+                nodes.add(format("\"%s\" [shape=%s];\n", endId, shape));
+                if (!(endNode.getId()==lastId)) {
+                    edges.add(format("\"%s\"->\"%s\" [label=\"%s\"];\n",
+                            startId, endId, relat));
+                } else {
+                    edges.add(format("\"%s\"->\"%s\" [label=\"%s %s\"];\n",
+                            startId, endId, relat, diagnostics));
+                }
             });
         }
 
         nodes.addAll(edges);
         return nodes;
+    }
+
+    private static String addTripId(Node endNode) {
+        return "_" + endNode.getProperty(GraphStaticKeys.TRIP_ID);
+    }
+
+    private static boolean hasTrip(Node endNode) {
+        return endNode.hasProperty(GraphStaticKeys.TRIP_ID);
+    }
+
+    private static String getId(Node node) {
+        return node.getProperty(GraphStaticKeys.ID).toString().replace(prefixToRemove, "");
     }
 }

@@ -177,9 +177,10 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldHaveSundayServicesFromCornbrook() {
-        LocalDate nextTuesday = TestConfig.nextSunday();
+        LocalDate nextSunday = TestConfig.nextSunday();
 
-        Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextTuesday));
+        Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
+
         Set<String> sundayServiceIds = sundayServices.stream().map(svc -> svc.getServiceId()).collect(Collectors.toSet());
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
@@ -188,6 +189,48 @@ public class TransportDataFromFilesTest {
         Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.contains(trip.getServiceId())).collect(Collectors.toSet());
 
         assertFalse(sundayTrips.isEmpty());
+    }
+
+    @Test
+    public void shouldHaveServicesRunningAtReasonableTimes() {
+
+        int maxwait = 25;
+
+        for (int day = 0; day < 7; day++) {
+            LocalDate date = TestConfig.nextTuesday(day);
+            Set<Service> servicesOnDate = transportData.getServicesOnDate(new TramServiceDate(date));
+
+            Set<String> servicesOnDateIds = servicesOnDate.stream().map(Service::getServiceId).collect(Collectors.toSet());
+            transportData.getStations().forEach(station -> {
+                Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
+                        filter(trip -> trip.callsAt(station.getId())).
+                        filter(trip -> servicesOnDateIds.contains(trip.getServiceId())).
+                        collect(Collectors.toSet());
+                assertFalse(String.format("%s %s", date, station.getName()), callingTripsOnDate.isEmpty());
+
+                Set<String> callingServicesIds = callingTripsOnDate.stream().map(Trip::getServiceId).collect(Collectors.toSet());
+
+                for (int hour = 6; hour < 23; hour++) {
+                    TramTime tramTime = TramTime.of(hour,00);
+                    Set<Service> runningAtTime = servicesOnDate.stream().
+                            filter(svc -> callingServicesIds.contains(svc.getServiceId())).
+                            filter(svc -> tramTime.between(svc.earliestDepartTime(), svc.latestDepartTime())).collect(Collectors.toSet());
+
+                    assertFalse(String.format("%s %s %s", date, tramTime, station.getName()), runningAtTime.isEmpty());
+
+                    Set<Stop> calling = new HashSet<>();
+                    callingTripsOnDate.forEach(trip -> {
+                        Set<Stop> onTime = trip.getStops().stream().
+                                filter(stop -> stop.getStation().equals(station)).
+                                filter(stop -> tramTime.between(stop.getArrivalTime().minusMinutes(maxwait), stop.getArrivalTime())).
+                                collect(Collectors.toSet());
+                        calling.addAll(onTime);
+                    });
+                    assertFalse(String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()), calling.isEmpty());
+                }
+
+            });
+        }
     }
 
     @Test

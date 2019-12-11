@@ -166,4 +166,5 @@ public class CachedNodeOperations {
         node.delete();
         nodeIdLabelMap.removeId(id);
     }
+
 }

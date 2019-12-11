@@ -478,7 +478,7 @@ public class TransportGraphBuilder extends StationIndexs {
         goesToRelationship.setProperty(GraphStaticKeys.DEPART_TIME, departureTime.asLocalTime());
 
         // common properties
-        int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), beginStop.getArrivalTime());
+        int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime);
         addCommonProperties(goesToRelationship, transportRelationshipType, route, service, cost);
     }
 

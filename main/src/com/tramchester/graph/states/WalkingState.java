@@ -18,7 +18,8 @@ public class WalkingState extends TraversalState {
     @Override
     public String toString() {
         return "WalkingState{" +
-                "parent=" + parent +
+                "cost=" + super.getCurrentCost() +
+                ", parent=" + parent +
                 '}';
     }
 

@@ -162,7 +162,6 @@ public class RouteCalculator extends StationIndexs {
                 }
             }
 
-            serviceHeuristics.reportStats();
         });
 
         return journeys;
@@ -193,8 +192,10 @@ public class RouteCalculator extends StationIndexs {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        return new TramNetworkTraverser(serviceHeutistics, nodeOperations,
-                queryTime, endNode, endStationId).findPaths(startNode);
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(serviceHeutistics, nodeOperations,
+                queryTime, endNode, endStationId);
+
+        return tramNetworkTraverser.findPaths(startNode);
 
     }
 
@@ -202,18 +203,22 @@ public class RouteCalculator extends StationIndexs {
 
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
 
-        paths.limit(limit).forEach(path -> {
-//        paths.sorted(Comparator.comparingDouble(WeightedPath::weight)).limit(limit).forEach(path -> {
-        logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
-            List<RawStage> stages;
-            if (config.getEdgePerTrip()) {
-                stages = pathToStages.mapDirect(path);
-            } else {
-                stages = pathToStages.map(path, queryTime);
-            }
-            RawJourney journey = new RawJourney(stages, queryTime);
-            journeys.add(journey);
-        });
+        if (config.getEdgePerTrip()) {
+            paths.sorted(Comparator.comparingDouble(WeightedPath::weight)).forEach(path -> {
+                logger.info(format("edge per trip parse graph path of length %s with limit of %s ", path.length(), limit));
+                List<RawStage> stages = pathToStages.mapDirect(path);
+                RawJourney journey = new RawJourney(stages, queryTime);
+                journeys.add(journey);
+            });
+        } else {
+            paths.limit(limit).forEach(path -> {
+                logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
+                List<RawStage> stages = pathToStages.map(path, queryTime);
+                RawJourney journey = new RawJourney(stages, queryTime);
+                journeys.add(journey);
+            });
+        }
+
         paths.close();
 
         if (journeys.size()==0) {

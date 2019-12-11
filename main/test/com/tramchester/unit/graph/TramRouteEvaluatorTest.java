@@ -110,7 +110,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(nodeIdLabelMap.getLabel(42)).andStubReturn(TransportGraphBuilder.Labels.ROUTE_STATION);
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node,path)).
-                andReturn(ServiceReason.StationNotReachable(path,"unreachable"));
+                andReturn(ServiceReason.StationNotReachable(path));
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -155,7 +155,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
 
         LocalTime time = LocalTime.of(8, 15);
-        EasyMock.expect(serviceHeuristics.journeyTookTooLong(TramTime.of(time))).andReturn(true);
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(TramTime.of(time),path)).andReturn(ServiceReason.TookTooLong(TramTime.of(time), path));
 
         NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId");
         state.setState(new JourneyState(time, traversalState));
@@ -185,9 +185,9 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         state.setState(new JourneyState(time.asLocalTime(), traversalState));
         EasyMock.expect(serviceHeuristics.checkServiceDate(node, path)).andReturn(ServiceReason.IsValid(path,"ok"));
-        EasyMock.expect(serviceHeuristics.journeyTookTooLong(time)).andReturn(false);
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(time,path)).andReturn(ServiceReason.IsValid(path,"ok"));
         EasyMock.expect(serviceHeuristics.checkServiceTime(path, node, time)).
-                andReturn(ServiceReason.DoesNotOperateOnTime(time.asLocalTime(), "diagnostics", path));
+                andReturn(ServiceReason.DoesNotOperateOnTime(time, "diagnostics", path));
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -216,9 +216,10 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         LocalTime time = LocalTime.of(8, 15);
 
         state.setState(new JourneyState(time, traversalState));
-        EasyMock.expect(serviceHeuristics.journeyTookTooLong(TramTime.of(time))).andReturn(false);
-        EasyMock.expect(serviceHeuristics.interestedInHour(path, 8, TramTime.of(time))).
-                andReturn(ServiceReason.DoesNotOperateOnTime(time, "diag", path));
+        TramTime tramTime = TramTime.of(time);
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(tramTime,path)).andReturn(ServiceReason.IsValid(path,"ok"));
+        EasyMock.expect(serviceHeuristics.interestedInHour(path, 8, tramTime)).
+                andReturn(ServiceReason.DoesNotOperateOnTime(tramTime, "diag", path));
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -247,9 +248,10 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         LocalTime time = LocalTime.of(8, 15);
         state.setState(new JourneyState(time, traversalState));
 
-        EasyMock.expect(serviceHeuristics.journeyTookTooLong(TramTime.of(time))).andReturn(false);
-        EasyMock.expect(serviceHeuristics.checkTime(path, node, TramTime.of(time))).
-                andReturn(ServiceReason.DoesNotOperateOnTime(time, "diag", path));
+        TramTime tramTime = TramTime.of(time);
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(tramTime,path)).andReturn(ServiceReason.IsValid(path,"ok"));
+        EasyMock.expect(serviceHeuristics.checkTime(path, node, tramTime)).
+                andReturn(ServiceReason.DoesNotOperateOnTime(tramTime, "diag", path));
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -277,7 +279,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId");
         state.setState(new JourneyState(time, traversalState));
 
-        EasyMock.expect(serviceHeuristics.journeyTookTooLong(TramTime.of(time))).andReturn(false);
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(TramTime.of(time),path)).andReturn(ServiceReason.IsValid(path,"ok"));
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);

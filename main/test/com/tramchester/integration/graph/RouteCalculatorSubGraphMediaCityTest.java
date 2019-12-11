@@ -6,6 +6,7 @@ import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -14,6 +15,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import org.junit.*;
+import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Str;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
@@ -33,54 +35,28 @@ public class RouteCalculatorSubGraphMediaCityTest {
     private GraphDatabaseService graphService;
     private RelationshipFactory relationshipFactory;
     private NodeFactory nodeFactory;
+    private static List<String> stations = Arrays.asList(
+            Stations.ExchangeSquare.getId(),
+            Stations.StPetersSquare.getId(),
+            Stations.Deansgate.getId(),
+            Stations.Cornbrook.getId(),
+            Stations.Pomona.getId(),
+            "9400ZZMAEXC", // Exchange Quay
+            "9400ZZMASQY", // Salford Quays
+            "9400ZZMAANC", // Anchorage
+            Stations.HarbourCity.getId(),
+            Stations.MediaCityUK.getId(),
+            Stations.TraffordBar.getId());
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         GraphFilter graphFilter = new GraphFilter();
         graphFilter.addRoute(RouteCodesForTesting.ASH_TO_ECCLES);
         graphFilter.addRoute(RouteCodesForTesting.ROCH_TO_DIDS);
+        graphFilter.addRoute(RouteCodesForTesting.ECCLES_TO_ASH);
+        graphFilter.addRoute(RouteCodesForTesting.DIDS_TO_ROCH);
 
-//        graphFilter.addService("Serv003109"); // eccles, works both before and after 6am
-//        graphFilter.addService("Serv003232"); // east dids, works both before and after 6am
-
-//        List<Integer> services = Arrays.asList(3109, 3232,
-//                3134,
-//                3110, 3133,
-//                3149,
-//
-//                3150,
-//                3157,
-//                3111,
-//                3158,
-//                3135,
-//                3118,
-//
-//                3136,
-//                3154, 3112, 3117, 3115,
-//                3155, 3153,
-//                3114,
-//                3156, 3152,
-//                3151
-//
-//                );
-
-//        services.forEach(svc -> {
-//            String format = format("Serv00%s", svc.toString());
-//            graphFilter.addService(format);
-//        });
-
-        graphFilter.addStation(Stations.ExchangeSquare);
-        graphFilter.addStation(Stations.StPetersSquare);
-        graphFilter.addStation(Stations.Deansgate);
-        graphFilter.addStation(Stations.Cornbrook);
-        graphFilter.addStation(Stations.Pomona);
-        graphFilter.addStation("9400ZZMAEXC"); // Exchange Quay
-        graphFilter.addStation("9400ZZMASQY"); // Salford Quays
-        graphFilter.addStation("9400ZZMAANC"); // Anchorage
-        graphFilter.addStation(Stations.HarbourCity);
-        graphFilter.addStation(Stations.MediaCityUK);
-//
-        graphFilter.addStation(Stations.TraffordBar);
+        stations.forEach(graphFilter::addStation);
 
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
@@ -100,6 +76,32 @@ public class RouteCalculatorSubGraphMediaCityTest {
     }
 
     @Test
+    public void shouldHaveMediaCityToExchangeSquare() {
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, LocalTime.of(9,00), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, LocalTime.of(9,00), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, LocalTime.of(9,00), TestConfig.nextSunday());
+    }
+
+    @Test
+    public void shouldHaveJourneyFromEveryStationToEveryOther() {
+        List<LocalTime> times = Collections.singletonList(LocalTime.of(9,0));
+
+        for (String start: stations) {
+            for (String destination: stations) {
+                if (!start.equals(destination)) {
+                    for (int i = 0; i < 7; i++) {
+                        LocalDate day = nextTuesday.plusDays(i);
+                        Set<RawJourney> journeys = calculator.calculateRoute(start, destination, times,
+                                new TramServiceDate(day), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                        assertTrue(day.getDayOfWeek() +": "+start+"->"+destination, !journeys.isEmpty());
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Test
     public void reproduceMediaCityIssue() {
         validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, LocalTime.of(12,00), nextTuesday);
     }
@@ -112,16 +114,16 @@ public class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(results.size()>0);
     }
 
-    @Test
     @Ignore
+    @Test
     public void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 11);
-        List<String> stations =new LinkedList<>();
-        stations.add(Stations.Cornbrook.getId());
-        stations.add(Stations.MediaCityUK.getId());
-        stations.add(Stations.StPetersSquare.getId());
+        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 5);
+        List<String> toDraw = new ArrayList<>();
+//        stations.add(Stations.Cornbrook.getId());
+        toDraw.add(Stations.MediaCityUK.getId());
+//        stations.add(Stations.StPetersSquare.getId());
 
-        creator.create(format("%s_trams.dot", "subgraph_mediacity"), stations);
+        creator.create(format("%s_trams.dot", "subgraph_mediacity"), toDraw);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

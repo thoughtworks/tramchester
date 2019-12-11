@@ -19,6 +19,7 @@ public class StationState extends TraversalState {
     @Override
     public String toString() {
         return "StationState{" +
+                "cost=" + super.getCurrentCost() +
                 "parent=" + parent +
                 '}';
     }

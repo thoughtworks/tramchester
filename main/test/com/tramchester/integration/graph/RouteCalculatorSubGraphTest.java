@@ -5,6 +5,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -18,6 +19,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -34,17 +36,14 @@ public class RouteCalculatorSubGraphTest {
     private GraphDatabaseService graphService;
     private RelationshipFactory relationshipFactory;
     private NodeFactory nodeFactory;
+    private static List<Location> stations = Arrays.asList(Stations.Cornbrook, Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         GraphFilter graphFilter = new GraphFilter();
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
-//        graphFilter.addService("Serv003011");
 
-        graphFilter.addStation(Stations.Cornbrook);
-        graphFilter.addStation(Stations.StPetersSquare);
-        graphFilter.addStation(Stations.Deansgate);
-        graphFilter.addStation(Stations.Pomona);
+        stations.forEach(graphFilter::addStation);
 
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
@@ -74,6 +73,21 @@ public class RouteCalculatorSubGraphTest {
 
         validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,51), nextTuesday);
         validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,56), nextTuesday);
+    }
+
+    @Test
+    public void shouldHaveJourneysBetweenAllStations() {
+        LocalTime time = LocalTime.of(9, 00);
+        for (Location start: stations) {
+            for (Location destination: stations) {
+                if (!start.equals(destination)) {
+                    for (int i = 0; i < 7; i++) {
+                        LocalDate day = nextTuesday.plusDays(i);
+                        validateAtLeastOneJourney(start, destination, time, day);
+                    }
+                }
+            }
+        }
     }
 
     @Test

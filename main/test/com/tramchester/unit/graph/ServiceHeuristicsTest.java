@@ -125,9 +125,9 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(endsAfterMidnight.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(0,1));
 
         replayAll();
-        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTime, "unused", path),
+        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, "unused", path),
                 serviceHeuristics.checkServiceTime(path, tooEarlyNode, elaspsedTramTime));
-        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTime, "unused", path),
+        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, "unused", path),
                 serviceHeuristics.checkServiceTime(path, tooLateNode, elaspsedTramTime));
 
         assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBefore, elaspsedTramTime).isValid());
@@ -266,15 +266,15 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerA));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerB));
-        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerC));
-        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerD));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerE));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerF));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerG));
-        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerH));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerI));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerA));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerB));
+        assertTrue(serviceHeuristics.underMaxWait(tramTimes, providerC));
+        assertTrue(serviceHeuristics.underMaxWait(tramTimes, providerD));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerE));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerF));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerG));
+        assertTrue(serviceHeuristics.underMaxWait(tramTimes, providerH));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerI));
         verifyAll();
     }
 
@@ -299,16 +299,16 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         TramchesterConfig configuration = new NeedMaxWaitConfig(15);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, configuration,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerA));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerB));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerC));
-        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerD));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerE));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerF));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerG));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerH));
-        assertTrue(serviceHeuristics.overMaxWait(tramTimes, providerI));
-        assertFalse(serviceHeuristics.overMaxWait(tramTimes, providerJ));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerA));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerB));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerC));
+        assertTrue(serviceHeuristics.underMaxWait(tramTimes, providerD));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerE));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerF));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerG));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerH));
+        assertTrue(serviceHeuristics.underMaxWait(tramTimes, providerI));
+        assertFalse(serviceHeuristics.underMaxWait(tramTimes, providerJ));
         verifyAll();
     }
 
@@ -325,9 +325,9 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertFalse(serviceHeuristics.overMaxWait(time, providerA));
-        assertTrue(serviceHeuristics.overMaxWait(time, providerB));
-        assertFalse(serviceHeuristics.overMaxWait(time, providerC));
+        assertFalse(serviceHeuristics.underMaxWait(time, providerA));
+        assertTrue(serviceHeuristics.underMaxWait(time, providerB));
+        assertFalse(serviceHeuristics.underMaxWait(time, providerC));
         verifyAll();
     }
 
@@ -342,7 +342,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 NOT_USED_HERE, runningServices, preferRoutes, "endStationId");
-        assertTrue(serviceHeuristics.overMaxWait(time, provider));
+        assertTrue(serviceHeuristics.underMaxWait(time, provider));
         verifyAll();
     }
 

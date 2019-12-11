@@ -64,7 +64,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         ResourceIterator<Path> iterator = traverser.iterator();
 
         logger.info("Return traversal stream");
-        return iterator.stream().filter(path -> path.endNode().getId()==destinationNodeId)
+        Stream<Path> stream = iterator.stream();
+        Runnable streamClosed = () -> logger.info("Traversal Stream closed");
+        stream.onClose(streamClosed);
+        return stream.filter(path -> path.endNode().getId()==destinationNodeId)
                 .map(this::calculateWeight);
 
     }
@@ -101,15 +104,15 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Label firstLabel = endNode.getLabels().iterator().next();
         TransportGraphBuilder.Labels nodeLabel = TransportGraphBuilder.Labels.valueOf(firstLabel.toString());
 
-        JourneyState stateForChildren = JourneyState.fromPrevious(currentState);
-        TraversalState newTraversalState = traversalState.nextState(path, nodeLabel, endNode, stateForChildren, cost);
+        JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
+        TraversalState traversalStateForChildren = traversalState.nextState(path, nodeLabel, endNode, journeyStateForChildren, cost);
 
-        stateForChildren.updateTraversalState(newTraversalState);
-        graphState.setState(stateForChildren);
+        journeyStateForChildren.updateTraversalState(traversalStateForChildren);
+        graphState.setState(journeyStateForChildren);
 
 //        logger.info(stateForChildren.toString());
 
-        Iterable<Relationship> relationships = newTraversalState.getOutbounds();
+        Iterable<Relationship> relationships = traversalStateForChildren.getOutbounds();
 
         return relationships;
     }

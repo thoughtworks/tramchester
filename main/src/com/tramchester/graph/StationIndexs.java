@@ -52,7 +52,7 @@ public class StationIndexs {
         return node;
     }
 
-    protected Node getStationNode(String stationId) {
+    public Node getStationNode(String stationId) {
         if (stationNodeCache.containsKey(stationId)) {
             return stationNodeCache.get(stationId);
         }

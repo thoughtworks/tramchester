@@ -21,6 +21,7 @@ public class PlatformState extends TraversalState {
     public String toString() {
         return "PlatformState{" +
                 "platformNodeId=" + platformNodeId +
+                ", cost=" + super.getCurrentCost() +
                 ", parent=" + parent +
                 '}';
     }

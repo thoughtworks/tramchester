@@ -19,7 +19,9 @@ public abstract class ServiceReason {
         NotOnQueryDate,
         NotAtQueryTime,
         NotReachable,
-        ServiceNotRunningAtTime
+        ServiceNotRunningAtTime,
+        TookTooLong,
+        NotAtHour
     }
 
     private static final Logger logger = LoggerFactory.getLogger(HasDiag.class);
@@ -75,14 +77,13 @@ public abstract class ServiceReason {
     }
 
     private static class StationNotReachable extends ServiceReason {
-        public StationNotReachable(String diag, Path path) {
-            super(ReasonCode.NotReachable,path,diag);
+        public StationNotReachable(Path path) {
+            super(ReasonCode.NotReachable,path,"unreachable");
         }
     }
 
     private static class DoesNotRunOnQueryDate extends HasDiag
     {
-
         public DoesNotRunOnQueryDate(String nodeServiceId, Path path) {
 
             super(ReasonCode.NotOnQueryDate, "NotQueryDateOrDay:"+nodeServiceId, path);
@@ -99,7 +100,7 @@ public abstract class ServiceReason {
         private LocalTime elapsedTime;
 
         public DoesNotOperateOnTime(ReasonCode reasonCode, LocalTime currentElapsed, String diagnostics, Path path) {
-            super(reasonCode, "NotAtTime:"+diagnostics, path);
+            super(reasonCode, format("%s Time:%s %s", reasonCode, currentElapsed, diagnostics), path);
             this.elapsedTime = currentElapsed;
         }
 
@@ -139,17 +140,24 @@ public abstract class ServiceReason {
         return new DoesNotRunOnQueryDate(diag, path);
     }
 
-    public static ServiceReason DoesNotOperateOnTime(LocalTime currentElapsed, String diagnostics, Path path) {
-        return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, diagnostics, path);
+    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, String diagnostics, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed.asLocalTime(), diagnostics, path);
     }
 
-    public static ServiceReason StationNotReachable(Path path, String diag) {
-        return new StationNotReachable(diag,path);
+    public static ServiceReason StationNotReachable(Path path) {
+        return new StationNotReachable(path);
     }
-
 
     public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, String diag, Path path) {
         return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed.asLocalTime(), diag, path) ;
+    }
+
+    public static ServiceReason TookTooLong(TramTime currentElapsed, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.TookTooLong, currentElapsed.asLocalTime(), "too long", path);
+    }
+
+    public static ServiceReason DoesNotOperateAtHour(TramTime currentElapsed, String diag, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.NotAtHour, currentElapsed.asLocalTime(), diag, path);
     }
 
 }

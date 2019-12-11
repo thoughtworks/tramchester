@@ -8,18 +8,23 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.PathEvaluator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
+    private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
+
     private final int maxPathLength = 400; // path length limit, includes *all* edges
 
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
     private int success;
+    private int currentLowestCost;
 
     private final Map<Long, Pair<TramTime, Evaluation>> previousSuccessfulVisit;
 
@@ -29,6 +34,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.destinationNodeId = destinationNodeId;
         success = 0;
         previousSuccessfulVisit = new HashMap<>();
+        currentLowestCost = Integer.MAX_VALUE;
     }
 
     @Override
@@ -45,6 +51,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         long nodeId = endNode.getId();
 
         if (previousSuccessfulVisit.containsKey(nodeId)) {
+
+            if (nodeOperations.isTime(endNode)) {
+                // no way to get different response for same service/minute - boarding time has to be same
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
+
             Pair<TramTime, Evaluation> previous = previousSuccessfulVisit.get(nodeId);
             TramTime previousVisitTime = previous.getLeft();
 
@@ -56,23 +68,21 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
 
-            if (previous.getRight().continues()) {
-                // if we found a route from here at at earlier time no need to continue
-                if (previousVisitTime.isBefore(journeyClock)) {
-                    return Evaluation.EXCLUDE_AND_PRUNE;
-                }
-            }
         }
 
         Evaluation result = doEvaluate(path, journeyState, endNode, nodeId);
         if (result.continues()) {
             previousSuccessfulVisit.put(nodeId, Pair.of(journeyClock, result));
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Stopped at len: " + path.length());
+            }
         }
 
         return result;
     }
 
-    public Evaluation doEvaluate(Path path, JourneyState journeyState, Node endNode, long endNodeId) {
+    private Evaluation doEvaluate(Path path, JourneyState journeyState, Node endNode, long endNodeId) {
 
         // TODO RISK this won't always surface fatest paths?
 //        if (success>=RouteCalculator.MAX_NUM_GRAPH_PATHS) {
@@ -80,12 +90,20 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 //        }
 
         if (endNodeId==destinationNodeId) {
-            success = success + 1;
-            return Evaluation.INCLUDE_AND_PRUNE;
+            int totalCost = journeyState.getTraversalState().getTotalCost();
+            if (totalCost < currentLowestCost) {
+                success = success + 1;
+                currentLowestCost = totalCost;
+                return Evaluation.INCLUDE_AND_PRUNE;
+            } else {
+//                logger.info("Found route but not lowest cost");
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
         }
 
         // no journey longer than N stages
         if (path.length()>maxPathLength) {
+            logger.warn("Hit max path length");
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
@@ -106,7 +124,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         Relationship inboundRelationship = path.lastRelationship();
 
         if (inboundRelationship != null) {
-//            // for walking routes we do want to include them all even if at same time
+            // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO)) {
                 return Evaluation.INCLUDE_AND_CONTINUE;
             }
@@ -114,7 +132,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         TramTime visitingTime = journeyState.getJourneyClock();
         // journey too long?
-        if (serviceHeuristics.journeyTookTooLong(visitingTime)) {
+        if (!serviceHeuristics.journeyDurationUnderLimit(visitingTime, path).isValid()) {
+//            logger.warn("Joruney took too long");
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 

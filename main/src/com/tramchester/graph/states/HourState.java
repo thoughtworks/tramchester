@@ -6,6 +6,8 @@ import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.TRAM_GOES_TO;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
+    private static final Logger logger = LoggerFactory.getLogger(HourState.class);
 
     private Optional<String> maybeExistingTrip;
 
@@ -63,9 +66,11 @@ public class HourState extends TraversalState {
                 results.add(relationship);
             }
         });
+//        if (results.isEmpty()) {
+//            logger.warn("Got no matching trips for " + tripId);
+//        }
         return results;
     }
-
 
     @Override
     public String toString() {

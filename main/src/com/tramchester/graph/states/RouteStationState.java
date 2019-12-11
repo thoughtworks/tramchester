@@ -38,6 +38,7 @@ public class RouteStationState extends TraversalState {
     public String toString() {
         return "RouteStationState{" +
                 "routeStationNodeId=" + routeStationNodeId +
+                ", cost=" + super.getCurrentCost() +
                 ", justBoarded=" + justBoarded +
                 ", maybeExistingTrip='" + maybeExistingTrip + '\'' +
                 ", parent=" + parent +

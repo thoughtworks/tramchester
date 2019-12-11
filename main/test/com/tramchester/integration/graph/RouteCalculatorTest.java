@@ -340,6 +340,12 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, LocalTime.of(9,0), TestConfig.nextSunday());
+        validateAtLeastOneJourney(Stations.Eccles, Stations.Cornbrook, LocalTime.of(9,0), TestConfig.nextSunday());
+    }
+
+    @Test
     public void shouldReproduceIssueCornbrookToAshtonSatursdays() {
         LocalDate date = TestConfig.nextSaturday();
         checkRouteNextNDays(Stations.Cornbrook, Stations.Ashton, date, LocalTime.of(9,0), 7);
