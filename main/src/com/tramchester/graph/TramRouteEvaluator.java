@@ -63,10 +63,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             if (previousVisitTime.equals(journeyClock)) {
                 return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue
             }
-            if (!serviceHeuristics.overMaxWait(journeyClock, previousVisitTime, path).isValid()) {
-                // over max wait time later, so no need to consider
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
+
+//            if (!serviceHeuristics.overMaxWait(journeyClock, previousVisitTime, path).isValid()) {
+//                // over max wait time later, so no need to consider
+//                return Evaluation.EXCLUDE_AND_PRUNE;
+//            }
 
         }
 
@@ -90,13 +91,20 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 //        }
 
         if (endNodeId==destinationNodeId) {
+            // we've arrived
             int totalCost = journeyState.getTraversalState().getTotalCost();
             if (totalCost < currentLowestCost) {
                 success = success + 1;
                 currentLowestCost = totalCost;
                 return Evaluation.INCLUDE_AND_PRUNE;
             } else {
-//                logger.info("Found route but not lowest cost");
+                // found a route, but longer than current shortest
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
+        } else if (success>0) {
+            // already longer that current shortest, no need to continue
+            int totalCost = journeyState.getTraversalState().getTotalCost();
+            if (totalCost>currentLowestCost) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
@@ -115,6 +123,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
+        // is even reachable from here?
         if (nodeOperations.isRouteStation(endNode)) {
             if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
@@ -131,9 +140,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         TramTime visitingTime = journeyState.getJourneyClock();
+
         // journey too long?
         if (!serviceHeuristics.journeyDurationUnderLimit(visitingTime, path).isValid()) {
-//            logger.warn("Joruney took too long");
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 

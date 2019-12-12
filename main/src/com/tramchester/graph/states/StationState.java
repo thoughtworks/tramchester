@@ -20,7 +20,7 @@ public class StationState extends TraversalState {
     public String toString() {
         return "StationState{" +
                 "cost=" + super.getCurrentCost() +
-                "parent=" + parent +
+                ", parent=" + parent +
                 '}';
     }
 

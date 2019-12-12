@@ -3,13 +3,14 @@ package com.tramchester.graph;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.states.TraversalState;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
 import java.time.LocalTime;
 import java.util.Objects;
 
-public class JourneyState {
+public class JourneyState implements ImmutableJourneyState {
     // TODO Use tram time, more efficient
     private LocalTime journeyClock;
     private boolean onTram;
@@ -37,8 +38,8 @@ public class JourneyState {
         this.traversalState = traversalState;
     }
 
-    public static JourneyState fromPrevious(JourneyState previousState) {
-        return new JourneyState(previousState);
+    public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
+        return new JourneyState((JourneyState) previousState);
     }
 
     private JourneyState(JourneyState previousState) {

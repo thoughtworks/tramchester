@@ -112,4 +112,24 @@ public class StageDTO {
     public String getAction() {
         return action;
     }
+
+    @Override
+    public String toString() {
+        return "StageDTO{" +
+                "firstStation=" + firstStation +
+                ", lastStation=" + lastStation +
+                ", actionStation=" + actionStation +
+                ", hasPlatform=" + hasPlatform +
+                ", platform=" + platform +
+                ", firstDepartureTime=" + firstDepartureTime +
+                ", expectedArrivalTime=" + expectedArrivalTime +
+                ", duration=" + duration +
+                ", headSign='" + headSign + '\'' +
+                ", mode=" + mode +
+                ", displayClass='" + displayClass + '\'' +
+                ", passedStops=" + passedStops +
+                ", routeName='" + routeName + '\'' +
+                ", action='" + action + '\'' +
+                '}';
+    }
 }

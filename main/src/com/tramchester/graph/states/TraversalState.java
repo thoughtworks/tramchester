@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public abstract class TraversalState {
+public abstract class TraversalState implements ImmuatableTraversalState {
     protected final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;

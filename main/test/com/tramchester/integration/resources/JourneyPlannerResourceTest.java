@@ -236,6 +236,17 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldReproIssueWithChangesVeloToRoch() throws TramchesterException {
+        LocalDate weekOnTuesday = when.plusWeeks(1);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.Rochdale, LocalTime.of(8,0), weekOnTuesday);
+    }
+
+    @Test
+    public void shouldReproIssueWithChangesVeloToTraffordBar() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, LocalTime.of(8,0), when);
+    }
+
+    @Test
     public void shouldFindRouteVeloToDeansgate() throws TramchesterException {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.Deansgate, LocalTime.of(8,0), when);
     }

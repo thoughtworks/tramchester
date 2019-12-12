@@ -3,10 +3,10 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -15,7 +15,6 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import org.junit.*;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Str;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
@@ -35,6 +34,8 @@ public class RouteCalculatorSubGraphMediaCityTest {
     private GraphDatabaseService graphService;
     private RelationshipFactory relationshipFactory;
     private NodeFactory nodeFactory;
+    private TramchesterConfig testConfig = new IntegrationTramTestConfig();
+
     private static List<String> stations = Arrays.asList(
             Stations.ExchangeSquare.getId(),
             Stations.StPetersSquare.getId(),
@@ -85,6 +86,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @Test
     public void shouldHaveJourneyFromEveryStationToEveryOther() {
         List<LocalTime> times = Collections.singletonList(LocalTime.of(9,0));
+        List<String> failures = new LinkedList<>();
 
         for (String start: stations) {
             for (String destination: stations) {
@@ -93,17 +95,24 @@ public class RouteCalculatorSubGraphMediaCityTest {
                         LocalDate day = nextTuesday.plusDays(i);
                         Set<RawJourney> journeys = calculator.calculateRoute(start, destination, times,
                                 new TramServiceDate(day), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-                        assertTrue(day.getDayOfWeek() +": "+start+"->"+destination, !journeys.isEmpty());
+                        if (journeys.isEmpty()) {
+                            failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
+                        }
                     }
                 }
             }
         }
-
+        assertTrue(failures.isEmpty());
     }
 
     @Test
     public void reproduceMediaCityIssue() {
         validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, LocalTime.of(12,00), nextTuesday);
+    }
+
+    @Test
+    public void reproduceMediaCityIssueSaturdays() {
+        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, LocalTime.of(9,00), TestConfig.nextSaturday());
     }
 
     @Test
@@ -138,13 +147,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) {
-        TramServiceDate queryDate = new TramServiceDate(date);
-        Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Collections.singletonList(minsPastMid),
-                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-
-        String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);
-        assertTrue("Unable to find journey " + message, journeys.size() > 0);
-        journeys.forEach(journey -> assertFalse(message+ " missing stages for journey"+journey,journey.getStages().isEmpty()));
+    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime time, LocalDate date) {
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date, testConfig.getEdgePerTrip());
     }
 }

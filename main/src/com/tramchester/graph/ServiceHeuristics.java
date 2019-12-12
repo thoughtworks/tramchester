@@ -28,7 +28,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private final TramchesterConfig config;
     private final RunningServices runningServices;
-//    private final Set<String> preferRoutes;
     private final String endStationId;
     private final LocalTime queryTime;
     private final List<ServiceReason> reasons;
@@ -40,7 +39,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
 
     private Optional<LocalTime> boardingTime;
     private final int maxWaitMinutes;
-//    private final int maxJourneyMins = 170; // longest end to end is 163?
 
     // stats
     private final Map<ServiceReason.ReasonCode,AtomicInteger> statistics;
@@ -48,7 +46,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
 
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations,
                              ReachabilityRepository reachabilityRepository, TramchesterConfig config, LocalTime queryTime,
-                             RunningServices runningServices, Set<String> preferRoutes, String endStationId) {
+                             RunningServices runningServices, String endStationId) {
         this.nodeOperations = nodeOperations;
         this.reachabilityRepository = reachabilityRepository;
         this.config = config;
@@ -58,7 +56,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         this.maxJourneyDuration = config.getMaxJourneyDuration();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
-//        this.preferRoutes = preferRoutes;
         this.endStationId = endStationId;
 
         // for none edge per trip path
@@ -72,7 +69,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     }
     
     // edge per trip
-    // TODO change to TramTime
     public ServiceReason checkServiceDate(Node node, Path path) {
         totalChecked.incrementAndGet();
 
@@ -83,7 +79,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         }
 
         return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
-
     }
 
     private void incrementStat(ServiceReason.ReasonCode reasonCode) {
@@ -294,10 +289,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     public boolean toEndStation(Relationship depart) {
         return depart.getProperty(GraphStaticKeys.STATION_ID).toString().equals(endStationId);
     }
-
-//    public boolean matchesRoute(String routeId) {
-//        return preferRoutes.contains(routeId);
-//    }
 
     public ServiceReason canReachDestination(Node endNode, Path path) {
         String stationId = endNode.getProperty(ID).toString();

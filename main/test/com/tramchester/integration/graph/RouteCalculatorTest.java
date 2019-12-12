@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
@@ -56,10 +57,12 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHaveSimpleJourney() {
-        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
-        Set<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-        assertTrue(results.size()>0);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.Cornbrook, LocalTime.of(8, 0), nextTuesday);
+    }
+
+    @Test
+    public void shouldReproIssueWithChangesVeloToTraffordBar() throws TramchesterException {
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, LocalTime.of(8,0), nextTuesday);
     }
 
     @Test
@@ -105,6 +108,20 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldHaveLongJourneyAcross() {
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.Rochdale, LocalTime.of(9,0), nextTuesday);
+    }
+
+    @Test
+    public void shouldHaveLongJourneyAcrossFromInterchange() {
+        LocalTime am8 = LocalTime.of(8, 0);
+        String rochdaleRail = "9400ZZMARRS";
+        String monsall = "9400ZZMAMON";
+        validateAtLeastOneJourney(monsall, rochdaleRail, am8, nextTuesday);
+        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Rochdale, am8, nextTuesday);
+    }
+
+    @Test
     public void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Stations.Cornbrook, Stations.Bury, nextTuesday, LocalTime.of(9,0), 1);
     }
@@ -136,12 +153,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHandleCrossingMidnight() {
-
-        List<LocalTime> queryTimes = Collections.singletonList(LocalTime.of(23, 15));
-        Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.ManAirport.getId(),
-                queryTimes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-
-        assertTrue(results.size()>0);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, LocalTime.of(23, 15), nextTuesday);
     }
 
     @Test(timeout=60000)
@@ -351,7 +363,6 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Stations.Cornbrook, Stations.Ashton, date, LocalTime.of(9,0), 7);
     }
 
-
     @Test
     public void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
         for(int i=0; i<60; i++) {
@@ -365,7 +376,7 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Rochdale, Stations.Eccles, LocalTime.of(9,0), nextTuesday);
     }
 
-    protected void checkRouteNextNDays(Location start, Location dest, LocalDate date, LocalTime time, int numDays) {
+    private void checkRouteNextNDays(Location start, Location dest, LocalDate date, LocalTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
                 validateAtLeastOneJourney(start, dest, time, date.plusDays(day));
@@ -373,15 +384,38 @@ public class RouteCalculatorTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) {
-        TramServiceDate queryDate = new TramServiceDate(date);
-        Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Collections.singletonList(minsPastMid),
-                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-
-        String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);
-        assertTrue("Unable to find journey " + message, journeys.size() > 0);
-        journeys.forEach(journey -> assertFalse(message+ " missing stages for journey"+journey,journey.getStages().isEmpty()));
+    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime time, LocalDate date) {
+        validateAtLeastOneJourney(start.getId(), dest.getId(), time, date);
     }
 
+    private void validateAtLeastOneJourney(String startId, String destId, LocalTime time, LocalDate date) {
+        validateAtLeastOneJourney(calculator, startId, destId, time, date, testConfig.getEdgePerTrip());
+    }
+
+    public static void validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, String destId, LocalTime time, LocalDate date, boolean edgePerTrip) {
+        TramServiceDate queryDate = new TramServiceDate(date);
+        Set<RawJourney> journeys = theCalculator.calculateRoute(startId, destId, Collections.singletonList(time),
+                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+
+        String message = String.format("from %s to %s at %s on %s", startId, destId, time, queryDate);
+        assertTrue("Unable to find journey " + message, journeys.size() > 0);
+        journeys.forEach(journey -> assertFalse(message + " missing stages for journey" + journey, journey.getStages().isEmpty()));
+        if (edgePerTrip) {
+            journeys.forEach(RouteCalculatorTest::checkStages);
+        }
+    }
+
+    private static void checkStages(RawJourney journey) {
+        List<RawStage> stages = journey.getStages();
+        LocalTime earliestAtNextStage = LocalTime.MIN;
+        for (RawStage stage : stages) {
+            RawVehicleStage transportStage = (RawVehicleStage) stage;
+            if (stage != null) {
+                assertFalse(transportStage.toString() + " arrived before " + earliestAtNextStage,
+                        transportStage.getDepartTime().isBefore(earliestAtNextStage));
+                earliestAtNextStage = transportStage.getDepartTime().plusMinutes(transportStage.getCost());
+            }
+        }
+    }
 
 }

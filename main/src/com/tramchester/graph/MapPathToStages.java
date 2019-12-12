@@ -51,6 +51,7 @@ public class MapPathToStages {
         return mapTransportRelationshipsToStages.mapStages(relationships, queryTime);
     }
 
+    // TODO Use Traversal State from the path instead of the Path itself
     public List<RawStage> mapDirect(WeightedPath path) {
         ArrayList<RawStage> results = new ArrayList<>();
         State state = new State(stationRepository, myLocationFactory, platformRepository);
@@ -151,10 +152,10 @@ public class MapPathToStages {
         public void beginTrip(Relationship relationship) {
             String newTripId = relationship.getProperty(TRIP_ID).toString();
 
-            if (tripId.isEmpty() || tripId.equals(newTripId)) {
+            if (tripId.isEmpty()) {
                 this.tripId = newTripId;
                 boardingTime = (LocalTime) relationship.getProperty(TIME);
-            } else {
+            } else if (!tripId.equals(newTripId)){
                 throw new RuntimeException(format("Mid flight change of trip from %s to %s", tripId, newTripId));
             }
         }

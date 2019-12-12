@@ -3,9 +3,9 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.Nodes.NodeFactory;
@@ -36,6 +36,7 @@ public class RouteCalculatorSubGraphTest {
     private GraphDatabaseService graphService;
     private RelationshipFactory relationshipFactory;
     private NodeFactory nodeFactory;
+    private TramchesterConfig testConfig = new IntegrationTramTestConfig();
     private static List<Location> stations = Arrays.asList(Stations.Cornbrook, Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
 
     @BeforeClass
@@ -133,13 +134,7 @@ public class RouteCalculatorSubGraphTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime minsPastMid, LocalDate date) {
-        TramServiceDate queryDate = new TramServiceDate(date);
-        Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Collections.singletonList(minsPastMid),
-                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-
-        String message = String.format("from %s to %s at %s on %s", start, dest, minsPastMid, queryDate);
-        assertTrue("Unable to find journey " + message, journeys.size() > 0);
-        journeys.forEach(journey -> assertFalse(message+ " missing stages for journey"+journey,journey.getStages().isEmpty()));
+    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime time, LocalDate date) {
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date, testConfig.getEdgePerTrip());
     }
 }

@@ -36,7 +36,7 @@ public class NotStartedState extends TraversalState {
         switch(nodeLabel) {
             case QUERY_NODE:
                 return new WalkingState(this, costOrdered(node.getRelationships(OUTGOING, WALKS_TO)), cost);
-            case STATION: // we walked here
+            case STATION:
                 return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);

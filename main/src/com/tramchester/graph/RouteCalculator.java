@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -69,7 +68,7 @@ public class RouteCalculator extends StationIndexs {
             Node startNode = getStationNode(startStationId);
 
             journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit,
-                    endStation.getRoutes(), endStationId);
+                    endStationId);
 
             tx.success();
         }
@@ -84,7 +83,7 @@ public class RouteCalculator extends StationIndexs {
             Node startNode = getAreaNode(areaB.getAreaName());
 
             Set<String> preferRoute = Collections.emptySet();
-            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, preferRoute,
+            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit,
                     "noEndStationId");
 
             tx.success();
@@ -120,7 +119,7 @@ public class RouteCalculator extends StationIndexs {
                 addedWalks.add(walkingRelationship);
             });
 
-            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStation.getRoutes(), endStationId);
+            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
 
             // must delete relationships first, otherwise may not delete node
             addedWalks.forEach(Relationship::delete);
@@ -130,7 +129,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Set<RawJourney> gatherJounerys(Node startNode, Node endNode, List<LocalTime> queryTimes, TramServiceDate queryDate,
-                                           int limit, Set<String> preferRoutes, String endStationId) {
+                                           int limit, String endStationId) {
 
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
 
@@ -138,7 +137,7 @@ public class RouteCalculator extends StationIndexs {
 
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
-                    queryTime, runningServicesIds, preferRoutes, endStationId);
+                    queryTime, runningServicesIds, endStationId);
 
             logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",
                     startNode.getProperty(GraphStaticKeys.Station.NAME),
@@ -146,7 +145,7 @@ public class RouteCalculator extends StationIndexs {
 
             Stream<WeightedPath> paths;
             if (config.getEdgePerTrip()) {
-                paths = findShortestPathEdgePerTrip(startNode, endNode, queryTime, queryDate,
+                paths = findShortestPathEdgePerTrip(startNode, endNode, queryTime,
                         serviceHeuristics, endStationId);
                 journeys.addAll(mapStreamToJourneySet(paths, limit, queryTime));
                 if (journeys.isEmpty()) {
@@ -183,11 +182,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Stream<WeightedPath> findShortestPathEdgePerTrip(Node startNode, Node endNode, LocalTime queryTime,
-                                                             TramServiceDate queryDate, ServiceHeuristics serviceHeutistics, String endStationId) {
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s",
-                startNode.getProperty(GraphStaticKeys.Station.NAME),
-                endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime));
-
+                                                             ServiceHeuristics serviceHeutistics, String endStationId) {
         if (startNode.getProperty(GraphStaticKeys.Station.NAME).equals(queryNodeName)) {
             logger.info("Query node based search, setting start time to actual query time");
         }
@@ -196,7 +191,6 @@ public class RouteCalculator extends StationIndexs {
                 queryTime, endNode, endStationId);
 
         return tramNetworkTraverser.findPaths(startNode);
-
     }
 
     private Set<RawJourney> mapStreamToJourneySet(Stream<WeightedPath> paths, int limit, LocalTime queryTime) {

@@ -1,7 +1,9 @@
 package com.tramchester.graph;
 
+import com.tramchester.graph.states.ImmuatableTraversalState;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.graph.states.TraversalState;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
@@ -58,7 +60,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 expand(this, JourneyState.initialState(queryTime, traversalState)).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_DEPTH_FIRST).
+                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST). // Breadth first hits shortest trips sooner
                 traverse(startNode);
 
         ResourceIterator<Path> iterator = traverser.iterator();
@@ -87,34 +89,30 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     @Override
     public Iterable<Relationship> expand(Path path, BranchState<JourneyState> graphState) {
+        ImmutableJourneyState currentState = graphState.getState();
+        ImmuatableTraversalState traversalState = currentState.getTraversalState();
 
-        JourneyState currentState = graphState.getState();
-        TraversalState traversalState = currentState.getTraversalState();
         Node endNode = path.endNode();
+        JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
         int cost = 0;
         if (path.lastRelationship()!=null) {
             cost = nodeOperations.getCost(path.lastRelationship());
             if (cost>0) {
                 int total = traversalState.getTotalCost() + cost;
-                currentState.updateJourneyClock(total);
+                journeyStateForChildren.updateJourneyClock(total);
             }
         }
 
         Label firstLabel = endNode.getLabels().iterator().next();
         TransportGraphBuilder.Labels nodeLabel = TransportGraphBuilder.Labels.valueOf(firstLabel.toString());
 
-        JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
         TraversalState traversalStateForChildren = traversalState.nextState(path, nodeLabel, endNode, journeyStateForChildren, cost);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
         graphState.setState(journeyStateForChildren);
 
-//        logger.info(stateForChildren.toString());
-
-        Iterable<Relationship> relationships = traversalStateForChildren.getOutbounds();
-
-        return relationships;
+        return traversalStateForChildren.getOutbounds();
     }
 
     @Override
