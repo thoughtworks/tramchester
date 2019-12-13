@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class StopsTest {
-    private LocalTime am10;
+    private TramTime am10;
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";
     private final String stationIdC = "statC";
@@ -37,11 +37,11 @@ public class StopsTest {
 
         String routeId = "routeID";
         String serviceId = "serviceId";
-        stopA = new Stop("statA1", stationA, 1, TramTime.create(10, 00), TramTime.create(10, 01));
-        stopB = new Stop("statB1", stationB, 2, TramTime.create(10, 02), TramTime.create(10, 03));
-        stopC = new Stop("statC1", stationC, 3, TramTime.create(10, 10), TramTime.create(10, 10));
-        busStopD = new Stop("statD1", stationD, 4, TramTime.create(10,10), TramTime.create(10,11));
-        am10 = LocalTime.of(10,0); //10 * 60;
+        stopA = new Stop("statA1", stationA, 1, TramTime.of(10, 00), TramTime.of(10, 01));
+        stopB = new Stop("statB1", stationB, 2, TramTime.of(10, 02), TramTime.of(10, 03));
+        stopC = new Stop("statC1", stationC, 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        busStopD = new Stop("statD1", stationD, 4, TramTime.of(10,10), TramTime.of(10,11));
+        am10 = TramTime.of(10,0);
     }
 
     @Test
@@ -54,11 +54,11 @@ public class StopsTest {
 
         stops.add(stopF);
         stops.add(stopG);
-        assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(23,40), 30)));
-        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(23,47), 30)));
+        assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(23,40), 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(23,47), 30)));
 
-        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(00,17), 30)));
-        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(LocalTime.of(23,15), 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(00,17), 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(23,15), 30)));
     }
 
     @Test

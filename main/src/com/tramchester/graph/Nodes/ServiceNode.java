@@ -56,22 +56,8 @@ public class ServiceNode extends TramNode {
         return daysRunning;
     }
 
-    public List<TramGoesToRelationship> getOutbound(RelationshipFactory factory) {
-        List<TramGoesToRelationship> list = new LinkedList<>();
-        Iterable<Relationship> outgoingRelationships = node.getRelationships(OUTGOING, TransportRelationshipTypes.TRAM_GOES_TO);
-        outgoingRelationships.forEach(outgoing -> list.add((TramGoesToRelationship) factory.getRelationship(outgoing)));
-        return list;
-    }
-
-    public LocalTime getEarliestTime() {
-        return (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME);
-    }
-
     public String getServiceId() {
         return name;
     }
 
-    public LocalTime getLatestTime() {
-        return (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME);
-    }
 }

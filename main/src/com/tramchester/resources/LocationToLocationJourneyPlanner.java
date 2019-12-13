@@ -35,7 +35,7 @@ public class LocationToLocationJourneyPlanner {
         this.stationRepository = stationRepository;
     }
 
-    public Set<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<LocalTime> queryTimes,
+    public Set<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<TramTime> queryTimes,
                                                     TramServiceDate queryDate) {
 
         List<String> starts = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
@@ -44,7 +44,7 @@ public class LocationToLocationJourneyPlanner {
         return createJourneyPlan(latLong, starts, endId, queryTimes, queryDate);
     }
 
-    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<LocalTime> queryTimes,
+    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<TramTime> queryTimes,
                                               TramServiceDate queryDate) {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id).get()).collect(Collectors.toList());

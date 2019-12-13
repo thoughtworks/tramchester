@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
-    private static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(LocalTime.of(8,0), 45);
+    private static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(TramTime.of(8,0), 45);
     private static final List<String> ashtonRoutes = Collections.singletonList(RouteCodesForTesting.ASH_TO_ECCLES);
 
     private static Dependencies dependencies;
@@ -162,7 +162,7 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria
         Service svc = transportData.getServiceById(svcDeansgateToVic);
         Optional<Trip> trips = svc.getFirstTripAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
-                new TimeWindow(LocalTime.of(23,45), 30));
+                new TimeWindow(TramTime.of(23,45), 30));
         assertTrue(trips.isPresent());
     }
 
@@ -171,7 +171,7 @@ public class TransportDataFromFilesTest {
         // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
         Service svc = transportData.getServiceById(svcShawAndCrompton);
         Optional<Trip> trip = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
-                new TimeWindow(LocalTime.of(23,35), 30));
+                new TimeWindow(TramTime.of(23,35), 30));
         assertTrue(trip.isPresent());
     }
 
@@ -237,7 +237,7 @@ public class TransportDataFromFilesTest {
     public void shouldHaveWeekendServicesDeansgateToAshton() {
         Set<Trip> deansgateTrips = transportData.getTripsFor(Stations.Deansgate.getId());
 
-        TimeWindow timeWindow = new TimeWindow(LocalTime.of(9,0),30);
+        TimeWindow timeWindow = new TimeWindow(TramTime.of(9,0),30);
         List<String> servicesIds = deansgateTrips.stream().
                 filter(trip -> trip.callsAt(Stations.Ashton.getId())).
                 filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(),Stations.Ashton.getId(),timeWindow)).
@@ -405,7 +405,7 @@ public class TransportDataFromFilesTest {
 
         assertFalse(onTime.isEmpty()); // at least one service (likely is just one)
 
-        TimeWindow timeWindow = new TimeWindow(time.asLocalTime(), 10);
+        TimeWindow timeWindow = new TimeWindow(time, 10);
         onTime.forEach(running-> {
             Optional<Trip> maybeTrip = running.getFirstTripAfter(Stations.Cornbrook.getId(), Stations.MediaCityUK.getId(), timeWindow);
             assertTrue(maybeTrip.isPresent());
@@ -418,7 +418,7 @@ public class TransportDataFromFilesTest {
         TramTime problemTime = TramTime.of(19, 51);
         Set<Trip> allTrips = transportData.getTripsFor(Stations.StPetersSquare.getId());
 
-        TimeWindow timeWindow = new TimeWindow(problemTime.asLocalTime(), 25);
+        TimeWindow timeWindow = new TimeWindow(problemTime, 25);
 
         Set<Trip> trips = allTrips.stream().
                 filter(trip -> trip.callsAt(Stations.Pomona.getId())).

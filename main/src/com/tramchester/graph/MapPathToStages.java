@@ -46,7 +46,7 @@ public class MapPathToStages {
         this.platformRepository = platformRepository;
     }
 
-    public List<RawStage> map(WeightedPath path, LocalTime queryTime) {
+    public List<RawStage> map(WeightedPath path, TramTime queryTime) {
         List<TransportRelationship> relationships = pathToTransportRelationship.mapPath(path);
         return mapTransportRelationshipsToStages.mapStages(relationships, queryTime);
     }
@@ -99,7 +99,7 @@ public class MapPathToStages {
         private final MyLocationFactory myLocationFactory;
         private final PlatformRepository platformRepository;
 
-        private LocalTime boardingTime;
+        private TramTime boardingTime;
         private Station boardingStation;
         private String routeCode;
         private String tripId;
@@ -154,7 +154,8 @@ public class MapPathToStages {
 
             if (tripId.isEmpty()) {
                 this.tripId = newTripId;
-                boardingTime = (LocalTime) relationship.getProperty(TIME);
+                LocalTime property = (LocalTime) relationship.getProperty(TIME);
+                boardingTime = TramTime.of(property);
             } else if (!tripId.equals(newTripId)){
                 throw new RuntimeException(format("Mid flight change of trip from %s to %s", tripId, newTripId));
             }

@@ -1,5 +1,6 @@
 package com.tramchester.graph.states;
 
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -18,7 +19,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.TRAM_GOES_TO;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
-    private static final Logger logger = LoggerFactory.getLogger(HourState.class);
+//    private static final Logger logger = LoggerFactory.getLogger(HourState.class);
 
     private Optional<String> maybeExistingTrip;
 
@@ -41,7 +42,7 @@ public class HourState extends TraversalState {
     }
 
     private TraversalState toMinute(Node node, JourneyState journeyState, int cost) throws TramchesterException {
-        LocalTime time = nodeOperations.getTime(node);
+        TramTime time = nodeOperations.getTime(node);
 
         if (maybeExistingTrip.isPresent()) {
             // continuing an existing trip
@@ -51,7 +52,7 @@ public class HourState extends TraversalState {
             return new MinuteState(this, relationships, existingTripId, cost);
         } else {
             // starting a brand new journey
-            Iterable<Relationship> relationships = timeOrdered(node.getRelationships(OUTGOING, TRAM_GOES_TO));
+            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO);
             String tripId = nodeOperations.getTrip(node);
             journeyState.recordTramDetails(time, getTotalCost());
             return new MinuteState(this, relationships, tripId, cost);

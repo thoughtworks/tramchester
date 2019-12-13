@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import org.easymock.EasyMock;
@@ -19,8 +20,8 @@ import java.util.LinkedList;
 import static org.junit.Assert.assertEquals;
 
 public class PathBasedTimeProviderTest extends EasyMockSupport {
-    public static final LocalTime QUERY_TIME = LocalTime.of(11,0);//11 * 60;
-    public static final LocalTime START_TIME = QUERY_TIME.plusMinutes(5);
+    public static final TramTime QUERY_TIME = TramTime.of(11,0);
+    public static final TramTime START_TIME = QUERY_TIME.plusMinutes(5);
 
     private LinkedList<Relationship> relationships;
     private CostEvaluator<Double> costEvaluator;
@@ -48,7 +49,7 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
 
         ElapsedTime provider = new PathBasedTimeProvider(costEvaluator, path, persistsBoardingTime, QUERY_TIME);
 
-        LocalTime result = provider.getElapsedTime();
+        TramTime result = provider.getElapsedTime();
         assertEquals(QUERY_TIME, result);
         provider.setJourneyStart(START_TIME);
         result = provider.getElapsedTime();
@@ -71,7 +72,7 @@ public class PathBasedTimeProviderTest extends EasyMockSupport {
 
         ElapsedTime provider = new PathBasedTimeProvider(costEvaluator, path, persistsBoardingTime, QUERY_TIME);
 
-        LocalTime result = provider.getElapsedTime();
+        TramTime result = provider.getElapsedTime();
         assertEquals(QUERY_TIME.plusMinutes(15), result); // start plus path
 
         provider.setJourneyStart(START_TIME);

@@ -18,7 +18,7 @@ public class WalkingStageTest {
 
     @Before
     public void setUp() {
-        LocalTime begin = LocalTime.of(8,0); //8 * 60;
+        TramTime begin = TramTime.of(8,0); //8 * 60;
         int cost = 22;
         start = Stations.Altrincham;
         destination = Stations.Cornbrook;

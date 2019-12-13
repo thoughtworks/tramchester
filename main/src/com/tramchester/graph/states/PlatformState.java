@@ -49,7 +49,7 @@ public class PlatformState extends TraversalState {
                 throw new RuntimeException("unable to board tram", e);
             }
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId);
-            node.getRelationships(OUTGOING, TO_SERVICE).forEach(relationship -> outbounds.add(relationship));
+            node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
             return new RouteStationState(this, outbounds, node.getId(), cost);
         }
 

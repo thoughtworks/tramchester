@@ -5,7 +5,6 @@ import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,12 +29,12 @@ public abstract class ServiceReason {
     private final Set<String> pathAsStrings;
     private final ReasonCode code;
 
-    public ServiceReason(ReasonCode code, Path path, String diagnostics) {
+    public ServiceReason(ReasonCode code, Path path) {
         this.code = code;
         pathAsStrings = new HashSet<>();
         if (logger.isDebugEnabled()) {
             pathAsString = path.toString();
-            pathAsStrings.addAll(PathToGraphViz.map(path, diagnostics, isValid()));
+            pathAsStrings.addAll(PathToGraphViz.map(path, code.toString(), isValid()));
         } else {
             pathAsString="";
         }
@@ -54,31 +53,35 @@ public abstract class ServiceReason {
         builder.addAll(pathAsStrings);
     }
 
+    @Override
+    public String toString() {
+        return code.toString();
+    }
+
     //////////////
 
-    private static class IsValid extends HasDiag
+    private static class IsValid extends ServiceReason
     {
-        public IsValid(Path path, String diag) {
-            super(ReasonCode.Valid, "ok:"+diag, path);
+        public IsValid(Path path) {
+            super(ReasonCode.Valid, path);
         }
 
         @Override
         public boolean isValid() {
             return true;
         }
-
     }
 
     private static class InflightChangeOfService extends HasDiag
     {
         public InflightChangeOfService(String diag, Path path) {
-            super(ReasonCode.InflightChangeOfService, "ChangeOfSvc:"+diag, path);
+            super(ReasonCode.InflightChangeOfService, diag, path);
         }
     }
 
     private static class StationNotReachable extends ServiceReason {
         public StationNotReachable(Path path) {
-            super(ReasonCode.NotReachable,path,"unreachable");
+            super(ReasonCode.NotReachable,path);
         }
     }
 
@@ -86,7 +89,7 @@ public abstract class ServiceReason {
     {
         public DoesNotRunOnQueryDate(String nodeServiceId, Path path) {
 
-            super(ReasonCode.NotOnQueryDate, "NotQueryDateOrDay:"+nodeServiceId, path);
+            super(ReasonCode.NotOnQueryDate, nodeServiceId, path);
         }
 
         @Override
@@ -95,13 +98,18 @@ public abstract class ServiceReason {
         }
     }
 
-    private static class DoesNotOperateOnTime extends HasDiag
+    private static class DoesNotOperateOnTime extends ServiceReason
     {
-        private LocalTime elapsedTime;
+        private TramTime elapsedTime;
 
-        public DoesNotOperateOnTime(ReasonCode reasonCode, LocalTime currentElapsed, String diagnostics, Path path) {
-            super(reasonCode, format("%s Time:%s %s", reasonCode, currentElapsed, diagnostics), path);
+        public DoesNotOperateOnTime(ReasonCode reasonCode, TramTime currentElapsed, Path path) {
+            super(reasonCode, path);
             this.elapsedTime = currentElapsed;
+        }
+
+        @Override
+        public String toString() {
+            return "time:"+elapsedTime.toString()+super.toString();
         }
 
         @Override
@@ -119,7 +127,7 @@ public abstract class ServiceReason {
         final String diag;
 
         HasDiag(ReasonCode reasonCode, String diagnostics, Path path) {
-            super(reasonCode, path, diagnostics);
+            super(reasonCode, path);
             this.diag = diagnostics;
         }
 
@@ -134,30 +142,30 @@ public abstract class ServiceReason {
 
     public static InflightChangeOfService InflightChangeOfService(String diag, Path path) { return new InflightChangeOfService(diag, path);}
 
-    public static IsValid IsValid(Path path, String diag) { return new IsValid(path,diag);}
+    public static IsValid IsValid(Path path) { return new IsValid(path);}
 
     public static DoesNotRunOnQueryDate DoesNotRunOnQueryDate(String diag, Path path) {
         return new DoesNotRunOnQueryDate(diag, path);
     }
 
-    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, String diagnostics, Path path) {
-        return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed.asLocalTime(), diagnostics, path);
+    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, path);
     }
 
     public static ServiceReason StationNotReachable(Path path) {
         return new StationNotReachable(path);
     }
 
-    public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, String diag, Path path) {
-        return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed.asLocalTime(), diag, path) ;
+    public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed, path) ;
     }
 
     public static ServiceReason TookTooLong(TramTime currentElapsed, Path path) {
-        return new DoesNotOperateOnTime(ReasonCode.TookTooLong, currentElapsed.asLocalTime(), "too long", path);
+        return new DoesNotOperateOnTime(ReasonCode.TookTooLong, currentElapsed, path);
     }
 
-    public static ServiceReason DoesNotOperateAtHour(TramTime currentElapsed, String diag, Path path) {
-        return new DoesNotOperateOnTime(ReasonCode.NotAtHour, currentElapsed.asLocalTime(), diag, path);
+    public static ServiceReason DoesNotOperateAtHour(TramTime currentElapsed, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.NotAtHour, currentElapsed, path);
     }
 
 }

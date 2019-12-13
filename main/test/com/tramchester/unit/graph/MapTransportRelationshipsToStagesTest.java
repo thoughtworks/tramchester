@@ -3,7 +3,6 @@ package com.tramchester.unit.graph;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.MapTransportRelationshipsToStages;
 import com.tramchester.graph.Nodes.PlatformNode;
@@ -76,21 +75,18 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
     public void shouldMapSimpleJourney() {
 
         boolean[] daysRunning = new boolean[1];
-        LocalTime[] timesRunning = new LocalTime[1];
+        TramTime[] timesRunning = new TramTime[1];
 
         relationships.add(BoardRelationship.TestOnly("BoardRelId", stationNodeA, boardingNode));
 
-        TramServiceDate startDate = new TramServiceDate(LocalDate.now());
-        TramServiceDate endDate = new TramServiceDate(LocalDate.now());
-
         String tripId = "";
-        relationships.add(TramGoesToRelationship.TestOnly("svcId", 18, daysRunning, timesRunning, "id4", startDate,
-                endDate, "dest", boardingNode, departureNode, tripId));
+        relationships.add(TramGoesToRelationship.TestOnly("svcId", 18, daysRunning, timesRunning, "id4",
+                boardingNode, departureNode, tripId));
 
         relationships.add(DepartRelationship.TestOnly("depRelId", departureNode, stationNodeB));
 
         replayAll();
-        List<RawStage> result = mapper.mapStages(relationships, LocalTime.of(7,0));
+        List<RawStage> result = mapper.mapStages(relationships, TramTime.of(7,0));
         verifyAll();
 
         assertEquals(1, result.size());
@@ -117,7 +113,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         PlatformNode leavePlatformNode = PlatformNode.TestOnly(leavePlatformId, "node name plat 2");
 
         boolean[] daysRunning = new boolean[1];
-        LocalTime[] timesRunning = new LocalTime[1];
+        TramTime[] timesRunning = new TramTime[1];
 
         // station -> platform
         relationships.add(EnterPlatformRelationship.TestOnly(0, "entPlatRId", stationNodeA, enterPlatformNode));
@@ -127,8 +123,8 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
 
         // boarding point -> next boarding point
         String tripId = "";
-        relationships.add(TramGoesToRelationship.TestOnly("svcId", 18, daysRunning, timesRunning, "id4", startDate,
-                endDate, "dest", boardingNode, departureNode, tripId));
+        relationships.add(TramGoesToRelationship.TestOnly("svcId", 18, daysRunning, timesRunning, "id4",
+                boardingNode, departureNode, tripId));
 
         // boarding point -> platform
         relationships.add(DepartRelationship.TestOnly("depRelId", departureNode,
@@ -142,7 +138,7 @@ public class MapTransportRelationshipsToStagesTest extends EasyMockSupport {
         EasyMock.expect(platformRepository.getPlatformById(enterPlatformId)).andReturn(Optional.of(platformA));
 
         replayAll();
-        List<RawStage> result = mapper.mapStages(relationships, LocalTime.of(7,0));
+        List<RawStage> result = mapper.mapStages(relationships, TramTime.of(7,0));
         verifyAll();
 
         assertEquals(1, result.size());

@@ -72,14 +72,14 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 //        return ordered.values();
 //    }
 
-    protected Iterable<Relationship> timeOrdered(Iterable<Relationship> outboundRelationships) {
-        SortedMap<TramTime, Relationship> ordered = new TreeMap<>();
-        for (Relationship outboundRelationship : outboundRelationships) {
-            LocalTime time = nodeOperations.getTime(outboundRelationship);
-            ordered.put(TramTime.of(time),outboundRelationship);
-        }
-        return ordered.values();
-    }
+//    protected Iterable<Relationship> timeOrdered(Iterable<Relationship> outboundRelationships) {
+//        SortedMap<TramTime, Relationship> ordered = new TreeMap<>();
+//        for (Relationship outboundRelationship : outboundRelationships) {
+//            LocalTime time = nodeOperations.getTime(outboundRelationship);
+//            ordered.put(TramTime.of(time),outboundRelationship);
+//        }
+//        return ordered.values();
+//    }
 
     public int getTotalCost() {
         return parentCost + getCurrentCost();

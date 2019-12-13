@@ -1,9 +1,10 @@
 package com.tramchester.graph;
 
-import java.time.LocalTime;
+import com.tramchester.domain.TramTime;
+
 
 public interface PersistsBoardingTime {
-    void save(LocalTime boardingTime);
+    void save(TramTime boardingTime);
     boolean isPresent();
-    LocalTime get();
+    TramTime get();
 }

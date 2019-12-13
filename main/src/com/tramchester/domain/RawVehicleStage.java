@@ -18,7 +18,7 @@ public class RawVehicleStage implements RawStage {
     private Optional<Platform> platform;
 
     private String tripId;
-    private LocalTime departTime;
+    private TramTime departTime;
 
     public RawVehicleStage(Location firstStation, String routeName, TransportMode mode, String displayClass) {
         this.firstStation = firstStation;
@@ -109,7 +109,7 @@ public class RawVehicleStage implements RawStage {
     }
 
     @Deprecated
-    public long getCost() {
+    public int getCost() {
         return cost;
     }
 
@@ -117,11 +117,11 @@ public class RawVehicleStage implements RawStage {
         tripId = id;
     }
 
-    public void setDepartTime(LocalTime time) {
+    public void setDepartTime(TramTime time) {
         departTime = time;
     }
 
-    public LocalTime getDepartTime() {
+    public TramTime getDepartTime() {
         return departTime;
     }
 

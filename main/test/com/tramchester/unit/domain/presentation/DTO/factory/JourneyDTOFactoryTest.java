@@ -126,7 +126,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         List<TransportStage> stages = new LinkedList<>();
         Location start = myLocationFactory.create(new LatLong(-2,1));
         Location destination = Stations.Cornbrook;
-        stages.add(new WalkingStage(new RawWalkingStage(start, destination, 3), java.time.LocalTime.of(10,00)));
+        stages.add(new WalkingStage(new RawWalkingStage(start, destination, 3), TramTime.of(10,00)));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
 
         EasyMock.expect(stageFactory.build(isA(TransportStage.class))).andStubReturn(new StageDTO());
@@ -200,7 +200,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     public void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() throws TramchesterException {
         List<TransportStage> stages = new LinkedList<>();
         MyLocation myLocation = myLocationFactory.create(new LatLong(-1, 2));
-        stages.add(new WalkingStage(new RawWalkingStage(myLocation, Stations.Victoria, 2), LocalTime.of(10,00)));
+        stages.add(new WalkingStage(new RawWalkingStage(myLocation, Stations.Victoria, 2), TramTime.of(10,00)));
 
         EasyMock.expect(stageFactory.build(isA(TransportStage.class))).andStubReturn(new StageDTO());
 
@@ -215,7 +215,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     public void shouldHaveCorrectSummaryAndHeadingForTramStagesConnectedByWalk() throws TramchesterException {
         List<TransportStage> stages = new LinkedList<>();
         stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate, 13));
-        stages.add(new WalkingStage(new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 14), LocalTime.of(8,0)));
+        stages.add(new WalkingStage(new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 14), TramTime.of(8,0)));
         stages.add(createStage(Stations.MarketStreet, TravelAction.Change, Stations.Bury, 16));
 
         EasyMock.expect(stageFactory.build(isA(TransportStage.class))).andStubReturn(new StageDTO());
@@ -232,7 +232,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         List<TransportStage> stages = new LinkedList<>();
         MyLocation start = myLocationFactory.create(new LatLong(1, 2));
         RawWalkingStage rawWalkingStage = new RawWalkingStage(start, Stations.Altrincham, 8*60);
-        stages.add(new WalkingStage(rawWalkingStage, LocalTime.of(8,0)));
+        stages.add(new WalkingStage(rawWalkingStage, TramTime.of(8,0)));
 
         EasyMock.expect(stageFactory.build(isA(TransportStage.class))).andStubReturn(new StageDTO());
 

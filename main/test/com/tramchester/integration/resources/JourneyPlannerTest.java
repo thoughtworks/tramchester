@@ -51,15 +51,15 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         dependencies.close();
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime, TramServiceDate queryDate) {
-        List<LocalTime> queryTimes = createQueryTimes.generate(queryTime);
-        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, queryTimes , TramTime.of(queryTime));
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, TramServiceDate queryDate) {
+        List<TramTime> queryTimes = createQueryTimes.generate(queryTime);
+        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, queryTimes , queryTime);
     }
 
     @Test
     @Category({BusTest.class})
     @Ignore("experimental")
-    public void shouldFindRoutesForLatLongToStationId() throws TramchesterException {
+    public void shouldFindRoutesForLatLongToStationId() {
         LatLong startLocation = new LatLong(53.4092, -2.2218);
 
         String startId = formId(startLocation);
@@ -68,7 +68,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
 
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
                 Stations.PiccadillyGardens.getId(),
-                today, createQueryTimes.generate(LocalTime.of(9,0)), TramTime.create(9,0));
+                today, createQueryTimes.generate(TramTime.of(9,0)), TramTime.of(9,0));
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         JourneyDTO journey = journeys.first();
@@ -87,7 +87,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @Ignore("experimental")
     public void reproduceIssueWithRoute() throws TramchesterException {
         planner.createJourneyPlan("1800SB34231", "1800SB01681", today,
-                createQueryTimes.generate(LocalTime.of(9,0)), TramTime.create(9,0));
+                createQueryTimes.generate(TramTime.of(9,0)), TramTime.of(9,0));
     }
 
 }

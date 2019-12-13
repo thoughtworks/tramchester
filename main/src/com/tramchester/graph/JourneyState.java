@@ -3,20 +3,17 @@ package com.tramchester.graph;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.states.TraversalState;
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
-import java.time.LocalTime;
 import java.util.Objects;
 
 public class JourneyState implements ImmutableJourneyState {
-    // TODO Use tram time, more efficient
-    private LocalTime journeyClock;
+    private TramTime journeyClock;
     private boolean onTram;
 
     private int journeyOffset;
-    private LocalTime boardingTime;
+    private TramTime boardingTime;
 
     @Override
     public String toString() {
@@ -31,7 +28,7 @@ public class JourneyState implements ImmutableJourneyState {
 
     private TraversalState traversalState;
 
-    public JourneyState(LocalTime queryTime, TraversalState traversalState) {
+    public JourneyState(TramTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
         journeyOffset = 0;
         onTram = false;
@@ -52,7 +49,7 @@ public class JourneyState implements ImmutableJourneyState {
         }
     }
 
-    public static InitialBranchState<JourneyState> initialState(LocalTime queryTime,
+    public static InitialBranchState<JourneyState> initialState(TramTime queryTime,
                                                                 TraversalState traversalState) {
         return new InitialBranchState<JourneyState>() {
             @Override
@@ -67,7 +64,7 @@ public class JourneyState implements ImmutableJourneyState {
     }
 
     public TramTime getJourneyClock() {
-        return TramTime.of(journeyClock);
+        return journeyClock;
     }
 
     public JourneyState updateJourneyClock(int currentTotalCost) {
@@ -81,7 +78,7 @@ public class JourneyState implements ImmutableJourneyState {
         return this;
     }
 
-    public JourneyState recordTramDetails(LocalTime boardingTime, int currentCost) throws TramchesterException {
+    public JourneyState recordTramDetails(TramTime boardingTime, int currentCost) throws TramchesterException {
         if (!onTram) {
             throw new TramchesterException("Not on a tram");
         }

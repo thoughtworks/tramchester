@@ -25,7 +25,7 @@ public class TramJourneyResponseMapper extends SingleJourneyMapper {
     public Optional<Journey> createJourney(RawJourney rawJourney, int withinMins) {
         List<RawStage> rawJourneyStages = rawJourney.getStages();
         List<TransportStage> stages = new LinkedList<>();
-        LocalTime queryTime = rawJourney.getQueryTime();
+        TramTime queryTime = rawJourney.getQueryTime();
         TimeWindow timeWindow = new TimeWindow(queryTime, withinMins);
 
         for (RawStage rawStage : rawJourneyStages) {
@@ -37,7 +37,7 @@ public class TramJourneyResponseMapper extends SingleJourneyMapper {
                 logger.info("Adding walking stage " + stage);
                 stages.add(walkingStage);
 
-                timeWindow = timeWindow.next(walkingStage.getExpectedArrivalTime().asLocalTime());
+                timeWindow = timeWindow.next(walkingStage.getExpectedArrivalTime());
             }
         }
 
@@ -67,7 +67,7 @@ public class TramJourneyResponseMapper extends SingleJourneyMapper {
             VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time.get(), decideAction(stages));
             stages.add(stage);
 
-            LocalTime departsAtMinutes = stage.findEarliestDepartureTime();
+            TramTime departsAtMinutes = stage.findEarliestDepartureTime();
             int duration = stage.getDuration();
             timeWindow = timeWindow.next(departsAtMinutes.plusMinutes(duration));
             logger.info(format("Previous stage duration was %s, earliest depart is %s, new offset is %s ",

@@ -21,7 +21,7 @@ public class CachedNodeOperations {
     private final Map<Long, String> svcIdCache;
 
     // cached times
-    private final Map<Long, LocalTime> times;
+    private final Map<Long, TramTime> times;
     private final NodeIdLabelMap nodeIdLabelMap;
 
     public CachedNodeOperations(NodeIdLabelMap nodeIdLabelMap) {
@@ -56,14 +56,15 @@ public class CachedNodeOperations {
         return trip;
     }
 
-    public LocalTime getTime(Node node) {
+    public TramTime getTime(Node node) {
         long nodeId = node.getId();
         if (times.containsKey(nodeId)) {
             return times.get(nodeId);
         }
         LocalTime value = (LocalTime) node.getProperty(TIME);
-        times.put(nodeId,value);
-        return value;
+        TramTime tramTime = TramTime.of(value);
+        times.put(nodeId,tramTime);
+        return tramTime;
     }
 
     public LocalTime getTime(Relationship relationship) {
@@ -86,16 +87,6 @@ public class CachedNodeOperations {
         return svcId;
     }
 
-    public TramTime getServiceEarliest(Node node) {
-        LocalTime localTime = (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME);
-        return TramTime.of(localTime);
-    }
-
-    public TramTime getServiceLatest(Node node) {
-        LocalTime localTime = (LocalTime) node.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME);
-        return TramTime.of(localTime);
-    }
-
     public int getCost(Relationship relationship) {
 
         long relationshipId = relationship.getId();
@@ -108,22 +99,13 @@ public class CachedNodeOperations {
         return cost;
     }
 
-//    public int getHour(Relationship relationship) {
-//        long relationshipId = relationship.getId();
-//        if (hourRelationshipCache.containsKey(relationshipId)) {
-//            return hourRelationshipCache.get(relationshipId);
-//        }
-//        int hour = (int) relationship.getProperty(HOUR);
-//        hourRelationshipCache.put(relationshipId, hour);
-//        return hour;
-//    }
-
     public boolean isService(Node node) {
         return checkForLabel(node, TransportGraphBuilder.Labels.SERVICE);
     }
 
     private boolean checkForLabel(Node node, TransportGraphBuilder.Labels label) {
-        return nodeIdLabelMap.getLabel(node.getId())==label;
+        return nodeIdLabelMap.has(node.getId(), label);
+//        return nodeIdLabelMap.getLabel(node.getId())==label;
     }
 
     public boolean isHour(Node node) {
@@ -155,16 +137,16 @@ public class CachedNodeOperations {
         return endNode.getProperty(TRIP_ID).toString();
     }
 
-    public Node createNode(GraphDatabaseService graphDatabaseService, TransportGraphBuilder.Labels label) {
-        Node result = graphDatabaseService.createNode(label);
-        nodeIdLabelMap.put(result.getId(), label);
+    public Node createQueryNode(GraphDatabaseService graphDatabaseService) {
+        Node result = graphDatabaseService.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
+        nodeIdLabelMap.putQueryNode(result.getId());
         return result;
     }
 
     public void deleteNode(Node node) {
         long id = node.getId();
         node.delete();
-        nodeIdLabelMap.removeId(id);
+        nodeIdLabelMap.removeQueryNode(id);
     }
 
 }

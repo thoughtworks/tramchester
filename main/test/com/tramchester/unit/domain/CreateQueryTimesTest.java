@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.TestConfig;
 import com.tramchester.domain.CreateQueryTimes;
+import com.tramchester.domain.TramTime;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -21,8 +22,8 @@ public class CreateQueryTimesTest {
     @Test
     public void shouldGenerateCorrectTimes() {
 
-        LocalTime seedTime = LocalTime.of(13, 20);
-        List<LocalTime> result = createQueryTimes.generate(seedTime);
+        TramTime seedTime = TramTime.of(13, 20);
+        List<TramTime> result = createQueryTimes.generate(seedTime);
         assertEquals(5,result.size());
 
         assertEquals(seedTime, result.get(0));

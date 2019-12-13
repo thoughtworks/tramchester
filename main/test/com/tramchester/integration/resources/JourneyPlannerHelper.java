@@ -42,7 +42,7 @@ public abstract class JourneyPlannerHelper {
         }
     }
 
-    JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, LocalTime queryTime,
+    JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, TramTime queryTime,
                                                         LocalDate date) throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(date);
         JourneyPlanRepresentation results = getJourneyPlan(start, end, queryTime, queryDate);
@@ -55,11 +55,11 @@ public abstract class JourneyPlannerHelper {
         return results;
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime, LocalDate queryDate) throws TramchesterException {
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, LocalDate queryDate) throws TramchesterException {
         return getJourneyPlan(start, end, queryTime, new TramServiceDate(queryDate));
     }
 
-    abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, LocalTime queryTime,
+    abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime,
                                                       TramServiceDate queryDate) throws TramchesterException;
 
 

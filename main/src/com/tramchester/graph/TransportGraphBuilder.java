@@ -154,8 +154,8 @@ public class TransportGraphBuilder extends StationIndexs {
             if (edgePerTrip) {
                 schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.ID).create();
                 schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.DAYS).create();
-                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_START_DATE).create();
-                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_END_DATE).create();
+//                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_START_DATE).create();
+//                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_END_DATE).create();
                 schema.indexFor(Labels.HOUR).on(GraphStaticKeys.ID).create();
                 schema.indexFor(Labels.HOUR).on(GraphStaticKeys.HOUR).create();
                 schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.ID).create();
@@ -433,13 +433,8 @@ public class TransportGraphBuilder extends StationIndexs {
             beginServiceNode.setProperty(GraphStaticKeys.ID, beginSvcNodeId);
             beginServiceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
 
-            // TODO these 3 no longer needed
+            // TODO still needed
             beginServiceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-            beginServiceNode.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
-            beginServiceNode.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
-
-            beginServiceNode.setProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME, service.earliestDepartTime().asLocalTime());
-            beginServiceNode.setProperty(GraphStaticKeys.SERVICE_LATEST_TIME, service.latestDepartTime().asLocalTime());
             beginServiceNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
             setLatLongFor(beginServiceNode, destinationLatLong);
@@ -574,8 +569,8 @@ public class TransportGraphBuilder extends StationIndexs {
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
 
         relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-        relationship.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
-        relationship.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
+//        relationship.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
+//        relationship.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
         if (transportRelationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO)) {

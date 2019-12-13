@@ -1,6 +1,5 @@
 package com.tramchester.domain;
 
-import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,9 +8,9 @@ public class RawJourney implements Iterable<RawStage> {
     // TODO Ordering and Equality?
 
     private final List<RawStage> stages;
-    private final LocalTime queryTime;
+    private final TramTime queryTime;
 
-    public RawJourney(List<RawStage> stages, LocalTime queryTime) {
+    public RawJourney(List<RawStage> stages, TramTime queryTime) {
         this.stages = stages;
         this.queryTime = queryTime;
     }
@@ -24,7 +23,7 @@ public class RawJourney implements Iterable<RawStage> {
         return stages;
     }
 
-    public LocalTime getQueryTime() {
+    public TramTime getQueryTime() {
         return queryTime;
     }
 

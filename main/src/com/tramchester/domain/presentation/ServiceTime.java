@@ -40,8 +40,8 @@ public class ServiceTime implements Comparable<ServiceTime> {
         return serviceId;
     }
 
-    public LocalTime getLeaves() {
-        return leaveBegin.asLocalTime();
+    public TramTime getLeaves() {
+        return leaveBegin;
     }
 
     @Override

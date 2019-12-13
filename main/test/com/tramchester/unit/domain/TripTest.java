@@ -48,7 +48,7 @@ public class TripTest {
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
 
-        LocalTime am10Minutes = LocalTime.of(10,00);
+        TramTime am10Minutes = TramTime.of(10,00);
         SortedSet<ServiceTime> times = trip.getServiceTimes("statA", "statB", new TimeWindow(am10Minutes, 30));
 
         // service times
@@ -96,14 +96,14 @@ public class TripTest {
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        SortedSet<ServiceTime> times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(23,40), 30));
+        SortedSet<ServiceTime> times = trip.getServiceTimes("statA", "statB", new TimeWindow(TramTime.of(23,40), 30));
         assertEquals(1, times.size());
         assertEquals(TramTime.create(23,46), times.first().getDepartureTime());
 
-        times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(00,10), 30));
+        times = trip.getServiceTimes("statA", "statB", new TimeWindow(TramTime.of(00,10), 30));
         assertEquals(0, times.size());
 
-        times = trip.getServiceTimes("statB", "statC", new TimeWindow(LocalTime.of(23,59), 30));
+        times = trip.getServiceTimes("statB", "statC", new TimeWindow(TramTime.of(23,59), 30));
         assertEquals(2, times.size());
 
         assertEquals(TramTime.create(6,30), trip.earliestDepartTime());
@@ -141,11 +141,11 @@ public class TripTest {
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
 
-        SortedSet<ServiceTime> times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(23,40), 37));
+        SortedSet<ServiceTime> times = trip.getServiceTimes("statA", "statB", new TimeWindow(TramTime.of(23,40), 37));
         assertEquals(1, times.size());
         assertEquals(TramTime.create(00,11), times.first().getDepartureTime());
 
-        times = trip.getServiceTimes("statA", "statB", new TimeWindow(LocalTime.of(00,10), 30));
+        times = trip.getServiceTimes("statA", "statB", new TimeWindow(TramTime.of(00,10), 30));
         assertEquals(1, times.size());
         assertEquals(TramTime.create(00,11), times.first().getDepartureTime());
 

@@ -24,8 +24,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class TramGraphBuilderEdgePerTripTest {
@@ -201,15 +200,15 @@ public class TramGraphBuilderEdgePerTripTest {
             if (out instanceof ServiceRelationship) svcRelationshipsFromVeloPark.add((ServiceRelationship) out);
         });
         // filter by day and then direction/route
-        assertTrue(!svcRelationshipsFromVeloPark.isEmpty());
+        assertFalse(svcRelationshipsFromVeloPark.isEmpty());
         List<ServiceNode> serviceNodes = svcRelationshipsFromVeloPark.stream().
                 map(relationship -> (ServiceNode) relationship.getEndNode()).collect(Collectors.toList());
         serviceNodes.removeIf(svc -> !svc.getDaysServiceRuns()[0]); // monday
-        assertTrue(!serviceNodes.isEmpty());
+        assertFalse(serviceNodes.isEmpty());
         svcRelationshipsFromVeloPark.removeIf(svc -> !transportData.getServiceById(
                 svc.getServiceId()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
 
-        assertTrue(!svcRelationshipsFromVeloPark.isEmpty());
+        assertFalse(svcRelationshipsFromVeloPark.isEmpty());
 
     }
 
@@ -227,7 +226,7 @@ public class TramGraphBuilderEdgePerTripTest {
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRouteId().equals(routeId)).
-                filter(svc -> svc.isRunning()).
+                filter(Service::isRunning).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.callsAt(stationId)).
@@ -241,24 +240,25 @@ public class TramGraphBuilderEdgePerTripTest {
         assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
 
-        Set<TramNode> graphOutboundSvcs = graphOutbounds.stream().
-                filter(TransportRelationship::isServiceLink).
-                map(relationship -> (ServiceRelationship) relationship).
-                map(svc -> svc.getEndNode()).
-                collect(Collectors.toSet());
+//        Set<TramNode> graphOutboundSvcs = graphOutbounds.stream().
+//                filter(TransportRelationship::isServiceLink).
+//                map(relationship -> (ServiceRelationship) relationship).
+//                map(svc -> svc.getEndNode()).
+//                collect(Collectors.toSet());
+
         // service earliest/latest at nodes should match those from trips/stops
-        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
-                forEach(serviceNode -> {
-                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
-                    LocalTime nodeEarliest = serviceNode.getEarliestTime();
-                    assertEquals(fileService.getServiceId(), fileService.earliestDepartTime().asLocalTime(), nodeEarliest);
-                });
-        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
-                forEach(serviceNode -> {
-                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
-                    LocalTime nodeLatest = serviceNode.getLatestTime();
-                    assertEquals(fileService.getServiceId(), fileService.latestDepartTime().asLocalTime(), nodeLatest);
-                });
+//        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
+//                forEach(serviceNode -> {
+//                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
+//                    LocalTime nodeEarliest = serviceNode.getEarliestTime();
+//                    assertEquals(fileService.getServiceId(), fileService.earliestDepartTime().asLocalTime(), nodeEarliest);
+//                });
+//        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
+//                forEach(serviceNode -> {
+//                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
+//                    LocalTime nodeLatest = serviceNode.getLatestTime();
+//                    assertEquals(fileService.getServiceId(), fileService.latestDepartTime().asLocalTime(), nodeLatest);
+//                });
     }
 
     private void checkInboundConsistency(String stationId, String routeId) throws TramchesterException {

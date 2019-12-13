@@ -37,9 +37,9 @@ public class GraphWithSimpleRouteTest {
     private static IntegrationTramTestConfig config;
 
     private TramServiceDate queryDate;
-    private List<LocalTime> queryTimes;
+    private List<TramTime> queryTimes;
     private Station firstStation;
-    private LocalTime queryTime;
+    private TramTime queryTime;
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
@@ -66,7 +66,7 @@ public class GraphWithSimpleRouteTest {
         // note: trams only run at specific times so still only getPlatformById one journey in results
         //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
-        queryTime = LocalTime.of(7, 57);
+        queryTime = TramTime.of(7, 57);
         queryTimes = Collections.singletonList(queryTime);
     }
 
@@ -83,7 +83,7 @@ public class GraphWithSimpleRouteTest {
         LatLong origin = new LatLong(180.001, 270.001);
         Station endStation = transportData.getStation(TransportDataForTest.LAST_STATION).get();
         List<StationWalk> walks = Collections.singletonList(new StationWalk(firstStation, 1));
-        List<LocalTime> walkStartTimes = Arrays.asList(LocalTime.of(7,55));
+        List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
 
         Set<RawJourney> journeys = calculator.calculateRoute(origin, walks, endStation, walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertFalse(journeys.isEmpty());
@@ -97,7 +97,7 @@ public class GraphWithSimpleRouteTest {
         List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
         Station destination = transportData.getStation(TransportDataForTest.SECOND_STATION).get();
 
-        List<LocalTime> walkStartTimes = Arrays.asList(LocalTime.of(7,55));
+        List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
         Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, destination,
                 walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
 
@@ -129,7 +129,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, Collections.singletonList(LocalTime.of(9, 0)), queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.INTERCHANGE, Collections.singletonList(TramTime.of(9, 0)), queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertEquals(0, journeys.size());
     }
 
@@ -155,7 +155,7 @@ public class GraphWithSimpleRouteTest {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.INTERCHANGE,
                 TransportDataForTest.STATION_FIVE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertFalse(journeys.size()>=1);
-        List<LocalTime> laterQueryTimes = Arrays.asList(LocalTime.of(8,10));
+        List<TramTime> laterQueryTimes = Collections.singletonList(TramTime.of(8, 10));
         journeys = calculator.calculateRoute(TransportDataForTest.INTERCHANGE,
                 TransportDataForTest.STATION_FIVE, laterQueryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(journeys.size()>=1);
@@ -215,7 +215,7 @@ public class GraphWithSimpleRouteTest {
         assertEquals(displayClass, vehicleStage.getDisplayClass());
         assertTrue(vehicleStage.getBoardingPlatform().isPresent());
         if (config.getEdgePerTrip()) {
-            LocalTime departTime = vehicleStage.getDepartTime();
+            TramTime departTime = vehicleStage.getDepartTime();
             assertTrue(departTime.isAfter(queryTime));
         }
         assertTrue(vehicleStage.getCost()>0);

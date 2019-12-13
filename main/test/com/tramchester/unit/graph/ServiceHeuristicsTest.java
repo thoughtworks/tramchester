@@ -18,9 +18,6 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static org.junit.Assert.*;
@@ -29,18 +26,17 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     public static final int MAX_WAIT = 30;
 
-    private LocalTime am10 = LocalTime.of(10,0);
-    private LocalTime[] tramTimes = new LocalTime[] { am10,
+    private TramTime am10 = TramTime.of(10,0);
+    private TramTime[] tramTimes = new TramTime[] { am10,
             am10.plusMinutes(100),
             am10.plusMinutes(200),
             am10.plusMinutes(300),
             am10.plusMinutes(400) };
     private CachingCostEvaluator costEvaluator;
     private TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
-    private LocalTime NOT_USED_HERE = LocalTime.of(23,59);
+    private TramTime NOT_USED_HERE = TramTime.of(23,59);
     private CachedNodeOperations nodeOperations;
     private RunningServices runningServices;
-    private Set<String> preferRoutes;
     private Path path;
     private ReachabilityRepository reachabilityRepository;
 
@@ -49,20 +45,20 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         costEvaluator = new CachingCostEvaluator();
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
-        runningServices = new RunningServices(new HashSet<>());
-        preferRoutes = Collections.emptySet();
+        runningServices = createMock(RunningServices.class);
         path = createMock(Path.class);
         reachabilityRepository = createMock(ReachabilityRepository.class);
     }
 
     @Test
     public void shouldCheckNodeBasedOnServiceId() {
-        LocalTime queryTime = LocalTime.of(8,1);
+        TramTime queryTime = TramTime.of(8,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
 
-        runningServices.addForTestingOnly("serviceIdA");
+        EasyMock.expect(runningServices.isRunning("serviceIdA")).andReturn(true);
+        EasyMock.expect(runningServices.isRunning("serviceIdB")).andReturn(false);
 
         Node node = createMock(Node.class);
         EasyMock.expect(node.getId()).andReturn(42L);
@@ -81,7 +77,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldCheckNodeBasedOnServiceIdAndTimeOverlaps() {
-        LocalTime queryTime = LocalTime.of(8,1);
+        TramTime queryTime = TramTime.of(8,1);
         LocalTime elaspsedTime = LocalTime.of(9,1);
         TramTime elaspsedTramTime = TramTime.of(elaspsedTime);
 
@@ -89,45 +85,49 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
                 queryTime, runningServices, "endStationId");
 
         //runningServices.add("serviceIdA");
+        EasyMock.expect(runningServices.getServiceEarliest("serviceIdA")).andReturn(TramTime.of(8,00));
+        EasyMock.expect(runningServices.getServiceLatest("serviceIdA")).andReturn(TramTime.of(8,30));
 
         // no longer running at query time
         Node tooEarlyNode = createMock(Node.class);
         EasyMock.expect(tooEarlyNode.getId()).andReturn(42L);
         EasyMock.expect(tooEarlyNode.getProperty(SERVICE_ID)).andReturn("serviceIdA");
-        EasyMock.expect(tooEarlyNode.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(8,00));
-        EasyMock.expect(tooEarlyNode.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(8,30));
 
         // doesnt start running until after query time
         Node tooLateNode = createMock(Node.class);
         EasyMock.expect(tooLateNode.getId()).andReturn(43L);
-        EasyMock.expect(tooLateNode.getProperty(SERVICE_ID)).andReturn("serviceIdA");
-        EasyMock.expect(tooLateNode.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(elaspsedTime.plusMinutes(MAX_WAIT+1));
-        EasyMock.expect(tooLateNode.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(elaspsedTime.plusMinutes(MAX_WAIT+30));
+        EasyMock.expect(tooLateNode.getProperty(SERVICE_ID)).andReturn("serviceIdA");  // CACHED
+        EasyMock.expect(runningServices.getServiceEarliest("serviceIdA")).andReturn(TramTime.of(elaspsedTime.plusMinutes(MAX_WAIT+1)));
+        EasyMock.expect(runningServices.getServiceLatest("serviceIdA")).andReturn(TramTime.of(elaspsedTime.plusMinutes(MAX_WAIT+30)));
 
         // starts before query, but still running within max wait
         Node overlapStartsBefore = createMock(Node.class);
-        EasyMock.expect(overlapStartsBefore.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(8,50));
-        EasyMock.expect(overlapStartsBefore.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,20));
+        EasyMock.expect(overlapStartsBefore.getId()).andReturn(43L);
+        EasyMock.expect(runningServices.getServiceEarliest("serviceIdA")).andReturn(TramTime.of(8,50));
+        EasyMock.expect(runningServices.getServiceLatest("serviceIdA")).andReturn(TramTime.of(9,20));
 
         // starts after query within max wait, finishes after max wait
         Node overlapStartsAfter = createMock(Node.class);
-        EasyMock.expect(overlapStartsAfter.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(9,20));
-        EasyMock.expect(overlapStartsAfter.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,45));
+        EasyMock.expect(overlapStartsAfter.getId()).andReturn(43L);
+        EasyMock.expect(runningServices.getServiceEarliest("serviceIdA")).andReturn(TramTime.of(9,20));
+        EasyMock.expect(runningServices.getServiceLatest("serviceIdA")).andReturn(TramTime.of(9,45));
 
         // starts before query, finishes after max wait
         Node overlapStartsBeforeFinishesAfter = createMock(Node.class);
-        EasyMock.expect(overlapStartsBeforeFinishesAfter.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(8,45));
-        EasyMock.expect(overlapStartsBeforeFinishesAfter.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(9,20));
+        EasyMock.expect(overlapStartsBeforeFinishesAfter.getId()).andReturn(43L);
+        EasyMock.expect(runningServices.getServiceEarliest("serviceIdA")).andReturn(TramTime.of(8,45));
+        EasyMock.expect(runningServices.getServiceLatest("serviceIdA")).andReturn(TramTime.of(9,20));
 
         // end is after midnight case
         Node endsAfterMidnight = createMock(Node.class);
-        EasyMock.expect(endsAfterMidnight.getProperty(GraphStaticKeys.SERVICE_EARLIEST_TIME)).andReturn(LocalTime.of(5,23));
-        EasyMock.expect(endsAfterMidnight.getProperty(GraphStaticKeys.SERVICE_LATEST_TIME)).andReturn(LocalTime.of(0,1));
+        EasyMock.expect(endsAfterMidnight.getId()).andReturn(43L);
+        EasyMock.expect(runningServices.getServiceEarliest("serviceIdA")).andReturn(TramTime.of(5,23));
+        EasyMock.expect(runningServices.getServiceLatest("serviceIdA")).andReturn(TramTime.of(0,1));
 
         replayAll();
-        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, "unused", path),
+        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, path),
                 serviceHeuristics.checkServiceTime(path, tooEarlyNode, elaspsedTramTime));
-        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, "unused", path),
+        assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, path),
                 serviceHeuristics.checkServiceTime(path, tooLateNode, elaspsedTramTime));
 
         assertTrue(serviceHeuristics.checkServiceTime(path, overlapStartsBefore, elaspsedTramTime).isValid());
@@ -140,7 +140,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldBeInterestedInCorrectHours() {
-        LocalTime queryTime = LocalTime.of(9,1);
+        TramTime queryTime = TramTime.of(9,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
@@ -149,7 +149,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         // querytime + costSoFar + 0 = earlier time could arrive here
 
         int costSoFar = 58; // 9.59
-        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
+        TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         assertFalse(serviceHeuristics.interestedInHour(path, 8, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
@@ -159,13 +159,13 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldBeInterestedInCorrectHoursCrossesNextHour() {
-        LocalTime queryTime = LocalTime.of(9,50);
+        TramTime queryTime = TramTime.of(9,50);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
 
         int costSoFar = 39; // 10.29
-        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
+        TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         assertFalse(serviceHeuristics.interestedInHour(path, 8, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
@@ -175,14 +175,14 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldBeInterestedInCorrectHoursOverMidnight() {
-        LocalTime queryTime = LocalTime.of(23,10);
+        TramTime queryTime = TramTime.of(23,10);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
 
         int costSoFar = 15;  // 23.25
         //LocalTime elapsed = queryTime.plusMinutes(costSoFar);
-        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
+        TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
@@ -192,7 +192,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldCheckTimeAtNodeCorrectly() {
-        LocalTime queryTime = LocalTime.of(7,00);
+        TramTime queryTime = TramTime.of(7,00);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
@@ -218,7 +218,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     }
 
-    private void checkForNodeTime(ServiceHeuristics serviceHeuristics, LocalTime currentElapsed, LocalTime nodeTime, boolean expect) {
+    private void checkForNodeTime(ServiceHeuristics serviceHeuristics, TramTime currentElapsed, LocalTime nodeTime, boolean expect) {
         resetAll();
 
         Node node = createMock(Node.class);
@@ -226,19 +226,19 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(node.getProperty(GraphStaticKeys.TIME)).andStubReturn(nodeTime);
 
         replayAll();
-        assertEquals(expect, serviceHeuristics.checkTime(path, node, TramTime.of(currentElapsed)).isValid());
+        assertEquals(expect, serviceHeuristics.checkTime(path, node, currentElapsed).isValid());
         verifyAll();
     }
 
     @Test
     public void shouldBeInterestedInCorrectHoursOverMidnightLongerJourney() {
-        LocalTime queryTime = LocalTime.of(23,10);
+        TramTime queryTime = TramTime.of(23,10);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
 
         int costSoFar = 51;
         //LocalTime elapsed = queryTime.plusMinutes(costSoFar);
-        TramTime elapsed = TramTime.of(queryTime.plusMinutes(costSoFar));
+        TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
@@ -248,12 +248,12 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTimesWith30MinWait() throws TramchesterException {
-        LocalTime am640 = LocalTime.of(6, 40); // 400
+        TramTime am640 = TramTime.of(6, 40); // 400
 
         ElapsedTime providerA = createNoMatchProvider(am640);
         ElapsedTime providerB = createNoMatchProvider(am640.plusMinutes(150));
 
-        LocalTime journeyStart = LocalTime.of(10,0).minusMinutes(TransportGraphBuilder.BOARDING_COST);
+        TramTime journeyStart = TramTime.of(10,0).minusMinutes(TransportGraphBuilder.BOARDING_COST);
         ElapsedTime providerC = createMatchProvider(am640.plusMinutes(180), journeyStart);
         ElapsedTime providerD = createMatchProvider(am640.plusMinutes(200), journeyStart);
         ElapsedTime providerE = createNoMatchProvider(am640.plusMinutes(220));
@@ -280,12 +280,12 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTimesWith15MinWait() throws TramchesterException {
-        LocalTime am640 = LocalTime.of(6, 40); // 400
+        TramTime am640 = TramTime.of(6, 40); // 400
 
         ElapsedTime providerA = createNoMatchProvider(am640);
         ElapsedTime providerB = createNoMatchProvider(am640.plusMinutes(150));
         ElapsedTime providerC = createNoMatchProvider(am640.plusMinutes(180));
-        LocalTime journeyStart = LocalTime.of(10,0).minusMinutes(TransportGraphBuilder.BOARDING_COST);
+        TramTime journeyStart = TramTime.of(10,0).minusMinutes(TransportGraphBuilder.BOARDING_COST);
 
         ElapsedTime providerD = createMatchProvider(am640.plusMinutes(200), journeyStart);
         ElapsedTime providerE = createNoMatchProvider(am640.plusMinutes(220));
@@ -314,11 +314,11 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTimesOneTime() throws TramchesterException {
-        LocalTime am640 = LocalTime.of(6, 40); // 400
+        TramTime am640 = TramTime.of(6, 40); // 400
 
-        LocalTime[] time = new LocalTime[] { LocalTime.of(7,30) };
+        TramTime[] time = new TramTime[] { TramTime.of(7,30) };
         ElapsedTime providerA = createNoMatchProvider(am640);
-        LocalTime journeyStart = am640.plusMinutes(50).minusMinutes(TransportGraphBuilder.BOARDING_COST);
+        TramTime journeyStart = am640.plusMinutes(50).minusMinutes(TransportGraphBuilder.BOARDING_COST);
         ElapsedTime providerB = createMatchProvider(am640.plusMinutes(20), journeyStart);
         ElapsedTime providerC = createNoMatchProvider(am640.plusMinutes(51));
 
@@ -333,10 +333,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldHandleTotalDurationOverWaitTime() throws TramchesterException {
-        LocalTime[] time = new LocalTime[] { LocalTime.of(7,30) };
+        TramTime[] time = new TramTime[] { TramTime.of(7,30) };
 
         ElapsedTime provider = createMock(ElapsedTime.class);
-        EasyMock.expect(provider.getElapsedTime()).andStubReturn(LocalTime.of(7,20));
+        EasyMock.expect(provider.getElapsedTime()).andStubReturn(TramTime.of(7,20));
         EasyMock.expect(provider.startNotSet()).andReturn(false);
 
         replayAll();
@@ -358,11 +358,11 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         String tripId = "";
 
-        TramGoesToRelationship outA = TramGoesToRelationship.TestOnly("0042",10, days, tramTimes, "id1", startDate,
-                endDate, "destA", null, null, tripId);
+        TramGoesToRelationship outA = TramGoesToRelationship.TestOnly("0042",10, days, tramTimes, "id1",
+                null, null, tripId);
 
-        TramGoesToRelationship outB = TramGoesToRelationship.TestOnly("0048", 5, days, tramTimes, "id2", startDate,
-                endDate, "destB", null, null, tripId);
+        TramGoesToRelationship outB = TramGoesToRelationship.TestOnly("0048", 5, days, tramTimes, "id2",
+                null, null, tripId);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
@@ -392,7 +392,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         verifyAll();
     }
 
-    private ElapsedTime createMatchProvider(LocalTime queryTime, LocalTime journeyStart) throws TramchesterException {
+    private ElapsedTime createMatchProvider(TramTime queryTime, TramTime journeyStart) throws TramchesterException {
         ElapsedTime provider = createMock(ElapsedTime.class);
         EasyMock.expect(provider.getElapsedTime()).andStubReturn(queryTime);
         EasyMock.expect(provider.startNotSet()).andReturn(true);
@@ -402,7 +402,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         return provider;
     }
 
-    private ElapsedTime createNoMatchProvider(LocalTime queryTime) throws TramchesterException {
+    private ElapsedTime createNoMatchProvider(TramTime queryTime) throws TramchesterException {
         ElapsedTime provider = createMock(ElapsedTime.class);
         EasyMock.expect(provider.getElapsedTime()).andReturn(queryTime);
         return provider;

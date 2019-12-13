@@ -1,27 +1,30 @@
 package com.tramchester.graph;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class NodeIdLabelMap {
-    private Map<Long, TransportGraphBuilder.Labels> map;
+    private EnumMap<TransportGraphBuilder.Labels, Set<Long>> map;
 
     public NodeIdLabelMap() {
-        map = new HashMap<>();
-    }
-
-    public TransportGraphBuilder.Labels getLabel(long id) {
-        if (!map.containsKey(id)) {
-            throw new RuntimeException("Missing label for node id " + id);
+        map = new EnumMap<>(TransportGraphBuilder.Labels.class);
+        for (TransportGraphBuilder.Labels label: TransportGraphBuilder.Labels.values()) {
+            map.put(label, new HashSet<>());
         }
-        return map.get(id);
     }
 
     public void put(long id, TransportGraphBuilder.Labels label) {
-        map.put(id, label);
+        map.get(label).add(id);
     }
 
-    public void removeId(long id) {
-        map.remove(id);
+    public boolean has(long nodeId, TransportGraphBuilder.Labels label) {
+        return map.get(label).contains(nodeId);
+    }
+
+    public void putQueryNode(long id) {
+        map.get(TransportGraphBuilder.Labels.QUERY_NODE).add(id);
+    }
+
+    public void removeQueryNode(long id) {
+        map.get(TransportGraphBuilder.Labels.QUERY_NODE).remove(id);
     }
 }

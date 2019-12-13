@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorSubGraphTest {
@@ -66,19 +66,19 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void reproduceIssueEdgePerTrip() {
 
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, LocalTime.of(19,51), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Pomona, LocalTime.of(19,51).plusMinutes(6), nextTuesday);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, TramTime.of(19,51), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Pomona, TramTime.of(19,51).plusMinutes(6), nextTuesday);
 
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Cornbrook, LocalTime.of(19,51).plusMinutes(3), nextTuesday);
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Pomona, LocalTime.of(19,51).plusMinutes(3), nextTuesday);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Cornbrook, TramTime.of(19,51).plusMinutes(3), nextTuesday);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Pomona, TramTime.of(19,51).plusMinutes(3), nextTuesday);
 
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,51), nextTuesday);
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, LocalTime.of(19,56), nextTuesday);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), nextTuesday);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), nextTuesday);
     }
 
     @Test
     public void shouldHaveJourneysBetweenAllStations() {
-        LocalTime time = LocalTime.of(9, 00);
+        TramTime time = TramTime.of(9, 00);
         for (Location start: stations) {
             for (Location destination: stations) {
                 if (!start.equals(destination)) {
@@ -93,7 +93,7 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void shouldHaveSimpleOneStopJourney() {
-        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
+        List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
                 minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(results.size()>0);
@@ -101,7 +101,7 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
+        List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
                 minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(results.size()>0);
@@ -109,7 +109,7 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void shouldHaveSimpleJourney() {
-        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(8, 0));
+        List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
                 minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(results.size()>0);
@@ -134,7 +134,7 @@ public class RouteCalculatorSubGraphTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime time, LocalDate date) {
+    private void validateAtLeastOneJourney(Location start, Location dest, TramTime time, LocalDate date) {
         RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date, testConfig.getEdgePerTrip());
     }
 }

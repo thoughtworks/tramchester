@@ -5,14 +5,13 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
-import java.time.LocalTime;
 import java.util.Optional;
 
 public class WalkingStage implements TransportStage {
     private RawWalkingStage rawWalkingStage;
-    private LocalTime beginTime;
+    private TramTime beginTime;
 
-    public WalkingStage(RawWalkingStage rawWalkingStage, LocalTime beginTimeMins) {
+    public WalkingStage(RawWalkingStage rawWalkingStage, TramTime beginTimeMins) {
         this.rawWalkingStage = rawWalkingStage;
         this.beginTime = beginTimeMins;
     }
@@ -52,12 +51,12 @@ public class WalkingStage implements TransportStage {
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getFirstDepartureTime() {
-        return TramTime.of(beginTime);
+        return beginTime;
     }
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)
     public TramTime getExpectedArrivalTime() {
-        return TramTime.of(beginTime.plusMinutes(getDuration()));
+        return beginTime.plusMinutes(getDuration());
     }
 
     @Override

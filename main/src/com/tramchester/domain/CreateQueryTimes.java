@@ -13,8 +13,8 @@ public class CreateQueryTimes {
         this.config = config;
     }
 
-    public List<LocalTime> generate(LocalTime initialQueryTime) {
-        List<LocalTime> result = new ArrayList<>();
+    public List<TramTime> generate(TramTime initialQueryTime) {
+        List<TramTime> result = new ArrayList<>();
 
         int interval = config.getQueryInterval();
 

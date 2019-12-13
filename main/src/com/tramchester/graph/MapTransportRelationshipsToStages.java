@@ -36,7 +36,7 @@ public class MapTransportRelationshipsToStages {
         this.myLocationFactory = myLocationFactory;
     }
 
-    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, LocalTime queryTime) {
+    public List<RawStage> mapStages(List<TransportRelationship> transportRelationships, TramTime queryTime) {
         MappingState state = new MappingState(platformRepository, stationRepository, queryTime, routeIdToClass);
         int passedStops = 0;
 
@@ -108,7 +108,7 @@ public class MapTransportRelationshipsToStages {
 
         if (!state.isOnService()) {
             if (goesToRelationship.hasTripId()) {
-                LocalTime time = goesToRelationship.getTimeServiceRuns();
+                TramTime time = goesToRelationship.getTimeServiceRuns();
                 logger.info(format("Add stage service %s, time %s", serviceId, time));
                 state.boardService(transportRelationship, serviceId, time, goesToRelationship.getTripId());
             } else {

@@ -64,7 +64,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldEnsureTripsAreOrderByEarliestFirst() {
-        LocalTime time = LocalTime.of(15,30);
+        TramTime time = TramTime.of(15,30);
 
         RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, when, 16);
         stages.add(vicToRoch);
@@ -80,7 +80,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() {
-        LocalTime pm1044  = LocalTime.of(22,44);
+        TramTime pm1044  = TramTime.of(22,44);
 
         RawVehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
                 pm1044, 42, when, 14);
@@ -98,7 +98,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapSimpleJourney() {
-        LocalTime am7 = LocalTime.of(7,0);
+        TramTime am7 = TramTime.of(7,0);
 
         RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, when, 8);
 
@@ -123,7 +123,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapTwoStageJourney() {
-        LocalTime am10 = LocalTime.of(10,0);
+        TramTime am10 = TramTime.of(10,0);
         Location begin = Stations.Altrincham;
         Location middle = Stations.Cornbrook;
         Location end = Stations.ManAirport;
@@ -156,7 +156,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapWalkingStageJourney() {
-        LocalTime pm10 = LocalTime.of(22,0);
+        TramTime pm10 = TramTime.of(22,0);
 
         RawWalkingStage walkingStage = new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 10);
         stages.add(walkingStage);
@@ -175,7 +175,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapThreeStageJourneyWithWalk() {
-        LocalTime am10 = LocalTime.of(10,0);
+        TramTime am10 = TramTime.of(10,0);
         Location begin = Stations.Altrincham;
         Location middleA = Stations.Deansgate;
         Location middleB = Stations.MarketStreet;
@@ -219,7 +219,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Test
     public void shouldMapEndOfDayJourneyCorrectly() {
-        LocalTime startTime = LocalTime.of(22,50);
+        TramTime startTime = TramTime.of(22,50);
         Location start = Stations.Altrincham;
         Location middle = Stations.TraffordBar;
         Location finish = Stations.ManAirport;
@@ -235,7 +235,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         assertTrue(result.isPresent());
     }
 
-    private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, LocalTime startTime,
+    private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, TramTime startTime,
                                                int cost, LocalDate when, int passedStops) {
 
         RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass");

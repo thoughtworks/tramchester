@@ -4,15 +4,15 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 public class TimeWindow {
-    private LocalTime queryTime;
+    private TramTime queryTime;
     private int withinMins;
 
-    public TimeWindow(LocalTime queryTime, int withinMins) {
+    public TimeWindow(TramTime queryTime, int withinMins) {
         this.queryTime = queryTime;
         this.withinMins = withinMins;
     }
 
-    public LocalTime queryTime() {
+    public TramTime queryTime() {
         return queryTime;
     }
 
@@ -28,7 +28,7 @@ public class TimeWindow {
                 '}';
     }
 
-    public TimeWindow next(LocalTime elapsedTime) {
+    public TimeWindow next(TramTime elapsedTime) {
         return new TimeWindow(elapsedTime, withinMins);
     }
 

@@ -4,7 +4,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
@@ -12,9 +11,7 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -26,12 +23,9 @@ public class LazyTimeBasedPathExpander implements PathExpander<Double> {
     private final RelationshipFactory relationshipFactory;
     private final BasicServiceHeuristics serviceHeuristics;
 
-//    private final Map<Node, Integer> visited;
-
     public LazyTimeBasedPathExpander(RelationshipFactory relationshipFactory, BasicServiceHeuristics serviceHeuristics) {
         this.relationshipFactory = relationshipFactory;
         this.serviceHeuristics = serviceHeuristics;
-//        visited = new HashMap<>();
     }
 
     @Override

@@ -70,17 +70,17 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
 ////
         LocalDate when = TestConfig.nextTuesday(0);
         String svcId = findServiceId(stockportBusStation.getId(), stockportBridgefieldStreet.getId(), when,
-                LocalTime.of(9,42));
+                TramTime.of(9,42));
         //String svcId = "Serv002953"; // use above when timetable changes to find new svc id
 
         JourneyPlanRepresentation result = getJourneyPlanRepresentation(stockportBusStation, stockportBridgefieldStreet,
-                svcId, 42, LocalTime.of(9,42), new TramServiceDate(when));
+                svcId, 42, TramTime.of(9,42), new TramServiceDate(when));
 
         assertEquals(1,result.getJourneys().size());
     }
 
     private JourneyPlanRepresentation getJourneyPlanRepresentation(Location begin, Location end, String svcId,
-                                                                   int cost, LocalTime minutesFromMidnight, TramServiceDate queryDate) {
+                                                                   int cost, TramTime tramTime, TramServiceDate queryDate) {
 
         RawVehicleStage busStage = new RawVehicleStage(begin, "route text", TransportMode.Bus, "cssClass");
         busStage.setServiceId(svcId);
@@ -88,10 +88,9 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         busStage.setCost(cost);
 
         stages.add(busStage);
-        journeys.add(new RawJourney(stages, minutesFromMidnight));
+        journeys.add(new RawJourney(stages, tramTime));
 
-        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate,
-                TramTime.of(minutesFromMidnight));
+        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate, tramTime);
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
         HeadsignMapper headsignMapper = new HeadsignMapper();
         JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory, headsignMapper);

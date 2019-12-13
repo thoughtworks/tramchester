@@ -2,7 +2,6 @@ package com.tramchester.unit.graph;
 
 
 import com.tramchester.TestConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Relationships.GoesToRelationship;
@@ -20,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.time.LocalTime;
 import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
@@ -129,7 +127,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
         EasyMock.expect(mockRelationshipFactory.getRelationship(goesToA)).andReturn(goesTo);
 
         EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo, path)).
-                andReturn(ServiceReason.IsValid(path,"ok"));
+                andReturn(ServiceReason.IsValid(path));
 
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,
@@ -203,7 +201,7 @@ public class LazyTimeBasedPathExpanderTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotRunOnQueryDate("diag", path));
 
         EasyMock.expect(serviceHeuristics.checkServiceHeuristics(incoming, goesTo2, path)).
-                andReturn(ServiceReason.IsValid(path,"ok"));
+                andReturn(ServiceReason.IsValid(path));
 
         replayAll();
         PathExpander<Double> pathExpander = new LazyTimeBasedPathExpander(mockRelationshipFactory,

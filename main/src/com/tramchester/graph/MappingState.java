@@ -24,7 +24,7 @@ public class MappingState {
     private RouteCodeToClassMapper routeIdToClass;
     private StationRepository stationRepository;
     private PlatformRepository platformRepository;
-    private final LocalTime queryTime;
+    private final TramTime queryTime;
 
     private List<RawStage> stages;
     private int serviceStart;
@@ -35,7 +35,7 @@ public class MappingState {
     private Platform boardingPlatform;
 
     public MappingState(PlatformRepository platformRepository, StationRepository stationRepository,
-                        LocalTime queryTime, RouteCodeToClassMapper routeIdToClass) {
+                        TramTime queryTime, RouteCodeToClassMapper routeIdToClass) {
         this.platformRepository = platformRepository;
         this.queryTime = queryTime;
         this.routeIdToClass = routeIdToClass;
@@ -90,7 +90,7 @@ public class MappingState {
         }
     }
 
-    public void boardService(TransportRelationship transportRelationship, String serviceId, LocalTime time, String tripId) {
+    public void boardService(TransportRelationship transportRelationship, String serviceId, TramTime time, String tripId) {
 
         boardService(transportRelationship, serviceId);
         currentStage.setTripId(tripId);
@@ -129,7 +129,7 @@ public class MappingState {
 
     }
 
-    public LocalTime getElapsedTime() {
+    public TramTime getElapsedTime() {
         return queryTime.plusMinutes(totalCost);
     }
 

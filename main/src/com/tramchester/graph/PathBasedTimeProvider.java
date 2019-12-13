@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TramTime;
 import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.Path;
@@ -9,19 +10,19 @@ import java.time.LocalTime;
 
 public class PathBasedTimeProvider implements ElapsedTime {
     private final PersistsBoardingTime boardTime;
-    private final LocalTime queryTime;
+    private final TramTime queryTime;
     private int cost = -1;
     private final WeightedPathImpl weightedPath;
 
     public PathBasedTimeProvider(CostEvaluator<Double> costEvaluator, Path path, PersistsBoardingTime boardTime,
-                                 LocalTime queryTime) {
+                                 TramTime queryTime) {
         weightedPath = new WeightedPathImpl(costEvaluator, path);
         this.boardTime = boardTime;
         this.queryTime = queryTime;
     }
 
     @Override
-    public LocalTime getElapsedTime() {
+    public TramTime getElapsedTime() {
         int costOfJourney = getCost();
         if (boardTime.isPresent()) {
             return boardTime.get().plusMinutes(costOfJourney);
@@ -44,7 +45,7 @@ public class PathBasedTimeProvider implements ElapsedTime {
     }
 
     @Override
-    public void setJourneyStart(LocalTime minutesPastMidnight) {
+    public void setJourneyStart(TramTime minutesPastMidnight) {
         boardTime.save(minutesPastMidnight);
     }
 

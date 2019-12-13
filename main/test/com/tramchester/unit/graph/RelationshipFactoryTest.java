@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -16,11 +16,13 @@ import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-
 
 public class RelationshipFactoryTest extends EasyMockSupport {
 
@@ -30,7 +32,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     private StubNode endTramNode;
 
     @Before
-    public void beforeEachTestRuns() throws TramchesterException {
+    public void beforeEachTestRuns() {
         NodeFactory nodeFactory = createMock(NodeFactory.class);
         relationshipFactory = new RelationshipFactory(nodeFactory);
 
@@ -47,7 +49,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveBoradingRelationship() throws TramchesterException {
+    public void shouldHaveBoradingRelationship() {
         setRelationshipExpectation(TransportRelationshipTypes.BOARD, -1, 101L);
 
         replayAll();
@@ -62,7 +64,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveEnterPlatformRelationship() throws TramchesterException {
+    public void shouldHaveEnterPlatformRelationship() {
         setRelationshipExpectation(TransportRelationshipTypes.ENTER_PLATFORM, 0, 102L);
 
         replayAll();
@@ -77,7 +79,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveLeavePlatformRelationship() throws TramchesterException {
+    public void shouldHaveLeavePlatformRelationship() {
         setRelationshipExpectation(TransportRelationshipTypes.LEAVE_PLATFORM, 0, 103L);
 
         replayAll();
@@ -92,7 +94,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveDepartRelationship() throws TramchesterException {
+    public void shouldHaveDepartRelationship() {
         setRelationshipExpectation(TransportRelationshipTypes.DEPART, -1, 104L);
 
         replayAll();
@@ -107,7 +109,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveInterchangeBoardRelationship() throws TramchesterException {
+    public void shouldHaveInterchangeBoardRelationship() {
 
         setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_BOARD, -1, 105L);
 
@@ -125,7 +127,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveWalkToRelationship() throws TramchesterException {
+    public void shouldHaveWalkToRelationship() {
         setRelationshipExpectation(TransportRelationshipTypes.WALKS_TO, 6, 106L);
 
         replayAll();
@@ -151,7 +153,7 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveInterchangeDepartsRelationship() throws TramchesterException {
+    public void shouldHaveInterchangeDepartsRelationship() {
         setRelationshipExpectation(TransportRelationshipTypes.INTERCHANGE_DEPART, -1, 107L);
 
         replayAll();
@@ -168,36 +170,34 @@ public class RelationshipFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveGoesToRelationshipWithCostAndService() throws TramchesterException {
+    public void shouldHaveGoesToRelationshipWithCostAndService() {
         boolean[] days = new boolean[]{true, false, true, false};
         LocalTime[] times = new LocalTime[]{LocalTime.of(0,10), LocalTime.of(0,20),
                 LocalTime.of(0,30), LocalTime.of(0,40)};
+        List<TramTime> tramTimes = new ArrayList<>();
+        for (int i = 0; i < times.length; i++) {
+            tramTimes.add(TramTime.of(times[i]));
+        }
 
         setRelationshipExpectation(TransportRelationshipTypes.TRAM_GOES_TO, 42, 108L);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("service99");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.DAYS)).andReturn(days);
-        //EasyMock.expect(relationship.hasProperty(GraphStaticKeys.TIMES)).andReturn(true);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.TIMES)).andReturn(times);
-//        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DESTINATION)).andReturn("dest");
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_START_DATE)).andReturn("20151025");
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andReturn("20161124");
 
         replayAll();
         TramGoesToRelationship tramRelationship = (TramGoesToRelationship) relationshipFactory.getRelationship(relationship);
         assertEquals(42, tramRelationship.getCost());
         assertEquals("service99", tramRelationship.getServiceId());
-//        assertEquals("dest", tramRelationship.getDest());
-        assertSame(times, tramRelationship.getTimesServiceRuns());
+
+        assertEquals(tramTimes, Arrays.asList(tramRelationship.getTimesServiceRuns()));
         assertSame(days, tramRelationship.getDaysServiceRuns());
-        assertEquals(LocalDate.of(2015, 10, 25), tramRelationship.getStartDate().getDate());
-        assertEquals(LocalDate.of(2016, 11, 24), tramRelationship.getEndDate().getDate());
         assertSame(startTramNode, tramRelationship.getStartNode());
         assertSame(endTramNode, tramRelationship.getEndNode());
         verifyAll();
     }
 
     @Test
-    public void shouldHaveGoesToRelationshipWithCostServiceAndTrip() throws TramchesterException {
+    public void shouldHaveGoesToRelationshipWithCostServiceAndTrip() {
         boolean[] days = new boolean[]{true, false, true, false};
         LocalTime time = LocalTime.of(8,33);
 
@@ -205,27 +205,19 @@ public class RelationshipFactoryTest extends EasyMockSupport {
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_ID)).andReturn("service99");
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.DAYS)).andReturn(days);
 
-        //
-        //EasyMock.expect(relationship.hasProperty(GraphStaticKeys.TIMES)).andReturn(false);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.DEPART_TIME)).andReturn(time);
         EasyMock.expect(relationship.hasProperty(GraphStaticKeys.TRIP_ID)).andReturn(true);
         EasyMock.expect(relationship.getProperty(GraphStaticKeys.TRIP_ID)).andReturn("tripId");
-
-//        EasyMock.expect(relationship.getProperty(GraphStaticKeys.DESTINATION)).andReturn("dest");
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_START_DATE)).andReturn("20151025");
-        EasyMock.expect(relationship.getProperty(GraphStaticKeys.SERVICE_END_DATE)).andReturn("20161124");
 
         replayAll();
         TramGoesToRelationship tramRelationship = (TramGoesToRelationship) relationshipFactory.getRelationship(relationship);
         assertEquals(42, tramRelationship.getCost());
         assertEquals("service99", tramRelationship.getServiceId());
-//        assertEquals("dest", tramRelationship.getDest());
-        assertEquals(time, tramRelationship.getTimeServiceRuns());
+        assertEquals(TramTime.of(time), tramRelationship.getTimeServiceRuns());
         assertTrue(tramRelationship.hasTripId());
         assertEquals("tripId", tramRelationship.getTripId());
         assertSame(days, tramRelationship.getDaysServiceRuns());
-        assertEquals(LocalDate.of(2015, 10, 25), tramRelationship.getStartDate().getDate());
-        assertEquals(LocalDate.of(2016, 11, 24), tramRelationship.getEndDate().getDate());
+
         assertSame(startTramNode, tramRelationship.getStartNode());
         assertSame(endTramNode, tramRelationship.getEndNode());
         verifyAll();

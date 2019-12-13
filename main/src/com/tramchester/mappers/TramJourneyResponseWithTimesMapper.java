@@ -28,7 +28,7 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
         List<RawStage> rawJourneyStages = rawJourney.getStages();
         List<TransportStage> stages = new LinkedList<>();
 
-        LocalTime currentTime = rawJourney.getQueryTime();
+        TramTime currentTime = rawJourney.getQueryTime();
 
         for(RawStage rawStage : rawJourneyStages)
             if (rawStage.getMode().isVehicle()) {
@@ -40,9 +40,9 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
                 Trip trip = serviceTimes.getTrip(tripId);
                 String tripHeadsign = trip.getHeadsign();
 
-                LocalTime arriveTime = currentTime.plusMinutes(rawTravelStage.getCost());
+                TramTime arriveTime = currentTime.plusMinutes(rawTravelStage.getCost());
 
-                ServiceTime time = new ServiceTime(TramTime.of(currentTime), TramTime.of(arriveTime),
+                ServiceTime time = new ServiceTime(currentTime, arriveTime,
                         rawTravelStage.getServiceId(), tripHeadsign, tripId);
 
                 VehicleStageWithTiming stage = new VehicleStageWithTiming(rawTravelStage, time, decideAction(stages));

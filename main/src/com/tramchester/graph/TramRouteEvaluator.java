@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.TramTime;
+import com.tramchester.graph.states.TraversalState;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -23,10 +24,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
+    private final boolean debugEnabled;
     private int success;
     private int currentLowestCost;
 
-    private final Map<Long, Pair<TramTime, Evaluation>> previousSuccessfulVisit;
+    private final Map<Long, TramTime> previousSuccessfulVisit;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId) {
         this.serviceHeuristics = serviceHeuristics;
@@ -35,6 +37,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         success = 0;
         previousSuccessfulVisit = new HashMap<>();
         currentLowestCost = Integer.MAX_VALUE;
+        debugEnabled = logger.isDebugEnabled();
     }
 
     @Override
@@ -44,7 +47,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     @Override
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
-        JourneyState journeyState = state.getState();
+        ImmutableJourneyState journeyState = state.getState();
         TramTime journeyClock = journeyState.getJourneyClock();
 
         Node endNode = path.endNode();
@@ -57,8 +60,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
 
-            Pair<TramTime, Evaluation> previous = previousSuccessfulVisit.get(nodeId);
-            TramTime previousVisitTime = previous.getLeft();
+            TramTime previousVisitTime = previousSuccessfulVisit.get(nodeId);
 
             if (previousVisitTime.equals(journeyClock)) {
                 return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue
@@ -73,9 +75,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         Evaluation result = doEvaluate(path, journeyState, endNode, nodeId);
         if (result.continues()) {
-            previousSuccessfulVisit.put(nodeId, Pair.of(journeyClock, result));
+            previousSuccessfulVisit.put(nodeId, journeyClock);
         } else {
-            if (logger.isDebugEnabled()) {
+            if (debugEnabled) {
                 logger.debug("Stopped at len: " + path.length());
             }
         }
@@ -83,16 +85,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         return result;
     }
 
-    private Evaluation doEvaluate(Path path, JourneyState journeyState, Node endNode, long endNodeId) {
+    private Evaluation doEvaluate(Path path, ImmutableJourneyState journeyState, Node endNode, long endNodeId) {
 
         // TODO RISK this won't always surface fatest paths?
 //        if (success>=RouteCalculator.MAX_NUM_GRAPH_PATHS) {
 //            return Evaluation.EXCLUDE_AND_PRUNE;
 //        }
 
+        TraversalState traversalState = journeyState.getTraversalState();
         if (endNodeId==destinationNodeId) {
             // we've arrived
-            int totalCost = journeyState.getTraversalState().getTotalCost();
+            int totalCost = traversalState.getTotalCost();
             if (totalCost < currentLowestCost) {
                 success = success + 1;
                 currentLowestCost = totalCost;
@@ -103,7 +106,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         } else if (success>0) {
             // already longer that current shortest, no need to continue
-            int totalCost = journeyState.getTraversalState().getTotalCost();
+            int totalCost = traversalState.getTotalCost();
             if (totalCost>currentLowestCost) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }

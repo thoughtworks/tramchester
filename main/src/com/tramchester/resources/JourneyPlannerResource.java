@@ -85,7 +85,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 TramTime departureTime = maybeDepartureTime.get();
 
                 JourneyPlanRepresentation planRepresentation;
-                List<LocalTime> queryTimes = createQueryTimes.generate(departureTime.asLocalTime());
+                List<TramTime> queryTimes = createQueryTimes.generate(departureTime);
                 if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId)) {
                     LatLong latLong = decodeLatLong(lat,lon);
                     planRepresentation = createJourneyPlan(latLong, endId, queryDate, queryTimes, departureTime);
@@ -113,7 +113,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(LatLong latLong, String endId, TramServiceDate queryDate,
-                                                       List<LocalTime> queryTimes, TramTime initialQueryTime) {
+                                                       List<TramTime> queryTimes, TramTime initialQueryTime) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, endId,queryDate.getDay(),
                 queryDate,queryTimes));
         Set<RawJourney> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTimes, queryDate);
@@ -121,7 +121,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
-                                                        List<LocalTime> queryTimes, TramTime initialQueryTime) {
+                                                        List<TramTime> queryTimes, TramTime initialQueryTime) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,queryTimes));
 

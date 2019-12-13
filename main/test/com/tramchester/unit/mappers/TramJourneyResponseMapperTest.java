@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
-    private static final LocalTime AM8 = LocalTime.of(8,0); //8 * 60;
+    private static final TramTime AM8 = TramTime.of(8,0);
     private TramJourneyResponseMapper mapper;
     private TransportDataFromFiles transportData;
     private List<RawStage> stages;
@@ -118,7 +118,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
 
     }
 
-    private RawJourney createSimpleRawJourney(int costA, int costB, LocalTime queryTime) {
+    private RawJourney createSimpleRawJourney(int costA, int costB, TramTime queryTime) {
         RawVehicleStage rawTravelStage1 = new RawVehicleStage(stationA, "routeNameA", TransportMode.Bus, "routeIdA").
                 setLastStation(stationB,2).setServiceId("svcId").setCost(costA);
         rawTravelStage1.setPlatform(platformA);

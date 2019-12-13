@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TramTime;
 import com.tramchester.graph.states.ImmuatableTraversalState;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.graph.states.TraversalState;
@@ -25,12 +26,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
-    private final LocalTime queryTime;
+    private final TramTime queryTime;
     private final long destinationNodeId;
     private final String endStationId;
 
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
-                                CachedNodeOperations nodeOperations, LocalTime queryTime, Node destinationNode, String endStationId) {
+                                CachedNodeOperations nodeOperations, TramTime queryTime, Node destinationNode, String endStationId) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.queryTime = queryTime;

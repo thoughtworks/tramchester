@@ -1,6 +1,7 @@
 package com.tramchester.graph.Relationships;
 
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -10,25 +11,20 @@ import java.time.LocalTime;
 
 public abstract class GoesToRelationship extends TransportCostRelationship {
     private String service;
-    private boolean[] daysRunning;
-    private TramServiceDate startDate;
-    private TramServiceDate endDate;
+    private boolean[] daysRunning; // TODO REMOVE
     private String tripId;
 
     // TODO array to disappear
-    private LocalTime[] timesRunning; // OR if edge per trip then
-    private LocalTime timeRunning;
+    private TramTime[] timesRunning; // OR if edge per trip then
+    private TramTime timeRunning;
 
-    protected GoesToRelationship(String service, int cost, boolean[] daysRunning, LocalTime[] timesRunning, String id,
-                                 TramServiceDate startDate, TramServiceDate endDate,
+    protected GoesToRelationship(String service, int cost, boolean[] daysRunning, TramTime[] timesRunning, String id,
                                  TramNode startNode, TramNode endNode, String tripId) {
         //TESTING ONLY
         super(cost, id, startNode, endNode);
         this.service = service;
         this.daysRunning = daysRunning;
         this.timesRunning = timesRunning;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.tripId = tripId;
     }
 
@@ -43,17 +39,22 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         return daysRunning;
     }
 
-    public LocalTime[] getTimesServiceRuns() {
+    public TramTime[] getTimesServiceRuns() {
         if (timesRunning==null) {
-            timesRunning = (LocalTime[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
+            LocalTime[] rawTimesRunning = (LocalTime[]) graphRelationship.getProperty(GraphStaticKeys.TIMES);
+            timesRunning = new TramTime[rawTimesRunning.length];
+            for (int i = 0; i < rawTimesRunning.length; i++) {
+                timesRunning[i] = TramTime.of(rawTimesRunning[i]);
+            }
         }
         return timesRunning;
     }
 
     @Deprecated
-    public LocalTime getTimeServiceRuns() {
+    public TramTime getTimeServiceRuns() {
         if (timeRunning==null) {
-            timeRunning =(LocalTime) graphRelationship.getProperty(GraphStaticKeys.DEPART_TIME);
+            LocalTime property = (LocalTime) graphRelationship.getProperty(GraphStaticKeys.DEPART_TIME);
+            timeRunning = TramTime.of(property);
         }
         return timeRunning;
     }
@@ -79,20 +80,6 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
         return service;
     }
 
-    public TramServiceDate getStartDate() {
-        if (startDate==null) {
-            startDate = new TramServiceDate(graphRelationship.getProperty(GraphStaticKeys.SERVICE_START_DATE).toString());
-        }
-        return startDate;
-    }
-
-    public TramServiceDate getEndDate() {
-        if (endDate==null) {
-            endDate = new TramServiceDate(graphRelationship.getProperty(GraphStaticKeys.SERVICE_END_DATE).toString());
-        }
-        return endDate;
-    }
-
     @Override
     public boolean isGoesTo() {
         return true;
@@ -102,8 +89,6 @@ public abstract class GoesToRelationship extends TransportCostRelationship {
     public String toString() {
         return "TramGoesToRelationship{" +
                 "service='" + getServiceId() + '\'' +
-                ", startDate=" + getStartDate() +
-                ", endDate=" + getEndDate() +
                 '}';
     }
 

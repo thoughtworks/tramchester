@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.GoesToRelationship;
@@ -29,7 +28,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private final TramchesterConfig config;
     private final RunningServices runningServices;
     private final String endStationId;
-    private final LocalTime queryTime;
+    private final TramTime queryTime;
     private final List<ServiceReason> reasons;
     private final ReachabilityRepository reachabilityRepository;
 
@@ -37,7 +36,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
 
-    private Optional<LocalTime> boardingTime;
+    private Optional<TramTime> boardingTime;
     private final int maxWaitMinutes;
 
     // stats
@@ -45,7 +44,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private final AtomicInteger totalChecked = new AtomicInteger(0);
 
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations,
-                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, LocalTime queryTime,
+                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
                              RunningServices runningServices, String endStationId) {
         this.nodeOperations = nodeOperations;
         this.reachabilityRepository = reachabilityRepository;
@@ -75,7 +74,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         String nodeServiceId = nodeOperations.getServiceId(node);
 
         if (runningServices.isRunning(nodeServiceId)) {
-            return recordReason(ServiceReason.IsValid(path,"dateDay"));
+            return recordReason(ServiceReason.IsValid(path));
         }
 
         return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
@@ -88,33 +87,38 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     public ServiceReason checkServiceTime(Path path, Node node, TramTime currentClock) {
         totalChecked.incrementAndGet();
 
-        // prepared to wait up to max wait for start of a service...
-        LocalTime serviceStart = nodeOperations.getServiceEarliest(node).asLocalTime().minusMinutes(maxWaitMinutes);
-        // BUT if arrive after service finished there is nothing to be done...
-        TramTime serviceEnd = nodeOperations.getServiceLatest(node);
+        // TODO pre-cache this?
+        String serviceId = nodeOperations.getServiceId(node);
 
-        if (!currentClock.between(TramTime.of(serviceStart), serviceEnd)) {
-            String nodeServiceId = nodeOperations.getServiceId(node);
-            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, "ServiceNotRunning:"+nodeServiceId,
+        // prepared to wait up to max wait for start of a service...
+//        TramTime serviceStart = nodeOperations.getServiceEarliest(node).minusMinutes(maxWaitMinutes);
+        TramTime serviceStart = runningServices.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
+
+                // BUT if arrive after service finished there is nothing to be done...
+//        TramTime serviceEnd = nodeOperations.getServiceLatest(node);
+        TramTime serviceEnd = runningServices.getServiceLatest(serviceId);
+
+        if (!currentClock.between(serviceStart, serviceEnd)) {
+            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock,
                     path));
         }
 
-        return recordReason(ServiceReason.IsValid(path,"svcTimes"));
+        return recordReason(ServiceReason.IsValid(path));
     }
 
     // edge per trip
     public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed) {
         totalChecked.getAndIncrement();
 
-        TramTime nodeTime = TramTime.of(nodeOperations.getTime(node));
+        TramTime nodeTime =nodeOperations.getTime(node);
         if (currentElapsed.isAfter(nodeTime)) { // already departed
-            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "after", path));
+            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
         }
 
         if (operatesWithinTime(nodeTime, currentElapsed)) {
-            return recordReason(ServiceReason.IsValid(path, "timeNode"));
+            return recordReason(ServiceReason.IsValid(path));
         }
-        return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, "outside", path));
+        return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
     }
 
     private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
@@ -146,51 +150,50 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
         // all times for the service per edge
         if (!underMaxWait(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
-            return recordReason(ServiceReason.DoesNotOperateOnTime(TramTime.of(elapsedTimeProvider.getElapsedTime()),
-                    "max wait", path));
+            return recordReason(ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime(),
+                    path));
         }
 
-        return recordReason(ServiceReason.IsValid(path,"ok"));
+        return recordReason(ServiceReason.IsValid(path));
     }
 
     public ServiceReason sameService(Path path, TransportRelationship transportRelationship, GoesToRelationship outgoing) {
         if (!transportRelationship.isGoesTo()) {
-            return recordReason(ServiceReason.IsValid(path,"notGoesTo")); // not a connecting/goes to relationship, no svc id
+            return recordReason(ServiceReason.IsValid(path)); // not a connecting/goes to relationship, no svc id
         }
 
         GoesToRelationship incoming = (GoesToRelationship) transportRelationship;
         String service = incoming.getServiceId();
 
         if (service.equals(outgoing.getServiceId())) {
-            return recordReason(ServiceReason.IsValid(path, "svcMatch"));
+            return recordReason(ServiceReason.IsValid(path));
         }
 
         return recordReason(ServiceReason.InflightChangeOfService(service, path));
     }
 
-    public boolean underMaxWait(LocalTime[] times, ElapsedTime provider) throws TramchesterException {
+    public boolean underMaxWait(TramTime[] times, ElapsedTime provider) throws TramchesterException {
         if (times.length==0) {
             logger.warn("No times provided");
         }
         totalChecked.getAndIncrement();
-        LocalTime journeyClockTime = provider.getElapsedTime();
-        TramTime journeyClock = TramTime.of(journeyClockTime);
+        TramTime journeyClockTime = provider.getElapsedTime();
 
         // the times array is sorted in ascending order
-        for (LocalTime nextTramTime : times) {
-            TramTime nextTram = TramTime.of(nextTramTime);
+        for (TramTime nextTram : times) {
+            //TramTime nextTram = TramTime.of(nextTramTime);
 
             // if wait until this tram is too long can stop now
-            int diffenceAsMinutes = TramTime.diffenceAsMinutes(nextTram, journeyClock);
+            int diffenceAsMinutes = TramTime.diffenceAsMinutes(nextTram, journeyClockTime);
 
-            if (nextTramTime.isAfter(journeyClockTime) && diffenceAsMinutes > maxWaitMinutes) {
+            if (nextTram.isAfterBasic(journeyClockTime) && diffenceAsMinutes > maxWaitMinutes) {
                 return false;
             }
 
-            if (nextTram.departsAfter(journeyClock)) {
+            if (nextTram.departsAfter(journeyClockTime)) {
                 if (diffenceAsMinutes <= maxWaitMinutes) {
                     if (provider.startNotSet()) {
-                        LocalTime realJounrneyStartTime = nextTramTime.minusMinutes(TransportGraphBuilder.BOARDING_COST);
+                        TramTime realJounrneyStartTime = nextTram.minusMinutes(TransportGraphBuilder.BOARDING_COST);
                         provider.setJourneyStart(realJounrneyStartTime);
                     }
                     return true;  // within max wait time
@@ -201,7 +204,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     }
 
     @Override
-    public void save(LocalTime time) {
+    public void save(TramTime time) {
         boardingTime = Optional.of(time);
     }
 
@@ -211,7 +214,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     }
 
     @Override
-    public LocalTime get() {
+    public TramTime get() {
         return boardingTime.get();
     }
 
@@ -224,23 +227,21 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     public ServiceReason interestedInHour(Path path, int hour, TramTime journeyClockTime) {
         totalChecked.getAndIncrement();
 
-        int queryTimeHour = queryTime.getHour();
+        int queryTimeHour = queryTime.getHourOfDay();
         if (hour == queryTimeHour) {
             // quick win
-            return recordReason(ServiceReason.IsValid(path, "Hour Matches"));
+            return recordReason(ServiceReason.IsValid(path));
         }
 
         TramTime latestTimeInHour = TramTime.of(hour, 59);
 
         TramTime earliestTimeInHour = TramTime.of(LocalTime.of(hour,0).minusMinutes(maxWaitMinutes));
-        //TramTime earliestTime = TramTime.of(journeyClockTime);
 
         if (journeyClockTime.between(earliestTimeInHour,latestTimeInHour)) {
-            return recordReason(ServiceReason.IsValid(path, "Hour Range Matches"));
+            return recordReason(ServiceReason.IsValid(path));
         }
 
-        return recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime,
-                earliestTimeInHour.toString()+"->"+latestTimeInHour.toString(), path));
+        return recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
     }
 
     public void reportReasons() {
@@ -294,26 +295,26 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         String stationId = endNode.getProperty(ID).toString();
         boolean flag = reachabilityRepository.reachable(stationId, endStationId);
         if (flag) {
-            return recordReason(ServiceReason.IsValid(path, "reachable station"));
+            return recordReason(ServiceReason.IsValid(path));
         }
         return recordReason(ServiceReason.StationNotReachable(path));
 
     }
 
     public ServiceReason journeyDurationUnderLimit(TramTime visitingTime, Path path) {
-        if (TramTime.diffenceAsMinutes( TramTime.of(queryTime), visitingTime)>maxJourneyDuration) {
+        if (TramTime.diffenceAsMinutes( queryTime, visitingTime)>maxJourneyDuration) {
             return recordReason(ServiceReason.TookTooLong(visitingTime, path));
         }
-        return recordReason(ServiceReason.IsValid(path,"not too long"));
+        return recordReason(ServiceReason.IsValid(path));
     }
 
-    public ServiceReason overMaxWait(TramTime journeyClock, TramTime previousVisit, Path path) {
-        int diffenceAsMinutes = TramTime.diffenceAsMinutes(previousVisit, journeyClock);
-
-        if (journeyClock.isAfter(previousVisit) && diffenceAsMinutes > maxWaitMinutes) {
-            return recordReason(ServiceReason.DoesNotOperateOnTime(journeyClock, "max wait", path));
-        }
-
-        return recordReason(ServiceReason.IsValid(path, "Early visit or within 30 mins"));
-    }
+//    public ServiceReason overMaxWait(TramTime journeyClock, TramTime previousVisit, Path path) {
+//        int diffenceAsMinutes = TramTime.diffenceAsMinutes(previousVisit, journeyClock);
+//
+//        if (journeyClock.isAfter(previousVisit) && diffenceAsMinutes > maxWaitMinutes) {
+//            return recordReason(ServiceReason.DoesNotOperateOnTime(journeyClock, path));
+//        }
+//
+//        return recordReason(ServiceReason.IsValid(path));
+//    }
 }

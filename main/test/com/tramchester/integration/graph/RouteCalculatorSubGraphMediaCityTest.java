@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -78,14 +79,14 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     public void shouldHaveMediaCityToExchangeSquare() {
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, LocalTime.of(9,00), TestConfig.nextSaturday());
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, LocalTime.of(9,00), TestConfig.nextSaturday());
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, LocalTime.of(9,00), TestConfig.nextSunday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, TramTime.of(9,00), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,00), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,00), TestConfig.nextSunday());
     }
 
     @Test
     public void shouldHaveJourneyFromEveryStationToEveryOther() {
-        List<LocalTime> times = Collections.singletonList(LocalTime.of(9,0));
+        List<TramTime> times = Collections.singletonList(TramTime.of(9,0));
         List<String> failures = new LinkedList<>();
 
         for (String start: stations) {
@@ -107,17 +108,17 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     public void reproduceMediaCityIssue() {
-        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, LocalTime.of(12,00), nextTuesday);
+        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, TramTime.of(12,0), nextTuesday);
     }
 
     @Test
     public void reproduceMediaCityIssueSaturdays() {
-        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, LocalTime.of(9,00), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, TramTime.of(9,0), TestConfig.nextSaturday());
     }
 
     @Test
     public void shouldHaveSimpleJourney() {
-        List<LocalTime> minutes = Collections.singletonList(LocalTime.of(12, 0));
+        List<TramTime> minutes = Collections.singletonList(TramTime.of(12, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK.getId(),
                 minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
         assertTrue(results.size()>0);
@@ -147,7 +148,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, LocalTime time, LocalDate date) {
+    private void validateAtLeastOneJourney(Location start, Location dest, TramTime time, LocalDate date) {
         RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date, testConfig.getEdgePerTrip());
     }
 }
