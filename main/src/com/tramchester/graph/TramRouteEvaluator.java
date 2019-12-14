@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.states.TraversalState;
-import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -12,7 +11,8 @@ import org.neo4j.graphdb.traversal.PathEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
@@ -55,7 +55,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         if (previousSuccessfulVisit.containsKey(nodeId)) {
 
-            if (nodeOperations.isTime(endNode)) {
+            if (nodeOperations.isTime(nodeId)) {
                 // no way to get different response for same service/minute - boarding time has to be same
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
@@ -119,7 +119,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // is the service running today
-        boolean isService = nodeOperations.isService(endNode);
+        boolean isService = nodeOperations.isService(endNodeId);
         if (isService) {
             if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
@@ -127,7 +127,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // is even reachable from here?
-        if (nodeOperations.isRouteStation(endNode)) {
+        if (nodeOperations.isRouteStation(endNodeId)) {
             if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
@@ -157,7 +157,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // check time, just hour first
-        if (nodeOperations.isHour(endNode)) {
+        if (nodeOperations.isHour(endNodeId)) {
             int hour = nodeOperations.getHour(endNode);
             if (!serviceHeuristics.interestedInHour(path, hour, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
@@ -165,7 +165,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // check time
-        if (nodeOperations.isTime(endNode)) {
+        if (nodeOperations.isTime(endNodeId)) {
             if (!serviceHeuristics.checkTime(path, endNode, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }

@@ -11,8 +11,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TramTimeTest {
 
@@ -21,6 +20,17 @@ public class TramTimeTest {
         TramTime timeA = TramTime.of(11,23);
         assertEquals(11, timeA.getHourOfDay());
         assertEquals(23, timeA.getMinuteOfHour());
+    }
+
+    @Test
+    public void shouldHaveEquality() {
+        for (int hour = 0; hour < 24; hour++) {
+            for (int minute = 0; minute < 60; minute++) {
+                TramTime tramTime = TramTime.of(hour, minute);
+                assertEquals(TramTime.of(hour, minute), tramTime);
+                assertNotEquals(TramTime.of(23-hour, 59-minute), tramTime);
+            }
+        }
     }
 
     @Test

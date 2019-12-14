@@ -78,7 +78,7 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void shouldHaveJourneysBetweenAllStations() {
-        TramTime time = TramTime.of(9, 00);
+        TramTime time = TramTime.of(9, 0);
         for (Location start: stations) {
             for (Location destination: stations) {
                 if (!start.equals(destination)) {

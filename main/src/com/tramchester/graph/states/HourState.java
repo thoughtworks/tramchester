@@ -62,8 +62,8 @@ public class HourState extends TraversalState {
     private List<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, String tripId) {
         List<Relationship> results = new ArrayList<>();
         relationships.forEach(relationship -> {
-            String trips = nodeOperations.getTrip(relationship);
-            if (trips.contains(tripId)) {
+            String trip = nodeOperations.getTrip(relationship);
+            if (trip.contains(tripId)) {
                 results.add(relationship);
             }
         });

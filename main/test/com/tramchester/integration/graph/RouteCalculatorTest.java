@@ -4,7 +4,6 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
@@ -16,7 +15,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,7 +59,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldReproIssueWithChangesVeloToTraffordBar() throws TramchesterException {
+    public void shouldReproIssueWithChangesVeloToTraffordBar() {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, TramTime.of(8,0), nextTuesday);
     }
 
@@ -90,12 +88,12 @@ public class RouteCalculatorTest {
             assertEquals(1, journey.getStages().size()); // should be one stage only
             journey.getStages().stream().
                     map(raw -> (RawVehicleStage) raw).
-                    map(stage -> stage.getCost()).
+                    map(RawVehicleStage::getCost).
                     forEach(cost -> assertTrue(cost>0));
             Optional<Integer> total = journey.getStages().stream().
                     map(raw -> (RawVehicleStage) raw).
-                    map(stage -> stage.getCost()).
-                    reduce((a, b) -> a + b);
+                    map(RawVehicleStage::getCost).
+                    reduce(Integer::sum);
             assertTrue(total.isPresent());
             assertTrue(total.get()>20);
         });
@@ -177,26 +175,26 @@ public class RouteCalculatorTest {
 
         Map<Pair<Location, Location>, Set<RawJourney>> allJourneys = combinations.parallelStream().
                 map(stations -> Pair.of(stations, calc(stations, queryTimes, queryDate))).
-                        collect(Collectors.toConcurrentMap(pair -> pair.getLeft(), pair -> pair.getRight()));
+                        collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
 
         List<Pair<String, String>> failed = allJourneys.entrySet().
                 stream().
                 filter(journey -> journey.getValue().size() == 0).
-                map(item -> item.getKey()).
+                map(Map.Entry::getKey).
                 map(pair -> Pair.of(pair.getLeft().getName(), pair.getRight().getName())).
                 collect(Collectors.toList());
         //long failed = allJourneys.values().stream().filter(rawJourneys -> rawJourneys.size() == 0).count();
         assertEquals(failed.toString(), 0L, failed.size());
 
         Set<Integer> passedStops = allJourneys.values().stream().
-                flatMap(set -> set.stream()).
+                flatMap(Collection::stream).
                 map(journey ->
                         journey.getStages().stream().
-                                map(stage -> stage.getPassedStops()).
-                                reduce((a, b) -> a + b)).
-                filter(sum -> sum.isPresent()).
-                map(sum -> sum.get())
-                .collect(Collectors.toSet());
+                                map(RawStage::getPassedStops).
+                                reduce(Integer::sum)).
+                    filter(Optional::isPresent).
+                    map(Optional::get).
+                    collect(Collectors.toSet());
 
         Integer[] results = new Integer[passedStops.size()];
         passedStops.toArray(results);
@@ -209,7 +207,7 @@ public class RouteCalculatorTest {
         return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
     }
 
-    @Test(timeout=30000)
+    @Test
     public void shouldFindEndOfLinesToEndOfLinesTuesday() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -222,7 +220,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldReproIssueWithMediaCityTrams() {
-        TramTime time = TramTime.of(12, 00);
+        TramTime time = TramTime.of(12, 0);
 
         validateAtLeastOneJourney(Stations.StPetersSquare, Stations.MediaCityUK, time, nextTuesday);
         validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, time, nextTuesday);
@@ -243,7 +241,6 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, time, nextTuesday.plusDays(5));
     }
 
-    @Test(timeout=30000)
     public void shouldFindInterchangesToInterchanges() {
         for (Location start :  Stations.Interchanges) {
             for (Location dest : Stations.Interchanges) {
@@ -271,7 +268,7 @@ public class RouteCalculatorTest {
 
     }
 
-    @Test(timeout=30000)
+    @Test
     public void shouldFindEndOfLinesToInterchanges() {
         for (Location start : Stations.EndOfTheLine) {
             for (Location dest : Stations.Interchanges) {
@@ -280,7 +277,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    @Test(timeout=30000)
+    @Test
     public void shouldFindInterchangesToEndOfLines() {
         for (Location start : Stations.Interchanges ) {
             for (Location dest : Stations.EndOfTheLine) {
@@ -293,17 +290,17 @@ public class RouteCalculatorTest {
     public void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
         LocalDate nextTuesday = TestConfig.nextTuesday(0);
         // catches issue with services, only some of which go to media city, while others direct to broadway
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(8,00), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(8,00), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(8,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(8,0), nextTuesday);
 
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(9,00), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,00), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(9,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), nextTuesday);
     }
 
     @Test
     public void shouldReproIssueWithJourneysToEccles() {
-        validateAtLeastOneJourney(Stations.Bury, Stations.Broadway, TramTime.of(9,00), nextTuesday);
-        validateAtLeastOneJourney(Stations.Bury, Stations.Eccles, TramTime.of(9,00), nextTuesday);
+        validateAtLeastOneJourney(Stations.Bury, Stations.Broadway, TramTime.of(9,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Bury, Stations.Eccles, TramTime.of(9,0), nextTuesday);
     }
 
     @Test
@@ -315,7 +312,7 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), nextTuesday);
     }
 
-    @Test(timeout=30000)
+    @Test
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
     }
@@ -408,12 +405,14 @@ public class RouteCalculatorTest {
 
     private static void checkStages(RawJourney journey) {
         List<RawStage> stages = journey.getStages();
-        TramTime earliestAtNextStage = TramTime.of(0,0);
+        TramTime earliestAtNextStage = null;
         for (RawStage stage : stages) {
             RawVehicleStage transportStage = (RawVehicleStage) stage;
             if (stage != null) {
-                assertFalse(transportStage.toString() + " arrived before " + earliestAtNextStage,
-                        transportStage.getDepartTime().isBefore(earliestAtNextStage));
+                if (earliestAtNextStage!=null) {
+                    assertFalse(transportStage.toString() + " arrived before " + earliestAtNextStage,
+                            transportStage.getDepartTime().isBefore(earliestAtNextStage));
+                }
                 earliestAtNextStage = transportStage.getDepartTime().plusMinutes(transportStage.getCost());
             }
         }

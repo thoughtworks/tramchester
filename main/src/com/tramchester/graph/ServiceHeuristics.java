@@ -99,8 +99,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         TramTime serviceEnd = runningServices.getServiceLatest(serviceId);
 
         if (!currentClock.between(serviceStart, serviceEnd)) {
-            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock,
-                    path));
+            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));
         }
 
         return recordReason(ServiceReason.IsValid(path));
