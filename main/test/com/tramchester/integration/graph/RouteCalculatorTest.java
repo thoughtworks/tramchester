@@ -208,11 +208,7 @@ public class RouteCalculatorTest {
         Integer[] results = new Integer[passedStops.size()];
         passedStops.toArray(results);
         int longest = results[results.length - 1];
-        if (!edgePerTrip) {
-            assertEquals(40,longest);
-        } else {
-            assertEquals(39,longest);
-        }
+        assertEquals(39,longest);
     }
 
     private boolean matches(Pair<Location, Location> locationPair, List<Location> locations) {

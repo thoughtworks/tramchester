@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static java.lang.String.format;
 
@@ -19,9 +21,9 @@ public class StationIndexs {
     protected final RelationshipFactory relationshipFactory;
 
     // TODO with the indexes is the cache needed?
-    private Map<String,Node> routeStationNodeCache;
-    private Map<String,Node> stationNodeCache;
-    private Map<String,Node> platformNodeCache;
+    private ConcurrentMap<String,Node> routeStationNodeCache;
+    private ConcurrentMap<String,Node> stationNodeCache;
+    private ConcurrentMap<String,Node> platformNodeCache;
     private SimplePointLayer spatialLayer;
 
     protected GraphDatabaseService graphDatabaseService;
@@ -34,9 +36,9 @@ public class StationIndexs {
         graphQuery = new GraphQuery(graphDatabaseService, relationshipFactory, spatialDatabaseService);
         this.warnIfMissing = warnIfMissing;
         this.relationshipFactory = relationshipFactory;
-        routeStationNodeCache = new HashMap<>();
-        stationNodeCache = new HashMap<>();
-        platformNodeCache = new HashMap<>();
+        routeStationNodeCache = new ConcurrentHashMap<>();
+        stationNodeCache = new ConcurrentHashMap<>();
+        platformNodeCache = new ConcurrentHashMap<>();
     }
 
     protected Node getCallingPointNode(String routeStationId) {

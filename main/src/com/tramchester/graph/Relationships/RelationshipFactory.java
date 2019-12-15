@@ -6,15 +6,17 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class RelationshipFactory {
 
-    private Map<Long,TransportRelationship> cache;
+    private ConcurrentMap<Long,TransportRelationship> cache;
 
     private NodeFactory nodeFactory;
 
     public RelationshipFactory(NodeFactory nodeFactory) {
-        cache = new HashMap<>();
+        cache = new ConcurrentHashMap<>();
         this.nodeFactory = nodeFactory;
     }
 

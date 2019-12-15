@@ -16,12 +16,13 @@ import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 public class CachedNodeOperations {
 
     private final ConcurrentMap<Long, Integer> relationshipCostCache;
-    private final ConcurrentMap<Long, Integer> hourNodeCache;
     private final ConcurrentMap<Long, String> tripRelationshipCache;
     private final ConcurrentMap<Long, String> svcIdCache;
+    private final ConcurrentMap<Long, Integer> hourNodeCache;
 
     // cached times
     private final ConcurrentMap<Long, TramTime> times;
+    // node types
     private final NodeIdLabelMap nodeIdLabelMap;
 
     public CachedNodeOperations(NodeIdLabelMap nodeIdLabelMap) {
@@ -54,6 +55,13 @@ public class CachedNodeOperations {
         return trip;
     }
 
+    public String getTrip(Node endNode) {
+        if (!endNode.hasProperty(TRIP_ID)) {
+            return "";
+        }
+        return endNode.getProperty(TRIP_ID).toString();
+    }
+
     public TramTime getTime(Node node) {
         long nodeId = node.getId();
         if (times.containsKey(nodeId)) {
@@ -76,7 +84,6 @@ public class CachedNodeOperations {
     }
 
     public int getCost(Relationship relationship) {
-
         long relationshipId = relationship.getId();
         if (relationshipCostCache.containsKey(relationshipId)) {
             return relationshipCostCache.get(relationshipId);
@@ -87,12 +94,12 @@ public class CachedNodeOperations {
         return cost;
     }
 
-    public boolean isService(long nodeId) {
-        return checkForLabel(nodeId, TransportGraphBuilder.Labels.SERVICE);
-    }
-
     private boolean checkForLabel(long nodeId, TransportGraphBuilder.Labels label) {
         return nodeIdLabelMap.has(nodeId, label);
+    }
+
+    public boolean isService(long nodeId) {
+        return checkForLabel(nodeId, TransportGraphBuilder.Labels.SERVICE);
     }
 
     public boolean isHour(long nodeId) {
@@ -117,19 +124,14 @@ public class CachedNodeOperations {
         return hour;
     }
 
-    public String getTrip(Node endNode) {
-        if (!endNode.hasProperty(TRIP_ID)) {
-            return "";
-        }
-        return endNode.getProperty(TRIP_ID).toString();
-    }
-
+    // for creating query nodes, to support MyLocation joruneys
     public Node createQueryNode(GraphDatabaseService graphDatabaseService) {
         Node result = graphDatabaseService.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
         nodeIdLabelMap.putQueryNode(result.getId());
         return result;
     }
 
+    // for deleting query nodes, to support MyLocation joruneys
     public void deleteNode(Node node) {
         long id = node.getId();
         node.delete();
