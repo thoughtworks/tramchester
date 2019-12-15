@@ -31,7 +31,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public boolean getEdgePerTrip() {
-        return false;
+        return true;
     }
 
     //////
@@ -159,6 +159,10 @@ public abstract class TestConfig extends AppConfiguration {
         while (date.getDayOfWeek()!= dayOfWeek) {
             date = date.plusDays(1);
         }
+        return avoidChristmasDate(date);
+    }
+
+    public static LocalDate avoidChristmasDate(LocalDate date) {
         while (new TramServiceDate(date).isChristmasPeriod()) {
             date = date.plusWeeks(1);
         }

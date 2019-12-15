@@ -8,19 +8,20 @@ import org.neo4j.graphdb.Relationship;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 
 public class CachedNodeOperations {
 
-    private final Map<Long, Integer> relationshipCostCache;
-    private final Map<Long, Integer> hourNodeCache;
-    private final Map<Long, String> tripRelationshipCache;
-    private final Map<Long, String> svcIdCache;
+    private final ConcurrentMap<Long, Integer> relationshipCostCache;
+    private final ConcurrentMap<Long, Integer> hourNodeCache;
+    private final ConcurrentMap<Long, String> tripRelationshipCache;
+    private final ConcurrentMap<Long, String> svcIdCache;
 
     // cached times
-    private final Map<Long, TramTime> times;
+    private final ConcurrentMap<Long, TramTime> times;
     private final NodeIdLabelMap nodeIdLabelMap;
 
     public CachedNodeOperations(NodeIdLabelMap nodeIdLabelMap) {

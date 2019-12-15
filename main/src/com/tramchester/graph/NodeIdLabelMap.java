@@ -1,15 +1,21 @@
 package com.tramchester.graph;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class NodeIdLabelMap {
-    private EnumMap<TransportGraphBuilder.Labels, Set<Long>> map;
+    private Map<TransportGraphBuilder.Labels, Set<Long>> map;
+    private ConcurrentMap<Long, Boolean> queryNodes;
 
     public NodeIdLabelMap() {
         map = new EnumMap<>(TransportGraphBuilder.Labels.class);
         for (TransportGraphBuilder.Labels label: TransportGraphBuilder.Labels.values()) {
-            map.put(label, new HashSet<>());
+            if (label != TransportGraphBuilder.Labels.QUERY_NODE) {
+                map.put(label, new HashSet<>());
+            }
         }
+        queryNodes = new ConcurrentHashMap<>();
     }
 
     public void put(long id, TransportGraphBuilder.Labels label) {
@@ -17,14 +23,20 @@ public class NodeIdLabelMap {
     }
 
     public boolean has(long nodeId, TransportGraphBuilder.Labels label) {
+        if (label== TransportGraphBuilder.Labels.QUERY_NODE) {
+            return queryNodes.containsKey(nodeId);
+        }
         return map.get(label).contains(nodeId);
     }
 
     public void putQueryNode(long id) {
-        map.get(TransportGraphBuilder.Labels.QUERY_NODE).add(id);
+        queryNodes.put(id,true);
+    }
+    public void removeQueryNode(long id) {
+        queryNodes.remove(id);
     }
 
-    public void removeQueryNode(long id) {
-        map.get(TransportGraphBuilder.Labels.QUERY_NODE).remove(id);
+    public void freeze() {
+        map = Collections.unmodifiableMap(map);
     }
 }

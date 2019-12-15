@@ -16,8 +16,10 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import static com.tramchester.TestConfig.avoidChristmasDate;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -154,7 +156,12 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, TramTime.of(23, 15), nextTuesday);
     }
 
-    @Test(timeout=60000)
+    @Test
+    public void shouldHaveHeatonParkToBurtonRoad() {
+        validateAtLeastOneJourney("9400ZZMAHEA", "9400ZZMABNR", TramTime.of(6, 5),  nextTuesday);
+    }
+
+    @Test
     public void shouldFindRouteEachStationToEveryOtherStream() {
 
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
@@ -166,14 +173,17 @@ public class RouteCalculatorTest {
         for (Location start : allStations) {
             for (Location end : allStations) {
                 if (!start.equals(end)) {
-                    combinations.add(Pair.of(start,end));
+                    Pair<Location, Location> locationPair = Pair.of(start, end);
+                    if ( !(matches(locationPair, Stations.Interchanges) || matches(locationPair, Stations.EndOfTheLine))) {
+                        combinations.add(locationPair);
+                    }
                 }
             }
         }
 
         List<TramTime> queryTimes = Collections.singletonList(TramTime.of(6, 5));
 
-        Map<Pair<Location, Location>, Set<RawJourney>> allJourneys = combinations.parallelStream().
+        ConcurrentMap<Pair<Location, Location>, Set<RawJourney>> allJourneys = combinations.parallelStream().
                 map(stations -> Pair.of(stations, calc(stations, queryTimes, queryDate))).
                         collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
 
@@ -183,7 +193,6 @@ public class RouteCalculatorTest {
                 map(Map.Entry::getKey).
                 map(pair -> Pair.of(pair.getLeft().getName(), pair.getRight().getName())).
                 collect(Collectors.toList());
-        //long failed = allJourneys.values().stream().filter(rawJourneys -> rawJourneys.size() == 0).count();
         assertEquals(failed.toString(), 0L, failed.size());
 
         Set<Integer> passedStops = allJourneys.values().stream().
@@ -199,12 +208,20 @@ public class RouteCalculatorTest {
         Integer[] results = new Integer[passedStops.size()];
         passedStops.toArray(results);
         int longest = results[results.length - 1];
-        assertEquals(40,longest);
+        if (!edgePerTrip) {
+            assertEquals(40,longest);
+        } else {
+            assertEquals(39,longest);
+        }
+    }
 
+    private boolean matches(Pair<Location, Location> locationPair, List<Location> locations) {
+        return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
     private Set<RawJourney> calc(Pair<Location, Location> pair, List<TramTime> queryTimes, TramServiceDate queryDate) {
-        return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate,
+                RouteCalculator.MAX_NUM_GRAPH_PATHS);
     }
 
     @Test
@@ -316,7 +333,7 @@ public class RouteCalculatorTest {
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
     }
-    
+
     private int checkRangeOfTimes(Location start, Location dest) {
         List<TramTime> missing = new LinkedList<>();
         for (int hour = 6; hour < 23; hour++) {
@@ -376,7 +393,8 @@ public class RouteCalculatorTest {
     private void checkRouteNextNDays(Location start, Location dest, LocalDate date, TramTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
-                validateAtLeastOneJourney(start, dest, time, date.plusDays(day));
+                LocalDate testDate = avoidChristmasDate(date.plusDays(day));
+                validateAtLeastOneJourney(start, dest, time, testDate);
             }
         }
     }

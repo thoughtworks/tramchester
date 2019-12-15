@@ -235,6 +235,7 @@ public class Dependencies {
             }
             tx.success();
         }
+        nodeIdLabelMap.freeze();
     }
 
     public <T> T get(Class<T> klass) {

@@ -226,19 +226,23 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     public ServiceReason interestedInHour(Path path, int hour, TramTime journeyClockTime) {
         totalChecked.getAndIncrement();
 
-        int queryTimeHour = queryTime.getHourOfDay();
+        int queryTimeHour = journeyClockTime.getHourOfDay();
         if (hour == queryTimeHour) {
             // quick win
             return recordReason(ServiceReason.IsValid(path));
         }
 
-        TramTime latestTimeInHour = TramTime.of(hour, 59);
-
-        TramTime earliestTimeInHour = TramTime.of(LocalTime.of(hour,0).minusMinutes(maxWaitMinutes));
-
-        if (journeyClockTime.between(earliestTimeInHour,latestTimeInHour)) {
-            return recordReason(ServiceReason.IsValid(path));
+        // this only works if maxWaitMinutes<60
+        if (queryTimeHour==(hour-1)) {
+            if (journeyClockTime.getMinuteOfHour()>=60-maxWaitMinutes) {
+                return recordReason(ServiceReason.IsValid(path));
+            }
         }
+
+//        TramTime latestTimeToWait = journeyClockTime.plusMinutes(maxWaitMinutes);
+//        if (latestTimeToWait.getHourOfDay()==hour) {
+//            return recordReason(ServiceReason.IsValid(path));
+//        }
 
         return recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
     }

@@ -159,16 +159,14 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldBeInterestedInCorrectHoursCrossesNextHour() {
-        TramTime queryTime = TramTime.of(9,50);
+        TramTime queryTime = TramTime.of(7,0);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
 
-        int costSoFar = 39; // 10.29
-        TramTime elapsed = queryTime.plusMinutes(costSoFar);
-
+        TramTime elapsed = TramTime.of(10,29);
         assertFalse(serviceHeuristics.interestedInHour(path, 8, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 10, elapsed).isValid());
         assertFalse(serviceHeuristics.interestedInHour(path, 11, elapsed).isValid());
     }
@@ -238,10 +236,10 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
         int costSoFar = 51;
         //LocalTime elapsed = queryTime.plusMinutes(costSoFar);
-        TramTime elapsed = queryTime.plusMinutes(costSoFar);
+        TramTime elapsed = TramTime.of(0,1);
 
         assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
         assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
     }
