@@ -18,6 +18,8 @@ import com.tramchester.repository.LiveDataRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -48,11 +52,13 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private CreateQueryTimes createQueryTimes;
     private ProvidesNotes providesNotes;
     private LiveDataRepository liveDataRepositoy;
+    private GraphDatabaseService graphDatabaseService;
 
-    public JourneyPlannerResource(RouteCalculator routeCalculator,
-                                  JourneysMapper journeysMapper, TramchesterConfig config,
+    public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
                                   LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes,
-                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper, ProvidesNotes providesNotes, LiveDataRepository liveDataRepositoy) {
+                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper,
+                                  ProvidesNotes providesNotes, LiveDataRepository liveDataRepositoy,
+                                  GraphDatabaseService graphDatabaseService) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;
         this.journeysMapper = journeysMapper;
@@ -61,6 +67,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         this.createQueryTimes = createQueryTimes;
         this.providesNotes = providesNotes;
         this.liveDataRepositoy = liveDataRepositoy;
+        this.graphDatabaseService = graphDatabaseService;
     }
 
     @GET
@@ -86,11 +93,13 @@ public class JourneyPlannerResource extends UsesRecentCookie {
 
                 JourneyPlanRepresentation planRepresentation;
                 List<TramTime> queryTimes = createQueryTimes.generate(departureTime);
-                if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId)) {
-                    LatLong latLong = decodeLatLong(lat,lon);
-                    planRepresentation = createJourneyPlan(latLong, endId, queryDate, queryTimes, departureTime);
-                } else {
-                    planRepresentation = createJourneyPlan(startId, endId, queryDate, queryTimes, departureTime);
+                try (Transaction tx = graphDatabaseService.beginTx() ) {
+                    if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId)) {
+                        LatLong latLong = decodeLatLong(lat, lon);
+                        planRepresentation = createJourneyPlan(latLong, endId, queryDate, queryTimes, departureTime);
+                    } else {
+                        planRepresentation = createJourneyPlan(startId, endId, queryDate, queryTimes, departureTime);
+                    }
                 }
 
                 Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
@@ -98,7 +107,6 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 Response response = responseBuilder.build();
                 return response;
             }
-
         } catch(Exception exception) {
             logger.error("Problem processing response", exception);
         }
@@ -107,8 +115,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     private LatLong decodeLatLong(String lat, String lon) {
-        Double latitude = Double.parseDouble(lat);
-        Double longitude = Double.parseDouble(lon);
+        double latitude = Double.parseDouble(lat);
+        double longitude = Double.parseDouble(lon);
         return new LatLong(latitude,longitude);
     }
 
@@ -125,9 +133,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,queryTimes));
 
-        Set<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        Stream<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
 
-        return createPlan(queryDate, initialQueryTime, journeys);
+        return createPlan(queryDate, initialQueryTime, journeys.collect(Collectors.toSet()));
     }
 
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, TramTime initialQueryTime, Set<RawJourney> journeys) {

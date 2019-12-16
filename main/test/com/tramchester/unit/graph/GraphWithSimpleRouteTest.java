@@ -4,7 +4,6 @@ import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Relationships.RelationshipFactory;
@@ -14,6 +13,7 @@ import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,11 +36,13 @@ public class GraphWithSimpleRouteTest {
     private static RouteCalculator calculator;
     private static Dependencies dependencies;
     private static IntegrationTramTestConfig config;
+    private static GraphDatabaseService database;
 
     private TramServiceDate queryDate;
     private List<TramTime> queryTimes;
     private Station firstStation;
     private TramTime queryTime;
+    private Transaction tx;
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
@@ -50,6 +54,7 @@ public class GraphWithSimpleRouteTest {
 
         dependencies.initialise(config, transportData);
 
+        database = dependencies.get(GraphDatabaseService.class);
         calculator = dependencies.get(RouteCalculator.class);
     }
 
@@ -67,12 +72,20 @@ public class GraphWithSimpleRouteTest {
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
         queryTime = TramTime.of(7, 57);
         queryTimes = Collections.singletonList(queryTime);
+        tx = database.beginTx();
+    }
+
+    @After
+    public void afterEachTestRuns()
+    {
+        tx.close();
     }
 
     @Test
     public void shouldTestSimpleJourneyIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.SECOND_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.SECOND_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).
+                collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION, 0, "RouteClass1");
     }
@@ -84,8 +97,8 @@ public class GraphWithSimpleRouteTest {
         List<StationWalk> walks = Collections.singletonList(new StationWalk(firstStation, 1));
         List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
 
-        Set<RawJourney> journeys = calculator.calculateRoute(origin, walks, endStation, walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
-        assertFalse(journeys.isEmpty());
+        Stream<RawJourney> journeys = calculator.calculateRoute(origin, walks, endStation, walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        assertFalse(journeys.limit(1).count()==0);
     }
 
     @Test
@@ -98,7 +111,7 @@ public class GraphWithSimpleRouteTest {
 
         List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
         Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, destination,
-                walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -112,7 +125,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.INTERCHANGE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE, 1, "RouteClass1");
         checkForPlatforms(journeys);
@@ -128,14 +141,15 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.INTERCHANGE, Collections.singletonList(TramTime.of(9, 0)), queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.INTERCHANGE, Collections.singletonList(TramTime.of(9, 0)),
+                queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
         assertEquals(0, journeys.size());
     }
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.LAST_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.LAST_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION, 2, "RouteClass1");
         journeys.forEach(journey->assertEquals(1, journey.getStages().size()));
@@ -145,18 +159,18 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestNoJourneySecondToStart() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.SECOND_STATION,
-                TransportDataForTest.FIRST_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.FIRST_STATION, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertEquals(0,journeys.size());
     }
 
     @Test
     public void shouldTestJourneyInterchangeToFive() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.INTERCHANGE,
-                TransportDataForTest.STATION_FIVE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.STATION_FIVE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertFalse(journeys.size()>=1);
         List<TramTime> laterQueryTimes = Collections.singletonList(TramTime.of(8, 10));
         journeys = calculator.calculateRoute(TransportDataForTest.INTERCHANGE,
-                TransportDataForTest.STATION_FIVE, laterQueryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.STATION_FIVE, laterQueryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertTrue(journeys.size()>=1);
         journeys.forEach(journey->assertEquals(1, journey.getStages().size()));
 
@@ -165,7 +179,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.STATION_FOUR, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.STATION_FOUR, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
        assertTrue(journeys.size()>=1);
        checkForPlatforms(journeys);
         journeys.forEach(journey->assertEquals(2, journey.getStages().size()));
@@ -175,7 +189,7 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestJourneyAnotherWaitLimitViaInterchangeIsPossible() {
         Set<RawJourney> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                TransportDataForTest.STATION_FIVE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                TransportDataForTest.STATION_FIVE, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertTrue(journeys.size()>=1);
         checkForPlatforms(journeys);
         journeys.forEach(journey->assertEquals(2, journey.getStages().size()));
@@ -192,16 +206,16 @@ public class GraphWithSimpleRouteTest {
         creator.create("test_network.dot", TransportDataForTest.FIRST_STATION);
     }
 
-    @Ignore("WIP")
-    @Test
-    public void shouldFindJourneyAreaToArea() {
-        AreaDTO areaA = new AreaDTO("areaA");
-        AreaDTO areaB = new AreaDTO("areaB");
-
-        Set<RawJourney> journeys =  calculator.calculateRoute(areaA, areaB, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
-        assertEquals(1, journeys.size());
-
-    }
+//    @Ignore("WIP")
+//    @Test
+//    public void shouldFindJourneyAreaToArea() {
+//        AreaDTO areaA = new AreaDTO("areaA");
+//        AreaDTO areaB = new AreaDTO("areaB");
+//
+//        Set<RawJourney> journeys =  calculator.calculateRoute(areaA, areaB, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+//        assertEquals(1, journeys.size());
+//
+//    }
 
     private void assertFirstAndLast(Set<RawJourney> journeys, String firstStation, String secondStation,
                                     int passedStops, String displayClass) {

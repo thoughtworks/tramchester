@@ -31,10 +31,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final String endStationId;
 
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
-                                CachedNodeOperations nodeOperations, TramTime queryTime, Node destinationNode, String endStationId) {
+                                CachedNodeOperations nodeOperations, Node destinationNode, String endStationId) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
-        this.queryTime = queryTime;
+        this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeId = destinationNode.getId();
         this.endStationId = endStationId;
     }
@@ -68,11 +68,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         logger.info("Return traversal stream");
         Stream<Path> stream = iterator.stream();
-        Runnable streamClosed = () -> logger.info("Traversal Stream closed");
-        stream.onClose(streamClosed);
+//        Runnable streamClosed = () -> logger.info("Traversal Stream closed");
+//        stream.onClose(streamClosed);
+
         return stream.filter(path -> path.endNode().getId()==destinationNodeId)
                 .map(this::calculateWeight);
-
     }
 
     private WeightedPath calculateWeight(Path path) {

@@ -311,13 +311,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         return recordReason(ServiceReason.IsValid(path));
     }
 
-//    public ServiceReason overMaxWait(TramTime journeyClock, TramTime previousVisit, Path path) {
-//        int diffenceAsMinutes = TramTime.diffenceAsMinutes(previousVisit, journeyClock);
-//
-//        if (journeyClock.isAfter(previousVisit) && diffenceAsMinutes > maxWaitMinutes) {
-//            return recordReason(ServiceReason.DoesNotOperateOnTime(journeyClock, path));
-//        }
-//
-//        return recordReason(ServiceReason.IsValid(path));
-//    }
+    public TramTime getQueryTime() {
+        return queryTime;
+    }
 }

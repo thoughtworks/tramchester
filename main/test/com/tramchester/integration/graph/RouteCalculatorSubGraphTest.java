@@ -16,6 +16,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -24,12 +25,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorSubGraphTest {
     private static Dependencies dependencies;
+    private static GraphDatabaseService database;
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
@@ -38,6 +41,7 @@ public class RouteCalculatorSubGraphTest {
     private NodeFactory nodeFactory;
     private TramchesterConfig testConfig = new IntegrationTramTestConfig();
     private static List<Location> stations = Arrays.asList(Stations.Cornbrook, Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
+    private Transaction tx;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -48,6 +52,13 @@ public class RouteCalculatorSubGraphTest {
 
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
+
+        database = dependencies.get(GraphDatabaseService.class);
+    }
+
+    @AfterClass
+    public static void OnceAfterAllTestsAreFinished() {
+        dependencies.close();
     }
 
     @Before
@@ -56,11 +67,12 @@ public class RouteCalculatorSubGraphTest {
         relationshipFactory = dependencies.get(RelationshipFactory.class);
         nodeFactory = dependencies.get(NodeFactory.class);
         calculator = dependencies.get(RouteCalculator.class);
+        tx = database.beginTx();
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+    @After
+    public void onceAfterEveryTest() {
+        tx.close();
     }
 
     @Test
@@ -95,7 +107,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveSimpleOneStopJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
@@ -103,7 +115,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
@@ -111,7 +123,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveSimpleJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 

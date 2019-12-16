@@ -38,6 +38,9 @@ public class LocationToLocationJourneyPlanner {
     public Set<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<TramTime> queryTimes,
                                                     TramServiceDate queryDate) {
 
+        logger.info(format("Finding shortest path for %s --> %s on %s at %s",
+                latLong, endId, queryDate, queryTimes));
+
         List<String> starts = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
         logger.info(format("Found %s stations close to %s", starts.size(), latLong));
@@ -53,7 +56,8 @@ public class LocationToLocationJourneyPlanner {
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
         Station end = stationRepository.getStation(endId).get();
-        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate,
+                RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,8 +20,8 @@ public class JourneyResponseMapperTest {
     protected String findServiceId(String firstId, String secondId, LocalDate when, TramTime queryTime) {
         List<TramTime> queryTimes = Collections.singletonList(queryTime);
 
-        Set<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-        RawJourney rawJourney = found.stream().findFirst().get();
+        Stream<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        RawJourney rawJourney = found.findFirst().get();
         RawStage rawStage = rawJourney.getStages().get(0);
         assertEquals(RawVehicleStage.class, rawStage.getClass());
 

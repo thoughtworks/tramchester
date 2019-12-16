@@ -3,7 +3,6 @@ package com.tramchester.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.graph.Nodes.TramNode;
@@ -23,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -56,38 +56,44 @@ public class RouteCalculator extends StationIndexs {
         this.reachabilityRepository = reachabilityRepository;
     }
 
-    public Set<RawJourney> calculateRoute(String startStationId, String endStationId, List<TramTime> queryTimes,
+    public Stream<RawJourney> calculateRoute(String startStationId, String endStationId, List<TramTime> queryTimes,
                                           TramServiceDate queryDate, int limit) {
         Node endNode = getStationNode(endStationId);
 
-        Set<RawJourney> journeys;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
+        logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",
+                startStationId,
+                endStationId, queryDate, queryTimes, limit));
+
+        Stream<RawJourney> journeys;
+        if (config.getEdgePerTrip()) {
             Node startNode = getStationNode(startStationId);
-
             journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
-
-            tx.success();
+        } else {
+            try (Transaction tx = graphDatabaseService.beginTx()) {
+                Node startNode = getStationNode(startStationId);
+                journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
+                tx.success();
+            }
         }
         return journeys;
     }
 
-    public Set<RawJourney> calculateRoute(AreaDTO areaA, AreaDTO areaB, List<TramTime> queryTimes, TramServiceDate queryDate, int limit) {
-        Node endNode = getAreaNode(areaA.getAreaName());
+//    public Set<RawJourney> calculateRoute(AreaDTO areaA, AreaDTO areaB, List<TramTime> queryTimes, TramServiceDate queryDate, int limit) {
+//        Node endNode = getAreaNode(areaA.getAreaName());
+//
+//        Set<RawJourney> journeys;
+//        try (Transaction tx = graphDatabaseService.beginTx()) {
+//            Node startNode = getAreaNode(areaB.getAreaName());
+//
+//            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit,
+//                    "noEndStationId");
+//
+//            tx.success();
+//        }
+//        return journeys;
+//    }
 
-        Set<RawJourney> journeys;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            Node startNode = getAreaNode(areaB.getAreaName());
-
-            Set<String> preferRoute = Collections.emptySet();
-            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit,
-                    "noEndStationId");
-
-            tx.success();
-        }
-        return journeys;
-    }
-
-    public Set<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, Station endStation,
+    public Stream<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, Station endStation,
                                           List<TramTime> queryTimes, TramServiceDate queryDate, int numGraphPaths) {
 
         int limit = stationWalks.isEmpty() ? numGraphPaths : (numGraphPaths * stationWalks.size());
@@ -95,42 +101,68 @@ public class RouteCalculator extends StationIndexs {
         Node endNode = getStationNode(endStationId);
         List<Relationship> addedWalks = new LinkedList<>();
 
-        Set<RawJourney> journeys;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
+        Stream<RawJourney> journeys;
+        if (config.getEdgePerTrip()) {
+            journeys = getWalkingJourneyStream(origin, stationWalks, queryTimes, queryDate, limit, endStationId, endNode, addedWalks);
+        } else {
+            try (Transaction tx = graphDatabaseService.beginTx()) {
+                journeys = getWalkingJourneyStream(origin, stationWalks, queryTimes, queryDate, limit, endStationId, endNode, addedWalks);
+                // don't want to say the query nodes
+//                tx.close();
+            }
+        }
+        return journeys;
+    }
 
-            Node startNode = nodeOperations.createQueryNode(graphDatabaseService);
-            startNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
-            startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
-            startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
-            logger.info(format("Added start node at %s as node %s", origin, startNode));
+    private Stream<RawJourney> getWalkingJourneyStream(LatLong origin, List<StationWalk> stationWalks, List<TramTime> queryTimes, TramServiceDate queryDate, int limit, String endStationId, Node endNode, List<Relationship> addedWalks) {
+        Stream<RawJourney> journeys;
+        Node startNode = nodeOperations.createQueryNode(graphDatabaseService);
+        startNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
+        startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
+        startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
+        logger.info(format("Added start node at %s as node %s", origin, startNode));
 
-            stationWalks.forEach(stationWalk -> {
-                String walkStationId = stationWalk.getStationId();
-                Node node = getStationNode(walkStationId);
-                int cost = stationWalk.getCost();
-                logger.info(format("Add walking relationship from %s to %s cost %s", startNode, walkStationId, cost));
-                Relationship walkingRelationship = startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO);
-                walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
-                walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
-                addedWalks.add(walkingRelationship);
+        stationWalks.forEach(stationWalk -> {
+            String walkStationId = stationWalk.getStationId();
+            Node node = getStationNode(walkStationId);
+            int cost = stationWalk.getCost();
+            logger.info(format("Add walking relationship from %s to %s cost %s", startNode, walkStationId, cost));
+            Relationship walkingRelationship = startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO);
+            walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
+            walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
+            addedWalks.add(walkingRelationship);
+        });
+
+        journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
+
+        // must delete relationships first, otherwise may not delete node
+        if (config.getEdgePerTrip()) {
+            journeys.onClose(() -> {
+                addedWalks.forEach(Relationship::delete);
+                nodeOperations.deleteNode(startNode);
             });
-
-            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
-
-            // must delete relationships first, otherwise may not delete node
+        } else {
             addedWalks.forEach(Relationship::delete);
             nodeOperations.deleteNode(startNode);
         }
         return journeys;
     }
 
-    private Set<RawJourney> gatherJounerys(Node startNode, Node endNode, List<TramTime> queryTimes, TramServiceDate queryDate,
-                                           int limit, String endStationId) {
-
+    private Stream<RawJourney> gatherJounerys(Node startNode, Node endNode, List<TramTime> queryTimes, TramServiceDate queryDate,
+                                              int limit, String endStationId) {
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
 
-        Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
+        if (config.getEdgePerTrip()) {
+            Stream<RawJourney> journeyStream = queryTimes.stream().
+                    map(queryTime -> new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
+                            queryTime, runningServicesIds, endStationId)).
+                    map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, endStationId)).
+                    flatMap(Function.identity()).
+                    map(path -> new RawJourney(pathToStages.mapDirect(path.getPath()), path.getQueryTime()));
+            return journeyStream;
+        }
 
+        Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
                     queryTime, runningServicesIds, endStationId);
@@ -140,13 +172,6 @@ public class RouteCalculator extends StationIndexs {
                     endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime, limit));
 
             Stream<WeightedPath> paths;
-            if (config.getEdgePerTrip()) {
-                paths = findShortestPathEdgePerTrip(startNode, endNode, queryTime, serviceHeuristics, endStationId);
-                journeys.addAll(mapStreamToJourneySet(paths, limit, queryTime));
-                if (journeys.isEmpty()) {
-                    serviceHeuristics.reportReasons();
-                }
-            } else {
                 LazyTimeBasedPathExpander pathExpander = new LazyTimeBasedPathExpander(relationshipFactory, serviceHeuristics);
                 paths = findShortestPathNormal(startNode, endNode, pathExpander);
                 journeys.addAll(mapStreamToJourneySet(paths, limit, queryTime));
@@ -154,11 +179,8 @@ public class RouteCalculator extends StationIndexs {
                     serviceHeuristics.reportReasons();
                     pathExpander.reportVisits(MAX_NUM_GRAPH_PATHS);
                 }
-            }
-
         });
-
-        return journeys;
+        return journeys.stream();
     }
 
     private Stream<WeightedPath> findShortestPathNormal(Node startNode, Node endNode, PathExpander<Double> pathExpander) {
@@ -174,16 +196,16 @@ public class RouteCalculator extends StationIndexs {
         return StreamSupport.stream(pathIterator.spliterator(), false);
     }
 
-    private Stream<WeightedPath> findShortestPathEdgePerTrip(Node startNode, Node endNode, TramTime queryTime,
+    private Stream<TimedWeightedPath> findShortestPathEdgePerTrip(Node startNode, Node endNode,
                                                              ServiceHeuristics serviceHeutistics, String endStationId) {
         if (startNode.getProperty(GraphStaticKeys.Station.NAME).equals(queryNodeName)) {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(serviceHeutistics, nodeOperations,
-                queryTime, endNode, endStationId);
+                endNode, endStationId);
 
-        return tramNetworkTraverser.findPaths(startNode);
+        return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedWeightedPath(path, serviceHeutistics.getQueryTime()));
     }
 
     private Set<RawJourney> mapStreamToJourneySet(Stream<WeightedPath> paths, int limit, TramTime queryTime) {
@@ -228,6 +250,25 @@ public class RouteCalculator extends StationIndexs {
     // should be a set
     public List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws TramchesterException {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
+    }
+
+    private class TimedWeightedPath {
+        private final WeightedPath path;
+        private final TramTime queryTime;
+
+        public TimedWeightedPath(WeightedPath path, TramTime queryTime) {
+
+            this.path = path;
+            this.queryTime = queryTime;
+        }
+
+        public WeightedPath getPath() {
+            return path;
+        }
+
+        public TramTime getQueryTime() {
+            return queryTime;
+        }
     }
 }
 

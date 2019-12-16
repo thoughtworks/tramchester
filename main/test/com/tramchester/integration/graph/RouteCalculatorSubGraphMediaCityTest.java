@@ -17,11 +17,13 @@ import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
@@ -29,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorSubGraphMediaCityTest {
     private static Dependencies dependencies;
+    private static GraphDatabaseService database;
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
@@ -49,6 +52,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
             Stations.HarbourCity.getId(),
             Stations.MediaCityUK.getId(),
             Stations.TraffordBar.getId());
+    private Transaction tx;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -62,6 +66,13 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
+
+        database = dependencies.get(GraphDatabaseService.class);
+    }
+
+    @AfterClass
+    public static void OnceAfterAllTestsAreFinished() {
+        dependencies.close();
     }
 
     @Before
@@ -70,11 +81,12 @@ public class RouteCalculatorSubGraphMediaCityTest {
         relationshipFactory = dependencies.get(RelationshipFactory.class);
         nodeFactory = dependencies.get(NodeFactory.class);
         calculator = dependencies.get(RouteCalculator.class);
+        tx = database.beginTx();
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+    @After
+    public void afterEachTestRuns() {
+        tx.close();
     }
 
     @Test
@@ -95,7 +107,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
                         Set<RawJourney> journeys = calculator.calculateRoute(start, destination, times,
-                                new TramServiceDate(day), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                                new TramServiceDate(day), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
                         }
@@ -120,7 +132,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     public void shouldHaveSimpleJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(12, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
