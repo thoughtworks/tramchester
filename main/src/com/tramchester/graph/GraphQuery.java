@@ -61,10 +61,10 @@ public class GraphQuery {
 
     private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {
         Node result;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
+//        try (Transaction tx = graphDatabaseService.beginTx()) {
             result = graphDatabaseService.findNode(label, GraphStaticKeys.ID, id);
-            tx.success();
-        }
+//            tx.success();
+//        }
         return result;
     }
 

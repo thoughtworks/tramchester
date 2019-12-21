@@ -5,7 +5,7 @@
             <level>INFO</level>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %X{test} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %thread %X{test} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -24,7 +24,7 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %X{test} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %thread %X{test} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 

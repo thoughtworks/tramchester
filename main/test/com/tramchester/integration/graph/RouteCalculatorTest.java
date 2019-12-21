@@ -11,16 +11,14 @@ import com.tramchester.repository.TransportData;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.NotInTransactionException;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.unsafe.impl.batchimport.stats.Stat;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,6 +36,7 @@ public class RouteCalculatorTest {
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
     private static boolean edgePerTrip;
     private Transaction tx;
+    private Map<Long, Transaction> threadToTxnMap;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -55,13 +54,15 @@ public class RouteCalculatorTest {
 
     @Before
     public void beforeEachTestRuns() {
-        tx = database.beginTx(120, TimeUnit.SECONDS);
+        tx = database.beginTx(180, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
+        threadToTxnMap = new HashMap<>();
     }
 
     @After
     public void afterEachTestRuns() {
         tx.close();
+        threadToTxnMap.values().forEach(transaction -> transaction.close());
     }
 
     @Test
@@ -185,25 +186,29 @@ public class RouteCalculatorTest {
         Set<Station> allStations = data.getStations();
 
         // pairs of stations to check
-        Stream<Pair<String, String>> combinations = allStations.stream().map(start -> allStations.stream().
+        Set<Pair<String, String>> combinations = allStations.stream().map(start -> allStations.stream().
                 map(dest -> Pair.of(start, dest))).
                 flatMap(Function.identity()).
                 filter(pair -> !matches(pair, Stations.Interchanges)).
                 filter(pair -> !matches(pair, Stations.EndOfTheLine)).
-                map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight().getId()));
+                map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight().getId())).
+                collect(Collectors.toSet());
 
         List<TramTime> queryTimes = Collections.singletonList(TramTime.of(6, 5));
         int numGraphPaths = RouteCalculator.MAX_NUM_GRAPH_PATHS;
 
-        // check each pair, collect resuls into (station,station)->result
-        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results = combinations.
-                map(pair -> Pair.of(pair, calculator.calculateRoute(pair.getLeft(), pair.getRight(),
-                        queryTimes, queryDate, numGraphPaths).limit(1).findFirst())).
+        // check each pair, collect results into (station,station)->result
+        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results =
+                combinations.parallelStream().
+                        map(journey -> checkForTx(journey)).
+                        map(journey -> Pair.of(journey,
+                        calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes, queryDate, numGraphPaths).
+                                limit(1).
+                                findFirst())).
                 collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
 
         // check all results present, collect failures into a list
-        List<Pair<String, String>> failed = results.entrySet().
-                stream().
+        List<Pair<String, String>> failed = results.entrySet().stream().
                 filter(journey -> !journey.getValue().isPresent()).
                 map(Map.Entry::getKey).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
@@ -225,13 +230,24 @@ public class RouteCalculatorTest {
         assertEquals(39, maxNumberStops.get().intValue());
     }
 
-    private boolean matches(Pair<Station, Station> locationPair, List<Location> locations) {
-        return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
+    private Pair<String, String>  checkForTx(Pair<String, String> journey) {
+        long id = Thread.currentThread().getId();
+        if (threadToTxnMap.containsKey(id)) {
+            return journey;
+        }
+
+        try {
+            database.getNodeById(1);
+        }
+        catch (NotInTransactionException noTxnForThisThread) {
+            Transaction txn = database.beginTx();
+            threadToTxnMap.put(id, txn);
+        }
+        return journey;
     }
 
-    private Stream<RawJourney> calc(Pair<Location, Location> pair, List<TramTime> queryTimes, TramServiceDate queryDate) {
-        return calculator.calculateRoute(pair.getLeft().getId(), pair.getRight().getId(), queryTimes, queryDate,
-                RouteCalculator.MAX_NUM_GRAPH_PATHS);
+    private boolean matches(Pair<Station, Station> locationPair, List<Location> locations) {
+        return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
     @Test
@@ -348,14 +364,15 @@ public class RouteCalculatorTest {
     }
 
     private int checkRangeOfTimes(Location start, Location dest) {
+
         List<TramTime> missing = new LinkedList<>();
         for (int hour = 6; hour < 23; hour++) {
             for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
                 Stream<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
                         Collections.singletonList(time), new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-                long count = journeys.limit(1).count();
-                if (count==0) {
+//                long count = journeys.limit(1).count();
+                if (!journeys.findFirst().isPresent()) {
                     missing.add(time);
                 }
             }
@@ -450,5 +467,6 @@ public class RouteCalculatorTest {
             }
         }
     }
+
 
 }

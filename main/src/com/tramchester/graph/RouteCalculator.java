@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -64,32 +65,19 @@ public class RouteCalculator extends StationIndexs {
                 startStationId,
                 endStationId, queryDate, queryTimes, limit));
 
-        Stream<RawJourney> journeys;
-        if (config.getEdgePerTrip()) {
-            Node startNode = getStationNode(startStationId);
-            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
-        } else {
-            try (Transaction tx = graphDatabaseService.beginTx()) {
-                Node startNode = getStationNode(startStationId);
-                journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
-                tx.success();
-            }
-        }
-        return journeys;
+        Node startNode = getStationNode(startStationId);
+        return gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
     }
 
 //    public Set<RawJourney> calculateRoute(AreaDTO areaA, AreaDTO areaB, List<TramTime> queryTimes, TramServiceDate queryDate, int limit) {
 //        Node endNode = getAreaNode(areaA.getAreaName());
 //
 //        Set<RawJourney> journeys;
-//        try (Transaction tx = graphDatabaseService.beginTx()) {
 //            Node startNode = getAreaNode(areaB.getAreaName());
 //
 //            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit,
 //                    "noEndStationId");
 //
-//            tx.success();
-//        }
 //        return journeys;
 //    }
 
@@ -105,11 +93,7 @@ public class RouteCalculator extends StationIndexs {
         if (config.getEdgePerTrip()) {
             journeys = getWalkingJourneyStream(origin, stationWalks, queryTimes, queryDate, limit, endStationId, endNode, addedWalks);
         } else {
-            try (Transaction tx = graphDatabaseService.beginTx()) {
-                journeys = getWalkingJourneyStream(origin, stationWalks, queryTimes, queryDate, limit, endStationId, endNode, addedWalks);
-                // don't want to say the query nodes
-//                tx.close();
-            }
+            journeys = getWalkingJourneyStream(origin, stationWalks, queryTimes, queryDate, limit, endStationId, endNode, addedWalks);
         }
         return journeys;
     }
@@ -167,6 +151,7 @@ public class RouteCalculator extends StationIndexs {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
                     queryTime, runningServicesIds, endStationId);
 
+            logger.info("Finding shortest path");
             logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",
                     startNode.getProperty(GraphStaticKeys.Station.NAME),
                     endNode.getProperty(GraphStaticKeys.Station.NAME), queryDate, queryTime, limit));

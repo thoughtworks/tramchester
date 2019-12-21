@@ -59,7 +59,7 @@ public class MyLocationJourneyPlannerTest {
     }
 
     @Test
-    public void planRouteAllowingForWalkingTime() throws TramchesterException {
+    public void planRouteAllowingForWalkingTime() {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(),  LocalTime.of(20,9));
         assertTrue(journeys.size()>0);
         JourneyDTO first = journeys.first();
@@ -67,9 +67,9 @@ public class MyLocationJourneyPlannerTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(2, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertEquals(TramTime.create(20,9), walkingStage.getFirstDepartureTime());
+        assertTrue(walkingStage.getFirstDepartureTime().between(TramTime.of(20,9), TramTime.of(20,15)));
 
-        TramTime walkArrives = TramTime.create(20, 22);
+        TramTime walkArrives = TramTime.of(20, 22);
         assertEquals(walkArrives, walkingStage.getExpectedArrivalTime());
         assertTrue(first.getFirstDepartureTime().asLocalTime().isAfter(walkArrives.asLocalTime()));
     }

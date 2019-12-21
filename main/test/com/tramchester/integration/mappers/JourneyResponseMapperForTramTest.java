@@ -12,10 +12,9 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.SingleJourneyMapper;
 import com.tramchester.repository.TransportDataFromFiles;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -23,6 +22,7 @@ import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
     private static boolean edgePerTrip;
     private static TransportDataFromFiles transportData;
+    private static GraphDatabaseService database;
     private final LocalDate when = TestConfig.nextTuesday(0);
     private LocalTime sevenAM;
     private LocalTime eightAM;
@@ -38,6 +39,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     private static Dependencies dependencies;
     private SingleJourneyMapper mapper;
     private List<RawStage> stages;
+    private Transaction tx;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -46,6 +48,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         dependencies.initialise(testConfig);
         transportData = dependencies.get(TransportDataFromFiles.class);
         edgePerTrip = testConfig.getEdgePerTrip();
+        database = dependencies.get(GraphDatabaseService.class);
     }
 
     @AfterClass
@@ -55,11 +58,18 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
 
     @Before
     public void beforeEachTestRuns() {
+        tx = database.beginTx(180, TimeUnit.SECONDS);
+
         mapper = dependencies.get(SingleJourneyMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         stages = new LinkedList<>();
         sevenAM = LocalTime.of(7, 0);
         eightAM = LocalTime.of(8, 0);
+    }
+
+    @After
+    public void onceAfterEachTestRuns() {
+        tx.close();
     }
 
     @Test
