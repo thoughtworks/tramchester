@@ -133,11 +133,6 @@ public class  TramTime implements Comparable<TramTime> {
     public boolean equals(Object o) {
         // can just use this
         return this == o;
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        TramTime tramTime = (TramTime) o;
-//        return hour == tramTime.hour &&
-//                minute == tramTime.minute;
     }
 
     @Override

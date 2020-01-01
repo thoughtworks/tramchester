@@ -69,9 +69,8 @@ public class MyLocationJourneyPlannerTest {
         StageDTO walkingStage = stages.get(0);
         assertTrue(walkingStage.getFirstDepartureTime().between(TramTime.of(20,9), TramTime.of(20,15)));
 
-        TramTime walkArrives = TramTime.of(20, 22);
-        assertEquals(walkArrives, walkingStage.getExpectedArrivalTime());
-        assertTrue(first.getFirstDepartureTime().asLocalTime().isAfter(walkArrives.asLocalTime()));
+        assertTrue(walkingStage.getExpectedArrivalTime().between(TramTime.of(20,22), TramTime.of(20,28)));
+        assertTrue(first.getFirstDepartureTime().isAfter(TramTime.of(20,22)));
     }
 
     @Test

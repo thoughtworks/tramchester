@@ -189,8 +189,4 @@ public class StationResource extends UsesRecentCookie {
         return Response.ok(new StationListDTO(orderedStations)).build();
     }
 
-    private String formId(double lat, double lon) throws JsonProcessingException {
-        return mapper.writeValueAsString(new LatLong(lat, lon));
-    }
-
 }

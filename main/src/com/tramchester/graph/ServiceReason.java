@@ -148,12 +148,12 @@ public abstract class ServiceReason {
         return new DoesNotRunOnQueryDate(diag, path);
     }
 
-    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, Path path) {
-        return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, path);
-    }
-
     public static ServiceReason StationNotReachable(Path path) {
         return new StationNotReachable(path);
+    }
+
+    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, path);
     }
 
     public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, Path path) {

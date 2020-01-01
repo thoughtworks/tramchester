@@ -23,7 +23,7 @@ public class NodeIdLabelMap {
     }
 
     public boolean has(long nodeId, TransportGraphBuilder.Labels label) {
-        if (label== TransportGraphBuilder.Labels.QUERY_NODE) {
+        if (label == TransportGraphBuilder.Labels.QUERY_NODE) {
             return queryNodes.containsKey(nodeId);
         }
         return map.get(label).contains(nodeId);

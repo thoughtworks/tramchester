@@ -17,6 +17,7 @@ import org.neo4j.graphdb.Transaction;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import static org.junit.Assume.assumeTrue;
 
 public class RouteCalculatorTest {
 
+    public static final int TXN_TIMEOUT = 180;
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;
     private static GraphDatabaseService database;
@@ -54,7 +56,7 @@ public class RouteCalculatorTest {
 
     @Before
     public void beforeEachTestRuns() {
-        tx = database.beginTx(180, TimeUnit.SECONDS);
+        tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
         threadToTxnMap = new HashMap<>();
     }
@@ -62,7 +64,8 @@ public class RouteCalculatorTest {
     @After
     public void afterEachTestRuns() {
         tx.close();
-        threadToTxnMap.values().forEach(transaction -> transaction.close());
+//        threadToTxnMap.values().forEach(Transaction::close);
+        threadToTxnMap.clear();
     }
 
     @Test
@@ -93,6 +96,13 @@ public class RouteCalculatorTest {
     @Test
     public void shouldHaveSimpleManyStopJourneyViaInterchange() {
         checkRouteNextNDays(Stations.Altrincham, Stations.Bury, nextTuesday, TramTime.of(9,0), 1);
+    }
+
+    @Test
+    public void shouldFindInterchangesToEndOfLines() {
+        Set<Pair<String, String>> combinations = createJourneyPairs(Stations.Interchanges,Stations.EndOfTheLine );
+        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(8,0), 7);
+
     }
 
     @Test
@@ -180,7 +190,6 @@ public class RouteCalculatorTest {
     @Test
     public void shouldFindRouteEachStationToEveryOtherStream() {
 
-        TramServiceDate queryDate = new TramServiceDate(nextTuesday);
         TransportData data = dependencies.get(TransportData.class);
 
         Set<Station> allStations = data.getStations();
@@ -195,25 +204,7 @@ public class RouteCalculatorTest {
                 collect(Collectors.toSet());
 
         List<TramTime> queryTimes = Collections.singletonList(TramTime.of(6, 5));
-        int numGraphPaths = RouteCalculator.MAX_NUM_GRAPH_PATHS;
-
-        // check each pair, collect results into (station,station)->result
-        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results =
-                combinations.parallelStream().
-                        map(journey -> checkForTx(journey)).
-                        map(journey -> Pair.of(journey,
-                        calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes, queryDate, numGraphPaths).
-                                limit(1).
-                                findFirst())).
-                collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
-
-        // check all results present, collect failures into a list
-        List<Pair<String, String>> failed = results.entrySet().stream().
-                filter(journey -> !journey.getValue().isPresent()).
-                map(Map.Entry::getKey).
-                map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
-                collect(Collectors.toList());
-        assertEquals(failed.toString(), 0L, failed.size());
+        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results = validateAllHaveAtLeastOneJourney(nextTuesday, combinations, queryTimes);
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().
@@ -230,35 +221,13 @@ public class RouteCalculatorTest {
         assertEquals(39, maxNumberStops.get().intValue());
     }
 
-    private Pair<String, String>  checkForTx(Pair<String, String> journey) {
-        long id = Thread.currentThread().getId();
-        if (threadToTxnMap.containsKey(id)) {
-            return journey;
-        }
-
-        try {
-            database.getNodeById(1);
-        }
-        catch (NotInTransactionException noTxnForThisThread) {
-            Transaction txn = database.beginTx();
-            threadToTxnMap.put(id, txn);
-        }
-        return journey;
-    }
-
-    private boolean matches(Pair<Station, Station> locationPair, List<Location> locations) {
-        return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
-    }
-
     @Test
     public void shouldFindEndOfLinesToEndOfLinesTuesday() {
-        for (Location start : Stations.EndOfTheLine) {
-            for (Location dest : Stations.EndOfTheLine) {
-                if (!dest.equals(start)) {
-                    validateAtLeastOneJourney(start, dest, TramTime.of(9, 0), nextTuesday);
-                }
-            }
-        }
+        Set<Pair<String, String>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
+
+        List<TramTime> times = Arrays.asList(TramTime.of(9, 0));
+        validateAllHaveAtLeastOneJourney(nextTuesday, combinations, times);
+
     }
 
     @Test
@@ -271,10 +240,11 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindEndOfLinesToEndOfLines() {
-        for (Location start : Stations.EndOfTheLine) {
-            for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNextNDays(start, dest, nextTuesday, TramTime.of(9,0), 7);
-            }
+        Set<Pair<String, String>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
+
+        for(int day = 0; day < 7; day++) {
+            List<TramTime> times = Arrays.asList(TramTime.of(9,0));
+            validateAllHaveAtLeastOneJourney(nextTuesday.plusDays(day), combinations, times);
         }
     }
 
@@ -286,11 +256,14 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindInterchangesToInterchanges() {
-        for (Location start :  Stations.Interchanges) {
-            for (Location dest : Stations.Interchanges) {
-                checkRouteNextNDays(start, dest, nextTuesday, TramTime.of(9,0), 7);
-            }
-        }
+        Set<Pair<String, String>> combinations = createJourneyPairs(Stations.Interchanges, Stations.Interchanges);
+        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
+    }
+
+    @Test
+    public void shouldFindEndOfLinesToInterchanges() {
+        Set<Pair<String, String>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.Interchanges);
+        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
     }
 
     @Test
@@ -312,24 +285,6 @@ public class RouteCalculatorTest {
             stages.add(journey.getStages());
         });
 
-    }
-
-    @Test
-    public void shouldFindEndOfLinesToInterchanges() {
-        for (Location start : Stations.EndOfTheLine) {
-            for (Location dest : Stations.Interchanges) {
-                checkRouteNextNDays(start, dest, nextTuesday, TramTime.of(9,0), 7);
-            }
-        }
-    }
-
-    @Test
-    public void shouldFindInterchangesToEndOfLines() {
-        for (Location start : Stations.Interchanges ) {
-            for (Location dest : Stations.EndOfTheLine) {
-                checkRouteNextNDays(start,dest, nextTuesday, TramTime.of(8,0), 7);
-            }
-        }
     }
 
     @Test
@@ -361,24 +316,6 @@ public class RouteCalculatorTest {
     @Test
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
-    }
-
-    private int checkRangeOfTimes(Location start, Location dest) {
-
-        List<TramTime> missing = new LinkedList<>();
-        for (int hour = 6; hour < 23; hour++) {
-            for (int minutes = 0; minutes < 59; minutes=minutes+5) {
-                TramTime time = TramTime.of(hour, minutes);
-                Stream<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
-                        Collections.singletonList(time), new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-//                long count = journeys.limit(1).count();
-                if (!journeys.findFirst().isPresent()) {
-                    missing.add(time);
-                }
-            }
-
-        }
-        return missing.size();
     }
 
     @Test
@@ -430,6 +367,15 @@ public class RouteCalculatorTest {
         }
     }
 
+    private void checkRouteNextNDays(Set<Pair<String,String>> combinations, LocalDate date, TramTime time, int numDays) {
+        List<TramTime> times = Arrays.asList(time);
+
+        for(int day = 0; day< numDays; day++) {
+            LocalDate testDate = avoidChristmasDate(date.plusDays(day));
+            validateAllHaveAtLeastOneJourney(testDate, combinations, times);
+        }
+    }
+
     private void validateAtLeastOneJourney(Location start, Location dest, TramTime time, LocalDate date) {
         validateAtLeastOneJourney(start.getId(), dest.getId(), time, date);
     }
@@ -453,6 +399,18 @@ public class RouteCalculatorTest {
         }
     }
 
+    private Set<Pair<String, String>> createJourneyPairs(List<Location> starts, List<Location> ends) {
+        Set<Pair<String,String>> combinations = new HashSet<>();
+        for (Location start : starts) {
+            for (Location dest : ends) {
+                if (!dest.equals(start)) {
+                    combinations.add(Pair.of(start.getId(), dest.getId()));
+                }
+            }
+        }
+        return combinations;
+    }
+
     private static void checkStages(RawJourney journey) {
         List<RawStage> stages = journey.getStages();
         TramTime earliestAtNextStage = null;
@@ -466,6 +424,69 @@ public class RouteCalculatorTest {
                 earliestAtNextStage = transportStage.getDepartTime().plusMinutes(transportStage.getCost());
             }
         }
+    }
+
+    private int checkRangeOfTimes(Location start, Location dest) {
+
+        List<TramTime> missing = new LinkedList<>();
+        for (int hour = 6; hour < 23; hour++) {
+            for (int minutes = 0; minutes < 59; minutes=minutes+5) {
+                TramTime time = TramTime.of(hour, minutes);
+                Stream<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
+                        Collections.singletonList(time), new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                if (!journeys.findFirst().isPresent()) {
+                    missing.add(time);
+                }
+            }
+
+        }
+        return missing.size();
+    }
+
+    private ConcurrentMap<Pair<String, String>, Optional<RawJourney>> validateAllHaveAtLeastOneJourney(
+            LocalDate queryDate, Set<Pair<String, String>> combinations, List<TramTime> queryTimes) {
+
+        // check each pair, collect results into (station,station)->result
+        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results =
+                combinations.parallelStream().
+                        map(this::checkForTx).
+                        map(journey -> Pair.of(journey,
+                                calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes,
+                                        new TramServiceDate(queryDate), RouteCalculator.MAX_NUM_GRAPH_PATHS).limit(1).
+                                        findFirst())).
+                        collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
+
+        // check all results present, collect failures into a list
+        List<Pair<String, String>> failed = results.entrySet().stream().
+                filter(journey -> !journey.getValue().isPresent()).
+                map(Map.Entry::getKey).
+                map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
+                collect(Collectors.toList());
+        assertEquals(failed.toString(), 0L, failed.size());
+        return results;
+    }
+
+    private boolean matches(Pair<Station, Station> locationPair, List<Location> locations) {
+        return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
+    }
+
+    private Pair<String, String>  checkForTx(Pair<String, String> journey) {
+        long id = Thread.currentThread().getId();
+        if (threadToTxnMap.containsKey(id)) {
+            return journey;
+        }
+
+        try {
+            database.getNodeById(1);
+        }
+        catch (NotInTransactionException noTxnForThisThread) {
+            Transaction txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+            threadToTxnMap.put(id, txn);
+        }
+        catch(Exception uncaught) {
+            throw uncaught;
+        }
+        return journey;
     }
 
 

@@ -147,6 +147,10 @@ public class ProvidesNotesTest {
             expected++;
         }
 
+        if (serviceDate.isChristmasPeriod()) {
+            expected++;
+        }
+
         assertEquals(expected, notes.size());
         assertTrue(notes.toString(), notes.contains("'Some long message' - Metrolink"));
         assertTrue(notes.toString(), notes.contains("'Some Location Long message' - platformLocation2, Metrolink"));

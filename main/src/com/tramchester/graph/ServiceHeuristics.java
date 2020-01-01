@@ -35,6 +35,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private final CostEvaluator<Double> costEvaluator;
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
+    private final TramTime maxJourneyTime;
 
     private Optional<TramTime> boardingTime;
     private final int maxWaitMinutes;
@@ -53,6 +54,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
+        this.maxJourneyTime = queryTime.plusMinutes(maxJourneyDuration);
         this.queryTime = queryTime;
         this.runningServices = runningServices;
         this.endStationId = endStationId;
@@ -63,7 +65,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         // diagnostics, needs debug
         reasons = new LinkedList<>();
 
-        statistics = new HashMap<>();
+        statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
     
@@ -282,7 +284,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         }
     }
 
-    private ServiceReason recordReason(ServiceReason serviceReason) {
+    private ServiceReason recordReason(final ServiceReason serviceReason) {
         if (logger.isDebugEnabled()) {
             reasons.add(serviceReason);
         }
@@ -304,10 +306,15 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
 
     }
 
-    public ServiceReason journeyDurationUnderLimit(TramTime visitingTime, Path path) {
-        if (TramTime.diffenceAsMinutes( queryTime, visitingTime)>maxJourneyDuration) {
+    public ServiceReason journeyDurationUnderLimit(final TramTime visitingTime, final Path path) {
+        if (visitingTime.isAfter(maxJourneyTime)) {
             return recordReason(ServiceReason.TookTooLong(visitingTime, path));
         }
+
+//        if (TramTime.diffenceAsMinutes( queryTime, visitingTime)>maxJourneyDuration) {
+//            return recordReason(ServiceReason.TookTooLong(visitingTime, path));
+//        }
+
         return recordReason(ServiceReason.IsValid(path));
     }
 
