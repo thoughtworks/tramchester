@@ -73,24 +73,9 @@ function getStationsFromServer(app) {
          .get(stationsUrl(app))
          .then(function (response) {
              app.networkError = false;
-             var groupSeen = [];
-             // respect way vue bindings work, can't just assign/overwrite existing list
-             var changes = response.data.stations.filter(station =>
-                 station.proximityGroup.order != app.stopToProxGroup.get(station.id) );
-             changes.forEach(function(change) {
-                 app.stopToProxGroup.set(change.id, change.proximityGroup.order);
-                 if (!groupSeen.includes(change.proximityGroup.order)) {
-                     app.proximityGroups.push(change.proximityGroup);
-                     groupSeen.push(change.proximityGroup.order);
-                 }
-             });
+             app.proximityGroups = response.data.proximityGroups;
+             app.stops = response.data.stations;
 
-             app.stops = app.stops.filter(stop =>
-                 stop.proximityGroup.order === app.stopToProxGroup.get(stop.id) ); // keep unchanged
-
-             changes.forEach(function(change) {
-                 app.stops.push(change);
-             });
              app.ready=true;
 
          })
@@ -106,8 +91,7 @@ const app = new Vue({
         data () {
             return {
                 ready: false,                   // ready to respond
-                stops: [],
-                stopToProxGroup: new Map(),     // stop -> prox group
+                stops: [],                      // all stops
                 proximityGroups: [],
                 startStop: null,
                 endStop: null,
@@ -256,6 +240,17 @@ const app = new Vue({
             },
             dateToNow() {
                 app.date = getCurrentDate();
+            },
+            filterStops(group) {
+                var result = [];
+                app.stops.forEach(function(stop) { if (stop.proximityGroup.order===group.order) result.push(stop); } )
+                return result;
+            },
+            filterEndStops(group) {
+                var result = [];
+                app.stops.forEach(function(stop) {
+                    if (stop.proximityGroup.order===group.order && stop.id!==app.startStop) result.push(stop); } )
+                return result;
             }
         }
         ,
@@ -304,9 +299,9 @@ const app = new Vue({
                 // nearby not available for destinations yet...
                 return this.proximityGroups.filter(group => group.name!=='Nearby');
             },
-            endStops: function () {
-                return this.stops.filter(item => item.id!=this.startStop);
-            },
+            // endStops: function () {
+            //     return this.stops.filter(item => item.id!=this.startStop);
+            // },
             havePos: function () {
                 return this.hasGeo && (this.location!=null);
             },

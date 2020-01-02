@@ -30,10 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
@@ -90,10 +87,11 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetNearestStations() {
-        List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty()).getStations();
+        StationListDTO stationListDTO = getNearest(53.4804263d, -2.2392436d, Optional.empty());
+        List<StationDTO> stations = stationListDTO.getStations();
 
         Map<ProximityGroup, Long> stationGroups = stations.stream()
-                .collect(Collectors.groupingBy(o -> o.getProximityGroup(), Collectors.counting()));
+                .collect(Collectors.groupingBy(StationDTO::getProximityGroup, Collectors.counting()));
 
         assertTrue(stationGroups.get(ProximityGroup.NEAREST_STOPS) > 0);
         int ALL_STOPS_START = 7; // 6 + 1
@@ -108,6 +106,14 @@ public class StationResourceTest {
         assertEquals("1", platformDTO.getPlatformNumber());
         assertEquals("Altrincham platform 1", platformDTO.getName());
         assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());
+
+        List<ProximityGroup> proximityGroups = stationListDTO.getProximityGroups();
+        assertEquals(4, proximityGroups.size());
+        Set<String> names = proximityGroups.stream().map(ProximityGroup::getName).collect(Collectors.toSet());
+        assertTrue(names.contains(ProximityGroup.ALL.getName()));
+        assertTrue(names.contains(ProximityGroup.NEAREST_STOPS.getName()));
+        assertTrue(names.contains(ProximityGroup.RECENT.getName()));
+        assertTrue(names.contains(ProximityGroup.MY_LOCATION.getName()));
     }
 
     @Test
@@ -155,6 +161,7 @@ public class StationResourceTest {
         assertEquals("My Location", station.getName());
         // the nearest stops show come next
         assertEquals(ProximityGroup.NEAREST_STOPS, stations.get(1).getProximityGroup());
+
     }
 
     @Test
@@ -175,10 +182,19 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetAllStationsWithRightOrderAndProxGroup() {
-        Collection<StationDTO> stations = getAll(Optional.empty()).getStations();
+        StationListDTO stationListDTO = getAll(Optional.empty());
+        Collection<StationDTO> stations = stationListDTO.getStations();
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
         stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo(ProximityGroup.ALL));
+
+        List<ProximityGroup> proximityGroups = stationListDTO.getProximityGroups();
+        assertEquals(4, proximityGroups.size());
+        Set<String> names = proximityGroups.stream().map(ProximityGroup::getName).collect(Collectors.toSet());
+        assertTrue(names.contains(ProximityGroup.ALL.getName()));
+        assertTrue(names.contains(ProximityGroup.NEAREST_STOPS.getName()));
+        assertTrue(names.contains(ProximityGroup.RECENT.getName()));
+        assertTrue(names.contains(ProximityGroup.MY_LOCATION.getName()));
     }
 
     @Test

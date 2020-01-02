@@ -89,7 +89,7 @@ public class StationResource extends UsesRecentCookie {
             recentStation.ifPresent(station -> displayStations.add(new StationDTO(station, ProximityGroup.RECENT)));
         });
 
-        return Response.ok(new StationListDTO(displayStations)).build();
+        return Response.ok(new StationListDTO(displayStations, ProximityGroup.ALL_GROUPS)).build();
     }
 
     private List<Station> getStations() {
@@ -155,10 +155,8 @@ public class StationResource extends UsesRecentCookie {
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
         List<String> notes = providesNotes.createNotesForStations(stations, queryDate);
 
-        return Response.ok(new StationListDTO(stations,notes)).build();
+        return Response.ok(new StationListDTO(stations,notes, ProximityGroup.ALL_GROUPS)).build();
     }
-
-
 
     @GET
     @Timed
@@ -186,7 +184,7 @@ public class StationResource extends UsesRecentCookie {
         MyLocation myLocation = locationFactory.create(latLong);
         orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
 
-        return Response.ok(new StationListDTO(orderedStations)).build();
+        return Response.ok(new StationListDTO(orderedStations,ProximityGroup.ALL_GROUPS)).build();
     }
 
 }
