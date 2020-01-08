@@ -30,8 +30,12 @@ public abstract class TestConfig extends AppConfiguration {
     ////// WORK IN PROGRESS
     @Override
     public boolean getEdgePerTrip() {
-        return false;
+        return true;
     }
+
+    @Override
+    public boolean getChangeAtInterchangeOnly() { return true; }
+
     //////
 
     private List<String> closedStations = asList("St Peters Square");
@@ -103,8 +107,9 @@ public abstract class TestConfig extends AppConfiguration {
         return 25;
     }
 
+    // see RouteCalculatorTest.shouldFindEndOfLinesToEndOfLines
     @Override
-    public int getMaxJourneyDuration() { return 170; }
+    public int getMaxJourneyDuration() { return 112; }
 
     @Override
     public int getQueryInterval() { return 6; }
@@ -144,6 +149,7 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean getRemoveRouteNameSuffix() {
         // issue with truncation of source data, until this is fixed this needs to remain true
         return true; }
+
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
 

@@ -87,21 +87,21 @@ public class MyLocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindStationsNearPiccGardensWalkingOnly() throws TramchesterException {
+    public void shouldFindStationsNearPiccGardensWalkingOnly() {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, Stations.PiccadillyGardens.getId(),
                 LocalTime.of(9,0));
 
         assertTrue(journeys.size()>0);
         JourneyDTO first = journeys.first();
         List<StageDTO> stages = first.getStages();
-        assertEquals(TramTime.create(9,0), first.getFirstDepartureTime());
-        assertEquals(TramTime.create(9,3), first.getExpectedArrivalTime());
+        assertEquals(journeys.toString(), TramTime.of(9,0), first.getFirstDepartureTime());
+        assertEquals(journeys.toString(), TramTime.of(9,3), first.getExpectedArrivalTime());
         assertEquals(Stations.PiccadillyGardens.getId(), first.getEnd().getId());
 
         assertEquals(1, stages.size());
         StageDTO stage = stages.get(0);
-        assertEquals(TramTime.create(9,0), stage.getFirstDepartureTime());
-        assertEquals(TramTime.create(9,3), stage.getExpectedArrivalTime());
+        assertEquals(TramTime.of(9,0), stage.getFirstDepartureTime());
+        assertEquals(TramTime.of(9,3), stage.getExpectedArrivalTime());
     }
 
     @Test

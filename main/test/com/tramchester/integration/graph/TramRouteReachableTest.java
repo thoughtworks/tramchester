@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,7 +41,7 @@ public class TramRouteReachableTest {
     }
 
     @Test
-    public void shouldHaveCorrectReachabilitySPIKE() {
+    public void shouldHaveCorrectReachability() {
 
         assertTrue(reachable.getRouteReachable(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), manAirportToVictoria));
         assertFalse(reachable.getRouteReachable(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), victoriaToManAirport));
@@ -61,5 +62,12 @@ public class TramRouteReachableTest {
 
         assertTrue(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), manAirportToVictoria));
         assertFalse(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), victoriaToManAirport));
+    }
+
+    @Test
+    public void shouldHaveCorrectReachabilityMonsalToRochs() {
+        assertTrue(reachable.getRouteReachableWithInterchange(Stations.RochdaleRail.getId(), Stations.Monsall.getId(), RouteCodesForTesting.ROCH_TO_DIDS));
+        assertTrue(reachable.getRouteReachableWithInterchange(Stations.Monsall.getId(), Stations.RochdaleRail.getId(), RouteCodesForTesting.DIDS_TO_ROCH));
+
     }
 }

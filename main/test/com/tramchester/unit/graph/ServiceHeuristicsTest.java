@@ -71,7 +71,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         assertTrue(result.isValid());
 
         result = serviceHeuristics.checkServiceDate(node, path);
-        assertEquals(ServiceReason.DoesNotRunOnQueryDate("xxx", path), result);
+        assertEquals(ServiceReason.ReasonCode.NotOnQueryDate, result.getReasonCode());
         verifyAll();
     }
 
@@ -172,20 +172,66 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHoursOverMidnight() {
+    public void shouldBeInterestedInCorrectHoursPriorToMidnight() {
         TramTime queryTime = TramTime.of(23,10);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
 
         int costSoFar = 15;  // 23.25
-        //LocalTime elapsed = queryTime.plusMinutes(costSoFar);
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
         assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
         assertFalse(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
         assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+    }
+
+    @Test
+    public void shouldBeInterestedInCorrectHoursPriorAcrossMidnight() {
+        TramTime queryTime = TramTime.of(23,40);
+
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
+                queryTime, runningServices, "endStationId");
+
+        int costSoFar = 15;  // 23.55
+        TramTime elapsed = queryTime.plusMinutes(costSoFar);
+
+        assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid()); // before
+        assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
+
+        assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+    }
+
+    @Test
+    public void shouldBeInterestedInCorrectHoursEarlyMorning() {
+        TramTime queryTime = TramTime.of(0,5);
+
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
+                queryTime, runningServices, "endStationId");
+
+        int costSoFar = 15;  // 23.55
+        TramTime elapsed = queryTime.plusMinutes(costSoFar);
+
+        assertFalse(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+    }
+
+    @Test
+    public void shouldBeInterestedInCorrectHoursEarlyMorningNextHour() {
+        TramTime queryTime = TramTime.of(0,50);
+
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
+                queryTime, runningServices, "endStationId");
+
+        int costSoFar = 15;  // 23.55
+        TramTime elapsed = queryTime.plusMinutes(costSoFar);
+
+        assertFalse(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
     }
 
     @Test
@@ -216,6 +262,23 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     }
 
+    @Test
+    public void shouldCheckTimeAtNodeCorrectlyOvermidnight() {
+        TramTime queryTime = TramTime.of(23,50);
+
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
+                queryTime, runningServices, "endStationId");
+
+        LocalTime nodeTime = LocalTime.of(0, 5);
+
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(9), nodeTime, true);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(10), nodeTime, true);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(11), nodeTime, true);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(15), nodeTime, true);
+
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(16), nodeTime, false);
+    }
+
     private void checkForNodeTime(ServiceHeuristics serviceHeuristics, TramTime currentElapsed, LocalTime nodeTime, boolean expect) {
         resetAll();
 
@@ -234,8 +297,6 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config30MinsWait,
                 queryTime, runningServices, "endStationId");
 
-        int costSoFar = 51;
-        //LocalTime elapsed = queryTime.plusMinutes(costSoFar);
         TramTime elapsed = TramTime.of(0,1);
 
         assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
@@ -346,8 +407,8 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Test
     public void shouldCheckIfChangeOfServiceWithDepartAndThenBoard() {
-        TramServiceDate startDate = new TramServiceDate("20141201");
-        TramServiceDate endDate = new TramServiceDate("20151130");
+//        TramServiceDate startDate = new TramServiceDate("20141201");
+//        TramServiceDate endDate = new TramServiceDate("20151130");
         boolean[] days = new boolean[] {true,true,true,true,true,true,true};
 
         TransportRelationship board = BoardRelationship.TestOnly("boardsId", null, null);
@@ -388,6 +449,35 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
         assertFalse(serviceHeuristics.toEndStation(departB));
 
         verifyAll();
+    }
+
+    @Test
+    public void shouldCheckMaximumDurationCorrectly() {
+        TramTime queryTime = TramTime.of(11,20);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository,
+                config30MinsWait, queryTime, runningServices, "endStationId");
+
+        int overallMaxLen = config30MinsWait.getMaxJourneyDuration();
+
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(5, path).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen-1, path).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen, path).isValid());
+        assertFalse(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen+1, path).isValid());
+
+    }
+
+    @Test
+    public void shouldCheckMaximumDurationCorrectlyAcrossMidnight() {
+        TramTime queryTime = TramTime.of(23,20);
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository,
+                config30MinsWait, queryTime, runningServices, "endStationId");
+
+        int overallMaxLen = config30MinsWait.getMaxJourneyDuration();
+
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(5, path).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen-1, path).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen, path).isValid());
+        assertFalse(serviceHeuristics.journeyDurationUnderLimit(overallMaxLen+1, path).isValid());
     }
 
     private ElapsedTime createMatchProvider(TramTime queryTime, TramTime journeyStart) throws TramchesterException {

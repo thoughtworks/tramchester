@@ -68,18 +68,6 @@ public class RouteCalculator extends StationIndexs {
         return gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
     }
 
-//    public Set<RawJourney> calculateRoute(AreaDTO areaA, AreaDTO areaB, List<TramTime> queryTimes, TramServiceDate queryDate, int limit) {
-//        Node endNode = getAreaNode(areaA.getAreaName());
-//
-//        Set<RawJourney> journeys;
-//            Node startNode = getAreaNode(areaB.getAreaName());
-//
-//            journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit,
-//                    "noEndStationId");
-//
-//        return journeys;
-//    }
-
     public Stream<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, Station endStation,
                                           List<TramTime> queryTimes, TramServiceDate queryDate, int numGraphPaths) {
 
@@ -141,7 +129,7 @@ public class RouteCalculator extends StationIndexs {
                             queryTime, runningServicesIds, endStationId)).
                     map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, endStationId)).
                     flatMap(Function.identity()).
-                    map(path -> new RawJourney(pathToStages.mapDirect(path.getPath()), path.getQueryTime()));
+                    map(path -> new RawJourney(pathToStages.mapDirect(path.getPath()), path.getQueryTime(), path.path.weight()));
             return journeyStream;
         }
 
@@ -187,7 +175,7 @@ public class RouteCalculator extends StationIndexs {
         }
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(serviceHeutistics, nodeOperations,
-                endNode, endStationId);
+                endNode, endStationId, config.getChangeAtInterchangeOnly());
 
         return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedWeightedPath(path, serviceHeutistics.getQueryTime()));
     }
@@ -200,14 +188,14 @@ public class RouteCalculator extends StationIndexs {
             paths.sorted(Comparator.comparingDouble(WeightedPath::weight)).forEach(path -> {
                 logger.info(format("edge per trip parse graph path of length %s with limit of %s ", path.length(), limit));
                 List<RawStage> stages = pathToStages.mapDirect(path);
-                RawJourney journey = new RawJourney(stages, queryTime);
+                RawJourney journey = new RawJourney(stages, queryTime, path.weight());
                 journeys.add(journey);
             });
         } else {
             paths.limit(limit).forEach(path -> {
                 logger.info(format("parse graph path of length %s with limit of %s ", path.length(), limit));
                 List<RawStage> stages = pathToStages.map(path, queryTime);
-                RawJourney journey = new RawJourney(stages, queryTime);
+                RawJourney journey = new RawJourney(stages, queryTime, path.weight());
                 journeys.add(journey);
             });
         }
@@ -236,7 +224,7 @@ public class RouteCalculator extends StationIndexs {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
     }
 
-    private class TimedWeightedPath {
+    private static class TimedWeightedPath {
         private final WeightedPath path;
         private final TramTime queryTime;
 

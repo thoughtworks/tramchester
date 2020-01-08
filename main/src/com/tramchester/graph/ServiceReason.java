@@ -5,12 +5,15 @@ import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.lang.String.format;
 
 public abstract class ServiceReason {
+
+    public static final IsValid isValid = new IsValid();
 
     public enum ReasonCode {
         Valid,
@@ -23,20 +26,23 @@ public abstract class ServiceReason {
         NotAtHour
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(HasDiag.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceReason.class);
 
-    protected final String pathAsString;
     private final Set<String> pathAsStrings;
     private final ReasonCode code;
 
+    public ServiceReason(ReasonCode code) {
+        this.code = code;
+        pathAsStrings = Collections.emptySet();
+    }
+
     public ServiceReason(ReasonCode code, Path path) {
         this.code = code;
-        pathAsStrings = new HashSet<>();
         if (logger.isDebugEnabled()) {
-            pathAsString = path.toString();
+            pathAsStrings = new HashSet<>();
             pathAsStrings.addAll(PathToGraphViz.map(path, code.toString(), isValid()));
         } else {
-            pathAsString="";
+            pathAsStrings = Collections.emptySet();
         }
     }
 
@@ -60,10 +66,34 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static abstract class HasDiag extends ServiceReason {
+
+        final String diag;
+        final String pathAsString;
+
+        HasDiag(ReasonCode reasonCode, String diagnostics, Path path) {
+            super(reasonCode, path);
+            pathAsString = path.toString();
+            this.diag = diagnostics;
+        }
+
+        @Override
+        public String toString() {
+            return format("diag:'%s' path:'%s'", diag, pathAsString);
+        }
+
+    }
+
+    //////////////
+
     private static class IsValid extends ServiceReason
     {
         public IsValid(Path path) {
             super(ReasonCode.Valid, path);
+        }
+
+        public IsValid() {
+            super(ReasonCode.Valid);
         }
 
         @Override
@@ -72,6 +102,8 @@ public abstract class ServiceReason {
         }
     }
 
+    //////////////
+
     private static class InflightChangeOfService extends HasDiag
     {
         public InflightChangeOfService(String diag, Path path) {
@@ -79,17 +111,35 @@ public abstract class ServiceReason {
         }
     }
 
+    //////////////
+
     private static class StationNotReachable extends ServiceReason {
         public StationNotReachable(Path path) {
             super(ReasonCode.NotReachable,path);
         }
     }
 
-    private static class DoesNotRunOnQueryDate extends HasDiag
+    //////////////
+
+    private static class DoesNotRunOnQueryDateWithDiag extends HasDiag
     {
-        public DoesNotRunOnQueryDate(String nodeServiceId, Path path) {
+        public DoesNotRunOnQueryDateWithDiag(String nodeServiceId, Path path) {
 
             super(ReasonCode.NotOnQueryDate, nodeServiceId, path);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof DoesNotRunOnQueryDateWithDiag;
+        }
+    }
+
+    //////////////
+
+    private static class DoesNotRunOnQueryDate extends ServiceReason
+    {
+        public DoesNotRunOnQueryDate() {
+            super(ReasonCode.NotOnQueryDate);
         }
 
         @Override
@@ -97,6 +147,8 @@ public abstract class ServiceReason {
             return obj instanceof DoesNotRunOnQueryDate;
         }
     }
+
+    //////////////
 
     private static class DoesNotOperateOnTime extends ServiceReason
     {
@@ -122,30 +174,19 @@ public abstract class ServiceReason {
         }
     }
 
-    private static abstract class HasDiag extends ServiceReason {
-
-        final String diag;
-
-        HasDiag(ReasonCode reasonCode, String diagnostics, Path path) {
-            super(reasonCode, path);
-            this.diag = diagnostics;
-        }
-
-        @Override
-        public String toString() {
-            return format("diag:'%s' path:'%s'", diag, pathAsString);
-        }
-
-    }
-
+    ///////////////////////////////////
     /// convenience methods
 
     public static InflightChangeOfService InflightChangeOfService(String diag, Path path) { return new InflightChangeOfService(diag, path);}
 
     public static IsValid IsValid(Path path) { return new IsValid(path);}
 
-    public static DoesNotRunOnQueryDate DoesNotRunOnQueryDate(String diag, Path path) {
-        return new DoesNotRunOnQueryDate(diag, path);
+    public static ServiceReason DoesNotRunOnQueryDate(String diag, Path path) {
+        return new DoesNotRunOnQueryDateWithDiag(diag, path);
+    }
+
+    public static ServiceReason DoesNotRunOnQueryDate() {
+        return new DoesNotRunOnQueryDate();
     }
 
     public static ServiceReason StationNotReachable(Path path) {

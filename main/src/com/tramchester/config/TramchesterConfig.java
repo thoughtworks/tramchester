@@ -82,4 +82,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     public abstract boolean getRemoveRouteNameSuffix();
 
     public abstract long getLiveDataRefreshPeriodSeconds();
+
+    public abstract boolean getChangeAtInterchangeOnly();
 }

@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -35,7 +36,7 @@ public class LocationToLocationJourneyPlanner {
         this.stationRepository = stationRepository;
     }
 
-    public Set<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<TramTime> queryTimes,
+    public Stream<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<TramTime> queryTimes,
                                                     TramServiceDate queryDate) {
 
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
@@ -47,8 +48,8 @@ public class LocationToLocationJourneyPlanner {
         return createJourneyPlan(latLong, starts, endId, queryTimes, queryDate);
     }
 
-    private Set<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<TramTime> queryTimes,
-                                              TramServiceDate queryDate) {
+    private Stream<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<TramTime> queryTimes,
+                                                 TramServiceDate queryDate) {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id).get()).collect(Collectors.toList());
 
@@ -57,7 +58,7 @@ public class LocationToLocationJourneyPlanner {
 
         Station end = stationRepository.getStation(endId).get();
         return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate,
-                RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
+                RouteCalculator.MAX_NUM_GRAPH_PATHS);
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {

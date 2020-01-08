@@ -7,10 +7,7 @@ import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,13 +60,10 @@ public class HourState extends TraversalState {
         List<Relationship> results = new ArrayList<>();
         relationships.forEach(relationship -> {
             String trip = nodeOperations.getTrip(relationship);
-            if (trip.contains(tripId)) {
+            if (trip.equals(tripId)) {
                 results.add(relationship);
             }
         });
-//        if (results.isEmpty()) {
-//            logger.warn("Got no matching trips for " + tripId);
-//        }
         return results;
     }
 

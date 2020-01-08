@@ -25,6 +25,8 @@ import static java.lang.String.format;
 
 public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
+    private static final boolean debugEnabled = logger.isDebugEnabled();
+
     private final TramchesterConfig config;
     private final RunningServices runningServices;
     private final String endStationId;
@@ -35,7 +37,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private final CostEvaluator<Double> costEvaluator;
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
-    private final TramTime maxJourneyTime;
 
     private Optional<TramTime> boardingTime;
     private final int maxWaitMinutes;
@@ -54,7 +55,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
-        this.maxJourneyTime = queryTime.plusMinutes(maxJourneyDuration);
         this.queryTime = queryTime;
         this.runningServices = runningServices;
         this.endStationId = endStationId;
@@ -76,10 +76,10 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         String nodeServiceId = nodeOperations.getServiceId(node);
 
         if (runningServices.isRunning(nodeServiceId)) {
-            return recordReason(ServiceReason.IsValid(path));
+            return valid(path);
         }
 
-        return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
+        return notOnQueryDate(path, nodeServiceId);
     }
 
     private void incrementStat(ServiceReason.ReasonCode reasonCode) {
@@ -89,22 +89,19 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     public ServiceReason checkServiceTime(Path path, Node node, TramTime currentClock) {
         totalChecked.incrementAndGet();
 
-        // TODO pre-cache this?
         String serviceId = nodeOperations.getServiceId(node);
 
         // prepared to wait up to max wait for start of a service...
-//        TramTime serviceStart = nodeOperations.getServiceEarliest(node).minusMinutes(maxWaitMinutes);
         TramTime serviceStart = runningServices.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
 
-                // BUT if arrive after service finished there is nothing to be done...
-//        TramTime serviceEnd = nodeOperations.getServiceLatest(node);
+        // BUT if arrive after service finished there is nothing to be done...
         TramTime serviceEnd = runningServices.getServiceLatest(serviceId);
 
         if (!currentClock.between(serviceStart, serviceEnd)) {
             return recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));
         }
 
-        return recordReason(ServiceReason.IsValid(path));
+        return valid(path);
     }
 
     // edge per trip
@@ -117,7 +114,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         }
 
         if (operatesWithinTime(nodeTime, currentElapsed)) {
-            return recordReason(ServiceReason.IsValid(path));
+            return valid(path);
         }
         return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
     }
@@ -140,7 +137,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         // already checked via service node for edge per trip
         String serviceId = goesToRelationship.getServiceId();
         if (!runningServices.isRunning(serviceId)) {
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(serviceId, path));
+            return notOnQueryDate(path, serviceId);
         }
 
         ServiceReason inflightChange = sameService(path, incoming, goesToRelationship);
@@ -155,19 +152,19 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
                     path));
         }
 
-        return recordReason(ServiceReason.IsValid(path));
+        return valid(path);
     }
 
     public ServiceReason sameService(Path path, TransportRelationship transportRelationship, GoesToRelationship outgoing) {
         if (!transportRelationship.isGoesTo()) {
-            return recordReason(ServiceReason.IsValid(path)); // not a connecting/goes to relationship, no svc id
+            return valid(path); // not a connecting/goes to relationship, no svc id
         }
 
         GoesToRelationship incoming = (GoesToRelationship) transportRelationship;
         String service = incoming.getServiceId();
 
         if (service.equals(outgoing.getServiceId())) {
-            return recordReason(ServiceReason.IsValid(path));
+            return valid(path);
         }
 
         return recordReason(ServiceReason.InflightChangeOfService(service, path));
@@ -231,34 +228,32 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         int queryTimeHour = journeyClockTime.getHourOfDay();
         if (hour == queryTimeHour) {
             // quick win
-            return recordReason(ServiceReason.IsValid(path));
+            return valid(path);
         }
 
         // this only works if maxWaitMinutes<60
-        if (queryTimeHour==(hour-1)) {
-            if (journeyClockTime.getMinuteOfHour()>=60-maxWaitMinutes) {
-                return recordReason(ServiceReason.IsValid(path));
+        int previousHour = hour - 1;
+        if (previousHour==-1) {
+            previousHour = 23;
+        }
+        if (queryTimeHour == previousHour) {
+            if (journeyClockTime.getMinuteOfHour() >= 60-maxWaitMinutes) {
+                return valid(path);
             }
         }
-
-//        TramTime latestTimeToWait = journeyClockTime.plusMinutes(maxWaitMinutes);
-//        if (latestTimeToWait.getHourOfDay()==hour) {
-//            return recordReason(ServiceReason.IsValid(path));
-//        }
 
         return recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
     }
 
     public void reportReasons() {
         reportStats();
-        if (logger.isDebugEnabled()) {
-            reasons.forEach(reason -> logger.debug("ServiceReason: " + reason ));
+        if (debugEnabled) {
             createGraphFile();
         }
     }
 
     private void createGraphFile() {
-        String fileName = format("%s_at_%s.dot", queryTime.toString(), LocalTime.now().toString());
+        String fileName = format("%s%s_at_%s.dot", queryTime.getHourOfDay(), queryTime.getMinuteOfHour(), LocalTime.now().toString());
         fileName = fileName.replaceAll(":","");
 
         if (reasons.isEmpty()) {
@@ -285,7 +280,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     }
 
     private ServiceReason recordReason(final ServiceReason serviceReason) {
-        if (logger.isDebugEnabled()) {
+        if (debugEnabled) {
             reasons.add(serviceReason);
         }
         incrementStat(serviceReason.getReasonCode());
@@ -300,22 +295,31 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         String stationId = endNode.getProperty(ID).toString();
         boolean flag = reachabilityRepository.reachable(stationId, endStationId);
         if (flag) {
-            return recordReason(ServiceReason.IsValid(path));
+            return valid(path);
         }
         return recordReason(ServiceReason.StationNotReachable(path));
-
     }
 
-    public ServiceReason journeyDurationUnderLimit(final TramTime visitingTime, final Path path) {
-        if (visitingTime.isAfter(maxJourneyTime)) {
-            return recordReason(ServiceReason.TookTooLong(visitingTime, path));
+    public ServiceReason journeyDurationUnderLimit(final int totalCost, final Path path) {
+        if (totalCost>maxJourneyDuration) {
+            return recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), path));
         }
 
-//        if (TramTime.diffenceAsMinutes( queryTime, visitingTime)>maxJourneyDuration) {
-//            return recordReason(ServiceReason.TookTooLong(visitingTime, path));
-//        }
+        return valid(path);
+    }
 
-        return recordReason(ServiceReason.IsValid(path));
+    private ServiceReason valid(final Path path) {
+        if (debugEnabled) {
+            return recordReason(ServiceReason.IsValid(path));
+        }
+        return recordReason(ServiceReason.isValid);
+    }
+
+    private ServiceReason notOnQueryDate(Path path, String nodeServiceId) {
+        if (debugEnabled) {
+            return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
+        }
+        return recordReason(ServiceReason.DoesNotRunOnQueryDate());
     }
 
     public TramTime getQueryTime() {

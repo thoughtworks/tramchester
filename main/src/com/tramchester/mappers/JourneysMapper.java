@@ -23,8 +23,7 @@ public class JourneysMapper {
 
     public SortedSet<JourneyDTO> map(JourneyDTOFactory factory, Set<RawJourney> journeys, int withinMins) {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
-        SortedSet<JourneyDTO> decoratedJourneys = decorateJourneys(factory, journeys, withinMins);
-        return decoratedJourneys;
+        return decorateJourneys(factory, journeys, withinMins);
     }
 
     protected SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys, int withinMins) {

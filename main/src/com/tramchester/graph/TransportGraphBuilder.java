@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -37,7 +38,7 @@ public class TransportGraphBuilder extends StationIndexs {
     public static final int DEPARTS_COST = 1;
     public static final int BOARDING_COST = 2;
 
-    // TODO compute actual costs depend on physical coniguration of platforms at the station?? No data available yet.
+    // TODO compute actual costs depend on physical configuration of platforms at the station? No data available yet.
     private static final int ENTER_PLATFORM_COST = 0;
     private static final int LEAVE_PLATFORM_COST = 0;
     private static final int ENTER_INTER_PLATFORM_COST = 0;
@@ -126,10 +127,20 @@ public class TransportGraphBuilder extends StationIndexs {
                     }
                 }
             }
+
+            graphDatabaseService.schema().awaitIndexesOnline(5, TimeUnit.SECONDS);
+
+            graphDatabaseService.schema().getIndexes().forEach(indexDefinition -> {
+                logger.info(String.format("Index label %s keys %s",
+                        indexDefinition.getLabel(), indexDefinition.getPropertyKeys()));
+            });
+
             tx.success();
 
             Duration duration = Duration.between(start, LocalTime.now());
             logger.info("Graph rebuild finished, took " + duration.getSeconds());
+
+
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
@@ -153,13 +164,12 @@ public class TransportGraphBuilder extends StationIndexs {
             schema.indexFor(Labels.PLATFORM).on(GraphStaticKeys.ID).create();
             if (edgePerTrip) {
                 schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.ID).create();
-                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.DAYS).create();
-//                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_START_DATE).create();
-//                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.SERVICE_END_DATE).create();
+                schema.indexFor(Labels.SERVICE).on(SERVICE_ID).create();
                 schema.indexFor(Labels.HOUR).on(GraphStaticKeys.ID).create();
                 schema.indexFor(Labels.HOUR).on(GraphStaticKeys.HOUR).create();
                 schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.ID).create();
                 schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.TIME).create();
+                schema.indexFor(Labels.MINUTE).on(TRIP_ID).create();
             }
             tx.success();
         }

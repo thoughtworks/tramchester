@@ -18,8 +18,9 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId, String destinationStationId) {
-        super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationId, 0);
+    public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId, String destinationStationId,
+                           boolean interchangesOnly) {
+        super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationId, 0, interchangesOnly);
     }
 
     @Override

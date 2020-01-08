@@ -41,6 +41,8 @@ public class Stations {
     public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
     public static Location StWerburghsRoad = createStation("9400ZZMASTW", "Chorlton", "St Werburgh's Road");
     public static Location Shudehill = createStation("9400ZZMASHU","Manchester City Centre", "Shudehill");
+    public static Location Monsall = createStation("9400ZZMAMON", "Manchester City Centre", "Monsall");
+    public static Location RochdaleRail = createStation("9400ZZMARRS", "Rochsdale Town Centr", "Rochsdale Railway Station");
 
     private static List<Location> EndOfTheLineWest = Arrays.asList(Altrincham,
             ManAirport,
@@ -55,8 +57,7 @@ public class Stations {
     public static List<Location> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 
     public static List<Location> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
-            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly);
-            //,HarbourCity, ShawAndCrompton);
+            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
 
     public static Station createStation(String id, String area, String name) {
         return new Station(id, area, name, position, true);

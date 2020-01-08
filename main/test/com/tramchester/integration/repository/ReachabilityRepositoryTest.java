@@ -43,9 +43,17 @@ public class ReachabilityRepositoryTest {
                 Stations.ManAirport.getId()));
         assertTrue(repo.reachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
                 Stations.ManAirport.getId()));
-
         assertTrue(repo.reachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
                 Stations.NavigationRoad.getId()));
+
+        assertTrue(repo.reachable(Stations.RochdaleRail.getId() + RouteCodesForTesting.ROCH_TO_DIDS, Stations.Monsall.getId()));
+        assertFalse(repo.reachable(Stations.RochdaleRail.getId() + RouteCodesForTesting.DIDS_TO_ROCH, Stations.Monsall.getId()));
+
+        assertTrue(repo.reachable(Stations.Monsall.getId() + RouteCodesForTesting.DIDS_TO_ROCH, Stations.RochdaleRail.getId()));
+
+        // towards victoria, so find an interchange
+        assertTrue(repo.reachable(Stations.Monsall.getId() + RouteCodesForTesting.ROCH_TO_DIDS, Stations.RochdaleRail.getId()));
+
     }
 
 }

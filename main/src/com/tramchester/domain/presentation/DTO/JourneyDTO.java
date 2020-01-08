@@ -10,6 +10,19 @@ import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 import java.util.List;
 
 public class JourneyDTO implements Comparable<JourneyDTO> {
+    @Override
+    public String toString() {
+        return "JourneyDTO{" +
+                "begin=" + begin +
+                ", end=" + end +
+                ", stages=" + stages +
+                ", expectedArrivalTime=" + expectedArrivalTime +
+                ", firstDepartureTime=" + firstDepartureTime +
+                ", dueTram='" + dueTram + '\'' +
+                ", isDirect=" + isDirect +
+                ", changeStations=" + changeStations +
+                '}';
+    }
 
     private LocationDTO begin;
     private LocationDTO end;

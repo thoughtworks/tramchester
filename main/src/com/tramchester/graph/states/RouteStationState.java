@@ -60,7 +60,6 @@ public class RouteStationState extends TraversalState {
     private TraversalState toService(Node node, int cost) {
         Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_HOUR);
         return new ServiceState(this, relationships, maybeExistingTrip, cost);
-        //return new ServiceState(this, hourOrdered(relationships), maybeExistingTrip, cost);
     }
 
     private TraversalState toPlatform(Node node, JourneyState journeyState, int cost) {

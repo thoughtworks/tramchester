@@ -1,6 +1,5 @@
 package com.tramchester.graph.states;
 
-import com.tramchester.domain.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -8,8 +7,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -21,6 +21,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected final long destinationNodeId;
     protected final TraversalState parent;
     protected final String destinationStationdId;
+    protected final boolean interchangesOnly;
 
     @Override
     public int hashCode() {
@@ -28,13 +29,14 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> outbounds,
-                             long destinationNodeId, String destinationStationdId, int costForLastEdge) {
+                             long destinationNodeId, String destinationStationdId, int costForLastEdge, boolean interchangesOnly) {
         this.parent = parent;
         this.nodeOperations = nodeOperations;
         this.outbounds = outbounds;
         this.destinationNodeId = destinationNodeId;
         this.destinationStationdId = destinationStationdId;
         this.costForLastEdge = costForLastEdge;
+        this.interchangesOnly = interchangesOnly;
         parentCost = 0;
     }
 
@@ -42,6 +44,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
         this.destinationStationdId = parent.destinationStationdId;
+        this.interchangesOnly = parent.interchangesOnly;
 
         this.parent = parent;
         this.outbounds = outbounds;
@@ -63,31 +66,8 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 collect(Collectors.toList());
     }
 
-//    protected Iterable<Relationship> hourOrdered(Iterable<Relationship> outboundRelationships) {
-//        SortedMap<Integer, Relationship> ordered = new TreeMap<>();
-//        for (Relationship outboundRelationship : outboundRelationships) {
-//            int hour = nodeOperations.getHour(outboundRelationship);
-//            ordered.put(hour,outboundRelationship);
-//        }
-//        return ordered.values();
-//    }
-
-//    protected Iterable<Relationship> timeOrdered(Iterable<Relationship> outboundRelationships) {
-//        SortedMap<TramTime, Relationship> ordered = new TreeMap<>();
-//        for (Relationship outboundRelationship : outboundRelationships) {
-//            LocalTime time = nodeOperations.getTime(outboundRelationship);
-//            ordered.put(TramTime.of(time),outboundRelationship);
-//        }
-//        return ordered.values();
-//    }
-
     public int getTotalCost() {
         return parentCost + getCurrentCost();
-//        int result = 0;
-//        for (Relationship relat: path.relationships()) {
-//            result = result + nodeOperations.getCost(relat);
-//        }
-//        return result;
     }
 
     protected int getCurrentCost() {

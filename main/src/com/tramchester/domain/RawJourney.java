@@ -9,10 +9,12 @@ public class RawJourney implements Iterable<RawStage> {
 
     private final List<RawStage> stages;
     private final TramTime queryTime;
+    private final double totalCost;
 
-    public RawJourney(List<RawStage> stages, TramTime queryTime) {
+    public RawJourney(List<RawStage> stages, TramTime queryTime, double totalCost) {
         this.stages = stages;
         this.queryTime = queryTime;
+        this.totalCost = totalCost;
     }
     
     public Iterator<RawStage> iterator() {
@@ -33,5 +35,9 @@ public class RawJourney implements Iterable<RawStage> {
                 "stages=" + stages +
                 ", queryTime=" + queryTime +
                 '}';
+    }
+
+    public double getTotalCost() {
+        return totalCost;
     }
 }

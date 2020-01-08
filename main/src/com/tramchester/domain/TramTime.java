@@ -117,6 +117,8 @@ public class  TramTime implements Comparable<TramTime> {
         return hour==0 || hour==1;
     }
 
+    // try to avoid this method due to ambiguity in early hours - is it today or tomorrow?
+    @Deprecated
     public int minutesOfDay() {
         return (hour * 60) + minute;
     }
@@ -176,8 +178,12 @@ public class  TramTime implements Comparable<TramTime> {
         if (isEarlyMorning(hour) && isLateNight(other.hour)) {
             return 1; // is more than
         }
-        // otherwise
-        return this.minutesOfDay()-other.minutesOfDay();
+        // otherwise, same hour then use minutes
+        if (this.hour==other.hour) {
+            return this.minute-other.minute;
+        }
+        // just use hour
+        return this.hour-other.hour;
     }
 
     public LocalTime asLocalTime() {

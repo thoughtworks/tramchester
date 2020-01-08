@@ -25,7 +25,7 @@ public class MinuteState extends TraversalState {
     }
 
     public MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
-        super(parent,relationships, cost);
+        super(parent, relationships, cost);
         this.tripId = tripId;
     }
 
@@ -38,10 +38,10 @@ public class MinuteState extends TraversalState {
     }
 
     private TraversalState toRouteStation(Node node, int cost) {
-        Iterable<Relationship> departs = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
+        Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
 
-        // towards final desintion, just follow this one
-        for (Relationship depart : departs) {
+        // towards final destination, just follow this one
+        for (Relationship depart : allDeparts) {
             if (depart.getProperty(GraphStaticKeys.STATION_ID).equals(destinationStationdId)) {
                 return new RouteStationState(this,
                         Collections.singleton(depart), node.getId(), tripId, cost);
@@ -49,11 +49,15 @@ public class MinuteState extends TraversalState {
         }
 
         List<Relationship> outgoing = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), tripId);
-        departs.forEach(depart->outgoing.add(depart));
+
+        if (interchangesOnly) {
+            Iterable<Relationship> interchanges = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
+            interchanges.forEach(outgoing::add);
+        } else {
+            allDeparts.forEach(outgoing::add);
+        }
 
         return new RouteStationState(this, outgoing, node.getId(), tripId, cost);
     }
-
-
 
 }

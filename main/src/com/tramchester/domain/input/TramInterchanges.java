@@ -11,6 +11,7 @@ import java.util.Set;
 public class TramInterchanges {
 
     private enum Interchanges {
+        // official
         CORNBROOK("9400ZZMACRN"),
         ST_PETERS_SQUARE("9400ZZMASTP"),
         PIC_GARDENS("9400ZZMAPGD"),
@@ -18,7 +19,10 @@ public class TramInterchanges {
         ST_WS_ROAD("9400ZZMASTW"),
         VICTORIA("9400ZZMAVIC"),
         DEANSGATE("9400ZZMAGMX"),
-        PICCADILLY("9400ZZMAPIC");
+        PICCADILLY("9400ZZMAPIC"),
+        // additional route swap points, needed for journeys when restrict change over points
+        SHAW_AND_CROMPTON("9400ZZMASHA"),
+        HARBOUR_CITY("9400ZZMAHCY");
 
         private final String stationId;
 
@@ -33,7 +37,6 @@ public class TramInterchanges {
         ids = new HashSet<>();
         Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(interchange.stationId));
     }
-
 
     public static boolean has(String stationId) {
         return ids.contains(stationId);

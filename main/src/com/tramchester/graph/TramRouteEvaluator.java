@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.states.TraversalState;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -54,28 +55,25 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         long nodeId = endNode.getId();
 
         if (previousSuccessfulVisit.containsKey(nodeId)) {
+            // can *only* safely exclude previous nodes if there is only one outbound path
 
             if (nodeOperations.isTime(nodeId)) {
                 // no way to get different response for same service/minute - boarding time has to be same
+                // since time nodes encode a specific time, so the previous time *must* match for this node id
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
 
+            // NOTE: We only cache previous for certian node types
             TramTime previousVisitTime = previousSuccessfulVisit.get(nodeId);
-
-            if (previousVisitTime.equals(journeyClock)) {
+            if (nodeOperations.isHour(nodeId) && previousVisitTime.equals(journeyClock)) {
                 return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue
             }
-
-//            if (!serviceHeuristics.overMaxWait(journeyClock, previousVisitTime, path).isValid()) {
-//                // over max wait time later, so no need to consider
-//                return Evaluation.EXCLUDE_AND_PRUNE;
-//            }
-
         }
 
         Evaluation result = doEvaluate(path, journeyState, endNode, nodeId);
-        if (result.continues()) {
-            previousSuccessfulVisit.put(nodeId, journeyClock);
+
+        if (result.continues() && (nodeOperations.isTime(nodeId) || nodeOperations.isHour(nodeId))) {
+                previousSuccessfulVisit.put(nodeId, journeyClock);
         } else {
             if (debugEnabled) {
                 logger.debug("Stopped at len: " + path.length());
@@ -118,17 +116,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
-        // is the service running today
-        boolean isService = nodeOperations.isService(endNodeId);
-        if (isService) {
-            if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
+        // is even reachable from here?
+        if (nodeOperations.isRouteStation(endNodeId)) {
+            if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
 
-        // is even reachable from here?
-        if (nodeOperations.isRouteStation(endNodeId)) {
-            if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
+        // is the service running today
+        boolean isService = nodeOperations.isService(endNodeId);
+        if (isService) {
+            if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
@@ -145,7 +143,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         TramTime visitingTime = journeyState.getJourneyClock();
 
         // journey too long?
-        if (!serviceHeuristics.journeyDurationUnderLimit(visitingTime, path).isValid()) {
+        if (!serviceHeuristics.journeyDurationUnderLimit(traversalState.getTotalCost(), path).isValid()) {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 

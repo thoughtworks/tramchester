@@ -13,7 +13,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -128,7 +127,7 @@ public class TramJourneyResponseMapperTest extends EasyMockSupport {
         stages.add(rawTravelStage1);
         stages.add(rawTravelStage2);
 
-        return new RawJourney(stages, queryTime);
+        return new RawJourney(stages, queryTime, costA+costB);
     }
 
 }

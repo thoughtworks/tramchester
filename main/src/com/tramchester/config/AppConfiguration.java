@@ -114,6 +114,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("maxJourneyDuration")
     private int maxJourneyDuration;
 
+    @JsonProperty("changeAtInterchangeOnly")
+    private boolean changeAtInterchangeOnly;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -247,6 +250,11 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Override
     public long getLiveDataRefreshPeriodSeconds() { return liveDataRefreshPeriodSeconds; }
+
+    @Override
+    public boolean getChangeAtInterchangeOnly() {
+        return changeAtInterchangeOnly;
+    }
 
     @Override
     public int getMaxJourneyDuration() {

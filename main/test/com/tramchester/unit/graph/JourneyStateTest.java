@@ -24,7 +24,7 @@ public class JourneyStateTest {
     @Before
     public void onceBeforeEachTestRuns() {
         traversalState = new NotStartedState(new CachedNodeOperations(new NodeIdLabelMap()),
-                42, "destinationStationId");
+                42, "destinationStationId", false);
         queryTime = TramTime.of(9, 15);
     }
 

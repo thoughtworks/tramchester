@@ -76,7 +76,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldBeComparableDuringDay() {
+    public void shouldBeComparableDuringDaySameHour() {
         TramTime timeA = TramTime.of(12,04);
         TramTime timeB =  TramTime.of(12,03);
 
@@ -95,7 +95,22 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldBeComparableAcrossMidnight() throws TramchesterException {
+    public void shouldBeComparableDuringDayDifferentHour() {
+        TramTime timeA = TramTime.of(13,01);
+        TramTime timeB =  TramTime.of(12,03);
+
+        assertTrue(timeA.compareTo(timeB)>0);
+        assertTrue(timeB.compareTo(timeA)<0);
+
+        SortedSet<TramTime> set = new TreeSet<>();
+        set.add(timeA);
+        set.add(timeB);
+
+        assertEquals(timeB,set.first());
+    }
+
+    @Test
+    public void shouldBeComparableAcrossMidnight() {
         TramTime timeA = TramTime.of(00,10);
         TramTime timeB =  TramTime.of(23,10);
 

@@ -39,9 +39,9 @@ public class JourneysMapperTest extends EasyMockSupport{
         JourneysMapper journeysMapper = new JourneysMapper(mapper);
 
         Set<RawJourney> rawJourneys = new ListOrderedSet<>();
-        RawJourney rawJourneyA =new RawJourney(new LinkedList<>(), TramTime.of(0,3));
-        RawJourney rawJourneyB =new RawJourney(new LinkedList<>(), TramTime.of(0,2));
-        RawJourney rawJourneyC =new RawJourney(new LinkedList<>(), TramTime.of(0,1));
+        RawJourney rawJourneyA =new RawJourney(new LinkedList<>(), TramTime.of(0,3), 39F);
+        RawJourney rawJourneyB =new RawJourney(new LinkedList<>(), TramTime.of(0,2), 39F);
+        RawJourney rawJourneyC =new RawJourney(new LinkedList<>(), TramTime.of(0,1), 39F);
 
         rawJourneys.add(rawJourneyA);
         rawJourneys.add(rawJourneyB);

@@ -49,7 +49,7 @@ public class CachedNodeOperations {
         if (tripRelationshipCache.containsKey(relationshipId)) {
             return tripRelationshipCache.get(relationshipId);
         }
-        String trip = relationship.getProperty(TRIP_ID).toString();
+        String trip = relationship.getProperty(TRIP_ID).toString().intern();
         tripRelationshipCache.put(relationshipId, trip);
         return trip;
     }
@@ -58,7 +58,7 @@ public class CachedNodeOperations {
         if (!endNode.hasProperty(TRIP_ID)) {
             return "";
         }
-        return endNode.getProperty(TRIP_ID).toString();
+        return endNode.getProperty(TRIP_ID).toString().intern();
     }
 
     public TramTime getTime(Node node) {
@@ -77,7 +77,7 @@ public class CachedNodeOperations {
         if (svcIdCache.containsKey(id)) {
             return svcIdCache.get(id);
         }
-        String svcId = node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+        String svcId = node.getProperty(GraphStaticKeys.SERVICE_ID).toString().intern();
         svcIdCache.put(id, svcId);
         return svcId;
     }
@@ -93,24 +93,20 @@ public class CachedNodeOperations {
         return cost;
     }
 
-    private boolean checkForLabel(long nodeId, TransportGraphBuilder.Labels label) {
-        return nodeIdLabelMap.has(nodeId, label);
-    }
-
     public boolean isService(long nodeId) {
-        return checkForLabel(nodeId, TransportGraphBuilder.Labels.SERVICE);
+        return nodeIdLabelMap.has(TransportGraphBuilder.Labels.SERVICE, nodeId);
     }
 
     public boolean isHour(long nodeId) {
-        return checkForLabel(nodeId, TransportGraphBuilder.Labels.HOUR);
+        return nodeIdLabelMap.has(TransportGraphBuilder.Labels.HOUR, nodeId);
     }
 
     public boolean isTime(long nodeId) {
-        return checkForLabel(nodeId, TransportGraphBuilder.Labels.MINUTE);
+        return nodeIdLabelMap.has(TransportGraphBuilder.Labels.MINUTE, nodeId);
     }
 
     public boolean isRouteStation(long nodeId) {
-        return checkForLabel(nodeId, ROUTE_STATION);
+        return nodeIdLabelMap.has(ROUTE_STATION, nodeId);
     }
 
     public int getHour(Node node) {

@@ -72,4 +72,16 @@ public class LocationDTO {
     public List<PlatformDTO> getPlatforms() {
         return platforms;
     }
+
+    @Override
+    public String toString() {
+        return "LocationDTO{" +
+                "area='" + area + '\'' +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", latLong=" + latLong +
+                ", tram=" + tram +
+                ", platforms=" + platforms +
+                '}';
+    }
 }

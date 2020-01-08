@@ -89,6 +89,11 @@ public class RouteCalculatorSubGraphTest {
     }
 
     @Test
+    public void shouldHandleCrossingMidnightDirect() {
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), nextTuesday);
+    }
+
+    @Test
     public void shouldHaveJourneysBetweenAllStations() {
         TramTime time = TramTime.of(9, 0);
         for (Location start: stations) {
@@ -137,7 +142,7 @@ public class RouteCalculatorSubGraphTest {
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         @Override
         public String getGraphName() {
-            return "int_test__sub_tramchester.db";
+            return "int_test_sub_tramchester.db";
         }
 
         @Override

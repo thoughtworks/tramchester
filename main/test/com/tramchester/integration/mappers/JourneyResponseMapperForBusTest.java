@@ -20,9 +20,7 @@ import org.junit.*;
 import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
@@ -88,7 +86,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         busStage.setCost(cost);
 
         stages.add(busStage);
-        journeys.add(new RawJourney(stages, tramTime));
+        journeys.add(new RawJourney(stages, tramTime, cost));
 
         LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate, tramTime);
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);

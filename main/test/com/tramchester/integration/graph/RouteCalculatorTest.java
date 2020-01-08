@@ -7,7 +7,6 @@ import com.tramchester.domain.*;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import com.tramchester.repository.TransportData;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -16,10 +15,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +25,9 @@ import static org.junit.Assume.assumeTrue;
 
 public class RouteCalculatorTest {
 
-    public static final int TXN_TIMEOUT = 180;
+    // TODO this needs to be > time for whole test fixture, see note below in @After
+    public static final int TXN_TIMEOUT = 5*60;
+
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;
     private static GraphDatabaseService database;
@@ -64,6 +62,7 @@ public class RouteCalculatorTest {
     @After
     public void afterEachTestRuns() {
         tx.close();
+        // can't close transactions on other threads because neo4j uses a threadlocal to cache the transaction
 //        threadToTxnMap.values().forEach(Transaction::close);
         threadToTxnMap.clear();
     }
@@ -102,7 +101,6 @@ public class RouteCalculatorTest {
     public void shouldFindInterchangesToEndOfLines() {
         Set<Pair<String, String>> combinations = createJourneyPairs(Stations.Interchanges,Stations.EndOfTheLine );
         checkRouteNextNDays(combinations, nextTuesday, TramTime.of(8,0), 7);
-
     }
 
     @Test
@@ -138,12 +136,17 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldHaveLongJourneyAcrossFromInterchange() {
+    public void shouldHaveReasonableLongJourneyAcrossFromInterchange() {
         TramTime am8 = TramTime.of(8, 0);
-        String rochdaleRail = "9400ZZMARRS";
-        String monsall = "9400ZZMAMON";
-        validateAtLeastOneJourney(monsall, rochdaleRail, am8, nextTuesday);
-        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Rochdale, am8, nextTuesday);
+
+        Set<RawJourney> journeys = calculator.calculateRoute(Stations.Monsall.getId(), Stations.RochdaleRail.getId(), Collections.singletonList(am8),
+                new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).
+                collect(Collectors.toSet());
+
+        assertFalse(journeys.isEmpty());
+        journeys.forEach(journey -> {
+            assertEquals(1, journey.getStages().size());
+        });
     }
 
     @Test
@@ -178,8 +181,19 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldHandleCrossingMidnight() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, TramTime.of(23, 15), nextTuesday);
+    public void shouldHandleCrossingMidnightWithChange() {
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, TramTime.of(23,20), nextTuesday);
+    }
+
+    @Test
+    public void shouldHandleCrossingMidnightDirect() {
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), nextTuesday);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.TraffordBar, TramTime.of(23,51), nextTuesday);
+    }
+
+    @Test
+    public void shouldHandleAfterMidnightDirect() {
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.NavigationRoad, TramTime.of(0,0), nextTuesday);
     }
 
     @Test
@@ -188,46 +202,8 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void shouldFindRouteEachStationToEveryOtherStream() {
-
-        TransportData data = dependencies.get(TransportData.class);
-
-        Set<Station> allStations = data.getStations();
-
-        // pairs of stations to check
-        Set<Pair<String, String>> combinations = allStations.stream().map(start -> allStations.stream().
-                map(dest -> Pair.of(start, dest))).
-                flatMap(Function.identity()).
-                filter(pair -> !matches(pair, Stations.Interchanges)).
-                filter(pair -> !matches(pair, Stations.EndOfTheLine)).
-                map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight().getId())).
-                collect(Collectors.toSet());
-
-        List<TramTime> queryTimes = Collections.singletonList(TramTime.of(6, 5));
-        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results = validateAllHaveAtLeastOneJourney(nextTuesday, combinations, queryTimes);
-
-        // now find longest journey
-        Optional<Integer> maxNumberStops = results.values().stream().
-                filter(Optional::isPresent).
-                map(Optional::get).
-                map(journey -> journey.getStages().stream().
-                        map(RawStage::getPassedStops).
-                        reduce(Integer::sum)).
-                filter(Optional::isPresent).
-                map(Optional::get).
-                max(Integer::compare);
-
-        assertTrue(maxNumberStops.isPresent());
-        assertEquals(39, maxNumberStops.get().intValue());
-    }
-
-    @Test
-    public void shouldFindEndOfLinesToEndOfLinesTuesday() {
-        Set<Pair<String, String>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
-
-        List<TramTime> times = Arrays.asList(TramTime.of(9, 0));
-        validateAllHaveAtLeastOneJourney(nextTuesday, combinations, times);
-
+    public void shouldReproIssueRochInterchangeToBury() {
+        validateAtLeastOneJourney(Stations.Rochdale.getId(), Stations.Bury.getId(), TramTime.of(9, 0), nextTuesday );
     }
 
     @Test
@@ -241,11 +217,22 @@ public class RouteCalculatorTest {
     @Test
     public void shouldFindEndOfLinesToEndOfLines() {
         Set<Pair<String, String>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
+        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
+    }
 
-        for(int day = 0; day < 7; day++) {
-            List<TramTime> times = Arrays.asList(TramTime.of(9,0));
-            validateAllHaveAtLeastOneJourney(nextTuesday.plusDays(day), combinations, times);
-        }
+    @Test
+    @Ignore
+    public void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
+        Set<Pair<String, String>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
+
+        List<RawJourney> allResults = new ArrayList<>();
+
+        List<TramTime> times = Arrays.asList(TramTime.of(9,0));
+        Map<Pair<String, String>, Optional<RawJourney>> results = validateAllHaveAtLeastOneJourney(nextTuesday, combinations, times);
+        results.forEach((route, journey) -> journey.ifPresent(present -> allResults.add(present)));
+
+        double longest = allResults.stream().map(journey -> journey.getTotalCost()).max(Double::compare).get();
+        assertEquals(testConfig.getMaxJourneyDuration(), longest, 0.001);
     }
 
     @Test
@@ -443,18 +430,18 @@ public class RouteCalculatorTest {
         return missing.size();
     }
 
-    private ConcurrentMap<Pair<String, String>, Optional<RawJourney>> validateAllHaveAtLeastOneJourney(
+    private Map<Pair<String, String>, Optional<RawJourney>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, String>> combinations, List<TramTime> queryTimes) {
 
         // check each pair, collect results into (station,station)->result
-        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results =
+        Map<Pair<String, String>, Optional<RawJourney>> results =
                 combinations.parallelStream().
                         map(this::checkForTx).
                         map(journey -> Pair.of(journey,
                                 calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes,
                                         new TramServiceDate(queryDate), RouteCalculator.MAX_NUM_GRAPH_PATHS).limit(1).
-                                        findFirst())).
-                        collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
+                                        findAny())).
+                        collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
         // check all results present, collect failures into a list
         List<Pair<String, String>> failed = results.entrySet().stream().
@@ -464,10 +451,6 @@ public class RouteCalculatorTest {
                 collect(Collectors.toList());
         assertEquals(failed.toString(), 0L, failed.size());
         return results;
-    }
-
-    private boolean matches(Pair<Station, Station> locationPair, List<Location> locations) {
-        return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
     private Pair<String, String>  checkForTx(Pair<String, String> journey) {

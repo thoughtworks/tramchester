@@ -124,8 +124,11 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                                                        List<TramTime> queryTimes, TramTime initialQueryTime) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, endId,queryDate.getDay(),
                 queryDate,queryTimes));
-        Set<RawJourney> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTimes, queryDate);
-        return createPlan(queryDate, initialQueryTime, journeys);
+
+        Stream<RawJourney> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTimes, queryDate);
+        Set<RawJourney> rawJourneySet = journeys.collect(Collectors.toSet());
+
+        return createPlan(queryDate, initialQueryTime, rawJourneySet);
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
@@ -134,11 +137,13 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 queryDate,queryTimes));
 
         Stream<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        Set<RawJourney> rawJourneySet = journeys.collect(Collectors.toSet());
 
-        return createPlan(queryDate, initialQueryTime, journeys.collect(Collectors.toSet()));
+        return createPlan(queryDate, initialQueryTime, rawJourneySet);
     }
 
-    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, TramTime initialQueryTime, Set<RawJourney> journeys) {
+    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, TramTime initialQueryTime,
+                                                 Set<RawJourney> journeys) {
         logger.info("number of journeys: " + journeys.size());
         JourneyDTOFactory factory = createJourneyDTOFactory(queryDate, initialQueryTime);
         SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(factory, journeys, config.getTimeWindow());

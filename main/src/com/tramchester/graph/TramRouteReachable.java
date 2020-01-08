@@ -102,10 +102,10 @@ public class TramRouteReachable extends StationIndexs {
             if (queryNode.hasLabel(ROUTE_STATION)) {
                 String currentStationId = queryNode.getProperty(STATION_ID).toString();
                 if (endStationId.equals(currentStationId)) {
-                    return Evaluation.INCLUDE_AND_PRUNE;
+                    return Evaluation.INCLUDE_AND_PRUNE; // finished, at dest
                 }
                 if (TramInterchanges.has(currentStationId)) {
-                    return Evaluation.INCLUDE_AND_PRUNE;
+                    return Evaluation.INCLUDE_AND_PRUNE; // finished, at interchange
                 }
             }
 
