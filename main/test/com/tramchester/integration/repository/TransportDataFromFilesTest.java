@@ -33,9 +33,9 @@ public class TransportDataFromFilesTest {
 
     private TransportDataFromFiles transportData;
     // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv009159";
+    private final String svcDeansgateToVic = "Serv003592";
     // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv009193";
+    private String svcShawAndCrompton = "Serv003591";
 
     private Collection<Service> allServices;
 
@@ -71,7 +71,7 @@ public class TransportDataFromFilesTest {
         assertTrue(result.isTram());
 
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals(5, headsigns.size());
+        assertEquals(4, headsigns.size());
         assertTrue(headsigns.contains("Eccles"));
     }
 
@@ -262,7 +262,7 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toList());
 
         // not date specific
-        assertEquals(4, atRequiredTimed.size());
+        assertEquals(2, atRequiredTimed.size());
     }
 
     @Test

@@ -176,7 +176,7 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(3, results.size());
+        assertEquals(6, results.size());
 
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
@@ -252,7 +252,7 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(3, results.size());
+        assertEquals(6, results.size());
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
             assertTrue(result.getDepartTime().isAfter(previous));
@@ -274,8 +274,8 @@ public class AppUserJourneyTest {
         Stage secondStage = stages.get(1);
 
         validateAStage(firstStage, firstResult.getDepartTime(), "Board", altrincham, 1,
-                altyToPiccClass, altyToPicLineName,
-                Stations.Piccadilly.getName(), 7);
+                altyToBuryClass, altyToBuryLineName,
+                Stations.Bury.getName(), 7);
         validateAStage(secondStage, LocalTime.parse("10:48"), "Change", Stations.TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
                 Stations.ManAirport.getName(), 17);
