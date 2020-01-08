@@ -30,7 +30,7 @@ public abstract class TestConfig extends AppConfiguration {
     ////// WORK IN PROGRESS
     @Override
     public boolean getEdgePerTrip() {
-        return true;
+        return false;
     }
 
     @Override
