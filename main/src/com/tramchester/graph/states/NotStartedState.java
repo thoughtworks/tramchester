@@ -33,22 +33,14 @@ public class NotStartedState extends TraversalState {
         return 0;
     }
 
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
-                return new WalkingState(this, costOrdered(node.getRelationships(OUTGOING, WALKS_TO)), cost);
+                return new WalkingState(this, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
             case STATION:
-                return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
+                return new StationState(this, firstNode.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }
 
-    private Iterable<Relationship> costOrdered(Iterable<Relationship> outboundRelationships) {
-        SortedMap<Integer, Relationship> ordered = new TreeMap<>();
-        for (Relationship outboundRelationship : outboundRelationships) {
-            int cost = (int) outboundRelationship.getProperty(GraphStaticKeys.COST);
-            ordered.put(cost,outboundRelationship);
-        }
-        return ordered.values();
-    }
 }

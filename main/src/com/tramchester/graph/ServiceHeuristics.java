@@ -108,7 +108,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed) {
         totalChecked.getAndIncrement();
 
-        TramTime nodeTime =nodeOperations.getTime(node);
+        TramTime nodeTime = nodeOperations.getTime(node);
         if (currentElapsed.isAfter(nodeTime)) { // already departed
             return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
         }

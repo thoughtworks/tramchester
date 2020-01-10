@@ -4,6 +4,8 @@ package com.tramchester.domain.presentation;
 import com.javadocmd.simplelatlng.LatLng;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import java.util.Objects;
+
 public class LatLong {
 
     private double lat; // north/south
@@ -12,6 +14,20 @@ public class LatLong {
     // for json
     public LatLong() {
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LatLong latLong = (LatLong) o;
+        return Double.compare(latLong.lat, lat) == 0 &&
+                Double.compare(latLong.lon, lon) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lat, lon);
     }
 
     public LatLong(double lat, double lon) {

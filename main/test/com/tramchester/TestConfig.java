@@ -2,6 +2,7 @@ package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.presentation.LatLong;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.io.File;
@@ -30,7 +31,7 @@ public abstract class TestConfig extends AppConfiguration {
     ////// WORK IN PROGRESS
     @Override
     public boolean getEdgePerTrip() {
-        return false;
+        return true;
     }
 
     @Override
@@ -181,4 +182,6 @@ public abstract class TestConfig extends AppConfiguration {
         return getNextDate(DayOfWeek.SUNDAY, LocalDate.now());
     }
 
+    public static final LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
+    public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
 }

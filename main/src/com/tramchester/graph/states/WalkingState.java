@@ -28,6 +28,10 @@ public class WalkingState extends TraversalState {
         if (!TransportGraphBuilder.Labels.STATION.equals(nodeLabel)) {
             throw new RuntimeException("Unexpected node type: " + nodeLabel);
         }
+        // could be we've walked to our destination
+        if (node.getId()==destinationNodeId) {
+            return new DestinationState(this, cost);
+        }
         return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
     }
 }

@@ -26,8 +26,6 @@ public class StationState extends TraversalState {
 
     @Override
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        journeyState.updateJourneyClock(getTotalCost());
-
         if (node.getId()==destinationNodeId) {
             return new DestinationState(this, cost);
         }

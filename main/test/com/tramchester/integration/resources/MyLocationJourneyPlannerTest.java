@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.SortedSet;
 
-import static com.tramchester.TestConfig.dateFormatDashes;
+import static com.tramchester.TestConfig.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -42,15 +42,10 @@ public class MyLocationJourneyPlannerTest {
     private ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
 
-    private LatLong nearPiccGardens;
-    private LatLong nearAltrincham;
-
     @Before
     public void beforeEachTestRuns() {
         when = TestConfig.nextTuesday(0);
         mapper.registerModule(new JodaModule());
-        nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
-        nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
     }
 
     @Test
@@ -124,7 +119,7 @@ public class MyLocationJourneyPlannerTest {
         JourneyPlanRepresentation directFromStationNoWalking = getPlanFor(Stations.NavigationRoad, destination,
                 queryTime.plusMinutes(walkingTime));
         assertTrue(directFromStationNoWalking.getJourneys().size()>0);
-
+        // now check walking
         validateJourneyFromLocation(nearAltrincham, destination.getId(), queryTime);
     }
 

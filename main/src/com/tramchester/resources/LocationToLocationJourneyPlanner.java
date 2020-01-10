@@ -36,28 +36,26 @@ public class LocationToLocationJourneyPlanner {
         this.stationRepository = stationRepository;
     }
 
-    public Stream<RawJourney> quickestRouteForLocation(LatLong latLong, String endId, List<TramTime> queryTimes,
+    public Stream<RawJourney> quickestRouteForLocation(LatLong latLong, String destinationId, List<TramTime> queryTimes,
                                                     TramServiceDate queryDate) {
 
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
-                latLong, endId, queryDate, queryTimes));
+                latLong, destinationId, queryDate, queryTimes));
 
-        List<String> starts = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
+        List<String> nearbyStations = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
-        logger.info(format("Found %s stations close to %s", starts.size(), latLong));
-        return createJourneyPlan(latLong, starts, endId, queryTimes, queryDate);
+        logger.info(format("Found %s stations close to %s", nearbyStations.size(), latLong));
+        return createJourneyPlan(latLong, nearbyStations, destinationId, queryTimes, queryDate);
     }
 
-    private Stream<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String endId, List<TramTime> queryTimes,
+    private Stream<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, List<TramTime> queryTimes,
                                                  TramServiceDate queryDate) {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id).get()).collect(Collectors.toList());
-
-        List<StationWalk> toStarts = starts.stream().map(station ->
+        List<StationWalk> walksToStart = starts.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
-        Station end = stationRepository.getStation(endId).get();
-        return routeCalculator.calculateRoute(latLong, toStarts, end, queryTimes, queryDate,
+        return routeCalculator.calculateRoute(latLong, walksToStart, destinationId, queryTimes, queryDate,
                 RouteCalculator.MAX_NUM_GRAPH_PATHS);
     }
 

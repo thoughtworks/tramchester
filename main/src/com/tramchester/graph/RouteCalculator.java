@@ -58,85 +58,76 @@ public class RouteCalculator extends StationIndexs {
 
     public Stream<RawJourney> calculateRoute(String startStationId, String endStationId, List<TramTime> queryTimes,
                                           TramServiceDate queryDate, int limit) {
-        Node endNode = getStationNode(endStationId);
-
         logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",
-                startStationId,
-                endStationId, queryDate, queryTimes, limit));
+                startStationId, endStationId, queryDate, queryTimes, limit));
 
-        Node startNode = getStationNode(startStationId);
-        return gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
+        return gatherJounerys(getStationNode(startStationId), endStationId, queryTimes, queryDate, limit);
     }
 
-    public Stream<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, Station endStation,
+    public Stream<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, String destinationId,
                                           List<TramTime> queryTimes, TramServiceDate queryDate, int numGraphPaths) {
 
         int limit = stationWalks.isEmpty() ? numGraphPaths : (numGraphPaths * stationWalks.size());
-        String endStationId = endStation.getId();
-        Node endNode = getStationNode(endStationId);
-        List<Relationship> addedWalks = new LinkedList<>();
 
-        Stream<RawJourney> journeys;
-        if (config.getEdgePerTrip()) {
-            journeys = getWalkingJourneyStream(origin, stationWalks, queryTimes, queryDate, limit, endStationId, endNode, addedWalks);
-        } else {
-            journeys = getWalkingJourneyStream(origin, stationWalks, queryTimes, queryDate, limit, endStationId, endNode, addedWalks);
-        }
-        return journeys;
+        return getWalkingJourneyStream(origin, stationWalks, destinationId, queryTimes, queryDate, limit);
     }
 
-    private Stream<RawJourney> getWalkingJourneyStream(LatLong origin, List<StationWalk> stationWalks, List<TramTime> queryTimes, TramServiceDate queryDate, int limit, String endStationId, Node endNode, List<Relationship> addedWalks) {
-        Stream<RawJourney> journeys;
-        Node startNode = nodeOperations.createQueryNode(graphDatabaseService);
-        startNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
-        startNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
-        startNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
-        logger.info(format("Added start node at %s as node %s", origin, startNode));
+    private Stream<RawJourney> getWalkingJourneyStream(LatLong origin, List<StationWalk> stationWalks, String destinationId,
+                                                       List<TramTime> queryTimes, TramServiceDate queryDate, int limit) {
+        List<Relationship> addedWalks = new LinkedList<>();
+
+        Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabaseService);
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
+        logger.info(format("Added start node at %s as node %s", origin, startOfWalkNode));
 
         stationWalks.forEach(stationWalk -> {
             String walkStationId = stationWalk.getStationId();
             Node node = getStationNode(walkStationId);
             int cost = stationWalk.getCost();
-            logger.info(format("Add walking relationship from %s to %s cost %s", startNode, walkStationId, cost));
-            Relationship walkingRelationship = startNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO);
+            logger.info(format("Add walking relationship from %s to %s cost %s", startOfWalkNode, walkStationId, cost));
+            Relationship walkingRelationship = startOfWalkNode.createRelationshipTo(node, TransportRelationshipTypes.WALKS_TO);
             walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
             walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
             addedWalks.add(walkingRelationship);
         });
 
-        journeys = gatherJounerys(startNode, endNode, queryTimes, queryDate, limit, endStationId);
+        Stream<RawJourney> journeys = gatherJounerys(startOfWalkNode, destinationId, queryTimes, queryDate, limit);
 
         // must delete relationships first, otherwise may not delete node
         if (config.getEdgePerTrip()) {
             journeys.onClose(() -> {
+                logger.info("Removed added walks and start of walk node");
                 addedWalks.forEach(Relationship::delete);
-                nodeOperations.deleteNode(startNode);
+                nodeOperations.deleteNode(startOfWalkNode);
             });
         } else {
+            // under the covers uses a set, so can close now as no lazy evaluation happening
             addedWalks.forEach(Relationship::delete);
-            nodeOperations.deleteNode(startNode);
+            nodeOperations.deleteNode(startOfWalkNode);
         }
         return journeys;
     }
 
-    private Stream<RawJourney> gatherJounerys(Node startNode, Node endNode, List<TramTime> queryTimes, TramServiceDate queryDate,
-                                              int limit, String endStationId) {
+    private Stream<RawJourney> gatherJounerys(Node startNode, String destinationId, List<TramTime> queryTimes,
+                                              TramServiceDate queryDate, int limit) {
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
+        Node endNode = getStationNode(destinationId);
 
         if (config.getEdgePerTrip()) {
-            Stream<RawJourney> journeyStream = queryTimes.stream().
+            return queryTimes.stream().
                     map(queryTime -> new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
-                            queryTime, runningServicesIds, endStationId)).
-                    map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, endStationId)).
+                            queryTime, runningServicesIds, destinationId)).
+                    map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, destinationId)).
                     flatMap(Function.identity()).
                     map(path -> new RawJourney(pathToStages.mapDirect(path.getPath()), path.getQueryTime(), path.path.weight()));
-            return journeyStream;
         }
 
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         queryTimes.forEach(queryTime -> {
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
-                    queryTime, runningServicesIds, endStationId);
+                    queryTime, runningServicesIds, destinationId);
 
             logger.info("Finding shortest path");
             logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",

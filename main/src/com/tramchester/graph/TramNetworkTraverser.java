@@ -84,6 +84,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     private int getTotalCost(Path path) {
+        // TODO Use state?
         int result = 0;
         for (Relationship relat: path.relationships()) {
             result = result + nodeOperations.getCost(relat);

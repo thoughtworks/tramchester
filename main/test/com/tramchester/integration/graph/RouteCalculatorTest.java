@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.TestConfig.avoidChristmasDate;
+import static com.tramchester.TestConfig.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
