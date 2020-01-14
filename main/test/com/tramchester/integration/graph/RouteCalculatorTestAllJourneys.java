@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 public class RouteCalculatorTestAllJourneys {
 
@@ -31,6 +32,8 @@ public class RouteCalculatorTestAllJourneys {
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;
     private static GraphDatabaseService database;
+
+    public static boolean circleCi = TestConfig.isCircleci();
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
@@ -67,6 +70,7 @@ public class RouteCalculatorTestAllJourneys {
 
     @Test
     public void shouldFindRouteEachStationToEveryOtherStream() {
+        assumeFalse(circleCi);
 
         TransportData data = dependencies.get(TransportData.class);
 

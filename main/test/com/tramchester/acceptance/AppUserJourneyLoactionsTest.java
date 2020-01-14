@@ -50,7 +50,7 @@ public class AppUserJourneyLoactionsTest {
     private ProvidesDriver providesDriver;
 
     private static List<String> getBrowserList() {
-        if (System.getenv("CIRCLECI") == null) {
+        if (!TestConfig.isCircleci()) {
             return Arrays.asList("chrome", "firefox");
         }
         // TODO - confirm this is still an issue

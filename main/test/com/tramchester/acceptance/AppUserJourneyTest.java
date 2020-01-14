@@ -50,11 +50,13 @@ public class AppUserJourneyTest {
     private ProvidesDriver providesDriver;
     private String altyToBuryClass;
     private String altyToBuryLineName;
+
+    // these two very useful when timetable changes
     private String altyToPiccClass;
     private String altyToPicLineName;
 
     private static List<String> getBrowserList() {
-        if (System.getenv("CIRCLECI") == null) {
+        if (!TestConfig.isCircleci()) {
             return Arrays.asList("chrome", "firefox");
         }
         // TODO - confirm this is still an issue

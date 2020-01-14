@@ -68,11 +68,6 @@ public class RouteCalculatorTest {
         threadToTxnMap.clear();
     }
 
-//    @Test
-//    public void shouldHaveFailingTestForEdgePerTrip() {
-//        assertFalse(new IntegrationTramTestConfig().getEdgePerTrip());
-//    }
-
     @Test
     public void shouldHaveSimpleJourney() {
         validateAtLeastOneJourney(Stations.Altrincham, Stations.Cornbrook, TramTime.of(8, 0), nextTuesday);
