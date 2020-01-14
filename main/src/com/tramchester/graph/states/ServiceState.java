@@ -15,7 +15,8 @@ public class ServiceState extends TraversalState {
 
     private Optional<String> maybeExistingTrip;
 
-    public ServiceState(TraversalState parent, Iterable<Relationship> relationships, Optional<String> maybeExistingTrip, int cost) {
+    public ServiceState(TraversalState parent, Iterable<Relationship> relationships, Optional<String> maybeExistingTrip,
+                        int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
     }

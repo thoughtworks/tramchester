@@ -146,7 +146,8 @@ public class RouteCalculatorTest {
 
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
-            assertEquals(1, journey.getStages().size());
+            // direct, or change at shaw
+            assertTrue(journey.getStages().size()<=2);
         });
     }
 

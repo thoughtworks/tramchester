@@ -6,6 +6,8 @@ import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
-    protected final Iterable<Relationship> outbounds;
+    private static final Logger logger = LoggerFactory.getLogger(TraversalState.class);
+
+    private final Iterable<Relationship> outbounds;
+
     private final int costForLastEdge;
     private final int parentCost;
     protected final CachedNodeOperations nodeOperations;
@@ -72,17 +77,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     protected int getCurrentCost() {
         return costForLastEdge;
-    }
-
-    protected List<Relationship> filterByTripId(Iterable<Relationship> relationships, String tripId) {
-        List<Relationship> results = new ArrayList<>();
-        relationships.forEach(relationship -> {
-            String trips = nodeOperations.getTrips(relationship);
-            if (trips.contains(tripId)) {
-                results.add(relationship);
-            }
-        });
-        return results;
     }
 
 }

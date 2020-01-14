@@ -50,7 +50,7 @@ public class PlatformState extends TraversalState {
             }
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId);
             node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
-            return new RouteStationState(this, outbounds, node.getId(), cost);
+            return new RouteStationState(this, outbounds, node.getId(), cost, true);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

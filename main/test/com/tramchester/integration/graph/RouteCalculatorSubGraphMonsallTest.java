@@ -2,7 +2,6 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
@@ -62,35 +61,31 @@ public class RouteCalculatorSubGraphMonsallTest {
 
     @Test
     public void shouldReproIssueWithNotFindingDirectRouting() {
-//        validateOneStageJourney(Stations.Monsall, Stations.ShawAndCrompton, TramTime.of(8,0), nextTuesday);
-//
-        String derkerStationId = "9400ZZMADER";
-//        validateOneStageJourney(derkerStationId, Stations.RochdaleRail.getId(), TramTime.of(8,0), nextTuesday);
-//        validateOneStageJourney(Stations.Monsall.getId(), derkerStationId, TramTime.of(8,0), nextTuesday);
+//        String derkerStationId = "9400ZZMADER";
 
-//        validateOneStageJourney(derkerStationId, Stations.RochdaleRail.getId(), TramTime.of(8,28), nextTuesday);
+        // change at shaw
+        validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5),
+                nextTuesday, 2);
 
-        validateOneStageJourney(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5), nextTuesday);
-
-//        for (int minute = 0; minute <60; minute=minute+4) {
-//            validateOneStageJourney(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,minute), nextTuesday);
-//        }
+        // direct
+        validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,10),
+                nextTuesday, 1);
     }
 
     @Test
     public void shouldHaveEndToEnd() {
-        validateOneStageJourney(Stations.EastDidsbury, Stations.Rochdale, TramTime.of(8,0), nextTuesday);
+        validateNumberOfStages(Stations.EastDidsbury, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
     }
 
     @Test
     public void shouldHaveJourneysTerminationPointsToEndOfLine() {
         // many trams only run as far as Shaw
-        validateOneStageJourney(Stations.ShawAndCrompton, Stations.Rochdale, TramTime.of(8,0), nextTuesday);
+        validateNumberOfStages(Stations.ShawAndCrompton, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
     }
 
     @Test
     public void shouldHaveSimpleOneStopJourney() {
-        validateOneStageJourney(Stations.RochdaleRail, Stations.Rochdale, TramTime.of(8,0), nextTuesday);
+        validateNumberOfStages(Stations.RochdaleRail, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
@@ -105,20 +100,20 @@ public class RouteCalculatorSubGraphMonsallTest {
         }
     }
 
-    private void validateOneStageJourney(Location start, Location dest, TramTime time, LocalDate date) {
+    private void validateNumberOfStages(Location start, Location dest, TramTime time, LocalDate date, int numStages) {
 
         String startId = start.getId();
         String destId = dest.getId();
 
-        validateOneStageJourney( startId, destId,time, date);
+        validateNumberOfStages( startId, destId,time, date, numStages);
     }
 
-    private void validateOneStageJourney(String startId, String destId, TramTime time, LocalDate date) {
+    private void validateNumberOfStages(String startId, String destId, TramTime time, LocalDate date, int numStages) {
         Set<RawJourney> journeys = calculator.calculateRoute(startId, destId, Collections.singletonList(time),
                 new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS).
                 collect(Collectors.toSet());
 
         assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destId, time.toString(), date), journeys.isEmpty());
-        journeys.forEach(journey -> assertEquals(1, journey.getStages().size()));
+        journeys.forEach(journey -> assertEquals(numStages, journey.getStages().size()));
     }
 }

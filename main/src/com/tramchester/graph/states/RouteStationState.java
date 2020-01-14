@@ -9,6 +9,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -19,10 +20,11 @@ public class RouteStationState extends TraversalState {
     private final boolean justBoarded;
     private Optional<String> maybeExistingTrip;
 
-    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId, int cost) {
+    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId,
+                             int cost, boolean justBoarded) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
-        this.justBoarded = true;
+        this.justBoarded = justBoarded;
         maybeExistingTrip = Optional.empty();
     }
 
@@ -46,35 +48,44 @@ public class RouteStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node nextNode,
+                                    JourneyState journeyState, int cost) {
         if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
-            return toPlatform(node, journeyState, cost);
+            return toPlatform(nextNode, journeyState, cost);
         }
 
         if (nodeLabel == TransportGraphBuilder.Labels.SERVICE) {
-            return toService(node, cost);
+            return toService(nextNode, cost);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }
 
-    private TraversalState toService(Node node, int cost) {
-        Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_HOUR);
-        return new ServiceState(this, relationships, maybeExistingTrip, cost);
+    private TraversalState toService(Node serviceNode, int cost) {
+        Iterable<Relationship> serviceRelationships = serviceNode.getRelationships(OUTGOING, TO_HOUR);
+        return new ServiceState(this, serviceRelationships, maybeExistingTrip, cost);
     }
 
-    private TraversalState toPlatform(Node node, JourneyState journeyState, int cost) {
+    private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
         try {
             journeyState.leaveTram(getTotalCost());
+
             // if towards destination just return that one relationship
-            for(Relationship relationship :  node.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
+            for(Relationship relationship :  platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
                 if (relationship.getProperty(GraphStaticKeys.STATION_ID).equals(destinationStationdId)) {
                     return new PlatformState(this, Collections.singleton(relationship), routeStationNodeId, cost);
                 }
             }
-            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            Iterable<Relationship> platformRelationships = platformNode.getRelationships(OUTGOING,
+                    BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
-            return new PlatformState(this,
-                    filterExcludingEndNode(relationships, routeStationNodeId), node.getId(), cost);
+            if (maybeExistingTrip.isPresent() || justBoarded) {
+                // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
+                List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationNodeId);
+                return new PlatformState(this, filterExcludingEndNode, platformNode.getId(), cost);
+            } else {
+                // end of a trip, may need to go back to this route station to catch new service
+                return new PlatformState(this, platformRelationships, platformNode.getId(), cost);
+            }
         }
         catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process platform", exception);

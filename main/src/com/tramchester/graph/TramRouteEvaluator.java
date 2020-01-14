@@ -110,7 +110,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
-        // no journey longer than N stages
+        // no journey longer than N nodes
         if (path.length()>maxPathLength) {
             logger.warn("Hit max path length");
             reasons.recordReason(ServiceReason.PathToLong(path));
