@@ -35,7 +35,6 @@ public class RouteCalculatorTest {
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
-    private static boolean edgePerTrip;
     private Transaction tx;
     private Map<Long, Transaction> threadToTxnMap;
 
@@ -44,7 +43,6 @@ public class RouteCalculatorTest {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
-        edgePerTrip = testConfig.getEdgePerTrip();
         database = dependencies.get(GraphDatabaseService.class);
     }
 
@@ -252,7 +250,6 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldNotGenerateDuplicateJourneys() {
-        assumeTrue(edgePerTrip);
 
         Set<List<RawStage>> stages = new HashSet<>();
 
@@ -365,11 +362,11 @@ public class RouteCalculatorTest {
     }
 
     private void validateAtLeastOneJourney(String startId, String destId, TramTime time, LocalDate date) {
-        validateAtLeastOneJourney(calculator, startId, destId, time, date, testConfig.getEdgePerTrip());
+        validateAtLeastOneJourney(calculator, startId, destId, time, date);
     }
 
     public static void validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, String destId,
-                                                 TramTime time, LocalDate date, boolean edgePerTrip) {
+                                                 TramTime time, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Set<RawJourney> journeys = theCalculator.calculateRoute(startId, destId, Collections.singletonList(time),
                 new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS).
@@ -378,9 +375,7 @@ public class RouteCalculatorTest {
         String message = String.format("from %s to %s at %s on %s", startId, destId, time, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
         journeys.forEach(journey -> assertFalse(message + " missing stages for journey" + journey, journey.getStages().isEmpty()));
-        if (edgePerTrip) {
-            journeys.forEach(RouteCalculatorTest::checkStages);
-        }
+        journeys.forEach(RouteCalculatorTest::checkStages);
     }
 
     private Set<Pair<String, String>> createJourneyPairs(List<Location> starts, List<Location> ends) {

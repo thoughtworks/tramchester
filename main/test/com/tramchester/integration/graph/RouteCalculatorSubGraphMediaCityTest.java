@@ -161,6 +161,6 @@ public class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private void validateAtLeastOneJourney(Location start, Location dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date, testConfig.getEdgePerTrip());
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date);
     }
 }

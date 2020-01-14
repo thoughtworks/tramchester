@@ -18,32 +18,28 @@ import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.ID;
 
-public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeuristics {
+public class ServiceHeuristics implements PersistsBoardingTime {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
-    private final TramchesterConfig config;
     private final RunningServices runningServices;
     private final String endStationId;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
     private final ReachabilityRepository reachabilityRepository;
 
-    private final CostEvaluator<Double> costEvaluator;
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
 
     private Optional<TramTime> boardingTime;
     private final int maxWaitMinutes;
 
-    public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations,
+    public ServiceHeuristics(CachedNodeOperations nodeOperations,
                              ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
                              RunningServices runningServices, String endStationId, ServiceReasons reasons) {
         this.nodeOperations = nodeOperations;
         this.reachabilityRepository = reachabilityRepository;
-        this.config = config;
 
-        this.costEvaluator = costEvaluator;
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
         this.queryTime = queryTime;
@@ -107,82 +103,6 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         //TramTime clock = TramTime.of(elapsedTimed);
 
         return elapsedTimed.between(earliest, nodeTime);
-    }
-
-    public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
-                                                GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
-        if (config.getEdgePerTrip()) {
-            throw new RuntimeException("Should not call this for edgePerTrip");
-        }
-
-        reasons.incrementTotalChecked();
-        // already checked via service node for edge per trip
-        String serviceId = goesToRelationship.getServiceId();
-        if (!runningServices.isRunning(serviceId)) {
-            return notOnQueryDate(path, serviceId);
-        }
-
-        ServiceReason inflightChange = sameService(path, incoming, goesToRelationship);
-        if (!inflightChange.isValid()) {
-            return reasons.recordReason(inflightChange);
-        }
-
-        ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
-        // all times for the service per edge
-        if (!underMaxWait(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
-            return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime(),
-                    path));
-        }
-
-        return valid(path);
-    }
-
-    public ServiceReason sameService(Path path, TransportRelationship transportRelationship, GoesToRelationship outgoing) {
-        reasons.incrementTotalChecked();
-
-        if (!transportRelationship.isGoesTo()) {
-            return valid(path); // not a connecting/goes to relationship, no svc id
-        }
-
-        GoesToRelationship incoming = (GoesToRelationship) transportRelationship;
-        String service = incoming.getServiceId();
-
-        if (service.equals(outgoing.getServiceId())) {
-            return valid(path);
-        }
-
-        return reasons.recordReason(ServiceReason.InflightChangeOfService(service, path));
-    }
-
-    public boolean underMaxWait(TramTime[] times, ElapsedTime provider) throws TramchesterException {
-        if (times.length==0) {
-            logger.warn("No times provided");
-        }
-        reasons.incrementTotalChecked();
-        TramTime journeyClockTime = provider.getElapsedTime();
-
-        // the times array is sorted in ascending order
-        for (TramTime nextTram : times) {
-            //TramTime nextTram = TramTime.of(nextTramTime);
-
-            // if wait until this tram is too long can stop now
-            int diffenceAsMinutes = TramTime.diffenceAsMinutes(nextTram, journeyClockTime);
-
-            if (nextTram.isAfterBasic(journeyClockTime) && diffenceAsMinutes > maxWaitMinutes) {
-                return false;
-            }
-
-            if (nextTram.departsAfter(journeyClockTime)) {
-                if (diffenceAsMinutes <= maxWaitMinutes) {
-                    if (provider.startNotSet()) {
-                        TramTime realJounrneyStartTime = nextTram.minusMinutes(TransportGraphBuilder.BOARDING_COST);
-                        provider.setJourneyStart(realJounrneyStartTime);
-                    }
-                    return true;  // within max wait time
-                }
-            }
-        }
-        return false;
     }
 
     @Override

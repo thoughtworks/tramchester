@@ -226,10 +226,10 @@ public class GraphWithSimpleRouteTest {
         assertEquals(passedStops,  vehicleStage.getPassedStops());
         assertEquals(displayClass, vehicleStage.getDisplayClass());
         assertTrue(vehicleStage.getBoardingPlatform().isPresent());
-        if (config.getEdgePerTrip()) {
-            TramTime departTime = vehicleStage.getDepartTime();
-            assertTrue(departTime.isAfter(queryTime));
-        }
+
+        TramTime departTime = vehicleStage.getDepartTime();
+        assertTrue(departTime.isAfter(queryTime));
+
         assertTrue(vehicleStage.getCost()>0);
     }
 }

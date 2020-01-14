@@ -21,7 +21,6 @@ import static org.junit.Assume.assumeFalse;
 
 public class CreateDotDiagramTest {
     private static Dependencies dependencies;
-    private static boolean edgePerTrip;
     private GraphDatabaseService graphService;
     private RelationshipFactory relationshipFactory;
     private NodeFactory nodeFactory;
@@ -30,7 +29,6 @@ public class CreateDotDiagramTest {
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
-        edgePerTrip = configuration.getEdgePerTrip();
         dependencies.initialise(configuration);
     }
 
@@ -63,20 +61,6 @@ public class CreateDotDiagramTest {
                 Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare), 4);
 
     }
-
-    @Test
-    public void shouldProduceADotDiagramOfTheTramNetworkForMediaCityArea() throws IOException {
-        assumeFalse(edgePerTrip);
-
-        int depthLimit = 5;
-        create(Stations.MediaCityUK, depthLimit);
-        create(Stations.HarbourCity, depthLimit);
-        create(Stations.Piccadilly, depthLimit);
-
-        create(Arrays.asList(
-                Stations.StPetersSquare,Stations.Deansgate,Stations.Cornbrook,Stations.Pomona), 5);
-    }
-
 
     public void create(List<Location> startPoints, int depthLimit) throws IOException {
         String filename = startPoints.get(0).getName();

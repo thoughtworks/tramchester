@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
 
-import com.tramchester.TestConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
@@ -16,18 +15,12 @@ import org.junit.Test;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -56,7 +49,7 @@ public class GraphQueryTest {
         TransportDataForTest transportData = new TransportDataForTest();
         nodeLabelIdMap = new NodeIdLabelMap();
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
-                spatialDatabaseService, TestConfig.GET(), nodeLabelIdMap);
+                spatialDatabaseService, nodeLabelIdMap);
         builder.buildGraph();
     }
 

@@ -98,17 +98,13 @@ public class Dependencies {
         picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(ServiceHeuristics.class);
         picoContainer.addComponent(CachingCostEvaluator.class);
-        picoContainer.addComponent(LazyTimeBasedPathExpander.class);
+
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
 
-        if (configuration.getEdgePerTrip()) {
-            picoContainer.addComponent(TramJourneyResponseWithTimesMapper.class);
-        } else {
-            picoContainer.addComponent(TramJourneyResponseMapper.class);
-        }
+        picoContainer.addComponent(TramJourneyResponseWithTimesMapper.class);
 
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);

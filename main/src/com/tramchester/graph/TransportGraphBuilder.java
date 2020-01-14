@@ -47,7 +47,7 @@ public class TransportGraphBuilder extends StationIndexs {
     private int numberNodes = 0;
     private int numberRelationships = 0;
 
-    private final boolean edgePerTrip;
+//    private final boolean edgePerTrip;
 
     public enum Labels implements Label
     {
@@ -65,7 +65,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
                                  RelationshipFactory relationshipFactory, SpatialDatabaseService spatialDatabaseService,
-                                 TramchesterConfig config, NodeIdLabelMap nodeIdLabelMap) {
+                                 NodeIdLabelMap nodeIdLabelMap) {
         super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
         this.transportData = transportData;
         this.nodeIdLabelMap = nodeIdLabelMap;
@@ -74,7 +74,6 @@ public class TransportGraphBuilder extends StationIndexs {
         relationToSvcId = new HashMap<>();
         timesForRelationship = new HashMap<>();
         platforms = new LinkedList<>();
-        edgePerTrip = config.getEdgePerTrip();
     }
 
     public void buildGraphwithFilter(GraphFilter filter) {
@@ -120,11 +119,10 @@ public class TransportGraphBuilder extends StationIndexs {
                     for (Trip trip : service.getTrips()) {
                         AddRouteServiceTrip(route, service, trip);
                     }
-                    if (edgePerTrip) {
-                        tx.success();
-                        tx.close();
-                        tx = graphDatabaseService.beginTx();
-                    }
+                    // performance
+                    tx.success();
+                    tx.close();
+                    tx = graphDatabaseService.beginTx();
                 }
             }
 
@@ -162,15 +160,15 @@ public class TransportGraphBuilder extends StationIndexs {
             schema.indexFor(Labels.STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(Labels.PLATFORM).on(GraphStaticKeys.ID).create();
-            if (edgePerTrip) {
-                schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.ID).create();
-                schema.indexFor(Labels.SERVICE).on(SERVICE_ID).create();
-                schema.indexFor(Labels.HOUR).on(GraphStaticKeys.ID).create();
-                schema.indexFor(Labels.HOUR).on(GraphStaticKeys.HOUR).create();
-                schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.ID).create();
-                schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.TIME).create();
-                schema.indexFor(Labels.MINUTE).on(TRIP_ID).create();
-            }
+            // edge per trip indexs
+            schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.ID).create();
+            schema.indexFor(Labels.SERVICE).on(SERVICE_ID).create();
+            schema.indexFor(Labels.HOUR).on(GraphStaticKeys.ID).create();
+            schema.indexFor(Labels.HOUR).on(GraphStaticKeys.HOUR).create();
+            schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.ID).create();
+            schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.TIME).create();
+            schema.indexFor(Labels.MINUTE).on(TRIP_ID).create();
+
             tx.success();
         }
     }
@@ -202,12 +200,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
             if (runsAtLeastADay(service.getDays())) {
                 createRouteRelationship(from, to, route);
-
-                if (edgePerTrip) {
-                    createRelationships(from, to, currentStop, nextStop, route, service, trip);
-                } else {
-                    createOrUpdateRelationship(from, to, currentStop, nextStop, route, service);
-                }
+                createRelationships(from, to, currentStop, nextStop, route, service, trip);
             }
         }
     }

@@ -29,7 +29,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
-    private static boolean edgePerTrip;
     private static TransportDataFromFiles transportData;
     private static GraphDatabaseService database;
     private final LocalDate when = TestConfig.nextTuesday(0);
@@ -47,7 +46,6 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         transportData = dependencies.get(TransportDataFromFiles.class);
-        edgePerTrip = testConfig.getEdgePerTrip();
         database = dependencies.get(GraphDatabaseService.class);
     }
 
@@ -253,18 +251,9 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         rawVehicleStage.setLastStation(finish, passedStops);
         rawVehicleStage.setPlatform(new Platform(start.getId() + "1", "platform name"));
 
-        if (!edgePerTrip) {
-            String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
+        String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
+        rawVehicleStage.setServiceId(svcId);
 
-            rawVehicleStage.setServiceId(svcId);
-        } else {
-
-            Trip validTrip = transportData.getTripsFor(start.getId()).iterator().next();
-            rawVehicleStage.setServiceId(validTrip.getServiceId());
-            rawVehicleStage.setTripId(validTrip.getTripId());
-            rawVehicleStage.setDepartTime(startTime.plusMinutes(1));
-
-        }
         return rawVehicleStage;
 
     }

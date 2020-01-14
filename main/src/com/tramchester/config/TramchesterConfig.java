@@ -76,7 +76,7 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     public abstract String getLiveDataS3Bucket();
 
     // Edge per trip/time instead of an array of time
-    public abstract boolean getEdgePerTrip();
+//    public abstract boolean getEdgePerTrip();
 
     // remove the (Purple Line) part of the route name?
     public abstract boolean getRemoveRouteNameSuffix();

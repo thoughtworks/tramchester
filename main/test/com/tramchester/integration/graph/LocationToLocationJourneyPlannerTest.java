@@ -33,7 +33,6 @@ public class LocationToLocationJourneyPlannerTest {
     private static GraphDatabaseService database;
 
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
-    private static boolean edgePerTrip;
     private Transaction tx;
     private LocationToLocationJourneyPlanner planner;
 
@@ -42,7 +41,6 @@ public class LocationToLocationJourneyPlannerTest {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
-        edgePerTrip = testConfig.getEdgePerTrip();
         database = dependencies.get(GraphDatabaseService.class);
     }
 

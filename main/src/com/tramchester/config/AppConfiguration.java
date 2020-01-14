@@ -238,10 +238,10 @@ public class AppConfiguration extends TramchesterConfig {
         return liveDataS3Bucket.toLowerCase();
     }
 
-    @Override
-    public boolean getEdgePerTrip() {
-        return edgePerTrip;
-    }
+//    @Override
+//    public boolean getEdgePerTrip() {
+//        return edgePerTrip;
+//    }
 
     @Override
     public boolean getRemoveRouteNameSuffix() {

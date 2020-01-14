@@ -1,14 +1,12 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.TestConfig;
 import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.Nodes.ServiceNode;
-import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.*;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -17,19 +15,15 @@ import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 public class TramGraphBuilderEdgePerTripTest {
     private static Dependencies dependencies;
-    private static boolean edgePerTrip;
 
     private RouteCalculator calculator;
     private TransportDataFromFiles transportData;
@@ -39,7 +33,6 @@ public class TramGraphBuilderEdgePerTripTest {
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        edgePerTrip = testConfig.getEdgePerTrip();
         dependencies.initialise(testConfig);
     }
 
@@ -63,7 +56,6 @@ public class TramGraphBuilderEdgePerTripTest {
 
     @Test
     public void shouldHaveCorrectOutboundsAtMediaCity() throws TramchesterException {
-        assumeTrue(edgePerTrip);
 
         String mediaCityUKId = Stations.MediaCityUK.getId();
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
@@ -90,7 +82,6 @@ public class TramGraphBuilderEdgePerTripTest {
 
     @Test
     public void shouldRepdroduceIssueWithWeekendsAtDeansgateToAshton() throws TramchesterException {
-        assumeTrue(edgePerTrip);
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Deansgate.getId()
                 + RouteCodesForTesting.ECCLES_TO_ASH);
@@ -103,7 +94,6 @@ public class TramGraphBuilderEdgePerTripTest {
 
     @Test
     public void shouldRepdroduceIssueWithWeekendsAtMediaCity() throws TramchesterException {
-        assumeTrue(edgePerTrip);
 
         String mediaCityUKId = Stations.MediaCityUK.getId();
         Station mediaCity = transportData.getStation(mediaCityUKId).get();
@@ -133,7 +123,6 @@ public class TramGraphBuilderEdgePerTripTest {
 
     @Test
     public void shouldHaveCorrectRelationshipsAtCornbrook() throws TramchesterException {
-        assumeTrue(edgePerTrip);
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.Cornbrook.getId()
                 + RouteCodesForTesting.ALTY_TO_BURY);
@@ -149,7 +138,6 @@ public class TramGraphBuilderEdgePerTripTest {
 
     @Test
     public void shouldHaveCorrectInboundsAtMediaCity() throws TramchesterException {
-        assumeTrue(edgePerTrip);
 
         checkInboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
         checkInboundConsistency(Stations.MediaCityUK.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
@@ -163,7 +151,6 @@ public class TramGraphBuilderEdgePerTripTest {
 
     @Test
     public void shouldCheckOutboundSvcRelationships() throws TramchesterException {
-        assumeTrue(edgePerTrip);
 
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.ALTY_TO_BURY);
         checkOutboundConsistency(Stations.StPetersSquare.getId(), RouteCodesForTesting.BURY_TO_ALTY);
@@ -190,7 +177,6 @@ public class TramGraphBuilderEdgePerTripTest {
 
     @Test
     public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() throws TramchesterException {
-        assumeTrue(edgePerTrip);
 
         List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
                 Stations.VeloPark.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
@@ -240,25 +226,6 @@ public class TramGraphBuilderEdgePerTripTest {
         assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
 
-//        Set<TramNode> graphOutboundSvcs = graphOutbounds.stream().
-//                filter(TransportRelationship::isServiceLink).
-//                map(relationship -> (ServiceRelationship) relationship).
-//                map(svc -> svc.getEndNode()).
-//                collect(Collectors.toSet());
-
-        // service earliest/latest at nodes should match those from trips/stops
-//        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
-//                forEach(serviceNode -> {
-//                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
-//                    LocalTime nodeEarliest = serviceNode.getEarliestTime();
-//                    assertEquals(fileService.getServiceId(), fileService.earliestDepartTime().asLocalTime(), nodeEarliest);
-//                });
-//        graphOutboundSvcs.stream().map(node -> (ServiceNode)node).
-//                forEach(serviceNode -> {
-//                    Service fileService = transportData.getServiceById(serviceNode.getServiceId());
-//                    LocalTime nodeLatest = serviceNode.getLatestTime();
-//                    assertEquals(fileService.getServiceId(), fileService.latestDepartTime().asLocalTime(), nodeLatest);
-//                });
     }
 
     private void checkInboundConsistency(String stationId, String routeId) throws TramchesterException {
