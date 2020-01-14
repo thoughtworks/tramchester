@@ -68,10 +68,10 @@ public class RouteCalculatorTest {
         threadToTxnMap.clear();
     }
 
-    @Test
-    public void shouldHaveFailingTestForEdgePerTrip() {
-        assertFalse(new IntegrationTramTestConfig().getEdgePerTrip());
-    }
+//    @Test
+//    public void shouldHaveFailingTestForEdgePerTrip() {
+//        assertFalse(new IntegrationTramTestConfig().getEdgePerTrip());
+//    }
 
     @Test
     public void shouldHaveSimpleJourney() {
