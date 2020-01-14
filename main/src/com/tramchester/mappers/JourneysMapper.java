@@ -15,9 +15,9 @@ import static java.lang.String.format;
 public class JourneysMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneysMapper.class);
 
-    private SingleJourneyMapper mapper;
+    private TramJourneyResponseWithTimesMapper mapper;
 
-    public JourneysMapper(SingleJourneyMapper mapper) {
+    public JourneysMapper(TramJourneyResponseWithTimesMapper mapper) {
         this.mapper = mapper;
     }
 
@@ -26,7 +26,7 @@ public class JourneysMapper {
         return decorateJourneys(factory, journeys, withinMins);
     }
 
-    protected SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys, int withinMins) {
+    private SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys, int withinMins) {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {

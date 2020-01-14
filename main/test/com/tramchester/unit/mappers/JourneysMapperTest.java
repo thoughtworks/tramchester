@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.Journey;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.mappers.SingleJourneyMapper;
+import com.tramchester.mappers.TramJourneyResponseWithTimesMapper;
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -25,12 +25,12 @@ import static org.junit.Assert.assertTrue;
 public class JourneysMapperTest extends EasyMockSupport{
 
     private JourneyDTOFactory factory;
-    private SingleJourneyMapper mapper;
+    private TramJourneyResponseWithTimesMapper mapper;
 
     @Before
     public void beforeEachTestRuns() {
         factory = createMock(JourneyDTOFactory.class);
-        mapper = createMock(SingleJourneyMapper.class);
+        mapper = createMock(TramJourneyResponseWithTimesMapper.class);
     }
 
     @Test

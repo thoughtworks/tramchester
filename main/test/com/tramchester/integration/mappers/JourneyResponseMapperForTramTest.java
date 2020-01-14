@@ -10,8 +10,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import com.tramchester.mappers.SingleJourneyMapper;
-import com.tramchester.repository.TransportData;
+import com.tramchester.mappers.TramJourneyResponseWithTimesMapper;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -37,7 +36,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     private LocalTime eightAM;
 
     private static Dependencies dependencies;
-    private SingleJourneyMapper mapper;
+    private TramJourneyResponseWithTimesMapper mapper;
     private List<RawStage> stages;
     private Transaction tx;
 
@@ -59,7 +58,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
     public void beforeEachTestRuns() {
         tx = database.beginTx(180, TimeUnit.SECONDS);
 
-        mapper = dependencies.get(SingleJourneyMapper.class);
+        mapper = dependencies.get(TramJourneyResponseWithTimesMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
         stages = new LinkedList<>();
         sevenAM = LocalTime.of(7, 0);

@@ -1,24 +1,24 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.StationWalk;
+import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphalgo.WeightedPath;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -31,19 +31,17 @@ public class RouteCalculator extends StationIndexs {
 
     private final String queryNodeName = "BEGIN";
 
-    private final NodeFactory nodeFactory;
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
     private final CachedNodeOperations nodeOperations;
     private final TransportData transportData;
     private final ReachabilityRepository reachabilityRepository;
 
-    public RouteCalculator(GraphDatabaseService db, TransportData transportData, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
-                           SpatialDatabaseService spatialDatabaseService, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
-                           TramchesterConfig config, ReachabilityRepository reachabilityRepository) {
-        super(db, relationshipFactory, spatialDatabaseService, true);
+    public RouteCalculator(GraphDatabaseService db, TransportData transportData, RelationshipFactory relationshipFactory,
+                           CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
+                           TramchesterConfig config, ReachabilityRepository reachabilityRepository, GraphQuery graphQuery) {
+        super(db, graphQuery, relationshipFactory, true);
         this.transportData = transportData;
-        this.nodeFactory = nodeFactory;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.config = config;
@@ -123,21 +121,6 @@ public class RouteCalculator extends StationIndexs {
                 endNode, endStationId, config.getChangeAtInterchangeOnly());
 
         return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedWeightedPath(path, serviceHeutistics.getQueryTime()));
-    }
-
-    public TramNode getStation(String stationId) {
-        Node node = getStationNode(stationId);
-        return nodeFactory.getNode(node);
-    }
-
-    // should be a set
-    public List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) throws TramchesterException {
-        return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
-    }
-
-    // should be a set
-    public List<TransportRelationship> getInboundRouteStationRelationships(String routeStationId) throws TramchesterException {
-        return graphQuery.getRouteStationRelationships(routeStationId, Direction.INCOMING);
     }
 
     private static class TimedWeightedPath {

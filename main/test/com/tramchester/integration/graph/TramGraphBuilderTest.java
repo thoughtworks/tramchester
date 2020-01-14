@@ -8,16 +8,21 @@ import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Nodes.StationNode;
 import com.tramchester.graph.Nodes.TramNode;
 import com.tramchester.graph.Relationships.*;
 import com.tramchester.graph.RouteCalculator;
+import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +40,8 @@ public class TramGraphBuilderTest {
     private static final Logger logger = LoggerFactory.getLogger(TramGraphBuilderTest.class);
     private static Dependencies dependencies;
 
-    private RouteCalculator calculator;
-    private TransportDataFromFiles transportData;
     private Transaction transaction;
+    private GraphQuery graphQuery;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -48,8 +52,7 @@ public class TramGraphBuilderTest {
 
     @Before
     public void beforeEachTestRuns() {
-        calculator = dependencies.get(RouteCalculator.class);
-        transportData = dependencies.get(TransportDataFromFiles.class);
+        graphQuery = dependencies.get(GraphQuery.class);
         GraphDatabaseService service = dependencies.get(GraphDatabaseService.class);
         transaction = service.beginTx();
     }
@@ -66,36 +69,31 @@ public class TramGraphBuilderTest {
 
     @Test
     @Ignore("Work In Progress")
-    public void shouldHaveAnAreaWithStations() throws TramchesterException {
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.PiccadillyGardens.getId()
+    public void shouldHaveAnAreaWithStations() {
+        List<TransportRelationship> outbounds = getOutboundRouteStationRelationships(Stations.PiccadillyGardens.getId()
                 + RouteCodesForTesting.ALTY_TO_BURY);
     }
 
     @Test
     public void shouldHaveHarbourCityStation() {
-        TramNode tramNode = calculator.getStation(Stations.HarbourCity.getId());
+        Node node = graphQuery.getStationNode(Stations.HarbourCity.getId());
 
-        StationNode stationNode = (StationNode) tramNode;
-        assertNotNull(stationNode);
-
-        assertEquals(Stations.HarbourCity.getId(), stationNode.getId());
-        assertFalse(stationNode.isRouteStation());
-        assertTrue(stationNode.isStation());
-        assertEquals("Harbour City", stationNode.getName());
+        assertEquals(Stations.HarbourCity.getId(), node.getProperty(GraphStaticKeys.ID).toString());
+        assertTrue(node.hasLabel(TransportGraphBuilder.Labels.STATION));
     }
 
     @Test
-    public void shouldReportServicesAtHarbourCityWithTimes() throws TramchesterException {
+    public void shouldReportServicesAtHarbourCityWithTimes() {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(Stations.HarbourCity.getId()
+        List<TransportRelationship> outbounds = getOutboundRouteStationRelationships(Stations.HarbourCity.getId()
                 + RouteCodesForTesting.ECCLES_TO_ASH);
         reportServices(outbounds);
     }
 
     @Test
-    public void shouldReportServicesCorrectlyAtVeloparkTimes() throws TramchesterException {
+    public void shouldReportServicesCorrectlyAtVeloparkTimes() {
 
-        List<TransportRelationship> outbounds = calculator.getOutboundRouteStationRelationships(
+        List<TransportRelationship> outbounds = getOutboundRouteStationRelationships(
                 Stations.VeloPark.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
         reportServices(outbounds);
     }
@@ -128,6 +126,10 @@ public class TramGraphBuilderTest {
             builder.append(" ").append(i);
         }
         return builder.toString();
+    }
+
+    private List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) {
+        return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
     }
 
 }

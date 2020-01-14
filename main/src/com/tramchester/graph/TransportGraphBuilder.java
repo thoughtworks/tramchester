@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.input.Stop;
@@ -10,7 +9,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;
 
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
@@ -20,8 +18,6 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.GraphStaticKeys.RouteStation.ROUTE_NAME;
@@ -47,8 +43,6 @@ public class TransportGraphBuilder extends StationIndexs {
     private int numberNodes = 0;
     private int numberRelationships = 0;
 
-//    private final boolean edgePerTrip;
-
     public enum Labels implements Label
     {
         ROUTE_STATION, STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
@@ -57,22 +51,18 @@ public class TransportGraphBuilder extends StationIndexs {
     private Map<String,TransportRelationshipTypes> boardings;
     private Map<String,TransportRelationshipTypes> departs;
     private List<String> platforms;
-    private Map<Long, String> relationToSvcId;
-    private Map<Long, LocalTime[]> timesForRelationship;
 
     private TransportData transportData;
     private final NodeIdLabelMap nodeIdLabelMap;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
-                                 RelationshipFactory relationshipFactory, SpatialDatabaseService spatialDatabaseService,
-                                 NodeIdLabelMap nodeIdLabelMap) {
-        super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
+                                 RelationshipFactory relationshipFactory,
+                                 NodeIdLabelMap nodeIdLabelMap, GraphQuery graphQuery) {
+        super(graphDatabaseService, graphQuery, relationshipFactory, false);
         this.transportData = transportData;
         this.nodeIdLabelMap = nodeIdLabelMap;
         boardings = new HashMap<>();
         departs = new HashMap<>();
-        relationToSvcId = new HashMap<>();
-        timesForRelationship = new HashMap<>();
         platforms = new LinkedList<>();
     }
 
@@ -519,61 +509,11 @@ public class TransportGraphBuilder extends StationIndexs {
         return timeNode;
     }
 
-    private void createOrUpdateRelationship(Node start, Node end,
-                                            Stop beginStop, Stop endStop, Route route, Service service) {
-
-        // Confusingly some towardsServices can go different routes and hence have different outbound GOES relationships from
-        // the same node, so we have to check both start and end nodes for each relationship
-
-        LocalTime departTime = beginStop.getDepartureTime().asLocalTime();
-        Relationship relationship = getRelationshipForService(service, start, end);
-
-        if (relationship == null) {
-            int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), beginStop.getArrivalTime());
-            TransportRelationshipTypes transportRelationshipType;
-            if (route.isTram()) {
-                transportRelationshipType = TransportRelationshipTypes.TRAM_GOES_TO;
-            } else {
-                transportRelationshipType = TransportRelationshipTypes.BUS_GOES_TO;
-            }
-            createRelationships(start, end, transportRelationshipType, beginStop, route, service, cost);
-        } else {
-            // add the time of this stop to the service relationship
-            LocalTime[] array = timesForRelationship.get(relationship.getId());
-            if (Arrays.binarySearch(array, departTime) < 0) {
-                LocalTime[] newTimes = Arrays.copyOf(array, array.length + 1);
-                newTimes[array.length] = departTime;
-                // keep times sorted
-                Arrays.sort(newTimes);
-                timesForRelationship.put(relationship.getId(), newTimes);
-                relationship.setProperty(GraphStaticKeys.TIMES, newTimes);
-            }
-        }
-    }
-
-    private void createRelationships(Node start, Node end, TransportRelationshipTypes transportRelationshipType,
-                                     Stop begin, Route route, Service service, int cost) {
-        if (service.isRunning()) {
-            Relationship relationship = createRelationships(start, end, transportRelationshipType);
-
-            // times
-            LocalTime[] times = new LocalTime[]{begin.getDepartureTime().asLocalTime()};   // initial contents
-            timesForRelationship.put(relationship.getId(), times);
-            relationship.setProperty(GraphStaticKeys.TIMES, times);
-
-            // common properties
-            addCommonProperties(relationship, transportRelationshipType, route, service, cost);
-        }
-    }
-
     private void addCommonProperties(Relationship relationship, TransportRelationshipTypes transportRelationshipType,
                                      Route route, Service service, int cost) {
         relationship.setProperty(COST, cost);
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
-
         relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
-//        relationship.setProperty(GraphStaticKeys.SERVICE_START_DATE, service.getStartDate().getStringDate());
-//        relationship.setProperty(GraphStaticKeys.SERVICE_END_DATE, service.getEndDate().getStringDate());
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
         if (transportRelationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO)) {
@@ -595,39 +535,6 @@ public class TransportGraphBuilder extends StationIndexs {
         daysArray[5] = days.get(DaysOfWeek.Saturday);
         daysArray[6] = days.get(DaysOfWeek.Sunday);
         return daysArray;
-    }
-
-    private Relationship getRelationshipForService(Service service, Node startNode, Node end) {
-        String serviceId = service.getServiceId();
-        long endId = end.getId();
-
-        Iterable<Relationship> existing = getOutboundJourneyRelationships(startNode);
-        Stream<Relationship> existingStream = StreamSupport.stream(existing.spliterator(), false);
-        Optional<Relationship> match = existingStream
-                .filter(out -> out.getEndNode().getId() == endId)
-                .filter(out -> {
-                    String svcIdForRelationship = getSvcIdForRelationship(out);
-                    return svcIdForRelationship.equals(serviceId);
-                })
-                .limit(1)
-                .findAny();
-
-        return match.orElse(null);
-    }
-
-    private Iterable<Relationship> getOutboundJourneyRelationships(Node startNode) {
-        return startNode.getRelationships(OUTGOING,
-                TransportRelationshipTypes.TRAM_GOES_TO, TransportRelationshipTypes.BUS_GOES_TO);
-    }
-
-    private String getSvcIdForRelationship(Relationship outgoing) {
-        long id = outgoing.getId();
-        if (relationToSvcId.containsKey(id)) {
-            return relationToSvcId.get(id);
-        }
-        String svcId = outgoing.getProperty(GraphStaticKeys.SERVICE_ID).toString();
-        relationToSvcId.put(id, svcId);
-        return svcId;
     }
 
 }

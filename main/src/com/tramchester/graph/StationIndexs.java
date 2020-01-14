@@ -2,14 +2,11 @@ package com.tramchester.graph;
 
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.gis.spatial.SimplePointLayer;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -21,19 +18,20 @@ public class StationIndexs {
     protected final RelationshipFactory relationshipFactory;
 
     // TODO with the indexes is the cache needed?
-    private ConcurrentMap<String,Node> routeStationNodeCache;
-    private ConcurrentMap<String,Node> stationNodeCache;
-    private ConcurrentMap<String,Node> platformNodeCache;
+    private final ConcurrentMap<String,Node> routeStationNodeCache;
+    private final ConcurrentMap<String,Node> stationNodeCache;
+    private final ConcurrentMap<String,Node> platformNodeCache;
     private SimplePointLayer spatialLayer;
 
-    protected GraphDatabaseService graphDatabaseService;
-    protected GraphQuery graphQuery;
-    private boolean warnIfMissing;
+    protected final GraphDatabaseService graphDatabaseService;
+    protected final GraphQuery graphQuery;
+    private final boolean warnIfMissing;
 
-    public StationIndexs(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
-                         SpatialDatabaseService spatialDatabaseService, boolean warnIfMissing) {
+    public StationIndexs(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery, RelationshipFactory relationshipFactory,
+                         boolean warnIfMissing) {
+
         this.graphDatabaseService = graphDatabaseService;
-        graphQuery = new GraphQuery(graphDatabaseService, relationshipFactory, spatialDatabaseService);
+        this.graphQuery = graphQuery;
         this.warnIfMissing = warnIfMissing;
         this.relationshipFactory = relationshipFactory;
         routeStationNodeCache = new ConcurrentHashMap<>();

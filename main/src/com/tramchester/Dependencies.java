@@ -96,18 +96,14 @@ public class Dependencies {
         picoContainer.addComponent(NodeFactory.class);
         picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(ServiceHeuristics.class);
-        picoContainer.addComponent(CachingCostEvaluator.class);
 
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
-
         picoContainer.addComponent(TramJourneyResponseWithTimesMapper.class);
-
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
-
         picoContainer.addComponent(TransportGraphBuilder.class);
         picoContainer.addComponent(SpatialService.class);
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
@@ -131,6 +127,8 @@ public class Dependencies {
         picoContainer.addComponent(TramRouteReachable.class);
         picoContainer.addComponent(ReachabilityRepository.class);
         picoContainer.addComponent(NodeIdLabelMap.class);
+        picoContainer.addComponent(GraphQuery.class);
+
 
         // TODO still needed now jodatime removed?
         ObjectMapper objectMapper = new ObjectMapper();

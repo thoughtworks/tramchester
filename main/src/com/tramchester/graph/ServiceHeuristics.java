@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.ID;
 
-public class ServiceHeuristics implements PersistsBoardingTime {
+public class ServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
@@ -31,7 +31,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
 
-    private Optional<TramTime> boardingTime;
     private final int maxWaitMinutes;
 
     public ServiceHeuristics(CachedNodeOperations nodeOperations,
@@ -46,13 +45,8 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         this.runningServices = runningServices;
         this.endStationId = endStationId;
         this.reasons = reasons;
-
-        // for none edge per trip path
-        boardingTime = Optional.empty();
-
     }
     
-    // edge per trip
     public ServiceReason checkServiceDate(Node node, Path path) {
         reasons.incrementTotalChecked();
 
@@ -105,21 +99,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         return elapsedTimed.between(earliest, nodeTime);
     }
 
-    @Override
-    public void save(TramTime time) {
-        boardingTime = Optional.of(time);
-    }
-
-    @Override
-    public boolean isPresent() {
-        return boardingTime.isPresent();
-    }
-
-    @Override
-    public TramTime get() {
-        return boardingTime.get();
-    }
-
     public ServiceReason interestedInHour(Path path, int hour, TramTime journeyClockTime) {
         reasons.incrementTotalChecked();
 
@@ -142,11 +121,6 @@ public class ServiceHeuristics implements PersistsBoardingTime {
         }
 
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
-    }
-
-
-    public boolean toEndStation(Relationship depart) {
-        return depart.getProperty(GraphStaticKeys.STATION_ID).toString().equals(endStationId);
     }
 
     public ServiceReason canReachDestination(Node endNode, Path path) {

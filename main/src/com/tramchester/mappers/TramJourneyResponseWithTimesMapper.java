@@ -2,10 +2,7 @@ package com.tramchester.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.presentation.Journey;
-import com.tramchester.domain.presentation.ServiceTime;
-import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.presentation.VehicleStageWithTiming;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.repository.ServiceTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
+public class TramJourneyResponseWithTimesMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyResponseWithTimesMapper.class);
     private final ServiceTimes serviceTimes;
 
@@ -23,7 +20,6 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
         this.serviceTimes = serviceTimes;
     }
 
-    @Override
     public Optional<Journey> createJourney(RawJourney rawJourney, int withinMins) {
         List<RawStage> rawJourneyStages = rawJourney.getStages();
         List<TransportStage> stages = new LinkedList<>();
@@ -63,5 +59,15 @@ public class TramJourneyResponseWithTimesMapper extends SingleJourneyMapper {
         Journey journey = new Journey(stages);
         return Optional.of(journey);
 
+    }
+
+    private TravelAction decideAction(List<TransportStage> stagesSoFar) {
+        if (stagesSoFar.isEmpty()) {
+            return TravelAction.Board;
+        }
+        if ((stagesSoFar.get(stagesSoFar.size()-1) instanceof WalkingStage)) {
+            return TravelAction.Board;
+        }
+        return TravelAction.Change;
     }
 }

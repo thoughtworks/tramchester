@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.gis.spatial.SimplePointLayer;
@@ -13,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class GraphQuery {
+
+    // TODO REFACTOR Methods onlt used for tests into own class
     private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
     private RelationshipFactory relationshipFactory;
@@ -55,17 +56,8 @@ public class GraphQuery {
         return getNodeByLabel(id, TransportGraphBuilder.Labels.HOUR);
     }
 
-//    public Node getServiceEndNode(String id) {
-//        return getNodeByLabel(id, TransportGraphBuilder.Labels.SERVICE_END);
-//    }
-
     private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {
-        Node result;
-//        try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.findNode(label, GraphStaticKeys.ID, id);
-//            tx.success();
-//        }
-        return result;
+        return graphDatabaseService.findNode(label, GraphStaticKeys.ID, id);
     }
 
     public ArrayList<Node> findStartNodesFor(String routeName) {
@@ -93,10 +85,10 @@ public class GraphQuery {
                 SimplePointEncoder.class, SimplePointLayer.class);
     }
 
-    public List<TransportRelationship> getRouteStationRelationships(String routeStationId, Direction direction) throws TramchesterException {
+    public List<TransportRelationship> getRouteStationRelationships(String routeStationId, Direction direction) {
         Node routeStationNode = getRouteStationNode(routeStationId);
         if (routeStationNode==null) {
-            throw new TramchesterException("Unable to find routeStationNode with ID " + routeStationId);
+            return Collections.emptyList();
         }
         List<TransportRelationship> result = new LinkedList<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -106,6 +98,5 @@ public class GraphQuery {
         }
         return result;
     }
-
 
 }

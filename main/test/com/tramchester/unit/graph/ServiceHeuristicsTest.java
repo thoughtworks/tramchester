@@ -303,23 +303,6 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckEndStationId() {
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(nodeOperations, reachabilityRepository, config30MinsWait,
-                NOT_USED_HERE, runningServices, "endStationId", new ServiceReasons());
-        Relationship departA = createMock(Relationship.class);
-        EasyMock.expect(departA.getProperty(STATION_ID)).andReturn("endStationId");
-        Relationship departB = createMock(Relationship.class);
-        EasyMock.expect(departB.getProperty(STATION_ID)).andReturn("XXX");
-
-
-        replayAll();
-        assertTrue(serviceHeuristics.toEndStation(departA));
-        assertFalse(serviceHeuristics.toEndStation(departB));
-
-        verifyAll();
-    }
-
-    @Test
     public void shouldCheckMaximumDurationCorrectly() {
         TramTime queryTime = TramTime.of(11,20);
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(nodeOperations, reachabilityRepository,

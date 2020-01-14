@@ -14,8 +14,8 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class TramRouteReachable extends StationIndexs {
     public TramRouteReachable(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
-                              SpatialDatabaseService spatialDatabaseService) {
-        super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
+                              GraphQuery graphQuery) {
+        super(graphDatabaseService, graphQuery, relationshipFactory, false);
     }
 
     public boolean getRouteReachable(String startStationId, String targetStationId, String routeId) {

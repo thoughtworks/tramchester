@@ -5,6 +5,7 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
@@ -31,8 +32,8 @@ public class SpatialService extends StationIndexs {
 
     public SpatialService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
                           StationRepository stationRepository,
-                          SpatialDatabaseService spatialDatabaseService, TramchesterConfig config) {
-        super(graphDatabaseService, relationshipFactory, spatialDatabaseService, false);
+                          TramchesterConfig config, GraphQuery graphQuery) {
+        super(graphDatabaseService, graphQuery, relationshipFactory, false);
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.config = config;

@@ -49,7 +49,7 @@ public class GraphQueryTest {
         TransportDataForTest transportData = new TransportDataForTest();
         nodeLabelIdMap = new NodeIdLabelMap();
         TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
-                spatialDatabaseService, nodeLabelIdMap);
+                nodeLabelIdMap, graphQuery);
         builder.buildGraph();
     }
 
