@@ -70,6 +70,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         logger.info("Return traversal stream");
         Stream<Path> stream = iterator.stream();
+        //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
             iterator.close();
             reasons.reportReasons(queryTime);

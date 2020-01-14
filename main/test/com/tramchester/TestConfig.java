@@ -35,7 +35,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public boolean getChangeAtInterchangeOnly() { return false; }
+    public boolean getChangeAtInterchangeOnly() { return true; }
 
     //////
 

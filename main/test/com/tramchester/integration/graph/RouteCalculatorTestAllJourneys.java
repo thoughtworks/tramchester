@@ -16,6 +16,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ import static org.junit.Assert.*;
 public class RouteCalculatorTestAllJourneys {
 
     // TODO this needs to be > longest running test which is far from ideal
-    public static final int TXN_TIMEOUT_SECS = 2 * 60;
+    public static final int TXN_TIMEOUT_SECS = 4 * 60;
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;
     private static GraphDatabaseService database;
@@ -105,7 +106,7 @@ public class RouteCalculatorTestAllJourneys {
     private Map<Pair<String, String>, Optional<RawJourney>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, String>> combinations, List<TramTime> queryTimes) {
 
-        Map<Pair<String, String>, Optional<RawJourney>> results = new HashMap<>();
+        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results;
 
         // check each pair, collect results into (station,station)->result
         results =
@@ -115,7 +116,7 @@ public class RouteCalculatorTestAllJourneys {
                                 calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes,
                                         new TramServiceDate(queryDate), RouteCalculator.MAX_NUM_GRAPH_PATHS).limit(1).
                                         findAny())).
-                        collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+                        collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
 
         // check all results present, collect failures into a list
         List<Pair<String, String>> failed = results.entrySet().stream().

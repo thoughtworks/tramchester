@@ -21,11 +21,13 @@ public class ServiceReasons {
     // stats
     private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
     private final AtomicInteger totalChecked = new AtomicInteger(0);
+    private boolean success;
 
     public ServiceReasons() {
         reasons = new ArrayList<>();
         statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
+        success = false;
     }
 
     private void reset() {
@@ -35,6 +37,10 @@ public class ServiceReasons {
     }
 
     public void reportReasons(TramTime queryTime) {
+        if (success && !debugEnabled) {
+            return;
+        }
+
         reportStats();
         if (debugEnabled) {
             createGraphFile(queryTime);
@@ -93,4 +99,7 @@ public class ServiceReasons {
         }
     }
 
+    public void recordSuccess() {
+        success = true;
+    }
 }

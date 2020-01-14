@@ -81,11 +81,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     private Evaluation doEvaluate(Path path, ImmutableJourneyState journeyState, Node endNode, long endNodeId) {
 
-        // TODO RISK this won't always surface fatest paths?
-//        if (success>=RouteCalculator.MAX_NUM_GRAPH_PATHS) {
-//            return Evaluation.EXCLUDE_AND_PRUNE;
-//        }
-
         TraversalState traversalState = journeyState.getTraversalState();
         if (endNodeId==destinationNodeId) {
             // we've arrived
@@ -94,6 +89,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 // a better route than seen so far
                 success = success + 1;
                 currentLowestCost = totalCost;
+                reasons.recordSuccess();
                 return Evaluation.INCLUDE_AND_PRUNE;
             } else {
                 // found a route, but longer than current shortest
@@ -101,7 +97,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         } else if (success>0) {
-            // Not arrived, but we do have at least one successful route to our desintation
+            // Not arrived, but we do have at least one successful route to our destintation
             int totalCost = traversalState.getTotalCost();
             if (totalCost>currentLowestCost) {
                 // already longer that current shortest, no need to continue
