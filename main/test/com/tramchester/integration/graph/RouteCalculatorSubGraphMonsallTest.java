@@ -56,13 +56,36 @@ public class RouteCalculatorSubGraphMonsallTest {
     }
 
     @After
-    public void onceAfterEveryTest() {
+    public void reproduceIssueWithTooManyStages() {
         tx.close();
     }
 
     @Test
-    public void reproduceIssueWithTooManyStages() {
-        validateOneStageJourney(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,0), nextTuesday);
+    public void shouldReproIssueWithNotFindingDirectRouting() {
+//        validateOneStageJourney(Stations.Monsall, Stations.ShawAndCrompton, TramTime.of(8,0), nextTuesday);
+//
+        String derkerStationId = "9400ZZMADER";
+//        validateOneStageJourney(derkerStationId, Stations.RochdaleRail.getId(), TramTime.of(8,0), nextTuesday);
+//        validateOneStageJourney(Stations.Monsall.getId(), derkerStationId, TramTime.of(8,0), nextTuesday);
+
+//        validateOneStageJourney(derkerStationId, Stations.RochdaleRail.getId(), TramTime.of(8,28), nextTuesday);
+
+        validateOneStageJourney(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5), nextTuesday);
+
+//        for (int minute = 0; minute <60; minute=minute+4) {
+//            validateOneStageJourney(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,minute), nextTuesday);
+//        }
+    }
+
+    @Test
+    public void shouldHaveEndToEnd() {
+        validateOneStageJourney(Stations.EastDidsbury, Stations.Rochdale, TramTime.of(8,0), nextTuesday);
+    }
+
+    @Test
+    public void shouldHaveJourneysTerminationPointsToEndOfLine() {
+        // many trams only run as far as Shaw
+        validateOneStageJourney(Stations.ShawAndCrompton, Stations.Rochdale, TramTime.of(8,0), nextTuesday);
     }
 
     @Test
@@ -83,11 +106,19 @@ public class RouteCalculatorSubGraphMonsallTest {
     }
 
     private void validateOneStageJourney(Location start, Location dest, TramTime time, LocalDate date) {
-        Set<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(), Collections.singletonList(time),
+
+        String startId = start.getId();
+        String destId = dest.getId();
+
+        validateOneStageJourney( startId, destId,time, date);
+    }
+
+    private void validateOneStageJourney(String startId, String destId, TramTime time, LocalDate date) {
+        Set<RawJourney> journeys = calculator.calculateRoute(startId, destId, Collections.singletonList(time),
                 new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS).
                 collect(Collectors.toSet());
 
-        assertFalse(journeys.isEmpty());
+        assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destId, time.toString(), date), journeys.isEmpty());
         journeys.forEach(journey -> assertEquals(1, journey.getStages().size()));
     }
 }

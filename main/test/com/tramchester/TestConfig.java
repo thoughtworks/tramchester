@@ -31,11 +31,11 @@ public abstract class TestConfig extends AppConfiguration {
     ////// WORK IN PROGRESS
     @Override
     public boolean getEdgePerTrip() {
-        return true;
+        return false;
     }
 
     @Override
-    public boolean getChangeAtInterchangeOnly() { return true; }
+    public boolean getChangeAtInterchangeOnly() { return false; }
 
     //////
 

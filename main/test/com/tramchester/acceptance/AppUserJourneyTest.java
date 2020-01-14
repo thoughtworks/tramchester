@@ -91,7 +91,6 @@ public class AppUserJourneyTest {
         altyToPiccClass = "RouteClass2";
         altyToBuryLineName = "Altrincham - Manchester - Bury";
         altyToPicLineName = "Altrincham - Piccadilly";
-
     }
 
     @After
@@ -302,7 +301,9 @@ public class AppUserJourneyTest {
         desiredJourney(appPage, altrincham, bury, nextTuesday, time);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
-        assertFalse(appPage.notesPresent());
+        if (appPage.notesPresent()) {
+            assertThat(appPage.getAllNotes(), not(hasItem(weekendMsg)));
+        }
 
         desiredJourney(appPage, altrincham, bury, aSaturday.plusDays(1), time);
         appPage.planAJourney();

@@ -1,4 +1,4 @@
-package com.tramchester.integration.resources;
+package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;

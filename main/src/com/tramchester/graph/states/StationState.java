@@ -27,6 +27,7 @@ public class StationState extends TraversalState {
     @Override
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (node.getId()==destinationNodeId) {
+            // TODO Cost of platform depart?
             return new DestinationState(this, cost);
         }
         if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {

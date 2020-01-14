@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static org.neo4j.graphdb.traversal.Uniqueness.NODE_PATH;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
@@ -29,10 +28,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final long destinationNodeId;
     private final String endStationId;
     private final boolean interchangesOnly;
+    private final ServiceReasons reasons;
 
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
-                                CachedNodeOperations nodeOperations, Node destinationNode, String endStationId, boolean interchangesOnly) {
+                                ServiceReasons reasons, CachedNodeOperations nodeOperations, Node destinationNode, String endStationId, boolean interchangesOnly) {
         this.serviceHeuristics = serviceHeuristics;
+        this.reasons = reasons;
         this.nodeOperations = nodeOperations;
         this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeId = destinationNode.getId();
@@ -42,7 +43,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     public Stream<WeightedPath> findPaths(Node startNode) {
 
-        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId);
+        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons);
         NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationId, interchangesOnly);
 
         logger.info("Begin traversal");
@@ -71,7 +72,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Stream<Path> stream = iterator.stream();
         stream.onClose(() -> {
             iterator.close();
-//            serviceHeuristics.reportReasons();
+            reasons.reportReasons(queryTime);
         });
 
         return stream.filter(path -> path.endNode().getId()==destinationNodeId)

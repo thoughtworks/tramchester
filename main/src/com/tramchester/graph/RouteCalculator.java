@@ -115,19 +115,21 @@ public class RouteCalculator extends StationIndexs {
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
         Node endNode = getStationNode(destinationId);
 
+        ServiceReasons serviceReasons = new ServiceReasons();
         if (config.getEdgePerTrip()) {
             return queryTimes.stream().
                     map(queryTime -> new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
-                            queryTime, runningServicesIds, destinationId)).
-                    map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, destinationId)).
+                            queryTime, runningServicesIds, destinationId, serviceReasons)).
+                    map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, serviceReasons, destinationId)).
                     flatMap(Function.identity()).
                     map(path -> new RawJourney(pathToStages.mapDirect(path.getPath()), path.getQueryTime(), path.path.weight()));
         }
 
         Set<RawJourney> journeys = new LinkedHashSet<>(); // order matters
         queryTimes.forEach(queryTime -> {
+            ServiceReasons reasons = new ServiceReasons();
             ServiceHeuristics serviceHeuristics = new ServiceHeuristics(costEvaluator, nodeOperations, reachabilityRepository, config,
-                    queryTime, runningServicesIds, destinationId);
+                    queryTime, runningServicesIds, destinationId, reasons);
 
             logger.info("Finding shortest path");
             logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",
@@ -139,7 +141,7 @@ public class RouteCalculator extends StationIndexs {
                 paths = findShortestPathNormal(startNode, endNode, pathExpander);
                 journeys.addAll(mapStreamToJourneySet(paths, limit, queryTime));
                 if (journeys.isEmpty()) {
-                    serviceHeuristics.reportReasons();
+                    reasons.reportReasons(queryTime);
                     pathExpander.reportVisits(MAX_NUM_GRAPH_PATHS);
                 }
         });
@@ -160,12 +162,13 @@ public class RouteCalculator extends StationIndexs {
     }
 
     private Stream<TimedWeightedPath> findShortestPathEdgePerTrip(Node startNode, Node endNode,
-                                                             ServiceHeuristics serviceHeutistics, String endStationId) {
+                                                                  ServiceHeuristics serviceHeutistics,
+                                                                  ServiceReasons reasons, String endStationId) {
         if (startNode.getProperty(GraphStaticKeys.Station.NAME).equals(queryNodeName)) {
             logger.info("Query node based search, setting start time to actual query time");
         }
 
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(serviceHeutistics, nodeOperations,
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(serviceHeutistics, reasons, nodeOperations,
                 endNode, endStationId, config.getChangeAtInterchangeOnly());
 
         return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedWeightedPath(path, serviceHeutistics.getQueryTime()));

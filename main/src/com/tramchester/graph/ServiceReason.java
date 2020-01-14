@@ -12,8 +12,10 @@ import java.util.Set;
 import static java.lang.String.format;
 
 public abstract class ServiceReason {
+    private static final Logger logger = LoggerFactory.getLogger(ServiceReason.class);
 
     public static final IsValid isValid = new IsValid();
+    private static final boolean debugEnabled = logger.isDebugEnabled();
 
     public enum ReasonCode {
         Valid,
@@ -23,28 +25,32 @@ public abstract class ServiceReason {
         NotReachable,
         ServiceNotRunningAtTime,
         TookTooLong,
-        NotAtHour
+        NotAtHour,
+        AlreadyDeparted,
+        Cached,
+        LongerPath,
+        PathTooLong
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceReason.class);
-
-    private final Set<String> pathAsStrings;
+    private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;
     private final ReasonCode code;
 
     public ServiceReason(ReasonCode code) {
         this.code = code;
-        pathAsStrings = Collections.emptySet();
+        pathToRenderAsString = Collections.emptySet();
     }
 
-    public ServiceReason(ReasonCode code, Path path) {
+    protected ServiceReason(ReasonCode code, Path path) {
         this.code = code;
-        if (logger.isDebugEnabled()) {
-            pathAsStrings = new HashSet<>();
-            pathAsStrings.addAll(PathToGraphViz.map(path, code.toString(), isValid()));
+        if (debugEnabled) {
+            pathToRenderAsString = new HashSet<>();
+            pathToRenderAsString.addAll(PathToGraphViz.map(path, this, this.isValid()));
         } else {
-            pathAsStrings = Collections.emptySet();
+            pathToRenderAsString = Collections.emptySet();
         }
     }
+
+    public abstract String textForGraph();
 
     public ReasonCode getReasonCode() {
         return code;
@@ -56,7 +62,7 @@ public abstract class ServiceReason {
     }
 
     public void recordPath(Set<String> builder) {
-        builder.addAll(pathAsStrings);
+        pathToRenderAsString.forEach(renderLater -> builder.add(renderLater.render()));
     }
 
     @Override
@@ -82,6 +88,27 @@ public abstract class ServiceReason {
             return format("diag:'%s' path:'%s'", diag, pathAsString);
         }
 
+        @Override
+        public String textForGraph() {
+            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), diag);
+        }
+    }
+
+    //////////////
+
+    private static class Unreachable extends ServiceReason {
+
+        private final ReasonCode code;
+
+        public Unreachable(ReasonCode code, Path path) {
+                super(code , path);
+            this.code = code;
+        }
+
+        @Override
+        public String textForGraph() {
+            return code.name();
+        }
     }
 
     //////////////
@@ -97,6 +124,11 @@ public abstract class ServiceReason {
         }
 
         @Override
+        public String textForGraph() {
+            return ReasonCode.Valid.name();
+        }
+
+        @Override
         public boolean isValid() {
             return true;
         }
@@ -109,13 +141,10 @@ public abstract class ServiceReason {
         public InflightChangeOfService(String diag, Path path) {
             super(ReasonCode.InflightChangeOfService, diag, path);
         }
-    }
 
-    //////////////
-
-    private static class StationNotReachable extends ServiceReason {
-        public StationNotReachable(Path path) {
-            super(ReasonCode.NotReachable,path);
+        @Override
+        public String textForGraph() {
+            return ReasonCode.InflightChangeOfService.name();
         }
     }
 
@@ -146,6 +175,11 @@ public abstract class ServiceReason {
         public boolean equals(Object obj) {
             return obj instanceof DoesNotRunOnQueryDate;
         }
+
+        @Override
+        public String textForGraph() {
+            return ReasonCode.NotOnQueryDate.name();
+        }
     }
 
     //////////////
@@ -154,9 +188,17 @@ public abstract class ServiceReason {
     {
         private TramTime elapsedTime;
 
-        public DoesNotOperateOnTime(ReasonCode reasonCode, TramTime currentElapsed, Path path) {
+        public DoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, Path path) {
             super(reasonCode, path);
-            this.elapsedTime = currentElapsed;
+            if (elapsedTime==null) {
+                throw new RuntimeException("Must provide time");
+            }
+            this.elapsedTime = elapsedTime;
+        }
+
+        @Override
+        public String textForGraph() {
+            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), elapsedTime.toPattern());
         }
 
         @Override
@@ -190,7 +232,7 @@ public abstract class ServiceReason {
     }
 
     public static ServiceReason StationNotReachable(Path path) {
-        return new StationNotReachable(path);
+        return new Unreachable(ReasonCode.NotReachable, path);
     }
 
     public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, Path path) {
@@ -207,6 +249,22 @@ public abstract class ServiceReason {
 
     public static ServiceReason DoesNotOperateAtHour(TramTime currentElapsed, Path path) {
         return new DoesNotOperateOnTime(ReasonCode.NotAtHour, currentElapsed, path);
+    }
+
+    public static ServiceReason AlreadyDeparted(TramTime currentElapsed, Path path) {
+        return new DoesNotOperateOnTime(ReasonCode.AlreadyDeparted, currentElapsed, path);
+    }
+
+    public static ServiceReason Cached(TramTime currentElapsed, Path path) {
+        return new ServiceReason.DoesNotOperateOnTime(ServiceReason.ReasonCode.Cached, currentElapsed, path);
+    }
+
+    public static ServiceReason Longer(Path path) {
+        return new ServiceReason.Unreachable(ReasonCode.LongerPath, path);
+    }
+
+    public static ServiceReason PathToLong(Path path) {
+        return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
     }
 
 }

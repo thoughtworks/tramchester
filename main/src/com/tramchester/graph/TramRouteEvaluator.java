@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.states.TraversalState;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -25,20 +24,20 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
-    private final boolean debugEnabled;
+    private final ServiceReasons reasons;
     private int success;
     private int currentLowestCost;
 
     private final Map<Long, TramTime> previousSuccessfulVisit;
 
-    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId) {
+    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId, ServiceReasons reasons) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.destinationNodeId = destinationNodeId;
+        this.reasons = reasons;
         success = 0;
         previousSuccessfulVisit = new HashMap<>();
         currentLowestCost = Integer.MAX_VALUE;
-        debugEnabled = logger.isDebugEnabled();
     }
 
     @Override
@@ -57,15 +56,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (previousSuccessfulVisit.containsKey(nodeId)) {
             // can *only* safely exclude previous nodes if there is only one outbound path
 
+            TramTime previousVisitTime = previousSuccessfulVisit.get(nodeId);
             if (nodeOperations.isTime(nodeId)) {
                 // no way to get different response for same service/minute - boarding time has to be same
                 // since time nodes encode a specific time, so the previous time *must* match for this node id
+                reasons.recordReason(ServiceReason.Cached(previousVisitTime, path));
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
 
             // NOTE: We only cache previous for certian node types
-            TramTime previousVisitTime = previousSuccessfulVisit.get(nodeId);
             if (nodeOperations.isHour(nodeId) && previousVisitTime.equals(journeyClock)) {
+                reasons.recordReason(ServiceReason.Cached(previousVisitTime, path));
                 return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue
             }
         }
@@ -74,12 +75,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         if (result.continues() && (nodeOperations.isTime(nodeId) || nodeOperations.isHour(nodeId))) {
                 previousSuccessfulVisit.put(nodeId, journeyClock);
-        } else {
-            if (debugEnabled) {
-                logger.debug("Stopped at len: " + path.length());
-            }
         }
-
         return result;
     }
 
@@ -95,17 +91,21 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             // we've arrived
             int totalCost = traversalState.getTotalCost();
             if (totalCost < currentLowestCost) {
+                // a better route than seen so far
                 success = success + 1;
                 currentLowestCost = totalCost;
                 return Evaluation.INCLUDE_AND_PRUNE;
             } else {
                 // found a route, but longer than current shortest
+                reasons.recordReason(ServiceReason.Longer(path));
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         } else if (success>0) {
-            // already longer that current shortest, no need to continue
+            // Not arrived, but we do have at least one successful route to our desintation
             int totalCost = traversalState.getTotalCost();
             if (totalCost>currentLowestCost) {
+                // already longer that current shortest, no need to continue
+                reasons.recordReason(ServiceReason.Longer(path));
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
@@ -113,6 +113,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // no journey longer than N stages
         if (path.length()>maxPathLength) {
             logger.warn("Hit max path length");
+            reasons.recordReason(ServiceReason.PathToLong(path));
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 

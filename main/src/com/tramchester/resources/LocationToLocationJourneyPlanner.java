@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,7 +52,9 @@ public class LocationToLocationJourneyPlanner {
     private Stream<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, List<TramTime> queryTimes,
                                                  TramServiceDate queryDate) {
 
-        List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id).get()).collect(Collectors.toList());
+        List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).
+                filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+
         List<StationWalk> walksToStart = starts.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 

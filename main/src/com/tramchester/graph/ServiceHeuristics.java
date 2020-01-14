@@ -14,14 +14,9 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Optional;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
-import static java.lang.String.format;
+import static com.tramchester.graph.GraphStaticKeys.ID;
 
 public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
@@ -31,7 +26,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private final RunningServices runningServices;
     private final String endStationId;
     private final TramTime queryTime;
-    private final List<ServiceReason> reasons;
+    private final ServiceReasons reasons;
     private final ReachabilityRepository reachabilityRepository;
 
     private final CostEvaluator<Double> costEvaluator;
@@ -41,13 +36,9 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     private Optional<TramTime> boardingTime;
     private final int maxWaitMinutes;
 
-    // stats
-    private final Map<ServiceReason.ReasonCode,AtomicInteger> statistics;
-    private final AtomicInteger totalChecked = new AtomicInteger(0);
-
     public ServiceHeuristics(CostEvaluator<Double> costEvaluator, CachedNodeOperations nodeOperations,
                              ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
-                             RunningServices runningServices, String endStationId) {
+                             RunningServices runningServices, String endStationId, ServiceReasons reasons) {
         this.nodeOperations = nodeOperations;
         this.reachabilityRepository = reachabilityRepository;
         this.config = config;
@@ -58,20 +49,16 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         this.queryTime = queryTime;
         this.runningServices = runningServices;
         this.endStationId = endStationId;
+        this.reasons = reasons;
 
         // for none edge per trip path
         boardingTime = Optional.empty();
 
-        // diagnostics, needs debug
-        reasons = new LinkedList<>();
-
-        statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
-        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
     
     // edge per trip
     public ServiceReason checkServiceDate(Node node, Path path) {
-        totalChecked.incrementAndGet();
+        reasons.incrementTotalChecked();
 
         String nodeServiceId = nodeOperations.getServiceId(node);
 
@@ -82,12 +69,8 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         return notOnQueryDate(path, nodeServiceId);
     }
 
-    private void incrementStat(ServiceReason.ReasonCode reasonCode) {
-        statistics.get(reasonCode).incrementAndGet();
-    }
-
     public ServiceReason checkServiceTime(Path path, Node node, TramTime currentClock) {
-        totalChecked.incrementAndGet();
+        reasons.incrementTotalChecked();
 
         String serviceId = nodeOperations.getServiceId(node);
 
@@ -98,7 +81,7 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         TramTime serviceEnd = runningServices.getServiceLatest(serviceId);
 
         if (!currentClock.between(serviceStart, serviceEnd)) {
-            return recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));
+            return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));
         }
 
         return valid(path);
@@ -106,17 +89,17 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
 
     // edge per trip
     public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed) {
-        totalChecked.getAndIncrement();
+        reasons.incrementTotalChecked();
 
         TramTime nodeTime = nodeOperations.getTime(node);
         if (currentElapsed.isAfter(nodeTime)) { // already departed
-            return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
+            return reasons.recordReason(ServiceReason.AlreadyDeparted(currentElapsed, path));
         }
 
         if (operatesWithinTime(nodeTime, currentElapsed)) {
             return valid(path);
         }
-        return recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
+        return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
     }
 
     private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
@@ -128,12 +111,11 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
 
     public ServiceReason checkServiceHeuristics(TransportRelationship incoming,
                                                 GoesToRelationship goesToRelationship, Path path) throws TramchesterException {
-
         if (config.getEdgePerTrip()) {
             throw new RuntimeException("Should not call this for edgePerTrip");
         }
 
-        totalChecked.incrementAndGet();
+        reasons.incrementTotalChecked();
         // already checked via service node for edge per trip
         String serviceId = goesToRelationship.getServiceId();
         if (!runningServices.isRunning(serviceId)) {
@@ -142,13 +124,13 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
 
         ServiceReason inflightChange = sameService(path, incoming, goesToRelationship);
         if (!inflightChange.isValid()) {
-            return recordReason(inflightChange);
+            return reasons.recordReason(inflightChange);
         }
 
         ElapsedTime elapsedTimeProvider = new PathBasedTimeProvider(costEvaluator, path, this, queryTime);
         // all times for the service per edge
         if (!underMaxWait(goesToRelationship.getTimesServiceRuns(), elapsedTimeProvider)) {
-            return recordReason(ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime(),
+            return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(elapsedTimeProvider.getElapsedTime(),
                     path));
         }
 
@@ -156,6 +138,8 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
     }
 
     public ServiceReason sameService(Path path, TransportRelationship transportRelationship, GoesToRelationship outgoing) {
+        reasons.incrementTotalChecked();
+
         if (!transportRelationship.isGoesTo()) {
             return valid(path); // not a connecting/goes to relationship, no svc id
         }
@@ -167,14 +151,14 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
             return valid(path);
         }
 
-        return recordReason(ServiceReason.InflightChangeOfService(service, path));
+        return reasons.recordReason(ServiceReason.InflightChangeOfService(service, path));
     }
 
     public boolean underMaxWait(TramTime[] times, ElapsedTime provider) throws TramchesterException {
         if (times.length==0) {
             logger.warn("No times provided");
         }
-        totalChecked.getAndIncrement();
+        reasons.incrementTotalChecked();
         TramTime journeyClockTime = provider.getElapsedTime();
 
         // the times array is sorted in ascending order
@@ -216,14 +200,8 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         return boardingTime.get();
     }
 
-    public void reportStats() {
-        logger.info("Total checked: " + totalChecked.get());
-        Arrays.asList(ServiceReason.ReasonCode.values()).forEach(
-                code -> logger.info(format("%s: %s", code, statistics.get(code))));
-    }
-
     public ServiceReason interestedInHour(Path path, int hour, TramTime journeyClockTime) {
-        totalChecked.getAndIncrement();
+        reasons.incrementTotalChecked();
 
         int queryTimeHour = journeyClockTime.getHourOfDay();
         if (hour == queryTimeHour) {
@@ -237,55 +215,15 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
             previousHour = 23;
         }
         if (queryTimeHour == previousHour) {
-            if (journeyClockTime.getMinuteOfHour() >= 60-maxWaitMinutes) {
+            int timeUntilNextHour = 60 - maxWaitMinutes;
+            if (journeyClockTime.getMinuteOfHour() >= timeUntilNextHour) {
                 return valid(path);
             }
         }
 
-        return recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
+        return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
     }
 
-    public void reportReasons() {
-        reportStats();
-        if (debugEnabled) {
-            createGraphFile();
-        }
-    }
-
-    private void createGraphFile() {
-        String fileName = format("%s%s_at_%s.dot", queryTime.getHourOfDay(), queryTime.getMinuteOfHour(), LocalTime.now().toString());
-        fileName = fileName.replaceAll(":","");
-
-        if (reasons.isEmpty()) {
-            logger.warn(format("Not creating dot file %s, reasons empty", fileName));
-            return;
-        }
-
-        try {
-            StringBuilder builder = new StringBuilder();
-            builder.append("digraph G {\n");
-            Set<String> paths = new HashSet<>();
-            reasons.stream().filter(reason->!reason.isValid()).forEach(reason -> reason.recordPath(paths));
-            paths.forEach(builder::append);
-            builder.append("}");
-
-            FileWriter writer = new FileWriter(fileName);
-            writer.write(builder.toString());
-            writer.close();
-            logger.info(format("Created file %s", fileName));
-        }
-        catch (IOException e) {
-            logger.warn("Unable to create diagnostic graph file", e);
-        }
-    }
-
-    private ServiceReason recordReason(final ServiceReason serviceReason) {
-        if (debugEnabled) {
-            reasons.add(serviceReason);
-        }
-        incrementStat(serviceReason.getReasonCode());
-        return serviceReason;
-    }
 
     public boolean toEndStation(Relationship depart) {
         return depart.getProperty(GraphStaticKeys.STATION_ID).toString().equals(endStationId);
@@ -297,12 +235,12 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
         if (flag) {
             return valid(path);
         }
-        return recordReason(ServiceReason.StationNotReachable(path));
+        return reasons.recordReason(ServiceReason.StationNotReachable(path));
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final Path path) {
         if (totalCost>maxJourneyDuration) {
-            return recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), path));
+            return reasons.recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), path));
         }
 
         return valid(path);
@@ -310,19 +248,20 @@ public class ServiceHeuristics implements PersistsBoardingTime, BasicServiceHeur
 
     private ServiceReason valid(final Path path) {
         if (debugEnabled) {
-            return recordReason(ServiceReason.IsValid(path));
+            return reasons.recordReason(ServiceReason.IsValid(path));
         }
-        return recordReason(ServiceReason.isValid);
+        return reasons.recordReason(ServiceReason.isValid);
     }
 
     private ServiceReason notOnQueryDate(Path path, String nodeServiceId) {
         if (debugEnabled) {
-            return recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
+            return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
         }
-        return recordReason(ServiceReason.DoesNotRunOnQueryDate());
+        return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate());
     }
 
     public TramTime getQueryTime() {
         return queryTime;
     }
+
 }
