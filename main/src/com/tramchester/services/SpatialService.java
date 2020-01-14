@@ -7,10 +7,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -30,10 +28,9 @@ public class SpatialService extends StationIndexs {
     private StationRepository stationRepository;
     private TramchesterConfig config;
 
-    public SpatialService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
-                          StationRepository stationRepository,
+    public SpatialService(GraphDatabaseService graphDatabaseService, StationRepository stationRepository,
                           TramchesterConfig config, GraphQuery graphQuery) {
-        super(graphDatabaseService, graphQuery, relationshipFactory, false);
+        super(graphDatabaseService, graphQuery, false);
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.config = config;

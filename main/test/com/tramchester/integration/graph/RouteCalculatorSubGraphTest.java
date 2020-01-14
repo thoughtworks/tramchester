@@ -3,14 +3,11 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
@@ -20,7 +17,6 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,9 +33,6 @@ public class RouteCalculatorSubGraphTest {
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
     private GraphDatabaseService graphService;
-    private RelationshipFactory relationshipFactory;
-    private NodeFactory nodeFactory;
-    private TramchesterConfig testConfig = new IntegrationTramTestConfig();
     private static List<Location> stations = Arrays.asList(Stations.Cornbrook, Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
     private Transaction tx;
 
@@ -64,8 +57,6 @@ public class RouteCalculatorSubGraphTest {
     @Before
     public void beforeEachTestRuns() {
         graphService = dependencies.get(GraphDatabaseService.class);
-        relationshipFactory = dependencies.get(RelationshipFactory.class);
-        nodeFactory = dependencies.get(NodeFactory.class);
         calculator = dependencies.get(RouteCalculator.class);
         tx = database.beginTx();
     }
@@ -135,7 +126,7 @@ public class RouteCalculatorSubGraphTest {
     @Test
     @Ignore
     public void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 7);
+        DiagramCreator creator = new DiagramCreator(graphService, 7);
         creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));
     }
 

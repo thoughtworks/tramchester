@@ -6,7 +6,6 @@ import com.tramchester.domain.StationWalk;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
@@ -37,10 +36,10 @@ public class RouteCalculator extends StationIndexs {
     private final TransportData transportData;
     private final ReachabilityRepository reachabilityRepository;
 
-    public RouteCalculator(GraphDatabaseService db, TransportData transportData, RelationshipFactory relationshipFactory,
+    public RouteCalculator(GraphDatabaseService db, TransportData transportData,
                            CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository, GraphQuery graphQuery) {
-        super(db, graphQuery, relationshipFactory, true);
+        super(db, graphQuery, true);
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;

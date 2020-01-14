@@ -32,8 +32,4 @@ public abstract class TramNode {
         return false;
     }
 
-    public boolean isServiceEnd(){
-        return false;
-    }
-
 }

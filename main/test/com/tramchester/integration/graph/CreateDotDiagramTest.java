@@ -4,8 +4,6 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Location;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import org.junit.*;
@@ -22,8 +20,6 @@ import static org.junit.Assume.assumeFalse;
 public class CreateDotDiagramTest {
     private static Dependencies dependencies;
     private GraphDatabaseService graphService;
-    private RelationshipFactory relationshipFactory;
-    private NodeFactory nodeFactory;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -35,8 +31,6 @@ public class CreateDotDiagramTest {
     @Before
     public void beforeEachOfTheTestsRun() {
         graphService = dependencies.get(GraphDatabaseService.class);
-        relationshipFactory = dependencies.get(RelationshipFactory.class);
-        nodeFactory = dependencies.get(NodeFactory.class);
     }
 
     @AfterClass
@@ -46,8 +40,6 @@ public class CreateDotDiagramTest {
 
     @Test
     public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
-        //assumeFalse(edgePerTrip);
-
         int depthLimit = 2;
 
         create(Stations.Deansgate, depthLimit);
@@ -56,21 +48,18 @@ public class CreateDotDiagramTest {
         create(Stations.ExchangeSquare, depthLimit);
         create(Stations.MarketStreet, depthLimit);
         create(Stations.Victoria, depthLimit);
-
-        create(Arrays.asList(
-                Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare), 4);
-
+        create(Arrays.asList(Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare), 4);
     }
 
     public void create(List<Location> startPoints, int depthLimit) throws IOException {
         String filename = startPoints.get(0).getName();
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
+        DiagramCreator creator = new DiagramCreator(graphService, depthLimit);
         List<String> ids = startPoints.stream().map(point -> point.getId()).collect(Collectors.toList());
         creator.create(format("around_%s_trams.dot", filename), ids);
     }
 
     public void create(Location startPoint, int depthLimit) throws IOException {
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, depthLimit);
+        DiagramCreator creator = new DiagramCreator(graphService, depthLimit);
         creator.create(format("%s_trams.dot", startPoint.getName()), startPoint.getId());
     }
 

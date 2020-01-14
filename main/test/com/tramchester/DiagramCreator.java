@@ -1,33 +1,26 @@
 package com.tramchester;
 
 import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.Nodes.*;
-import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.RouteRelationship;
-import com.tramchester.graph.Relationships.TramGoesToRelationship;
-import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.*;
 
+import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
+import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
 import static java.lang.String.format;
 
+
+// TODO Rewrite to use query instead
 public class DiagramCreator {
 
-    private final NodeFactory nodeFactory;
-    private final RelationshipFactory relationshipFactory;
     private final GraphDatabaseService graphDatabaseService;
     private final int depthLimit;
 
-    public DiagramCreator(NodeFactory nodeFactory, RelationshipFactory relationshipFactory, GraphDatabaseService graphDatabaseService,
-                          int depthLimit) {
-        this.nodeFactory = nodeFactory;
-        this.relationshipFactory = relationshipFactory;
+    public DiagramCreator(GraphDatabaseService graphDatabaseService, int depthLimit) {
         this.graphDatabaseService = graphDatabaseService;
         this.depthLimit = depthLimit;
     }
@@ -38,7 +31,7 @@ public class DiagramCreator {
 
     public void create(String fileName, List<String> startPointsList) throws IOException {
 
-        List<String> seen = new LinkedList<>();
+        List<Long> seen = new LinkedList<>();
         StringBuilder builder = new StringBuilder();
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -59,201 +52,172 @@ public class DiagramCreator {
         writer.close();
     }
 
-    private void visit(Node rawNode, StringBuilder builder, List<String> seen, int depth) {
+    private void visit(Node node, StringBuilder builder, List<Long> seen, int depth) {
         if (depth>=depthLimit) {
             return;
         }
-
-        TramNode currentNode = nodeFactory.getNode(rawNode);
-        final String currentNodeId = createNodeId(currentNode);
-
-        if (seen.contains(currentNodeId)) {
+        if (seen.contains(node.getId())) {
             return;
         }
-        seen.add(currentNodeId);
+        seen.add(node.getId());
 
-        addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", currentNodeId,
-                getLabelFor(currentNode), getShapeFor(currentNode)));
+        addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(node),
+                getLabelFor(node), getShapeFor(node)));
 
-        visitOutbounds(rawNode, builder, seen, depth, currentNodeId);
-        visitInbounds(rawNode, builder, seen, depth, currentNodeId);
+        visitOutbounds(node, builder, seen, depth);
+        visitInbounds(node, builder, seen, depth);
 
     }
 
-    private void visitInbounds(Node rawNode, StringBuilder builder, List<String> seen, int depth, String currentNodeId) {
-        rawNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.values()).forEach(inboundEdge -> {
-            TransportRelationship inboundRelationship = relationshipFactory.getRelationship(inboundEdge);
+    private void visitInbounds(Node targetNode, StringBuilder builder, List<Long> seen, int depth) {
+        targetNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.values()).forEach(towards -> {
 
-            Node rawSourceNode = inboundEdge.getStartNode();
-            TramNode sourceNode = nodeFactory.getNode(rawSourceNode);
-            String sourceNodeId = createNodeId(sourceNode);
+            Node startNode = towards.getStartNode();
+            addNode(builder, startNode);
 
-            addNode(builder, sourceNode, sourceNodeId);
-
-            if (inboundRelationship.isGoesTo()) {
-                // use outbound for this
-            } else if (inboundRelationship.isEnterPlatform()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "E"));
-            }
-            else if (inboundRelationship.isLeavePlatform()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "L"));
-            } else if (inboundRelationship.isServiceLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "Svc"));
-            } else if (inboundRelationship.isHourLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "H"));
-            } else if (inboundRelationship.isMinuteLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "T"));
-            } else if (inboundRelationship.isEndServiceLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, "End"));
-            } else if (inboundRelationship.isRoute()) {
-                RouteRelationship routeRelationship = (RouteRelationship) inboundRelationship;
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId,
-                        "ROUTE:"+routeRelationship.getRouteId()));
-            }
-            else {
-                // boarding and depart
-                String edgeLabel = inboundRelationship.isInterchange() ? "X" : "";
-                if (inboundRelationship.isBoarding()) {
-                    edgeLabel += "B";
-                } else if (inboundRelationship.isDepartTram()) {
-                    edgeLabel += "D";
-                }
-                if (edgeLabel.isEmpty()) {
-                    edgeLabel = "??";
-                }
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", sourceNodeId, currentNodeId, edgeLabel));
-            }
-            visit(rawSourceNode, builder, seen, depth+1);
+            // startNode -> targetNode
+            addEdge(builder, towards, createNodeId(startNode), createNodeId(targetNode));
+            visit(startNode, builder, seen, depth+1);
         });
     }
 
-    private void addNode(StringBuilder builder, TramNode sourceNode, String sourceNodeId) {
-        addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", sourceNodeId,
-                getLabelFor(sourceNode), getShapeFor(sourceNode)));
-    }
+    private void visitOutbounds(Node startNode, StringBuilder builder, List<Long> seen, int depth) {
+        Map<Long,Relationship> tramGoesToRelationships = new HashMap<>();
 
-    private void visitOutbounds(Node rawNode, StringBuilder builder, List<String> seen, int depth, String currentNodeId) {
-        Set<TramGoesToRelationship> tramGoesToRelationships = new HashSet<>();
+        startNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.forPlanning()).forEach(awayFrom -> {
 
-        rawNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.forPlanning()).forEach(outputBoundEdge -> {
-            TransportRelationship outboundRelationship = relationshipFactory.getRelationship(outputBoundEdge);
+            TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(awayFrom.getType().name());
 
-            Node rawEndNode = outputBoundEdge.getEndNode();
-            TramNode destinationNode = nodeFactory.getNode(rawEndNode);
-            String endNodeId = createNodeId(destinationNode);
+            Node rawEndNode = awayFrom.getEndNode();
 
-            addNode(builder, destinationNode, endNodeId);
+            addNode(builder, startNode);
+            addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode));
 
-            // add links
-            if (outboundRelationship.isGoesTo()) {
-                TramGoesToRelationship serviceRelationship = (TramGoesToRelationship) outboundRelationship;
-                if (!tramGoesToRelationships.contains(serviceRelationship)) {
-                    tramGoesToRelationships.add(serviceRelationship);
+            if (relationshipType==TransportRelationshipTypes.TRAM_GOES_TO) {
+                if (!tramGoesToRelationships.containsKey(awayFrom.getId())) {
+                    tramGoesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
-            } else if (outboundRelationship.isEnterPlatform()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, "E"));
-            } else if (outboundRelationship.isLeavePlatform()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, "L"));
-            } else if (outboundRelationship.isServiceLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, "Svc"));
-            } else if (outboundRelationship.isHourLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, "H"));
-            } else if (outboundRelationship.isMinuteLink()) {
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, "T"));
-            } else if (outboundRelationship.isRoute()) {
-                RouteRelationship routeRelationship = (RouteRelationship) outboundRelationship;
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId,
-                        "ROUTE:"+routeRelationship.getRouteId()));
-            }
-            else {
-                // boarding and depart
-                String edgeLabel = outboundRelationship.isInterchange() ? "X" : "";
-                if (outboundRelationship.isBoarding()) {
-                    edgeLabel += "B";
-                } else if (outboundRelationship.isDepartTram()) {
-                    edgeLabel += "D";
-                }
-                addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", currentNodeId, endNodeId, edgeLabel));
             }
             visit(rawEndNode, builder, seen, depth+1);
         });
 
         // add services for this node
         // Node -> Service End Node
-        for (TramGoesToRelationship tramGoesToRelationship : tramGoesToRelationships) {
+        for (Relationship tramGoesToRelationship : tramGoesToRelationships.values()) {
             String id;
-            if (tramGoesToRelationship.hasTripId()) {
-                id = tramGoesToRelationship.getTripId();
+            if (tramGoesToRelationship.hasProperty(TRIP_ID)) {
+                id = tramGoesToRelationship.getProperty(TRIP_ID).toString();
             } else {
-                id = tramGoesToRelationship.getServiceId();
+                id = tramGoesToRelationship.getProperty(SERVICE_ID).toString();
             }
             if (id.isEmpty()) {
                 id = "NO_ID";
             }
             builder.append(format("\"%s\"->\"%s\" [label=\"%s\"];\n",
-                    currentNodeId, createNodeId(tramGoesToRelationship.getEndNode()), id));
+                    createNodeId(startNode), createNodeId(tramGoesToRelationship.getEndNode()), id));
         }
     }
 
-    private String createNodeId(TramNode sourceNode) {
-        return sourceNode.getId().replace(" ", "");
+
+    private void addEdge(StringBuilder builder, Relationship edge, String startNodeId, String endNodeId) {
+
+        TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
+
+        if (relationshipType==TransportRelationshipTypes.TRAM_GOES_TO) {
+            // use outbound
+        } else if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
+            String routeId = edge.getProperty(GraphStaticKeys.ROUTE_ID).toString();
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "ROUTE:"+routeId));
+        } else {
+            String shortForm = createShortForm(relationshipType);
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, shortForm));
+        }
     }
 
-    private String getShapeFor(TramNode node) {
-        if (node.isPlatform()) {
+    private void addNode(StringBuilder builder, Node sourceNode) {
+        addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(sourceNode),
+                getLabelFor(sourceNode), getShapeFor(sourceNode)));
+    }
+
+    private String createNodeId(Node sourceNode) {
+        return String.valueOf(sourceNode.getId());
+    }
+
+    private String getShapeFor(Node node) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.PLATFORM)) {
             return "box";
         }
-        if (node.isRouteStation()) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)) {
             return "oval";
         }
-        if (node.isStation()) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.STATION)) {
             return "house";
         }
-        if (node.isService()) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.SERVICE)) {
             return "octagon";
         }
-        if (node.isHour()) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.HOUR)) {
             return "box";
         }
-        if (node.isMinute()) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.MINUTE)) {
             return "circle";
         }
+
         return "box";
     }
 
-    private String getLabelFor(TramNode node) {
-        if (node.isPlatform()) {
-            return node.getName();
+    private String getLabelFor(Node node) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.PLATFORM)) {
+            return getNameOfNode(node);
         }
-        if (node.isRouteStation()) {
-            BoardPointNode bpNode = (BoardPointNode) node;
-            return format("%s\n%s", bpNode.getRouteId(), bpNode.getName());
+        if (node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)) {
+            String stationName = node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME).toString();
+            return format("%s\n%s", node.getProperty(GraphStaticKeys.ROUTE_ID).toString(), stationName);
         }
-        if (node.isStation()) {
-            return node.getName();
+        if (node.hasLabel(TransportGraphBuilder.Labels.STATION)) {
+            return getNameOfNode(node);
         }
-        if (node.isService()) {
-            ServiceNode svcNode = (ServiceNode) node;
-            return svcNode.getServiceId();
+        if (node.hasLabel(TransportGraphBuilder.Labels.SERVICE)) {
+            return node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
         }
-        if (node.isHour()) {
-            return node.getName();
+        if (node.hasLabel(TransportGraphBuilder.Labels.HOUR)) {
+            return node.getProperty(GraphStaticKeys.HOUR).toString();
         }
-        if (node.isMinute()) {
-            String fullTime = node.getName();
+        if (node.hasLabel(TransportGraphBuilder.Labels.MINUTE)) {
+            String fullTime = node.getProperty(GraphStaticKeys.TIME).toString();
             int index = fullTime.indexOf(":");
             return fullTime.substring(index);
         }
-        if (node.isServiceEnd()) {
-            ServiceEndNode serviceEndNode = (ServiceEndNode) node;
-            return serviceEndNode.getId();
-        }
+
         return "No_Label";
+    }
+
+    private String getNameOfNode(Node node) {
+        return node.getProperty(GraphStaticKeys.Station.NAME).toString();
     }
 
     private void addLine(StringBuilder builder, String line) {
         if (builder.lastIndexOf(line) < 0) {
             builder.append(line);
+        }
+    }
+
+    private String createShortForm(TransportRelationshipTypes relationshipType) {
+        switch (relationshipType) {
+            case ENTER_PLATFORM: return "E";
+            case LEAVE_PLATFORM: return "L";
+            case WALKS_TO: return "W";
+            case BOARD: return "B";
+            case TO_SERVICE: return "Svc";
+            case TO_HOUR: return "H";
+            case TO_MINUTE: return "T";
+            case ON_ROUTE: return "R";
+            case INTERCHANGE_BOARD: return "IB";
+            case INTERCHANGE_DEPART: return "ID";
+            case TRAM_GOES_TO: return "Tram";
+            case DEPART: return "D";
+            case BUS_GOES_TO: return "Bus";
+            default: return "Unkn";
         }
     }
 }

@@ -2,19 +2,12 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TramTime;
-import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.graph.Relationships.GoesToRelationship;
-import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
-import org.neo4j.graphalgo.CostEvaluator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.ID;
 

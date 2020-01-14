@@ -10,7 +10,6 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.*;
@@ -94,7 +93,6 @@ public class Dependencies {
         picoContainer.addComponent(CreateQueryTimes.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(NodeFactory.class);
-        picoContainer.addComponent(RelationshipFactory.class);
         picoContainer.addComponent(ServiceHeuristics.class);
 
         picoContainer.addComponent(RouteCalculator.class);

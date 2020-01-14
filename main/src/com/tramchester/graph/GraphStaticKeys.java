@@ -7,24 +7,17 @@ public class GraphStaticKeys {
     public static final String STATION_ID = "station_id";
     public static final String PLATFORM_ID = "platform_id";
 
-    // relationship properties
-    public static final String DAYS = "days";
     public static final String COST = "cost";
 
     // time on a node
     public static final String HOUR = "hour";
     public static final String TIME = "time";
 
-    // time(s) on a relationship
-    public static final String TIMES = "times";
     public static final String TRIPS = "trips";
     public static final String SERVICE_ID = "service_id";
 
     // experimental
     public static final String TRIP_ID = "trip_id";
-
-    @Deprecated
-    public static final String DEPART_TIME = "time";
     public static final String ROUTE_ID = "route_id";
 
     public static class RouteStation {

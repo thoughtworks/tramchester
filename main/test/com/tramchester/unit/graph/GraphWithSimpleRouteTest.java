@@ -5,8 +5,6 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportDataSource;
@@ -197,11 +195,8 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void createDiagramOfTestNetwork() throws IOException {
-        NodeFactory nodeFactory = dependencies.get(NodeFactory.class);
-        RelationshipFactory relationshipFactory = dependencies.get(RelationshipFactory.class);
         GraphDatabaseService graphDBService = dependencies.get(GraphDatabaseService.class);
-
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphDBService, Integer.MAX_VALUE);
+        DiagramCreator creator = new DiagramCreator(graphDBService, Integer.MAX_VALUE);
         creator.create("test_network.dot", TransportDataForTest.FIRST_STATION);
     }
 

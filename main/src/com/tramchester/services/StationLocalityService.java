@@ -4,12 +4,10 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.StationIndexs;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.repository.TransportData;
 import com.vividsolutions.jts.geom.Coordinate;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -25,9 +23,9 @@ public class StationLocalityService extends StationIndexs {
     private double distanceInKM = 0.2;
     private int assumedCost = 1;
 
-    public StationLocalityService(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
+    public StationLocalityService(GraphDatabaseService graphDatabaseService,
                                   TransportData transportData, GraphQuery graphQuery) {
-        super(graphDatabaseService, graphQuery, relationshipFactory, false);
+        super(graphDatabaseService, graphQuery, false);
         this.transportData = transportData;
     }
 

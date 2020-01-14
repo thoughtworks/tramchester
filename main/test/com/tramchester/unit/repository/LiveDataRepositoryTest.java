@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -102,7 +103,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        LocalDateTime lastUpdate = LocalDateTime.now(); // up to date
+        LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.of(13,22);
+        LocalDateTime lastUpdate = LocalDateTime.of(today, time);
+
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
         addStationInfo(info, lastUpdate, "303", "platformIdB", "some message", "platformLocation");
 

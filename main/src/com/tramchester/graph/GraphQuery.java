@@ -1,7 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.Relationships.RelationshipFactory;
-import com.tramchester.graph.Relationships.TransportRelationship;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
@@ -16,14 +14,11 @@ public class GraphQuery {
     // TODO REFACTOR Methods onlt used for tests into own class
     private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
-    private RelationshipFactory relationshipFactory;
     private SpatialDatabaseService spatialDatabaseService;
     private GraphDatabaseService graphDatabaseService;
 
-    public GraphQuery(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
-                      SpatialDatabaseService spatialDatabaseService) {
+    public GraphQuery(GraphDatabaseService graphDatabaseService, SpatialDatabaseService spatialDatabaseService) {
         this.graphDatabaseService = graphDatabaseService;
-        this.relationshipFactory = relationshipFactory;
         this.spatialDatabaseService = spatialDatabaseService;
     }
 
@@ -85,17 +80,13 @@ public class GraphQuery {
                 SimplePointEncoder.class, SimplePointLayer.class);
     }
 
-    public List<TransportRelationship> getRouteStationRelationships(String routeStationId, Direction direction) {
+    public List<Relationship> getRouteStationRelationships(String routeStationId, Direction direction) {
         Node routeStationNode = getRouteStationNode(routeStationId);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
-        List<TransportRelationship> result = new LinkedList<>();
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(
-                    relationship -> result.add(relationshipFactory.getRelationship(relationship)));
-            tx.success();
-        }
+        List<Relationship> result = new LinkedList<>();
+        routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(result::add);
         return result;
     }
 

@@ -3,14 +3,11 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.RawJourney;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
@@ -21,7 +18,6 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,9 +32,6 @@ public class RouteCalculatorSubGraphMediaCityTest {
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
     private GraphDatabaseService graphService;
-    private RelationshipFactory relationshipFactory;
-    private NodeFactory nodeFactory;
-    private TramchesterConfig testConfig = new IntegrationTramTestConfig();
 
     private static List<String> stations = Arrays.asList(
             Stations.ExchangeSquare.getId(),
@@ -78,8 +71,6 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @Before
     public void beforeEachTestRuns() {
         graphService = dependencies.get(GraphDatabaseService.class);
-        relationshipFactory = dependencies.get(RelationshipFactory.class);
-        nodeFactory = dependencies.get(NodeFactory.class);
         calculator = dependencies.get(RouteCalculator.class);
         tx = database.beginTx();
     }
@@ -139,7 +130,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @Ignore
     @Test
     public void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(nodeFactory, relationshipFactory, graphService, 5);
+        DiagramCreator creator = new DiagramCreator(graphService, 5);
         List<String> toDraw = new ArrayList<>();
 //        stations.add(Stations.Cornbrook.getId());
         toDraw.add(Stations.MediaCityUK.getId());

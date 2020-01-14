@@ -1,8 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.input.TramInterchanges;
-import com.tramchester.graph.Relationships.RelationshipFactory;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
@@ -13,9 +11,8 @@ import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class TramRouteReachable extends StationIndexs {
-    public TramRouteReachable(GraphDatabaseService graphDatabaseService, RelationshipFactory relationshipFactory,
-                              GraphQuery graphQuery) {
-        super(graphDatabaseService, graphQuery, relationshipFactory, false);
+    public TramRouteReachable(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery) {
+        super(graphDatabaseService, graphQuery, false);
     }
 
     public boolean getRouteReachable(String startStationId, String targetStationId, String routeId) {

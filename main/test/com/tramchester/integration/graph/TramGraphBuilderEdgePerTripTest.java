@@ -1,13 +1,11 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.DaysOfWeek;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.Station;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.Nodes.ServiceNode;
-import com.tramchester.graph.Relationships.*;
+import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
@@ -15,12 +13,14 @@ import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TramGraphBuilderEdgePerTripTest {
     private static Dependencies dependencies;
@@ -58,17 +58,21 @@ public class TramGraphBuilderEdgePerTripTest {
     public void shouldHaveCorrectOutboundsAtMediaCity() {
 
         String mediaCityUKId = Stations.MediaCityUK.getId();
-        List<TransportRelationship> outbounds = getOutboundRouteStationRelationships(
+        List<Relationship> outbounds = getOutboundRouteStationRelationships(
                 mediaCityUKId + RouteCodesForTesting.ECCLES_TO_ASH );
         outbounds.addAll(getOutboundRouteStationRelationships(
                 mediaCityUKId + RouteCodesForTesting.ASH_TO_ECCLES ));
 
-        List<ServiceRelationship> graphServicesRelationships = new LinkedList<>();
-        outbounds.forEach(out -> {
-            if (out instanceof ServiceRelationship) graphServicesRelationships.add((ServiceRelationship) out);
-        });
+        List<Relationship> graphServicesRelationships = new LinkedList<>();
+        Set<String> graphSvcIds = outbounds.stream().
+                filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
+                map(relationship -> relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString()).
+                collect(Collectors.toSet());
+//        outbounds.forEach(out -> {
+//            if (out instanceof ServiceRelationship) graphServicesRelationships.add((ServiceRelationship) out);
+//        });
 
-        Set<String> graphSvcIds = graphServicesRelationships.stream().map(ServiceRelationship::getServiceId).collect(Collectors.toSet());
+//        Set<String> graphSvcIds = graphServicesRelationships.stream().map(ServiceRelationship::getServiceId).collect(Collectors.toSet());
 
         // check number of outbound services matches services in transport data files
         Set<String> fileSvcIds = transportData.getTripsFor(mediaCityUKId).stream().
@@ -80,55 +84,14 @@ public class TramGraphBuilderEdgePerTripTest {
         assertEquals(0, fileSvcIds.size());
     }
 
-    private List<TransportRelationship> getOutboundRouteStationRelationships(String routeStationId) {
+    private List<Relationship> getOutboundRouteStationRelationships(String routeStationId) {
         return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
-    }
-
-    @Test
-    public void shouldRepdroduceIssueWithWeekendsAtDeansgateToAshton() {
-
-        List<TransportRelationship> outbounds = getOutboundRouteStationRelationships(Stations.Deansgate.getId()
-                + RouteCodesForTesting.ECCLES_TO_ASH);
-        List<ServiceNode> serviceNodes = outbounds.stream().filter(TransportRelationship::isServiceLink).
-                map(relationship -> (ServiceNode)relationship.getEndNode()).collect(Collectors.toList());
-
-        List<ServiceNode> sundays = serviceNodes.stream().filter(node -> node.getDaysServiceRuns()[6]).collect(Collectors.toList());
-        assertTrue(sundays.size()>0);
-    }
-
-    @Test
-    public void shouldRepdroduceIssueWithWeekendsAtMediaCity() {
-
-        String mediaCityUKId = Stations.MediaCityUK.getId();
-        Station mediaCity = transportData.getStation(mediaCityUKId).get();
-        List<ServiceNode> serviceNodes = new ArrayList<>();
-
-        for(String route : mediaCity.getRoutes()) {
-            serviceNodes.addAll(getOutboundRouteStationRelationships(mediaCityUKId + route).stream().
-                    filter(TransportRelationship::isServiceLink).
-                    map(relationship -> (ServiceNode)relationship.getEndNode()).
-                    collect(Collectors.toList()));
-        }
-
-        // 6 == index of sunday in array
-        List<ServiceNode> sundays = serviceNodes.stream().filter(node -> node.getDaysServiceRuns()[6]).collect(Collectors.toList());
-        assertTrue(sundays.size()>0);
-
-        Set<String> callingServices = transportData.getTripsFor(mediaCityUKId).stream().map(Trip::getServiceId).collect(Collectors.toSet());
-        Set<Service> services = callingServices.stream().
-                map(id -> transportData.getServiceById(id)).
-                filter(Service::isRunning).
-                filter(service -> service.getDays().get(DaysOfWeek.Sunday)).
-                collect(Collectors.toSet());
-
-        assertEquals(services.size(), sundays.size());
-
     }
 
     @Test
     public void shouldHaveCorrectRelationshipsAtCornbrook() {
 
-        List<TransportRelationship> outbounds = getOutboundRouteStationRelationships(Stations.Cornbrook.getId()
+        List<Relationship> outbounds = getOutboundRouteStationRelationships(Stations.Cornbrook.getId()
                 + RouteCodesForTesting.ALTY_TO_BURY);
 
         assertTrue(outbounds.size()>1);
@@ -179,39 +142,15 @@ public class TramGraphBuilderEdgePerTripTest {
         // graphAndFileConsistencyCheckOutbounds(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
     }
 
-    @Test
-    public void shouldHaveCorrectGraphRelationshipsFromVeloparkNodeMonday8Am() {
-
-        List<TransportRelationship> outbounds = getOutboundRouteStationRelationships(
-                Stations.VeloPark.getId() + RouteCodesForTesting.ASH_TO_ECCLES);
-
-        List<ServiceRelationship> svcRelationshipsFromVeloPark = new LinkedList<>();
-        outbounds.forEach(out -> {
-            if (out instanceof ServiceRelationship) svcRelationshipsFromVeloPark.add((ServiceRelationship) out);
-        });
-        // filter by day and then direction/route
-        assertFalse(svcRelationshipsFromVeloPark.isEmpty());
-        List<ServiceNode> serviceNodes = svcRelationshipsFromVeloPark.stream().
-                map(relationship -> (ServiceNode) relationship.getEndNode()).collect(Collectors.toList());
-        serviceNodes.removeIf(svc -> !svc.getDaysServiceRuns()[0]); // monday
-        assertFalse(serviceNodes.isEmpty());
-        svcRelationshipsFromVeloPark.removeIf(svc -> !transportData.getServiceById(
-                svc.getServiceId()).getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES));
-
-        assertFalse(svcRelationshipsFromVeloPark.isEmpty());
-
-    }
-
     private void checkOutboundConsistency(String stationId, String routeId) {
-        List<TransportRelationship> graphOutbounds = getOutboundRouteStationRelationships(
+        List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(
                 stationId + routeId);
 
         assertTrue(graphOutbounds.size()>0);
 
         List<String> serviceRelatIds = graphOutbounds.stream().
-                filter(TransportRelationship::isServiceLink).
-                map(relationship -> (ServiceRelationship) relationship).
-                map(ServiceRelationship::getServiceId).
+                filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
+                map(relationship -> relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString()).
                 collect(Collectors.toList());
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
@@ -233,19 +172,19 @@ public class TramGraphBuilderEdgePerTripTest {
     }
 
     private void checkInboundConsistency(String stationId, String routeId) {
-        List<TransportRelationship> inbounds = graphQuery.getRouteStationRelationships(stationId + routeId, Direction.INCOMING);
+        List<Relationship> inbounds = graphQuery.getRouteStationRelationships(stationId + routeId, Direction.INCOMING);
 
-        List<BoardRelationship> graphBoardAtStation = new LinkedList<>();
-        List<TramGoesToRelationship> graphTramsIntoStation = new LinkedList<>();
-        inbounds.forEach(in -> {
-            if (in instanceof BoardRelationship) graphBoardAtStation.add((BoardRelationship) in);
-            if (in instanceof TramGoesToRelationship) graphTramsIntoStation.add((TramGoesToRelationship) in);
-        });
-        assertEquals(1, graphBoardAtStation.size());
+        List<Relationship> graphTramsIntoStation = inbounds.stream().
+                filter(inbound -> inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).collect(Collectors.toList());
+
+        long boardingCount = inbounds.stream().
+                filter(relationship -> relationship.isType(TransportRelationshipTypes.BOARD)
+                        || relationship.isType(TransportRelationshipTypes.INTERCHANGE_BOARD)).count();
+        assertEquals(1, boardingCount);
 
         SortedSet<String> graphInboundSvcIds = new TreeSet<>();
         graphInboundSvcIds.addAll(graphTramsIntoStation.stream().
-                map(GoesToRelationship::getServiceId).
+                map(relationship -> relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString()).
                 collect(Collectors.toSet()));
 
         Set<Trip> callingTrips = transportData.getServices().stream().
@@ -264,7 +203,9 @@ public class TramGraphBuilderEdgePerTripTest {
 
         assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
 
-        Set<String> graphInboundTripIds = graphTramsIntoStation.stream().map(GoesToRelationship::getTripId).collect(Collectors.toSet());
+        Set<String> graphInboundTripIds = graphTramsIntoStation.stream().
+                map(relationship -> relationship.getProperty(GraphStaticKeys.TRIP_ID).toString()).
+                collect(Collectors.toSet());
 
         assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
 

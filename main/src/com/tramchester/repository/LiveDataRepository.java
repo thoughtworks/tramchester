@@ -6,6 +6,7 @@ import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.healthchecks.ProvidesNow;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import org.json.simple.parser.ParseException;
@@ -36,6 +37,7 @@ public class LiveDataRepository {
 
     private List<LiveDataObserver> observers;
 
+    // TODO inject provider of current time
     public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser) {
         this.fetcher = fetcher;
         this.parser = parser;

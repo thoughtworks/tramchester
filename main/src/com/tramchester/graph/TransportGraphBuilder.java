@@ -6,7 +6,6 @@ import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.repository.TransportData;
 
 import org.neo4j.graphdb.*;
@@ -56,9 +55,8 @@ public class TransportGraphBuilder extends StationIndexs {
     private final NodeIdLabelMap nodeIdLabelMap;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
-                                 RelationshipFactory relationshipFactory,
                                  NodeIdLabelMap nodeIdLabelMap, GraphQuery graphQuery) {
-        super(graphDatabaseService, graphQuery, relationshipFactory, false);
+        super(graphDatabaseService, graphQuery, false);
         this.transportData = transportData;
         this.nodeIdLabelMap = nodeIdLabelMap;
         boardings = new HashMap<>();
@@ -427,7 +425,7 @@ public class TransportGraphBuilder extends StationIndexs {
             beginServiceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
 
             // TODO still needed
-            beginServiceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
+//            beginServiceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
             beginServiceNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
             setLatLongFor(beginServiceNode, destinationLatLong);
@@ -438,7 +436,6 @@ public class TransportGraphBuilder extends StationIndexs {
             svcRelationship.setProperty(COST, 0);
             svcRelationship.setProperty(GraphStaticKeys.TRIPS, tripId);
             svcRelationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
-
 
         } else {
             beginServiceNode.getRelationships(INCOMING, TransportRelationshipTypes.TO_SERVICE).forEach(
@@ -460,10 +457,6 @@ public class TransportGraphBuilder extends StationIndexs {
         // endSvcNode node -> end route station
         Relationship goesToRelationship = createRelationships(timeNode, routeStationEnd, transportRelationshipType);
         goesToRelationship.setProperty(GraphStaticKeys.TRIP_ID, tripId);
-
-        // TODO should not need towardsStation time as using check on the Node instead
-        // but for now it is used in the mapper code
-        goesToRelationship.setProperty(GraphStaticKeys.DEPART_TIME, departureTime.asLocalTime());
 
         // common properties
         int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime);
@@ -513,7 +506,7 @@ public class TransportGraphBuilder extends StationIndexs {
                                      Route route, Service service, int cost) {
         relationship.setProperty(COST, cost);
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
-        relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
+//        relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
         if (transportRelationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO)) {

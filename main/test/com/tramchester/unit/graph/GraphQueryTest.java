@@ -5,8 +5,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.NodeIdLabelMap;
-import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -30,8 +28,6 @@ public class GraphQueryTest {
     private static GraphQuery graphQuery;
     private static GraphDatabaseService graphDBService;
     private static File dbFile;
-    private static NodeFactory nodeFactory;
-    private static NodeIdLabelMap nodeLabelIdMap;
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
@@ -42,13 +38,11 @@ public class GraphQueryTest {
 
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
 
-        nodeFactory = new NodeFactory();
-        RelationshipFactory relationshipFactory = new RelationshipFactory(nodeFactory);
-        graphQuery = new GraphQuery(graphDBService, relationshipFactory, spatialDatabaseService);
+        graphQuery = new GraphQuery(graphDBService, spatialDatabaseService);
 
         TransportDataForTest transportData = new TransportDataForTest();
-        nodeLabelIdMap = new NodeIdLabelMap();
-        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, relationshipFactory,
+        NodeIdLabelMap nodeLabelIdMap = new NodeIdLabelMap();
+        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData,
                 nodeLabelIdMap, graphQuery);
         builder.buildGraph();
     }

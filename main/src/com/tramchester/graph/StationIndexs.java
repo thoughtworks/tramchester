@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.Relationships.RelationshipFactory;
 import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -15,8 +14,6 @@ import static java.lang.String.format;
 public class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
 
-    protected final RelationshipFactory relationshipFactory;
-
     // TODO with the indexes is the cache needed?
     private final ConcurrentMap<String,Node> routeStationNodeCache;
     private final ConcurrentMap<String,Node> stationNodeCache;
@@ -27,13 +24,11 @@ public class StationIndexs {
     protected final GraphQuery graphQuery;
     private final boolean warnIfMissing;
 
-    public StationIndexs(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery, RelationshipFactory relationshipFactory,
-                         boolean warnIfMissing) {
+    public StationIndexs(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery, boolean warnIfMissing) {
 
         this.graphDatabaseService = graphDatabaseService;
         this.graphQuery = graphQuery;
         this.warnIfMissing = warnIfMissing;
-        this.relationshipFactory = relationshipFactory;
         routeStationNodeCache = new ConcurrentHashMap<>();
         stationNodeCache = new ConcurrentHashMap<>();
         platformNodeCache = new ConcurrentHashMap<>();
