@@ -33,7 +33,6 @@ public class RouteCalculator extends StationIndexs {
 
     private final NodeFactory nodeFactory;
     private final MapPathToStages pathToStages;
-    private final CostEvaluator<Double> costEvaluator;
     private final TramchesterConfig config;
     private final CachedNodeOperations nodeOperations;
     private final TransportData transportData;
@@ -41,13 +40,12 @@ public class RouteCalculator extends StationIndexs {
 
     public RouteCalculator(GraphDatabaseService db, TransportData transportData, NodeFactory nodeFactory, RelationshipFactory relationshipFactory,
                            SpatialDatabaseService spatialDatabaseService, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
-                           CostEvaluator<Double> costEvaluator, TramchesterConfig config, ReachabilityRepository reachabilityRepository) {
+                           TramchesterConfig config, ReachabilityRepository reachabilityRepository) {
         super(db, relationshipFactory, spatialDatabaseService, true);
         this.transportData = transportData;
         this.nodeFactory = nodeFactory;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
-        this.costEvaluator = costEvaluator;
         this.config = config;
         this.reachabilityRepository = reachabilityRepository;
     }
@@ -61,9 +59,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public Stream<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, String destinationId,
-                                          List<TramTime> queryTimes, TramServiceDate queryDate, int numGraphPaths) {
-
-        int limit = stationWalks.isEmpty() ? numGraphPaths : (numGraphPaths * stationWalks.size());
+                                             List<TramTime> queryTimes, TramServiceDate queryDate) {
 
         return getWalkingJourneyStream(origin, stationWalks, destinationId, queryTimes, queryDate);
     }

@@ -12,10 +12,8 @@ import com.tramchester.services.SpatialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,8 +56,8 @@ public class LocationToLocationJourneyPlanner {
         List<StationWalk> walksToStart = starts.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
-        return routeCalculator.calculateRoute(latLong, walksToStart, destinationId, queryTimes, queryDate,
-                RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        return routeCalculator.calculateRoute(latLong, walksToStart, destinationId, queryTimes, queryDate
+        );
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {

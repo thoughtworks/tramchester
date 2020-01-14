@@ -4,8 +4,6 @@ package com.tramchester.graph;
 import com.tramchester.domain.*;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.Relationships.PathToTransportRelationship;
-import com.tramchester.graph.Relationships.TransportRelationship;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.RouteCodeToClassMapper;
@@ -28,27 +26,17 @@ import static java.lang.String.format;
 public class MapPathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 
-    private final PathToTransportRelationship pathToTransportRelationship;
-    private final MapTransportRelationshipsToStages mapTransportRelationshipsToStages;
     private final RouteCodeToClassMapper routeIdToClass;
     private final StationRepository stationRepository;
     private final MyLocationFactory myLocationFactory;
     private PlatformRepository platformRepository;
 
-    public MapPathToStages(PathToTransportRelationship pathToTransportRelationship,
-                           MapTransportRelationshipsToStages mapTransportRelationshipsToStages,
-                           RouteCodeToClassMapper routeIdToClass, StationRepository stationRepository, MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
-        this.pathToTransportRelationship = pathToTransportRelationship;
-        this.mapTransportRelationshipsToStages = mapTransportRelationshipsToStages;
+    public MapPathToStages(RouteCodeToClassMapper routeIdToClass, StationRepository stationRepository,
+                           MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
         this.routeIdToClass = routeIdToClass;
         this.stationRepository = stationRepository;
         this.myLocationFactory = myLocationFactory;
         this.platformRepository = platformRepository;
-    }
-
-    public List<RawStage> map(WeightedPath path, TramTime queryTime) {
-        List<TransportRelationship> relationships = pathToTransportRelationship.mapPath(path);
-        return mapTransportRelationshipsToStages.mapStages(relationships, queryTime);
     }
 
     // TODO Use Traversal State from the path instead of the Path itself

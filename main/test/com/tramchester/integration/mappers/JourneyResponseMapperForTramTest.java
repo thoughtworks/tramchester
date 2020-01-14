@@ -11,6 +11,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.SingleJourneyMapper;
+import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -29,8 +30,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest {
-    private static TransportDataFromFiles transportData;
     private static GraphDatabaseService database;
+    private static TransportDataFromFiles transportData;
     private final LocalDate when = TestConfig.nextTuesday(0);
     private LocalTime sevenAM;
     private LocalTime eightAM;
@@ -251,8 +252,10 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         rawVehicleStage.setLastStation(finish, passedStops);
         rawVehicleStage.setPlatform(new Platform(start.getId() + "1", "platform name"));
 
-        String svcId = findServiceId(start.getId(), finish.getId(), when, startTime);
-        rawVehicleStage.setServiceId(svcId);
+        Trip validTrip = transportData.getTripsFor(start.getId()).iterator().next();
+        rawVehicleStage.setServiceId(validTrip.getServiceId());
+        rawVehicleStage.setTripId(validTrip.getTripId());
+        rawVehicleStage.setDepartTime(startTime.plusMinutes(1));
 
         return rawVehicleStage;
 

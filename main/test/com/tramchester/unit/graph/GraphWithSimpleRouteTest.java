@@ -97,7 +97,7 @@ public class GraphWithSimpleRouteTest {
         List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
 
         Stream<RawJourney> journeys = calculator.calculateRoute(origin, walks, TransportDataForTest.LAST_STATION,
-                walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                walkStartTimes, queryDate);
         assertFalse(journeys.limit(1).count()==0);
     }
 
@@ -110,7 +110,7 @@ public class GraphWithSimpleRouteTest {
 
         List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
         Set<RawJourney> journeys = calculator.calculateRoute(origin, stationWalks, TransportDataForTest.SECOND_STATION,
-                walkStartTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
+                walkStartTimes, queryDate).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{

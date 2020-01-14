@@ -10,7 +10,6 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.*;
 import com.tramchester.graph.Nodes.NodeFactory;
-import com.tramchester.graph.Relationships.PathToTransportRelationship;
 import com.tramchester.graph.Relationships.RelationshipFactory;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
@@ -114,8 +113,6 @@ public class Dependencies {
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
         picoContainer.addComponent(FetchInstanceMetadata.class);
         picoContainer.addComponent(SignalToCloudformationReady.class);
-        picoContainer.addComponent(MapTransportRelationshipsToStages.class);
-        picoContainer.addComponent(PathToTransportRelationship.class);
         picoContainer.addComponent(MapPathToStages.class);
         picoContainer.addComponent(LocationToLocationJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);

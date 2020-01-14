@@ -26,12 +26,11 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     public static final int MAX_WAIT = 30;
 
     private TramTime am10 = TramTime.of(10,0);
-    private TramTime[] tramTimes = new TramTime[] { am10,
-            am10.plusMinutes(100),
-            am10.plusMinutes(200),
-            am10.plusMinutes(300),
-            am10.plusMinutes(400) };
-    private CachingCostEvaluator costEvaluator;
+//    private TramTime[] tramTimes = new TramTime[] { am10,
+//            am10.plusMinutes(100),
+//            am10.plusMinutes(200),
+//            am10.plusMinutes(300),
+//            am10.plusMinutes(400) };
     private TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private TramTime NOT_USED_HERE = TramTime.of(23,59);
     private CachedNodeOperations nodeOperations;
@@ -41,7 +40,6 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
 
     @Before
     public void beforeEachTestRuns() {
-        costEvaluator = new CachingCostEvaluator();
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
         runningServices = createMock(RunningServices.class);
