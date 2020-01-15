@@ -29,14 +29,12 @@ public class StopsTest {
     private Stop busStopD;
 
     @Before
-    public void beforeEachTestRuns() throws TramchesterException {
+    public void beforeEachTestRuns() {
         stationA = new Station(stationIdA, "areaA", "nameA", new LatLong(-1,1), false);
         stationB = new Station(stationIdB, "areaB", "nameB", new LatLong(-2,2), false);
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        String routeId = "routeID";
-        String serviceId = "serviceId";
         stopA = new Stop("statA1", stationA, 1, TramTime.of(10, 00), TramTime.of(10, 01));
         stopB = new Stop("statB1", stationB, 2, TramTime.of(10, 02), TramTime.of(10, 03));
         stopC = new Stop("statC1", stationC, 3, TramTime.of(10, 10), TramTime.of(10, 10));
@@ -113,8 +111,8 @@ public class StopsTest {
         stops.add(stopB);
         stops.add(stopC);
 
-        Stop stopD = new Stop("stopA1", stationA, 4, TramTime.create(10, 20),
-                TramTime.create(10, 21));
+        Stop stopD = new Stop("stopA1", stationA, 4, TramTime.of(10, 20),
+                TramTime.of(10, 21));
         stops.add(stopD);
 
         assertTrue(stops.visitsStation(stationIdA));

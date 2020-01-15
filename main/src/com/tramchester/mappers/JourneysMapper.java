@@ -23,16 +23,16 @@ public class JourneysMapper {
 
     public SortedSet<JourneyDTO> map(JourneyDTOFactory factory, Set<RawJourney> journeys, int withinMins) {
         logger.info(format("Mapping journey %s with window %s", journeys, withinMins));
-        return decorateJourneys(factory, journeys, withinMins);
+        return decorateJourneys(factory, journeys);
     }
 
-    private SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys, int withinMins) {
+    private SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys) {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
 
-            Optional<Journey> journey = mapper.createJourney(rawJourney, withinMins);
+            Optional<Journey> journey = mapper.createJourney(rawJourney);
             if (journey.isPresent()) {
                 try {
                     journeys.add(factory.build(journey.get()));

@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -27,11 +26,6 @@ public abstract class TestConfig extends AppConfiguration {
             }
         };
     }
-
-//    @Override
-//    public boolean getEdgePerTrip() {
-//        return true;
-//    }
 
     @Override
     public boolean getChangeAtInterchangeOnly() { return true; }

@@ -20,7 +20,7 @@ public class TramJourneyResponseWithTimesMapper {
         this.serviceTimes = serviceTimes;
     }
 
-    public Optional<Journey> createJourney(RawJourney rawJourney, int withinMins) {
+    public Optional<Journey> createJourney(RawJourney rawJourney) {
         List<RawStage> rawJourneyStages = rawJourney.getStages();
         List<TransportStage> stages = new LinkedList<>();
 

@@ -29,10 +29,10 @@ public class WalkingStageTest {
     public void shouldCalculateTimesCorrectly() throws TramchesterException {
 
         TramTime arrival = walkingStage.getExpectedArrivalTime();
-        assertEquals(TramTime.create(8,22), arrival);
+        assertEquals(TramTime.of(8,22), arrival);
 
         TramTime departTime = walkingStage.getFirstDepartureTime();
-        assertEquals(TramTime.create(8,00), departTime);
+        assertEquals(TramTime.of(8,00), departTime);
 
         assertEquals(22, walkingStage.getDuration());
     }

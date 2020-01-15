@@ -273,8 +273,8 @@ public class TramTimeTest {
 
     @Test
     public void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnight() throws TramchesterException {
-        TramTime first = TramTime.create(9,30);
-        TramTime second = TramTime.create(10,45);
+        TramTime first = TramTime.of(9,30);
+        TramTime second = TramTime.of(10,45);
 
         int result = TramTime.diffenceAsMinutes(first, second);
         assertEquals(75, result);
@@ -283,8 +283,8 @@ public class TramTimeTest {
         assertEquals(75, result);
 
         ////
-        first = TramTime.create(00,5);
-        second = TramTime.create(23,15);
+        first = TramTime.of(00,5);
+        second = TramTime.of(23,15);
 
         result = TramTime.diffenceAsMinutes(first, second);
         assertEquals(50, result);
@@ -293,8 +293,8 @@ public class TramTimeTest {
         assertEquals(50, result);
 
         ////
-        first = TramTime.create(00,5);
-        second = TramTime.create(22,59);
+        first = TramTime.of(00,5);
+        second = TramTime.of(22,59);
 
         result = TramTime.diffenceAsMinutes(first, second);
         assertEquals(66, result);
@@ -303,8 +303,8 @@ public class TramTimeTest {
         assertEquals(66, result);
 
         ////
-        first = TramTime.create(23,59);
-        second = TramTime.create(1,10);
+        first = TramTime.of(23,59);
+        second = TramTime.of(1,10);
 
         result = TramTime.diffenceAsMinutes(first, second);
         assertEquals(71, result);

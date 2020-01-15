@@ -7,7 +7,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataSource;
@@ -80,22 +79,22 @@ public class TransportDataForTest implements TransportDataSource {
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area1", "startStation", latLong, true);
         addStation(first);
-        Stop stopA = createStop(first, TramTime.create(8, 0), TramTime.create(8, 0), routeA.getId(), serviceAId, 1);
+        Stop stopA = createStop(first, TramTime.of(8, 0), TramTime.of(8, 0), routeA.getId(), serviceAId, 1);
         tripA.addStop(stopA);
 
         Station second = new Station(SECOND_STATION, "area2", "secondStation", latLong, true);
-        Stop stopB = createStop(second, TramTime.create(8, 11), TramTime.create(8, 11), routeA.getId(), serviceAId, 2);
+        Stop stopB = createStop(second, TramTime.of(8, 11), TramTime.of(8, 11), routeA.getId(), serviceAId, 2);
         tripA.addStop(stopB);
         addStation(second);
 
         Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", latLong, true);
-        Stop stopC = createStop(interchangeStation, TramTime.create(8, 20), TramTime.create(8, 20), routeA.getId(), serviceAId, 3);
+        Stop stopC = createStop(interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), routeA.getId(), serviceAId, 3);
         tripA.addStop(stopC);
         addStation(interchangeStation);
 
         Station last = new Station(LAST_STATION, "area4", "endStation", latLong, true);
         addStation(last);
-        Stop stopD = createStop(last, TramTime.create(8, 40), TramTime.create(8, 40), routeA.getId(), serviceAId, 4);
+        Stop stopD = createStop(last, TramTime.of(8, 40), TramTime.of(8, 40), routeA.getId(), serviceAId, 4);
         tripA.addStop(stopD);
         // service
         serviceA.addTrip(tripA);
@@ -108,8 +107,8 @@ public class TransportDataForTest implements TransportDataSource {
 
         //
         Trip tripC = new Trip("tripCId", "headSignC", serviceCId, routeC.getId());
-        Stop stopG = createStop(interchangeStation, TramTime.create(8, 26), TramTime.create(8, 27), routeC.getId(), serviceCId, 1);
-        Stop stopH = createStop(five, TramTime.create(8, 31), TramTime.create(8, 33), routeC.getId(), serviceCId, 2);
+        Stop stopG = createStop(interchangeStation, TramTime.of(8, 26), TramTime.of(8, 27), routeC.getId(), serviceCId, 1);
+        Stop stopH = createStop(five, TramTime.of(8, 31), TramTime.of(8, 33), routeC.getId(), serviceCId, 2);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         serviceC.addTrip(tripC);
@@ -197,8 +196,4 @@ public class TransportDataForTest implements TransportDataSource {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
-    public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation, TimeWindow window) {
-        throw new RuntimeException("Not implemented");
-    }
 }

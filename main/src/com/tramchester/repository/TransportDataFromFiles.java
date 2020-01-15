@@ -230,22 +230,6 @@ public class TransportDataFromFiles implements TransportDataSource {
         return Optional.empty();
     }
 
-    public Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation,
-                                                     TimeWindow window) {
-        logger.info(format("Get first time for service %s from %s to %s with %s", serviceId, firstStation,
-                lastStation, window));
-        String firstStationId = firstStation.getId();
-        String lastStationId = lastStation.getId();
-        Service service = getServiceById(serviceId);
-        Optional<Trip> trip = service.getFirstTripAfter(firstStationId, lastStationId, window);
-
-        if (trip.isPresent()) {
-            return trip.get().earliestDepartFor(firstStationId, lastStationId, window);
-        } else {
-            return Optional.empty();
-        }
-    }
-
     public Service getServiceById(String svcId) {
         if (!services.containsKey(svcId)) {
             logger.error("Unable to find service with id: " + svcId);

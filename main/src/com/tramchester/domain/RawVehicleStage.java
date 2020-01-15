@@ -1,6 +1,5 @@
 package com.tramchester.domain;
 
-import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -108,7 +107,6 @@ public class RawVehicleStage implements RawStage {
         return platform;
     }
 
-    @Deprecated
     public int getCost() {
         return cost;
     }

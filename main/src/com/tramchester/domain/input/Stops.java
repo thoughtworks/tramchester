@@ -62,16 +62,6 @@ public class Stops  implements Iterable<Stop> {
         return !pairs.isEmpty();
     }
 
-    public List<BeginEnd> getBeginEndStopsFor(String firstStationId, String lastStationId,
-                                              TimeWindow window) {
-        List<BeginEnd> results = new LinkedList<>();
-        List<Integer[]> pairs = getPairsForTime(firstStationId, lastStationId, window);
-        for(Integer[] pair : pairs) {
-            results.add(new BeginEnd(get(pair[0]), get(pair[1])));
-        }
-        return results;
-    }
-
     private List<Integer[]> getPairsForTime(String firstStationId, String lastStationId, TimeWindow timeWindow) {
         // assemble possible pairs representing journeys from stop to stop
         List<Integer[]> pairs = new LinkedList<>();

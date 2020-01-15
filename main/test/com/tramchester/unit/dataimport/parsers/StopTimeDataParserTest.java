@@ -41,8 +41,8 @@ public class StopTimeDataParserTest {
 
         assertFalse(stopTimeData.isInError());
         assertThat(stopTimeData.getTripId()).isEqualTo("Trip000001");
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.create(6,41));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.create(6,42));
+        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6,41));
+        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6,42));
         assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTimeData.getStopSequence()).isEqualTo("0001");
     }
@@ -54,8 +54,8 @@ public class StopTimeDataParserTest {
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
         assertFalse(stopTimeData.isInError());
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.create(0,0));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.create(0,0));
+        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(0,0));
+        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(0,0));
     }
 
     @Test
@@ -65,8 +65,8 @@ public class StopTimeDataParserTest {
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
         assertFalse(stopTimeData.isInError());
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.create(1,5));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.create(1,7));
+        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(1,5));
+        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(1,7));
     }
 
     @Test

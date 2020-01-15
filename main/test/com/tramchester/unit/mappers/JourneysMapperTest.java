@@ -61,13 +61,13 @@ public class JourneysMapperTest extends EasyMockSupport{
                 TramTime.of(now.plusMinutes(1)),
                 false, changeStations);
 
-        EasyMock.expect(mapper.createJourney(rawJourneyA, 42)).andReturn(Optional.of(journeyA));
+        EasyMock.expect(mapper.createJourney(rawJourneyA)).andReturn(Optional.of(journeyA));
         EasyMock.expect(factory.build(journeyA)).andReturn(journeyDTOA);
 
-        EasyMock.expect(mapper.createJourney(rawJourneyB, 42)).andReturn(Optional.of(journeyB));
+        EasyMock.expect(mapper.createJourney(rawJourneyB)).andReturn(Optional.of(journeyB));
         EasyMock.expect(factory.build(journeyB)).andReturn(journeyDTOB);
 
-        EasyMock.expect(mapper.createJourney(rawJourneyC, 42)).andReturn(Optional.empty());
+        EasyMock.expect(mapper.createJourney(rawJourneyC)).andReturn(Optional.empty());
 
         replayAll();
         SortedSet<JourneyDTO> results = journeysMapper.map(factory, rawJourneys, 42);

@@ -78,7 +78,7 @@ public class MyLocationJourneyPlannerTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertEquals(TramTime.create(22,9), walkingStage.getFirstDepartureTime());
+        assertEquals(TramTime.of(22,9), walkingStage.getFirstDepartureTime());
     }
 
     @Test

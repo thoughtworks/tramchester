@@ -44,7 +44,7 @@ public class TramTransportDataImporterTest {
     };
 
     @Test
-    public void shouldLoadTransportData() throws TramchesterException {
+    public void shouldLoadTransportData() {
         TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
         TransportDataImporter transportDataImporter = new TransportDataImporter(factory);
 
@@ -66,7 +66,7 @@ public class TramTransportDataImporterTest {
 
         Stop stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
-        assertThat(stop.getArrivalTime()).isEqualTo(TramTime.create(06,41));
+        assertThat(stop.getArrivalTime()).isEqualTo(TramTime.of(06,41));
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
 
         FeedInfo feedInfo = transportData.getFeedInfo();

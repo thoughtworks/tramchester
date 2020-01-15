@@ -42,7 +42,7 @@ addWalkingRoutes: false
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 
-edgePerTrip: false
+changeAtInterchangeOnly: true
 createLocality: false
 
 swagger:

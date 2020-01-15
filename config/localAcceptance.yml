@@ -35,6 +35,7 @@ walkingMPH: 3
 addWalkingRoutes: false
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
+changeAtInterchangeOnly: true
 
 createLocality: false
 

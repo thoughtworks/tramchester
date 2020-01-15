@@ -9,6 +9,4 @@ import java.util.Optional;
 
 public interface ServiceTimes {
     Trip getTrip(String tripId);
-    Optional<ServiceTime> getFirstServiceTime(String serviceId, Location firstStation, Location lastStation,
-                                                     TimeWindow window);
 }

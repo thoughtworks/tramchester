@@ -27,10 +27,6 @@ public class VehicleStageWithTiming extends RawVehicleStage implements Transport
         return cost;
     }
 
-    public TramTime findEarliestDepartureTime() {
-        return serviceTime.getLeaves();
-    }
-
     @Override
     public String toString() {
         return "VehicleStageWithTiming{" +

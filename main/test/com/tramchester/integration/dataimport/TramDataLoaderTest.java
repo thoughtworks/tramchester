@@ -60,7 +60,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadStopTimeData() throws TramchesterException {
+    public void shouldLoadStopTimeData() {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>("data/test/stop_times.txt",
                 new StopTimeDataMapper(Collections.emptySet()));
         List<StopTimeData> stopTimeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
@@ -71,8 +71,8 @@ public class TramDataLoaderTest {
         assertThat(stopTime.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTime.getDropOffType()).isEqualTo("1");
         assertThat(stopTime.getStopSequence()).isEqualTo("0001");
-        assertThat(stopTime.getArrivalTime()).isEqualTo(TramTime.create(6,41));
-        assertThat(stopTime.getDepartureTime()).isEqualTo(TramTime.create(6,41));
+        assertThat(stopTime.getArrivalTime()).isEqualTo(TramTime.of(6,41));
+        assertThat(stopTime.getDepartureTime()).isEqualTo(TramTime.of(6,41));
     }
 
     @Test

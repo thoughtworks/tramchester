@@ -2,19 +2,10 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.TimeWindow;
 import com.tramchester.domain.TramTime;
-import com.tramchester.domain.presentation.ServiceTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static java.lang.String.format;
 
 public class Trip {
-    private static final Logger logger = LoggerFactory.getLogger(Trip.class);
 
     private final String serviceId;
     private final String routeId;
@@ -89,44 +80,12 @@ public class Trip {
         return serviceId;
     }
 
-    public SortedSet<ServiceTime> getServiceTimes(String firstStationId, String lastStationId, TimeWindow window) {
-        SortedSet<ServiceTime> serviceTimes = new TreeSet<>();
-        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, window)) {
-            ServiceTime serviceTime = new ServiceTime(pair.begin().getDepartureTime(), pair.end().getArrivalTime(),
-                    serviceId, headSign, tripId);
-            logger.info("Added " + serviceTime);
-            serviceTimes.add(serviceTime);
-        }
-        return serviceTimes;
-    }
-
     public boolean callsAt(String stationId) {
         return stops.callsAt(stationId);
     }
 
     public List<Stop> getStopsFor(String stationId) {
         return stops.getStopsFor(stationId);
-    }
-
-    public Optional<ServiceTime> earliestDepartFor(String firstStationId, String lastStationId, TimeWindow window) {
-        int earliestMins = Integer.MAX_VALUE;
-        Optional<ServiceTime> earliestTime = Optional.empty();
-
-        for(BeginEnd pair : stops.getBeginEndStopsFor(firstStationId,lastStationId, window)) {
-            Stop begin = pair.begin();
-            int firstDepart = begin.getDepartureMinFromMidnight();
-            if (firstDepart < earliestMins) {
-                earliestMins = firstDepart;
-                earliestTime = Optional.of(new ServiceTime(pair.begin().getDepartureTime(), pair.end().getArrivalTime(),
-                        serviceId, headSign, tripId));
-            }
-        }
-
-        if (!earliestTime.isPresent()) {
-            logger.warn(format("Unable to find earlier time between %s and %s with %s", firstStationId,lastStationId,
-                    window));
-        }
-        return earliestTime;
     }
 
     public String getHeadsign() {

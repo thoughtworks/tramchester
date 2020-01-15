@@ -58,12 +58,6 @@ public class Service {
         return days;
     }
 
-    public Optional<Trip> getFirstTripAfter(String firstStationId, String lastStationId, TimeWindow timeWindow) {
-        return trips.stream().
-                filter(trip -> trip.travelsBetween(firstStationId, lastStationId, timeWindow)).
-                findFirst();
-    }
-
     @Override
     public String toString() {
         return "Service{" +
@@ -122,7 +116,7 @@ public class Service {
         return operatesOn(startDate, endDate, date);
     }
 
-    public static boolean operatesOn(TramServiceDate startDate, TramServiceDate endDate, LocalDate date) {
+    private static boolean operatesOn(TramServiceDate startDate, TramServiceDate endDate, LocalDate date) {
         LocalDate begin = startDate.getDate();
         LocalDate end = endDate.getDate();
         if  (date.isAfter(begin) && date.isBefore(end)) {

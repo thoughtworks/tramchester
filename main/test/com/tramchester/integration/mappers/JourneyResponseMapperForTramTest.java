@@ -77,7 +77,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, when, 16);
         stages.add(vicToRoch);
 
-        Optional<Journey> result = mapper.createJourney(new RawJourney(stages, time, 42), 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages, time, 42));
 
         assertTrue(result.isPresent());
         Journey journey = result.get();
@@ -94,7 +94,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
                 pm1044, 42, when, 14);
 
         stages.add(rawStage);
-        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,pm1044, 42), 60);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,pm1044, 42));
 
         assertTrue(result.isPresent());
         Journey journey = result.get();
@@ -111,7 +111,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, when, 8);
 
         stages.add(altToCorn);
-        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,am7, 42), 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,am7, 42));
 
         assertTrue(result.isPresent());
         Journey journey = result.get();
@@ -141,7 +141,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<Journey> result = mapper.createJourney(new RawJourney(stages, am10, 42), 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages, am10, 42));
 
         assertTrue(result.isPresent());
         Journey journey = result.get();
@@ -169,7 +169,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         RawWalkingStage walkingStage = new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 10);
         stages.add(walkingStage);
 
-        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,pm10, 42), 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,pm10, 42));
 
         assertTrue(result.isPresent());
         Journey journey = result.get();
@@ -198,7 +198,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(walkingStage);
         stages.add(finalStage);
 
-        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,am10, 42), 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,am10, 42));
 
         assertTrue(result.isPresent());
         Journey journey = result.get();
@@ -238,7 +238,7 @@ public class JourneyResponseMapperForTramTest extends JourneyResponseMapperTest 
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,startTime, 42), 30);
+        Optional<Journey> result = mapper.createJourney(new RawJourney(stages,startTime, 42));
 
         assertTrue(result.isPresent());
     }

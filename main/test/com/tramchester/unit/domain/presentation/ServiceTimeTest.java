@@ -19,15 +19,15 @@ public class ServiceTimeTest {
 
     @Before
     public void beforeEachTestRuns() throws TramchesterException {
-        timeA = new ServiceTime(TramTime.create(11, 00), TramTime.create(11,10), "svcId", "headSign", "tripId");
-        timeC = new ServiceTime(TramTime.create(11, 00), TramTime.create(11,10), "svcId", "headSign", "tripId");
-        timeB = new ServiceTime(TramTime.create(11, 01), TramTime.create(11,9), "svcId", "headSign", "tripId");
+        timeA = new ServiceTime(TramTime.of(11, 00), TramTime.of(11,10), "svcId", "headSign", "tripId");
+        timeC = new ServiceTime(TramTime.of(11, 00), TramTime.of(11,10), "svcId", "headSign", "tripId");
+        timeB = new ServiceTime(TramTime.of(11, 01), TramTime.of(11,9), "svcId", "headSign", "tripId");
     }
 
     @Test
     public void shouldSetValuesCorrectly() throws TramchesterException {
-        assertEquals(TramTime.create(11, 00), timeA.getDepartureTime());
-        assertEquals(TramTime.create(11,10), timeA.getArrivalTime());
+        assertEquals(TramTime.of(11, 00), timeA.getDepartureTime());
+        assertEquals(TramTime.of(11,10), timeA.getArrivalTime());
         assertEquals("svcId", timeA.getServiceId());
         assertEquals("headSign", timeA.getHeadSign());
     }
@@ -59,8 +59,8 @@ public class ServiceTimeTest {
     @Test
     public void correctOrderingInSortedSetAccrossMidnight() throws TramchesterException {
         SortedSet<ServiceTime> set = new TreeSet<>();
-        ServiceTime timeBeforeMid = new ServiceTime(TramTime.create(23, 50), TramTime.create(23, 55), "svcId", "headSign", "tripId");
-        ServiceTime timeAfterMid = new ServiceTime(TramTime.create(00, 10), TramTime.create(00, 15), "svcId", "headSign", "tripId");
+        ServiceTime timeBeforeMid = new ServiceTime(TramTime.of(23, 50), TramTime.of(23, 55), "svcId", "headSign", "tripId");
+        ServiceTime timeAfterMid = new ServiceTime(TramTime.of(00, 10), TramTime.of(00, 15), "svcId", "headSign", "tripId");
 
         set.add(timeAfterMid);
         set.add(timeBeforeMid);

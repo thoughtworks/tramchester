@@ -167,7 +167,7 @@ public class AppUserJourneyLoactionsTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(6, results.size());
+        assertTrue(results.size()>=3);
 
         for (SummaryResult result : results) {
             assertTrue(result.getDepartTime().isAfter(planTime));
@@ -189,7 +189,7 @@ public class AppUserJourneyLoactionsTest {
 
         Stage secondStage = stages.get(1);
         validateAStage(secondStage, firstResult.getDepartTime(), "Board", Stations.NavigationRoad.getName(), 1,
-                "RouteClass2", "Altrincham - Piccadilly", "Piccadilly", 8);
+                AppUserJourneyTest.altyToBuryClass, AppUserJourneyTest.altyToBuryLineName, "Bury", 8);
     }
 
     private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,

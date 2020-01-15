@@ -48,12 +48,10 @@ public class AppUserJourneyTest {
     private LocalDate nextTuesday;
     private String url;
     private ProvidesDriver providesDriver;
-    private String altyToBuryClass;
-    private String altyToBuryLineName;
-
-    // these two very useful when timetable changes
-    private String altyToPiccClass;
-    private String altyToPicLineName;
+    public static final String altyToBuryClass = "RouteClass1";
+    public static final String altyToPiccClass = "RouteClass2";
+    public static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
+    public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private static List<String> getBrowserList() {
         if (!TestConfig.isCircleci()) {
@@ -89,10 +87,7 @@ public class AppUserJourneyTest {
         // TODO offset for when tfgm data is expiring
         nextTuesday = TestConfig.nextTuesday(0);
 
-        altyToBuryClass = "RouteClass1";
-        altyToPiccClass = "RouteClass2";
-        altyToBuryLineName = "Altrincham - Manchester - Bury";
-        altyToPicLineName = "Altrincham - Piccadilly";
+
     }
 
     @After
@@ -170,14 +165,14 @@ public class AppUserJourneyTest {
     @Test
     public void shouldCheckAltrinchamToDeansgate() {
         AppPage appPage = prepare();
-        LocalTime planTime = LocalTime.parse("10:15");
+        LocalTime planTime = LocalTime.parse("10:00");
         desiredJourney(appPage, altrincham, deansgate, nextTuesday, planTime);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(6, results.size());
+        assertEquals(3, results.size());
 
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
@@ -247,13 +242,13 @@ public class AppUserJourneyTest {
     @Test
     public void shouldHaveMultistageJourney() {
         AppPage appPage = prepare();
-        LocalTime planTime = LocalTime.parse("10:15");
+        LocalTime planTime = LocalTime.parse("10:00");
         desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, planTime);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(6, results.size());
+        assertEquals(3, results.size());
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
             assertTrue(result.getDepartTime().isAfter(previous));
