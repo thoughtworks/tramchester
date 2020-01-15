@@ -9,10 +9,12 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.*;
-import com.tramchester.graph.Nodes.NodeFactory;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
-import com.tramchester.mappers.*;
+import com.tramchester.mappers.DeparturesMapper;
+import com.tramchester.mappers.JourneysMapper;
+import com.tramchester.mappers.LiveDataParser;
+import com.tramchester.mappers.TramJourneyResponseWithTimesMapper;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
@@ -92,7 +94,6 @@ public class Dependencies {
         picoContainer.addComponent(VersionResource.class);
         picoContainer.addComponent(CreateQueryTimes.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
-        picoContainer.addComponent(NodeFactory.class);
         picoContainer.addComponent(ServiceHeuristics.class);
 
         picoContainer.addComponent(RouteCalculator.class);
