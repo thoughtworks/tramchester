@@ -56,6 +56,14 @@ public class AppPage extends Page {
     }
 
 
+    public void earlier() {
+        findElementById("earlierButton").click();
+    }
+
+    public void later() {
+        findElementById("laterButton").click();
+    }
+
     public boolean searchEnabled() {
         return findPlanButton().isEnabled();
     }
@@ -344,12 +352,4 @@ public class AppPage extends Page {
         wait.until(ExpectedConditions.elementToBeClickable(By.id("plan")));
     }
 
-
-    public void earlier() {
-        // todo
-    }
-
-    public void later() {
-        // todo
-    }
 }

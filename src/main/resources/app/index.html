@@ -112,7 +112,12 @@
                         </b-table>
                     </template>
                 </b-table>
-
+                <div class="container" id="earlierLater" v-if="journeys.length>0">
+                    <div class="row justify-content-between">
+                        <b-button id="earlierButton" variant="outline-primary" @click="earlier()">« Earlier</b-button>
+                        <b-button id="laterButton" variant="outline-primary" @click="later()">Later »</b-button>
+                    </div>
+                </div>
             </div>
 
             <div id="noResults" selectable v-if="noResults" class="w-75 tramchesterApp">

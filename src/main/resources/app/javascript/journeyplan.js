@@ -75,9 +75,7 @@ function getStationsFromServer(app) {
              app.networkError = false;
              app.proximityGroups = response.data.proximityGroups;
              app.stops = response.data.stations;
-
              app.ready=true;
-
          })
          .catch(function (error) {
              app.networkError = true;
@@ -146,13 +144,29 @@ const app = new Vue({
                 app.currentPage = 1;
             },
             plan(event){
-                event.preventDefault(); // stop page reload on form submission
+                if (event!=null) {
+                    event.preventDefault(); // stop page reload on form submission
+                }
                 app.searchInProgress = true;
                 app.clearResults();
                 app.ready = false;
                 this.$nextTick(function () {
                     app.queryServer();
                 });
+            },
+            earlier() {
+                // TODO get max wait time from the server?
+                var newTime = moment(app.time,"HH:mm").subtract(12, 'minutes');
+                app.time = newTime.format("HH:mm");
+                app.plan(null);
+            },
+            later() {
+                const indexOfLast = app.journeys.length - 1;
+                const lastJourney = app.journeys[indexOfLast];
+                const lastDepartTime = lastJourney.firstDepartureTime;
+                //const newTime = moment(lastDepartTime, "HH:mm");
+                app.time = lastDepartTime;
+                app.plan(null);
 
             },
             queryNearbyTrams() {

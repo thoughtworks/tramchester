@@ -238,7 +238,6 @@ public class AppUserJourneyTest {
     }
 
     @Test
-    @Ignore("wip")
     public void shouldUpdateWhenEarlierClicked() {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
@@ -261,7 +260,6 @@ public class AppUserJourneyTest {
     }
 
     @Test
-    @Ignore("wip")
     public void shouldUpdateWhenLaterClicked() {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
