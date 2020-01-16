@@ -189,7 +189,7 @@ public class AppUserJourneyLoactionsTest {
 
         Stage secondStage = stages.get(1);
         validateAStage(secondStage, firstResult.getDepartTime(), "Board", Stations.Altrincham.getName(), 1,
-                AppUserJourneyTest.altyToBuryClass, AppUserJourneyTest.altyToBuryLineName, "Bury", 9);
+                AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }
 
     private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,

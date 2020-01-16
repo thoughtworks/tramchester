@@ -170,7 +170,7 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(3, results.size());
+        assertTrue(results.size()>=3);
 
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
@@ -290,13 +290,14 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertEquals(3, results.size());
-        LocalTime previous = planTime;
+        assertTrue(results.size()>=3);
+        LocalTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
         for (SummaryResult result : results) {
-            assertTrue(result.getDepartTime().isAfter(previous));
-            assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
+            LocalTime arriveTime = result.getArriveTime();
+            assertTrue(arriveTime.isAfter(result.getDepartTime()));
+            assertTrue(arriveTime.isAfter(previousArrivalTime) || arriveTime.equals(previousArrivalTime));
             assertEquals(result.getChanges(), Stations.TraffordBar.getName());
-            previous = result.getDepartTime();
+            previousArrivalTime = arriveTime;
         }
 
         // select first journey
@@ -314,7 +315,8 @@ public class AppUserJourneyTest {
         validateAStage(firstStage, firstResult.getDepartTime(), "Board", altrincham, 1,
                 altyToBuryClass, altyToBuryLineName,
                 Stations.Bury.getName(), 7);
-        validateAStage(secondStage, LocalTime.parse("10:48"), "Change", Stations.TraffordBar.getName(),
+        // Too timetable dependent?
+        validateAStage(secondStage, LocalTime.parse("10:36"), "Change", Stations.TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
                 Stations.ManAirport.getName(), 17);
 

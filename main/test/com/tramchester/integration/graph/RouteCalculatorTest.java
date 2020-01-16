@@ -4,7 +4,6 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
@@ -20,9 +19,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.TestConfig.*;
+import static com.tramchester.TestConfig.avoidChristmasDate;
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 public class RouteCalculatorTest {
 
@@ -118,6 +116,20 @@ public class RouteCalculatorTest {
         });
     }
 
+    @Test
+    public void shouldUseAllRoutesCorrectlWhenMultipleRoutesServDestination() {
+        List<TramTime> queryTimes = Collections.singletonList(TramTime.of(10, 15));
+        TramServiceDate today = new TramServiceDate(nextTuesday);
+
+        Location start = Stations.Altrincham;
+
+        Set<RawJourney> servedByBothRoutes = calculateRoutes(start, Stations.Deansgate, queryTimes, today);
+        Set<RawJourney> altyToPiccGardens = calculateRoutes(start, Stations.PiccadillyGardens, queryTimes, today);
+        Set<RawJourney> altyToMarketStreet = calculateRoutes(start, Stations.MarketStreet, queryTimes, today);
+
+        assertEquals(altyToPiccGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size());
+    }
+
     // over max wait, catch failure to accumulate journey times correctly
     @Test
     public void shouldHaveSimpleButLongJoruneySameRoute() {
@@ -133,9 +145,7 @@ public class RouteCalculatorTest {
     public void shouldHaveReasonableLongJourneyAcrossFromInterchange() {
         TramTime am8 = TramTime.of(8, 0);
 
-        Set<RawJourney> journeys = calculator.calculateRoute(Stations.Monsall.getId(), Stations.RochdaleRail.getId(), Collections.singletonList(am8),
-                new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).
-                collect(Collectors.toSet());
+        Set<RawJourney> journeys = calculateRoutes(Stations.Monsall, Stations.RochdaleRail, Collections.singletonList(am8), new TramServiceDate(nextTuesday));
 
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
@@ -464,5 +474,9 @@ public class RouteCalculatorTest {
         return journey;
     }
 
+    private Set<RawJourney> calculateRoutes(Location start, Location destination, List<TramTime> queryTimes, TramServiceDate today) {
+        return calculator.calculateRoute(start.getId(), destination.getId(),
+                queryTimes, today, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
+    }
 
 }

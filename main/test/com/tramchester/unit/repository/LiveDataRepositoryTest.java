@@ -103,9 +103,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        LocalDate today = LocalDate.now();
-        LocalTime time = LocalTime.of(13,22);
-        LocalDateTime lastUpdate = LocalDateTime.of(today, time);
+        LocalDateTime lastUpdate = LocalDateTime.now();
 
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
         addStationInfo(info, lastUpdate, "303", "platformIdB", "some message", "platformLocation");

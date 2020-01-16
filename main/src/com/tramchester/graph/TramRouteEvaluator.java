@@ -85,8 +85,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (endNodeId==destinationNodeId) {
             // we've arrived
             int totalCost = traversalState.getTotalCost();
-            if (totalCost < currentLowestCost) {
+            if (totalCost <= currentLowestCost) {
                 // a better route than seen so far
+                // <= equals so we include multiple options and routes in the results
+                // An alternative to this would be to search over a finer grained list of times and catch alternatives
+                // that way
                 success = success + 1;
                 currentLowestCost = totalCost;
                 reasons.recordSuccess();
