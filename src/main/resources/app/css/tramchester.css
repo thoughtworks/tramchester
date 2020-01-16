@@ -16,6 +16,19 @@
     border-bottom: 2px solid #191c1f;
 }
 
+.liveDepartures {
+    text-align: center;
+    font-weight:bold;
+    color: black;
+
+}
+
+.suggestedRoutes {
+    text-align: center;
+    font-weight:bold;
+    color: black;
+}
+
 .HideWalkingHeadSign {
     visibility: hidden;
 }

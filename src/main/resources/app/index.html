@@ -77,7 +77,9 @@
                              :items="localDueTrams" small responsive="sm"
                              :fields="departureFields" per-page="4"
                              tbody-tr-class='departuresSummary' caption-top>
-                        <template v-slot:table-caption>Live Departures</template>
+                        <template v-slot:table-caption>
+                            <div class="liveDepartures">Live Departures</div>
+                        </template>
                     </b-table>
                     <b-pagination v-if="localDueTrams.length>0 && localDueTrams.length>4"
                                   v-model="currentPage"
@@ -93,8 +95,10 @@
                     :items="journeys" small responsive="sm"
                     :fields="journeyFields"
                     select-mode='single' caption-top
-                    @row-clicked="expandStages" tbody-tr-class='journeySummary'>
-                    <template v-slot:table-caption>Suggested Routes</template>
+                    @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
+                    <template v-slot:table-caption>
+                        <div class="suggestedRoutes">Suggested Routes</div>
+                    </template>
                     <template v-slot:cell(_showDetails)="data">
                         <span v-html="data.value">XXX</span>
                     </template>
