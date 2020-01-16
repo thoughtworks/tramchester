@@ -24,6 +24,7 @@
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "portal-vue": "^2.1.6",
+    "serialize-javascript": "^2.1.2",
     "vue": "^2.6.10",
     "vue-cookies": "^1.5.12"
   },
