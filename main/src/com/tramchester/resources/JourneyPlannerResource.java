@@ -29,10 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,20 +89,18 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 TramTime departureTime = maybeDepartureTime.get();
 
                 JourneyPlanRepresentation planRepresentation;
-                List<TramTime> queryTimes = createQueryTimes.generate(departureTime);
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
                     if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlan(latLong, endId, queryDate, queryTimes, departureTime);
+                        planRepresentation = createJourneyPlan(latLong, endId, queryDate, departureTime);
                     } else {
-                        planRepresentation = createJourneyPlan(startId, endId, queryDate, queryTimes, departureTime);
+                        planRepresentation = createJourneyPlan(startId, endId, queryDate, departureTime);
                     }
                 }
 
                 Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
                 responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
-                Response response = responseBuilder.build();
-                return response;
+                return responseBuilder.build();
             }
         } catch(Exception exception) {
             logger.error("Problem processing response", exception);
@@ -121,10 +116,11 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(LatLong latLong, String endId, TramServiceDate queryDate,
-                                                       List<TramTime> queryTimes, TramTime initialQueryTime) {
+                                                       TramTime initialQueryTime) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, endId,queryDate.getDay(),
-                queryDate,queryTimes));
+                queryDate, initialQueryTime));
 
+        List<TramTime> queryTimes = Collections.singletonList(initialQueryTime);
         Stream<RawJourney> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTimes, queryDate);
         Set<RawJourney> rawJourneySet = journeys.collect(Collectors.toSet());
 
@@ -132,7 +128,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
-                                                        List<TramTime> queryTimes, TramTime initialQueryTime) {
+                                                        TramTime initialQueryTime) {
+        List<TramTime> queryTimes = createQueryTimes.generate(initialQueryTime);
+
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,queryTimes));
 

@@ -28,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 public class JourneyPlannerTest extends JourneyPlannerHelper {
     private static Dependencies dependencies;
     private TramServiceDate today;
-    private CreateQueryTimes createQueryTimes;
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10*60);
@@ -43,7 +42,6 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     public void beforeEachTestRuns() {
         today = new TramServiceDate(LocalDate.now());
         planner = dependencies.get(JourneyPlannerResource.class);
-        createQueryTimes = dependencies.get(CreateQueryTimes.class);
     }
 
     @AfterClass
@@ -52,8 +50,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, TramServiceDate queryDate) {
-        List<TramTime> queryTimes = createQueryTimes.generate(queryTime);
-        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, queryTimes , queryTime);
+        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, queryTime);
     }
 
     @Test
@@ -66,9 +63,8 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
 
         // todo currently finds far too many start points
 
-        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId,
-                Stations.PiccadillyGardens.getId(),
-                today, createQueryTimes.generate(TramTime.of(9,0)), TramTime.of(9,0));
+        JourneyPlanRepresentation plan = planner.createJourneyPlan(startId, Stations.PiccadillyGardens.getId(),
+                today, TramTime.of(9,0));
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         JourneyDTO journey = journeys.first();
@@ -85,9 +81,8 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @Test
     @Category({BusTest.class})
     @Ignore("experimental")
-    public void reproduceIssueWithRoute() throws TramchesterException {
-        planner.createJourneyPlan("1800SB34231", "1800SB01681", today,
-                createQueryTimes.generate(TramTime.of(9,0)), TramTime.of(9,0));
+    public void reproduceIssueWithRoute() {
+        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, TramTime.of(9,0));
     }
 
 }
