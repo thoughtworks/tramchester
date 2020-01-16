@@ -20,7 +20,7 @@ public class JourneyResponseMapperTest {
     protected String findServiceId(String firstId, String secondId, LocalDate when, TramTime queryTime) {
         List<TramTime> queryTimes = Collections.singletonList(queryTime);
 
-        Stream<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when), RouteCalculator.MAX_NUM_GRAPH_PATHS);
+        Stream<RawJourney> found = routeCalculator.calculateRoute(firstId, secondId, queryTimes, new TramServiceDate(when));
         RawJourney rawJourney = found.findFirst().get();
         RawStage rawStage = rawJourney.getStages().get(0);
         assertEquals(RawVehicleStage.class, rawStage.getClass());

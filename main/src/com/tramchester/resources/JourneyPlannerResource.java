@@ -136,8 +136,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,queryTimes));
 
-        Stream<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate, RouteCalculator.MAX_NUM_GRAPH_PATHS);
-        Set<RawJourney> rawJourneySet = journeys.collect(Collectors.toSet());
+        Stream<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
+        Set<RawJourney> rawJourneySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
 
         return createPlan(queryDate, initialQueryTime, rawJourneySet);
     }
@@ -146,7 +146,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                                                  Set<RawJourney> journeys) {
         logger.info("number of journeys: " + journeys.size());
         JourneyDTOFactory factory = createJourneyDTOFactory(queryDate, initialQueryTime);
-        SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(factory, journeys, config.getTimeWindow());
+        SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(factory, journeys);
         List<String> notes = providesNotes.createNotesForJourneys(queryDate, decoratedJourneys);
         return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }

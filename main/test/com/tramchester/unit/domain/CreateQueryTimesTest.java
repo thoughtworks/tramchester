@@ -24,13 +24,13 @@ public class CreateQueryTimesTest {
 
         TramTime seedTime = TramTime.of(13, 20);
         List<TramTime> result = createQueryTimes.generate(seedTime);
-        assertEquals(5,result.size());
+        assertEquals(3,result.size());
 
         assertEquals(seedTime, result.get(0));
-        assertEquals(seedTime.plusMinutes(6), result.get(1));
-        assertEquals(seedTime.plusMinutes(12), result.get(2));
-        assertEquals(seedTime.plusMinutes(18), result.get(3));
-        assertEquals(seedTime.plusMinutes(24), result.get(4));
+        assertEquals(seedTime.plusMinutes(12), result.get(1));
+        assertEquals(seedTime.plusMinutes(24), result.get(2));
+//        assertEquals(seedTime.plusMinutes(18), result.get(3));
+//        assertEquals(seedTime.plusMinutes(24), result.get(4));
     }
 
     private class LocalConfig extends TestConfig {

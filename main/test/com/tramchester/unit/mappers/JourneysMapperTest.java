@@ -70,7 +70,7 @@ public class JourneysMapperTest extends EasyMockSupport{
         EasyMock.expect(mapper.createJourney(rawJourneyC)).andReturn(Optional.empty());
 
         replayAll();
-        SortedSet<JourneyDTO> results = journeysMapper.map(factory, rawJourneys, 42);
+        SortedSet<JourneyDTO> results = journeysMapper.map(factory, rawJourneys);
         verifyAll();
 
         assertEquals(2, results.size());

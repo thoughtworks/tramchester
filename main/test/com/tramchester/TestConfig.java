@@ -31,7 +31,6 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean getChangeAtInterchangeOnly() { return true; }
 
     //////
-
     private List<String> closedStations = asList("St Peters Square");
 
     private boolean graphExists() {
@@ -69,9 +68,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public int getTimeWindow() { return 60; }
-
-    @Override
     public Double getNearestStopRangeKM() {
         return 2D;
     }
@@ -106,10 +102,15 @@ public abstract class TestConfig extends AppConfiguration {
     public int getMaxJourneyDuration() { return 112; }
 
     @Override
-    public int getQueryInterval() { return 6; }
+    public int getQueryInterval() { return 12; }
 
     @Override
     public int getRecentStopsToShow() {
+        return 5;
+    }
+
+    @Override
+    public int getMaxNumResults() {
         return 5;
     }
 

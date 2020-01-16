@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorSubGraphMediaCityTest {
@@ -82,9 +81,9 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     public void shouldHaveMediaCityToExchangeSquare() {
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, TramTime.of(9,00), TestConfig.nextSaturday());
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,00), TestConfig.nextSaturday());
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,00), TestConfig.nextSunday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, TramTime.of(9,0), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestConfig.nextSunday());
     }
 
     @Test
@@ -98,7 +97,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
                         Set<RawJourney> journeys = calculator.calculateRoute(start, destination, times,
-                                new TramServiceDate(day), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
+                                new TramServiceDate(day)).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
                         }
@@ -123,7 +122,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     public void shouldHaveSimpleJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(12, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
+                minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
@@ -132,9 +131,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     public void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(graphService, 5);
         List<String> toDraw = new ArrayList<>();
-//        stations.add(Stations.Cornbrook.getId());
         toDraw.add(Stations.MediaCityUK.getId());
-//        stations.add(Stations.StPetersSquare.getId());
 
         creator.create(format("%s_trams.dot", "subgraph_mediacity"), toDraw);
     }

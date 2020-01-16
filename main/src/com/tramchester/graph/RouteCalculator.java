@@ -26,10 +26,8 @@ import static java.lang.String.format;
 public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    public static final int MAX_NUM_GRAPH_PATHS = 2; // todo into config
 
     private final String queryNodeName = "BEGIN";
-
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
     private final CachedNodeOperations nodeOperations;
@@ -48,9 +46,9 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public Stream<RawJourney> calculateRoute(String startStationId, String endStationId, List<TramTime> queryTimes,
-                                          TramServiceDate queryDate, int limit) {
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s limit:%s",
-                startStationId, endStationId, queryDate, queryTimes, limit));
+                                          TramServiceDate queryDate) {
+        logger.info(format("Finding shortest path for %s --> %s on %s at %s",
+                startStationId, endStationId, queryDate, queryTimes));
 
         return gatherJounerys(getStationNode(startStationId), endStationId, queryTimes, queryDate);
     }

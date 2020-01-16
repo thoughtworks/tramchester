@@ -27,8 +27,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
 
-    public abstract int getTimeWindow();
-
     // range to scan for nearby stations
     public abstract Double getNearestStopRangeKM();
 
@@ -51,6 +49,9 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // max time to wait for tram/connection
     public abstract int getMaxWait();
+
+    // max number of results to return via the API
+    public abstract int getMaxNumResults();
 
     // how often to query for trams into the future from initial query tie, i.e. every 6 minutes
     public abstract int getQueryInterval();

@@ -3,7 +3,6 @@ package com.tramchester.integration.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
@@ -62,10 +61,8 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     @Test
     @Category({BusTest.class})
     @Ignore("Work in progress")
-    public void shouldMapStockportCircularJourney() throws TramchesterException {
-//        LocalDate now = LocalDate.now();
-////        DayOfWeek offset = now.getDayOfWeek().minus(MONDAY);
-////
+    public void shouldMapStockportCircularJourney() {
+
         LocalDate when = TestConfig.nextTuesday(0);
         String svcId = findServiceId(stockportBusStation.getId(), stockportBridgefieldStreet.getId(), when,
                 TramTime.of(9,42));
@@ -92,7 +89,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
         HeadsignMapper headsignMapper = new HeadsignMapper();
         JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory, headsignMapper);
-        SortedSet<JourneyDTO> mapped = mapper.map(factory, journeys, 30);
+        SortedSet<JourneyDTO> mapped = mapper.map(factory, journeys);
         return new JourneyPlanRepresentation(mapped, notes);
     }
 }

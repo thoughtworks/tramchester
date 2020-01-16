@@ -110,7 +110,7 @@ public class RouteCalculatorSubGraphMonsallTest {
 
     private void validateNumberOfStages(String startId, String destId, TramTime time, LocalDate date, int numStages) {
         Set<RawJourney> journeys = calculator.calculateRoute(startId, destId, Collections.singletonList(time),
-                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS).
+                new TramServiceDate(date)).
                 collect(Collectors.toSet());
 
         assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destId, time.toString(), date), journeys.isEmpty());

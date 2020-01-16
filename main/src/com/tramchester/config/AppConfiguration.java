@@ -114,6 +114,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("changeAtInterchangeOnly")
     private boolean changeAtInterchangeOnly;
 
+    @JsonProperty("maxNumberResults")
+    private int maxNumberResults;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -141,6 +144,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxWait() {
         return maxWait;
+    }
+
+    @Override
+    public int getMaxNumResults() {
+        return maxNumberResults;
     }
 
     @Override
@@ -189,11 +197,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getSecureHost() {
         return secureHost;
-    }
-
-    @Override
-    public int getTimeWindow() {
-        return timeWindow;
     }
 
     @Override
@@ -252,5 +255,4 @@ public class AppConfiguration extends TramchesterConfig {
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
-
 }

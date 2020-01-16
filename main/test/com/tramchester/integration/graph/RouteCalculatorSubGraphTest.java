@@ -103,7 +103,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveSimpleOneStopJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
+                minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
@@ -111,7 +111,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
+                minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
@@ -119,7 +119,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveSimpleJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
-                minutes, new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());;
+                minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 

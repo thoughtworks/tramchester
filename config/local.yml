@@ -31,10 +31,10 @@ liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 10
 dataPath: data/tram
 removeRouteNameSuffix: true
-timeWindow: 60
 maxWait: 25
+queryInterval: 12
+maxNumberResults: 5
 maxJourneyDuration: 170
-queryInterval: 6
 nearestStopRangeKM: 2
 numOfNearestStops: 5
 walkingMPH: 3

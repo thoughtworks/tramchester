@@ -100,7 +100,7 @@ public class RouteCalculatorTest {
         List<TramTime> queryTimes = Collections.singletonList(TramTime.of(10, 15));
         TramServiceDate today = new TramServiceDate(nextTuesday);
         Stream<RawJourney> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Deansgate.getId(),
-                queryTimes, today, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                queryTimes, today);
         results.forEach(journey -> {
             assertEquals(1, journey.getStages().size()); // should be one stage only
             journey.getStages().stream().
@@ -165,7 +165,7 @@ public class RouteCalculatorTest {
         TramServiceDate today = new TramServiceDate(LocalDate.now());
 
         Stream<RawJourney> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
-                queryTimes, today, RouteCalculator.MAX_NUM_GRAPH_PATHS);
+                queryTimes, today);
         Set<RawJourney> results = stream.collect(Collectors.toSet());
 
         assertTrue(results.size()>0);    // results is iterator
@@ -266,7 +266,7 @@ public class RouteCalculatorTest {
         List<TramTime> queryTimes = new LinkedList<>();
         queryTimes.add(TramTime.of(11,45));
         Stream<RawJourney> stream = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham.getId(), queryTimes,
-                new TramServiceDate(nextTuesday), 100);
+                new TramServiceDate(nextTuesday));
         Set<RawJourney> journeys = stream.collect(Collectors.toSet());
 
         assertTrue(journeys.size()>0);
@@ -306,7 +306,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
-        assertEquals(0,checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
+        assertEquals(0, checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
     }
 
     @Test
@@ -379,8 +379,8 @@ public class RouteCalculatorTest {
                                                  TramTime time, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Set<RawJourney> journeys = theCalculator.calculateRoute(startId, destId, Collections.singletonList(time),
-                new TramServiceDate(date), RouteCalculator.MAX_NUM_GRAPH_PATHS).
-                collect(Collectors.toSet());
+                new TramServiceDate(date)).
+                limit(1).collect(Collectors.toSet());
 
         String message = String.format("from %s to %s at %s on %s", startId, destId, time, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
@@ -422,8 +422,8 @@ public class RouteCalculatorTest {
             for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
                 Stream<RawJourney> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
-                        Collections.singletonList(time), new TramServiceDate(nextTuesday), RouteCalculator.MAX_NUM_GRAPH_PATHS);
-                if (!journeys.findFirst().isPresent()) {
+                        Collections.singletonList(time), new TramServiceDate(nextTuesday));
+                if (!journeys.limit(1).findFirst().isPresent()) {
                     missing.add(time);
                 }
             }
@@ -441,7 +441,7 @@ public class RouteCalculatorTest {
                         map(this::checkForTx).
                         map(journey -> Pair.of(journey,
                                 calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes,
-                                        new TramServiceDate(queryDate), RouteCalculator.MAX_NUM_GRAPH_PATHS).limit(1).
+                                        new TramServiceDate(queryDate)).limit(1).
                                         findAny())).
                         collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
@@ -475,8 +475,7 @@ public class RouteCalculatorTest {
     }
 
     private Set<RawJourney> calculateRoutes(Location start, Location destination, List<TramTime> queryTimes, TramServiceDate today) {
-        return calculator.calculateRoute(start.getId(), destination.getId(),
-                queryTimes, today, RouteCalculator.MAX_NUM_GRAPH_PATHS).collect(Collectors.toSet());
+        return calculator.calculateRoute(start.getId(), destination.getId(), queryTimes, today).collect(Collectors.toSet());
     }
 
 }
