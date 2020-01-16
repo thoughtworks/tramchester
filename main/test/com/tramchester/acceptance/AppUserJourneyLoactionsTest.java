@@ -77,7 +77,7 @@ public class AppUserJourneyLoactionsTest {
         url = testRule.getUrl()+"/app/index.html";
 
         providesDriver = driverFactory.get(true, browserName);
-        providesDriver.setStubbedLocation(AppPage.NearAltrincham);
+        providesDriver.setStubbedLocation(TestConfig.nearAltrincham);
         providesDriver.init();
         providesDriver.clearCookies();
 
@@ -107,7 +107,7 @@ public class AppUserJourneyLoactionsTest {
         assertEquals(1, myLocationStops.size());
 
         List<String> nearestFromStops = appPage.getNearestFromStops();
-        assertThat(nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName(), "Timperley"));
+        assertThat(nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
         List<String> allFrom = appPage.getAllStopsFromStops();
         assertThat(allFrom, not(contains(nearestFromStops)));
         int recentFromCount = appPage.getRecentFromStops().size();
@@ -118,7 +118,7 @@ public class AppUserJourneyLoactionsTest {
         assertEquals(0, myLocationToStops.size());
 
         List<String> nearestToStops = appPage.getNearestFromStops();
-        assertThat(nearestToStops, hasItems(altrincham, Stations.NavigationRoad.getName(), "Timperley"));
+        assertThat(nearestToStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
         List<String> allTo = appPage.getAllStopsToStops();
         assertThat(allTo, not(contains(nearestToStops)));
         int recentToCount = appPage.getRecentToStops().size();
@@ -132,7 +132,7 @@ public class AppUserJourneyLoactionsTest {
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));
         nearestFromStops = appPage.getNearestFromStops();
-        assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName(), "Timperley"));
+        assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName()));
         // TODO to recent just bury, not alty
     }
 
@@ -185,11 +185,11 @@ public class AppUserJourneyLoactionsTest {
         assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
         validateWalkingStage(firstStage, planTime, "Walk",
-                Stations.NavigationRoad.getName(), -1, "RouteWalking", "Walk", 0);
+                Stations.Altrincham.getName(), -1, "RouteWalking", "Walk", 0);
 
         Stage secondStage = stages.get(1);
-        validateAStage(secondStage, firstResult.getDepartTime(), "Board", Stations.NavigationRoad.getName(), 1,
-                AppUserJourneyTest.altyToBuryClass, AppUserJourneyTest.altyToBuryLineName, "Bury", 8);
+        validateAStage(secondStage, firstResult.getDepartTime(), "Board", Stations.Altrincham.getName(), 1,
+                AppUserJourneyTest.altyToBuryClass, AppUserJourneyTest.altyToBuryLineName, "Bury", 9);
     }
 
     private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,

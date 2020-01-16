@@ -173,7 +173,8 @@ public abstract class TestConfig extends AppConfiguration {
     public static LocalDate nextSunday() {
         return getNextDate(DayOfWeek.SUNDAY, LocalDate.now());
     }
-    public static final LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
+    //public static final LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
+    public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
 
     public static boolean isCircleci() {

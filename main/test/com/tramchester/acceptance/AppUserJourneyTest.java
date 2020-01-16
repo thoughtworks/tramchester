@@ -86,8 +86,6 @@ public class AppUserJourneyTest {
 
         // TODO offset for when tfgm data is expiring
         nextTuesday = TestConfig.nextTuesday(0);
-
-
     }
 
     @After
@@ -234,9 +232,55 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
-        results = appPage.getResults();
-        assertTrue(results.get(0).getDepartTime().isBefore(tenFifteen));
-        assertTrue(results.get(0).getDepartTime().isAfter(eightFifteen));
+        List<SummaryResult> updatedResults = appPage.getResults();
+        assertTrue(updatedResults.get(0).getDepartTime().isBefore(tenFifteen));
+        assertTrue(updatedResults.get(0).getDepartTime().isAfter(eightFifteen));
+    }
+
+    @Test
+    @Ignore("wip")
+    public void shouldUpdateWhenEarlierClicked() {
+        LocalTime tenFifteen = LocalTime.parse("10:15");
+
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen);
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.searchEnabled());
+
+        List<SummaryResult> results = appPage.getResults();
+        LocalTime firstDepartureTime = results.get(0).getDepartTime();
+        assertTrue(firstDepartureTime.isAfter(tenFifteen));
+
+        appPage.earlier();
+        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.searchEnabled());
+
+        List<SummaryResult> updatedResults = appPage.getResults();
+        assertTrue(updatedResults.get(0).getDepartTime().isBefore(firstDepartureTime));
+    }
+
+    @Test
+    @Ignore("wip")
+    public void shouldUpdateWhenLaterClicked() {
+        LocalTime tenFifteen = LocalTime.parse("10:15");
+
+        AppPage appPage = prepare();
+        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen);
+        appPage.planAJourney();
+        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.searchEnabled());
+
+        List<SummaryResult> results = appPage.getResults();
+        assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
+        LocalTime lastDepartureTime = results.get(results.size() - 1).getDepartTime();
+
+        appPage.later();
+        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.searchEnabled());
+
+        List<SummaryResult> updatedResults = appPage.getResults();
+        assertTrue(updatedResults.get(0).getDepartTime().isAfter(lastDepartureTime));
     }
 
     @Test

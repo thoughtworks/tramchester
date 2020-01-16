@@ -22,8 +22,8 @@ public class AppPage extends Page {
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 3;
 
-    public static LatLong NearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
-    public static LatLong NearPiccGardens = new LatLong(53.480972D,-2.2380073D);
+//    public static LatLong NearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
+//    public static LatLong NearPiccGardens = new LatLong(53.480972D,-2.2380073D);
 
     public static final String DATE = "date";
     private String FROM_STOP = "fromStop";
@@ -345,4 +345,11 @@ public class AppPage extends Page {
     }
 
 
+    public void earlier() {
+        // todo
+    }
+
+    public void later() {
+        // todo
+    }
 }
