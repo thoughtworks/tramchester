@@ -34,7 +34,7 @@ public class StationIndexs {
         platformNodeCache = new ConcurrentHashMap<>();
     }
 
-    protected Node getCallingPointNode(String routeStationId) {
+    protected Node getRouteStationNode(String routeStationId) {
         if (routeStationNodeCache.containsKey(routeStationId)) {
             return routeStationNodeCache.get(routeStationId);
         }

@@ -15,6 +15,7 @@ import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.mappers.HeadsignMapper;
 import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataSource;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 
@@ -35,7 +36,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
     private Location stockportBridgefieldStreet = new Station("1800SG18471", "stockportArea", "Bridgefield Street",
             new LatLong(1.5, 1.5), false);
     private List<String> notes;
-    private LiveDataRepository liveDataRepository;
+    private LiveDataSource liveDataSource;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -53,7 +54,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         notes = new LinkedList<>();
         mapper = dependencies.get(JourneysMapper.class);
         routeCalculator = dependencies.get(RouteCalculator.class);
-        liveDataRepository = dependencies.get(LiveDataRepository.class);
+        liveDataSource = dependencies.get(LiveDataRepository.class);
         journeys = new HashSet<>();
         stages = new LinkedList<>();
     }
@@ -85,7 +86,7 @@ public class JourneyResponseMapperForBusTest extends JourneyResponseMapperTest {
         stages.add(busStage);
         journeys.add(new RawJourney(stages, tramTime, cost));
 
-        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepository, queryDate, tramTime);
+        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataSource, queryDate, tramTime);
         StageDTOFactory stageFactory = new StageDTOFactory(liveDataEnricher);
         HeadsignMapper headsignMapper = new HeadsignMapper();
         JourneyDTOFactory factory = new JourneyDTOFactory(stageFactory, headsignMapper);

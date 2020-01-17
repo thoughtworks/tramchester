@@ -183,12 +183,12 @@ public class TransportGraphBuilder extends StationIndexs {
             boolean firstStop = (currentStop.getGetSequenceNumber() == 1); //stop seq num, not index
             boolean lastStop = nextStop.getGetSequenceNumber() == lastStopNum;
 
-            Node from = getOrCreateCallingPointAndStation(currentStop, route, service, firstStop, false);
-            Node to = getOrCreateCallingPointAndStation(nextStop, route, service, false, lastStop);
+            Node fromRouteStation = getOrCreateCallingPointAndStation(currentStop, route, service, firstStop, false);
+            Node toRouteStation = getOrCreateCallingPointAndStation(nextStop, route, service, false, lastStop);
 
             if (runsAtLeastADay(service.getDays())) {
-                createRouteRelationship(from, to, route);
-                createRelationships(from, to, currentStop, nextStop, route, service, trip);
+                createRouteRelationship(fromRouteStation, toRouteStation, route);
+                createRelationships(fromRouteStation, toRouteStation, currentStop, nextStop, route, service, trip);
             }
         }
     }
@@ -261,11 +261,11 @@ public class TransportGraphBuilder extends StationIndexs {
                                                    boolean firstStop, boolean lastStop) {
         Location station = stop.getStation();
         String stationId = station.getId();
-        String callingPointId = createCallingPointId(station, route);
+        String routeStationId = createRouteStationId(station, route);
 
-        Node callingPoint = getCallingPointNode(callingPointId);
-        if ( callingPoint == null) {
-             callingPoint = createCallingPoint(station, route, callingPointId, service);
+        Node routeStationNode = getRouteStationNode(routeStationId);
+        if ( routeStationNode == null) {
+             routeStationNode = createRouteStationNode(station, route, routeStationId, service);
         }
         boolean isInterchange = TramInterchanges.has(station);
         int enterPlatformCost = ENTER_PLATFORM_COST;
@@ -322,32 +322,32 @@ public class TransportGraphBuilder extends StationIndexs {
         // boarding: platform/station ->  callingPoint
         // no boarding at the last stop of a trip
         if (!lastStop) {
-            if (!hasBoarding(stationOrPlatformID, callingPointId, boardType)) {
+            if (!hasBoarding(stationOrPlatformID, routeStationId, boardType)) {
                 stationOrPlatformID = stop.getId();
-                Relationship boardRelationship = createRelationships(platformNode, callingPoint, boardType);
+                Relationship boardRelationship = createRelationships(platformNode, routeStationNode, boardType);
                 boardRelationship.setProperty(COST, boardCost);
-                boardRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
+                boardRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
                 boardRelationship.setProperty(ROUTE_ID, route.getId());
                 boardRelationship.setProperty(ROUTE_NAME, route.getName());
                 boardRelationship.setProperty(STATION_ID, station.getId());
                 boardRelationship.setProperty(PLATFORM_ID, stationOrPlatformID);
-                boardings.put(boardKey(callingPointId, stationOrPlatformID), boardType);
+                boardings.put(boardKey(routeStationId, stationOrPlatformID), boardType);
             }
         }
 
         // leave: route station -> platform/station
         // no towardsStation at first stop of a trip
         if (!firstStop) {
-            if (!hasDeparting(callingPointId, stationOrPlatformID, departType)) {
-                Relationship departRelationship = createRelationships(callingPoint, platformNode, departType);
+            if (!hasDeparting(routeStationId, stationOrPlatformID, departType)) {
+                Relationship departRelationship = createRelationships(routeStationNode, platformNode, departType);
                 departRelationship.setProperty(COST, departCost);
-                departRelationship.setProperty(GraphStaticKeys.ID, callingPointId);
+                departRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
                 departRelationship.setProperty(GraphStaticKeys.STATION_ID, station.getId());
-                departs.put(departKey(callingPointId, stationOrPlatformID), departType);
+                departs.put(departKey(routeStationId, stationOrPlatformID), departType);
             }
         }
 
-        return  callingPoint;
+        return  routeStationNode;
     }
 
     private Relationship createRelationships(Node node, Node platformNode, TransportRelationshipTypes relationshipType) {
@@ -385,7 +385,7 @@ public class TransportGraphBuilder extends StationIndexs {
         return false;
     }
 
-    private Node createCallingPoint(Location station, Route route, String routeStationId, Service service) {
+    private Node createRouteStationNode(Location station, Route route, String routeStationId, Service service) {
         Node routeStation = createGraphNode(Labels.ROUTE_STATION);
 
         logger.info(format("Creating route station %s route %s service %s nodeId %s", station.getId(),route.getId(),
@@ -399,7 +399,7 @@ public class TransportGraphBuilder extends StationIndexs {
         return routeStation;
     }
 
-    private String createCallingPointId(Location station, Route route) {
+    private String createRouteStationId(Location station, Route route) {
         return station.getId() + route.getId();
     }
 

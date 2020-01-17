@@ -1,17 +1,15 @@
 package com.tramchester.domain.liveUpdates;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
-
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
 public class StationDepartureInfo implements HasPlatformMessage {
+
+    public enum Direction {
+        Incoming, Outgoing
+    }
 
     private String lineName;
     private String stationPlatform;
@@ -20,11 +18,13 @@ public class StationDepartureInfo implements HasPlatformMessage {
     private LocalDateTime lastUpdate;
     private String displayId;
     private String location;
+    private Direction direction;
 
-    public StationDepartureInfo(String displayId, String lineName, String stationPlatform, String location,
+    public StationDepartureInfo(String displayId, String lineName, Direction direction, String stationPlatform, String location,
                                 String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.lineName = lineName;
+        this.direction = direction;
         this.stationPlatform = stationPlatform;
         this.location = location;
         this.message = message;
@@ -60,19 +60,6 @@ public class StationDepartureInfo implements HasPlatformMessage {
         return displayId;
     }
 
-    @Override
-    public String toString() {
-        return "StationDepartureInfo{" +
-                "lineName='" + lineName + '\'' +
-                ", stationPlatform='" + stationPlatform + '\'' +
-                ", message='" + message + '\'' +
-                ", dueTrams=" + dueTrams +
-                ", lastUpdate=" + lastUpdate +
-                ", displayId='" + displayId + '\'' +
-                ", location='" + location + '\'' +
-                '}';
-    }
-
     public void clearMessage() {
         message="";
     }
@@ -86,17 +73,32 @@ public class StationDepartureInfo implements HasPlatformMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StationDepartureInfo that = (StationDepartureInfo) o;
-        return Objects.equals(lineName, that.lineName) &&
-                Objects.equals(stationPlatform, that.stationPlatform) &&
-                Objects.equals(message, that.message) &&
-                Objects.equals(dueTrams, that.dueTrams) &&
-                Objects.equals(lastUpdate, that.lastUpdate) &&
-                Objects.equals(displayId, that.displayId) &&
-                Objects.equals(location, that.location);
+        return lineName.equals(that.lineName) &&
+                stationPlatform.equals(that.stationPlatform) &&
+                message.equals(that.message) &&
+                dueTrams.equals(that.dueTrams) &&
+                lastUpdate.equals(that.lastUpdate) &&
+                displayId.equals(that.displayId) &&
+                location.equals(that.location) &&
+                direction == that.direction;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineName, stationPlatform, message, dueTrams, lastUpdate, displayId, location);
+        return Objects.hash(lineName, stationPlatform, message, dueTrams, lastUpdate, displayId, location, direction);
+    }
+
+    @Override
+    public String toString() {
+        return "StationDepartureInfo{" +
+                "lineName='" + lineName + '\'' +
+                ", stationPlatform='" + stationPlatform + '\'' +
+                ", message='" + message + '\'' +
+                ", dueTrams=" + dueTrams +
+                ", lastUpdate=" + lastUpdate +
+                ", displayId='" + displayId + '\'' +
+                ", location='" + location + '\'' +
+                ", direction=" + direction +
+                '}';
     }
 }

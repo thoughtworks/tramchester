@@ -1,11 +1,15 @@
 package com.tramchester.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static java.lang.String.format;
 
 public class Platform {
 
-    private String id;
-    private String name;
+    private final String id;
+    private final String name;
+    private Set<Route> servesRoutes;
 
     public String getPlatformNumber() {
         return platformNumber;
@@ -17,6 +21,7 @@ public class Platform {
         this.id = id.intern();
         this.name = name.intern();
         platformNumber = id.substring(id.length()-1);
+        servesRoutes = new HashSet<>();
     }
 
     public String getName() {
@@ -49,5 +54,13 @@ public class Platform {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public void addRoute(Route route) {
+        servesRoutes.add(route);
+    }
+
+    public Set<Route> getRoutes() {
+        return servesRoutes;
     }
 }

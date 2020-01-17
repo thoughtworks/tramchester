@@ -15,7 +15,6 @@ import com.tramchester.mappers.DeparturesMapper;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -149,12 +148,14 @@ public class DeparturesMapperTest {
     private List<StationDepartureInfo> createStationDepartureInfo(LocalDateTime updateDateTime) {
         List<StationDepartureInfo> departureInfos = new LinkedList<>();
 
-        StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName", "stationPlatform1", "location",
+        StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName",
+                StationDepartureInfo.Direction.Incoming, "stationPlatform1", "location",
                 "messageOne", updateDateTime);
         infoA.addDueTram(new DueTram(Stations.Altrincham, "Due", 5, "Double", updateDateTime.toLocalTime()));
         infoA.addDueTram(new DueTram(Stations.Bury, "Delay", 10, "Single", updateDateTime.toLocalTime()));
 
-        StationDepartureInfo infoB = new StationDepartureInfo("displayId2", "lineName", "stationPlatform2", "location",
+        StationDepartureInfo infoB = new StationDepartureInfo("displayId2", "lineName",
+                StationDepartureInfo.Direction.Incoming, "stationPlatform2", "location",
                 "messageTwo", updateDateTime);
         infoB.addDueTram(new DueTram(Stations.Cornbrook, "Departing", 1, "Double", updateDateTime.toLocalTime()));
 

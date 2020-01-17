@@ -68,6 +68,26 @@ public class TramRouteReachableTest {
     public void shouldHaveCorrectReachabilityMonsalToRochs() {
         assertTrue(reachable.getRouteReachableWithInterchange(Stations.RochdaleRail.getId(), Stations.Monsall.getId(), RouteCodesForTesting.ROCH_TO_DIDS));
         assertTrue(reachable.getRouteReachableWithInterchange(Stations.Monsall.getId(), Stations.RochdaleRail.getId(), RouteCodesForTesting.DIDS_TO_ROCH));
+    }
 
+    @Test
+    public void shouldHaveAdjacentReachableCorrect() {
+
+        assertTrue(reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
+                RouteCodesForTesting.BURY_TO_ALTY));
+        assertFalse(reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
+                RouteCodesForTesting.ALTY_TO_PICC));
+        assertTrue(reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.NavigationRoad.getId(),
+                RouteCodesForTesting.ALTY_TO_PICC));
+
+        assertTrue(reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
+                RouteCodesForTesting.ALTY_TO_PICC));
+        assertFalse(reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
+                RouteCodesForTesting.ALTY_TO_BURY));
+        assertTrue(reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.MarketStreet.getId(),
+                RouteCodesForTesting.ALTY_TO_BURY));
+
+        assertFalse(reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
+                RouteCodesForTesting.ALTY_TO_BURY));
     }
 }

@@ -14,7 +14,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.mappers.HeadsignMapper;
 import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataSource;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,7 +28,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -48,13 +47,13 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private JourneysMapper journeysMapper;
     private CreateQueryTimes createQueryTimes;
     private ProvidesNotes providesNotes;
-    private LiveDataRepository liveDataRepositoy;
+    private LiveDataSource liveDataRepositoy;
     private GraphDatabaseService graphDatabaseService;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
                                   LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes,
                                   UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper,
-                                  ProvidesNotes providesNotes, LiveDataRepository liveDataRepositoy,
+                                  ProvidesNotes providesNotes, LiveDataSource liveDataRepositoy,
                                   GraphDatabaseService graphDatabaseService) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;

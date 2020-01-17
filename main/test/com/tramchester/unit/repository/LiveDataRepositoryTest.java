@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -279,7 +278,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
     public static StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
                                                 String displayId, String platformId, String message, String location) {
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", StationDepartureInfo.Direction.Incoming, platformId,
                 location, message, lastUpdate);
         info.add(departureInfo);
         departureInfo.addDueTram(new DueTram(Stations.Bury, "Due", 42, "Single", lastUpdate.toLocalTime()));

@@ -12,7 +12,7 @@ import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.mappers.DeparturesMapper;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -38,15 +38,15 @@ public class DeparturesResource {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final SpatialService spatialService;
-    private final LiveDataRepository liveDataRepository;
+    private final LiveDataSource liveDataSource;
     private final DeparturesMapper departuresMapper;
     private ProvidesNotes providesNotes;
     private final StationRepository stationRepository;
 
-    public DeparturesResource(SpatialService spatialService, LiveDataRepository liveDataRepository,
+    public DeparturesResource(SpatialService spatialService, LiveDataSource liveDataSource,
                               DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository) {
         this.spatialService = spatialService;
-        this.liveDataRepository = liveDataRepository;
+        this.liveDataSource = liveDataSource;
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
@@ -67,7 +67,7 @@ public class DeparturesResource {
         List<StationDTO> nearbyStations = spatialService.getNearestStations(latLong);
 
         nearbyStations.forEach(station -> {
-            liveDataRepository.enrich(station, localNow);
+            liveDataSource.enrich(station, localNow);
         });
 
         SortedSet<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
@@ -100,7 +100,7 @@ public class DeparturesResource {
         if (maybeStation.isPresent()) {
             logger.info("Found stations, now find departures");
             Station station = maybeStation.get();
-            List<StationDepartureInfo> departs = liveDataRepository.departuresFor(station);
+            List<StationDepartureInfo> departs = liveDataSource.departuresFor(station);
 
             DepartureListDTO departureList = departuresMapper.from(departs,includeNotes);
 

@@ -55,13 +55,13 @@ public class Station implements Location {
         return latLong;
     }
 
-    public static String formId(String rawId) {
-        if (rawId.startsWith(METROLINK_PREFIX)) {
+    public static String formId(String platformId) {
+        if (platformId.startsWith(METROLINK_PREFIX)) {
             // metrolink station ids include platform as final digit, remove to give id of station itself
-            int index = rawId.length()-1;
-            return rawId.substring(0,index);
+            int index = platformId.length()-1;
+            return platformId.substring(0,index);
         }
-        return rawId;
+        return platformId;
     }
 
     @Override

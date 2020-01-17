@@ -60,9 +60,12 @@ public class LiveDataParser {
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
         String location = (String)jsonObject.get("StationLocation");
+        String rawDirection = (String)jsonObject.get("Direction");
+        StationDepartureInfo.Direction direction = StationDepartureInfo.Direction.valueOf(rawDirection);
+
         LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, stationPlatform,
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, direction, stationPlatform,
                 location, message, updateTime);
         parseDueTrams(jsonObject,departureInfo);
         logger.debug("Parsed live data to " + departureInfo);

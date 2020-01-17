@@ -272,7 +272,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
 
     private StageDTO createStageDTOWithDueTram(Station station, LocalDateTime whenTime, int wait) {
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
-                "platform", "platformLocation", "message", whenTime);
+                StationDepartureInfo.Direction.Incoming, "platform", "platformLocation", "message", whenTime);
 
         LocalTime when = whenTime.toLocalTime();
 

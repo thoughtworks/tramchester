@@ -12,7 +12,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
@@ -44,7 +44,7 @@ public class StationResource extends UsesRecentCookie {
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
     private final StationRepository stationRepository;
-    private final LiveDataRepository liveDataRepository;
+    private final LiveDataSource liveDataSource;
     private ProvidesNotes providesNotes;
     private final MyLocationFactory locationFactory;
 
@@ -52,14 +52,14 @@ public class StationResource extends UsesRecentCookie {
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
-                           LiveDataRepository liveDataRepository,
+                           LiveDataSource liveDataSource,
                            ProvidesNotes providesNotes,
                            MyLocationFactory locationFactory) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
-        this.liveDataRepository = liveDataRepository;
+        this.liveDataSource = liveDataSource;
         this.providesNotes = providesNotes;
         this.locationFactory = locationFactory;
         allStationsSorted = new ArrayList<>();
@@ -129,7 +129,7 @@ public class StationResource extends UsesRecentCookie {
         Optional<Station> station = stationRepository.getStation(id);
         if (station.isPresent()) {
             LocationDTO locationDTO = new LocationDTO(station.get());
-            liveDataRepository.enrich(locationDTO, getLocalNow());
+            liveDataSource.enrich(locationDTO, getLocalNow());
             return Response.ok(locationDTO).build();
         }
         else {
@@ -148,7 +148,7 @@ public class StationResource extends UsesRecentCookie {
 
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> stations = spatialService.getNearestStations(latLong);
-        stations.forEach(station -> liveDataRepository.enrich(station, localNow));
+        stations.forEach(station -> liveDataSource.enrich(station, localNow));
 
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
         List<String> notes = providesNotes.createNotesForStations(stations, queryDate);

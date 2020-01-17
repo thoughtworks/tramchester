@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
@@ -22,7 +23,7 @@ import java.util.*;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
 
-public class LiveDataRepository {
+public class LiveDataRepository implements LiveDataSource {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
 
     public static final int TIME_LIMIT = 15; // only enrich if data is within this many minutes
@@ -172,7 +173,6 @@ public class LiveDataRepository {
         return stationInformation.size();
     }
 
-
     public int countMessages() {
         return messageCount;
     }
@@ -202,6 +202,17 @@ public class LiveDataRepository {
         });
 
         return result;
+    }
+
+    @Override
+    public StationDepartureInfo departuresFor(Platform platform) {
+        String platformId = platform.getId();
+
+        if (!stationInformation.containsKey(platformId)) {
+            logger.warn("Could find departure info for " + platform);
+            return null;
+        }
+        return stationInformation.get(platformId);
     }
 
     public void observeUpdates(LiveDataObserver observer) {

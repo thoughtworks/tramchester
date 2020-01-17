@@ -85,16 +85,19 @@ public class TransportDataFromFiles implements TransportDataSource {
         stopTimes.forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
 
-            String stopId = stopTimeData.getStopId();
-            String stationId = Station.formId(stopId);
+            String platformId = stopTimeData.getStopId();
+            String stationId = Station.formId(platformId);
             if (stationsById.containsKey(stationId)) {
+                Route route = routes.get(trip.getRouteId());
                 Station station = stationsById.get(stationId);
-                station.addRoute(routes.get(trip.getRouteId()));
+                station.addRoute(route);
+                Platform platform = platforms.get(platformId);
+                platform.addRoute(route);
                 int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
-                Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
+                Stop stop = new Stop(platformId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 trip.addStop(stop);
             } else {
-                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));
+                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, platformId));
             }
         });
     }

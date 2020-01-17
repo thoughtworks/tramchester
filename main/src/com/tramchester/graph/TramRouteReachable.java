@@ -25,6 +25,22 @@ public class TramRouteReachable extends StationIndexs {
         return evaluatePaths(startStationId, evaluator);
     }
 
+
+    public boolean getRouteReachableAjacent(String startStationId, String endStationId, String routeCode) {
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+
+            Node startNode = getRouteStationNode(startStationId + routeCode);
+            Iterable<Relationship> outboundRoutes = startNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
+            for (Relationship outbound : outboundRoutes) {
+                if (endStationId.equals(outbound.getEndNode().getProperty(STATION_ID).toString())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private boolean evaluatePaths(String startStationId, Evaluator evaluator) {
         long number = 0;
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -46,6 +62,7 @@ public class TramRouteReachable extends StationIndexs {
         }
         return number>0;
     }
+
 
     private class ExactMatchEvaluator implements Evaluator {
 
