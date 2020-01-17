@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.Platform;
@@ -31,12 +30,14 @@ public class TransportDataForTest implements TransportDataSource {
     public static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
     public static final String STATION_FIVE = METROLINK_PREFIX+"_ST_FIVE";
 
-    private Map<String, Station> stationMap = new HashMap<>();
+    private Map<String, Station> stationIdMap = new HashMap<>();
+    private Map<String, Station> stationNameMap = new HashMap<>();
+
     private Map<String,Platform> platforms;
     private Collection<Route> routes;
     private Set<Service> services;
 
-    public TransportDataForTest() throws TramchesterException {
+    public TransportDataForTest() {
         double latitude = 180.00;
         double longitude = 270.0;
 
@@ -131,7 +132,8 @@ public class TransportDataForTest implements TransportDataSource {
     }
 
     private void addStation(Station station) {
-        stationMap.put(station.getId(), station);
+        stationIdMap.put(station.getId(), station);
+        stationNameMap.put(station.getName().toLowerCase(), station);
     }
 
     private Stop createStop(Location startStation, TramTime arrivalTime, TramTime departureTime, String routeId, String serviceId, int seuqenceId) {
@@ -178,7 +180,12 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public Optional<Station> getStation(String stationId) {
-        return Optional.of(stationMap.get(stationId));
+        return Optional.of(stationIdMap.get(stationId));
+    }
+
+    @Override
+    public Optional<Station> getStationByName(String name) {
+        return Optional.of(stationNameMap.get(name.toLowerCase()));
     }
 
     @Override

@@ -8,7 +8,7 @@ public class PlatformDTO {
     private String id;
     private String name;
     private String platformNumber;
-    private StationDepartureInfo stationDepartureInfo;
+    private StationDepartureInfoDTO stationDepartureInfo;
 
     public PlatformDTO() {
         // for deserialisation
@@ -42,11 +42,11 @@ public class PlatformDTO {
         return platformNumber;
     }
 
-    public StationDepartureInfo getStationDepartureInfo() {
+    public StationDepartureInfoDTO getStationDepartureInfo() {
         return stationDepartureInfo;
     }
 
-    public void setDepartureInfo(StationDepartureInfo stationDepartureInfo) {
+    public void setDepartureInfo(StationDepartureInfoDTO stationDepartureInfo) {
         this.stationDepartureInfo = stationDepartureInfo;
     }
 

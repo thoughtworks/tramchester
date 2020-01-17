@@ -4,6 +4,7 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.ProvidesNotes;
 
 import java.util.*;
@@ -21,12 +22,12 @@ public class DeparturesMapper {
         SortedSet<DepartureDTO> departs = new TreeSet<>();
 
         enrichedStations.forEach(stationDTO -> stationDTO.getPlatforms().forEach(platformDTO -> {
-            StationDepartureInfo info = platformDTO.getStationDepartureInfo();
+            StationDepartureInfoDTO info = platformDTO.getStationDepartureInfo();
             if (info!=null) {
                 info.getDueTrams().
                         stream().
                         filter(dueTram -> DUE.equals(dueTram.getStatus())).
-                        forEach(dueTram -> departs.add(new DepartureDTO(info.getLocation(),dueTram)));
+                        forEach(dueTram -> departs.add(dueTram));
             }
         }));
 
@@ -43,7 +44,6 @@ public class DeparturesMapper {
 
         departureInfos.forEach(info -> {
             String from = info.getLocation();
-
             info.getDueTrams().forEach(dueTram -> trams.add(new DepartureDTO(from,dueTram)));
         });
 

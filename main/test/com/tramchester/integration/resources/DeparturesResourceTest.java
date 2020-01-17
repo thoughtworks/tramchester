@@ -68,7 +68,6 @@ public class DeparturesResourceTest {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
-        //TramTime queryTime = TramTime.now().minusMinutes(5);
         TramTime queryTime = TramTime.of(LocalTime.now().minusMinutes(5));
 
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s", lat, lon),
@@ -79,9 +78,11 @@ public class DeparturesResourceTest {
 
         SortedSet<DepartureDTO> departures = departureList.getDepartures();
         assertFalse(departures.isEmpty());
+
         DepartureDTO departureDTO = departures.first();
         TramTime when = departureDTO.getWhen();
         assertTrue(when.asLocalTime().isAfter(queryTime.asLocalTime()) );
+
         String nextDepart = departureDTO.getFrom();
         assertTrue(nextDepart,nearby.contains(nextDepart));
         assertFalse(departureDTO.getStatus().isEmpty());

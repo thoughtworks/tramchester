@@ -2,26 +2,31 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.Dependencies;
+import com.tramchester.LiveDataTestCategory;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
-import com.tramchester.domain.presentation.ServiceTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
+import com.tramchester.livedata.LiveDataFileFetcher;
+import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportDataFromFiles;
+import org.json.simple.parser.ParseException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -156,24 +161,6 @@ public class TransportDataFromFilesTest {
         long count = results.stream().filter(item -> item.equals(area)).count();
         assertEquals(1, count);
     }
-
-//    @Test
-//    public void shouldGetTripsAfter() {
-//        // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria
-//        Service svc = transportData.getServiceById(svcDeansgateToVic);
-//        Optional<Trip> trips = svc.getFirstTripAfter(Stations.Deansgate.getId(), Stations.Victoria.getId(),
-//                new TimeWindow(TramTime.of(23,45), 30));
-//        assertTrue(trips.isPresent());
-//    }
-
-//    @Test
-//    public void shouldGetTripsCrossingMidnight() {
-//        // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc Id
-//        Service svc = transportData.getServiceById(svcShawAndCrompton);
-//        Optional<Trip> trip = svc.getFirstTripAfter(Stations.Victoria.getId(), Stations.ShawAndCrompton.getId(),
-//                new TimeWindow(TramTime.of(23,35), 30));
-//        assertTrue(trip.isPresent());
-//    }
 
     @Test
     public void shouldHaveSundayServicesFromCornbrook() {
@@ -338,16 +325,6 @@ public class TransportDataFromFilesTest {
         }
         assertTrue(mondayServices.size()>0);
 
-//        List<Service> veloToPiccadily = new LinkedList<>();
-//
-//        for(Service svc : mondayServices) {
-//            if (transportData.getFirstServiceTime(svc.getServiceId(),
-//                    Stations.VeloPark, Stations.Piccadilly, MINUTES_FROM_MIDNIGHT_8AM).isPresent()) {
-//                veloToPiccadily.add(svc);
-//            }
-//        }
-//
-//        assertTrue(veloToPiccadily.size() > 0);
     }
 
     @Test
@@ -404,13 +381,6 @@ public class TransportDataFromFilesTest {
         Set<Service> onTime = onDay.stream().filter(svc -> svc.latestDepartTime().isAfter(time) && svc.earliestDepartTime().isBefore(time)).collect(Collectors.toSet());
 
         assertFalse(onTime.isEmpty()); // at least one service (likely is just one)
-
-//        TimeWindow timeWindow = new TimeWindow(time, 10);
-//        onTime.forEach(running-> {
-//            Optional<Trip> maybeTrip = running.getFirstTripAfter(Stations.Cornbrook.getId(), Stations.MediaCityUK.getId(), timeWindow);
-//            assertTrue(maybeTrip.isPresent());
-//        });
-
     }
 
     @Test
@@ -471,9 +441,6 @@ public class TransportDataFromFilesTest {
 
         // finally check there are trams stopping within 15 mins of 8AM on Monday
         stoppingAtVelopark.removeIf(stop -> {
-            int mins = stop.getArriveMinsFromMidnight();
-//            int expected = MINUTES_FROM_MIDNIGHT_8AM.queryTime();
-//            return !((mins>=expected) && (mins-expected<=15));
             TramTime arrivalTime = stop.getArrivalTime();
             return arrivalTime.asLocalTime().isAfter(LocalTime.of(7,59)) &&
                     arrivalTime.asLocalTime().isBefore(LocalTime.of(8,16));

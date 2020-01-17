@@ -6,22 +6,18 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import com.tramchester.domain.presentation.DTO.DepartureListDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.integration.Stations;
 import com.tramchester.mappers.DeparturesMapper;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -41,12 +37,14 @@ public class DeparturesMapperTest {
     public void shouldConvertOneStationWithDateToDepartuesList() {
         LocalDateTime lastUpdate = LocalDateTime.now();
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
-                "locationName", "message", lastUpdate);
         int wait = 42;
-        departureInfo.addDueTram(new DueTram("tramDest", "Due", wait, "Single", lastUpdate.toLocalTime()));
-        departureInfo.addDueTram(new DueTram("tramDest", "Due", wait, "Single", lastUpdate.toLocalTime())); // same time, same dest
-        departureInfo.addDueTram(new DueTram("tramDest", "NOTDue", wait, "Single", lastUpdate.toLocalTime()));
+        List<DepartureDTO> dueTrams = new ArrayList<>();
+        dueTrams.add(new DepartureDTO("locationName", new DueTram(Stations.Bury, "Due", wait, "Single", lastUpdate.toLocalTime())));
+        dueTrams.add(new DepartureDTO("locationName", new DueTram(Stations.Bury, "Due", wait, "Single", lastUpdate.toLocalTime()))); // same time, same dest
+        dueTrams.add(new DepartureDTO("locationName", new DueTram(Stations.Bury, "NOTDue", wait, "Single", lastUpdate.toLocalTime())));
+
+        StationDepartureInfoDTO departureInfo = new StationDepartureInfoDTO("lineName", "platformId", "some message",
+                dueTrams, lastUpdate, "displayId", "locationName");
 
         List<StationDTO> sourceStations = new LinkedList<>();
         StationDTO stationDTO = new StationDTO(new Station("id", "area", "|stopName", latLong, true), ProximityGroup.ALL);
@@ -64,19 +62,21 @@ public class DeparturesMapperTest {
         assertEquals("locationName", first.getFrom());
         assertEquals("Single", first.getCarriages());
         assertEquals("Due", first.getStatus());
-        assertEquals("tramDest", first.getDestination());
+        assertEquals("Bury", first.getDestination());
     }
 
     @Test
     public void shouldKeepUseDestinationToSortWhenTimesSame() {
-        LocalDateTime lastUpdateTime = LocalDateTime.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName", "platformId",
-                "locationName", "message", lastUpdateTime);
         int wait = 42;
+        List<DepartureDTO> dueTrams = new ArrayList<>();
+        dueTrams.add(new DepartureDTO("locationName", new DueTram(Stations.Bury, "Due", wait, "Single", lastUpdate.toLocalTime())));
+        dueTrams.add(new DepartureDTO("locationName", new DueTram(Stations.Rochdale, "Due", wait, "Single",
+                lastUpdate.toLocalTime()))); // same time, diff dest
 
-        departureInfo.addDueTram(new DueTram("XX", "Due", wait, "Single", lastUpdateTime.toLocalTime()));
-        departureInfo.addDueTram(new DueTram("AA", "Due", wait, "Single", lastUpdateTime.toLocalTime())); // same time, diff dest
+        StationDepartureInfoDTO departureInfo = new StationDepartureInfoDTO("lineName", "platformId", "some message",
+                dueTrams, lastUpdate, "displayId", "locationName");
 
         List<StationDTO> sourceStations = new LinkedList<>();
         StationDTO stationDTO = new StationDTO(new Station("id", "area", "|stopName", latLong, true), ProximityGroup.ALL);
@@ -90,12 +90,12 @@ public class DeparturesMapperTest {
         assertEquals(2, results.size());
 
         DepartureDTO first = results.first();
-        assertEquals("AA", first.getDestination());
-        TramTime expected = TramTime.of(lastUpdateTime.plusMinutes(wait).toLocalTime());
+        assertEquals("Bury", first.getDestination());
+        TramTime expected = TramTime.of(lastUpdate.plusMinutes(wait).toLocalTime());
         assertEquals(expected, first.getWhen());
 
         DepartureDTO last = results.last();
-        assertEquals("XX", last.getDestination());
+        assertEquals("Rochdale Interchange", last.getDestination());
         assertEquals(expected, last.getWhen());
     }
 
@@ -111,7 +111,7 @@ public class DeparturesMapperTest {
 
         assertEquals(3, result.getDepartures().size());
         DepartureDTO first = departures.first();
-        assertEquals("destinationC", first.getDestination());
+        assertEquals("Cornbrook", first.getDestination());
         assertEquals("Departing", first.getStatus());
         assertEquals("location", first.getFrom());
         assertEquals("Double", first.getCarriages());
@@ -136,7 +136,7 @@ public class DeparturesMapperTest {
 
         assertEquals(3, result.getDepartures().size());
         DepartureDTO first = departures.first();
-        assertEquals("destinationC", first.getDestination());
+        assertEquals("Cornbrook", first.getDestination());
         assertEquals("Departing", first.getStatus());
         assertEquals("location", first.getFrom());
         assertEquals("Double", first.getCarriages());
@@ -151,12 +151,12 @@ public class DeparturesMapperTest {
 
         StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName", "stationPlatform1", "location",
                 "messageOne", updateDateTime);
-        infoA.addDueTram(new DueTram("destinationA", "Due", 5, "Double", updateDateTime.toLocalTime()));
-        infoA.addDueTram(new DueTram("destinationB", "Delay", 10, "Single", updateDateTime.toLocalTime()));
+        infoA.addDueTram(new DueTram(Stations.Altrincham, "Due", 5, "Double", updateDateTime.toLocalTime()));
+        infoA.addDueTram(new DueTram(Stations.Bury, "Delay", 10, "Single", updateDateTime.toLocalTime()));
 
         StationDepartureInfo infoB = new StationDepartureInfo("displayId2", "lineName", "stationPlatform2", "location",
                 "messageTwo", updateDateTime);
-        infoB.addDueTram(new DueTram("destinationC", "Departing", 1, "Double", updateDateTime.toLocalTime()));
+        infoB.addDueTram(new DueTram(Stations.Cornbrook, "Departing", 1, "Double", updateDateTime.toLocalTime()));
 
         departureInfos.add(infoA);
         departureInfos.add(infoB);

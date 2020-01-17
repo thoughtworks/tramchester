@@ -3,10 +3,12 @@ package com.tramchester.domain.presentation;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import org.apache.commons.collections4.map.HashedMap;
 
 import java.util.*;
@@ -120,7 +122,7 @@ public class ProvidesNotes {
     }
 
     private void addRelevantMessage(Map<String,String> messageMap, PlatformDTO platform) {
-        StationDepartureInfo info = platform.getStationDepartureInfo();
+        StationDepartureInfoDTO info = platform.getStationDepartureInfo();
         if (info==null) {
             return;
         }
@@ -128,7 +130,7 @@ public class ProvidesNotes {
         addRelevantMessage(messageMap, info);
     }
 
-    private void addRelevantMessage(Map<String, String> messageMap, StationDepartureInfo info) {
+    private void addRelevantMessage(Map<String, String> messageMap, HasPlatformMessage info) {
         String rawMessage = info.getMessage();
         if (usefulMessage(rawMessage)) {
             if (messageMap.containsKey(rawMessage)) {

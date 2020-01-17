@@ -16,20 +16,22 @@ public class Station implements Location {
     private LatLong latLong;
     private boolean tram;
     private List<Platform> platforms;
-    private Set<String> servesRoutes;
+    private Set<Route> servesRoutes;
 
     public Station () {
         // deserialisation
+        platforms = new LinkedList<>();
+        servesRoutes = new HashSet<>();
     }
 
-    public Station(String id, String area, String stopName, LatLong latLong, boolean tram) {
+    public Station(String id, String area, String stationName, LatLong latLong, boolean tram) {
         this.id = id.intern();
         if (tram) {
-            this.name = stopName.intern();
+            this.name = stationName.intern();
         } else if (area.isEmpty()) {
-            this.name = stopName.intern();
+            this.name = stationName.intern();
         } else {
-            this.name = String.format("%s,%s", area, stopName);
+            this.name = String.format("%s,%s", area, stationName);
         }
         this.latLong = latLong;
         this.tram = tram;
@@ -116,11 +118,11 @@ public class Station implements Location {
                 '}';
     }
 
-    public void addRoute(String routeId) {
-        servesRoutes.add(routeId);
+    public void addRoute(Route route) {
+        servesRoutes.add(route);
     }
 
-    public Set<String> getRoutes() {
+    public Set<Route> getRoutes() {
         return servesRoutes;
     }
 }

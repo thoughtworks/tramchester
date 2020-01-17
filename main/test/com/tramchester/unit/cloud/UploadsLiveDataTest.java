@@ -39,7 +39,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
     @Test
     public void shouldConvertToJsonStringAndThenUploadIfNotDuplicate() {
         String expectedJSON = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"platforId\",\"message\":\"messageTxt\"," +
-                "\"dueTrams\":[{\"wait\":42,\"carriages\":\"Single\",\"status\":\"Due\",\"destination\":\"dest\",\"when\":\"15:48\"}]," +
+                "\"dueTrams\":[{\"from\":\"location\",\"carriages\":\"Single\",\"status\":\"Due\",\"destination\":\"Bury\",\"when\":\"15:48\"}]," +
                 "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"location\"}]";
 
         EasyMock.expect(s3facade.isStarted()).andReturn(true);

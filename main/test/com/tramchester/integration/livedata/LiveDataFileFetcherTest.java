@@ -1,6 +1,7 @@
 package com.tramchester.integration.livedata;
 
 
+import com.tramchester.TestConfig;
 import com.tramchester.livedata.LiveDataFileFetcher;
 import org.junit.Test;
 
@@ -13,8 +14,7 @@ public class LiveDataFileFetcherTest {
 
     @Test
     public void shouldLoadDataInFile() {
-        Path path = Paths.get("data","test","liveDataSample.json");
-        LiveDataFileFetcher fetcher = new LiveDataFileFetcher(path);
+        LiveDataFileFetcher fetcher = new LiveDataFileFetcher(TestConfig.LiveDataExampleFile);
         String data = fetcher.fetch();
         assertTrue(data.length()>0);
     }

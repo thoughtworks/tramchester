@@ -8,7 +8,9 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.integration.Stations;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
@@ -189,9 +191,11 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.enrich(platformDTO, queryDate, TramTime.of(lastUpdate.toLocalTime()));
         verifyAll();
 
-        StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
+        StationDepartureInfoDTO expected = new StationDepartureInfoDTO(departureInfo);
 
-        assertEquals(departureInfo, enriched);
+        StationDepartureInfoDTO enriched = platformDTO.getStationDepartureInfo();
+
+        assertEquals(expected, enriched);
         assertEquals(observedUpdates.size(),1);
         assertEquals(departureInfo, observedUpdates.get(0));
     }
@@ -213,7 +217,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
         repository.enrich(platformDTO, queryDateA, queryTime);
-        StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
+        StationDepartureInfoDTO enriched = platformDTO.getStationDepartureInfo();
         assertNull(enriched);
 
         repository.enrich(platformDTO, queryDateB, queryTime);
@@ -236,14 +240,11 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         replayAll();
         repository.refreshRespository();
-        //TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
         repository.enrich(platformDTO, queryDate, TramTime.of(lastUpdate.toLocalTime().plusMinutes(LiveDataRepository.TIME_LIMIT)));
-            //queryTime.plusMinutes(LiveDataRepository.TIME_LIMIT));
-        StationDepartureInfo enriched = platformDTO.getStationDepartureInfo();
+        StationDepartureInfoDTO enriched = platformDTO.getStationDepartureInfo();
         assertNull(enriched);
 
         repository.enrich(platformDTO, queryDate, TramTime.of(lastUpdate.toLocalTime().minusMinutes(LiveDataRepository.TIME_LIMIT)));
-                //queryTime.minusMinutes(LiveDataRepository.TIME_LIMIT));
         enriched = platformDTO.getStationDepartureInfo();
         assertNull(enriched);
         verifyAll();
@@ -270,9 +271,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.enrich(locationDTO, LocalDateTime.now() );
         verifyAll();
 
-        StationDepartureInfo result = locationDTO.getPlatforms().get(0).getStationDepartureInfo();
+        StationDepartureInfoDTO expected = new StationDepartureInfoDTO(departureInfo);
+        StationDepartureInfoDTO result = locationDTO.getPlatforms().get(0).getStationDepartureInfo();
         assertNotNull(result);
-        assertEquals(departureInfo, result);
+        assertEquals(expected, result);
     }
 
     public static StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
@@ -280,7 +282,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", platformId,
                 location, message, lastUpdate);
         info.add(departureInfo);
-        departureInfo.addDueTram(new DueTram("dest", "Due", 42, "Single", lastUpdate.toLocalTime()));
+        departureInfo.addDueTram(new DueTram(Stations.Bury, "Due", 42, "Single", lastUpdate.toLocalTime()));
         return departureInfo;
     }
 }

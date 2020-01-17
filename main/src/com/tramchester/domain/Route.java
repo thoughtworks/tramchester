@@ -6,13 +6,16 @@ import java.util.Set;
 public class Route {
     public static final String METROLINK = "MET";
 
-    private final String id;
-    private final String code;
-    private final String name;
-    private final String agency;
+    private String id;
+    private String code;
+    private String name;
+    private String agency;
+    private Set<Service> services;
+    private Set<String> headsigns;
 
-    private final Set<Service> services;
-    private final Set<String> headsigns;
+    public Route() {
+        // deserialisation
+    }
 
     public Route(String id, String code, String name, String agency) {
         this.id = id.intern();

@@ -1,7 +1,9 @@
 package com.tramchester.domain.liveUpdates;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
@@ -13,16 +15,12 @@ public class DueTram {
 
     private int wait;
 
-    private String carriages;
-    private String status;
-    private String destination;
+    private String carriages; // double/single
+    private String status; // due, arrived, etc
+    private Station destination;
     private TramTime when;
 
-    public DueTram() {
-        // deserialisation
-    }
-
-    public DueTram(String destination, String status, int wait, String carriages, LocalTime updateTime) {
+    public DueTram(Station destination, String status, int wait, String carriages, LocalTime updateTime) {
         this.destination = destination;
         this.status = status;
         this.wait = wait;
@@ -30,7 +28,7 @@ public class DueTram {
         this.when  = TramTime.of(updateTime.plusMinutes(wait)); //.plusMinutes(wait);
     }
 
-    public String getDestination() {
+    public Station getDestination() {
         return destination;
     }
 

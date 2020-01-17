@@ -2,7 +2,6 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
@@ -186,7 +185,6 @@ public class ProvidesNotesTest {
 
     private StageDTO createStage(TransportMode transportMode, String platformLocation, String platformId,
                                  String message, String displayUnitId) {
-        boolean isWalk = transportMode.equals(TransportMode.Walk);
         PlatformDTO platformDTO = createPlatformDTO(platformLocation, platformId, message, displayUnitId);
         return new StageDTO(new LocationDTO(Stations.Ashton), new LocationDTO(Stations.Victoria),
                 new LocationDTO(Stations.PiccadillyGardens), true,
@@ -203,13 +201,16 @@ public class ProvidesNotesTest {
         return platformDTO;
     }
 
-    private StationDepartureInfo createDepartureInfo(String platformLocation, String message, String displayUnitId) {
-        return new StationDepartureInfo(displayUnitId,
-        "lineName",
-        "stationPlatform",
-        platformLocation,
-        message,
-        LocalDateTime.now());
+    private StationDepartureInfoDTO createDepartureInfo(String platformLocation, String message, String displayUnitId) {
+        List<DepartureDTO> dueTrams = Collections.emptyList();
+        return new StationDepartureInfoDTO(
+            "lineName",
+            "stationPlatform",
+            message,
+            dueTrams,
+            LocalDateTime.now(),
+            displayUnitId, platformLocation
+        );
     }
 
 }

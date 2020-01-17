@@ -6,6 +6,7 @@ import com.tramchester.domain.TramTime;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.healthchecks.ProvidesNow;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataParser;
@@ -28,7 +29,7 @@ public class LiveDataRepository {
     public static final String NO_MESSAGE = "<no message>";
 
     // platformId -> StationDepartureInfo
-    private HashMap<String,StationDepartureInfo> stationInformation;
+    private HashMap<String, StationDepartureInfo> stationInformation;
 
     private LiveDataFetcher fetcher;
     private LiveDataParser parser;
@@ -140,13 +141,15 @@ public class LiveDataRepository {
     private void enrichPlatformIfTimeMatches(PlatformDTO platform, TramTime queryTime) {
         String platformId = platform.getId();
         logger.info("Found live data for " + platformId);
-        StationDepartureInfo info = stationInformation.get(platformId);
 
+        StationDepartureInfo info = stationInformation.get(platformId);
         LocalDateTime infoLastUpdate = info.getLastUpdate();
 
         if (withinTime(queryTime, infoLastUpdate.toLocalTime())) {
             logger.info(format("Adding departure info '%s' for platform %s",info, platform));
-            platform.setDepartureInfo(info);
+
+            StationDepartureInfoDTO infoDTO = new StationDepartureInfoDTO(info);
+            platform.setDepartureInfo(infoDTO);
         } else {
             logger.warn(format("Not adding departure info as not within time range, query at %s, update at %s (%s)",
                     queryTime, infoLastUpdate, infoLastUpdate));

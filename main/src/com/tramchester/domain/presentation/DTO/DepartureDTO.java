@@ -7,10 +7,11 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
+import java.util.Objects;
+
 public class DepartureDTO implements Comparable<DepartureDTO> {
 
     private String from;
-
     private String carriages;
     private String status;
     private String destination;
@@ -21,7 +22,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         this.when = dueTram.getWhen();
         this.carriages = dueTram.getCarriages();
         this.status = dueTram.getStatus();
-        this.destination = dueTram.getDestination();
+        this.destination = dueTram.getDestination().getName();
     }
 
     public DepartureDTO() {
@@ -58,5 +59,33 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         }
         // time ordering
         return when.compareTo(other.when);
+    }
+
+    @Override
+    public String toString() {
+        return "DepartureDTO{" +
+                "from='" + from + '\'' +
+                ", carriages='" + carriages + '\'' +
+                ", status='" + status + '\'' +
+                ", destination='" + destination + '\'' +
+                ", when=" + when +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DepartureDTO that = (DepartureDTO) o;
+        return from.equals(that.from) &&
+                carriages.equals(that.carriages) &&
+                status.equals(that.status) &&
+                destination.equals(that.destination) &&
+                when.equals(that.when);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(from, carriages, status, destination, when);
     }
 }

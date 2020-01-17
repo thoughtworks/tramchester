@@ -181,4 +181,7 @@ public abstract class TestConfig extends AppConfiguration {
     public static boolean isCircleci() {
         return System.getenv("CIRCLECI") != null;
     }
+
+    public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
+
 }

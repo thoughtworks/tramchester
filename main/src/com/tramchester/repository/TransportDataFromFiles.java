@@ -6,7 +6,6 @@ import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.presentation.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,8 @@ public class TransportDataFromFiles implements TransportDataSource {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
-    private HashMap<String, Station> stations = new HashMap<>();  // station id -> station
+    private HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
+    private HashMap<String, Station> stationsByName = new HashMap<>();  // station id -> station
     private HashMap<String, Service> services = new HashMap<>();  // service id -> service
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
     private HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
@@ -45,7 +45,7 @@ public class TransportDataFromFiles implements TransportDataSource {
         populateStopTimes(stopTimes);
         populateCalendars(calendars);
 
-        logger.info(format("%s stations", stations.size()));
+        logger.info(format("%s stations", stationsById.size()));
         logger.info(format("%s routes", this.routes.size()));
         logger.info(format("%s services", services.size()));
         logger.info(format("%s trips", this.trips.size()));
@@ -87,9 +87,9 @@ public class TransportDataFromFiles implements TransportDataSource {
 
             String stopId = stopTimeData.getStopId();
             String stationId = Station.formId(stopId);
-            if (stations.containsKey(stationId)) {
-                Station station = stations.get(stationId);
-                station.addRoute(trip.getRouteId());
+            if (stationsById.containsKey(stationId)) {
+                Station station = stationsById.get(stationId);
+                station.addRoute(routes.get(trip.getRouteId()));
                 int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
                 Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 trip.addStop(stop);
@@ -130,11 +130,12 @@ public class TransportDataFromFiles implements TransportDataSource {
             Station station;
             String stationId = Station.formId(stopId);
 
-            if (!stations.keySet().contains(stationId)) {
+            if (!stationsById.keySet().contains(stationId)) {
                 station = new Station(stationId, stop.getArea(), stop.getName(), stop.getLatLong(), stop.isTram());
-                stations.put(stationId, station);
+                stationsById.put(stationId, station);
+                stationsByName.put(stop.getName().toLowerCase(), station);
             } else {
-                station = stations.get(stationId);
+                station = stationsById.get(stationId);
             }
 
             if (stop.isTram()) {
@@ -203,7 +204,7 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     public Set<Station> getStations() {
         Set<Station> stationList = new HashSet<>();
-        stationList.addAll(stations.values());
+        stationList.addAll(stationsById.values());
         return stationList;
     }
 
@@ -214,10 +215,20 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     @Override
     public Optional<Station> getStation(String stationId) {
-        if (stations.containsKey(stationId)) {
-            return Optional.of(stations.get(stationId));
+        if (stationsById.containsKey(stationId)) {
+            return Optional.of(stationsById.get(stationId));
         } else {
             logger.warn("Unable to find station with ID:"+stationId);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Station> getStationByName(String name) {
+        String lowerCase = name.toLowerCase();
+        if (stationsByName.containsKey(lowerCase)) {
+            return Optional.of(stationsByName.get(lowerCase));
+        } else {
             return Optional.empty();
         }
     }

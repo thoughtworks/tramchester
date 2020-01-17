@@ -3,18 +3,23 @@ package com.tramchester.unit.mappers;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.integration.Stations;
 import com.tramchester.mappers.LiveDataParser;
+import com.tramchester.repository.StationRepository;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
 import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.time.*;
 import java.util.List;
+import java.util.Optional;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 
-public class LiveDataParserTest {
+public class LiveDataParserTest extends EasyMockSupport {
 
     public static String exampleData = "{\n" +
             "  \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n" +
@@ -27,10 +32,17 @@ public class LiveDataParserTest {
 
 
     private LiveDataParser mapper;
+    private StationRepository stationRepository;
 
     @Before
     public void beforeEachTestRuns() {
-        mapper = new LiveDataParser();
+        stationRepository = createMock(StationRepository.class);
+        mapper = new LiveDataParser(stationRepository);
+
+        EasyMock.expect(stationRepository.getStationByName("Piccadilly")).andStubReturn(Optional.of(Stations.Piccadilly));
+        EasyMock.expect(stationRepository.getStationByName("")).andStubReturn(Optional.empty());
+        EasyMock.expect(stationRepository.getStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(Stations.Deansgate));
+        EasyMock.expect(stationRepository.getStationByName("See Tram Front")).andStubReturn(Optional.empty());
     }
 
     @Test
@@ -57,19 +69,23 @@ public class LiveDataParserTest {
         }
         message.append(footer);
 
+        replayAll();
         List<StationDepartureInfo> info = mapper.parse(message.toString());
         assertEquals(11, info.size());
         for (int i = 1; i < 12; i++) {
             LocalDateTime expected = LocalDateTime.of(2017, 11, 29, i, 45);
             assertEquals(expected.toString(), expected, info.get(i-1).getLastUpdate());
         }
+        verifyAll();
 
     }
 
     @Test
     public void shouldMapLiveDataToStationInfo() throws ParseException {
 
+        replayAll();
         List<StationDepartureInfo> info = mapper.parse(exampleData);
+        verifyAll();
 
         assertEquals(2, info.size());
 
@@ -85,7 +101,7 @@ public class LiveDataParserTest {
         assertEquals(3, dueTrams.size());
         DueTram dueTram = dueTrams.get(1);
 
-        assertEquals("Piccadilly", dueTram.getDestination());
+        assertEquals("Piccadilly", dueTram.getDestination().getName());
         assertEquals("Due", dueTram.getStatus());
         assertEquals(12, dueTram.getWait());
         assertEquals("Single",dueTram.getCarriages());

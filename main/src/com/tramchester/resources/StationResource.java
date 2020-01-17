@@ -148,9 +148,7 @@ public class StationResource extends UsesRecentCookie {
 
         LatLong latLong = new LatLong(lat,lon);
         List<StationDTO> stations = spatialService.getNearestStations(latLong);
-        stations.forEach(station -> {
-            liveDataRepository.enrich(station, localNow);
-        });
+        stations.forEach(station -> liveDataRepository.enrich(station, localNow));
 
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
         List<String> notes = providesNotes.createNotesForStations(stations, queryDate);

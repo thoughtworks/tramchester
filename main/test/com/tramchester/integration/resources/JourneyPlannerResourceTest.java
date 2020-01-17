@@ -10,10 +10,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -100,7 +97,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         PlatformDTO platform = firstStage.getPlatform();
 
         // depends on up to date departure info and current query time
-        StationDepartureInfo departInfo = platform.getStationDepartureInfo();
+        StationDepartureInfoDTO departInfo = platform.getStationDepartureInfo();
         assertNotNull("departInfo was null",departInfo);
         String expected = Stations.Altrincham.getId() + "1";
         assertEquals("got "+departInfo.getStationPlatform(), expected,departInfo.getStationPlatform());

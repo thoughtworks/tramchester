@@ -12,6 +12,7 @@ import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -80,7 +81,7 @@ public class StationResourceTest {
 
         List<PlatformDTO> platforms = result.getPlatforms();
         assertEquals(4, platforms.size());
-        StationDepartureInfo info = platforms.get(0).getStationDepartureInfo();
+        StationDepartureInfoDTO info = platforms.get(0).getStationDepartureInfo();
         assertNotNull(info);
         assertEquals("St Peter's Square", info.getLocation());
     }
@@ -134,7 +135,7 @@ public class StationResourceTest {
         stations.forEach(stationDTO -> {
             assertTrue(stationDTO.getName(), stationDTO.hasPlatforms());
             stationDTO.getPlatforms().forEach(platformDTO -> {
-                StationDepartureInfo info = platformDTO.getStationDepartureInfo();
+                StationDepartureInfoDTO info = platformDTO.getStationDepartureInfo();
                 assertNotNull(stationDTO.getName(), info);
             });
         });

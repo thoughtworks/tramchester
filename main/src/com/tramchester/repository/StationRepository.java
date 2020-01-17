@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 public interface StationRepository {
     Optional<Station> getStation(String stationId);
+    Optional<Station> getStationByName(String name);
     Set<Station> getStations();
     Collection<Route> getRoutes();
     Stream<Trip> getTripsByRouteId(String routeId);

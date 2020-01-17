@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class StationDepartureInfo {
+public class StationDepartureInfo implements HasPlatformMessage {
 
     private String lineName;
     private String stationPlatform;
@@ -32,10 +32,6 @@ public class StationDepartureInfo {
         dueTrams = new LinkedList<>();
     }
 
-    public StationDepartureInfo() {
-        // deserialisation
-    }
-
     public String getLineName() {
         return lineName;
     }
@@ -52,13 +48,10 @@ public class StationDepartureInfo {
         return dueTrams;
     }
 
-    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }
 
-    @JsonIgnore
     public void addDueTram(DueTram dueTram) {
         dueTrams.add(dueTram);
     }
