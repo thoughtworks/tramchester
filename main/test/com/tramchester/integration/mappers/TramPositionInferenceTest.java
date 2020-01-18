@@ -1,6 +1,7 @@
 package com.tramchester.integration.mappers;
 
 import com.tramchester.Dependencies;
+import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.graph.TramRouteReachable;
@@ -8,17 +9,16 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationRepository;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TramPositionInferenceTest {
@@ -45,12 +45,23 @@ public class TramPositionInferenceTest {
     }
 
     @Test
+    @Category(LiveDataTestCategory.class)
     public void shouldInferTramPosition() {
-        Station first = stationRepository.getStation(Stations.Altrincham.getId()).get();
-        Station second = stationRepository.getStation(Stations.NavigationRoad.getId()).get();
+        // TODO Pre-compute and cache linked pairs and associated costs
+
+        // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
+        // Guess this is down to signalling, track, etc.
+        int cost = 3; // cost between the stations, no due trams outside this limit should appear
+
+        Station first = stationRepository.getStation(Stations.Deansgate.getId()).get();
+        Station second = stationRepository.getStation(Stations.StPetersSquare.getId()).get();
 
         Set<DueTram> between = mapper.findBetween(first, second);
-
         assertTrue(between.size()>=1);
+        between.forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
+
+        Set<DueTram> otherDirection = mapper.findBetween(second, first);
+        assertTrue(otherDirection.size()>=1);
+        otherDirection.forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
     }
 }

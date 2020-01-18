@@ -8,6 +8,8 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.repository.LiveDataSource;
+import io.swagger.models.auth.In;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,24 +32,28 @@ public class TramPositionInference {
     public Set<DueTram> findBetween(Station first, Station second) {
         Set<Route> firstRoutes = first.getRoutes();
 
-        // find routes that servce first to second
-        Set<Route> routesFromFirstToSecond = firstRoutes.stream().
-                filter(route -> routeReachable.getRouteReachableAjacent(first.getId(), second.getId(), route.getId()))
-                .collect(Collectors.toSet());
+        // find routes that serve first to second, => pair(route, cost)
+        Map<Route,Integer> routesFromFirstToSecond = firstRoutes.stream().
+                map(route -> Pair.of(route, routeReachable.
+                        getRouteReachableAjacent(first.getId(), second.getId(), route.getId()))).
+                filter(pair -> pair.getRight()>=0).
+                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
         if (routesFromFirstToSecond.isEmpty()) {
             logger.info(format("Found no routes from %s to %s", first, second));
             return Collections.emptySet();
         }
 
-        // get the platforms at second that serve those route
-        Set<StationDepartureInfo> departureInfos = new HashSet<>();
+        // get the platforms at second that serve routes that link the two stations
+        Map<StationDepartureInfo, Integer> departureInfos = new HashMap<>();
         second.getPlatforms().forEach(platform ->
                 {
-                    Set<Route> routes = platform.getRoutes();
-                    routes.retainAll(routesFromFirstToSecond);
-                    if (!routes.isEmpty()) {
-                        departureInfos.add(liveDataSource.departuresFor(platform));
+                    Set<Route> platformRoutes = platform.getRoutes();
+                    platformRoutes.retainAll(routesFromFirstToSecond.keySet());
+                    if (!platformRoutes.isEmpty()) {
+                        Route platformRoute = platformRoutes.iterator().next();
+                        int actualCost = routesFromFirstToSecond.get(platformRoute);
+                        departureInfos.put(liveDataSource.departuresFor(platform), actualCost);
                     }
                 }
         );
@@ -57,8 +63,8 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        return departureInfos.stream().
-                map(StationDepartureInfo::getDueTrams).
+        return departureInfos.entrySet().stream().
+                map(mapEntry -> mapEntry.getKey().getDueTramsWithinWindow(mapEntry.getValue())).
                 flatMap(Collection::stream).
                 collect(Collectors.toSet());
     }

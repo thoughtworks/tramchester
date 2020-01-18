@@ -12,8 +12,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 
 public class TramRouteReachableTest {
 
@@ -73,21 +72,22 @@ public class TramRouteReachableTest {
     @Test
     public void shouldHaveAdjacentReachableCorrect() {
 
-        assertTrue(reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
+        assertEquals(2,reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
                 RouteCodesForTesting.BURY_TO_ALTY));
-        assertFalse(reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
+        assertEquals(-1, reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
                 RouteCodesForTesting.ALTY_TO_PICC));
-        assertTrue(reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.NavigationRoad.getId(),
+        // yes, it is different as per the timetable
+        assertEquals(3, reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.NavigationRoad.getId(),
                 RouteCodesForTesting.ALTY_TO_PICC));
 
-        assertTrue(reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
+        assertEquals(3, reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
                 RouteCodesForTesting.ALTY_TO_PICC));
-        assertFalse(reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
+        assertEquals(-1, reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
                 RouteCodesForTesting.ALTY_TO_BURY));
-        assertTrue(reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.MarketStreet.getId(),
+        assertEquals(3, reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.MarketStreet.getId(),
                 RouteCodesForTesting.ALTY_TO_BURY));
 
-        assertFalse(reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
+        assertEquals(-1, reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
                 RouteCodesForTesting.ALTY_TO_BURY));
     }
 }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class StationDepartureInfo implements HasPlatformMessage {
 
@@ -46,6 +47,10 @@ public class StationDepartureInfo implements HasPlatformMessage {
 
     public List<DueTram> getDueTrams() {
         return dueTrams;
+    }
+
+    public List<DueTram> getDueTramsWithinWindow(int minutes) {
+        return dueTrams.stream().filter(dueTram -> dueTram.getWait()<=minutes).collect(Collectors.toList());
     }
 
     public LocalDateTime getLastUpdate() {

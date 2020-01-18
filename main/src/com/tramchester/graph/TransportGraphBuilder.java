@@ -186,19 +186,22 @@ public class TransportGraphBuilder extends StationIndexs {
             Node fromRouteStation = getOrCreateCallingPointAndStation(currentStop, route, service, firstStop, false);
             Node toRouteStation = getOrCreateCallingPointAndStation(nextStop, route, service, false, lastStop);
 
+            int cost = TramTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
+
             if (runsAtLeastADay(service.getDays())) {
-                createRouteRelationship(fromRouteStation, toRouteStation, route);
+                createRouteRelationship(fromRouteStation, toRouteStation, route, cost);
                 createRelationships(fromRouteStation, toRouteStation, currentStop, nextStop, route, service, trip);
             }
         }
     }
 
-    private void createRouteRelationship(Node from, Node to, Route route) {
+    private void createRouteRelationship(Node from, Node to, Route route, int cost) {
         if (from.hasRelationship(TransportRelationshipTypes.ON_ROUTE, OUTGOING)) {
             return;
         }
         Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
         onRoute.setProperty(ROUTE_ID, route.getId());
+        onRoute.setProperty(COST, cost);
     }
 
     private Node getOrCreateStation(Location station) {
@@ -423,9 +426,6 @@ public class TransportGraphBuilder extends StationIndexs {
             beginServiceNode = createGraphNode(Labels.SERVICE);
             beginServiceNode.setProperty(GraphStaticKeys.ID, beginSvcNodeId);
             beginServiceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
-
-            // TODO still needed
-//            beginServiceNode.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
             beginServiceNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
             setLatLongFor(beginServiceNode, destinationLatLong);
@@ -506,7 +506,6 @@ public class TransportGraphBuilder extends StationIndexs {
                                      Route route, Service service, int cost) {
         relationship.setProperty(COST, cost);
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
-//        relationship.setProperty(GraphStaticKeys.DAYS, toBoolArray(service.getDays()));
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
         if (transportRelationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO)) {

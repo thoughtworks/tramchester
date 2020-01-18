@@ -5,8 +5,7 @@ import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 
-import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
-import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
+import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
@@ -26,19 +25,19 @@ public class TramRouteReachable extends StationIndexs {
     }
 
 
-    public boolean getRouteReachableAjacent(String startStationId, String endStationId, String routeCode) {
+    public int getRouteReachableAjacent(String startStationId, String endStationId, String routeCode) {
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
             Node startNode = getRouteStationNode(startStationId + routeCode);
             Iterable<Relationship> outboundRoutes = startNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
             for (Relationship outbound : outboundRoutes) {
                 if (endStationId.equals(outbound.getEndNode().getProperty(STATION_ID).toString())) {
-                    return true;
+                    return (int)outbound.getProperty(COST);
                 }
             }
         }
 
-        return false;
+        return -1;
     }
 
     private boolean evaluatePaths(String startStationId, Evaluator evaluator) {
