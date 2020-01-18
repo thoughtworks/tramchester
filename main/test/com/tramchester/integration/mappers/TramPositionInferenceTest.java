@@ -10,6 +10,7 @@ import com.tramchester.integration.Stations;
 import com.tramchester.mappers.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationRepository;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,6 +45,11 @@ public class TramPositionInferenceTest {
         stationRepository = dependencies.get(StationRepository.class);
     }
 
+    @AfterClass
+    public static void OnceAfterAllTestsAreFinished() {
+        dependencies.close();
+    }
+    
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldInferTramPosition() {

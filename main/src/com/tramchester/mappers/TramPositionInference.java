@@ -1,14 +1,11 @@
 package com.tramchester.mappers;
 
-import com.google.common.base.Functions;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.repository.LiveDataSource;
-import io.swagger.models.auth.In;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
