@@ -14,6 +14,7 @@ import com.tramchester.graph.*;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
+import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.mappers.*;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
@@ -93,6 +94,7 @@ public class Dependencies {
         picoContainer.addComponent(VersionResource.class);
         picoContainer.addComponent(CreateQueryTimes.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
+        picoContainer.addComponent(TramPositionsResource.class);
         picoContainer.addComponent(ServiceHeuristics.class);
 
         picoContainer.addComponent(RouteCalculator.class);
@@ -132,6 +134,7 @@ public class Dependencies {
         picoContainer.addComponent(JourneyDTOFactory.class);
         picoContainer.addComponent(HeadsignMapper.class);
         picoContainer.addComponent(LiveDataEnricher.class);
+        picoContainer.addComponent(TramPositionInference.class);
 
         picoContainer.addComponent(ProvidesNow.class, new ProvidesNow() {
             @Override

@@ -1,6 +1,5 @@
 package com.tramchester.domain.liveUpdates;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Station;
@@ -14,7 +13,6 @@ import java.util.Objects;
 public class DueTram {
 
     private int wait;
-
     private String carriages; // double/single
     private String status; // due, arrived, etc
     private Station destination;

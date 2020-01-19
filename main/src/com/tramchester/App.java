@@ -123,6 +123,7 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(dependencies.get(RouteResource.class));
         environment.jersey().register(dependencies.get(AreaResource.class));
         environment.jersey().register(dependencies.get(DeparturesResource.class));
+        environment.jersey().register(dependencies.get(TramPositionsResource.class));
 
         filtersForStaticContent(environment);
 

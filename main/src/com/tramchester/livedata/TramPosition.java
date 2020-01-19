@@ -6,8 +6,8 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import java.util.Set;
 
 public class TramPosition {
-    private final Station first;
-    private final Station second;
+    private Station first;
+    private Station second;
     private Set<DueTram> trams;
 
     public TramPosition(Station first, Station second, Set<DueTram> trams) {
