@@ -35,7 +35,7 @@ public class LocationToLocationJourneyPlanner {
         this.stationRepository = stationRepository;
     }
 
-    public Stream<RawJourney> quickestRouteForLocation(LatLong latLong, String destinationId, List<TramTime> queryTimes,
+    public Stream<Journey> quickestRouteForLocation(LatLong latLong, String destinationId, List<TramTime> queryTimes,
                                                     TramServiceDate queryDate) {
 
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
@@ -47,8 +47,8 @@ public class LocationToLocationJourneyPlanner {
         return createJourneyPlan(latLong, nearbyStations, destinationId, queryTimes, queryDate);
     }
 
-    private Stream<RawJourney> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, List<TramTime> queryTimes,
-                                                 TramServiceDate queryDate) {
+    private Stream<Journey> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, List<TramTime> queryTimes,
+                                              TramServiceDate queryDate) {
 
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).
                 filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());

@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
@@ -42,22 +43,21 @@ public class RouteCalculator extends StationIndexs {
         this.reachabilityRepository = reachabilityRepository;
     }
 
-    public Stream<RawJourney> calculateRoute(String startStationId, String endStationId, List<TramTime> queryTimes,
+    public Stream<Journey> calculateRoute(String startStationId, String endStationId, List<TramTime> queryTimes,
                                           TramServiceDate queryDate) {
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s",
-                startStationId, endStationId, queryDate, queryTimes));
-
+        logger.info(format("Finding shortest path for %s --> %s on %s at %s", startStationId, endStationId,
+                queryDate, queryTimes));
         return gatherJounerys(getStationNode(startStationId), endStationId, queryTimes, queryDate);
     }
 
-    public Stream<RawJourney> calculateRoute(LatLong origin, List<StationWalk> stationWalks, String destinationId,
-                                             List<TramTime> queryTimes, TramServiceDate queryDate) {
+    public Stream<Journey> calculateRoute(LatLong origin, List<StationWalk> stationWalks, String destinationId,
+                                          List<TramTime> queryTimes, TramServiceDate queryDate) {
 
         return getWalkingJourneyStream(origin, stationWalks, destinationId, queryTimes, queryDate);
     }
 
-    private Stream<RawJourney> getWalkingJourneyStream(LatLong origin, List<StationWalk> stationWalks, String destinationId,
-                                                       List<TramTime> queryTimes, TramServiceDate queryDate) {
+    private Stream<Journey> getWalkingJourneyStream(LatLong origin, List<StationWalk> stationWalks, String destinationId,
+                                                    List<TramTime> queryTimes, TramServiceDate queryDate) {
         List<Relationship> addedWalks = new LinkedList<>();
 
         Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabaseService);
@@ -77,7 +77,7 @@ public class RouteCalculator extends StationIndexs {
             addedWalks.add(walkingRelationship);
         });
 
-        Stream<RawJourney> journeys = gatherJounerys(startOfWalkNode, destinationId, queryTimes, queryDate);
+        Stream<Journey> journeys = gatherJounerys(startOfWalkNode, destinationId, queryTimes, queryDate);
 
         // must delete relationships first, otherwise may not delete node
         journeys.onClose(() -> {
@@ -89,8 +89,8 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    private Stream<RawJourney> gatherJounerys(Node startNode, String destinationId, List<TramTime> queryTimes,
-                                              TramServiceDate queryDate) {
+    private Stream<Journey> gatherJounerys(Node startNode, String destinationId, List<TramTime> queryTimes,
+                                           TramServiceDate queryDate) {
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
         Node endNode = getStationNode(destinationId);
         ServiceReasons serviceReasons = new ServiceReasons();
@@ -101,8 +101,8 @@ public class RouteCalculator extends StationIndexs {
                 map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, serviceReasons, destinationId)).
                 flatMap(Function.identity()).
                 map(path -> {
-                    List<RawStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime());
-                    return new RawJourney(stages, path.getQueryTime(), path.path.weight());
+                    List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime());
+                    return new Journey(stages, path.getQueryTime(), path.path.weight());
                 });
 
     }

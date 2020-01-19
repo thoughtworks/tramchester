@@ -1,6 +1,5 @@
 package com.tramchester.domain;
 
-import java.time.LocalTime;
 import java.util.Objects;
 
 public class TimeWindow {

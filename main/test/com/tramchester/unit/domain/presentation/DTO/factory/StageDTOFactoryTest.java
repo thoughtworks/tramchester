@@ -32,8 +32,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
 
     @Test
     public void shouldCreateStageDTOCorrectlyForWalking() {
-        RawWalkingStage rawWalkingStage = new RawWalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15, TramTime.of(8,11));
-        TransportStage stage = new WalkingStage(rawWalkingStage, TramTime.of(8,0));
+        WalkingStage stage = new WalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15, TramTime.of(8,11));
 
         TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.now());
         StageDTO build = factory.build(stage, TravelAction.Walk, TramTime.of(8,0), tramServiceDate);
@@ -45,24 +44,22 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldCreateStageDTOCorrectlyForTransportStage() {
         Trip trip = new Trip("tripId", "headSign", "svcId", "routeName");
-        RawVehicleStage rawVehicleStage = new RawVehicleStage(Stations.MarketStreet, "routeName",
-                TransportMode.Tram, "Displayclass", trip);
-        rawVehicleStage.setLastStation(Stations.Bury,23);
-        rawVehicleStage.setDepartTime(TramTime.of(0, 0));
-        rawVehicleStage.setCost(5);
+        VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, "routeName",
+                TransportMode.Tram, "Displayclass", trip, TramTime.of(0, 0), Stations.Bury, 23);
+        vehicleStage.setCost(5);
 
         Platform platform = new Platform("platFormId", "platformName");
-        rawVehicleStage.setPlatform(platform);
+        vehicleStage.setPlatform(platform);
 
         TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.now());
         enrichPlatform.enrich(new PlatformDTO(platform), tramServiceDate, TramTime.of(8, 23));
         EasyMock.expectLastCall();
 
         replayAll();
-        StageDTO stageDTO = factory.build(rawVehicleStage, TravelAction.Board, TramTime.of(8, 23), tramServiceDate);
+        StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, TramTime.of(8, 23), tramServiceDate);
         verifyAll();
 
-        checkValues(rawVehicleStage, stageDTO, true, TravelAction.Board);
+        checkValues(vehicleStage, stageDTO, true, TravelAction.Board);
     }
 
     private void checkValues(TransportStage stage, StageDTO dto, boolean hasPlatform, TravelAction action) {

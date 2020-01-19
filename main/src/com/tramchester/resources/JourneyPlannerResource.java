@@ -116,27 +116,26 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 queryDate, initialQueryTime));
 
         List<TramTime> queryTimes = Collections.singletonList(initialQueryTime);
-        Stream<RawJourney> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTimes, queryDate);
-        Set<RawJourney> rawJourneySet = journeys.collect(Collectors.toSet());
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTimes, queryDate);
+        Set<Journey> journeySet = journeys.collect(Collectors.toSet());
 
-        return createPlan(queryDate, initialQueryTime, rawJourneySet);
+        return createPlan(queryDate, journeySet);
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
-                                                        TramTime initialQueryTime) {
-        List<TramTime> queryTimes = createQueryTimes.generate(initialQueryTime);
+                                                        TramTime queryTime) {
+        List<TramTime> queryTimes = createQueryTimes.generate(queryTime);
 
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
                 queryDate,queryTimes));
 
-        Stream<RawJourney> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
-        Set<RawJourney> rawJourneySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
+        Stream<Journey> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
+        Set<Journey> journeySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
 
-        return createPlan(queryDate, initialQueryTime, rawJourneySet);
+        return createPlan(queryDate, journeySet);
     }
 
-    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, TramTime initialQueryTime,
-                                                 Set<RawJourney> journeys) {
+    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Set<Journey> journeys) {
         logger.info("number of journeys: " + journeys.size());
         SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(journeys, queryDate);
         List<String> notes = providesNotes.createNotesForJourneys(queryDate, decoratedJourneys);

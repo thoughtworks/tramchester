@@ -1,9 +1,8 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.TramTime;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.*;
-import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.mappers.HeadsignMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,8 +114,7 @@ public class JourneyDTOFactory {
         // Direct first
         if (size == 1) {
             return true;
-        }
-        if (size == 2 && firstStageIsWalk(allStages)) {
+        } else if (size == 2 && firstStageIsWalk(allStages)) {
             return true;
         }
         return false;
@@ -161,9 +159,6 @@ public class JourneyDTOFactory {
     }
 
     private StageDTO getFirstStage(List<StageDTO> allStages) {
-//        if (allStages.size()==1) {
-//            return allStages.get(0);
-//        }
         return allStages.get(0);
     }
 

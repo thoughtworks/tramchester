@@ -1,25 +1,27 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.presentation.TransportStage;
+
 import java.util.Iterator;
 import java.util.List;
 
-public class RawJourney implements Iterable<RawStage> {
+public class Journey implements Iterable<TransportStage> {
 
-    private final List<RawStage> stages;
+    private final List<TransportStage> stages;
     private final TramTime queryTime;
     private final double totalCost;
 
-    public RawJourney(List<RawStage> stages, TramTime queryTime, double totalCost) {
+    public Journey(List<TransportStage> stages, TramTime queryTime, double totalCost) {
         this.stages = stages;
         this.queryTime = queryTime;
         this.totalCost = totalCost;
     }
     
-    public Iterator<RawStage> iterator() {
+    public Iterator<TransportStage> iterator() {
         return stages.iterator();
     }
 
-    public List<RawStage> getStages() {
+    public List<TransportStage> getStages() {
         return stages;
     }
 

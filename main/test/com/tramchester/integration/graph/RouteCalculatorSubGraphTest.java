@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
-import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
@@ -102,7 +102,7 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void shouldHaveSimpleOneStopJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
-        Set<RawJourney> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
                 minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
@@ -110,7 +110,7 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
-        Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
                 minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
@@ -118,7 +118,7 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void shouldHaveSimpleJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
-        Set<RawJourney> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
                 minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }

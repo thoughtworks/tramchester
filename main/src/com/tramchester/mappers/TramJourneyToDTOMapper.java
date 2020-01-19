@@ -24,20 +24,18 @@ public class TramJourneyToDTOMapper {
         this.stageFactory = stageFactory;
     }
 
-    public Optional<JourneyDTO> createJourney(RawJourney rawJourney, TramServiceDate tramServiceDate) {
-        List<RawStage> rawJourneyStages = rawJourney.getStages();
+    public Optional<JourneyDTO> createJourney(Journey journey, TramServiceDate tramServiceDate) {
+        List<TransportStage> rawJourneyStages = journey.getStages();
         List<StageDTO> stages = new LinkedList<>();
 
-        TramTime queryTime = rawJourney.getQueryTime();
-        for(RawStage rawStage : rawJourneyStages)
+        TramTime queryTime = journey.getQueryTime();
+        for(TransportStage rawStage : rawJourneyStages)
             if (rawStage.getMode().isVehicle()) {
-                TransportStage rawTravelStage = (RawVehicleStage) rawStage;
-                StageDTO stageDTO = stageFactory.build(rawTravelStage, decideAction(stages), queryTime, tramServiceDate);
+                StageDTO stageDTO = stageFactory.build(rawStage, decideAction(stages), queryTime, tramServiceDate);
                 stages.add(stageDTO);
             } else if (rawStage.getMode().isWalk()) {
-                RawWalkingStage stage = (RawWalkingStage) rawStage;
-                logger.info("Adding walking stage " + stage);
-                StageDTO stageDTO = stageFactory.build(stage, TravelAction.Walk, queryTime, tramServiceDate);
+                logger.info("Adding walking stage " + rawStage);
+                StageDTO stageDTO = stageFactory.build(rawStage, TravelAction.Walk, queryTime, tramServiceDate);
                 stages.add(stageDTO);
             }
 

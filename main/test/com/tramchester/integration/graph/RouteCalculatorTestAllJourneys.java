@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
@@ -86,14 +87,14 @@ public class RouteCalculatorTestAllJourneys {
                 collect(Collectors.toSet());
 
         List<TramTime> queryTimes = Collections.singletonList(TramTime.of(6, 5));
-        Map<Pair<String, String>, Optional<RawJourney>> results = validateAllHaveAtLeastOneJourney(nextTuesday, combinations, queryTimes);
+        Map<Pair<String, String>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday, combinations, queryTimes);
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().
                 filter(Optional::isPresent).
                 map(Optional::get).
                 map(journey -> journey.getStages().stream().
-                        map(RawStage::getPassedStops).
+                        map(TransportStage::getPassedStops).
                         reduce(Integer::sum)).
                 filter(Optional::isPresent).
                 map(Optional::get).
@@ -107,10 +108,10 @@ public class RouteCalculatorTestAllJourneys {
         return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
-    private Map<Pair<String, String>, Optional<RawJourney>> validateAllHaveAtLeastOneJourney(
+    private Map<Pair<String, String>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, String>> combinations, List<TramTime> queryTimes) {
 
-        ConcurrentMap<Pair<String, String>, Optional<RawJourney>> results;
+        ConcurrentMap<Pair<String, String>, Optional<Journey>> results;
 
         // check each pair, collect results into (station,station)->result
         results =

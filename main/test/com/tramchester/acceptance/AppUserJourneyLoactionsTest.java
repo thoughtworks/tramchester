@@ -160,7 +160,7 @@ public class AppUserJourneyLoactionsTest {
     @Test
     public void shouldCheckNearAltrinchamToDeansgate() {
         AppPage appPage = prepare();
-        LocalTime planTime = LocalTime.parse("10:15");
+        LocalTime planTime = LocalTime.of(10,15);
         desiredJourney(appPage, "My Location", deansgate, nextTuesday, planTime);
         appPage.planAJourney();
 
@@ -184,7 +184,7 @@ public class AppUserJourneyLoactionsTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
-        validateWalkingStage(firstStage, planTime, "Walk",
+        validateWalkingStage(firstStage, LocalTime.of(10,19), "Walk",
                 Stations.Altrincham.getName(), -1, "RouteWalking", "Walk", 0);
 
         Stage secondStage = stages.get(1);
@@ -199,7 +199,6 @@ public class AppUserJourneyLoactionsTest {
         assertEquals(actionStation, stage.getActionStation());
         assertEquals(platform, stage.getPlatform());
         assertEquals(lineName, stage.getLine(lineClass));
-        //assertEquals(headsign, stage.getHeadsign());
         assertEquals(stops, stage.getPassedStops());
     }
 

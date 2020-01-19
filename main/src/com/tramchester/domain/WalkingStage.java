@@ -2,20 +2,37 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.TransportStage;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class WalkingStage implements TransportStage {
-    private RawWalkingStage rawWalkingStage;
-    private TramTime beginTime;
+    private final Location start;
+    private final Location destination;
+    private final int duration;
+    private final TramTime beginTime;
 
-    public WalkingStage(RawWalkingStage rawWalkingStage, TramTime beginTimeMins) {
-        this.rawWalkingStage = rawWalkingStage;
-        this.beginTime = beginTimeMins;
+    public WalkingStage(Location start, Location destination, int duration, TramTime beginTime) {
+        this.start = start;
+        this.destination = destination;
+        this.duration = duration;
+        this.beginTime = beginTime;
     }
 
     @Override
     public TransportMode getMode() {
         return TransportMode.Walk;
+    }
+    
+    public int getDuration() {
+        return duration;
+    }
+
+    public Location getStart() {
+        return start;
+    }
+
+    public Location getDestination() {
+        return destination;
     }
 
     @Override
@@ -29,34 +46,31 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
+    public String getDisplayClass() {
+        return "RouteWalking";
+    }
+
+    @Override
     public Location getActionStation() {
-        return rawWalkingStage.getDestination();
+        return getDestination();
     }
 
     @Override
     public Location getLastStation() {
-        return rawWalkingStage.getDestination();
+        return getDestination();
     }
 
     @Override
-    public Location getFirstStation() { return rawWalkingStage.getStart(); }
+    public Location getFirstStation() { return getStart(); }
 
+    @Override
     public TramTime getFirstDepartureTime() {
         return beginTime;
     }
 
+    @Override
     public TramTime getExpectedArrivalTime() {
         return beginTime.plusMinutes(getDuration());
-    }
-
-    @Override
-    public int getDuration() {
-        return rawWalkingStage.getDuration();
-    }
-
-    @Override
-    public String getDisplayClass() {
-        return "RouteWalking";
     }
 
     @Override
@@ -64,18 +78,33 @@ public class WalkingStage implements TransportStage {
         return Optional.empty();
     }
 
+
     @Override
     public String toString() {
-        return "WalkingStage{" +
-                "destination=" + rawWalkingStage.getDestination() +
-                ", start=" + rawWalkingStage.getStart() +
-                ", cost=" + rawWalkingStage.getDuration() +
-                ", beginTime=" + beginTime +
+        return "RawWalkingStage{" +
+                "start=" + start +
+                ", destination=" + destination +
+                ", duration=" + duration +
                 '}';
     }
 
     @Override
     public int getPassedStops() {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WalkingStage that = (WalkingStage) o;
+        return duration == that.duration &&
+                start.equals(that.start) &&
+                destination.equals(that.destination);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, destination, duration);
     }
 }

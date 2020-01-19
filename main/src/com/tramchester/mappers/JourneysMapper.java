@@ -1,6 +1,6 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import org.slf4j.Logger;
@@ -19,12 +19,12 @@ public class JourneysMapper {
         this.mapper = mapper;
     }
 
-    public SortedSet<JourneyDTO> map(Set<RawJourney> journeys, TramServiceDate tramServiceDate) {
+    public SortedSet<JourneyDTO> map(Set<Journey> journeys, TramServiceDate tramServiceDate) {
         logger.info(format("Mapping journey %s", journeys));
         return decorateJourneys(journeys, tramServiceDate);
     }
 
-    private SortedSet<JourneyDTO> decorateJourneys(Set<RawJourney> rawJourneys, TramServiceDate tramServiceDate) {
+    private SortedSet<JourneyDTO> decorateJourneys(Set<Journey> rawJourneys, TramServiceDate tramServiceDate) {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
@@ -41,6 +41,5 @@ public class JourneysMapper {
 
         return journeys;
     }
-
 
 }

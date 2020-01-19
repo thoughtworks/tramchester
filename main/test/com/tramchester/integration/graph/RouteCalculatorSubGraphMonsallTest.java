@@ -3,7 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
-import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
@@ -109,7 +109,7 @@ public class RouteCalculatorSubGraphMonsallTest {
     }
 
     private void validateNumberOfStages(String startId, String destId, TramTime time, LocalDate date, int numStages) {
-        Set<RawJourney> journeys = calculator.calculateRoute(startId, destId, Collections.singletonList(time),
+        Set<Journey> journeys = calculator.calculateRoute(startId, destId, Collections.singletonList(time),
                 new TramServiceDate(date)).
                 collect(Collectors.toSet());
 

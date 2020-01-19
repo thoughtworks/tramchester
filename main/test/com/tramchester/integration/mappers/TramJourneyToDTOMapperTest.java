@@ -7,6 +7,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
@@ -28,7 +29,7 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
+public class TramJourneyToDTOMapperTest {
     private static GraphDatabaseService database;
     private static TransportDataFromFiles transportData;
     private final LocalDate when = TestConfig.nextTuesday(0);
@@ -37,9 +38,10 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
 
     private static Dependencies dependencies;
     private TramJourneyToDTOMapper mapper;
-    private List<RawStage> stages;
+    private List<TransportStage> stages;
     private Transaction tx;
     private TramServiceDate tramServiceDate;
+    private RouteCalculator routeCalculator;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -77,10 +79,10 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
     public void shouldEnsureTripsAreOrderByEarliestFirst() {
         TramTime time = TramTime.of(15,30);
 
-        RawVehicleStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, 16);
+        TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, 16);
         stages.add(vicToRoch);
 
-        Optional<JourneyDTO> result = mapper.createJourney(new RawJourney(stages, time, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourney(new Journey(stages, time, 42), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -93,11 +95,11 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
     public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() {
         TramTime pm1044  = TramTime.of(22,44);
 
-        RawVehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
+        VehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
                 pm1044, 42, 14);
 
         stages.add(rawStage);
-        Optional<JourneyDTO> result = mapper.createJourney(new RawJourney(stages,pm1044, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourney(new Journey(stages,pm1044, 42), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -111,10 +113,10 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
     public void shouldMapSimpleJourney() {
         TramTime am7 = TramTime.of(7,0);
 
-        RawVehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, 8);
+        VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, 8);
 
         stages.add(altToCorn);
-        Optional<JourneyDTO> result = mapper.createJourney(new RawJourney(stages,am7, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourney(new Journey(stages,am7, 42), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -137,12 +139,12 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
         Location middle = Stations.Cornbrook;
         Location end = Stations.ManAirport;
 
-        RawVehicleStage rawStageA = getRawVehicleStage(begin, middle, "route text", am10, 42, 8);
-        RawVehicleStage rawStageB = getRawVehicleStage(middle, end, "route2 text", am10.plusMinutes(42), 20, 8);
+        VehicleStage rawStageA = getRawVehicleStage(begin, middle, "route text", am10, 42, 8);
+        VehicleStage rawStageB = getRawVehicleStage(middle, end, "route2 text", am10.plusMinutes(42), 20, 8);
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<JourneyDTO> result = mapper.createJourney(new RawJourney(stages, am10, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourney(new Journey(stages, am10, 42), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -162,10 +164,10 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
     public void shouldMapWalkingStageJourney() {
         TramTime pm10 = TramTime.of(22,0);
 
-        RawWalkingStage walkingStage = new RawWalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10);
+        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10);
         stages.add(walkingStage);
 
-        Optional<JourneyDTO> result = mapper.createJourney(new RawJourney(stages,pm10, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourney(new Journey(stages,pm10, 42), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -185,16 +187,16 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
         Location middleB = Stations.MarketStreet;
         Location end = Stations.Bury;
 
-        RawVehicleStage rawStageA = getRawVehicleStage(begin, middleA, "route text", am10, 42, 8);
+        VehicleStage rawStageA = getRawVehicleStage(begin, middleA, "route text", am10, 42, 8);
         int walkCost = 10;
-        RawWalkingStage walkingStage = new RawWalkingStage(middleA, middleB, walkCost, am10);
-        RawVehicleStage finalStage = getRawVehicleStage(middleB, end, "route3 text", am10, 42, 9);
+        WalkingStage walkingStage = new WalkingStage(middleA, middleB, walkCost, am10);
+        VehicleStage finalStage = getRawVehicleStage(middleB, end, "route3 text", am10, 42, 9);
 
         stages.add(rawStageA);
         stages.add(walkingStage);
         stages.add(finalStage);
 
-        Optional<JourneyDTO> result = mapper.createJourney(new RawJourney(stages,am10, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourney(new Journey(stages,am10, 42), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -223,29 +225,29 @@ public class TramJourneyToDTOMapperTest extends JourneyResponseMapperTest {
         Location middle = Stations.TraffordBar;
         Location finish = Stations.ManAirport;
 
-        RawVehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", startTime, 18, 8);
-        RawVehicleStage rawStageB = getRawVehicleStage(middle, finish, "route2 text", startTime.plusMinutes(18), 42, 9);
+        VehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", startTime, 18, 8);
+        VehicleStage rawStageB = getRawVehicleStage(middle, finish, "route2 text", startTime.plusMinutes(18), 42, 9);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<JourneyDTO> result = mapper.createJourney(new RawJourney(stages,startTime, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourney(new Journey(stages,startTime, 42), tramServiceDate);
 
         assertTrue(result.isPresent());
     }
 
-    private RawVehicleStage getRawVehicleStage(Location start, Location finish, String routeName, TramTime startTime,
-                                               int cost, int passedStops) {
+    private VehicleStage getRawVehicleStage(Location start, Location finish, String routeName, TramTime startTime,
+                                            int cost, int passedStops) {
 
         Trip validTrip = transportData.getTripsFor(start.getId()).iterator().next();
 
-        RawVehicleStage rawVehicleStage = new RawVehicleStage(start, routeName, TransportMode.Tram, "cssClass", validTrip);
-        rawVehicleStage.setCost(cost);
-        rawVehicleStage.setLastStation(finish, passedStops);
-        rawVehicleStage.setPlatform(new Platform(start.getId() + "1", "platform name"));
-        rawVehicleStage.setDepartTime(startTime.plusMinutes(1));
+        VehicleStage vehicleStage = new VehicleStage(start, routeName, TransportMode.Tram, "cssClass", validTrip,
+                startTime.plusMinutes(1), finish, passedStops);
 
-        return rawVehicleStage;
+        vehicleStage.setCost(cost);
+        vehicleStage.setPlatform(new Platform(start.getId() + "1", "platform name"));
+
+        return vehicleStage;
 
     }
 

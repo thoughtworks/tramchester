@@ -5,6 +5,7 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
@@ -41,8 +42,8 @@ public class MapPathToStages {
     }
 
     // TODO Use Traversal State from the path instead of the Path itself??
-    public List<RawStage> mapDirect(WeightedPath path, TramTime queryTime) {
-        ArrayList<RawStage> results = new ArrayList<>();
+    public List<TransportStage> mapDirect(WeightedPath path, TramTime queryTime) {
+        ArrayList<TransportStage> results = new ArrayList<>();
 
         List<Relationship> relationships = new ArrayList<>();
         path.relationships().forEach(relationships::add);
@@ -56,7 +57,7 @@ public class MapPathToStages {
             return results;
         }
 
-        State state = new State(transportData, myLocationFactory, platformRepository);
+        State state = new State(transportData, platformRepository);
         for(Relationship relationship : relationships) {
             TransportRelationshipTypes type = TransportRelationshipTypes.valueOf(relationship.getType().name());
             logger.debug("Mapping type " + type);
@@ -96,9 +97,9 @@ public class MapPathToStages {
         return results;
     }
 
-    private RawStage directWalk(Relationship relationships, TramTime timeWalkStarted) {
+    private TransportStage directWalk(Relationship relationships, TramTime timeWalkStarted) {
         WalkStarted walkStarted = walkStarted(relationships);
-        return new RawWalkingStage(walkStarted.start, walkStarted.destination,
+        return new WalkingStage(walkStarted.start, walkStarted.destination,
                 walkStarted.cost, timeWalkStarted);
     }
 
@@ -121,7 +122,6 @@ public class MapPathToStages {
 
     private class State {
         private final TransportData transportData;
-        private final MyLocationFactory myLocationFactory;
         private final PlatformRepository platformRepository;
 
         private WalkStarted walkStarted;
@@ -136,9 +136,8 @@ public class MapPathToStages {
         private int boardCost;
         private int platformCost;
 
-        private State(TransportData transportData, MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
+        private State(TransportData transportData, PlatformRepository platformRepository) {
             this.transportData = transportData;
-            this.myLocationFactory = myLocationFactory;
             this.platformRepository = platformRepository;
             reset();
         }
@@ -152,33 +151,31 @@ public class MapPathToStages {
             boardingPlatform = platformRepository.getPlatformById(stopId);
         }
 
-        public RawVehicleStage depart(Relationship relationship) {
+        public VehicleStage depart(Relationship relationship) {
             String stationId = relationship.getProperty(STATION_ID).toString();
             Station departStation = transportData.getStation(stationId).get();
             Trip trip = transportData.getTrip(tripId);
 
-            RawVehicleStage rawVehicleStage = new RawVehicleStage(boardingStation, routeName,
-                    TransportMode.Tram, routeIdToClass.map(routeCode), trip);
-            // TODO Into builder
-            rawVehicleStage.setDepartTime(boardingTime);
-            rawVehicleStage.setLastStation(departStation, passedStops);
-            boardingPlatform.ifPresent(rawVehicleStage::setPlatform);
-            rawVehicleStage.setCost(tripCost);
+            VehicleStage vehicleStage = new VehicleStage(boardingStation, routeName,
+                    TransportMode.Tram, routeIdToClass.map(routeCode), trip, boardingTime,
+                    departStation, passedStops);
+
+            boardingPlatform.ifPresent(vehicleStage::setPlatform);
+            vehicleStage.setCost(tripCost);
 
             reset();
-            return rawVehicleStage;
+            return vehicleStage;
         }
 
         private void reset() {
             passedStops = -1; // don't count single stops
             tripId = "";
             routeCode = "";
-            tripId = "";
             tripCost = 0;
             boardingPlatform = Optional.empty();
         }
 
-        public Optional<RawWalkingStage> beginTrip(Relationship relationship) {
+        public Optional<WalkingStage> beginTrip(Relationship relationship) {
             String newTripId = relationship.getProperty(TRIP_ID).toString();
 
             if (tripId.isEmpty()) {
@@ -195,7 +192,7 @@ public class MapPathToStages {
 
             int totalCostOfWalk = walkStarted.cost + boardCost + platformCost;
             TramTime timeWalkStarted = boardingTime.minusMinutes(totalCostOfWalk);
-            RawWalkingStage walkingStage = new RawWalkingStage(walkStarted.start, walkStarted.destination,
+            WalkingStage walkingStage = new WalkingStage(walkStarted.start, walkStarted.destination,
                     walkStarted.cost, timeWalkStarted);
             walkStarted = null;
             return Optional.of(walkingStage);
@@ -215,7 +212,7 @@ public class MapPathToStages {
         }
     }
 
-    private class WalkStarted {
+    private static class WalkStarted {
 
         private final Location start;
         private final Location destination;

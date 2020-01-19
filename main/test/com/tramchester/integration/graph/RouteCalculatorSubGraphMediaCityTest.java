@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
-import com.tramchester.domain.RawJourney;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
 import com.tramchester.graph.GraphFilter;
@@ -96,7 +96,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
-                        Set<RawJourney> journeys = calculator.calculateRoute(start, destination, times,
+                        Set<Journey> journeys = calculator.calculateRoute(start, destination, times,
                                 new TramServiceDate(day)).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
@@ -121,7 +121,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @Test
     public void shouldHaveSimpleJourney() {
         List<TramTime> minutes = Collections.singletonList(TramTime.of(12, 0));
-        Set<RawJourney> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK.getId(),
                 minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }

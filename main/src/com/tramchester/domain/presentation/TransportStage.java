@@ -1,19 +1,14 @@
 package com.tramchester.domain.presentation;
 
-import com.tramchester.domain.Location;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.RawStage;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.*;
 
 import java.util.Optional;
 
-public interface TransportStage extends RawStage {
+public interface TransportStage {
     String getHeadSign();
     String getRouteName();
 
-//    TravelAction getAction();
     Location getActionStation(); // place where action happens, i.e. Board At X or Walk To X
-
     Location getLastStation();
     Location getFirstStation();
 
@@ -24,5 +19,8 @@ public interface TransportStage extends RawStage {
     String getDisplayClass();
 
     Optional<Platform> getBoardingPlatform();
+
+    TransportMode getMode();
+    int getPassedStops();
 
 }
