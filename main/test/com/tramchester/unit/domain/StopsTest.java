@@ -19,10 +19,10 @@ public class StopsTest {
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";
     private final String stationIdC = "statC";
-    private Location stationA;
-    private Location stationB;
-    private Location stationC;
-    private Location stationD;
+    private Station stationA;
+    private Station stationB;
+    private Station stationC;
+    private Station stationD;
     private Stop stopA;
     private Stop stopB;
     private Stop stopC;
@@ -35,8 +35,8 @@ public class StopsTest {
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        stopA = new Stop("statA1", stationA, 1, TramTime.of(10, 00), TramTime.of(10, 01));
-        stopB = new Stop("statB1", stationB, 2, TramTime.of(10, 02), TramTime.of(10, 03));
+        stopA = new Stop("statA1", stationA, 1, TramTime.of(10, 0), TramTime.of(10, 1));
+        stopB = new Stop("statB1", stationB, 2, TramTime.of(10, 2), TramTime.of(10, 3));
         stopC = new Stop("statC1", stationC, 3, TramTime.of(10, 10), TramTime.of(10, 10));
         busStopD = new Stop("statD1", stationD, 4, TramTime.of(10,10), TramTime.of(10,11));
         am10 = TramTime.of(10,0);
@@ -46,8 +46,8 @@ public class StopsTest {
     public void shouldFindStopsByTimeCrossingMidnight() {
         Stop stopF = new Stop("stop1", stationA, 1, TramTime.of(LocalTime.of(23, 45)),
                 TramTime.of(LocalTime.of(23, 46)));
-        Stop stopG = new Stop("stop2", stationB, 2, TramTime.of(LocalTime.of(00, 5)),
-                TramTime.of(LocalTime.of(00, 6)));
+        Stop stopG = new Stop("stop2", stationB, 2, TramTime.of(LocalTime.of(0, 5)),
+                TramTime.of(LocalTime.of(0, 6)));
         Stops stops = new Stops();
 
         stops.add(stopF);
@@ -55,7 +55,7 @@ public class StopsTest {
         assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(23,40), 30)));
         assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(23,47), 30)));
 
-        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(00,17), 30)));
+        assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(0,17), 30)));
         assertFalse(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(TramTime.of(23,15), 30)));
     }
 
@@ -104,7 +104,7 @@ public class StopsTest {
     }
 
     @Test
-    public void shouldModelMultipleVisitsToSameStation() throws TramchesterException {
+    public void shouldModelMultipleVisitsToSameStation() {
         Stops stops = new Stops();
 
         stops.add(stopA);

@@ -1,16 +1,17 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.Location;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.TramTime;
 
 public class Stop {
-    private final Location station;
+    private final Station station;
     private final TramTime arrivalTime;
     private final TramTime departureTime;
     private final String stopId;
     private final int sequenceNumber;
 
-    public Stop(String stopId, Location station, int sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
+    public Stop(String stopId, Station station, int sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
         this.stopId = stopId.intern();
         this.sequenceNumber = sequenceNumber;
         this.arrivalTime = arrivalTime;
@@ -26,7 +27,7 @@ public class Stop {
         return departureTime;
     }
 
-    public Location getStation() {
+    public Station getStation() {
         return station;
     }
 

@@ -20,10 +20,10 @@ import static org.junit.Assert.assertEquals;
 
 public class TripTest {
 
-    private Location stationA;
-    private Location stationB;
+    private Station stationA;
+    private Station stationB;
     private Trip trip;
-    private Location stationC;
+    private Station stationC;
 
     @Before
     public void beforeEachTestRuns() {

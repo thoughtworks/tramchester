@@ -3,10 +3,10 @@ package com.tramchester.integration.livedata;
 import com.tramchester.Dependencies;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
+import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationAdjacenyRepository;
@@ -18,16 +18,15 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TramPositionInferenceTest {
 
     private static Dependencies dependencies;
 
-    private TramPositionInference mapper;
+    private TramPositionInference positionInference;
     private StationRepository stationRepository;
 
     @BeforeClass
@@ -43,7 +42,7 @@ public class TramPositionInferenceTest {
         liveDataSource.refreshRespository();
         TramRouteReachable routeReachable = dependencies.get(TramRouteReachable.class);
         StationAdjacenyRepository adjacenyMatrix = dependencies.get(StationAdjacenyRepository.class);
-        mapper = new TramPositionInference(liveDataSource, adjacenyMatrix, routeReachable);
+        positionInference = new TramPositionInference(liveDataSource, adjacenyMatrix, routeReachable);
         stationRepository = dependencies.get(StationRepository.class);
     }
 
@@ -62,12 +61,22 @@ public class TramPositionInferenceTest {
         Station first = stationRepository.getStation(Stations.Deansgate.getId()).get();
         Station second = stationRepository.getStation(Stations.StPetersSquare.getId()).get();
 
-        Set<DueTram> between = mapper.findBetween(first, second);
-        assertTrue(between.size()>=1);
-        between.forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
+        TramPosition between = positionInference.findBetween(first, second);
+        assertEquals(first, between.getFirst());
+        assertEquals(second, between.getSecond());
+        assertTrue(between.getTrams().size()>=1);
+        between.getTrams().forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
 
-        Set<DueTram> otherDirection = mapper.findBetween(second, first);
-        assertTrue(otherDirection.size()>=1);
-        otherDirection.forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
+        TramPosition otherDirection = positionInference.findBetween(second, first);
+        assertTrue(otherDirection.getTrams().size()>=1);
+        otherDirection.getTrams().forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
+    }
+
+    @Test
+    @Category(LiveDataTestCategory.class)
+    public void shouldInferAllTramPositions() {
+        List<TramPosition> results = positionInference.inferWholeNetwork();
+
+        assertFalse(results.isEmpty());
     }
 }
