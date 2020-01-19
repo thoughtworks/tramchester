@@ -24,6 +24,13 @@ import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
+///
+// Station-[enter]->Platform-[board]->RouteStation-[toHour]->Hour-[toMinute]->Minute-[toService]->
+//          Service-[GoesTo]->RouteStation-[depart]->Platform-[leave]->Station
+//
+// RouteStation-[onRoute]->RouteStation
+///
+
 public class TransportGraphBuilder extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 

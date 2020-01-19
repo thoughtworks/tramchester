@@ -1,10 +1,12 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.Station;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
+import com.tramchester.repository.StationRepository;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -21,6 +23,7 @@ public class TramRouteReachableTest {
     private TramRouteReachable reachable;
     private String manAirportToVictoria = "MET:   6:O:";
     private String victoriaToManAirport = "MET:   6:I:";
+    private StationRepository stationRepository;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -36,6 +39,7 @@ public class TramRouteReachableTest {
 
     @Before
     public void beforeEachTestRuns() {
+        stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(TramRouteReachable.class);
     }
 
@@ -72,22 +76,19 @@ public class TramRouteReachableTest {
     @Test
     public void shouldHaveAdjacentReachableCorrect() {
 
-        assertEquals(2,reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
-                RouteCodesForTesting.BURY_TO_ALTY));
-        assertEquals(-1, reachable.getRouteReachableAjacent(Stations.NavigationRoad.getId(), Stations.Altrincham.getId(),
-                RouteCodesForTesting.ALTY_TO_PICC));
-        // yes, it is different as per the timetable
-        assertEquals(3, reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.NavigationRoad.getId(),
-                RouteCodesForTesting.ALTY_TO_PICC));
+        assertEquals(2,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
+        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad.getId()).size());
 
-        assertEquals(3, reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
-                RouteCodesForTesting.ALTY_TO_PICC));
-        assertEquals(-1, reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.PiccadillyGardens.getId(),
-                RouteCodesForTesting.ALTY_TO_BURY));
-        assertEquals(3, reachable.getRouteReachableAjacent(Stations.StPetersSquare.getId(), Stations.MarketStreet.getId(),
-                RouteCodesForTesting.ALTY_TO_BURY));
+        // 5 not the 7 on the map, only 6 routes modelled in timetable data, 1 of which does not go between these 2
+        assertEquals(5, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare.getId()).size());
 
-        assertEquals(-1, reachable.getRouteReachableAjacent(Stations.Altrincham.getId(), Stations.Cornbrook.getId(),
-                RouteCodesForTesting.ALTY_TO_BURY));
+        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.PiccadillyGardens.getId()).size());
+        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet.getId()).size());
+
+        assertEquals(0, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.Cornbrook.getId()).size());
+    }
+
+    private Station getReal(Station testStation) {
+        return stationRepository.getStation(testStation.getId()).get();
     }
 }

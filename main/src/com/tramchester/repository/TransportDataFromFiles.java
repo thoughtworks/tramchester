@@ -93,6 +93,7 @@ public class TransportDataFromFiles implements TransportDataSource {
                 station.addRoute(route);
                 Platform platform = platforms.get(platformId);
                 platform.addRoute(route);
+
                 int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
                 Stop stop = new Stop(platformId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 trip.addStop(stop);
@@ -133,7 +134,7 @@ public class TransportDataFromFiles implements TransportDataSource {
             Station station;
             String stationId = Station.formId(stopId);
 
-            if (!stationsById.keySet().contains(stationId)) {
+            if (!stationsById.containsKey(stationId)) {
                 station = new Station(stationId, stop.getArea(), stop.getName(), stop.getLatLong(), stop.isTram());
                 stationsById.put(stationId, station);
                 stationsByName.put(stop.getName().toLowerCase(), station);
@@ -281,8 +282,7 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     @Override
     public List<AreaDTO> getAreas() {
-        List<AreaDTO> list =  new LinkedList<>();
-        list.addAll(areas);
+        List<AreaDTO> list = new LinkedList<>(areas);
         return  list;
     }
 

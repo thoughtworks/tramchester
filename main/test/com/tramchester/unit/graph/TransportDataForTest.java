@@ -36,6 +36,7 @@ public class TransportDataForTest implements TransportDataSource {
     private Map<String,Platform> platforms;
     private Collection<Route> routes;
     private Set<Service> services;
+    private Set<Trip> trips;
 
     public TransportDataForTest() {
         double latitude = 180.00;
@@ -44,6 +45,8 @@ public class TransportDataForTest implements TransportDataSource {
         routes = new LinkedList<>();
         services = new HashSet<>();
         platforms = new HashMap<>();
+        trips = new HashSet<>();
+
         Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", "MET");
         Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", "MET");
         Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", "MET");
@@ -118,17 +121,22 @@ public class TransportDataForTest implements TransportDataSource {
         createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(8, 26), "tripBId");
         createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 10), "tripB2Id");
         createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 20), "tripB3Id");
+
+        trips.add(tripA);
+        trips.add(tripC);
     }
 
-    public void createInterchangeToStation4Trip(Route routeB, Service serviceB, Station interchangeStation, Station four, LocalTime startTime, String tripB2Id) {
-        Trip tripB2 = new Trip(tripB2Id, "headSignTripB2", serviceBId, routeB.getId());
-        Stop stopE2 = createStop(interchangeStation, TramTime.of(startTime),
-                TramTime.of(startTime.plusMinutes(5)), routeB.getId(), serviceBId, 1);
-        tripB2.addStop(stopE2);
-        Stop stopF2 = createStop(four, TramTime.of(startTime.plusMinutes(5)),
-                TramTime.of(startTime.plusMinutes(8)), routeB.getId(), serviceBId, 2);
-        tripB2.addStop(stopF2);
-        serviceB.addTrip(tripB2);
+    public void createInterchangeToStation4Trip(Route route, Service service, Station interchangeStation, Station station,
+                                                LocalTime startTime, String tripB2Id) {
+        Trip trip = new Trip(tripB2Id, "headSignTripB2", serviceBId, route.getId());
+        Stop stop1 = createStop(interchangeStation, TramTime.of(startTime),
+                TramTime.of(startTime.plusMinutes(5)), route.getId(), serviceBId, 1);
+        trip.addStop(stop1);
+        Stop stop2 = createStop(station, TramTime.of(startTime.plusMinutes(5)),
+                TramTime.of(startTime.plusMinutes(8)), route.getId(), serviceBId, 2);
+        trip.addStop(stop2);
+        service.addTrip(trip);
+        trips.add(trip);
     }
 
     private void addStation(Station station) {
@@ -146,6 +154,8 @@ public class TransportDataForTest implements TransportDataSource {
     public Collection<Service> getServices() {
         throw new RuntimeException("Not implemented");
     }
+
+
 
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
@@ -203,4 +213,20 @@ public class TransportDataForTest implements TransportDataSource {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public Collection<Trip> getTrips() {
+        return trips;
+    }
+
+    public Station getFirst() {
+        return stationIdMap.get(FIRST_STATION);
+    }
+
+    public Station getSecond() {
+        return stationIdMap.get(SECOND_STATION);
+    }
+
+    public Station getInterchange() {
+        return stationIdMap.get(INTERCHANGE);
+    }
 }

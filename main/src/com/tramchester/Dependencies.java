@@ -127,7 +127,7 @@ public class Dependencies {
         picoContainer.addComponent(ReachabilityRepository.class);
         picoContainer.addComponent(NodeIdLabelMap.class);
         picoContainer.addComponent(GraphQuery.class);
-
+        picoContainer.addComponent(StationAdjacenyRepository.class);
 
         // TODO still needed now jodatime removed?
         ObjectMapper objectMapper = new ObjectMapper();
@@ -229,7 +229,12 @@ public class Dependencies {
     }
 
     public <T> T get(Class<T> klass) {
-        return picoContainer.getComponent(klass);
+
+        T component = picoContainer.getComponent(klass);
+        if (component==null) {
+            logger.warn("Missing dependency " + klass);
+        }
+        return component;
     }
 
     public void close() {

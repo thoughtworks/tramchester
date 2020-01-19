@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class NodeIdLabelMap {
+    // map from the NodeId to the Label
     private Map<TransportGraphBuilder.Labels, Set<Long>> map;
     private ConcurrentMap<Long, Boolean> queryNodes;
 

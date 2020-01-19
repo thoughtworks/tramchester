@@ -36,7 +36,7 @@ public class Stations {
     public static Station NavigationRoad = createStation("9400ZZMANAV", "Altrincham", "Navigation Road");
     public static Location ShawAndCrompton = createStation("9400ZZMASHA", "Shaw and Crompton Area", "Shaw and Crompton");
     public static Location HarbourCity = createStation("9400ZZMAHCY", "Harbour City area", "Harbour City");
-    public static Location StPetersSquare = createStation("9400ZZMASTP", "Manchester City Centre", "St Peter's Square");
+    public static Station StPetersSquare = createStation("9400ZZMASTP", "Manchester City Centre", "St Peter's Square");
     public static Location MarketStreet = createStation("9400ZZMAMKT", "Market Street Area", "Market Street");
     public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
     public static Location StWerburghsRoad = createStation("9400ZZMASTW", "Chorlton", "St Werburgh's Road");

@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
+// TODO THIS IS A MAPPER
 public class RoutesRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
     private final StationRepository stationRepository;
     private RouteCodeToClassMapper mapper;
 
-    public RoutesRepository(StationRepository stationRepository,
-                            RouteCodeToClassMapper mapper) {
+    public RoutesRepository(StationRepository stationRepository, RouteCodeToClassMapper mapper) {
         this.stationRepository = stationRepository;
         this.mapper = mapper;
     }
@@ -42,7 +42,7 @@ public class RoutesRepository {
 
         trips.forEach(trip -> {
             trip.getStops().stream().forEach(stop -> {
-                stations.add(new StationDTO((Station) stop.getStation(), ProximityGroup.ALL));
+                stations.add(new StationDTO(stop.getStation(), ProximityGroup.ALL));
             });
         });
 

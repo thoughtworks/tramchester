@@ -9,6 +9,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.StationAdjacenyRepository;
 import com.tramchester.repository.StationRepository;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,7 +42,8 @@ public class TramPositionInferenceTest {
         LiveDataRepository liveDataSource = dependencies.get(LiveDataRepository.class);
         liveDataSource.refreshRespository();
         TramRouteReachable routeReachable = dependencies.get(TramRouteReachable.class);
-        mapper = new TramPositionInference(liveDataSource, routeReachable);
+        StationAdjacenyRepository adjacenyMatrix = dependencies.get(StationAdjacenyRepository.class);
+        mapper = new TramPositionInference(liveDataSource, adjacenyMatrix, routeReachable);
         stationRepository = dependencies.get(StationRepository.class);
     }
 
@@ -49,12 +51,10 @@ public class TramPositionInferenceTest {
     public static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
-    
+
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldInferTramPosition() {
-        // TODO Pre-compute and cache linked pairs and associated costs
-
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
         // Guess this is down to signalling, track, etc.
         int cost = 3; // cost between the stations, no due trams outside this limit should appear

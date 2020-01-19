@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
@@ -82,6 +83,10 @@ public class Station implements Location {
     @Override
     public List<Platform> getPlatforms() {
         return platforms;
+    }
+
+    public List<Platform> getPlatformsForRoute(Route route) {
+        return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toList());
     }
 
     public void addPlatform(Platform platform) {

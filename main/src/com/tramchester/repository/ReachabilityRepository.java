@@ -70,7 +70,7 @@ public class ReachabilityRepository {
         return matrix.get(routeStationId)[index];
     }
 
-    private class RouteStationEntry {
+    private static class RouteStationEntry {
         private final String stationId;
         private final String routeId;
 

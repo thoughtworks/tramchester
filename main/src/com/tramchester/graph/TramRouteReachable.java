@@ -1,15 +1,26 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.*;
+import org.neo4j.graphdb.traversal.BranchOrderingPolicies;
+import org.neo4j.graphdb.traversal.Evaluation;
+import org.neo4j.graphdb.traversal.Evaluator;
+import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
+import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class TramRouteReachable extends StationIndexs {
+
     public TramRouteReachable(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery) {
         super(graphDatabaseService, graphQuery, false);
     }
@@ -24,20 +35,24 @@ public class TramRouteReachable extends StationIndexs {
         return evaluatePaths(startStationId, evaluator);
     }
 
+    public List<Route> getRoutesFromStartToNeighbour(Station startStation, String endStationId) {
+        List<Route> results = new ArrayList<>();
+        Set<Route> firstRoutes = startStation.getRoutes();
+        String startStationId = startStation.getId();
 
-    public int getRouteReachableAjacent(String startStationId, String endStationId, String routeCode) {
         try (Transaction tx = graphDatabaseService.beginTx()) {
-
-            Node startNode = getRouteStationNode(startStationId + routeCode);
-            Iterable<Relationship> outboundRoutes = startNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
-            for (Relationship outbound : outboundRoutes) {
-                if (endStationId.equals(outbound.getEndNode().getProperty(STATION_ID).toString())) {
-                    return (int)outbound.getProperty(COST);
+            firstRoutes.forEach(route -> {
+                Node routeStation = getRouteStationNode(startStationId + route.getId());
+                Iterable<Relationship> edges = routeStation.getRelationships(ON_ROUTE, Direction.OUTGOING);
+                for (Relationship edge : edges) {
+                    if (endStationId.equals(edge.getEndNode().getProperty(STATION_ID).toString())) {
+                        results.add(route);
+                    }
                 }
-            }
-        }
+            });
 
-        return -1;
+        }
+        return results;
     }
 
     private boolean evaluatePaths(String startStationId, Evaluator evaluator) {
@@ -61,9 +76,8 @@ public class TramRouteReachable extends StationIndexs {
         }
         return number>0;
     }
-
-
-    private class ExactMatchEvaluator implements Evaluator {
+    
+    private static class ExactMatchEvaluator implements Evaluator {
 
         private final String routeId;
         private final String finishNodeId;
@@ -99,7 +113,7 @@ public class TramRouteReachable extends StationIndexs {
         }
     }
 
-    private class MatchOrInterchangeEvaluator implements Evaluator {
+    private static class MatchOrInterchangeEvaluator implements Evaluator {
         private final String endStationId;
         private final String routeId;
 

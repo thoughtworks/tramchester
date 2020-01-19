@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
 
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.NodeIdLabelMap;
@@ -30,7 +29,7 @@ public class GraphQueryTest {
     private static File dbFile;
 
     @BeforeClass
-    public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
+    public static void onceBeforeAllTestRuns() throws IOException {
         dbFile = new File(TMP_DB);
         FileUtils.deleteDirectory(dbFile);
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory();
@@ -42,8 +41,7 @@ public class GraphQueryTest {
 
         TransportDataForTest transportData = new TransportDataForTest();
         NodeIdLabelMap nodeLabelIdMap = new NodeIdLabelMap();
-        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData,
-                nodeLabelIdMap, graphQuery);
+        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, nodeLabelIdMap, graphQuery);
         builder.buildGraph();
     }
 
