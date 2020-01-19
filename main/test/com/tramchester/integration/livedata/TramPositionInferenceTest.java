@@ -1,4 +1,4 @@
-package com.tramchester.integration.mappers;
+package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
 import com.tramchester.LiveDataTestCategory;
@@ -7,7 +7,7 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import com.tramchester.mappers.TramPositionInference;
+import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationAdjacenyRepository;
 import com.tramchester.repository.StationRepository;

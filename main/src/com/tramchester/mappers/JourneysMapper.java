@@ -1,10 +1,8 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
-import com.tramchester.domain.presentation.Journey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,31 +13,27 @@ import static java.lang.String.format;
 public class JourneysMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneysMapper.class);
 
-    private TramJourneyResponseWithTimesMapper mapper;
+    private TramJourneyToDTOMapper mapper;
 
-    public JourneysMapper(TramJourneyResponseWithTimesMapper mapper) {
+    public JourneysMapper(TramJourneyToDTOMapper mapper) {
         this.mapper = mapper;
     }
 
-    public SortedSet<JourneyDTO> map(JourneyDTOFactory factory, Set<RawJourney> journeys) {
+    public SortedSet<JourneyDTO> map(Set<RawJourney> journeys, TramServiceDate tramServiceDate) {
         logger.info(format("Mapping journey %s", journeys));
-        return decorateJourneys(factory, journeys);
+        return decorateJourneys(journeys, tramServiceDate);
     }
 
-    private SortedSet<JourneyDTO> decorateJourneys(JourneyDTOFactory factory, Set<RawJourney> rawJourneys) {
+    private SortedSet<JourneyDTO> decorateJourneys(Set<RawJourney> rawJourneys, TramServiceDate tramServiceDate) {
         logger.info("Decorating the discovered journeys " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
             logger.info("Decorating journey " + rawJourney);
 
-            Optional<Journey> journey = mapper.createJourney(rawJourney);
+            Optional<JourneyDTO> journey = mapper.createJourney(rawJourney, tramServiceDate);
             if (journey.isPresent()) {
-                try {
-                    journeys.add(factory.build(journey.get()));
-                    logger.info("Added journey " +journey);
-                } catch (TramchesterException e) {
-                    logger.warn(format("Unable to parse %s to journey", rawJourney),e);
-                }
+                journeys.add(journey.get());
+                logger.info("Added journey " +journey);
             } else {
                 logger.warn(format("Unable to parse %s to journey", rawJourney));
             }

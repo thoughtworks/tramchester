@@ -5,18 +5,15 @@ import com.tramchester.domain.TramTime;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.repository.LiveDataSource;
 
+// TODO refactoring has rendered this empty, remove?
 public class LiveDataEnricher implements EnrichPlatform {
     private LiveDataSource repository;
-    private TramServiceDate tramServiceDate;
-    private TramTime queryTime;
 
-    public LiveDataEnricher(LiveDataSource repository, TramServiceDate tramServiceDate, TramTime queryMinutes) {
+    public LiveDataEnricher(LiveDataSource repository) {
         this.repository = repository;
-        this.tramServiceDate = tramServiceDate;
-        this.queryTime = queryMinutes;
     }
 
-    public void enrich(PlatformDTO platform) {
+    public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime) {
         repository.enrich(platform, tramServiceDate, queryTime);
     }
 }

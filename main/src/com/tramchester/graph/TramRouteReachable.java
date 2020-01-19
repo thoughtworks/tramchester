@@ -76,7 +76,7 @@ public class TramRouteReachable extends StationIndexs {
         }
         return number>0;
     }
-    
+
     private static class ExactMatchEvaluator implements Evaluator {
 
         private final String routeId;

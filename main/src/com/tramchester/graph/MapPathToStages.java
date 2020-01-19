@@ -1,11 +1,12 @@
 package com.tramchester.graph;
 
 
-import com.tramchester.domain.*;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.*;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.PlatformRepository;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Node;
@@ -27,24 +28,36 @@ public class MapPathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 
     private final RouteCodeToClassMapper routeIdToClass;
-    private final StationRepository stationRepository;
+    private final TransportData transportData;
     private final MyLocationFactory myLocationFactory;
     private PlatformRepository platformRepository;
 
-    public MapPathToStages(RouteCodeToClassMapper routeIdToClass, StationRepository stationRepository,
+    public MapPathToStages(RouteCodeToClassMapper routeIdToClass, TransportData transportData,
                            MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
         this.routeIdToClass = routeIdToClass;
-        this.stationRepository = stationRepository;
+        this.transportData = transportData;
         this.myLocationFactory = myLocationFactory;
         this.platformRepository = platformRepository;
     }
 
     // TODO Use Traversal State from the path instead of the Path itself??
-    public List<RawStage> mapDirect(WeightedPath path) {
+    public List<RawStage> mapDirect(WeightedPath path, TramTime queryTime) {
         ArrayList<RawStage> results = new ArrayList<>();
-        State state = new State(stationRepository, myLocationFactory, platformRepository);
 
-        for(Relationship relationship : path.relationships()) {
+        List<Relationship> relationships = new ArrayList<>();
+        path.relationships().forEach(relationships::add);
+
+        if (relationships.size()==0) {
+            return results;
+        }
+        if (relationships.size()==1) {
+            // direct walk
+            results.add(directWalk(relationships.get(0), queryTime));
+            return results;
+        }
+
+        State state = new State(transportData, myLocationFactory, platformRepository);
+        for(Relationship relationship : relationships) {
             TransportRelationshipTypes type = TransportRelationshipTypes.valueOf(relationship.getType().name());
             logger.debug("Mapping type " + type);
 
@@ -58,18 +71,19 @@ public class MapPathToStages {
                     results.add(state.depart(relationship));
                     break;
                 case TO_MINUTE:
-                    state.beginTrip(relationship);
+                    state.beginTrip(relationship).ifPresent(results::add);
                     break;
                 case TRAM_GOES_TO:
                     state.passStop(relationship);
                     break;
                 case WALKS_TO:
-                    results.add(state.walk(relationship));
+                    state.walk(relationship);
                     break;
                 case TO_SERVICE:
-                    state.toService(relationship);
+//                    state.toService(relationship);
                     break;
                 case ENTER_PLATFORM:
+                    state.enterPlatform(relationship);
                     break;
                 case LEAVE_PLATFORM:
                     break;
@@ -82,30 +96,56 @@ public class MapPathToStages {
         return results;
     }
 
+    private RawStage directWalk(Relationship relationships, TramTime timeWalkStarted) {
+        WalkStarted walkStarted = walkStarted(relationships);
+        return new RawWalkingStage(walkStarted.start, walkStarted.destination,
+                walkStarted.cost, timeWalkStarted);
+    }
+
+    private int getCost(Relationship relationship) {
+        return (int)relationship.getProperty(COST);
+    }
+
+    private WalkStarted walkStarted(Relationship relationship) {
+        int cost = getCost(relationship);
+        Node startNode = relationship.getStartNode();
+
+        String stationId = relationship.getProperty(STATION_ID).toString();
+        Location destination = transportData.getStation(stationId).get();
+
+        double lat = (double)startNode.getProperty(GraphStaticKeys.Station.LAT);
+        double lon =  (double)startNode.getProperty(GraphStaticKeys.Station.LONG);
+        Location start = myLocationFactory.create(new LatLong(lat,lon));
+        return new WalkStarted(start, destination, cost);
+    }
+
     private class State {
-        private final StationRepository stationRepository;
+        private final TransportData transportData;
         private final MyLocationFactory myLocationFactory;
         private final PlatformRepository platformRepository;
 
+        private WalkStarted walkStarted;
         private TramTime boardingTime;
         private Station boardingStation;
         private String routeCode;
         private String tripId;
-        private String serviceId;
         private int passedStops;
         private int tripCost;
         private Optional<Platform> boardingPlatform;
         private String routeName;
+        private int boardCost;
+        private int platformCost;
 
-        private State(StationRepository stationRepository, MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
-            this.stationRepository = stationRepository;
+        private State(TransportData transportData, MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
+            this.transportData = transportData;
             this.myLocationFactory = myLocationFactory;
             this.platformRepository = platformRepository;
             reset();
         }
 
         public void board(Relationship relationship) {
-            boardingStation = stationRepository.getStation(relationship.getProperty(STATION_ID).toString()).get();
+            boardCost = getCost(relationship);
+            boardingStation = transportData.getStation(relationship.getProperty(STATION_ID).toString()).get();
             routeCode = relationship.getProperty(ROUTE_ID).toString();
             routeName = relationship.getProperty(ROUTE_NAME).toString();
             String stopId = relationship.getProperty(PLATFORM_ID).toString();
@@ -114,15 +154,17 @@ public class MapPathToStages {
 
         public RawVehicleStage depart(Relationship relationship) {
             String stationId = relationship.getProperty(STATION_ID).toString();
-            Station departStation = stationRepository.getStation(stationId).get();
+            Station departStation = transportData.getStation(stationId).get();
+            Trip trip = transportData.getTrip(tripId);
+
             RawVehicleStage rawVehicleStage = new RawVehicleStage(boardingStation, routeName,
-                    TransportMode.Tram, routeIdToClass.map(routeCode));
-            rawVehicleStage.setTripId(tripId);
+                    TransportMode.Tram, routeIdToClass.map(routeCode), trip);
+            // TODO Into builder
             rawVehicleStage.setDepartTime(boardingTime);
-            rawVehicleStage.setServiceId(serviceId);
             rawVehicleStage.setLastStation(departStation, passedStops);
             boardingPlatform.ifPresent(rawVehicleStage::setPlatform);
             rawVehicleStage.setCost(tripCost);
+
             reset();
             return rawVehicleStage;
         }
@@ -132,12 +174,11 @@ public class MapPathToStages {
             tripId = "";
             routeCode = "";
             tripId = "";
-            serviceId = "";
             tripCost = 0;
             boardingPlatform = Optional.empty();
         }
 
-        public void beginTrip(Relationship relationship) {
+        public Optional<RawWalkingStage> beginTrip(Relationship relationship) {
             String newTripId = relationship.getProperty(TRIP_ID).toString();
 
             if (tripId.isEmpty()) {
@@ -147,10 +188,17 @@ public class MapPathToStages {
             } else if (!tripId.equals(newTripId)){
                 throw new RuntimeException(format("Mid flight change of trip from %s to %s", tripId, newTripId));
             }
-        }
 
-        public void toService(Relationship relationship) {
-            serviceId = relationship.getProperty(SERVICE_ID).toString();
+            if (walkStarted==null) {
+                return Optional.empty();
+            }
+
+            int totalCostOfWalk = walkStarted.cost + boardCost + platformCost;
+            TramTime timeWalkStarted = boardingTime.minusMinutes(totalCostOfWalk);
+            RawWalkingStage walkingStage = new RawWalkingStage(walkStarted.start, walkStarted.destination,
+                    walkStarted.cost, timeWalkStarted);
+            walkStarted = null;
+            return Optional.of(walkingStage);
         }
 
         public void passStop(Relationship relationship) {
@@ -158,24 +206,27 @@ public class MapPathToStages {
             passedStops = passedStops + 1;
         }
 
-        public RawWalkingStage walk(Relationship relationship) {
-            int cost = getCost(relationship);
-            String stationId = relationship.getProperty(STATION_ID).toString();
-            Location destination = stationRepository.getStation(stationId).get();
-            Node startNode = relationship.getStartNode();
-
-            double lat = (double)startNode.getProperty(GraphStaticKeys.Station.LAT);
-            double lon =  (double)startNode.getProperty(GraphStaticKeys.Station.LONG);
-            Location start = myLocationFactory.create(new LatLong(lat,lon));
-
-            RawWalkingStage rawWalkingStage = new RawWalkingStage(start, destination, cost);
-            return rawWalkingStage;
+        public void walk(Relationship relationship) {
+            walkStarted = walkStarted(relationship);
         }
 
-        private int getCost(Relationship relationship) {
-            return (int)relationship.getProperty(COST);
+        public void enterPlatform(Relationship relationship) {
+            platformCost = getCost(relationship);
         }
+    }
 
+    private class WalkStarted {
+
+        private final Location start;
+        private final Location destination;
+        private final int cost;
+
+        public WalkStarted(Location start, Location destination, int cost) {
+
+            this.start = start;
+            this.destination = destination;
+            this.cost = cost;
+        }
     }
 
 }

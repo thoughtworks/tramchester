@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -57,19 +58,23 @@ public class MyLocationJourneyPlannerTest {
     public void planRouteAllowingForWalkingTime() {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(),  LocalTime.of(20,9));
         assertTrue(journeys.size()>0);
-        JourneyDTO first = journeys.first();
+        JourneyDTO firstJourney = journeys.first();
 
-        List<StageDTO> stages = first.getStages();
+        List<StageDTO> stages = firstJourney.getStages();
         assertEquals(2, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertTrue(walkingStage.getFirstDepartureTime().between(TramTime.of(20,9), TramTime.of(20,15)));
+        TramTime departureTime = walkingStage.getFirstDepartureTime();
+        // two walks result in same arrival time
+        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
+        assertTrue(departureTime.toString(), possibleTimes.contains(departureTime));
 
-        assertTrue(walkingStage.toString(),walkingStage.getExpectedArrivalTime().between(TramTime.of(20,13), TramTime.of(20,19)));
-        assertTrue(first.getFirstDepartureTime().toString(), first.getFirstDepartureTime().isAfter(TramTime.of(20,22)));
+//        assertTrue(walkingStage.toString(),walkingStage.getExpectedArrivalTime().between(TramTime.of(20,16), TramTime.of(20,23)));
+        assertEquals(firstJourney.toString(), TramTime.of(20,25), firstJourney.getFirstDepartureTime());
+        assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
     }
 
     @Test
-    public void shouldGiveWalkingRouteFromMyLocationToNearbyStop() throws TramchesterException {
+    public void shouldGiveWalkingRouteFromMyLocationToNearbyStop() {
         SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Altrincham.getId(),
                 LocalTime.of(22, 9));
         assertTrue(journeys.size()>0);

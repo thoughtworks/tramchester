@@ -36,7 +36,7 @@ public class TransportDataForTest implements TransportDataSource {
     private Map<String,Platform> platforms;
     private Collection<Route> routes;
     private Set<Service> services;
-    private Set<Trip> trips;
+    private Map<String, Trip> trips;
 
     public TransportDataForTest() {
         double latitude = 180.00;
@@ -45,7 +45,7 @@ public class TransportDataForTest implements TransportDataSource {
         routes = new LinkedList<>();
         services = new HashSet<>();
         platforms = new HashMap<>();
-        trips = new HashSet<>();
+        trips = new HashMap<>();
 
         Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", "MET");
         Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", "MET");
@@ -122,8 +122,12 @@ public class TransportDataForTest implements TransportDataSource {
         createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 10), "tripB2Id");
         createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 20), "tripB3Id");
 
-        trips.add(tripA);
-        trips.add(tripC);
+        addTrip(tripA);
+        addTrip(tripC);
+    }
+
+    private void addTrip(Trip trip) {
+        trips.put(trip.getTripId(),trip);
     }
 
     public void createInterchangeToStation4Trip(Route route, Service service, Station interchangeStation, Station station,
@@ -136,7 +140,7 @@ public class TransportDataForTest implements TransportDataSource {
                 TramTime.of(startTime.plusMinutes(8)), route.getId(), serviceBId, 2);
         trip.addStop(stop2);
         service.addTrip(trip);
-        trips.add(trip);
+        addTrip(trip);
     }
 
     private void addStation(Station station) {
@@ -210,12 +214,12 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public Trip getTrip(String tripId) {
-        throw new RuntimeException("Not implemented");
+        return trips.get(tripId);
     }
 
     @Override
     public Collection<Trip> getTrips() {
-        return trips;
+        return trips.values();
     }
 
     public Station getFirst() {

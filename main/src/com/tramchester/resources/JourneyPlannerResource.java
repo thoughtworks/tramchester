@@ -6,13 +6,9 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
-import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.RouteCalculator;
-import com.tramchester.livedata.LiveDataEnricher;
-import com.tramchester.mappers.HeadsignMapper;
 import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.repository.LiveDataSource;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -142,18 +138,10 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, TramTime initialQueryTime,
                                                  Set<RawJourney> journeys) {
         logger.info("number of journeys: " + journeys.size());
-        JourneyDTOFactory factory = createJourneyDTOFactory(queryDate, initialQueryTime);
-        SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(factory, journeys);
+        SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(journeys, queryDate);
         List<String> notes = providesNotes.createNotesForJourneys(queryDate, decoratedJourneys);
         return new JourneyPlanRepresentation(decoratedJourneys, notes);
     }
 
-    private JourneyDTOFactory createJourneyDTOFactory(TramServiceDate queryDate, TramTime initialQueryTime) {
-        // as query time and contents of live data changes need to create new factory each time
-        LiveDataEnricher liveDataEnricher = new LiveDataEnricher(liveDataRepositoy, queryDate, initialQueryTime);
-        StageDTOFactory stageDTOFactory = new StageDTOFactory(liveDataEnricher);
-        HeadsignMapper headsignMapper = new HeadsignMapper();
-        return new JourneyDTOFactory(stageDTOFactory, headsignMapper);
-    }
 
 }

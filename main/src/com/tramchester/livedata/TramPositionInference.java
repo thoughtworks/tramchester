@@ -1,4 +1,4 @@
-package com.tramchester.mappers;
+package com.tramchester.livedata;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -8,7 +8,6 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationAdjacenyRepository;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

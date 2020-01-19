@@ -1,16 +1,21 @@
 package com.tramchester.domain;
 
-import java.util.Objects;
+import com.tramchester.domain.presentation.TransportStage;
 
-public class RawWalkingStage implements RawStage {
+import java.util.Objects;
+import java.util.Optional;
+
+public class RawWalkingStage implements RawStage, TransportStage {
     private final Location start;
     private final Location destination;
     private final int duration;
+    private final TramTime beginTime;
 
-    public RawWalkingStage(Location start, Location destination, int duration) {
+    public RawWalkingStage(Location start, Location destination, int duration, TramTime beginTime) {
         this.start = start;
         this.destination = destination;
         this.duration = duration;
+        this.beginTime = beginTime;
     }
 
     @Override
@@ -29,6 +34,50 @@ public class RawWalkingStage implements RawStage {
     public Location getDestination() {
         return destination;
     }
+
+    @Override
+    public String getHeadSign() {
+        return "WalkingHeadSign";
+    }
+
+    @Override
+    public String getRouteName() {
+        return "Walk";
+    }
+
+    @Override
+    public String getDisplayClass() {
+        return "RouteWalking";
+    }
+
+    @Override
+    public Location getActionStation() {
+        return getDestination();
+    }
+
+    @Override
+    public Location getLastStation() {
+        return getDestination();
+    }
+
+    @Override
+    public Location getFirstStation() { return getStart(); }
+
+    @Override
+    public TramTime getFirstDepartureTime() {
+        return beginTime;
+    }
+
+    @Override
+    public TramTime getExpectedArrivalTime() {
+        return beginTime.plusMinutes(getDuration());
+    }
+
+    @Override
+    public Optional<Platform> getBoardingPlatform() {
+        return Optional.empty();
+    }
+
 
     @Override
     public String toString() {

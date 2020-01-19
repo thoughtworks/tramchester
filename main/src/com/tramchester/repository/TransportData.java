@@ -13,6 +13,7 @@ import java.util.Set;
 public interface TransportData extends ProvidesFeedInfo, StationRepository {
     Collection<Service> getServices();
     Collection<Trip> getTrips();
+    Trip getTrip(String tripId);
     Set<Service> getServicesOnDate(TramServiceDate date);
     Collection<Route> getRoutes();
     Route getRoute(String routeId);

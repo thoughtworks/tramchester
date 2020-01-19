@@ -11,7 +11,7 @@ public interface TransportStage extends RawStage {
     String getHeadSign();
     String getRouteName();
 
-    TravelAction getAction();
+//    TravelAction getAction();
     Location getActionStation(); // place where action happens, i.e. Board At X or Walk To X
 
     Location getLastStation();

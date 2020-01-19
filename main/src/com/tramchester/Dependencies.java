@@ -7,14 +7,14 @@ import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.*;
 import com.tramchester.healthchecks.*;
+import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
-import com.tramchester.mappers.DeparturesMapper;
-import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.mappers.LiveDataParser;
-import com.tramchester.mappers.TramJourneyResponseWithTimesMapper;
+import com.tramchester.mappers.*;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
@@ -73,7 +73,6 @@ public class Dependencies {
         TransportDataSource transportData = transportDataImporter.load();
 
         initialise(configuration, transportData);
-
     }
 
     public void initialise(TramchesterConfig configuration, TransportDataSource transportData) throws IOException {
@@ -100,7 +99,7 @@ public class Dependencies {
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
-        picoContainer.addComponent(TramJourneyResponseWithTimesMapper.class);
+        picoContainer.addComponent(TramJourneyToDTOMapper.class);
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
         picoContainer.addComponent(TransportGraphBuilder.class);
@@ -128,10 +127,11 @@ public class Dependencies {
         picoContainer.addComponent(NodeIdLabelMap.class);
         picoContainer.addComponent(GraphQuery.class);
         picoContainer.addComponent(StationAdjacenyRepository.class);
-
-        // TODO still needed now jodatime removed?
-        ObjectMapper objectMapper = new ObjectMapper();
-        picoContainer.addComponent(objectMapper);
+        picoContainer.addComponent(new ObjectMapper());
+        picoContainer.addComponent(StageDTOFactory.class);
+        picoContainer.addComponent(JourneyDTOFactory.class);
+        picoContainer.addComponent(HeadsignMapper.class);
+        picoContainer.addComponent(LiveDataEnricher.class);
 
         picoContainer.addComponent(ProvidesNow.class, new ProvidesNow() {
             @Override

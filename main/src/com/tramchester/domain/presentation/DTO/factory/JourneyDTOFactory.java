@@ -2,9 +2,7 @@ package com.tramchester.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.*;
-import com.tramchester.domain.presentation.Journey;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.mappers.HeadsignMapper;
 import org.slf4j.Logger;
@@ -14,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -23,26 +20,20 @@ public class JourneyDTOFactory {
 
     public static int TIME_LIMIT = 15;
 
-    private StageDTOFactory stageDTOFactory;
     private HeadsignMapper headsignMapper;
 
-    public JourneyDTOFactory(StageDTOFactory stageDTOFactory, HeadsignMapper headsignMapper) {
-        this.stageDTOFactory = stageDTOFactory;
+    public JourneyDTOFactory(HeadsignMapper headsignMapper) {
         this.headsignMapper = headsignMapper;
     }
 
-    public JourneyDTO build(Journey journey) throws TramchesterException {
-        List<TransportStage> transportStages = journey.getStages();
-        List<StageDTO> stages = journey.getStages().stream().map(stage -> stageDTOFactory.build(stage)).collect(Collectors.toList());
+    public JourneyDTO build(List<StageDTO> stages) {
+        boolean isDirect = isDirect(stages);
+        LocationDTO begin = getBegin(stages);
+        LocationDTO end = getEnd(stages);
 
-        boolean isDirect = isDirect(transportStages);
-
-        LocationDTO begin = new LocationDTO(getBegin(transportStages));
-        LocationDTO end = new LocationDTO(getEnd(transportStages));
-
-        JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(transportStages),
-                getFirstDepartureTime(transportStages),
-                isDirect, getChangeStationNames(transportStages));
+        JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages),
+                getFirstDepartureTime(stages),
+                isDirect, getChangeStationNames(stages));
 
         addTopLevelDueTramToJourney(journeyDTO);
 
@@ -58,6 +49,11 @@ public class JourneyDTOFactory {
         }
 
         StageDTO firstTramStage = maybeFirstTram.get();
+        if (!firstTramStage.getHasPlatform()) {
+            logger.warn("No platform present for stage" + firstTramStage );
+            return;
+        }
+
         StationDepartureInfoDTO departInfo = firstTramStage.getPlatform().getStationDepartureInfo();
         if (departInfo==null) {
             return;
@@ -98,7 +94,7 @@ public class JourneyDTOFactory {
                         (Math.abs(dueAsMins-departAsMins)< TIME_LIMIT));
     }
 
-    private Location getBegin(List<TransportStage> allStages) {
+    private LocationDTO getBegin(List<StageDTO> allStages) {
         if (firstStageIsWalk(allStages)) {
             if (allStages.size()>1) {
                 // the first station
@@ -110,11 +106,11 @@ public class JourneyDTOFactory {
         return getFirstStage(allStages).getFirstStation();
     }
 
-    private Location getEnd(List<TransportStage> allStages) {
+    private LocationDTO getEnd(List<StageDTO> allStages) {
         return getLastStage(allStages).getLastStation();
     }
 
-    private boolean isDirect(List<TransportStage> allStages) {
+    private boolean isDirect(List<StageDTO> allStages) {
         int size = allStages.size();
         // Direct first
         if (size == 1) {
@@ -126,7 +122,7 @@ public class JourneyDTOFactory {
         return false;
     }
 
-    private List<String> getChangeStationNames(List<TransportStage> allStages) {
+    private List<String> getChangeStationNames(List<StageDTO> allStages) {
         List<String> result = new ArrayList<>();
 
         if (isDirect(allStages)) {
@@ -140,7 +136,7 @@ public class JourneyDTOFactory {
         return result;
     }
 
-    private TramTime getFirstDepartureTime(List<TransportStage> allStages) {
+    private TramTime getFirstDepartureTime(List<StageDTO> allStages) {
         if (allStages.size() == 0) {
             return TramTime.midnight();
         }
@@ -152,26 +148,26 @@ public class JourneyDTOFactory {
         return getFirstStage(allStages).getFirstDepartureTime();
     }
 
-    private TramTime getExpectedArrivalTime(List<TransportStage> allStages) throws TramchesterException {
+    private TramTime getExpectedArrivalTime(List<StageDTO> allStages) {
         if (allStages.size() == 0) {
-            return TramTime.create(0,0);
+            return TramTime.of(0,0);
         }
         return getLastStage(allStages).getExpectedArrivalTime();
     }
 
-    private TransportStage getLastStage(List<TransportStage> allStages) {
+    private StageDTO getLastStage(List<StageDTO> allStages) {
         int index = allStages.size()-1;
         return allStages.get(index);
     }
 
-    private TransportStage getFirstStage(List<TransportStage> allStages) {
+    private StageDTO getFirstStage(List<StageDTO> allStages) {
 //        if (allStages.size()==1) {
 //            return allStages.get(0);
 //        }
         return allStages.get(0);
     }
 
-    private boolean firstStageIsWalk(List<TransportStage> allStages) {
+    private boolean firstStageIsWalk(List<StageDTO> allStages) {
         if (allStages.isEmpty()) {
             logger.error("No stages in the journey");
             return false;

@@ -1,10 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.RawJourney;
-import com.tramchester.domain.StationWalk;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
@@ -103,7 +100,10 @@ public class RouteCalculator extends StationIndexs {
                         queryTime, runningServicesIds, destinationId, serviceReasons)).
                 map(serviceHeuristics -> findShortestPathEdgePerTrip(startNode, endNode, serviceHeuristics, serviceReasons, destinationId)).
                 flatMap(Function.identity()).
-                map(path -> new RawJourney(pathToStages.mapDirect(path.getPath()), path.getQueryTime(), path.path.weight()));
+                map(path -> {
+                    List<RawStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime());
+                    return new RawJourney(stages, path.getQueryTime(), path.path.weight());
+                });
 
     }
 

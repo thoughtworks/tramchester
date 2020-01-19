@@ -6,8 +6,6 @@ import com.tramchester.integration.Stations;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalTime;
-
 import static org.junit.Assert.assertEquals;
 
 public class WalkingStageTest {
@@ -22,11 +20,11 @@ public class WalkingStageTest {
         int cost = 22;
         start = Stations.Altrincham;
         destination = Stations.Cornbrook;
-        walkingStage = new WalkingStage(new RawWalkingStage(start, destination, cost), begin);
+        walkingStage = new WalkingStage(new RawWalkingStage(start, destination, cost, begin), begin);
     }
 
     @Test
-    public void shouldCalculateTimesCorrectly() throws TramchesterException {
+    public void shouldCalculateTimesCorrectly() {
 
         TramTime arrival = walkingStage.getExpectedArrivalTime();
         assertEquals(TramTime.of(8,22), arrival);
