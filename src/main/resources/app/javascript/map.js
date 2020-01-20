@@ -80,9 +80,23 @@ const mapApp = new Vue({
                 .attr("cx", mapApp.scaleX)
                 .attr("cy", mapApp.scaleY)
                 .attr("r", 3).attr("title", d => d.name).attr("id", d=> d.id);
+
+            var lineGenerator = d3.line().curve(d3.curveCardinal);
+            mapApp.svg.selectAll("line")
+                .data(mapApp.positionsList).enter().append("path")
+                .attr("d", function (d) {
+                    var data = [
+                        [mapApp.scaleX(d.first), mapApp.scaleY(d.first)],
+                        [mapApp.scaleX(d.second),mapApp.scaleY(d.second)]];
+                    return lineGenerator(data);
+                })
+                .style("fill", "none")
+                .style("stroke", "black")
+                .style("stroke-width", "1px");
+
         },
         scaleY(station) {
-            return height - ((station.latLong.lat + mapApp.latOffset) * mapApp.scaleLat) + (margin / 2);
+            return ((height-(margin/2)) - ((station.latLong.lat + mapApp.latOffset) * mapApp.scaleLat)); //+ (margin / 2);
         },
         scaleX(station) {
             return ((station.latLong.lon + mapApp.lonOffset) * mapApp.scaleLon) + (margin / 2);
