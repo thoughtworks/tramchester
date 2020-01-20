@@ -7,10 +7,13 @@
 <body>
 
 <div id="tramMap"><h1>TramMap</h1>
-</div>
-
-<div id = "map" style = "float : left; min-width:320px;width :50%;height : 600px">
-    <div id="subtitle"></div>
+    <div id="popOvers">
+        <b-popover v-for="target in uniqueStations" :target="target.id" triggers="hover" placement="top">
+            {{target.name}}
+        </b-popover>
+    </div>
+    <div id = "map">
+    </div>
 </div>
 
 <script src="/app/dist/main.js"></script>
