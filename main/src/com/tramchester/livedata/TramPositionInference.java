@@ -36,9 +36,11 @@ public class TramPositionInference {
         Set<Pair<Station, Station>> pairs = adjacenyRepository.getStationParis();
         pairs.forEach(pair -> {
             TramPosition result = findBetween(pair.getLeft(), pair.getRight());
-            if (!result.getTrams().isEmpty()) {
-                results.add(result);
-            }
+            results.add(result);
+
+//            if (!result.getTrams().isEmpty()) {
+//                results.add(result);
+//            }
         });
         logger.info(format("Found %s pairs with trams", results.size()));
         return results;
