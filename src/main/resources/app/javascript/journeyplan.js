@@ -6,6 +6,7 @@ var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
 
+
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import './../css/tramchester.css'
@@ -84,7 +85,7 @@ function getStationsFromServer(app) {
          });
  }
 
-const app = new Vue({
+var app = new Vue({
         el: '#journeyplan',
         data () {
             return {

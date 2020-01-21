@@ -21,7 +21,7 @@ function initD3(app) {
         .attr("height", height);
 }
 
-const mapApp = new Vue({
+var mapApp = new Vue({
     el: '#tramMap',
     data() {
         return {

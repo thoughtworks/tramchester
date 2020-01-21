@@ -155,7 +155,7 @@ public class TransportDataFromFilesTest {
     public void shouldGetAreas() {
         List<AreaDTO> results = transportData.getAreas();
         assertTrue(results.size() > 0 );
-        AreaDTO area = new AreaDTO("Altrincham");
+        AreaDTO area = new AreaDTO("Manchester Airport");
         assertTrue(results.contains(area));
         // only once
         long count = results.stream().filter(item -> item.equals(area)).count();

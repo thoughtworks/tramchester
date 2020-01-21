@@ -115,6 +115,7 @@ task cleanGraph {
 
 clean {
     delete 'src/main/resources/app/dist/main.js'
+    delete 'src/main/resources/app/dist/map.js'
     delete 'data/tram/data.zip', 'data/bus/data.zip'
     delete fileTree('data/tram') {
         include '*.txt'
@@ -293,6 +294,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.file("webpack.config.js")
 
     outputs.file("src/main/resources/app/dist/main.js")
+    outputs.file("src/main/resources/app/dist/map.js")
 
     if (isWindows) {
         commandLine "./node_modules/.bin/webpack.cmd"

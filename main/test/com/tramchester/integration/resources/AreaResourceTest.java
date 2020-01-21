@@ -36,7 +36,7 @@ public class AreaResourceTest {
         List<AreaDTO> results = getAll();
 
         assertTrue(results.size()>0);
-        AreaDTO area = new AreaDTO("Altrincham");
+        AreaDTO area = new AreaDTO("Manchester Airport");
         assertTrue(results.contains(area));
     }
 
