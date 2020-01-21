@@ -20,6 +20,8 @@ import static java.lang.String.format;
 public class TramPositionInference {
     private static final Logger logger = LoggerFactory.getLogger(TramPositionInference.class);
 
+    public static final String DEPARTING = "Departing";
+
     private final LiveDataSource liveDataSource;
     private final StationAdjacenyRepository adjacenyRepository;
     private final TramRouteReachable routeReachable;
@@ -37,10 +39,6 @@ public class TramPositionInference {
         pairs.forEach(pair -> {
             TramPosition result = findBetween(pair.getLeft(), pair.getRight());
             results.add(result);
-
-//            if (!result.getTrams().isEmpty()) {
-//                results.add(result);
-//            }
         });
         logger.info(format("Found %s pairs with trams", results.size()));
         return results;
@@ -75,6 +73,7 @@ public class TramPositionInference {
         Set<DueTram> dueTrams = departureInfos.stream().
                 map(info -> info.getDueTramsWithinWindow(cost)).
                 flatMap(Collection::stream).
+                filter(dueTram -> !DEPARTING.equals(dueTram.getStatus())).
                 collect(Collectors.toSet());
         logger.info(format("Found %s trams between %s and %s",dueTrams.size(), start, neighbour));
         return new TramPosition(start, neighbour, dueTrams);
