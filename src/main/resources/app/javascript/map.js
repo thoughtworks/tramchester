@@ -35,6 +35,21 @@ function textFor(trams) {
     return text;
 }
 
+function textRotation(first,second) {
+    let x1 = mapApp.scaleX(first);
+    let y1 = mapApp.scaleY(first);
+    let x2 = mapApp.scaleX(second);
+    let y2 = mapApp.scaleY(second);
+
+    let midX = (x1+x2) / 2;
+    let midY = (y1+y2) / 2;
+    let halfX = midX - x1;
+    let halfY = midY - y1;
+
+    let lineAngel = Math.atan(halfY/halfX);
+    return (lineAngel  * (180 / Math.PI));
+}
+
 function normal(first, second, normal) {
     let x1 = mapApp.scaleX(first);
     let y1 = mapApp.scaleY(first);
@@ -151,15 +166,13 @@ var mapApp = new Vue({
                         .data(mapApp.positionsList).enter().append("g")
                         .attr("transform", function(d) {
                             let normalPoint = normal(d.first,d.second,10);
-                            return "translate( " + normalPoint[0] +","+ normalPoint[1] + ")";
-                        }).append("text").text(d => textFor(d.trams)).attr("font-family", "sans-serif").attr("font-size", "7px");
+                            return "translate( " + normalPoint[0] +", "+ normalPoint[1] + ")"
+                            + " rotate(" + textRotation(d.first,d.second) + ")";
+                        })
+                        .append("text")
+                        .text(d => textFor(d.trams))
+                        .attr("font-family", "sans-serif").attr("font-size", "7px");
 
-
-//            var text =  mapApp.svg.selectAll("text")
-//                             .data(mapApp.positionsList).enter().append("text")
-//                             .attr("x", d=>normal(d.first,d.second,10)[0])
-//                             .attr("y", d=>normal(d.first,d.second,10)[1])
-//                             .text(d => textFor(d.trams)).attr("font-family", "sans-serif").attr("font-size", "7px");
         },
         scaleY(station) {
             return ((height-(margin/2)) - ((station.latLong.lat + mapApp.latOffset) * mapApp.scaleLat));

@@ -39,7 +39,7 @@ public class TramPositionsResource {
     @ApiOperation(value = "Infered positions of trams within network",
             notes = "Infered from live tram data feed and timetime data",
             response = TramsPositionsDTO.class)
-    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
+    @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
     public Response get() {
         List<TramPosition> results = positionInference.inferWholeNetwork();
         List<TramPositionDTO> dtoList = results.stream().
