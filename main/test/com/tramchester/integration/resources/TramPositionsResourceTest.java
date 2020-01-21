@@ -26,11 +26,13 @@ public class TramPositionsResourceTest {
 
         TramsPositionsDTO result = responce.readEntity(TramsPositionsDTO.class);
 
+        // should have some positions
         List<TramPositionDTO> positions = result.getPositionsList();
         assertFalse(positions.isEmpty());
 
-        TramPositionDTO first = positions.get(0);
-        assertFalse(first.getTrams().isEmpty());
+        // some of those positions should have trams
+        long positionsWithTrams = positions.stream().filter(position -> !position.getTrams().isEmpty()).count();
+        assertFalse(positionsWithTrams>0);
 
     }
 }

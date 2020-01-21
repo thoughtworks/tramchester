@@ -59,7 +59,12 @@ public class TramPositionInference {
         Set<StationDepartureInfo> departureInfos = new HashSet<>();
         routesBetween.forEach(route -> {
             List<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform -> departureInfos.add(liveDataSource.departuresFor(platform)));
+            platforms.forEach(platform -> {
+                StationDepartureInfo departureInfo = liveDataSource.departuresFor(platform);
+                if (departureInfo!=null) {
+                    departureInfos.add(departureInfo);
+                }
+            });
         });
 
         if (departureInfos.isEmpty()) {
@@ -68,7 +73,7 @@ public class TramPositionInference {
         }
 
         Set<DueTram> dueTrams = departureInfos.stream().
-                map(mapEntry -> mapEntry.getDueTramsWithinWindow(cost)).
+                map(info -> info.getDueTramsWithinWindow(cost)).
                 flatMap(Collection::stream).
                 collect(Collectors.toSet());
         logger.info(format("Found %s trams between %s and %s",dueTrams.size(), start, neighbour));

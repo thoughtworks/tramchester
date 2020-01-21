@@ -53,7 +53,6 @@ dependencies {
             'org.neo4j:neo4j:3.4.12',
             'org.neo4j:neo4j-slf4j:3.4.12',
             'org.neo4j:neo4j-spatial:0.26.2-neo4j-3.4.12', //v0.26.2 for Neo4j 3.4.12
-            //'com.googlecode.jcsv:jcsv:1.4.0',
             'net.lingala.zip4j:zip4j:2.1.4',
             'commons-io:commons-io:2.4',
             'org.apache.commons:commons-csv:1.7',
@@ -72,6 +71,12 @@ dependencies {
             'org.seleniumhq.selenium:selenium-java:3.141.59',
             'io.appium:java-client:4.1.2',
             'org.hamcrest:hamcrest:2.1'
+
+    dependencies {
+        // JAX-B dependencies for JDK 9+
+        implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
+        implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+    }
 }
 
 sourceSets {

@@ -42,8 +42,11 @@ public class TramPositionsResource {
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
         List<TramPosition> results = positionInference.inferWholeNetwork();
-        List<TramPositionDTO> dtoList = results.stream().map(pos -> new TramPositionDTO(new LocationDTO(pos.getFirst()),
-                new LocationDTO(pos.getSecond()), convert(pos.getFirst().getName(), pos.getTrams()))).collect(Collectors.toList());
+        List<TramPositionDTO> dtoList = results.stream().
+                map(pos -> new TramPositionDTO(new LocationDTO(pos.getFirst()),
+                        new LocationDTO(pos.getSecond()),
+                        convert(pos.getSecond().getName(), pos.getTrams()))).
+                collect(Collectors.toList());
         TramsPositionsDTO dto = new TramsPositionsDTO(dtoList);
         return Response.ok(dto).build();
     }
