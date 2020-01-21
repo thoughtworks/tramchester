@@ -81,18 +81,49 @@ var mapApp = new Vue({
                 .attr("cy", mapApp.scaleY)
                 .attr("r", 3).attr("title", d => d.name).attr("id", d=> d.id);
 
-            var lineGenerator = d3.line().curve(d3.curveCardinal);
+            var lineGenerator = d3.line(); //.curve(d3.curveCardinal);
             mapApp.svg.selectAll("line")
                 .data(mapApp.positionsList).enter().append("path")
                 .attr("d", function (d) {
-                    var data = [
-                        [mapApp.scaleX(d.first), mapApp.scaleY(d.first)],
-                        [mapApp.scaleX(d.second),mapApp.scaleY(d.second)]];
-                    return lineGenerator(data);
-                })
-                .style("fill", "none")
-                .style("stroke", "black")
-                .style("stroke-width", "1px");
+                let normal = 10; // length of normal line, pixels
+
+                let x1 = mapApp.scaleX(d.first);
+                let y1 = mapApp.scaleY(d.first);
+                let x2 = mapApp.scaleX(d.second);
+                let y2 = mapApp.scaleY(d.second);
+                let midX = (x1+x2) / 2;
+                let midY = (y1+y2) / 2;
+                let halfX = Math.abs(midX - x1);
+                let halfY = Math.abs(midY - y1);
+
+                let halfLen = Math.sqrt((halfX*halfX)+(halfY*halfY));
+
+                let lineAngel = Math.atan(halfY/halfX);
+
+                let endNormalDist = Math.sqrt((halfLen*halfLen)+(normal*normal));
+                let endNormalAngel = Math.asin(normal/endNormalDist);
+
+                let internalAngle = endNormalAngel+lineAngel;
+
+                let dx = (Math.cos(internalAngle) * endNormalDist);
+                let dy = (Math.sin(internalAngle) * endNormalDist);
+                var normalX = 0 ; x1 + dx;
+                if (x2>x1) {
+                    normalX = x1 + dx;
+                } else {
+                    normalX = x1 - dx;
+                }
+                var normalY = 0; //y1 - dy;
+                if (y2>y1) {
+                    normalY = y1 + dy;
+                } else {
+                    normalY = y1 - dy;
+                }
+
+                var data = [
+                    [x1, y1], [normalX, normalY], [x2, y2]];
+                return lineGenerator(data);
+                }).style("fill", "none").style("stroke", "black").style("stroke-width", "1px");
 
         },
         scaleY(station) {
