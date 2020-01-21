@@ -7,9 +7,16 @@
 <body>
 
 <div id="tramMap"><h1>TramMap</h1>
-    <div id="popOvers">
+    <div id="stationPopOvers">
         <b-popover v-for="target in uniqueStations" :target="target.id" triggers="hover" placement="top">
             {{target.name}}
+        </b-popover>
+    </div>
+    <div id="linePopOvers">
+        <b-popover v-for="target in positionsList" :target="target.first.id+target.second.id" triggers="hover" placement="top">
+            <div v-for="tram in target.trams">
+                <div>{{tram.destination}}</div>
+            </div>
         </b-popover>
     </div>
     <div id = "map">
