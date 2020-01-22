@@ -140,6 +140,24 @@ var mapApp = new Vue({
             mapApp.scaleLat = (height-margin) / (maxLat-minLat);
         },
         draw() {
+            // lines between stations
+            var lineGenerator = d3.line().curve(d3.curveCardinal);
+            mapApp.svg.selectAll("line")
+                    .data(mapApp.positionsList).enter().append("path")
+                    .attr("id", d=> d.first.id+d.second.id)
+                    .attr("d", function (d) {
+                    let normalLen = 3; // length of normal line, pixels
+
+                    let x1 = mapApp.scaleX(d.first);
+                    let y1 = mapApp.scaleY(d.first);
+                    let x2 = mapApp.scaleX(d.second);
+                    let y2 = mapApp.scaleY(d.second);
+
+                    let normalPoint = normal(d.first, d.second, normalLen);
+                    var points = [[x1, y1], normalPoint, [x2, y2]];
+                    return lineGenerator(points);
+                }).style("fill", "none").style("stroke", "grey").style("stroke-width", "2px");
+
             // stations
             mapApp.svg.selectAll("circle")
                 .data(mapApp.uniqueStations)
@@ -147,7 +165,6 @@ var mapApp = new Vue({
                 .attr("cx", mapApp.scaleX)
                 .attr("cy", mapApp.scaleY)
                 .attr("r", 3).attr("title", d => d.name).attr("id", d=> d.id);
-
 
             // only have one pair for each location
             var ids = [];
@@ -174,24 +191,6 @@ var mapApp = new Vue({
                 .append("text")
                 .text(d => d.first.name)
                 .attr("font-family", "sans-serif").attr("font-size", "8px").attr("fill", "blue");
-
-            // lines between stations
-            var lineGenerator = d3.line().curve(d3.curveCardinal);
-            mapApp.svg.selectAll("line")
-                    .data(mapApp.positionsList).enter().append("path")
-                    .attr("id", d=> d.first.id+d.second.id)
-                    .attr("d", function (d) {
-                    let normalLen = 3; // length of normal line, pixels
-
-                    let x1 = mapApp.scaleX(d.first);
-                    let y1 = mapApp.scaleY(d.first);
-                    let x2 = mapApp.scaleX(d.second);
-                    let y2 = mapApp.scaleY(d.second);
-
-                    let normalPoint = normal(d.first, d.second, normalLen);
-                    var points = [[x1, y1], normalPoint, [x2, y2]];
-                    return lineGenerator(points);
-                }).style("fill", "none").style("stroke", "grey").style("stroke-width", "1px");
 
             // live tram labels
             mapApp.svg.selectAll("g")

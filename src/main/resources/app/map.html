@@ -14,8 +14,9 @@
     </div>
     <div id="linePopOvers">
         <b-popover v-for="target in positionsList" :target="target.first.id+target.second.id" triggers="hover" placement="top">
+            <template v-slot:title>Trams between {{target.first.name}} and {{target.second.name}}</template>
             <div v-for="tram in target.trams">
-                <div>{{tram.destination}}</div>
+                <div>To: {{tram.destination}} due at {{target.second.name}} at {{tram.when}}</div>
             </div>
         </b-popover>
     </div>
