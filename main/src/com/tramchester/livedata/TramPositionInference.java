@@ -32,6 +32,7 @@ public class TramPositionInference {
         this.routeReachable = routeReachable;
     }
 
+    // todo refresh this based on live data refresh
     public List<TramPosition> inferWholeNetwork() {
         logger.info("Infer tram positions for whole network");
         List<TramPosition> results = new ArrayList<>();

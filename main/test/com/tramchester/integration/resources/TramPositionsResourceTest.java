@@ -20,24 +20,42 @@ public class TramPositionsResourceTest {
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     @Test
-    public void shouldGetSomePositions() {
+    public void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
         Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
 
-        TramsPositionsDTO result = responce.readEntity(TramsPositionsDTO.class);
+        TramsPositionsDTO filtered = responce.readEntity(TramsPositionsDTO.class);
 
         // should have some positions
-        List<TramPositionDTO> positions = result.getPositionsList();
+        List<TramPositionDTO> positions = filtered.getPositionsList();
         assertFalse(positions.isEmpty());
 
-        // some of those positions should have trams
+        // ALL of those positions should have trams
         long positionsWithTrams = positions.stream().filter(position -> !position.getTrams().isEmpty()).count();
-        assertTrue(positionsWithTrams>0);
+        // MUST be same as total number of positions for filtered
+        assertEquals(positions.size(), positionsWithTrams);
 
         long departingTrams = positions.stream().map(position -> position.getTrams()).
                 flatMap(dueTrams -> dueTrams.stream()).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();
-
         assertEquals(0, departingTrams);
+    }
 
+    @Test
+    public void shouldGetSomePositionsUnfiltered() {
+        String endPoint = "positions?unfiltered=true";
+        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
+        TramsPositionsDTO unfiltered = responce.readEntity(TramsPositionsDTO.class);
+
+        // should have some positions
+        List<TramPositionDTO> positions = unfiltered.getPositionsList();
+        assertFalse(positions.isEmpty());
+        long positionsWithTrams = positions.stream().filter(position -> !position.getTrams().isEmpty()).count();
+        assertTrue(positionsWithTrams>0);
+        // for unfiltered should have more positions than ones with trams
+        assertTrue(positions.size() > positionsWithTrams);
+
+        long departingTrams = positions.stream().map(position -> position.getTrams()).
+                flatMap(dueTrams -> dueTrams.stream()).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();
+        assertEquals(0, departingTrams);
     }
 }

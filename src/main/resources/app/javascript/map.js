@@ -35,7 +35,8 @@ function textFor(trams) {
     return text;
 }
 
-function textRotation(first,second) {
+// find angle of line between first and second
+function textRotation(first, second) {
     let x1 = mapApp.scaleX(first);
     let y1 = mapApp.scaleY(first);
     let x2 = mapApp.scaleX(second);
@@ -50,6 +51,7 @@ function textRotation(first,second) {
     return (lineAngel  * (180 / Math.PI));
 }
 
+// some trig to find (x,y) of end of a normal line that started mid-point between first and second
 function normal(first, second, normal) {
     let x1 = mapApp.scaleX(first);
     let y1 = mapApp.scaleY(first);
@@ -138,15 +140,44 @@ var mapApp = new Vue({
             mapApp.scaleLat = (height-margin) / (maxLat-minLat);
         },
         draw() {
+            // stations
             mapApp.svg.selectAll("circle")
                 .data(mapApp.uniqueStations)
-                .enter().append("circle").attr("fill", "red")
+                .enter().append("circle").attr("fill", "blue")
                 .attr("cx", mapApp.scaleX)
                 .attr("cy", mapApp.scaleY)
                 .attr("r", 3).attr("title", d => d.name).attr("id", d=> d.id);
 
+
+            // only have one pair for each location
+            var ids = [];
+            var oneDirectionOnly = [];
+            mapApp.positionsList.forEach(item => {
+                if (ids.indexOf(item.first.id)<0) {
+                    ids.push(item.first.id);
+                    oneDirectionOnly.push(item);
+                }
+            });
+
+            // station labels
+            mapApp.svg.selectAll("g")
+                .data(oneDirectionOnly).enter().append("g")
+                .attr("transform", function(d) {
+                    let x = mapApp.scaleX(d.first);
+                    let y = mapApp.scaleY(d.first);
+                    let angle = textRotation(d.first, d.second)+90;
+                    if (angle>90) {
+                        angle = 180-angle;
+                    }
+                    return "translate(" + x +","+ y + ") rotate("+ angle +")";
+                })
+                .append("text")
+                .text(d => d.first.name)
+                .attr("font-family", "sans-serif").attr("font-size", "8px").attr("fill", "blue");
+
+            // lines between stations
             var lineGenerator = d3.line().curve(d3.curveCardinal);
-            var lines = mapApp.svg.selectAll("line")
+            mapApp.svg.selectAll("line")
                     .data(mapApp.positionsList).enter().append("path")
                     .attr("id", d=> d.first.id+d.second.id)
                     .attr("d", function (d) {
@@ -160,18 +191,19 @@ var mapApp = new Vue({
                     let normalPoint = normal(d.first, d.second, normalLen);
                     var points = [[x1, y1], normalPoint, [x2, y2]];
                     return lineGenerator(points);
-                }).style("fill", "none").style("stroke", "black").style("stroke-width", "1px");
+                }).style("fill", "none").style("stroke", "grey").style("stroke-width", "1px");
 
-             mapApp.svg.selectAll("g")
-                        .data(mapApp.positionsList).enter().append("g")
-                        .attr("transform", function(d) {
-                            let normalPoint = normal(d.first,d.second,10);
-                            return "translate( " + normalPoint[0] +", "+ normalPoint[1] + ")"
-                            + " rotate(" + textRotation(d.first,d.second) + ")";
-                        })
-                        .append("text")
-                        .text(d => textFor(d.trams))
-                        .attr("font-family", "sans-serif").attr("font-size", "7px");
+            // live tram labels
+            mapApp.svg.selectAll("g")
+                    .data(mapApp.positionsList).enter().append("g")
+                    .attr("transform", function(d) {
+                        let normalPoint = normal(d.first,d.second,15);
+                        return "translate( " + normalPoint[0] +", "+ normalPoint[1] + ")"
+                        + " rotate(" + textRotation(d.first,d.second) + ")";
+                    })
+                    .append("text")
+                    .text(d => textFor(d.trams))
+                    .attr("font-family", "sans-serif").attr("font-size", "8px").attr("fill", "red");
 
         },
         scaleY(station) {
@@ -183,7 +215,7 @@ var mapApp = new Vue({
     },
     mounted () {
         axios
-            .get('/api/positions')
+            .get('/api/positions?unfiltered=true')
             .then(function (response) {
                 mapApp.networkError = false;
                 mapApp.positionsList = response.data.positionsList;
