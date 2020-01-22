@@ -127,7 +127,7 @@ var app = new Vue({
                     {key:'when', label:'Time', tdClass:'departureDueTime', sortable:true},
                     {key:'carriages', label:'', tdClass:'departureCarriages'},
                     {key:'status', label:'Status', tdClass:'departureStatus'},
-                    {key:'destination', label:'Towards', tdClass:'departureTowards'}
+                    {key:'destination', label:'Towards', tdClass:'departureTowards',  sortable:true}
                 ]
             }
         },
