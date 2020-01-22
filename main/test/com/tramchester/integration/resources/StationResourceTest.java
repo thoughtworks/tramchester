@@ -9,7 +9,6 @@ import com.tramchester.LiveDataMessagesCategory;
 import com.tramchester.LiveDataTestCategory;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;

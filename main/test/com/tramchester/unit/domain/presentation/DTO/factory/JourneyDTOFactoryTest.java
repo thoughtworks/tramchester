@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.HeadsignMapper;
 import org.easymock.EasyMockSupport;
@@ -238,7 +238,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
 
     private StageDTO createStageDTOWithDueTram(Station station, LocalDateTime whenTime, int wait) {
         StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
-                StationDepartureInfo.Direction.Incoming, "platform", "platformLocation", "message", whenTime);
+                StationDepartureInfo.Direction.Incoming, "platform", station, "message", whenTime);
 
         LocalTime when = whenTime.toLocalTime();
 

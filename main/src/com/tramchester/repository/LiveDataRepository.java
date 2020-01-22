@@ -8,7 +8,6 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
-import com.tramchester.healthchecks.ProvidesNow;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import org.json.simple.parser.ParseException;
@@ -57,21 +56,29 @@ public class LiveDataRepository implements LiveDataSource {
             messageCount = 0;
             try {
                 List<StationDepartureInfo> infos = parser.parse(payload);
-                infos.forEach(info -> {
-                    String platformId = info.getStationPlatform();
+                infos.forEach(newDepartureInfo -> {
+                    String platformId = newDepartureInfo.getStationPlatform();
                     if (!newMap.containsKey(platformId)) {
-                        String message = info.getMessage();
+                        String message = newDepartureInfo.getMessage();
                         if (message.equals(NO_MESSAGE)) {
-                            info.clearMessage();
+                            newDepartureInfo.clearMessage();
                         } else {
                             messageCount = messageCount + 1;
                         }
                         if (scrollingDisplay(message)) {
-                            info.clearMessage();
+                            newDepartureInfo.clearMessage();
                         }
-                        newMap.put(platformId, info);
+                        newMap.put(platformId, newDepartureInfo);
                     } else {
-                        logger.warn(format("Duplicate data seen for platform id '%s'", platformId));
+                        StationDepartureInfo existingDepartureInfo = newMap.get(platformId);
+                        newDepartureInfo.getDueTrams().forEach(dueTram -> {
+                            if (!existingDepartureInfo.hasDueTram(dueTram)) {
+                                // WARNING because: right now this hardly seems to happen, need some examples to figure
+                                // out the right approach, in part because the live api is not really documented
+                                logger.warn(format("Additional due tram '%s' seen for platform id '%s'", dueTram, platformId));
+                                existingDepartureInfo.addDueTram(dueTram);
+                            }
+                        });
                     }
                 });
             } catch (ParseException exception) {
@@ -219,4 +226,7 @@ public class LiveDataRepository implements LiveDataSource {
         observers.add(observer);
     }
 
+    public Collection<StationDepartureInfo> allDepartures() {
+        return stationInformation.values();
+    }
 }

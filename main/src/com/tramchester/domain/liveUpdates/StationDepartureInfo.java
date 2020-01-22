@@ -1,5 +1,7 @@
 package com.tramchester.domain.liveUpdates;
 
+import com.tramchester.domain.Station;
+
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,16 +20,16 @@ public class StationDepartureInfo implements HasPlatformMessage {
     private List<DueTram> dueTrams;
     private LocalDateTime lastUpdate;
     private String displayId;
-    private String location;
+    private Station station;
     private Direction direction;
 
-    public StationDepartureInfo(String displayId, String lineName, Direction direction, String stationPlatform, String location,
-                                String message, LocalDateTime lastUpdate) {
+    public StationDepartureInfo(String displayId, String lineName, Direction direction, String stationPlatform,
+                                Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.lineName = lineName;
         this.direction = direction;
         this.stationPlatform = stationPlatform;
-        this.location = location;
+        this.station = station;
         this.message = message;
         this.lastUpdate = lastUpdate;
         dueTrams = new LinkedList<>();
@@ -61,6 +63,10 @@ public class StationDepartureInfo implements HasPlatformMessage {
         dueTrams.add(dueTram);
     }
 
+    public boolean hasDueTram(DueTram dueTram) {
+        return dueTrams.contains(dueTram);
+    }
+
     public String getDisplayId() {
         return displayId;
     }
@@ -70,7 +76,7 @@ public class StationDepartureInfo implements HasPlatformMessage {
     }
 
     public String getLocation() {
-        return location;
+        return station.getName();
     }
 
     @Override
@@ -84,13 +90,13 @@ public class StationDepartureInfo implements HasPlatformMessage {
                 dueTrams.equals(that.dueTrams) &&
                 lastUpdate.equals(that.lastUpdate) &&
                 displayId.equals(that.displayId) &&
-                location.equals(that.location) &&
+                station.equals(that.station) &&
                 direction == that.direction;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineName, stationPlatform, message, dueTrams, lastUpdate, displayId, location, direction);
+        return Objects.hash(lineName, stationPlatform, message, dueTrams, lastUpdate, displayId, station, direction);
     }
 
     @Override
@@ -102,7 +108,7 @@ public class StationDepartureInfo implements HasPlatformMessage {
                 ", dueTrams=" + dueTrams +
                 ", lastUpdate=" + lastUpdate +
                 ", displayId='" + displayId + '\'' +
-                ", location='" + location + '\'' +
+                ", location='" + station + '\'' +
                 ", direction=" + direction +
                 '}';
     }

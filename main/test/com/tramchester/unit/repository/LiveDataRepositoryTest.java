@@ -50,7 +50,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
-                "some message", "platformLocation");
+                "some message", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -77,9 +77,9 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         PlatformDTO platformC = new PlatformDTO(new Platform("platformIdC", "Platform name"));
 
         LocalDateTime lastUpdate = LocalDateTime.now();
-        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
-        addStationInfo(info, lastUpdate, "42", "platformIdB", "^F0Next exclude message", "platformLocation");
-        addStationInfo(info, lastUpdate, "43", "platformIdC", "<no message>", "platformLocation");
+        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
+        addStationInfo(info, lastUpdate, "42", "platformIdB", "^F0Next exclude message", Stations.Altrincham);
+        addStationInfo(info, lastUpdate, "43", "platformIdC", "<no message>", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -106,8 +106,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime lastUpdate = LocalDateTime.now();
 
-        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
-        addStationInfo(info, lastUpdate, "303", "platformIdB", "some message", "platformLocation");
+        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
+        addStationInfo(info, lastUpdate, "303", "platformIdB", "some message", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -130,8 +130,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         LocalDateTime lastUpdate = LocalDateTime.now(); // up to date
-        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", "platformLocation");
-        addStationInfo(info, lastUpdate, "303", "platformIdB", "<no message>", "platformLocation");
+        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
+        addStationInfo(info, lastUpdate, "303", "platformIdB", "<no message>", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -151,9 +151,9 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime current = LocalDateTime.now();
         LocalDateTime staleDate = current.minusDays(5).minusMinutes(60); // stale
-        addStationInfo(info, staleDate, "yyy", "platformIdC", "some message", "platformLocation");
-        addStationInfo(info, staleDate, "303", "platformIdD", "some message", "platformLocation");
-        addStationInfo(info, current, "303", "platformIdF", "some message", "platformLocation");
+        addStationInfo(info, staleDate, "yyy", "platformIdC", "some message", Stations.Altrincham);
+        addStationInfo(info, staleDate, "303", "platformIdD", "some message", Stations.Altrincham);
+        addStationInfo(info, current, "303", "platformIdF", "some message", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -174,7 +174,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
-                "some message", "platformLocation");
+                "some message", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -204,7 +204,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         LocalDateTime lastUpdate = LocalDateTime.now();
-        addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", "platformLocation");
+        addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andStubReturn(info);
@@ -230,7 +230,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         LocalDateTime lastUpdate = LocalDateTime.now();
-        addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", "platformLocation");
+        addStationInfo(info, lastUpdate, "displayId", "platformId", "some message", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andStubReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andStubReturn(info);
@@ -260,7 +260,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId",
-                "platformId", "some message", "platformLocation");
+                "platformId", "some message", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -277,7 +277,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     public static StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
-                                                String displayId, String platformId, String message, String location) {
+                                                String displayId, String platformId, String message, Station location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", StationDepartureInfo.Direction.Incoming, platformId,
                 location, message, lastUpdate);
         info.add(departureInfo);

@@ -112,14 +112,14 @@ public class DeparturesMapperTest {
         DepartureDTO first = departures.first();
         assertEquals("Cornbrook", first.getDestination());
         assertEquals("Departing", first.getStatus());
-        assertEquals("location", first.getFrom());
+        assertEquals("Navigation Road", first.getFrom());
         assertEquals("Double", first.getCarriages());
         assertEquals(TramTime.of(updateTime.plusMinutes(1).toLocalTime()), first.getWhen());
 
         List<String> notes = result.getNotes();
         assertEquals(2, notes.size());
-        assertTrue(notes.contains("'messageOne' - location, Metrolink"));
-        assertTrue(notes.contains("'messageTwo' - location, Metrolink"));
+        assertTrue(notes.contains("'messageOne' - Navigation Road, Metrolink"));
+        assertTrue(notes.contains("'messageTwo' - Navigation Road, Metrolink"));
 
     }
 
@@ -137,7 +137,7 @@ public class DeparturesMapperTest {
         DepartureDTO first = departures.first();
         assertEquals("Cornbrook", first.getDestination());
         assertEquals("Departing", first.getStatus());
-        assertEquals("location", first.getFrom());
+        assertEquals("Navigation Road", first.getFrom());
         assertEquals("Double", first.getCarriages());
         assertEquals(TramTime.of(updateDate.plusMinutes(1).toLocalTime()), first.getWhen());
 
@@ -149,13 +149,13 @@ public class DeparturesMapperTest {
         List<StationDepartureInfo> departureInfos = new LinkedList<>();
 
         StationDepartureInfo infoA = new StationDepartureInfo("displayId1", "lineName",
-                StationDepartureInfo.Direction.Incoming, "stationPlatform1", "location",
+                StationDepartureInfo.Direction.Incoming, "stationPlatform1", Stations.NavigationRoad,
                 "messageOne", updateDateTime);
         infoA.addDueTram(new DueTram(Stations.Altrincham, "Due", 5, "Double", updateDateTime.toLocalTime()));
         infoA.addDueTram(new DueTram(Stations.Bury, "Delay", 10, "Single", updateDateTime.toLocalTime()));
 
         StationDepartureInfo infoB = new StationDepartureInfo("displayId2", "lineName",
-                StationDepartureInfo.Direction.Incoming, "stationPlatform2", "location",
+                StationDepartureInfo.Direction.Incoming, "stationPlatform2", Stations.NavigationRoad,
                 "messageTwo", updateDateTime);
         infoB.addDueTram(new DueTram(Stations.Cornbrook, "Departing", 1, "Double", updateDateTime.toLocalTime()));
 

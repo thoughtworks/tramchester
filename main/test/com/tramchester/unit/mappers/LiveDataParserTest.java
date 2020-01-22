@@ -40,6 +40,10 @@ public class LiveDataParserTest extends EasyMockSupport {
         mapper = new LiveDataParser(stationRepository);
 
         EasyMock.expect(stationRepository.getStationByName("Piccadilly")).andStubReturn(Optional.of(Stations.Piccadilly));
+        EasyMock.expect(stationRepository.getStationByName("MediaCityUK")).andStubReturn(Optional.of(Stations.MediaCityUK));
+        EasyMock.expect(stationRepository.getStationByName("Manchester Airport")).andStubReturn(Optional.of(Stations.ManAirport));
+
+
         EasyMock.expect(stationRepository.getStationByName("")).andStubReturn(Optional.empty());
         EasyMock.expect(stationRepository.getStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(Stations.Deansgate));
         EasyMock.expect(stationRepository.getStationByName("See Tram Front")).andStubReturn(Optional.empty());
@@ -92,7 +96,7 @@ public class LiveDataParserTest extends EasyMockSupport {
         StationDepartureInfo departureInfoA = info.get(0);
         assertEquals("Eccles", departureInfoA.getLineName());
         assertEquals("9400ZZMAMCU2", departureInfoA.getStationPlatform());
-        assertEquals( "MediaCityUK", departureInfoA.getLocation());
+        assertEquals("MediaCityUK", departureInfoA.getLocation());
         assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +
                 "ahead with additional time for travel.", departureInfoA.getMessage());

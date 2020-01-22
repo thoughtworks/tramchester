@@ -16,7 +16,7 @@ public class Stations {
 
     public static Station Altrincham = createStation("9400ZZMAALT", "Altrincham area", "Altrincham");
     public static Location Ashton = createStation("9400ZZMAAUL", "Ashton area", "Ashton-Under-Lyne");
-    public static Location ManAirport = createStation("9400ZZMAAIR", "Airport", "Manchester Airport");
+    public static Station ManAirport = createStation("9400ZZMAAIR", "Airport", "Manchester Airport");
     public static Location TraffordBar = createStation("9400ZZMATRA", "Trafford", "Trafford Bar");
     public static Location VeloPark = createStation("9400ZZMAVPK", "Velopark area", "Velopark");
     public static Station Cornbrook = createStation("9400ZZMACRN", "Cornbrook area", "Cornbrook");
@@ -38,7 +38,7 @@ public class Stations {
     public static Location HarbourCity = createStation("9400ZZMAHCY", "Harbour City area", "Harbour City");
     public static Station StPetersSquare = createStation("9400ZZMASTP", "Manchester City Centre", "St Peter's Square");
     public static Location MarketStreet = createStation("9400ZZMAMKT", "Market Street Area", "Market Street");
-    public static Location MediaCityUK = createStation("9400ZZMAMCU", "Media City", "Media City");
+    public static Station MediaCityUK = createStation("9400ZZMAMCU", "Media City Area", "MediaCityUK");
     public static Location StWerburghsRoad = createStation("9400ZZMASTW", "Chorlton", "St Werburgh's Road");
     public static Location Shudehill = createStation("9400ZZMASHU","Manchester City Centre", "Shudehill");
     public static Location Monsall = createStation("9400ZZMAMON", "Manchester City Centre", "Monsall");

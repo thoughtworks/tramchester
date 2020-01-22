@@ -46,30 +46,39 @@ public class LiveDataParser {
 
         if (infoList!=null) {
             for (Object anInfoList : infoList) {
-                result.add(parseItem((JSONObject) anInfoList));
+                Optional<StationDepartureInfo> item = parseItem((JSONObject) anInfoList);
+                item.ifPresent(result::add);
             }
         }
         return result;
     }
 
-    private StationDepartureInfo parseItem(JSONObject jsonObject) {
+    private Optional<StationDepartureInfo> parseItem(JSONObject jsonObject) {
         logger.debug(format("Parsing JSON '%s'", jsonObject));
+
         Long displayId = (Long) jsonObject.get("Id");
         String lineName = (String) jsonObject.get("Line");
         String stationPlatform = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
-        String location = (String)jsonObject.get("StationLocation");
+        String rawlocation = (String)jsonObject.get("StationLocation");
         String rawDirection = (String)jsonObject.get("Direction");
+
         StationDepartureInfo.Direction direction = StationDepartureInfo.Direction.valueOf(rawDirection);
+        Optional<Station> maybeStation = getStation(rawlocation);
+        if (!maybeStation.isPresent()) {
+            logger.warn("Unable to map location name "+ rawlocation);
+            return Optional.empty();
+        }
 
         LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, direction, stationPlatform,
-                location, message, updateTime);
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, direction,
+                stationPlatform, maybeStation.get(), message, updateTime);
         parseDueTrams(jsonObject,departureInfo);
+
         logger.debug("Parsed live data to " + departureInfo);
-        return departureInfo;
+        return Optional.of(departureInfo);
     }
 
     private LocalDateTime getStationUpdateTime(String dateString) {
@@ -91,13 +100,10 @@ public class LiveDataParser {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
             final int index = i;
             String destinationName = getNumberedField(jsonObject, "Dest", index);
-            destinationName = mapNames(departureInfo, destinationName);
-            Optional<Station> maybeStation = stationRepository.getStationByName(destinationName);
-            if (!maybeStation.isPresent()) {
-                if ( ! (destinationName.isEmpty() || destinationName.equals("See Tram Front")) ) {
-                    logger.warn(format("Unable to map destination name: '%s'", destinationName));
-                }
+            if ("Terminates Here".equals(destinationName)) {
+                destinationName = departureInfo.getLocation();
             }
+            Optional<Station> maybeStation = getStation(destinationName);
 
             maybeStation.ifPresent(station ->  {
                 String status = getNumberedField(jsonObject, "Status", index);
@@ -112,12 +118,33 @@ public class LiveDataParser {
         }
     }
 
-    private String mapNames(StationDepartureInfo departureInfo, String destinationName) {
-        if ("Firswood".equals(destinationName)) {
-            destinationName = "Firswood Station";
+    private Optional<Station> getStation(String name) {
+        String destinationName = mapLiveAPIToTimetableDataNames(name);
+
+        Optional<Station> maybeStation = stationRepository.getStationByName(destinationName);
+        if (!maybeStation.isPresent()) {
+            if ( ! (destinationName.isEmpty() || destinationName.equals("See Tram Front")) ) {
+                logger.warn(format("Unable to map destination name: '%s'", destinationName));
+            }
         }
-        if ("Terminates Here".equals(destinationName)) {
-            destinationName = departureInfo.getLocation();
+        return maybeStation;
+    }
+
+    private String mapLiveAPIToTimetableDataNames(String destinationName) {
+        if ("Firswood".equals(destinationName)) {
+            return "Firswood Station";
+        }
+        if ("Deansgate - Castlefield".equals(destinationName)) {
+            return "Deansgate-Castlefield";
+        }
+        if ("Besses O’ Th’ Barn".equals(destinationName)) {
+            return "Besses o'th'barn";
+        }
+        if ("Newton Heath and Moston".equals(destinationName)) {
+            return "Newton Heath & Moston";
+        }
+        if ("St Werburgh’s Road".equals(destinationName)) {
+            return "St Werburgh's Road";
         }
         return destinationName;
     }

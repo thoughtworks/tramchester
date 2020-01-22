@@ -3,6 +3,7 @@ package com.tramchester.unit.cloud;
 import com.tramchester.cloud.ClientForS3;
 import com.tramchester.cloud.UploadsLiveData;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.integration.Stations;
 import com.tramchester.unit.repository.LiveDataRepositoryTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -33,14 +34,14 @@ public class UploadsLiveDataTest extends EasyMockSupport {
         s3facade = createStrictMock(ClientForS3.class);
         uploadsLiveData = new UploadsLiveData(s3facade);
         liveData = new LinkedList<>();
-        LiveDataRepositoryTest.addStationInfo(liveData, lastUpdateTime, "displayId", "platforId", "messageTxt", "location");
+        LiveDataRepositoryTest.addStationInfo(liveData, lastUpdateTime, "displayId", "platforId", "messageTxt", Stations.NavigationRoad);
     }
 
     @Test
     public void shouldConvertToJsonStringAndThenUploadIfNotDuplicate() {
         String expectedJSON = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"platforId\",\"message\":\"messageTxt\"," +
-                "\"dueTrams\":[{\"from\":\"location\",\"carriages\":\"Single\",\"status\":\"Due\",\"destination\":\"Bury\",\"when\":\"15:48\"}]," +
-                "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"location\"}]";
+                "\"dueTrams\":[{\"from\":\"Navigation Road\",\"carriages\":\"Single\",\"status\":\"Due\",\"destination\":\"Bury\",\"when\":\"15:48\"}]," +
+                "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"Navigation Road\"}]";
 
         EasyMock.expect(s3facade.isStarted()).andReturn(true);
         EasyMock.expect(s3facade.keyExists("20181115",environment+"/20181115/15:06:32")).andReturn(false);
