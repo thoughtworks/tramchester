@@ -194,16 +194,16 @@ var mapApp = new Vue({
 
             // live tram labels
             mapApp.svg.selectAll("g")
-                    .data(mapApp.positionsList).enter().append("g")
-                    .attr("transform", function(d) {
-                        let normalPoint = normal(d.first,d.second,15);
-                        return "translate( " + normalPoint[0] +", "+ normalPoint[1] + ")"
-                        + " rotate(" + textRotation(d.first,d.second) + ")";
-                    })
-                    .append("text")
-                    .text(d => textFor(d.trams))
-                    .attr("font-family", "sans-serif").attr("font-size", "8px").attr("fill", "red");
-
+                .data(mapApp.positionsList).enter().append("g")
+                .attr("id", d=> "between"+d.first.id+d.second.id)
+                .attr("transform", function(d) {
+                    let normalPoint = normal(d.first,d.second,15);
+                    return "translate( " + normalPoint[0] +", "+ normalPoint[1] + ")"
+                    + " rotate(" + textRotation(d.first,d.second) + ")";
+                })
+                .append("text")
+                .text(d => textFor(d.trams))
+                .attr("font-family", "sans-serif").attr("font-size", "8px").attr("fill", "red");
         },
         scaleY(station) {
             return ((height-(margin/2)) - ((station.latLong.lat + mapApp.latOffset) * mapApp.scaleLat));
