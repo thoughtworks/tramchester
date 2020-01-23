@@ -137,9 +137,10 @@ public class JourneyPlannerResource extends UsesRecentCookie {
 
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Set<Journey> journeys) {
         logger.info("number of journeys: " + journeys.size());
-        SortedSet<JourneyDTO> decoratedJourneys = journeysMapper.map(journeys, queryDate);
-        List<String> notes = providesNotes.createNotesForJourneys(queryDate, decoratedJourneys);
-        return new JourneyPlanRepresentation(decoratedJourneys, notes);
+
+        List<String> notes = providesNotes.createNotesForJourneys(queryDate, journeys);
+        SortedSet<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate);
+        return new JourneyPlanRepresentation(journeyDTOs, notes);
     }
 
 

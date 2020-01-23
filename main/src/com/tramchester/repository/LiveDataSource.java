@@ -10,10 +10,11 @@ import com.tramchester.domain.presentation.DTO.PlatformDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface LiveDataSource {
     void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime);
     void enrich(LocationDTO locationDTO, LocalDateTime current);
     List<StationDepartureInfo> departuresFor(Station station);
-    StationDepartureInfo  departuresFor(Platform platform);
+    Optional<StationDepartureInfo> departuresFor(Platform platform);
 }

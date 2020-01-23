@@ -24,7 +24,7 @@ public class TramJourneyToDTOMapper {
         this.stageFactory = stageFactory;
     }
 
-    public Optional<JourneyDTO> createJourney(Journey journey, TramServiceDate tramServiceDate) {
+    public Optional<JourneyDTO> createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
         List<TransportStage> rawJourneyStages = journey.getStages();
         List<StageDTO> stages = new LinkedList<>();
 

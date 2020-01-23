@@ -215,14 +215,14 @@ public class LiveDataRepository implements LiveDataSource {
     }
 
     @Override
-    public StationDepartureInfo departuresFor(Platform platform) {
+    public Optional<StationDepartureInfo> departuresFor(Platform platform) {
         String platformId = platform.getId();
 
         if (!stationInformation.containsKey(platformId)) {
             logger.warn("Could find departure info for " + platform);
-            return null;
+            return Optional.empty();
         }
-        return stationInformation.get(platformId);
+        return Optional.of(stationInformation.get(platformId));
     }
 
     public void observeUpdates(LiveDataObserver observer) {

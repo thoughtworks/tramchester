@@ -19,18 +19,11 @@ public class JourneysMapper {
         this.mapper = mapper;
     }
 
-    public SortedSet<JourneyDTO> map(Set<Journey> journeys, TramServiceDate tramServiceDate) {
-        logger.info(format("Mapping journey %s", journeys));
-        return decorateJourneys(journeys, tramServiceDate);
-    }
-
-    private SortedSet<JourneyDTO> decorateJourneys(Set<Journey> rawJourneys, TramServiceDate tramServiceDate) {
-        logger.info("Decorating the discovered journeys " + rawJourneys.size());
+    public SortedSet<JourneyDTO> createJourneyDTOs(Set<Journey> rawJourneys, TramServiceDate tramServiceDate) {
+        logger.info("Creating journey DTOs " + rawJourneys.size());
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
         rawJourneys.forEach(rawJourney -> {
-            logger.info("Decorating journey " + rawJourney);
-
-            Optional<JourneyDTO> journey = mapper.createJourney(rawJourney, tramServiceDate);
+            Optional<JourneyDTO> journey = mapper.createJourneyDTO(rawJourney, tramServiceDate);
             if (journey.isPresent()) {
                 journeys.add(journey.get());
                 logger.info("Added journey " +journey);

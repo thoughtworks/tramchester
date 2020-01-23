@@ -59,10 +59,10 @@ public class TramPositionInference {
         routesBetween.forEach(route -> {
             List<Platform> platforms = neighbour.getPlatformsForRoute(route);
             platforms.forEach(platform -> {
-                StationDepartureInfo departureInfo = liveDataSource.departuresFor(platform);
-                if (departureInfo!=null) {
-                    departureInfos.add(departureInfo);
-                }
+                liveDataSource.departuresFor(platform).ifPresent(departureInfos::add);
+//                if (departureInfo!=null) {
+//                    departureInfos.add(departureInfo);
+//                }
             });
         });
 
