@@ -35,7 +35,7 @@ public class StageDTOFactory {
     }
 
     private PlatformDTO createPlatform(Optional<Platform> maybe, TramTime queryTime, TramServiceDate tramServiceDate) {
-        if (maybe.isEmpty()) {
+        if (!maybe.isPresent()) {
             return null;
         }
 

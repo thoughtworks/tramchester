@@ -113,7 +113,7 @@ public class LiveDataRepository implements LiveDataSource {
             return Optional.empty();
         }
         Optional<StationDepartureInfo> maybe = departuresFor(platform);
-        if (maybe.isEmpty()) {
+        if (!maybe.isPresent()) {
             return Optional.empty();
         }
         StationDepartureInfo departureInfo = maybe.get();
