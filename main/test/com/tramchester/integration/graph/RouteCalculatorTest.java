@@ -389,7 +389,7 @@ public class RouteCalculatorTest {
         journeys.forEach(RouteCalculatorTest::checkStages);
     }
 
-    private Set<Pair<String, String>> createJourneyPairs(List<Location> starts, List<Location> ends) {
+    private Set<Pair<String, String>> createJourneyPairs(List<Station> starts, List<Station> ends) {
         Set<Pair<String,String>> combinations = new HashSet<>();
         for (Location start : starts) {
             for (Location dest : ends) {

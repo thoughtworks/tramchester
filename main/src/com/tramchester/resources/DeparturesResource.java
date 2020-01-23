@@ -64,13 +64,13 @@ public class DeparturesResource {
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon) {
         LocalDateTime localNow = getLocalNow();
         LatLong latLong = new LatLong(lat,lon);
-        List<StationDTO> nearbyStations = spatialService.getNearestStations(latLong);
+        List<Station> nearbyStations = spatialService.getNearestStations(latLong);
 
-        nearbyStations.forEach(station -> {
-            liveDataSource.enrich(station, localNow);
-        });
+//        nearbyStations.forEach(station -> {
+//            liveDataSource.enrich(station, localNow);
+//        });
 
-        SortedSet<DepartureDTO> departuresDTO = departuresMapper.fromStations(nearbyStations);
+        SortedSet<DepartureDTO> departuresDTO = departuresMapper.createDeparturesFor(nearbyStations);
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
 
         List<String> notes = providesNotes.createNotesForStations(nearbyStations, queryDate);

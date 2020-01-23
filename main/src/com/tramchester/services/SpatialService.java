@@ -37,12 +37,11 @@ public class SpatialService extends StationIndexs {
     }
 
 
-    public List<StationDTO> getNearestStations(LatLong latLong) {
-        List<StationDTO> results = new LinkedList<>();
+    public List<Station> getNearestStations(LatLong latLong) {
+        List<Station> results = new LinkedList<>();
         List<String> ids = getNearestStationsTo(latLong, config.getNumOfNearestStops());
         ids.forEach(id -> {
-            stationRepository.getStation(id).ifPresent(station ->
-                    results.add(new StationDTO(station, ProximityGroup.NEAREST_STOPS)));
+            stationRepository.getStation(id).ifPresent(results::add);
         });
         return results;
     }

@@ -99,7 +99,7 @@ public class LiveDataRepository implements LiveDataSource {
         return message.startsWith("^F0Next");
     }
 
-    public void invokeObservers() {
+    private void invokeObservers() {
         try {
             observers.forEach(observer -> observer.seenUpdate(stationInformation.values()));
         }
@@ -108,6 +108,7 @@ public class LiveDataRepository implements LiveDataSource {
         }
     }
 
+    @Deprecated
     public void enrich(PlatformDTO platform, TramServiceDate tramServiceDate, TramTime queryTime) {
         LocalDate queryDate = tramServiceDate.getDate();
         if (!lastRefresh.toLocalDate().equals(queryDate)) {
@@ -123,6 +124,7 @@ public class LiveDataRepository implements LiveDataSource {
         }
     }
 
+    @Deprecated
     public void enrich(LocationDTO locationDTO, LocalDateTime current) {
         if (!locationDTO.hasPlatforms()) {
             return;
@@ -146,6 +148,7 @@ public class LiveDataRepository implements LiveDataSource {
 
     }
 
+    @Deprecated
     private void enrichPlatformIfTimeMatches(PlatformDTO platform, TramTime queryTime) {
         String platformId = platform.getId();
         logger.info("Found live data for " + platformId);

@@ -143,17 +143,18 @@ public class StationResource extends UsesRecentCookie {
     @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-
         LocalDateTime localNow = getLocalNow();
 
         LatLong latLong = new LatLong(lat,lon);
-        List<StationDTO> stations = spatialService.getNearestStations(latLong);
-        stations.forEach(station -> liveDataSource.enrich(station, localNow));
+        List<Station> stations = spatialService.getNearestStations(latLong);
 
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
         List<String> notes = providesNotes.createNotesForStations(stations, queryDate);
 
-        return Response.ok(new StationListDTO(stations,notes, ProximityGroup.ALL_GROUPS)).build();
+        List<StationDTO> stationsDTO = stations.stream().
+                map(station -> new StationDTO(station, ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
+        stationsDTO.forEach(station -> liveDataSource.enrich(station, localNow));
+        return Response.ok(new StationListDTO(stationsDTO,notes, ProximityGroup.ALL_GROUPS)).build();
     }
 
     @GET

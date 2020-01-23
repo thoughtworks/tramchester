@@ -2,12 +2,16 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.integration.Stations;
+import com.tramchester.repository.LiveDataRepository;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,13 +29,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
-public class ProvidesNotesTest {
-    private ProvidesNotes provider = new ProvidesNotes(TestConfig.GET());
+public class ProvidesNotesTest extends EasyMockSupport {
+    private ProvidesNotes provider;
     private SortedSet<JourneyDTO> decoratedJourneys;
     private List<String> changeStations = new ArrayList<>();
+    private LiveDataRepository liveDataRepository;
 
     @Before
     public void beforeEachTestRuns() {
+        liveDataRepository = createStrictMock(LiveDataRepository.class);
+        provider = new ProvidesNotes(TestConfig.GET(), liveDataRepository);
         decoratedJourneys = new TreeSet<>();
     }
 
@@ -158,18 +165,29 @@ public class ProvidesNotesTest {
     @Test
     public void shouldAddNotesForStations() {
 
-        List<StationDTO> stations = new LinkedList<>();
+        List<Station> stations = Arrays.asList(Stations.Pomona, Stations.VeloPark, Stations.Cornbrook);
 
-        stations.add(createStationDTOwithDepartInfo("first message", "platformLocation1"));
-        stations.add(createStationDTOwithDepartInfo("second message", "platformLocation2"));
-        stations.add(createStationDTOwithDepartInfo("second message", "platformLocation3"));
+        LocalDateTime time = LocalDateTime.now();
+        EasyMock.expect(liveDataRepository.departuresFor(Stations.Pomona)).
+                andReturn(Collections.singletonList(createDepartureInfo(time, Stations.Pomona, "second message")));
+        EasyMock.expect(liveDataRepository.departuresFor(Stations.VeloPark)).
+                andReturn(Collections.singletonList(createDepartureInfo(time, Stations.VeloPark, "first message")));
+        EasyMock.expect(liveDataRepository.departuresFor(Stations.Cornbrook)).
+                andReturn(Collections.singletonList(createDepartureInfo(time, Stations.Cornbrook, "second message")));
 
+        replayAll();
         List<String> notes = provider.createNotesForStations(stations, new TramServiceDate(LocalDate.of(2016,10,25)));
+        verifyAll();
 
         assertEquals(3, notes.size());
-        assertThat(notes.toString(), notes.contains("'first message' - platformLocation1, Metrolink"));
+        assertThat(notes.toString(), notes.contains("'first message' - Velopark, Metrolink"));
         assertThat(notes.toString(), notes.contains("'second message' - Metrolink"));
 
+    }
+
+    private StationDepartureInfo createDepartureInfo(LocalDateTime time, Station station, String message) {
+        return new StationDepartureInfo("displayId", "lineName", StationDepartureInfo.Direction.Incoming,
+                "platform", station, message, time);
     }
 
     private StationDTO createStationDTOwithDepartInfo(String message, String platformLocation) {

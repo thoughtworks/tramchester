@@ -12,6 +12,8 @@ import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.DeparturesMapper;
+import com.tramchester.repository.LiveDataRepository;
+import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,15 +23,16 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class DeparturesMapperTest {
+public class DeparturesMapperTest extends EasyMockSupport {
 
     private DeparturesMapper mapper;
     private LatLong latLong = new LatLong(-1,2);
 
     @Before
     public void beforeEachTestRuns() {
-        ProvidesNotes providesNotes = new ProvidesNotes(TestConfig.GET());
-        mapper = new DeparturesMapper(providesNotes);
+        LiveDataRepository liveDataRepository = createStrictMock(LiveDataRepository.class);
+        ProvidesNotes providesNotes = new ProvidesNotes(TestConfig.GET(), liveDataRepository);
+        mapper = new DeparturesMapper(providesNotes, liveDataRepository);
     }
 
     @Test

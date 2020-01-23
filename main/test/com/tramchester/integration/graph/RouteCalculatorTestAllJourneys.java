@@ -29,12 +29,12 @@ import static org.junit.Assume.assumeFalse;
 public class RouteCalculatorTestAllJourneys {
 
     // TODO this needs to be > longest running test which is far from ideal
-    public static final int TXN_TIMEOUT_SECS = 4 * 60;
+    private static final int TXN_TIMEOUT_SECS = 4 * 60;
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;
     private static GraphDatabaseService database;
 
-    public static boolean circleCi = TestConfig.isCircleci();
+    private static boolean circleCi = TestConfig.isCircleci();
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
@@ -104,7 +104,7 @@ public class RouteCalculatorTestAllJourneys {
         assertEquals(39, maxNumberStops.get().intValue());
     }
 
-    private boolean matches(Pair<Station, Station> locationPair, List<Location> locations) {
+    private boolean matches(Pair<Station, Station> locationPair, List<Station> locations) {
         return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
