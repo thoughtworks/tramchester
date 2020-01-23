@@ -256,6 +256,11 @@ var app = new Vue({
             dateToNow() {
                 app.date = getCurrentDate();
             },
+            swap() {
+                let temp = app.endStop;
+                app.endStop = app.startStop;
+                app.startStop = temp;
+            },
             filterStops(group) {
                 var result = [];
                 app.stops.forEach(function(stop) { if (stop.proximityGroup.order===group.order) result.push(stop); } )
