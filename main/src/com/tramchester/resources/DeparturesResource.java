@@ -5,7 +5,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.LatLong;
@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Api
 @Path("/departures")
@@ -65,13 +64,18 @@ public class DeparturesResource {
         LatLong latLong = new LatLong(lat,lon);
         List<Station> nearbyStations = spatialService.getNearestStations(latLong);
 
-        SortedSet<DepartureDTO> departuresDTO = departuresMapper.createDeparturesFor(nearbyStations);
+        // trams
+        SortedSet<DepartureDTO> departs = new TreeSet<>();
+        nearbyStations.forEach(station -> {
+            List<DueTram> dueTrams = liveDataSource.dueTramsFor(station);
+            departs.addAll(departuresMapper.mapToDTO(station, dueTrams));
+        });
+
+        // notes
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
-
         List<String> notes = providesNotes.createNotesForStations(queryDate, nearbyStations);
-        DepartureListDTO departureList = new DepartureListDTO(departuresDTO, notes);
 
-        return Response.ok(departureList).build();
+        return Response.ok(new DepartureListDTO(departs, notes)).build();
     }
 
     @GET
@@ -96,23 +100,18 @@ public class DeparturesResource {
             logger.info("Found stations, now find departures");
             Station station = maybeStation.get();
 
-            Set<DepartureDTO> unsortedDueTrams = liveDataSource.departuresFor(station).stream().
-                    map(StationDepartureInfo::getDueTrams).flatMap(Collection::stream).
-                    filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
-                    map(dueTram -> new DepartureDTO(station.getName(),dueTram))
-                    .collect(Collectors.toSet());
+            //trams
+            List<DueTram> dueTramList = liveDataSource.dueTramsFor(station);
+            SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
 
+            //notes
             TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
-
             List<String> notes = Collections.emptyList();
             if (includeNotes) {
                 notes = providesNotes.createNotesForStations(queryDate, Collections.singletonList(station));
             }
-            SortedSet<DepartureDTO> dueTrams = new TreeSet<>();
-            dueTrams.addAll(unsortedDueTrams);
-            DepartureListDTO departureListDTO = new DepartureListDTO(dueTrams, notes);
 
-            return Response.ok(departureListDTO).build();
+            return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
         }
 
         logger.warn("Unable to find station " + stationId);

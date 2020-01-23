@@ -4,11 +4,13 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.LiveDataFetcher;
+import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
@@ -223,6 +226,15 @@ public class LiveDataRepository implements LiveDataSource {
             return Optional.empty();
         }
         return Optional.of(stationInformation.get(platformId));
+    }
+
+    @Override
+    public List<DueTram> dueTramsFor(Station station) {
+        return departuresFor(station).stream().
+                map(StationDepartureInfo::getDueTrams).
+                flatMap(Collection::stream).
+                filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
+                collect(Collectors.toList());
     }
 
     public void observeUpdates(LiveDataObserver observer) {

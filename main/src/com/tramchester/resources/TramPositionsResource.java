@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
 import com.tramchester.domain.presentation.TramPositionDTO;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
+import com.tramchester.mappers.DeparturesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,10 +27,11 @@ import java.util.stream.Collectors;
 public class TramPositionsResource {
 
     private final TramPositionInference positionInference;
+    private final DeparturesMapper depatureMapper;
 
-    public TramPositionsResource(TramPositionInference positionInference) {
-
+    public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper) {
         this.positionInference = positionInference;
+        this.depatureMapper = depatureMapper;
     }
 
     @GET
@@ -46,14 +48,11 @@ public class TramPositionsResource {
                 map(pos -> new TramPositionDTO(
                         new LocationDTO(pos.getFirst()),
                         new LocationDTO(pos.getSecond()),
-                        convert(pos.getSecond().getName(), pos.getTrams()))).
+                        depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams()))).
                 collect(Collectors.toList());
 
         TramsPositionsDTO dto = new TramsPositionsDTO(dtoList);
         return Response.ok(dto).build();
     }
 
-    private Set<DepartureDTO> convert(String location, Set<DueTram> trams) {
-        return trams.stream().map(dueTram -> new DepartureDTO(location, dueTram)).collect(Collectors.toSet());
-    }
 }

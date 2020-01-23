@@ -42,22 +42,11 @@ public class ProvidesNotes {
         return notes;
     }
 
-    @Deprecated
-    public List<String> createNotesFromDepatureInfo(List<StationDepartureInfo> departureInfos) {
-        Map<String,String> messageMap = new HashedMap<>();
-        departureInfos.forEach(info -> {
-            addRelevantMessage(messageMap, info);
-        });
-
-        return createMessageList(messageMap);
-    }
-
     private List<String> createNotesForStations(List<Station> stations) {
         // Map: Message -> Location
         Map<String,String> messageMap = new HashedMap<>();
         stations.forEach(station -> {
-            List<StationDepartureInfo> infos = liveDataRepository.departuresFor(station);
-            infos.forEach(info -> addRelevantMessage(messageMap, info));
+            liveDataRepository.departuresFor(station).forEach(info -> addRelevantMessage(messageMap, info));
         });
 
         return createMessageList(messageMap);
@@ -71,13 +60,14 @@ public class ProvidesNotes {
         if (queryDate.isChristmasPeriod()) {
             notes.add(christmas);
         }
-        notes.addAll(addNotesForStations(config.getClosedStations()));
+        notes.addAll(createNotesForClosedStations());
         return notes;
     }
 
-    private Set<String> addNotesForStations(List<String> closedStations) {
+    private Set<String> createNotesForClosedStations() {
         Set<String> messages = new HashSet<>();
-        closedStations.forEach(stationName -> messages.add(format("%s is currently closed. %s", stationName, website)));
+        config.getClosedStations().
+                forEach(stationName -> messages.add(format("%s is currently closed. %s", stationName, website)));
         return messages;
     }
 

@@ -16,46 +16,12 @@ import java.util.stream.Collectors;
 public class DeparturesMapper {
     public static String DUE = "Due";
 
-    private final ProvidesNotes providesNotes;
-    private final LiveDataRepository liveDataRepository;
-
-    public DeparturesMapper(ProvidesNotes providesNotes, LiveDataRepository liveDataRepository) {
-        this.providesNotes = providesNotes;
-        this.liveDataRepository = liveDataRepository;
+    public DeparturesMapper() {
     }
 
-    public SortedSet<DepartureDTO> createDeparturesFor(List<Station> stations) {
-        SortedSet<DepartureDTO> departs = new TreeSet<>();
-
-        stations.forEach(station -> {
-                    Set<DueTram> dueTrams = liveDataRepository.departuresFor(station).stream().
-                            map(StationDepartureInfo::getDueTrams).flatMap(Collection::stream).
-                            filter(dueTram -> DUE.equals(dueTram.getStatus())).
-                            collect(Collectors.toSet());
-
-                    dueTrams.stream().map(dueTram -> new DepartureDTO(station.getName(), dueTram)).
-                            forEach(departs::add);
-                });
-
-        return departs;
-    }
-
-    @Deprecated
-    public DepartureListDTO from(List<StationDepartureInfo> departureInfos, boolean includeNotes) {
-        SortedSet<DepartureDTO> trams = new TreeSet<>();
-
-        // trams
-        departureInfos.forEach(info -> {
-            String from = info.getLocation();
-            info.getDueTrams().forEach(dueTram -> trams.add(new DepartureDTO(from,dueTram)));
-        });
-
-        // notes
-        List<String> notes = new ArrayList<>();
-        if (includeNotes) {
-            notes = providesNotes.createNotesFromDepatureInfo(departureInfos);
-        }
-
-        return new DepartureListDTO(trams, notes);
+    public Set<DepartureDTO> mapToDTO(Station station, Collection<DueTram> dueTrams) {
+        return dueTrams.stream().
+                    map(dueTram -> new DepartureDTO(station.getName(),dueTram))
+                    .collect(Collectors.toSet());
     }
 }
