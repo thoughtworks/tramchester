@@ -5,9 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.StationDTO;
-import com.tramchester.domain.presentation.DTO.StationListDTO;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
@@ -44,24 +44,23 @@ public class StationResource extends UsesRecentCookie {
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
     private final StationRepository stationRepository;
-    private final LiveDataSource liveDataSource;
-    private ProvidesNotes providesNotes;
+    private final ProvidesNotes providesNotes;
     private final MyLocationFactory locationFactory;
+    private final StationDTOFactory stationDTOFactory;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
-                           LiveDataSource liveDataSource,
                            ProvidesNotes providesNotes,
-                           MyLocationFactory locationFactory) {
+                           MyLocationFactory locationFactory, StationDTOFactory stationDTOFactory) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
-        this.liveDataSource = liveDataSource;
         this.providesNotes = providesNotes;
         this.locationFactory = locationFactory;
+        this.stationDTOFactory = stationDTOFactory;
         allStationsSorted = new ArrayList<>();
     }
 
@@ -128,8 +127,7 @@ public class StationResource extends UsesRecentCookie {
         logger.info("Get station " + id);
         Optional<Station> station = stationRepository.getStation(id);
         if (station.isPresent()) {
-            LocationDTO locationDTO = new LocationDTO(station.get());
-            liveDataSource.enrich(locationDTO, getLocalNow());
+            LocationDTO locationDTO = stationDTOFactory.build(station.get(), getLocalNow());
             return Response.ok(locationDTO).build();
         }
         else {
@@ -151,10 +149,12 @@ public class StationResource extends UsesRecentCookie {
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
         List<String> notes = providesNotes.createNotesForStations(queryDate, stations);
 
-        List<StationDTO> stationsDTO = stations.stream().
-                map(station -> new StationDTO(station, ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
-        stationsDTO.forEach(station -> liveDataSource.enrich(station, localNow));
-        return Response.ok(new StationListDTO(stationsDTO,notes, ProximityGroup.ALL_GROUPS)).build();
+        List<StationDTO> stationsDTO = new ArrayList<>();
+        stations.forEach(station -> {
+            stationsDTO.add(stationDTOFactory.build(station, localNow));
+        });
+
+        return Response.ok(new StationListDTO(stationsDTO, notes, ProximityGroup.ALL_GROUPS)).build();
     }
 
     @GET

@@ -4,6 +4,8 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.ProximityGroup;
 
+import java.util.List;
+
 public class StationDTO extends LocationDTO {
 
     private ProximityGroup proximityGroup;
@@ -15,6 +17,11 @@ public class StationDTO extends LocationDTO {
 
     public StationDTO() {
         // deserialisation
+    }
+
+    public StationDTO(Station station, List<PlatformDTO> platformDTOS, ProximityGroup proximityGroup) {
+        super(station, platformDTOS);
+        this.proximityGroup = proximityGroup;
     }
 
     public ProximityGroup getProximityGroup() {

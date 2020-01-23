@@ -9,10 +9,10 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.*;
 import com.tramchester.healthchecks.*;
-import com.tramchester.livedata.LiveDataEnricher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.mappers.*;
@@ -132,8 +132,8 @@ public class Dependencies {
         picoContainer.addComponent(new ObjectMapper());
         picoContainer.addComponent(StageDTOFactory.class);
         picoContainer.addComponent(JourneyDTOFactory.class);
+        picoContainer.addComponent(StationDTOFactory.class);
         picoContainer.addComponent(HeadsignMapper.class);
-        picoContainer.addComponent(LiveDataEnricher.class);
         picoContainer.addComponent(TramPositionInference.class);
 
         picoContainer.addComponent(ProvidesNow.class, new ProvidesNow() {

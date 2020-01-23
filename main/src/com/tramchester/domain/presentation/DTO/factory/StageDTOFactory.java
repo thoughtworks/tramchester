@@ -3,21 +3,23 @@ package com.tramchester.domain.presentation.DTO.factory;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.TramServiceDate;
 import com.tramchester.domain.TramTime;
+import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
-import com.tramchester.livedata.EnrichPlatform;
+import com.tramchester.repository.LiveDataRepository;
 
 import java.util.Optional;
 
 public class StageDTOFactory {
 
-    private EnrichPlatform liveDataEnricher;
+    private final LiveDataRepository liveDataRepository;
 
-    public StageDTOFactory(EnrichPlatform liveDataEnricher) {
-        this.liveDataEnricher = liveDataEnricher;
+    public StageDTOFactory(LiveDataRepository liveDataRepository) {
+        this.liveDataRepository = liveDataRepository;
     }
 
     public StageDTO build(TransportStage source, TravelAction travelAction, TramTime queryTime, TramServiceDate tramServiceDate) {
@@ -33,13 +35,15 @@ public class StageDTOFactory {
     }
 
     private PlatformDTO createPlatform(Optional<Platform> maybe, TramTime queryTime, TramServiceDate tramServiceDate) {
-        if (!maybe.isPresent()) {
+        if (maybe.isEmpty()) {
             return null;
         }
 
         Platform platform = maybe.get();
         PlatformDTO platformDTO = new PlatformDTO(platform);
-        liveDataEnricher.enrich(platformDTO, tramServiceDate, queryTime);
+        Optional<StationDepartureInfo> info = liveDataRepository.departuresFor(platform, tramServiceDate, queryTime);
+        info.ifPresent(stationDepartureInfo -> platformDTO.setDepartureInfo(new StationDepartureInfoDTO(stationDepartureInfo)));
         return platformDTO;
+
     }
 }
