@@ -177,7 +177,6 @@ public class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     public void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
-
         TransportStage stageA = createStageWithBoardingPlatform("platformId1");
         TransportStage stageB = createStageWithBoardingPlatform("platformId2");
         TransportStage stageC = createStageWithBoardingPlatform("platformId3");
@@ -237,7 +236,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
                 andReturn(Collections.singletonList(createDepartureInfo(time, Stations.Cornbrook, "second message")));
 
         replayAll();
-        List<String> notes = provider.createNotesForStations(stations, new TramServiceDate(LocalDate.of(2016,10,25)));
+        List<String> notes = provider.createNotesForStations(new TramServiceDate(LocalDate.of(2016,10,25)), stations);
         verifyAll();
 
         assertEquals(3, notes.size());

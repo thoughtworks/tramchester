@@ -149,7 +149,7 @@ public class StationResource extends UsesRecentCookie {
         List<Station> stations = spatialService.getNearestStations(latLong);
 
         TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
-        List<String> notes = providesNotes.createNotesForStations(stations, queryDate);
+        List<String> notes = providesNotes.createNotesForStations(queryDate, stations);
 
         List<StationDTO> stationsDTO = stations.stream().
                 map(station -> new StationDTO(station, ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());

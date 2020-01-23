@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DeparturesMapper {
-    private static String DUE = "Due";
+    public static String DUE = "Due";
 
     private final ProvidesNotes providesNotes;
     private final LiveDataRepository liveDataRepository;
@@ -22,23 +22,6 @@ public class DeparturesMapper {
     public DeparturesMapper(ProvidesNotes providesNotes, LiveDataRepository liveDataRepository) {
         this.providesNotes = providesNotes;
         this.liveDataRepository = liveDataRepository;
-    }
-
-    @Deprecated
-    public SortedSet<DepartureDTO> fromStations(List<StationDTO> enrichedStations) {
-        SortedSet<DepartureDTO> departs = new TreeSet<>();
-
-        enrichedStations.forEach(stationDTO -> stationDTO.getPlatforms().forEach(platformDTO -> {
-            StationDepartureInfoDTO info = platformDTO.getStationDepartureInfo();
-            if (info!=null) {
-                info.getDueTrams().
-                        stream().
-                        filter(dueTram -> DUE.equals(dueTram.getStatus())).
-                        forEach(dueTram -> departs.add(dueTram));
-            }
-        }));
-
-        return departs;
     }
 
     public SortedSet<DepartureDTO> createDeparturesFor(List<Station> stations) {
@@ -49,6 +32,7 @@ public class DeparturesMapper {
                             map(StationDepartureInfo::getDueTrams).flatMap(Collection::stream).
                             filter(dueTram -> DUE.equals(dueTram.getStatus())).
                             collect(Collectors.toSet());
+
                     dueTrams.stream().map(dueTram -> new DepartureDTO(station.getName(), dueTram)).
                             forEach(departs::add);
                 });
@@ -56,18 +40,21 @@ public class DeparturesMapper {
         return departs;
     }
 
+    @Deprecated
     public DepartureListDTO from(List<StationDepartureInfo> departureInfos, boolean includeNotes) {
         SortedSet<DepartureDTO> trams = new TreeSet<>();
 
-        List<String> notes = new ArrayList<>();
-        if (includeNotes) {
-            notes = providesNotes.createNotesFor(departureInfos);
-        }
-
+        // trams
         departureInfos.forEach(info -> {
             String from = info.getLocation();
             info.getDueTrams().forEach(dueTram -> trams.add(new DepartureDTO(from,dueTram)));
         });
+
+        // notes
+        List<String> notes = new ArrayList<>();
+        if (includeNotes) {
+            notes = providesNotes.createNotesFromDepatureInfo(departureInfos);
+        }
 
         return new DepartureListDTO(trams, notes);
     }

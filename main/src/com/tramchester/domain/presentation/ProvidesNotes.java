@@ -4,9 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.repository.LiveDataRepository;
 import org.apache.commons.collections4.map.HashedMap;
 
@@ -31,54 +28,31 @@ public class ProvidesNotes {
         this.liveDataRepository = liveDataRepository;
     }
 
-    @Deprecated
-    public List<String> createNotesForJourneys(TramServiceDate queryDate, SortedSet<JourneyDTO> decoratedJourneys) {
-        List<String> notes = new LinkedList<>();
-
-        AddNonLiveDataNotes(queryDate, notes);
-
-        notes.addAll(liveNotesForJourneys(decoratedJourneys));
-
-        return notes;
-    }
-
     public List<String> createNotesForJourneys(TramServiceDate queryDate, Set<Journey> journeys) {
         List<String> notes = new LinkedList<>();
-
-        AddNonLiveDataNotes(queryDate, notes);
+        notes.addAll(createNotesForADate(queryDate));
         notes.addAll(liveNotesForJourneys(journeys, queryDate));
-
         return notes;
     }
 
-    public List<String> createNotesForStations(List<Station> stations, TramServiceDate queryDate) {
+    public List<String> createNotesForStations(TramServiceDate queryDate, List<Station> stations) {
         List<String> notes = new LinkedList<>();
-
-        AddNonLiveDataNotes(queryDate, notes);
-        notes.addAll(addLiveMessagesFor(stations));
-
+        notes.addAll(createNotesForADate(queryDate));
+        notes.addAll(createNotesForStations(stations));
         return notes;
     }
 
-    // live notes only
-    public List<String> createNotesFor(List<StationDepartureInfo> departureInfos) {
-        List<String> notes = new LinkedList<>();
-
-        notes.addAll(addLiveMessagesForInfos(departureInfos));
-
-        return notes;
-    }
-
-    private Set<String> addLiveMessagesForInfos(List<StationDepartureInfo> departureInfos) {
+    @Deprecated
+    public List<String> createNotesFromDepatureInfo(List<StationDepartureInfo> departureInfos) {
         Map<String,String> messageMap = new HashedMap<>();
         departureInfos.forEach(info -> {
-            addRelevantMessage(messageMap,info);
+            addRelevantMessage(messageMap, info);
         });
 
         return createMessageList(messageMap);
     }
 
-    private Set<String> addLiveMessagesFor(List<Station> stations) {
+    private List<String> createNotesForStations(List<Station> stations) {
         // Map: Message -> Location
         Map<String,String> messageMap = new HashedMap<>();
         stations.forEach(station -> {
@@ -89,7 +63,8 @@ public class ProvidesNotes {
         return createMessageList(messageMap);
     }
 
-    private void AddNonLiveDataNotes(TramServiceDate queryDate, List<String> notes) {
+    private List<String> createNotesForADate(TramServiceDate queryDate) {
+        ArrayList<String> notes = new ArrayList<>();
         if (queryDate.isWeekend()) {
             notes.add(weekend);
         }
@@ -97,6 +72,7 @@ public class ProvidesNotes {
             notes.add(christmas);
         }
         notes.addAll(addNotesForStations(config.getClosedStations()));
+        return notes;
     }
 
     private Set<String> addNotesForStations(List<String> closedStations) {
@@ -105,20 +81,7 @@ public class ProvidesNotes {
         return messages;
     }
 
-    @Deprecated
-    private Set<String> liveNotesForJourneys(SortedSet<JourneyDTO> decoratedJourneys) {
-        // Map: Message -> Location
-        Map<String,String> messageMap = new HashedMap<>();
-
-        decoratedJourneys.stream().forEach(journeyDTO -> journeyDTO.getStages().stream().
-                filter(stageDTO -> stageDTO.getMode().equals(TransportMode.Tram)).
-                forEach(tramStage -> addRelevantMessage(messageMap, tramStage.getPlatform()))
-        );
-
-        return createMessageList(messageMap);
-    }
-
-    private Set<String> liveNotesForJourneys(Set<Journey> journeys, TramServiceDate queryDate) {
+    private List<String> liveNotesForJourneys(Set<Journey> journeys, TramServiceDate queryDate) {
         // Map: Message -> Location
         Map<String,String> messageMap = new HashedMap<>();
 
@@ -158,8 +121,8 @@ public class ProvidesNotes {
 
     }
 
-    private Set<String> createMessageList(Map<String, String> messageMap) {
-        Set<String> messages = new HashSet<>();
+    private List<String> createMessageList(Map<String, String> messageMap) {
+        List<String> messages = new ArrayList<>();
         messageMap.forEach((rawMessage,location) -> {
             if (location.isEmpty()) {
                 messages.add(format("'%s' - Metrolink", rawMessage));
@@ -167,18 +130,7 @@ public class ProvidesNotes {
                 messages.add(format("'%s' - %s, Metrolink", rawMessage, location));
             }
         });
-
         return messages;
-    }
-
-    @Deprecated
-    private void addRelevantMessage(Map<String,String> messageMap, PlatformDTO platform) {
-        StationDepartureInfoDTO info = platform.getStationDepartureInfo();
-        if (info==null) {
-            return;
-        }
-
-        addRelevantMessage(messageMap, info);
     }
 
     private void addRelevantMessage(Map<String, String> messageMap, HasPlatformMessage info) {
@@ -198,6 +150,4 @@ public class ProvidesNotes {
     private boolean usefulMessage(String rawMessage) {
         return ! (rawMessage.isEmpty() || EMPTY.equals(rawMessage));
     }
-
-
 }
