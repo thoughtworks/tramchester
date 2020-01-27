@@ -17,10 +17,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
@@ -29,6 +26,7 @@ public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
     private TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
     private final StationRepository stationRepository;
+    private static List<String> NotDestination = Arrays.asList("See Tram Front", "Not in Service");
 
     // live data api has limit in number of results
     private int MAX_DUE_TRAMS = 4;
@@ -120,14 +118,12 @@ public class LiveDataParser {
 
     private Optional<Station> getStation(String name) {
         String destinationName = mapLiveAPIToTimetableDataNames(name);
-
-        Optional<Station> maybeStation = stationRepository.getStationByName(destinationName);
-        if (!maybeStation.isPresent()) {
-            if ( ! (destinationName.isEmpty() || destinationName.equals("See Tram Front")) ) {
-                logger.warn(format("Unable to map destination name: '%s'", destinationName));
-            }
+        if (destinationName.isEmpty() || NotDestination.contains(destinationName)) {
+            logger.info(format("Unable to map destination name: '%s'", destinationName));
+            return Optional.empty();
         }
-        return maybeStation;
+
+        return stationRepository.getStationByName(destinationName);
     }
 
     private String mapLiveAPIToTimetableDataNames(String destinationName) {

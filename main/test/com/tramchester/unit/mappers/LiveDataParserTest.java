@@ -31,13 +31,13 @@ public class LiveDataParserTest extends EasyMockSupport {
             "]\n }\n";
 
 
-    private LiveDataParser mapper;
+    private LiveDataParser parser;
     private StationRepository stationRepository;
 
     @Before
     public void beforeEachTestRuns() {
         stationRepository = createMock(StationRepository.class);
-        mapper = new LiveDataParser(stationRepository);
+        parser = new LiveDataParser(stationRepository);
 
         EasyMock.expect(stationRepository.getStationByName("Piccadilly")).andStubReturn(Optional.of(Stations.Piccadilly));
         EasyMock.expect(stationRepository.getStationByName("MediaCityUK")).andStubReturn(Optional.of(Stations.MediaCityUK));
@@ -74,21 +74,20 @@ public class LiveDataParserTest extends EasyMockSupport {
         message.append(footer);
 
         replayAll();
-        List<StationDepartureInfo> info = mapper.parse(message.toString());
+        List<StationDepartureInfo> info = parser.parse(message.toString());
         assertEquals(11, info.size());
         for (int i = 1; i < 12; i++) {
             LocalDateTime expected = LocalDateTime.of(2017, 11, 29, i, 45);
             assertEquals(expected.toString(), expected, info.get(i-1).getLastUpdate());
         }
         verifyAll();
-
     }
 
     @Test
     public void shouldMapLiveDataToStationInfo() throws ParseException {
 
         replayAll();
-        List<StationDepartureInfo> info = mapper.parse(exampleData);
+        List<StationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
 
         assertEquals(2, info.size());
@@ -118,5 +117,32 @@ public class LiveDataParserTest extends EasyMockSupport {
         assertEquals("Airport", departureInfoB.getLineName());
         ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 06, 29, 13, 55), TramchesterConfig.TimeZone);
         assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
+    }
+
+    @Test
+    public void shouldExcludeSeeTramFrontDestination() throws ParseException {
+        replayAll();
+        List<StationDepartureInfo> info = parser.parse(exampleData);
+        verifyAll();
+
+        assertEquals(2, info.size());
+        StationDepartureInfo departureInfoB = info.get(1);
+        assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
+        assertEquals(2, departureInfoB.getDueTrams().size());
+    }
+
+    @Test
+    public void shouldExcludeDueTramsWithDestinationSetToNotInService() throws ParseException {
+
+        String notInService = exampleData.replaceFirst("Deansgate Castlefield", "Not in Service");
+        replayAll();
+        List<StationDepartureInfo> info = parser.parse(notInService);
+        verifyAll();
+        assertEquals(2, info.size());
+
+        StationDepartureInfo departureInfoB = info.get(1);
+        assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
+        assertEquals(1, departureInfoB.getDueTrams().size());
+
     }
 }

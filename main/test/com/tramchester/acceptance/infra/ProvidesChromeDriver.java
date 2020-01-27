@@ -8,6 +8,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY;
@@ -22,6 +24,8 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     private ChromeDriver chromeDriver;
 
     public ProvidesChromeDriver(boolean enableGeo) {
+        this.enableGeo = enableGeo;
+
         String chromedriverPath = System.getenv("CHROMEDRIVER_PATH");
         if (chromedriverPath!=null) {
             System.setProperty(CHROME_DRIVER_EXE_PROPERTY,chromedriverPath);
@@ -31,16 +35,23 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
-        this.enableGeo = enableGeo;
+        setGeoLocation(enableGeo, chromeOptions);
         if (enableGeo) {
             // geolocation fails on headless chrome, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
-            chromeOptions.addArguments("--enable-geolocation");
+            chromeOptions.setHeadless(false);
+
         } else {
-            chromeOptions.addArguments("--disable-geolocation");
-            chromeOptions.addArguments("--headless");
+            chromeOptions.setHeadless(true);
         }
 
         providesDateInput = new ProvidesChromeDateInput();
+    }
+
+    public void setGeoLocation(boolean flag, ChromeOptions chromeOptions) {
+        int option = flag ? 1 : 2;
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("geolocation", option);
+        chromeOptions.setExperimentalOption("prefs", prefs);
     }
 
     @Override
