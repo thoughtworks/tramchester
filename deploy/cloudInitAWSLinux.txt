@@ -1,0 +1,2 @@
+#!/bin/bash
+amazon-linux-extras install -y java-openjdk11

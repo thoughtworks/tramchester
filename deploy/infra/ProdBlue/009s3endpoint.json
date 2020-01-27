@@ -27,6 +27,17 @@
 					"Resource":[ "arn:aws:s3:::tramchesterlivedata/*" ]
 				},
 				{
+					"Effect": "Allow",
+					"Principal": "*",
+					"Action": "*",
+					"Resource": [
+						"arn:aws:s3:::repo.eu-west-1.amazonaws.com",
+						"arn:aws:s3:::repo.eu-west-1.amazonaws.com/*",
+						"arn:aws:s3:::amazonlinux.eu-west-1.amazonaws.com",
+						"arn:aws:s3:::amazonlinux.eu-west-1.amazonaws.com/*"
+					]
+				},
+				{
 					"Effect":"Allow",
 					"Principal": "*",
 					"Action":["s3:*"],

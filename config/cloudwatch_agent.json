@@ -32,13 +32,13 @@
       "files": {
         "collect_list": [
           {
-            "file_path": "/home/ubuntu/server/log/tramchester.log",
+            "file_path": "/home/ec2-user/server/log/tramchester.log",
             "log_group_name": "tramchesterWeb",
             "log_stream_name": "PREFIX",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/syslog",
+            "file_path": "/var/log/messages",
             "log_group_name": "syslog",
             "log_stream_name": "PREFIX",
             "timezone": "UTC"
