@@ -138,7 +138,7 @@ public abstract class TestConfig extends AppConfiguration {
     public String getLiveDataS3Bucket() { return "tramchestertestlivedatabucket"; }
 
     @Override
-    public long getLiveDataRefreshPeriodSeconds() { return 10L; }
+    public long getLiveDataRefreshPeriodSeconds() { return 20L; }
 
     @Override
     public boolean getRemoveRouteNameSuffix() {
