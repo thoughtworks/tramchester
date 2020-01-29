@@ -6,7 +6,6 @@ var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
 
-
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import './../css/tramchester.css'
@@ -112,6 +111,7 @@ var app = new Vue({
                 journeyFields: [
                     {key:'_showDetails',label:'', formatter: this.rowExpandedFormatter},
                     {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
+                    {key:'begin.name',label:'From', sortable:true, tdClass:'station'},
                     {key:'expectedArrivalTime',label:'Arrive', sortable:false, tdClass:'arriveTime'},
                     {key:'changeStations', label:'Change', tdClass:'changes', formatter: this.changesFormatter}
                     ],
@@ -165,7 +165,6 @@ var app = new Vue({
                 const indexOfLast = app.journeys.length - 1;
                 const lastJourney = app.journeys[indexOfLast];
                 const lastDepartTime = lastJourney.firstDepartureTime;
-                //const newTime = moment(lastDepartTime, "HH:mm");
                 app.time = lastDepartTime;
                 app.plan(null);
 
@@ -319,14 +318,8 @@ var app = new Vue({
                 // nearby not available for destinations yet...
                 return this.proximityGroups.filter(group => group.name!=='Nearby');
             },
-            // endStops: function () {
-            //     return this.stops.filter(item => item.id!=this.startStop);
-            // },
             havePos: function () {
                 return this.hasGeo && (this.location!=null);
-            },
-            placeName: function () {
             }
         }
-
     })
