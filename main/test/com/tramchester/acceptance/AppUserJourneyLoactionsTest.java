@@ -135,28 +135,7 @@ public class AppUserJourneyLoactionsTest {
         assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName()));
         // TODO to recent just bury, not alty
     }
-
-    @Test
-    @Ignore("WIP")
-    public void shouldUseUpdatedLocationCorrectly() {
-        // check if we change location only have on 'My Location' entry
-        // check new location is use
-        // HOW to get stubbed location to update in the browsers??
-
-        // check if we change location only have on 'My Location' entry
-//        providesDriver.updateStubbedLocation(NearPiccGardens);
-//        desiredJourney(appPage, altrincham, deansgate, nextTuesday, LocalTime.parse("10:15"));
-//        appPage.planAJourney();
-//        appPage.waitForReady();
-//
-//        nearestFromStops = appPage.getNearestFromStops();
-//        assertThat(nearestFromStops, hasItems(Stations.PiccadillyGardens.getName(), Stations.MarketStreet.getName()));
-//
-//        myLocationStops = appPage.getNearbyFromStops();
-//        assertEquals(1, myLocationStops.size());
-//        assertEquals("My Location", myLocationStops.get(0));
-    }
-
+    
     @Test
     public void shouldCheckNearAltrinchamToDeansgate() {
         AppPage appPage = prepare();

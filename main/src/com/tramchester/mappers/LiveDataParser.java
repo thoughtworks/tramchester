@@ -24,6 +24,7 @@ import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
+    public static final String TERMINATES_HERE = "Terminates Here";
     private TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
     private final StationRepository stationRepository;
     private static List<String> NotDestination = Arrays.asList("See Tram Front", "Not in Service");
@@ -56,24 +57,24 @@ public class LiveDataParser {
 
         Long displayId = (Long) jsonObject.get("Id");
         String lineName = (String) jsonObject.get("Line");
-        String stationPlatform = (String) jsonObject.get("AtcoCode");
+        String atcoCode = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
-        String rawlocation = (String)jsonObject.get("StationLocation");
+        //String rawlocation = (String)jsonObject.get("StationLocation");
         String rawDirection = (String)jsonObject.get("Direction");
 
         StationDepartureInfo.Direction direction = StationDepartureInfo.Direction.valueOf(rawDirection);
-        Optional<Station> maybeStation = getStation(rawlocation);
+        Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
         if (!maybeStation.isPresent()) {
-            logger.warn("Unable to map location name "+ rawlocation);
+            logger.warn("Unable to map atco code name "+ atcoCode);
             return Optional.empty();
         }
 
         LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, direction,
-                stationPlatform, maybeStation.get(), message, updateTime);
-        parseDueTrams(jsonObject,departureInfo);
+                atcoCode, maybeStation.get(), message, updateTime);
+        parseDueTrams(jsonObject, departureInfo);
 
         logger.debug("Parsed live data to " + departureInfo);
         return Optional.of(departureInfo);
@@ -98,25 +99,32 @@ public class LiveDataParser {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
             final int index = i;
             String destinationName = getNumberedField(jsonObject, "Dest", index);
-            if ("Terminates Here".equals(destinationName)) {
-                destinationName = departureInfo.getLocation();
+            if (!destinationName.isEmpty()) {
+                if (TERMINATES_HERE.equals(destinationName)) {
+                    destinationName = departureInfo.getLocation();
+                }
+                Optional<Station> maybeStation = getTramDestination(destinationName);
+
+                maybeStation.ifPresent(station -> {
+                    String status = getNumberedField(jsonObject, "Status", index);
+                    String waitString = getNumberedField(jsonObject, "Wait", index);
+                    int wait = Integer.parseInt(waitString);
+                    String carriages = getNumberedField(jsonObject, "Carriages", index);
+                    LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
+
+                    DueTram dueTram = new DueTram(station, status, wait, carriages, lastUpdate);
+                    departureInfo.addDueTram(dueTram);
+                });
             }
-            Optional<Station> maybeStation = getStation(destinationName);
-
-            maybeStation.ifPresent(station ->  {
-                String status = getNumberedField(jsonObject, "Status", index);
-                String waitString = getNumberedField(jsonObject, "Wait", index);
-                int wait = Integer.parseInt(waitString);
-                String carriages = getNumberedField(jsonObject, "Carriages", index);
-                LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
-
-                DueTram dueTram = new DueTram(station, status, wait, carriages, lastUpdate);
-                departureInfo.addDueTram(dueTram);
-            });
         }
     }
 
-    private Optional<Station> getStation(String name) {
+    private Optional<Station> getStationByAtcoCode(String atcoCode) {
+        String stationId = Station.formId(atcoCode);
+        return stationRepository.getStation(stationId);
+    }
+
+    private Optional<Station> getTramDestination(String name) {
         String destinationName = mapLiveAPIToTimetableDataNames(name);
         if (destinationName.isEmpty() || NotDestination.contains(destinationName)) {
             logger.info(format("Unable to map destination name: '%s'", destinationName));

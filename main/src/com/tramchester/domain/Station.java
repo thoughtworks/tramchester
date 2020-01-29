@@ -56,13 +56,15 @@ public class Station implements Location {
         return latLong;
     }
 
-    public static String formId(String platformId) {
-        if (platformId.startsWith(METROLINK_PREFIX)) {
-            // metrolink station ids include platform as final digit, remove to give id of station itself
-            int index = platformId.length()-1;
-            return platformId.substring(0,index);
+    // form the station id from the longer id that includes the platform number
+    // this id is know as the atcoCode in the live data api
+    public static String formId(String atcoCode) {
+        if (atcoCode.startsWith(METROLINK_PREFIX)) {
+            // metrolink platform ids include platform as final digit, remove to give id of station itself
+            int index = atcoCode.length()-1;
+            return atcoCode.substring(0,index);
         }
-        return platformId;
+        return atcoCode;
     }
 
     @Override

@@ -56,6 +56,7 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
                     throw new TramchesterException(msg);
                 }
                 HttpEntity entity = response.getEntity();
+                // Note: if not charset in entity then "ISO-8859-1" is used.
                 return EntityUtils.toString(entity);
 
             } else {

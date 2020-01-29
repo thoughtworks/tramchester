@@ -11,20 +11,22 @@ import com.tramchester.livedata.LiveDataFileFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportDataFromFiles;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -97,5 +99,30 @@ public class LiveDataHTTPFetcherTest {
                 collect(Collectors.toSet());
 
         assertTrue(mismatch.toString(), mismatch.isEmpty());
+    }
+
+    @Test
+    @Category(LiveDataTestCategory.class)
+    @Ignore("Part of spike on character set encoding issue for live api")
+    public void checkCharacterEncodingOnResponse() throws ParseException {
+        String rawJSON = fetcher.fetch();
+
+        JSONParser jsonParser = new JSONParser();
+        JSONObject parsed = (JSONObject)jsonParser.parse(rawJSON);
+        JSONArray infoList = (JSONArray) parsed.get("value");
+
+        List<String> destinations = new ArrayList<>();
+        for (Object item : infoList) {
+            JSONObject jsonObject = (JSONObject) item;
+            for (int i = 0; i < 4; i++) {
+                String place = jsonObject.get(format("Dest%d", i)).toString();
+                if (!place.isEmpty()) {
+                    destinations.add(place);
+                }
+            }
+        }
+        assertFalse(destinations.isEmpty());
+
+
     }
 }
