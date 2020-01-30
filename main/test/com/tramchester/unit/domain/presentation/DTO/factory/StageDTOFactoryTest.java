@@ -35,7 +35,8 @@ public class StageDTOFactoryTest extends EasyMockSupport {
 
     @Test
     public void shouldCreateStageDTOCorrectlyForWalking() {
-        WalkingStage stage = new WalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15, TramTime.of(8,11));
+        WalkingStage stage = new WalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15,
+                TramTime.of(8,11), false);
 
         TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.now());
         StageDTO build = factory.build(stage, TravelAction.Walk, TramTime.of(8,0), tramServiceDate);

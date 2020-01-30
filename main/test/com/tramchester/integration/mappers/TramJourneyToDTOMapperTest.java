@@ -158,10 +158,10 @@ public class TramJourneyToDTOMapperTest {
     }
 
     @Test
-    public void shouldMapWalkingStageJourney() {
+    public void shouldMapWalkingStageJourneyFromMyLocation() {
         TramTime pm10 = TramTime.of(22,0);
 
-        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10);
+        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, false);
         stages.add(walkingStage);
 
         Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10, 42), tramServiceDate);
@@ -173,7 +173,26 @@ public class TramJourneyToDTOMapperTest {
         StageDTO stage = journey.getStages().get(0);
         assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
         assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
+        assertEquals(Stations.MarketStreet.getId(),stage.getActionStation().getId());
+    }
 
+    @Test
+    public void shouldMapWalkingStageJourneyToMyLocation() {
+        TramTime pm10 = TramTime.of(22,0);
+
+        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, true);
+        stages.add(walkingStage);
+
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10, 42), tramServiceDate);
+
+        assertTrue(result.isPresent());
+        JourneyDTO journey = result.get();
+        assertEquals(1, journey.getStages().size());
+
+        StageDTO stage = journey.getStages().get(0);
+        assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
+        assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
+        assertEquals(Stations.Deansgate.getId(),stage.getActionStation().getId());
     }
 
     @Test
@@ -186,7 +205,7 @@ public class TramJourneyToDTOMapperTest {
 
         VehicleStage rawStageA = getRawVehicleStage(begin, middleA, "route text", am10, 42, 8);
         int walkCost = 10;
-        WalkingStage walkingStage = new WalkingStage(middleA, middleB, walkCost, am10);
+        WalkingStage walkingStage = new WalkingStage(middleA, middleB, walkCost, am10, false);
         VehicleStage finalStage = getRawVehicleStage(middleB, end, "route3 text", am10, 42, 9);
 
         stages.add(rawStageA);

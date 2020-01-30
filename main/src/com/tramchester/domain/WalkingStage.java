@@ -10,12 +10,14 @@ public class WalkingStage implements TransportStage {
     private final Location destination;
     private final int duration;
     private final TramTime beginTime;
+    private final boolean towardsMyLocation;
 
-    public WalkingStage(Location start, Location destination, int duration, TramTime beginTime) {
+    public WalkingStage(Location start, Location destination, int duration, TramTime beginTime, boolean towardsMyLocation) {
         this.start = start;
         this.destination = destination;
         this.duration = duration;
         this.beginTime = beginTime;
+        this.towardsMyLocation = towardsMyLocation;
     }
 
     @Override
@@ -52,7 +54,10 @@ public class WalkingStage implements TransportStage {
 
     @Override
     public Location getActionStation() {
-        return getDestination();
+        if (towardsMyLocation) {
+            return start;
+        }
+        return destination;
     }
 
     @Override

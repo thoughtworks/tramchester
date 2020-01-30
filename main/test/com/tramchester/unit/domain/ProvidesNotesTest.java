@@ -181,7 +181,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageB = createStageWithBoardingPlatform("platformId2");
         TransportStage stageC = createStageWithBoardingPlatform("platformId3");
         TransportStage stageD = new WalkingStage(MyLocation.create(new ObjectMapper(), TestConfig.nearAltrincham),
-                Stations.Ashton, 7, TramTime.of(8,11) );
+                Stations.Ashton, 7, TramTime.of(8,11), false );
         TransportStage stageE = createStageWithBoardingPlatform("platformId5");
 
         LocalDateTime lastUpdate = LocalDateTime.now();

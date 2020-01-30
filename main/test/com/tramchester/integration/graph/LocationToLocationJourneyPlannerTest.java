@@ -22,8 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.TestConfig.nearAltrincham;
 import static com.tramchester.TestConfig.nearPiccGardens;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class LocationToLocationJourneyPlannerTest {
     public static final int TXN_TIMEOUT = 5*60;
@@ -99,6 +98,17 @@ public class LocationToLocationJourneyPlannerTest {
                 TramTime.of(8,00));
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
+        Journey firstJourney = results.iterator().next();
+        TransportStage tramStage = firstJourney.getStages().get(0);
+        TransportStage walkStage = firstJourney.getStages().get(1);
+
+        assertTrue(walkStage.getFirstDepartureTime().isAfter(tramStage.getExpectedArrivalTime()));
+        assertEquals(Stations.Deansgate.getId(), tramStage.getFirstStation().getId());
+        assertEquals(Stations.NavigationRoad.getId(), tramStage.getLastStation().getId());
+        assertEquals(Stations.NavigationRoad.getId(), walkStage.getFirstStation().getId());
+        assertEquals("MyLocationPlaceholderId", walkStage.getLastStation().getId());
+        assertEquals(Stations.NavigationRoad.getId(), walkStage.getActionStation().getId());
+
     }
 
     @Test

@@ -108,7 +108,7 @@ public class MapPathToStages {
         if (relationship.isType(WALKS_TO)) {
             WalkStarted walkStarted = walkStarted(relationship);
             return new WalkingStage(walkStarted.start, walkStarted.destination,
-                    walkStarted.cost, timeWalkStarted);
+                    walkStarted.cost, timeWalkStarted, false);
         } else if (relationship.isType(WALKS_FROM)) {
             return createWalkFrom(relationship, timeWalkStarted);
         } else {
@@ -144,7 +144,7 @@ public class MapPathToStages {
         double lon =  (double)endNode.getProperty(GraphStaticKeys.Station.LONG);
         Location walkEnd = myLocationFactory.create(new LatLong(lat,lon));
 
-        return new WalkingStage(start, walkEnd, cost, walkStartTime);
+        return new WalkingStage(start, walkEnd, cost, walkStartTime, true);
     }
 
     private class State {
@@ -197,7 +197,7 @@ public class MapPathToStages {
             reset();
 
             departCost = getCost(relationship);
-            departTime = vehicleStage.getFirstDepartureTime();
+            departTime = vehicleStage.getExpectedArrivalTime();
 
             return vehicleStage;
         }
@@ -228,7 +228,7 @@ public class MapPathToStages {
             int totalCostOfWalk = walkStarted.cost + boardCost + platformEnterCost;
             TramTime timeWalkStarted = boardingTime.minusMinutes(totalCostOfWalk);
             WalkingStage walkingStage = new WalkingStage(walkStarted.start, walkStarted.destination,
-                    walkStarted.cost, timeWalkStarted);
+                    walkStarted.cost, timeWalkStarted, false);
             walkStarted = null;
             return Optional.of(walkingStage);
         }
