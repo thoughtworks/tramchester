@@ -167,7 +167,6 @@ var app = new Vue({
                 const lastDepartTime = lastJourney.firstDepartureTime;
                 app.time = lastDepartTime;
                 app.plan(null);
-
             },
             queryNearbyTrams() {
                 app.liveInProgress = true;
@@ -182,7 +181,7 @@ var app = new Vue({
             queryServer() {
                 var urlParams = { start: this.startStop, end: this.endStop, departureTime: this.time,
                     departureDate: this.date};
-                if (this.startStop=='MyLocationPlaceholderId') {
+                if (this.startStop=='MyLocationPlaceholderId' || this.endStop=='MyLocationPlaceholderId') {
                     const place = app.location;
                     urlParams.lat = place.coords.latitude;
                     urlParams.lon = place.coords.longitude;
@@ -316,7 +315,7 @@ var app = new Vue({
         computed: {
             endProximityGroups: function () {
                 // nearby not available for destinations yet...
-                return this.proximityGroups.filter(group => group.name!=='Nearby');
+                return this.proximityGroups; //.filter(group => group.name!=='Nearby');
             },
             havePos: function () {
                 return this.hasGeo && (this.location!=null);
