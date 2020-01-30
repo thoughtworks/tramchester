@@ -115,8 +115,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, endId,queryDate.getDay(),
                 queryDate, initialQueryTime));
 
-        List<TramTime> queryTimes = Collections.singletonList(initialQueryTime);
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTimes, queryDate);
+        //List<TramTime> queryTimes = Collections.singletonList(initialQueryTime);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, initialQueryTime, queryDate);
         Set<Journey> journeySet = journeys.collect(Collectors.toSet());
 
         return createPlan(queryDate, journeySet);

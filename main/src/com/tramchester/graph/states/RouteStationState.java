@@ -71,7 +71,7 @@ public class RouteStationState extends TraversalState {
 
             // if towards destination just return that one relationship
             for(Relationship relationship :  platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
-                if (relationship.getProperty(GraphStaticKeys.STATION_ID).equals(destinationStationdId)) {
+                if (destinationStationdIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())){
                     return new PlatformState(this, Collections.singleton(relationship), routeStationNodeId, cost);
                 }
             }

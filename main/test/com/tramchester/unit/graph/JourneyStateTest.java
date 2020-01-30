@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Fail.fail;
@@ -23,8 +25,9 @@ public class JourneyStateTest {
 
     @Before
     public void onceBeforeEachTestRuns() {
+        List<String> destinationStationIds = Arrays.asList("destinationStationId");
         traversalState = new NotStartedState(new CachedNodeOperations(new NodeIdLabelMap()),
-                42, "destinationStationId", false);
+                42, destinationStationIds, false);
         queryTime = TramTime.of(9, 15);
     }
 

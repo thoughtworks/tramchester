@@ -1,16 +1,13 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 
 import java.util.ArrayList;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.ENTER_PLATFORM;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -18,9 +15,9 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId, String destinationStationId,
+    public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId, List<String> destinationStationIds,
                            boolean interchangesOnly) {
-        super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationId, 0, interchangesOnly);
+        super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationIds, 0, interchangesOnly);
     }
 
     @Override

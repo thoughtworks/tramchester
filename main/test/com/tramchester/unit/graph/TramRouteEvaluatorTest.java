@@ -13,11 +13,15 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static org.junit.Assert.assertEquals;
 
 public class TramRouteEvaluatorTest extends EasyMockSupport {
 
+    private final List<String> destinationStationIds = Arrays.asList("destinationStationId");
     private ServiceHeuristics serviceHeuristics;
     private CachedNodeOperations nodeOperations;
     private Path path;
@@ -47,7 +51,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         state.setState(new JourneyState(time, traversalState));
 
         replayAll();
@@ -62,7 +66,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         BranchState<JourneyState> state = new TestBranchState();
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         state.setState(new JourneyState(time, traversalState));
 
         EasyMock.expect(path.length()).andReturn(401);
@@ -86,7 +90,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotRunOnQueryDate("not running", path));
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         state.setState(new JourneyState(time, traversalState));
 
         replayAll();
@@ -101,7 +105,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         state.setState(new JourneyState(time, traversalState));
 
         EasyMock.expect(path.length()).andReturn(50);
@@ -132,7 +136,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         state.setState(new JourneyState(time, traversalState));
 
         replayAll();
@@ -157,7 +161,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,path)).andReturn(ServiceReason.TookTooLong(time, path));
 
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         state.setState(new JourneyState(time, traversalState));
 
         replayAll();
@@ -180,7 +184,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
 
         state.setState(new JourneyState(time, traversalState));
         EasyMock.expect(serviceHeuristics.checkServiceDate(node, path)).andReturn(ServiceReason.IsValid(path));
@@ -210,7 +214,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
 
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         TramTime time = TramTime.of(8, 15);
 
         state.setState(new JourneyState(time, traversalState));
@@ -239,7 +243,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
 
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         TramTime time = TramTime.of(8, 15);
         state.setState(new JourneyState(time, traversalState));
 
@@ -271,7 +275,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, "destinationStationId", false);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, false);
         state.setState(new JourneyState(time, traversalState));
 
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,path)).andReturn(ServiceReason.IsValid(path));

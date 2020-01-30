@@ -14,7 +14,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -63,11 +62,10 @@ public class LocationToLocationJourneyPlannerTest {
 
     @Test
     public void shouldHaveDirectWalkNearPiccadily() {
-        List<TramTime> times = Collections.singletonList(TramTime.of(9, 0));
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens,
-                Stations.PiccadillyGardens.getId(), times, queryDate).collect(Collectors.toSet());
+                Stations.PiccadillyGardens.getId(), TramTime.of(9, 0), queryDate).collect(Collectors.toSet());
 
         assertEquals(1, unsortedResults.size());
         unsortedResults.forEach(journey -> {
@@ -79,24 +77,49 @@ public class LocationToLocationJourneyPlannerTest {
     }
 
     @Test
+    public void shouldHaveDirectWalkFromPiccadily() {
+        TramServiceDate queryDate = new TramServiceDate(nextTuesday);
+
+        Set<Journey> unsortedResults = planner.quickestRouteForLocation(Stations.PiccadillyGardens.getId(),
+                nearPiccGardens,
+                TramTime.of(9, 0), queryDate).collect(Collectors.toSet());
+
+        assertEquals(1, unsortedResults.size());
+        unsortedResults.forEach(journey -> {
+            List<TransportStage> stages = journey.getStages();
+            WalkingStage first = (WalkingStage) stages.get(0);
+            assertEquals(nearPiccGardens, first.getStart().getLatLong());
+            assertEquals(Stations.PiccadillyGardens, first.getDestination());
+        });
+    }
+
+    @Test
+    public void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
+        Set<Journey> results = getJourneysForTramThenWalk(Stations.Deansgate.getId(), nearAltrincham,
+                TramTime.of(8,00));
+        assertFalse(results.isEmpty());
+        results.forEach(journey -> assertEquals(2, journey.getStages().size()));
+    }
+
+    @Test
     public void shouldFindJourneyWithWalkingEarlyMorning() {
-        Set<Journey> results = getJourneysForWalkAndTram(nearAltrincham, Stations.Deansgate.getId(),
-                TramTime.of(8,00)); //, new StationWalk(Stations.Altrincham, 13));
+        Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate.getId(),
+                TramTime.of(8,00));
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
 
     @Test
     public void shouldFindJourneyWithWalkingEndOfDay() {
-        Set<Journey> results = getJourneysForWalkAndTram(nearAltrincham, Stations.Deansgate.getId(),
-                TramTime.of(23,00)); //, new StationWalk(Stations.Altrincham, 13));
+        Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate.getId(),
+                TramTime.of(23,00));
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
 
     @Test
     public void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
-        Set<Journey> results = getJourneysForWalkAndTram(nearPiccGardens, Stations.PiccadillyGardens.getId(),
+        Set<Journey> results = getJourneysForWalkThenTram(nearPiccGardens, Stations.PiccadillyGardens.getId(),
                 TramTime.of(9,00)); //, new StationWalk(Stations.PiccadillyGardens, 3));
         assertFalse(results.isEmpty());
         results.forEach(journey-> {
@@ -109,11 +132,15 @@ public class LocationToLocationJourneyPlannerTest {
         });
     }
 
-    private Set<Journey> getJourneysForWalkAndTram(LatLong latLong, String destinationId, TramTime queryTime) {
-        List<TramTime> times = Arrays.asList(queryTime);
+    private Set<Journey> getJourneysForWalkThenTram(LatLong latLong, String destinationId, TramTime queryTime) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        return planner.quickestRouteForLocation(latLong, destinationId, times, date).collect(Collectors.toSet());
+        return planner.quickestRouteForLocation(latLong, destinationId, queryTime, date).collect(Collectors.toSet());
+    }
 
+    private Set<Journey> getJourneysForTramThenWalk(String startId, LatLong latLong, TramTime queryTime) {
+        TramServiceDate date = new TramServiceDate(nextTuesday);
+
+        return planner.quickestRouteForLocation(startId, latLong, queryTime, date).collect(Collectors.toSet());
     }
 }

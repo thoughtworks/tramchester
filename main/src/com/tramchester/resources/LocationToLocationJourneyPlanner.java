@@ -35,29 +35,40 @@ public class LocationToLocationJourneyPlanner {
         this.stationRepository = stationRepository;
     }
 
-    public Stream<Journey> quickestRouteForLocation(LatLong latLong, String destinationId, List<TramTime> queryTimes,
+    public Stream<Journey> quickestRouteForLocation(LatLong latLong, String destinationId, TramTime queryTime,
                                                     TramServiceDate queryDate) {
 
         logger.info(format("Finding shortest path for %s --> %s on %s at %s",
-                latLong, destinationId, queryDate, queryTimes));
+                latLong, destinationId, queryDate, queryTime));
 
         List<String> nearbyStations = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
         logger.info(format("Found %s stations close to %s", nearbyStations.size(), latLong));
-        return createJourneyPlan(latLong, nearbyStations, destinationId, queryTimes, queryDate);
+        return createJourneyPlan(latLong, nearbyStations, destinationId, queryTime, queryDate);
     }
 
-    private Stream<Journey> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, List<TramTime> queryTimes,
-                                              TramServiceDate queryDate) {
+    public Stream<Journey> quickestRouteForLocation(String startId, LatLong latLong, TramTime queryTime,
+                                                    TramServiceDate queryDate) {
+        List<String> nearbyStations = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
+        List<Location> starts = nearbyStations.stream().map(id -> stationRepository.getStation(id)).
+                filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+
+        List<StationWalk> walksToDest = starts.stream().map(station ->
+                new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
+
+        return routeCalculator.calculateRouteWalkAtEnd(startId, latLong, walksToDest, queryTime, queryDate);
+    }
+
+    private Stream<Journey> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, TramTime queryTime,
+                                              TramServiceDate queryDate) {
         List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).
                 filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         List<StationWalk> walksToStart = starts.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
-        return routeCalculator.calculateRoute(latLong, walksToStart, destinationId, queryTimes, queryDate
-        );
+        return routeCalculator.calculateRoute(latLong, walksToStart, destinationId, queryTime, queryDate);
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {

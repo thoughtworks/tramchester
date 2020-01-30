@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
-    private static final Logger logger = LoggerFactory.getLogger(TraversalState.class);
+//    private static final Logger logger = LoggerFactory.getLogger(TraversalState.class);
 
     private final Iterable<Relationship> outbounds;
 
@@ -25,7 +25,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected final CachedNodeOperations nodeOperations;
     protected final long destinationNodeId;
     protected final TraversalState parent;
-    protected final String destinationStationdId;
+    protected final List<String> destinationStationdIds;
     protected final boolean interchangesOnly;
 
     @Override
@@ -34,12 +34,12 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> outbounds,
-                             long destinationNodeId, String destinationStationdId, int costForLastEdge, boolean interchangesOnly) {
+                             long destinationNodeId, List<String> destinationStationdId, int costForLastEdge, boolean interchangesOnly) {
         this.parent = parent;
         this.nodeOperations = nodeOperations;
         this.outbounds = outbounds;
         this.destinationNodeId = destinationNodeId;
-        this.destinationStationdId = destinationStationdId;
+        this.destinationStationdIds = destinationStationdId;
         this.costForLastEdge = costForLastEdge;
         this.interchangesOnly = interchangesOnly;
         parentCost = 0;
@@ -48,7 +48,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
-        this.destinationStationdId = parent.destinationStationdId;
+        this.destinationStationdIds = parent.destinationStationdIds;
         this.interchangesOnly = parent.interchangesOnly;
 
         this.parent = parent;

@@ -14,6 +14,7 @@ import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -26,25 +27,26 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final CachedNodeOperations nodeOperations;
     private final TramTime queryTime;
     private final long destinationNodeId;
-    private final String endStationId;
+    private final List<String> endStationIds;
     private final boolean interchangesOnly;
     private final ServiceReasons reasons;
 
     public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
-                                ServiceReasons reasons, CachedNodeOperations nodeOperations, Node destinationNode, String endStationId, boolean interchangesOnly) {
+                                ServiceReasons reasons, CachedNodeOperations nodeOperations, Node destinationNode,
+                                List<String> endStationIds, boolean interchangesOnly) {
         this.serviceHeuristics = serviceHeuristics;
         this.reasons = reasons;
         this.nodeOperations = nodeOperations;
         this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeId = destinationNode.getId();
-        this.endStationId = endStationId;
+        this.endStationIds = endStationIds;
         this.interchangesOnly = interchangesOnly;
     }
 
     public Stream<WeightedPath> findPaths(Node startNode) {
 
         TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationId, interchangesOnly);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, interchangesOnly);
 
         logger.info("Begin traversal");
 

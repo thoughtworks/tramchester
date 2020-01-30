@@ -93,10 +93,9 @@ public class GraphWithSimpleRouteTest {
     public void shouldHaveWalkAndTramTripWithChange() {
         LatLong origin = new LatLong(180.001, 270.001);
         List<StationWalk> walks = Collections.singletonList(new StationWalk(firstStation, 1));
-        List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
 
         Stream<Journey> journeys = calculator.calculateRoute(origin, walks, TransportDataForTest.LAST_STATION,
-                walkStartTimes, queryDate);
+                TramTime.of(7,55), queryDate);
         assertFalse(journeys.limit(1).count()==0);
     }
 
@@ -107,9 +106,8 @@ public class GraphWithSimpleRouteTest {
 
         List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
 
-        List<TramTime> walkStartTimes = Arrays.asList(TramTime.of(7,55));
         Set<Journey> journeys = calculator.calculateRoute(origin, stationWalks, TransportDataForTest.SECOND_STATION,
-                walkStartTimes, queryDate).collect(Collectors.toSet());
+                TramTime.of(7,55), queryDate).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{

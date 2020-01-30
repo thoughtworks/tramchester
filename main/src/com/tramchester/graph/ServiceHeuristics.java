@@ -9,6 +9,8 @@ import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 import static com.tramchester.graph.GraphStaticKeys.ID;
 
 public class ServiceHeuristics {
@@ -16,7 +18,7 @@ public class ServiceHeuristics {
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
     private final RunningServices runningServices;
-    private final String endStationId;
+    private final List<String> endStationIds;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
     private final ReachabilityRepository reachabilityRepository;
@@ -28,7 +30,7 @@ public class ServiceHeuristics {
 
     public ServiceHeuristics(CachedNodeOperations nodeOperations,
                              ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
-                             RunningServices runningServices, String endStationId, ServiceReasons reasons) {
+                             RunningServices runningServices, List<String> endStationIds, ServiceReasons reasons) {
         this.nodeOperations = nodeOperations;
         this.reachabilityRepository = reachabilityRepository;
 
@@ -36,7 +38,7 @@ public class ServiceHeuristics {
         this.maxJourneyDuration = config.getMaxJourneyDuration();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
-        this.endStationId = endStationId;
+        this.endStationIds = endStationIds;
         this.reasons = reasons;
     }
     
@@ -118,10 +120,13 @@ public class ServiceHeuristics {
 
     public ServiceReason canReachDestination(Node endNode, Path path) {
         String stationId = endNode.getProperty(ID).toString();
-        boolean flag = reachabilityRepository.reachable(stationId, endStationId);
-        if (flag) {
-            return valid(path);
+        for(String endStationId : endStationIds) {
+            boolean flag = reachabilityRepository.reachable(stationId, endStationId);
+            if (flag) {
+                return valid(path);
+            }
         }
+
         return reasons.recordReason(ServiceReason.StationNotReachable(path));
     }
 
