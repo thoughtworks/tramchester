@@ -67,7 +67,8 @@ public class RouteCalculator extends StationIndexs {
             Node stationNode = getStationNode(walkStationId);
             int cost = stationWalk.getCost();
             logger.info(format("Add walking relationship from %s to %s cost %s", walkStationId, endOfWalk,  cost));
-            Relationship walkingRelationship = stationNode.createRelationshipTo(endOfWalk, TransportRelationshipTypes.WALKS_TO);
+            Relationship walkingRelationship = stationNode.createRelationshipTo(endOfWalk,
+                    TransportRelationshipTypes.WALKS_FROM);
             walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
             walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
             addedWalks.add(walkingRelationship);

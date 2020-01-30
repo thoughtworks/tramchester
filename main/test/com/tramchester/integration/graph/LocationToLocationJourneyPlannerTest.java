@@ -88,8 +88,8 @@ public class LocationToLocationJourneyPlannerTest {
         unsortedResults.forEach(journey -> {
             List<TransportStage> stages = journey.getStages();
             WalkingStage first = (WalkingStage) stages.get(0);
-            assertEquals(nearPiccGardens, first.getStart().getLatLong());
-            assertEquals(Stations.PiccadillyGardens, first.getDestination());
+            assertEquals(Stations.PiccadillyGardens, first.getStart());
+            assertEquals(nearPiccGardens, first.getDestination().getLatLong());
         });
     }
 

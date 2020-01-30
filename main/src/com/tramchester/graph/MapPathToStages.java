@@ -22,6 +22,8 @@ import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.GraphStaticKeys.RouteStation.ROUTE_NAME;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static java.lang.String.format;
 
 
@@ -43,6 +45,7 @@ public class MapPathToStages {
 
     // TODO Use Traversal State from the path instead of the Path itself??
     public List<TransportStage> mapDirect(WeightedPath path, TramTime queryTime) {
+        logger.info(format("Mapping path length %s to transport stages for %s", path.length(), queryTime));
         ArrayList<TransportStage> results = new ArrayList<>();
 
         List<Relationship> relationships = new ArrayList<>();
@@ -52,7 +55,7 @@ public class MapPathToStages {
             return results;
         }
         if (relationships.size()==1) {
-            // direct walk
+            // ASSUME: direct walk
             results.add(directWalk(relationships.get(0), queryTime));
             return results;
         }
@@ -80,6 +83,9 @@ public class MapPathToStages {
                 case WALKS_TO:
                     state.walk(relationship);
                     break;
+                case WALKS_FROM:
+                    results.add(state.walkFrom(relationship));
+                    break;
                 case TO_SERVICE:
 //                    state.toService(relationship);
                     break;
@@ -87,6 +93,7 @@ public class MapPathToStages {
                     state.enterPlatform(relationship);
                     break;
                 case LEAVE_PLATFORM:
+                    state.leavePlatform(relationship);
                     break;
                 case TO_HOUR:
                     break;
@@ -97,10 +104,16 @@ public class MapPathToStages {
         return results;
     }
 
-    private TransportStage directWalk(Relationship relationships, TramTime timeWalkStarted) {
-        WalkStarted walkStarted = walkStarted(relationships);
-        return new WalkingStage(walkStarted.start, walkStarted.destination,
-                walkStarted.cost, timeWalkStarted);
+    private TransportStage directWalk(Relationship relationship, TramTime timeWalkStarted) {
+        if (relationship.isType(WALKS_TO)) {
+            WalkStarted walkStarted = walkStarted(relationship);
+            return new WalkingStage(walkStarted.start, walkStarted.destination,
+                    walkStarted.cost, timeWalkStarted);
+        } else if (relationship.isType(WALKS_FROM)) {
+            return createWalkFrom(relationship, timeWalkStarted);
+        } else {
+            throw new RuntimeException("Unexpected single relationship: " +relationship);
+        }
     }
 
     private int getCost(Relationship relationship) {
@@ -120,12 +133,27 @@ public class MapPathToStages {
         return new WalkStarted(start, destination, cost);
     }
 
+    private WalkingStage createWalkFrom(Relationship relationship, TramTime walkStartTime) {
+        int cost = getCost(relationship);
+
+        String stationId = relationship.getProperty(STATION_ID).toString();
+        Location start = transportData.getStation(stationId).get();
+
+        Node endNode = relationship.getEndNode();
+        double lat = (double)endNode.getProperty(GraphStaticKeys.Station.LAT);
+        double lon =  (double)endNode.getProperty(GraphStaticKeys.Station.LONG);
+        Location walkEnd = myLocationFactory.create(new LatLong(lat,lon));
+
+        return new WalkingStage(start, walkEnd, cost, walkStartTime);
+    }
+
     private class State {
         private final TransportData transportData;
         private final PlatformRepository platformRepository;
 
         private WalkStarted walkStarted;
         private TramTime boardingTime;
+        private TramTime departTime;
         private Station boardingStation;
         private String routeCode;
         private String tripId;
@@ -133,8 +161,11 @@ public class MapPathToStages {
         private int tripCost;
         private Optional<Platform> boardingPlatform;
         private String routeName;
+
         private int boardCost;
-        private int platformCost;
+        private int platformEnterCost;
+        private int platformLeaveCost;
+        private int departCost;
 
         private State(TransportData transportData, PlatformRepository platformRepository) {
             this.transportData = transportData;
@@ -149,6 +180,7 @@ public class MapPathToStages {
             routeName = relationship.getProperty(ROUTE_NAME).toString();
             String stopId = relationship.getProperty(PLATFORM_ID).toString();
             boardingPlatform = platformRepository.getPlatformById(stopId);
+            departTime = null;
         }
 
         public VehicleStage depart(Relationship relationship) {
@@ -162,8 +194,11 @@ public class MapPathToStages {
 
             boardingPlatform.ifPresent(vehicleStage::setPlatform);
             vehicleStage.setCost(tripCost);
-
             reset();
+
+            departCost = getCost(relationship);
+            departTime = vehicleStage.getFirstDepartureTime();
+
             return vehicleStage;
         }
 
@@ -190,7 +225,7 @@ public class MapPathToStages {
                 return Optional.empty();
             }
 
-            int totalCostOfWalk = walkStarted.cost + boardCost + platformCost;
+            int totalCostOfWalk = walkStarted.cost + boardCost + platformEnterCost;
             TramTime timeWalkStarted = boardingTime.minusMinutes(totalCostOfWalk);
             WalkingStage walkingStage = new WalkingStage(walkStarted.start, walkStarted.destination,
                     walkStarted.cost, timeWalkStarted);
@@ -208,12 +243,20 @@ public class MapPathToStages {
         }
 
         public void enterPlatform(Relationship relationship) {
-            platformCost = getCost(relationship);
+            platformEnterCost = getCost(relationship);
+        }
+
+        public TransportStage walkFrom(Relationship relationship) {
+            TramTime walkStartTime = departTime.plusMinutes(platformLeaveCost + departCost);
+            return createWalkFrom(relationship, walkStartTime);
+        }
+
+        public void leavePlatform(Relationship relationship) {
+            platformLeaveCost = getCost(relationship);
         }
     }
 
     private static class WalkStarted {
-
         private final Location start;
         private final Location destination;
         private final int cost;

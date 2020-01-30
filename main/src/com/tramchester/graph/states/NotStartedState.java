@@ -9,8 +9,7 @@ import org.neo4j.graphdb.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.graph.TransportRelationshipTypes.ENTER_PLATFORM;
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NotStartedState extends TraversalState {
@@ -35,7 +34,7 @@ public class NotStartedState extends TraversalState {
             case QUERY_NODE:
                 return new WalkingState(this, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
             case STATION:
-                return new StationState(this, firstNode.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
+                return new StationState(this, firstNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }

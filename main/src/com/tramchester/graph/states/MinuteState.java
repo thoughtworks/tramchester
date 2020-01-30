@@ -17,7 +17,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
-    private static final Logger logger = LoggerFactory.getLogger(MinuteState.class);
+//    private static final Logger logger = LoggerFactory.getLogger(MinuteState.class);
 
     private final String tripId;
 
@@ -66,14 +66,13 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // service finished here so don't pass in trip ID
-//            logger.info("No matching trips found for tripId " + tripId);
             return new RouteStationState(this, routeStationOutbound, node.getId(), cost, false);
         } else {
             return new RouteStationState(this, routeStationOutbound, node.getId(), tripId, cost);
         }
     }
 
-    protected List<Relationship> filterByTripId(Iterable<Relationship> relationships, String tripId) {
+    private List<Relationship> filterByTripId(Iterable<Relationship> relationships, String tripId) {
         List<Relationship> results = new ArrayList<>();
         relationships.forEach(relationship -> {
             String trips = nodeOperations.getTrips(relationship);

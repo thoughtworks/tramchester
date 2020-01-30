@@ -9,8 +9,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
 
-import static com.tramchester.graph.TransportRelationshipTypes.ENTER_PLATFORM;
-import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -39,7 +38,7 @@ public class PlatformState extends TraversalState {
                 return new DestinationState(this, cost);
             }
             return new StationState(this,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId), cost);
+                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformNodeId), cost);
         }
 
         if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {

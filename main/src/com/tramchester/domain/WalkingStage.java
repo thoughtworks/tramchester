@@ -81,7 +81,7 @@ public class WalkingStage implements TransportStage {
 
     @Override
     public String toString() {
-        return "RawWalkingStage{" +
+        return "WalkingStage{" +
                 "start=" + start +
                 ", destination=" + destination +
                 ", duration=" + duration +
