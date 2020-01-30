@@ -369,7 +369,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public static Response getResponseForJourney(IntegrationTestRun rule, String start, String end, String time,
                                                  String date, LatLong latlong) {
         String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date);
-        if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(start)) {
+        if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(start) || MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(end)) {
             if (latlong==null) {
                 fail("must provide latlong");
             }
