@@ -39,9 +39,9 @@ public class StageDTOFactoryTest extends EasyMockSupport {
                 TramTime.of(8,11), false);
 
         TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.now());
-        StageDTO build = factory.build(stage, TravelAction.Walk, TramTime.of(8,0), tramServiceDate);
+        StageDTO build = factory.build(stage, TravelAction.WalkTo, TramTime.of(8,0), tramServiceDate);
         replayAll();
-        checkValues(stage, build, false, TravelAction.Walk);
+        checkValues(stage, build, false, TravelAction.WalkTo);
         verifyAll();
     }
 

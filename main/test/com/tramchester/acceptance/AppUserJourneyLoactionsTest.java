@@ -115,7 +115,7 @@ public class AppUserJourneyLoactionsTest {
 
         // to
         List<String> myLocationToStops = appPage.getNearbyToStops();
-        assertEquals(0, myLocationToStops.size());
+        assertEquals(1, myLocationToStops.size());
 
         List<String> nearestToStops = appPage.getNearestFromStops();
         assertThat(nearestToStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
@@ -163,7 +163,7 @@ public class AppUserJourneyLoactionsTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
-        validateWalkingStage(firstStage, LocalTime.of(10,19), "Walk",
+        validateWalkingStage(firstStage, LocalTime.of(10,19), "Walk to",
                 Stations.Altrincham.getName(), -1, "RouteWalking", "Walk", 0);
 
         Stage secondStage = stages.get(1);

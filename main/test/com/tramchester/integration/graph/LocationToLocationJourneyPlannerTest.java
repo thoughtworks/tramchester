@@ -14,6 +14,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -79,9 +80,10 @@ public class LocationToLocationJourneyPlannerTest {
     public void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
+        List<TramTime> times = Collections.singletonList(TramTime.of(9, 0));
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(Stations.PiccadillyGardens.getId(),
                 nearPiccGardens,
-                TramTime.of(9, 0), queryDate).collect(Collectors.toSet());
+                times, queryDate).collect(Collectors.toSet());
 
         assertEquals(1, unsortedResults.size());
         unsortedResults.forEach(journey -> {
@@ -151,6 +153,7 @@ public class LocationToLocationJourneyPlannerTest {
     private Set<Journey> getJourneysForTramThenWalk(String startId, LatLong latLong, TramTime queryTime) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        return planner.quickestRouteForLocation(startId, latLong, queryTime, date).collect(Collectors.toSet());
+        List<TramTime> queryTimes = Collections.singletonList(queryTime);
+        return planner.quickestRouteForLocation(startId, latLong, queryTimes, date).collect(Collectors.toSet());
     }
 }

@@ -53,7 +53,7 @@ public class RouteCalculator extends StationIndexs {
     }
 
     public Stream<Journey> calculateRouteWalkAtEnd(String startId, LatLong destination, List<StationWalk> walksToDest,
-                                                   TramTime queryTime, TramServiceDate queryDate)
+                                                   List<TramTime> queryTimes, TramServiceDate queryDate)
     {
         List<Relationship> addedWalks = new LinkedList<>();
         List<String> desinationStationIds = new ArrayList<>();
@@ -74,7 +74,6 @@ public class RouteCalculator extends StationIndexs {
             addedWalks.add(walkingRelationship);
         });
 
-        List<TramTime> queryTimes = Collections.singletonList(queryTime);
         Stream<Journey> journeys = gatherJounerysWalkAtEnd(startId, endOfWalk, desinationStationIds, queryTimes, queryDate);
 
         journeys.onClose(() -> {

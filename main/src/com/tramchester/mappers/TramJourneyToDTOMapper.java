@@ -35,7 +35,9 @@ public class TramJourneyToDTOMapper {
                 stages.add(stageDTO);
             } else if (rawStage.getMode().isWalk()) {
                 logger.info("Adding walking stage " + rawStage);
-                StageDTO stageDTO = stageFactory.build(rawStage, TravelAction.Walk, queryTime, tramServiceDate);
+                WalkingStage walkingStage = (WalkingStage) rawStage;
+                TravelAction action = walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo ;
+                StageDTO stageDTO = stageFactory.build(rawStage, action, queryTime, tramServiceDate);
                 stages.add(stageDTO);
             }
 

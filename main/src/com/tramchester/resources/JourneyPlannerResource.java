@@ -126,11 +126,13 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, TramServiceDate queryDate,
-                                                                      TramTime initialQueryTime) {
+                                                                      TramTime queryTime) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, latLong, queryDate.getDay(),
-                queryDate, initialQueryTime));
+                queryDate, queryTime));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, initialQueryTime, queryDate);
+        List<TramTime> queryTimes = createQueryTimes.generate(queryTime);
+
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTimes, queryDate);
         Set<Journey> journeySet = journeys.collect(Collectors.toSet());
 
         return createPlan(queryDate, journeySet);
