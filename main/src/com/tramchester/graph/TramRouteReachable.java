@@ -3,6 +3,9 @@ package com.tramchester.graph;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.TramInterchanges;
+import org.neo4j.graphalgo.GraphAlgoFactory;
+import org.neo4j.graphalgo.PathFinder;
+import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicies;
 import org.neo4j.graphdb.traversal.Evaluation;
@@ -14,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
-import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
+import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
@@ -23,11 +25,6 @@ public class TramRouteReachable extends StationIndexs {
 
     public TramRouteReachable(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery) {
         super(graphDatabaseService, graphQuery, false);
-    }
-
-    public boolean getRouteReachable(String startStationId, String targetStationId, String routeId) {
-        Evaluator evaluator = new ExactMatchEvaluator(targetStationId, routeId);
-        return evaluatePaths(startStationId, evaluator);
     }
 
     public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, String routeId) {
@@ -58,33 +55,67 @@ public class TramRouteReachable extends StationIndexs {
     private boolean evaluatePaths(String startStationId, Evaluator evaluator) {
         long number = 0;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-
-            Node startNode = getStationNode(startStationId);
-            Traverser traverser = new MonoDirectionalTraversalDescription().
-                    relationships(ON_ROUTE, Direction.OUTGOING).
-                    relationships(ENTER_PLATFORM, Direction.OUTGOING).
-                    relationships(BOARD, Direction.OUTGOING).
-                    relationships(INTERCHANGE_BOARD, Direction.OUTGOING).
-                    order( BranchOrderingPolicies.PREORDER_DEPTH_FIRST)
-                    .evaluator(evaluator)
-                    .traverse(startNode);
-            ResourceIterator<Path> paths = traverser.iterator();
-
-            number = paths.stream().count();
-
+            number = generatePaths(startStationId, evaluator).stream().count();
             tx.success();
         }
         return number>0;
     }
 
+    public int getApproxCostBetween(Station start, Station desination) {
+        PathExpander<Object> forTypesAndDirections = PathExpanders.forTypesAndDirections(
+                ON_ROUTE, Direction.OUTGOING,
+                ENTER_PLATFORM, Direction.OUTGOING,
+                LEAVE_PLATFORM, Direction.OUTGOING,
+                BOARD, Direction.OUTGOING,
+                DEPART, Direction.OUTGOING,
+                INTERCHANGE_BOARD, Direction.OUTGOING,
+                INTERCHANGE_DEPART, Direction.OUTGOING
+        );
+
+        int result;
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
+            Node startNode = getStationNode(start.getId());
+            Node endNode = getStationNode(desination.getId());
+
+            WeightedPath path = finder.findSinglePath(startNode, endNode);
+            Double weight  = Math.floor(path.weight());
+            result = weight.intValue();
+        }
+
+        return result;
+    }
+
+    int sum(Iterable<Relationship> relationships) {
+        int total = 0;
+        while (relationships.iterator().hasNext()) {
+            total = total + ((int)relationships.iterator().next().getProperty(COST));
+        }
+        return total;
+    }
+
+    private ResourceIterator<Path> generatePaths(String startStationId, Evaluator evaluator) {
+        Node startNode = getStationNode(startStationId);
+        Traverser traverser = new MonoDirectionalTraversalDescription().
+                relationships(ON_ROUTE, Direction.OUTGOING).
+                relationships(ENTER_PLATFORM, Direction.OUTGOING).
+                relationships(BOARD, Direction.OUTGOING).
+                relationships(INTERCHANGE_BOARD, Direction.OUTGOING).
+                order(BranchOrderingPolicies.PREORDER_DEPTH_FIRST)
+                .evaluator(evaluator)
+                .traverse(startNode);
+        return traverser.iterator();
+    }
+
+
+
     private static class ExactMatchEvaluator implements Evaluator {
 
-        private final String routeId;
         private final String finishNodeId;
 
-        public ExactMatchEvaluator(String targetStationId, String routeId) {
+        public ExactMatchEvaluator(String targetStationId) {
             this.finishNodeId = targetStationId;
-            this.routeId = routeId;
         }
 
         @Override
@@ -99,17 +130,7 @@ public class TramRouteReachable extends StationIndexs {
                 }
             }
 
-            if (queryNode.hasRelationship(Direction.OUTGOING, ON_ROUTE)) {
-                Relationship routeRelat = queryNode.getSingleRelationship(ON_ROUTE, Direction.OUTGOING);
-                String id = routeRelat.getProperty(ROUTE_ID).toString();
-                if (routeId.equals(id)) {
-                    return Evaluation.EXCLUDE_AND_CONTINUE;
-                } else {
-                    return Evaluation.EXCLUDE_AND_PRUNE;
-                }
-            }
-
-            return Evaluation.EXCLUDE_AND_CONTINUE;
+            return Evaluation.INCLUDE_AND_CONTINUE;
         }
     }
 

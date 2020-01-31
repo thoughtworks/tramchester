@@ -44,19 +44,6 @@ public class TramRouteReachableTest {
     }
 
     @Test
-    public void shouldHaveCorrectReachability() {
-
-        assertTrue(reachable.getRouteReachable(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), manAirportToVictoria));
-        assertFalse(reachable.getRouteReachable(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), victoriaToManAirport));
-
-        assertTrue(reachable.getRouteReachable(Stations.StWerburghsRoad.getId(), Stations.ManAirport.getId(), victoriaToManAirport));
-        assertFalse(reachable.getRouteReachable(Stations.StWerburghsRoad.getId(), Stations.ManAirport.getId(), manAirportToVictoria));
-
-        assertFalse(reachable.getRouteReachable(Stations.Altrincham.getId(), Stations.ManAirport.getId(), manAirportToVictoria));
-
-    }
-
-    @Test
     public void shouldHaveCorrectReachabilityOrInterchanges() {
         String altyToPicc = "MET:   2:I:";
         assertTrue(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(), altyToPicc));
@@ -86,6 +73,18 @@ public class TramRouteReachableTest {
         assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet.getId()).size());
 
         assertEquals(0, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.Cornbrook.getId()).size());
+    }
+
+    @Test
+    public void shouldComputeSimpleCostBetweenStations() {
+        assertEquals(60, reachable.getApproxCostBetween(Stations.Bury, Stations.Altrincham));
+        assertEquals(59, reachable.getApproxCostBetween(Stations.Altrincham, Stations.Bury));
+
+        assertEquals(5, reachable.getApproxCostBetween(Stations.NavigationRoad, Stations.Altrincham));
+        assertEquals(6, reachable.getApproxCostBetween(Stations.Altrincham, Stations.NavigationRoad));
+
+        assertEquals(61, reachable.getApproxCostBetween(Stations.MediaCityUK, Stations.ManAirport));
+        assertEquals(61, reachable.getApproxCostBetween(Stations.ManAirport, Stations.MediaCityUK));
     }
 
     private Station getReal(Station testStation) {
