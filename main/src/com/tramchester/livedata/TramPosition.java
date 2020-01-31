@@ -9,11 +9,13 @@ public class TramPosition {
     private Station first;
     private Station second;
     private Set<DueTram> trams;
+    private final int cost;
 
-    public TramPosition(Station first, Station second, Set<DueTram> trams) {
+    public TramPosition(Station first, Station second, Set<DueTram> trams, int cost) {
         this.first = first;
         this.second = second;
         this.trams = trams;
+        this.cost = cost;
     }
 
     public Station getFirst() {
@@ -26,5 +28,9 @@ public class TramPosition {
 
     public Set<DueTram> getTrams() {
         return trams;
+    }
+
+    public int getCost() {
+        return cost;
     }
 }

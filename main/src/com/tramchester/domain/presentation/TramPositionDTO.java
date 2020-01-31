@@ -9,15 +9,17 @@ public class TramPositionDTO {
     private LocationDTO first;
     private LocationDTO second;
     private Set<DepartureDTO> trams;
+    private int cost;
 
     public TramPositionDTO() {
         // deserialisation
     }
 
-    public TramPositionDTO(LocationDTO first, LocationDTO second, Set<DepartureDTO> trams) {
+    public TramPositionDTO(LocationDTO first, LocationDTO second, Set<DepartureDTO> trams, int cost) {
         this.first = first;
         this.second = second;
         this.trams = trams;
+        this.cost = cost;
     }
 
     public LocationDTO getFirst() {
@@ -30,5 +32,9 @@ public class TramPositionDTO {
 
     public Set<DepartureDTO> getTrams() {
         return trams;
+    }
+
+    public int getCost() {
+        return cost;
     }
 }

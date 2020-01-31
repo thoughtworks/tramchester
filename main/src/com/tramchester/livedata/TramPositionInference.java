@@ -49,7 +49,7 @@ public class TramPositionInference {
         int cost = adjacenyRepository.getAdjacent(start, neighbour);
         if (cost<0) {
             logger.info(format("Not adjacent %s to %s", start, neighbour));
-            return new TramPosition(start, neighbour, Collections.emptySet());
+            return new TramPosition(start, neighbour, Collections.emptySet(), cost);
         }
 
         List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(start, neighbour.getId());
@@ -68,7 +68,7 @@ public class TramPositionInference {
 
         if (departureInfos.isEmpty()) {
             logger.warn("Unable to find departure information for " + neighbour.getPlatforms());
-            return new TramPosition(start, neighbour, Collections.emptySet());
+            return new TramPosition(start, neighbour, Collections.emptySet(), cost);
         }
 
         Set<DueTram> dueTrams = departureInfos.stream().
@@ -77,6 +77,6 @@ public class TramPositionInference {
                 filter(dueTram -> !DEPARTING.equals(dueTram.getStatus())).
                 collect(Collectors.toSet());
         logger.info(format("Found %s trams between %s and %s",dueTrams.size(), start, neighbour));
-        return new TramPosition(start, neighbour, dueTrams);
+        return new TramPosition(start, neighbour, dueTrams, cost);
     }
 }

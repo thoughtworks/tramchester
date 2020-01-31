@@ -33,6 +33,7 @@ public class ReachabilityRepository {
     public void buildRepository() {
         logger.info("Build repository");
         Map<String, RouteStationEntry> routeStations = new HashMap<>(); // routestationId -> entry
+
         try (Transaction tx = graphDatabaseService.beginTx()) {
             ResourceIterator<Node> nodes = graphDatabaseService.findNodes(TransportGraphBuilder.Labels.ROUTE_STATION);
             nodes.stream().forEach(node -> {
@@ -52,11 +53,11 @@ public class ReachabilityRepository {
         routeStations.forEach((routeStationId,entry) -> {
             boolean[] flags = new boolean[size];
             stationIds.forEach(destinationStationId -> {
-                if (destinationStationId==entry.stationId) {
+                if (destinationStationId.equals(entry.stationId)) {
                     flags[stationIds.indexOf(destinationStationId)] = true;
                 } else {
-                    boolean flag = tramRouteReachable.getRouteReachableWithInterchange(
-                            entry.stationId, destinationStationId, entry.routeId);
+                    boolean flag = tramRouteReachable.getRouteReachableWithInterchange(entry.stationId,
+                            destinationStationId, entry.routeId);
                     flags[stationIds.indexOf(destinationStationId)] = flag;
                 }
             });

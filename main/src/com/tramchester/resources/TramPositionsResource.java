@@ -48,7 +48,8 @@ public class TramPositionsResource {
                 map(pos -> new TramPositionDTO(
                         new LocationDTO(pos.getFirst()),
                         new LocationDTO(pos.getSecond()),
-                        depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams()))).
+                        depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams()),
+                        pos.getCost())).
                 collect(Collectors.toList());
 
         TramsPositionsDTO dto = new TramsPositionsDTO(dtoList);

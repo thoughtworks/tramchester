@@ -140,7 +140,7 @@ public class TramRouteReachable extends StationIndexs {
                 Relationship routeRelat = queryNode.getSingleRelationship(ON_ROUTE, Direction.OUTGOING);
                 String id = routeRelat.getProperty(ROUTE_ID).toString();
                 if (routeId.equals(id)) {
-                    return Evaluation.EXCLUDE_AND_CONTINUE;
+                    return Evaluation.EXCLUDE_AND_CONTINUE; // only follow if on same route
                 } else {
                     return Evaluation.EXCLUDE_AND_PRUNE;
                 }

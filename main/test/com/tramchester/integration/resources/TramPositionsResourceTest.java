@@ -12,6 +12,8 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -34,6 +36,15 @@ public class TramPositionsResourceTest {
         long positionsWithTrams = positions.stream().filter(position -> !position.getTrams().isEmpty()).count();
         // MUST be same as total number of positions for filtered
         assertEquals(positions.size(), positionsWithTrams);
+
+        Set<String> uniquePairs = positions.stream().
+                map(position -> position.getFirst().getId() + position.getSecond().getId()).collect(Collectors.toSet());
+        assertEquals(positions.size(), uniquePairs.size());
+
+        long hasCost = positions.stream().filter(position -> position.getCost()>0).count();
+        assertEquals(positions.size(), hasCost);
+
+
 
         long departingTrams = positions.stream().map(position -> position.getTrams()).
                 flatMap(dueTrams -> dueTrams.stream()).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();
