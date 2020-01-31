@@ -16,6 +16,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     private String status;
     private String destination;
     private TramTime when;
+    private int wait;
 
     public DepartureDTO(String from, DueTram dueTram) {
         this.from = from;
@@ -23,6 +24,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         this.carriages = dueTram.getCarriages();
         this.status = dueTram.getStatus();
         this.destination = dueTram.getDestination().getName();
+        this.wait = dueTram.getWait();
     }
 
     public DepartureDTO() {
@@ -87,5 +89,9 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     @Override
     public int hashCode() {
         return Objects.hash(from, carriages, status, destination, when);
+    }
+
+    public int getWait() {
+        return wait;
     }
 }
