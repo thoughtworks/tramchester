@@ -62,9 +62,9 @@ public class RouteCalculatorSubGraphMonsallTest {
     @Test
     public void shouldReproIssueWithNotFindingDirectRouting() {
 
-        // change at shaw => NOW Direct tram from 29th Jan 2020
+        // change at shaw => No longer direct, as of 31th Jan 2020
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5),
-                nextTuesday, 1);
+                nextTuesday, 2);
 
         // direct
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,10),
