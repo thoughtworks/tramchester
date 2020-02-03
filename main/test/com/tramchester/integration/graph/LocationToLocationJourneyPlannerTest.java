@@ -81,8 +81,7 @@ public class LocationToLocationJourneyPlannerTest {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(Stations.PiccadillyGardens.getId(),
-                nearPiccGardens,
-                TramTime.of(9, 0), queryDate).collect(Collectors.toSet());
+                nearPiccGardens, TramTime.of(9, 0), queryDate).collect(Collectors.toSet());
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -97,6 +96,7 @@ public class LocationToLocationJourneyPlannerTest {
     public void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
         Set<Journey> results = getJourneysForTramThenWalk(Stations.Deansgate.getId(), nearAltrincham,
                 TramTime.of(8,00));
+
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
         Journey firstJourney = results.iterator().next();
@@ -116,8 +116,10 @@ public class LocationToLocationJourneyPlannerTest {
     public void shouldFindJourneyWithWalkingEarlyMorning() {
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate.getId(),
                 TramTime.of(8,00));
+
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
+        results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
     }
 
     @Test

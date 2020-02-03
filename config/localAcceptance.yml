@@ -28,6 +28,7 @@ removeRouteNameSuffix: true
 maxWait: 25
 maxNumberResults: 5
 maxJourneyDuration:  170
+numberQueries: 3
 queryInterval: 12
 nearestStopRangeKM: 2
 numOfNearestStops: 5
