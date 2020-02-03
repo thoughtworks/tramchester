@@ -117,6 +117,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("maxNumberResults")
     private int maxNumberResults;
 
+    @JsonProperty("numberQueries")
+    private int numberQueries;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -149,6 +152,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxNumResults() {
         return maxNumberResults;
+    }
+
+    @Override
+    public int getNumberQueries() {
+        return numberQueries;
     }
 
     @Override

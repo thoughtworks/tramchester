@@ -26,34 +26,37 @@ import static java.lang.String.format;
 public class RouteCalculator extends StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-
     private final String queryNodeName = "BEGIN";
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
     private final CachedNodeOperations nodeOperations;
     private final TransportData transportData;
     private final ReachabilityRepository reachabilityRepository;
+    private final CreateQueryTimes createQueryTimes;
 
     public RouteCalculator(GraphDatabaseService db, TransportData transportData,
                            CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
-                           TramchesterConfig config, ReachabilityRepository reachabilityRepository, GraphQuery graphQuery) {
+                           TramchesterConfig config, ReachabilityRepository reachabilityRepository,
+                           GraphQuery graphQuery, CreateQueryTimes createQueryTimes) {
         super(db, graphQuery, true);
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.config = config;
         this.reachabilityRepository = reachabilityRepository;
+        this.createQueryTimes = createQueryTimes;
     }
 
-    public Stream<Journey> calculateRoute(String startStationId, String endStationId, List<TramTime> queryTimes,
+    public Stream<Journey> calculateRoute(String startStationId, String endStationId, TramTime queryTime,
                                           TramServiceDate queryDate) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s", startStationId, endStationId,
-                queryDate, queryTimes));
-        return gatherJounerys(getStationNode(startStationId), endStationId, queryTimes, queryDate);
+                queryDate, queryTime));
+
+        return gatherJounerys(getStationNode(startStationId), endStationId, queryTime, queryDate);
     }
 
     public Stream<Journey> calculateRouteWalkAtEnd(String startId, LatLong destination, List<StationWalk> walksToDest,
-                                                   List<TramTime> queryTimes, TramServiceDate queryDate)
+                                                   TramTime queryTime, TramServiceDate queryDate)
     {
         List<Relationship> addedWalks = new LinkedList<>();
         List<String> desinationStationIds = new ArrayList<>();
@@ -74,8 +77,9 @@ public class RouteCalculator extends StationIndexs {
             addedWalks.add(walkingRelationship);
         });
 
-        Stream<Journey> journeys = gatherJounerysWalkAtEnd(startId, endOfWalk, desinationStationIds, queryTimes, queryDate);
+        Stream<Journey> journeys = gatherJounerysWalkAtEnd(startId, endOfWalk, desinationStationIds, queryTime, queryDate);
 
+        //noinspection ResultOfMethodCallIgnored
         journeys.onClose(() -> {
             logger.info("Removed added walks and start of walk node");
             addedWalks.forEach(Relationship::delete);
@@ -85,9 +89,8 @@ public class RouteCalculator extends StationIndexs {
 
     }
 
-
-    public Stream<Journey> calculateRoute(LatLong origin, List<StationWalk> walksToStartStations, String destinationId,
-                                          TramTime queryTime, TramServiceDate queryDate) {
+    public Stream<Journey> calculateRouteWalkAtStart(LatLong origin, List<StationWalk> walksToStartStations, String destinationId,
+                                                     TramTime queryTime, TramServiceDate queryDate) {
         List<Relationship> addedWalks = new LinkedList<>();
 
         Node startOfWalkNode = createWalkingNode(origin);
@@ -104,10 +107,10 @@ public class RouteCalculator extends StationIndexs {
             addedWalks.add(walkingRelationship);
         });
 
-        List<TramTime> queryTimes = Collections.singletonList(queryTime);
-        Stream<Journey> journeys = gatherJounerys(startOfWalkNode, destinationId, queryTimes, queryDate);
+        Stream<Journey> journeys = gatherJounerys(startOfWalkNode, destinationId, queryTime, queryDate);
 
         // must delete relationships first, otherwise may not delete node
+        //noinspection ResultOfMethodCallIgnored
         journeys.onClose(() -> {
             logger.info("Removed added walks and start of walk node");
             addedWalks.forEach(Relationship::delete);
@@ -117,42 +120,29 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
-    private Node createWalkingNode(LatLong origin) {
-        Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabaseService);
-        startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
-        startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
-        startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
-        logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
-        return startOfWalkNode;
-    }
-
-    private Stream<Journey> gatherJounerys(Node startNode, String destinationId, List<TramTime> queryTimes,
+    private Stream<Journey> gatherJounerys(Node startNode, String destinationId, TramTime queryTime,
                                            TramServiceDate queryDate) {
-        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
         Node endNode = getStationNode(destinationId);
-        ServiceReasons serviceReasons = new ServiceReasons();
-
         List<String> destinationIds = Collections.singletonList(destinationId);
-        return queryTimes.stream().
-                map(queryTime -> new ServiceHeuristics(nodeOperations, reachabilityRepository, config,
-                        queryTime, runningServicesIds, destinationIds, serviceReasons)).
-                map(serviceHeuristics -> findShortestPath(startNode, endNode, serviceHeuristics, serviceReasons, destinationIds)).
-                flatMap(Function.identity()).
-                map(path -> {
-                    List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime());
-                    return new Journey(stages, path.getQueryTime(), path.path.weight());
-                });
+        return getJourneyStream(startNode, endNode, queryTime, destinationIds, queryDate);
     }
 
-    private Stream<Journey> gatherJounerysWalkAtEnd(String startId, Node endNode, List<String> destinationIds, List<TramTime> queryTimes,
-                                           TramServiceDate queryDate) {
-        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
+    private Stream<Journey> gatherJounerysWalkAtEnd(String startId, Node endNode, List<String> destinationIds, TramTime queryTime,
+                                                    TramServiceDate queryDate) {
         Node startNode = getStationNode(startId);
+        return getJourneyStream(startNode, endNode, queryTime, destinationIds, queryDate);
+    }
+
+    private Stream<Journey> getJourneyStream(Node startNode, Node endNode, TramTime queryTime,
+                                             List<String> destinationIds, TramServiceDate queryDate) {
+        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
         ServiceReasons serviceReasons = new ServiceReasons();
 
+        List<TramTime> queryTimes = createQueryTimes.generate(queryTime);
+
         return queryTimes.stream().
-                map(queryTime -> new ServiceHeuristics(nodeOperations, reachabilityRepository, config,
-                        queryTime, runningServicesIds, destinationIds, serviceReasons)).
+                map(time -> new ServiceHeuristics(nodeOperations, reachabilityRepository, config,
+                        time, runningServicesIds, destinationIds, serviceReasons)).
                 map(serviceHeuristics -> findShortestPath(startNode, endNode, serviceHeuristics, serviceReasons, destinationIds)).
                 flatMap(Function.identity()).
                 map(path -> {
@@ -172,6 +162,15 @@ public class RouteCalculator extends StationIndexs {
                 endNode, endStationIds, config.getChangeAtInterchangeOnly());
 
         return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedWeightedPath(path, serviceHeutistics.getQueryTime()));
+    }
+
+    private Node createWalkingNode(LatLong origin) {
+        Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabaseService);
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
+        logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
+        return startOfWalkNode;
     }
 
     private static class TimedWeightedPath {

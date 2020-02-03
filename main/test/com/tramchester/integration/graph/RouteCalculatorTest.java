@@ -98,10 +98,9 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHaveReasonableJourneyAltyToDeansgate() {
-        List<TramTime> queryTimes = Collections.singletonList(TramTime.of(10, 15));
         TramServiceDate today = new TramServiceDate(nextTuesday);
         Stream<Journey> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Deansgate.getId(),
-                queryTimes, today);
+                TramTime.of(10, 15), today);
         results.forEach(journey -> {
             assertEquals(1, journey.getStages().size()); // should be one stage only
             journey.getStages().stream().
@@ -119,14 +118,13 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldUseAllRoutesCorrectlWhenMultipleRoutesServDestination() {
-        List<TramTime> queryTimes = Collections.singletonList(TramTime.of(10, 15));
         TramServiceDate today = new TramServiceDate(nextTuesday);
 
         Location start = Stations.Altrincham;
 
-        Set<Journey> servedByBothRoutes = calculateRoutes(start, Stations.Deansgate, queryTimes, today);
-        Set<Journey> altyToPiccGardens = calculateRoutes(start, Stations.PiccadillyGardens, queryTimes, today);
-        Set<Journey> altyToMarketStreet = calculateRoutes(start, Stations.MarketStreet, queryTimes, today);
+        Set<Journey> servedByBothRoutes = calculateRoutes(start, Stations.Deansgate, TramTime.of(10, 15), today);
+        Set<Journey> altyToPiccGardens = calculateRoutes(start, Stations.PiccadillyGardens, TramTime.of(10, 15), today);
+        Set<Journey> altyToMarketStreet = calculateRoutes(start, Stations.MarketStreet, TramTime.of(10, 15), today);
 
         assertEquals(altyToPiccGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size());
     }
@@ -146,7 +144,7 @@ public class RouteCalculatorTest {
     public void shouldHaveReasonableLongJourneyAcrossFromInterchange() {
         TramTime am8 = TramTime.of(8, 0);
 
-        Set<Journey> journeys = calculateRoutes(Stations.Monsall, Stations.RochdaleRail, Collections.singletonList(am8), new TramServiceDate(nextTuesday));
+        Set<Journey> journeys = calculateRoutes(Stations.Monsall, Stations.RochdaleRail, am8, new TramServiceDate(nextTuesday));
 
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
@@ -162,11 +160,10 @@ public class RouteCalculatorTest {
 
     @Test
     public void testJourneyFromAltyToAirport() {
-        List<TramTime> queryTimes = Collections.singletonList(TramTime.of(11, 43));
         TramServiceDate today = new TramServiceDate(LocalDate.now());
 
         Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
-                queryTimes, today);
+                TramTime.of(11, 43), today);
         Set<Journey> results = stream.collect(Collectors.toSet());
 
         assertTrue(results.size()>0);    // results is iterator
@@ -233,8 +230,8 @@ public class RouteCalculatorTest {
 
         List<Journey> allResults = new ArrayList<>();
 
-        List<TramTime> times = Arrays.asList(TramTime.of(9,0));
-        Map<Pair<String, String>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday, combinations, times);
+        Map<Pair<String, String>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
+                combinations, TramTime.of(9,0));
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
         double longest = allResults.stream().map(Journey::getTotalCost).max(Double::compare).get();
@@ -264,9 +261,7 @@ public class RouteCalculatorTest {
 
         Set<List<TransportStage>> stages = new HashSet<>();
 
-        List<TramTime> queryTimes = new LinkedList<>();
-        queryTimes.add(TramTime.of(11,45));
-        Stream<Journey> stream = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham.getId(), queryTimes,
+        Stream<Journey> stream = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham.getId(), TramTime.of(11,45),
                 new TramServiceDate(nextTuesday));
         Set<Journey> journeys = stream.collect(Collectors.toSet());
 
@@ -360,11 +355,10 @@ public class RouteCalculatorTest {
     }
 
     private void checkRouteNextNDays(Set<Pair<String,String>> combinations, LocalDate date, TramTime time, int numDays) {
-        List<TramTime> times = Arrays.asList(time);
 
         for(int day = 0; day< numDays; day++) {
             LocalDate testDate = avoidChristmasDate(date.plusDays(day));
-            validateAllHaveAtLeastOneJourney(testDate, combinations, times);
+            validateAllHaveAtLeastOneJourney(testDate, combinations, time);
         }
     }
 
@@ -379,7 +373,7 @@ public class RouteCalculatorTest {
     public static void validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, String destId,
                                                  TramTime time, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
-        Set<Journey> journeys = theCalculator.calculateRoute(startId, destId, Collections.singletonList(time),
+        Set<Journey> journeys = theCalculator.calculateRoute(startId, destId, time,
                 new TramServiceDate(date)).
                 limit(1).collect(Collectors.toSet());
 
@@ -420,7 +414,7 @@ public class RouteCalculatorTest {
             for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
                 Stream<Journey> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
-                        Collections.singletonList(time), new TramServiceDate(nextTuesday));
+                        time, new TramServiceDate(nextTuesday));
                 if (!journeys.limit(1).findFirst().isPresent()) {
                     missing.add(time);
                 }
@@ -431,14 +425,14 @@ public class RouteCalculatorTest {
     }
 
     private Map<Pair<String, String>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<Pair<String, String>> combinations, List<TramTime> queryTimes) {
+            LocalDate queryDate, Set<Pair<String, String>> combinations, TramTime queryTime) {
 
         // check each pair, collect results into (station,station)->result
         Map<Pair<String, String>, Optional<Journey>> results =
                 combinations.parallelStream().
                         map(this::checkForTx).
                         map(journey -> Pair.of(journey,
-                                calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes,
+                                calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTime,
                                         new TramServiceDate(queryDate)).limit(1).
                                         findAny())).
                         collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
@@ -472,8 +466,8 @@ public class RouteCalculatorTest {
         return journey;
     }
 
-    private Set<Journey> calculateRoutes(Location start, Location destination, List<TramTime> queryTimes, TramServiceDate today) {
-        return calculator.calculateRoute(start.getId(), destination.getId(), queryTimes, today).collect(Collectors.toSet());
+    private Set<Journey> calculateRoutes(Location start, Location destination, TramTime queryTime, TramServiceDate today) {
+        return calculator.calculateRoute(start.getId(), destination.getId(), queryTime, today).collect(Collectors.toSet());
     }
 
 }

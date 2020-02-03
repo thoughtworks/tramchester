@@ -67,7 +67,7 @@ public class LocationToLocationJourneyPlannerTest {
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens,
                 Stations.PiccadillyGardens.getId(), TramTime.of(9, 0), queryDate).collect(Collectors.toSet());
 
-        assertEquals(1, unsortedResults.size());
+        assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
             List<TransportStage> stages = journey.getStages();
             WalkingStage first = (WalkingStage) stages.get(0);
@@ -80,12 +80,11 @@ public class LocationToLocationJourneyPlannerTest {
     public void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
-        List<TramTime> times = Collections.singletonList(TramTime.of(9, 0));
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(Stations.PiccadillyGardens.getId(),
                 nearPiccGardens,
-                times, queryDate).collect(Collectors.toSet());
+                TramTime.of(9, 0), queryDate).collect(Collectors.toSet());
 
-        assertEquals(1, unsortedResults.size());
+        assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
             List<TransportStage> stages = journey.getStages();
             WalkingStage first = (WalkingStage) stages.get(0);
@@ -153,7 +152,6 @@ public class LocationToLocationJourneyPlannerTest {
     private Set<Journey> getJourneysForTramThenWalk(String startId, LatLong latLong, TramTime queryTime) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        List<TramTime> queryTimes = Collections.singletonList(queryTime);
-        return planner.quickestRouteForLocation(startId, latLong, queryTimes, date).collect(Collectors.toSet());
+        return planner.quickestRouteForLocation(startId, latLong, queryTime, date).collect(Collectors.toSet());
     }
 }

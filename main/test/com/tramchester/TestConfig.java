@@ -102,6 +102,9 @@ public abstract class TestConfig extends AppConfiguration {
     public int getMaxJourneyDuration() { return 112; }
 
     @Override
+    public int getNumberQueries() { return 3; }
+
+    @Override
     public int getQueryInterval() { return 12; }
 
     @Override

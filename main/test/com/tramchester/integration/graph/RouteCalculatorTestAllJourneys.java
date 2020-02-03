@@ -31,7 +31,6 @@ public class RouteCalculatorTestAllJourneys {
     // TODO this needs to be > longest running test which is far from ideal
     private static final int TXN_TIMEOUT_SECS = 4 * 60;
     private static Dependencies dependencies;
-    private static TramchesterConfig testConfig;
     private static GraphDatabaseService database;
 
     private static boolean circleCi = TestConfig.isCircleci();
@@ -44,7 +43,7 @@ public class RouteCalculatorTestAllJourneys {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        testConfig = new IntegrationTramTestConfig();
+        TramchesterConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabaseService.class);
     }
@@ -86,8 +85,8 @@ public class RouteCalculatorTestAllJourneys {
                 map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight().getId())).
                 collect(Collectors.toSet());
 
-        List<TramTime> queryTimes = Collections.singletonList(TramTime.of(6, 5));
-        Map<Pair<String, String>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday, combinations, queryTimes);
+        Map<Pair<String, String>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
+                combinations, TramTime.of(6, 5));
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().
@@ -109,7 +108,7 @@ public class RouteCalculatorTestAllJourneys {
     }
 
     private Map<Pair<String, String>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<Pair<String, String>> combinations, List<TramTime> queryTimes) {
+            LocalDate queryDate, Set<Pair<String, String>> combinations, TramTime queryTime) {
 
         ConcurrentMap<Pair<String, String>, Optional<Journey>> results;
 
@@ -118,7 +117,7 @@ public class RouteCalculatorTestAllJourneys {
                 combinations.parallelStream().
                         map(this::checkForTx).
                         map(journey -> Pair.of(journey,
-                                calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTimes,
+                                calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTime,
                                         new TramServiceDate(queryDate)).limit(1).findAny())).
                         collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
 

@@ -9,8 +9,8 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.graph.RouteCalculator;
+import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.repository.LiveDataSource;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,24 +37,22 @@ import static java.lang.String.format;
 public class JourneyPlannerResource extends UsesRecentCookie {
 
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
+
     private final TramchesterConfig config;
-    private LocationToLocationJourneyPlanner locToLocPlanner;
-    private RouteCalculator routeCalculator;
-    private JourneysMapper journeysMapper;
-    private CreateQueryTimes createQueryTimes;
-    private ProvidesNotes providesNotes;
-    private GraphDatabaseService graphDatabaseService;
+    private final LocationToLocationJourneyPlanner locToLocPlanner;
+    private final RouteCalculator routeCalculator;
+    private final JourneysMapper journeysMapper;
+    private final ProvidesNotes providesNotes;
+    private final GraphDatabaseService graphDatabaseService;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
-                                  LocationToLocationJourneyPlanner locToLocPlanner, CreateQueryTimes createQueryTimes,
-                                  UpdateRecentJourneys updateRecentJourneys, ObjectMapper objectMapper,
-                                  ProvidesNotes providesNotes, GraphDatabaseService graphDatabaseService) {
+                                  LocationToLocationJourneyPlanner locToLocPlanner, UpdateRecentJourneys updateRecentJourneys,
+                                  ObjectMapper objectMapper, ProvidesNotes providesNotes, GraphDatabaseService graphDatabaseService) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;
         this.journeysMapper = journeysMapper;
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
-        this.createQueryTimes = createQueryTimes;
         this.providesNotes = providesNotes;
         this.graphDatabaseService = graphDatabaseService;
     }
@@ -69,6 +67,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                                   @QueryParam("departureDate") String departureDate,
                                   @QueryParam("lat") @DefaultValue("0") String lat,
                                   @QueryParam("lon") @DefaultValue("0") String lon,
+                                  @QueryParam("arriveBy") @DefaultValue("false") String arriveByRaw,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie){
         logger.info(format("Plan journey from %s to %s at %s on %s", startId, endId,departureTimeText, departureDate));
 
@@ -78,18 +77,21 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         try {
             Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeText);
             if (maybeDepartureTime.isPresent()) {
-                TramTime departureTime = maybeDepartureTime.get();
+                TramTime queryTime = maybeDepartureTime.get();
+
+                // TODO doesn't work for walking
+                boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
 
                 JourneyPlanRepresentation planRepresentation;
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
                     if (isWalking(startId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, queryDate, departureTime);
+                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, queryDate, queryTime);
                     } else if (isWalking(endId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, queryDate, departureTime);
+                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, queryDate, queryTime);
                     } else {
-                        planRepresentation = createJourneyPlan(startId, endId, queryDate, departureTime);
+                        planRepresentation = createJourneyPlan(startId, endId, queryDate, queryTime);
                     }
                 }
 
@@ -115,11 +117,11 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, TramServiceDate queryDate,
-                                                                      TramTime initialQueryTime) {
+                                                                      TramTime queryTime) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, endId,queryDate.getDay(),
-                queryDate, initialQueryTime));
+                queryDate, queryTime));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, initialQueryTime, queryDate);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTime, queryDate);
         Set<Journey> journeySet = journeys.collect(Collectors.toSet());
 
         return createPlan(queryDate, journeySet);
@@ -130,26 +132,19 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, latLong, queryDate.getDay(),
                 queryDate, queryTime));
 
-        List<TramTime> queryTimes = createQueryTimes.generate(queryTime);
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTimes, queryDate);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTime, queryDate);
         Set<Journey> journeySet = journeys.collect(Collectors.toSet());
-
         return createPlan(queryDate, journeySet);
     }
 
-
-
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
                                                         TramTime queryTime) {
-        List<TramTime> queryTimes = createQueryTimes.generate(queryTime);
-
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, endId,queryDate.getDay(),
-                queryDate,queryTimes));
+                queryDate,queryTime));
 
-        Stream<Journey> journeys = routeCalculator.calculateRoute(startId, endId, queryTimes, queryDate);
+        Stream<Journey> journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
         Set<Journey> journeySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
-
         return createPlan(queryDate, journeySet);
     }
 

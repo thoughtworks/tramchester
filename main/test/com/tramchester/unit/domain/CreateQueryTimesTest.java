@@ -29,8 +29,6 @@ public class CreateQueryTimesTest {
         assertEquals(seedTime, result.get(0));
         assertEquals(seedTime.plusMinutes(12), result.get(1));
         assertEquals(seedTime.plusMinutes(24), result.get(2));
-//        assertEquals(seedTime.plusMinutes(18), result.get(3));
-//        assertEquals(seedTime.plusMinutes(24), result.get(4));
     }
 
     private class LocalConfig extends TestConfig {

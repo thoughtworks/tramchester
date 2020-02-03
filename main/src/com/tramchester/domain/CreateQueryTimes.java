@@ -18,12 +18,14 @@ public class CreateQueryTimes {
         List<TramTime> result = new ArrayList<>();
 
         int interval = config.getQueryInterval();
+        int numberQueries = config.getNumberQueries();
 
         int minsToAdd = 0;
-        while (minsToAdd<=config.getMaxWait()) {
+        for (int i = 0; i < numberQueries; i++) {
             result.add(initialQueryTime.plusMinutes(minsToAdd));
             minsToAdd = minsToAdd + interval;
         }
+
         return result;
     }
 }

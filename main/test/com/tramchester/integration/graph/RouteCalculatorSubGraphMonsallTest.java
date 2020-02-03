@@ -62,7 +62,7 @@ public class RouteCalculatorSubGraphMonsallTest {
     @Test
     public void shouldReproIssueWithNotFindingDirectRouting() {
 
-        // change at shaw => No longer direct, as of 31th Jan 2020
+        // Can be direct or with a change depending on the timetable data
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5),
                 nextTuesday, 2);
 
@@ -108,11 +108,12 @@ public class RouteCalculatorSubGraphMonsallTest {
     }
 
     private void validateNumberOfStages(String startId, String destId, TramTime time, LocalDate date, int numStages) {
-        Set<Journey> journeys = calculator.calculateRoute(startId, destId, Collections.singletonList(time),
+        Set<Journey> journeys = calculator.calculateRoute(startId, destId, time,
                 new TramServiceDate(date)).
                 collect(Collectors.toSet());
 
-        assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destId, time.toString(), date), journeys.isEmpty());
+        assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destId, time.toString(), date),
+                journeys.isEmpty());
         journeys.forEach(journey -> assertEquals(numStages, journey.getStages().size()));
     }
 }

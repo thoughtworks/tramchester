@@ -53,7 +53,10 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // max number of results to return via the API
     public abstract int getMaxNumResults();
 
-    // how often to query for trams into the future from initial query tie, i.e. every 6 minutes
+    // number of queries to do for each given time, spaced by QueryInterval below
+    public abstract int getNumberQueries();
+
+    // Interval between queryies i.e. every 6 minutes
     public abstract int getQueryInterval();
 
     // how many stops show in Recent on the stations dropdowns

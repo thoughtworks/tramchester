@@ -101,25 +101,22 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void shouldHaveSimpleOneStopJourney() {
-        List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
-                minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());;
+                TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
-                minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
+                TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleJourney() {
-        List<TramTime> minutes = Collections.singletonList(TramTime.of(8, 0));
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
-                minutes, new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
+                TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 

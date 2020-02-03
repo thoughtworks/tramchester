@@ -47,7 +47,7 @@ public class LocationToLocationJourneyPlanner {
         return createJourneyPlan(latLong, nearbyStations, destinationId, queryTime, queryDate);
     }
 
-    public Stream<Journey> quickestRouteForLocation(String startId, LatLong latLong, List<TramTime> queryTimes,
+    public Stream<Journey> quickestRouteForLocation(String startId, LatLong latLong, TramTime queryTime,
                                                     TramServiceDate queryDate) {
         List<String> nearbyStations = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
 
@@ -57,7 +57,7 @@ public class LocationToLocationJourneyPlanner {
         List<StationWalk> walksToDest = starts.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
-        return routeCalculator.calculateRouteWalkAtEnd(startId, latLong, walksToDest, queryTimes, queryDate);
+        return routeCalculator.calculateRouteWalkAtEnd(startId, latLong, walksToDest, queryTime, queryDate);
     }
 
     private Stream<Journey> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, TramTime queryTime,
@@ -68,7 +68,7 @@ public class LocationToLocationJourneyPlanner {
         List<StationWalk> walksToStart = starts.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
 
-        return routeCalculator.calculateRoute(latLong, walksToStart, destinationId, queryTime, queryDate);
+        return routeCalculator.calculateRouteWalkAtStart(latLong, walksToStart, destinationId, queryTime, queryDate);
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {
