@@ -6,6 +6,8 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.LiveDataRepository;
 import org.easymock.EasyMock;
@@ -94,18 +96,18 @@ public class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
         LocalDateTime lastUpdate = LocalDateTime.now();
-        StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "<no message>");
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get())).andReturn(Optional.of(info));
-
         TramTime queryTime = TramTime.of(8,11);
-        double cost = 42;
-        journeys.add(new Journey(Collections.singletonList(stageA), queryTime, cost));
-
         LocalDate date = LocalDate.now();
         if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
             date = date.plusDays(3);
         }
         TramServiceDate serviceDate = new TramServiceDate(date);
+
+        StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "<no message>");
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(info));
+
+        double cost = 42;
+        journeys.add(new Journey(Collections.singletonList(stageA), queryTime, cost));
 
         replayAll();
         List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
@@ -124,14 +126,13 @@ public class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
         LocalDateTime lastUpdate = LocalDateTime.now();
+        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
+        TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
         StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "a message");
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get())).andReturn(Optional.of(info));
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(info));
 
-        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime, 42));
-
-        TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
         replayAll();
         List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
@@ -152,24 +153,25 @@ public class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
         LocalDateTime lastUpdate = LocalDateTime.now();
+        TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
+        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
         StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "a message");
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get())).andReturn(Optional.of(info));
 
-        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), queryDate, queryTime))
+                .andReturn(Optional.of(info));
+
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime, 42));
 
-        TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
-
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
+        List<String> notes = provider.createNotesForJourneys(queryDate, journeys);
         verifyAll();
 
         int expected = 1; // 1 is for the closure
-        if (serviceDate.isWeekend()) {
+        if (queryDate.isWeekend()) {
             expected++;
         }
-        if (serviceDate.isChristmasPeriod()) {
+        if (queryDate.isChristmasPeriod()) {
             expected++;
         }
         assertEquals(expected, notes.size());
@@ -185,22 +187,22 @@ public class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageE = createStageWithBoardingPlatform("platformId5");
 
         LocalDateTime lastUpdate = LocalDateTime.now();
+        TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
+        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
         StationDepartureInfo infoA = createDepartureInfo(lastUpdate, Stations.Pomona, "Some long message");
         StationDepartureInfo infoB = createDepartureInfo(lastUpdate, Stations.Altrincham, "Some Location Long message");
         StationDepartureInfo infoC = createDepartureInfo(lastUpdate, Stations.Cornbrook, "Some long message");
         StationDepartureInfo infoE = createDepartureInfo(lastUpdate, Stations.MediaCityUK, "Some long message");
 
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get())).andReturn(Optional.of(infoA));
-        EasyMock.expect(liveDataRepository.departuresFor(stageB.getBoardingPlatform().get())).andReturn(Optional.of(infoB));
-        EasyMock.expect(liveDataRepository.departuresFor(stageC.getBoardingPlatform().get())).andReturn(Optional.of(infoC));
-        EasyMock.expect(liveDataRepository.departuresFor(stageE.getBoardingPlatform().get())).andReturn(Optional.of(infoE));
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(infoA));
+        EasyMock.expect(liveDataRepository.departuresFor(stageB.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(infoB));
+        EasyMock.expect(liveDataRepository.departuresFor(stageC.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(infoC));
+        EasyMock.expect(liveDataRepository.departuresFor(stageE.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(infoE));
 
         List<TransportStage> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
-        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
         journeys.add(new Journey(stages, queryTime, 89));
-        TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
 
         replayAll();
         List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
@@ -228,15 +230,18 @@ public class ProvidesNotesTest extends EasyMockSupport {
         List<Station> stations = Arrays.asList(Stations.Pomona, Stations.VeloPark, Stations.Cornbrook);
 
         LocalDateTime time = LocalDateTime.now();
-        EasyMock.expect(liveDataRepository.departuresFor(Stations.Pomona)).
+        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016, 10, 25));
+        TramTime queryTime = TramTime.of(time);
+        EasyMock.expect(liveDataRepository.departuresFor(Stations.Pomona, queryDate, queryTime)).
                 andReturn(Collections.singletonList(createDepartureInfo(time, Stations.Pomona, "second message")));
-        EasyMock.expect(liveDataRepository.departuresFor(Stations.VeloPark)).
+        EasyMock.expect(liveDataRepository.departuresFor(Stations.VeloPark, queryDate, queryTime)).
                 andReturn(Collections.singletonList(createDepartureInfo(time, Stations.VeloPark, "first message")));
-        EasyMock.expect(liveDataRepository.departuresFor(Stations.Cornbrook)).
+        EasyMock.expect(liveDataRepository.departuresFor(Stations.Cornbrook, queryDate, queryTime)).
                 andReturn(Collections.singletonList(createDepartureInfo(time, Stations.Cornbrook, "second message")));
 
         replayAll();
-        List<String> notes = provider.createNotesForStations(new TramServiceDate(LocalDate.of(2016,10,25)), stations);
+
+        List<String> notes = provider.createNotesForStations(stations, queryDate, queryTime);
         verifyAll();
 
         assertEquals(3, notes.size());

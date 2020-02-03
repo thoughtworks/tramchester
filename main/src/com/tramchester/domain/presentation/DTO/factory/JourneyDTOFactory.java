@@ -1,6 +1,6 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.mappers.HeadsignMapper;
@@ -138,11 +138,11 @@ public class JourneyDTOFactory {
         if (allStages.size() == 0) {
             return TramTime.midnight();
         }
-        if (firstStageIsWalk(allStages)) {
-            if (allStages.size()>1) {
-                return allStages.get(1).getFirstDepartureTime();
-            }
-        }
+//        if (firstStageIsWalk(allStages)) {
+//            if (allStages.size()>1) {
+//                return allStages.get(1).getFirstDepartureTime();
+//            }
+//        }
         return getFirstStage(allStages).getFirstDepartureTime();
     }
 

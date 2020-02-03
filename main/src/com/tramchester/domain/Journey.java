@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.TramTime;
 
 import java.util.Iterator;
 import java.util.List;

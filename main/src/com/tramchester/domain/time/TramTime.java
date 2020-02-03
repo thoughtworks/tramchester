@@ -1,7 +1,8 @@
-package com.tramchester.domain;
+package com.tramchester.domain.time;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,6 +36,11 @@ public class  TramTime implements Comparable<TramTime> {
 
     public static TramTime of(LocalTime time) {
         return tramTimes[time.getHour()][time.getMinute()];
+    }
+
+
+    public static TramTime of(LocalDateTime dateAndTime) {
+        return of(dateAndTime.toLocalTime());
     }
 
     public static TramTime midnight() {

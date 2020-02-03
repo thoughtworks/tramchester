@@ -5,7 +5,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.LiveDataMessagesCategory;
 import com.tramchester.LiveDataTestCategory;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.integration.IntegrationClient;

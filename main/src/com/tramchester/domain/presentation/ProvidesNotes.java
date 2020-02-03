@@ -4,6 +4,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
 import org.apache.commons.collections4.map.HashedMap;
 
@@ -35,19 +37,18 @@ public class ProvidesNotes {
         return notes;
     }
 
-    public List<String> createNotesForStations(TramServiceDate queryDate, List<Station> stations) {
+    public List<String> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time) {
         List<String> notes = new LinkedList<>();
         notes.addAll(createNotesForADate(queryDate));
-        notes.addAll(createNotesForStations(stations));
+        notes.addAll(createLiveNotesForStations(stations, queryDate, time));
         return notes;
     }
 
-    private List<String> createNotesForStations(List<Station> stations) {
+    private List<String> createLiveNotesForStations(List<Station> stations, TramServiceDate date, TramTime time) {
         // Map: Message -> Location
         Map<String,String> messageMap = new HashedMap<>();
-        stations.forEach(station -> {
-            liveDataRepository.departuresFor(station).forEach(info -> addRelevantMessage(messageMap, info));
-        });
+
+        stations.forEach(station -> liveDataRepository.departuresFor(station, date, time).forEach(info -> addRelevantMessage(messageMap, info)));
 
         return createMessageList(messageMap);
     }
@@ -76,24 +77,23 @@ public class ProvidesNotes {
         Map<String,String> messageMap = new HashedMap<>();
 
         // find all the platforms involved in a journey, so board, depart and changes
-        journeys.forEach(journey ->{
+        journeys.forEach(journey -> {
             List<Platform> platformsForJourney = journey.getStages().stream().
                     filter(stage -> stage.getMode().equals(TransportMode.Tram)).
                     map(stage -> (VehicleStage) stage).
                     map(VehicleStage::getBoardingPlatform).filter(Optional::isPresent).
-                    map(maybe -> maybe.get()).
+                    map(Optional::get).
                     collect(Collectors.toList());
             // add messages for those platforms
-            platformsForJourney.forEach(platform -> {
-                addRelevantMessage(messageMap, platform, journey.getQueryTime(), queryDate); });
+            platformsForJourney.forEach(platform -> addRelevantMessage(messageMap, platform, queryDate, journey.getQueryTime()));
             });
 
         return createMessageList(messageMap);
     }
 
-    private void addRelevantMessage(Map<String, String> messageMap, Platform platform, TramTime queryTime, TramServiceDate queryDate) {
-        Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platform);
-        if (!maybe.isPresent()) {
+    private void addRelevantMessage(Map<String, String> messageMap, Platform platform, TramServiceDate queryDate, TramTime queryTime) {
+        Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platform, queryDate, queryTime);
+        if (maybe.isEmpty()) {
             return;
         }
         StationDepartureInfo info = maybe.get();

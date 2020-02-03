@@ -4,12 +4,14 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.healthchecks.ProvidesNow;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationRepository;
@@ -38,16 +40,18 @@ public class DeparturesResource {
     private final SpatialService spatialService;
     private final LiveDataSource liveDataSource;
     private final DeparturesMapper departuresMapper;
-    private ProvidesNotes providesNotes;
+    private final ProvidesNotes providesNotes;
     private final StationRepository stationRepository;
+    private final ProvidesNow providesNow;
 
     public DeparturesResource(SpatialService spatialService, LiveDataSource liveDataSource,
-                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository) {
+                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository, ProvidesNow providesNow) {
         this.spatialService = spatialService;
         this.liveDataSource = liveDataSource;
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
+        this.providesNow = providesNow;
     }
 
     private LocalDateTime getLocalNow() {
@@ -60,20 +64,21 @@ public class DeparturesResource {
     @ApiOperation(value = "Get geographically close departures", response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        LocalDateTime localNow = getLocalNow();
         LatLong latLong = new LatLong(lat,lon);
         List<Station> nearbyStations = spatialService.getNearestStations(latLong);
+
+        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
+        TramTime queryTime = providesNow.getNow();
 
         // trams
         SortedSet<DepartureDTO> departs = new TreeSet<>();
         nearbyStations.forEach(station -> {
-            List<DueTram> dueTrams = liveDataSource.dueTramsFor(station);
+            List<DueTram> dueTrams = liveDataSource.dueTramsFor(station, queryDate, queryTime);
             departs.addAll(departuresMapper.mapToDTO(station, dueTrams));
         });
 
         // notes
-        TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
-        List<String> notes = providesNotes.createNotesForStations(queryDate, nearbyStations);
+        List<String> notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
 
         return Response.ok(new DepartureListDTO(departs, notes)).build();
     }
@@ -95,20 +100,21 @@ public class DeparturesResource {
         }
 
         Optional<Station> maybeStation = stationRepository.getStation(stationId);
+        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
+        TramTime queryTime = providesNow.getNow();
 
         if (maybeStation.isPresent()) {
             logger.info("Found stations, now find departures");
             Station station = maybeStation.get();
 
             //trams
-            List<DueTram> dueTramList = liveDataSource.dueTramsFor(station);
+            List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
             SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
 
             //notes
-            TramServiceDate queryDate = new TramServiceDate(LocalDate.now());
             List<String> notes = Collections.emptyList();
             if (includeNotes) {
-                notes = providesNotes.createNotesForStations(queryDate, Collections.singletonList(station));
+                notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
             }
 
             return Response.ok(new DepartureListDTO(dueTrams, notes)).build();

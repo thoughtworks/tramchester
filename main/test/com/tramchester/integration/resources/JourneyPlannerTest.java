@@ -3,11 +3,12 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.BusTest;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.integration.Stations;
@@ -18,7 +19,6 @@ import org.junit.rules.Timeout;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.SortedSet;
 

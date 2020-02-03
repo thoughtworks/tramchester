@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.time.TramTime;
 
 import java.util.Optional;
 

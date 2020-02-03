@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.time;
 
 public enum DaysOfWeek {
     // TOOD USE java.time version  instead

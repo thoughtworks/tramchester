@@ -1,7 +1,7 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.TimeWindow;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TimeWindow;
+import com.tramchester.domain.time.TramTime;
 
 import java.util.List;
 

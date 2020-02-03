@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import org.neo4j.graphdb.Node;

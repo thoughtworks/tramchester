@@ -1,7 +1,8 @@
-package com.tramchester.domain;
+package com.tramchester.domain.time;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
@@ -10,9 +11,18 @@ import static java.lang.String.format;
 public class TramServiceDate {
     private LocalDate date;
 
+    public static TramServiceDate of(LocalDate date) {
+        return new TramServiceDate(date);
+    }
+
+    public static TramServiceDate of(LocalDateTime dateAndTime) {
+        return of(dateAndTime.toLocalDate());
+    }
+
     public TramServiceDate(LocalDate date) {
         this.date = date;
     }
+
 
     public TramServiceDate(String date) {
         int year = Integer.parseInt(date.substring(0, 4));

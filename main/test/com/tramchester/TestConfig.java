@@ -1,7 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.presentation.LatLong;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 

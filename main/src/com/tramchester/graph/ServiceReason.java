@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

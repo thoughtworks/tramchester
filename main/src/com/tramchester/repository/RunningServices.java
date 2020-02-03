@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Service;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 
 import java.util.HashMap;
 import java.util.HashSet;

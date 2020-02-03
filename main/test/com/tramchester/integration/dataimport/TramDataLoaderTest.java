@@ -3,8 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
-import com.tramchester.domain.TramTime;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.time.TramTime;
 import org.junit.Test;
 
 import java.util.Arrays;

@@ -1,9 +1,8 @@
 package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.dataimport.parsers.DataRecord;
 import com.tramchester.dataimport.parsers.StopTimeDataMapper;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.junit.Before;
 import org.junit.Test;

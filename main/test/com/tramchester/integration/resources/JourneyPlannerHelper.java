@@ -1,8 +1,8 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.domain.Location;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -10,12 +10,9 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.resources.JourneyPlannerResource;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Set;
 
-import static java.util.Calendar.TUESDAY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

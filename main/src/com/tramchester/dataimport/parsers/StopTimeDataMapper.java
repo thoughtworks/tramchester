@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

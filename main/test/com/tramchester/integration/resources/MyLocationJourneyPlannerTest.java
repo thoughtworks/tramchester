@@ -7,7 +7,7 @@ import com.tramchester.TestConfig;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.MyLocationFactory;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
@@ -68,7 +68,7 @@ public class MyLocationJourneyPlannerTest {
         List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
         assertTrue(departureTime.toString(), possibleTimes.contains(departureTime));
 
-        assertEquals(firstJourney.toString(), TramTime.of(20,25), firstJourney.getFirstDepartureTime());
+        assertEquals(firstJourney.toString(), TramTime.of(20,19), firstJourney.getFirstDepartureTime());
         assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
     }
 

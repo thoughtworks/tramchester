@@ -2,14 +2,16 @@ package com.tramchester.domain;
 
 
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.DaysOfWeek;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 
-import static com.tramchester.domain.DaysOfWeek.*;
+import static com.tramchester.domain.time.DaysOfWeek.*;
 
 public class Service {
 

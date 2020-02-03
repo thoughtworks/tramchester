@@ -1,8 +1,8 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;

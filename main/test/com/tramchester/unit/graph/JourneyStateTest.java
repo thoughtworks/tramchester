@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
@@ -9,7 +9,6 @@ import com.tramchester.graph.states.NotStartedState;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 

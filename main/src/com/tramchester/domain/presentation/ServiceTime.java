@@ -1,10 +1,8 @@
 package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
-
-import java.time.LocalTime;
 
 public class ServiceTime implements Comparable<ServiceTime> {
     private final TramTime leaveBegin;

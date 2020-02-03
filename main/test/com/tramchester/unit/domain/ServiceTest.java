@@ -1,8 +1,8 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.DaysOfWeek;
+import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.integration.Stations;

@@ -1,6 +1,6 @@
 package com.tramchester.unit.mappers;
 
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.integration.Stations;

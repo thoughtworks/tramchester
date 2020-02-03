@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.presentation;
 
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.ServiceTime;
 import org.junit.Before;

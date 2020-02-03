@@ -2,10 +2,11 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TimeWindow;
+import com.tramchester.domain.time.TramTime;
 import org.junit.Before;
 import org.junit.Test;
 

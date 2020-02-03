@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.states.NotStartedState;
 import org.easymock.EasyMock;

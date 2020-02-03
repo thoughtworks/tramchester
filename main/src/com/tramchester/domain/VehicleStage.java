@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.TramTime;
 
 import java.util.Objects;
 import java.util.Optional;

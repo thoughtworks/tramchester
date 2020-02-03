@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.time;
 
 import java.util.Objects;
 

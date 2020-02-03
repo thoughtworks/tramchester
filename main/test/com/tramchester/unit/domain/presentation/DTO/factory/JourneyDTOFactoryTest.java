@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.Stations;
 import com.tramchester.mappers.HeadsignMapper;
 import org.easymock.EasyMockSupport;
@@ -101,14 +102,15 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         List<StageDTO> stages = new LinkedList<>();
         Location start = myLocationFactory.create(new LatLong(-2,1));
         Location destination = Stations.Cornbrook;
-        stages.add(createWalkingStage(start, destination, TramTime.of(8,13), TramTime.of(8,16)));
 
+        stages.add(createWalkingStage(start, destination, TramTime.of(8,13), TramTime.of(8,16)));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
 
         replayAll();
         JourneyDTO journey = factory.build(stages);
         verifyAll();
 
+        assertEquals(TramTime.of(8,13), journey.getFirstDepartureTime());
         assertTrue(journey.getChangeStations().isEmpty());
         assertTrue(journey.getIsDirect());
     }

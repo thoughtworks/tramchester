@@ -11,7 +11,7 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 

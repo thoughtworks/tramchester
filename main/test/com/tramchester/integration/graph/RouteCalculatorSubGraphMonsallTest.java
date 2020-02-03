@@ -4,8 +4,8 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -17,7 +17,6 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 

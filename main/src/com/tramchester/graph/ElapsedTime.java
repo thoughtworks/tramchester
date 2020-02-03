@@ -1,9 +1,7 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
-
-import java.time.LocalTime;
 
 public interface ElapsedTime {
     TramTime getElapsedTime() throws TramchesterException;

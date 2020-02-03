@@ -1,10 +1,10 @@
 package com.tramchester.livedata;
 
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationAdjacenyRepository;
@@ -33,19 +33,19 @@ public class TramPositionInference {
     }
 
     // todo refresh this based on live data refresh
-    public List<TramPosition> inferWholeNetwork() {
+    public List<TramPosition> inferWholeNetwork(TramServiceDate date, TramTime time) {
         logger.info("Infer tram positions for whole network");
         List<TramPosition> results = new ArrayList<>();
         Set<Pair<Station, Station>> pairs = adjacenyRepository.getStationParis();
         pairs.forEach(pair -> {
-            TramPosition result = findBetween(pair.getLeft(), pair.getRight());
+            TramPosition result = findBetween(pair.getLeft(), pair.getRight(), date, time);
             results.add(result);
         });
         logger.info(format("Found %s pairs with trams", results.size()));
         return results;
     }
 
-    public TramPosition findBetween(Station start, Station neighbour) {
+    public TramPosition findBetween(Station start, Station neighbour, TramServiceDate date, TramTime time) {
         int cost = adjacenyRepository.getAdjacent(start, neighbour);
         if (cost<0) {
             logger.info(format("Not adjacent %s to %s", start, neighbour));
@@ -59,10 +59,7 @@ public class TramPositionInference {
         routesBetween.forEach(route -> {
             List<Platform> platforms = neighbour.getPlatformsForRoute(route);
             platforms.forEach(platform -> {
-                liveDataSource.departuresFor(platform).ifPresent(departureInfos::add);
-//                if (departureInfo!=null) {
-//                    departureInfos.add(departureInfo);
-//                }
+                liveDataSource.departuresFor(platform, date, time).ifPresent(departureInfos::add);
             });
         });
 

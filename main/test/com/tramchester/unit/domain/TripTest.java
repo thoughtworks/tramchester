@@ -1,19 +1,16 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.Stations;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;

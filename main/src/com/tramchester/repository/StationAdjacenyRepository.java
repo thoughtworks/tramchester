@@ -1,8 +1,7 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.input.Trip;

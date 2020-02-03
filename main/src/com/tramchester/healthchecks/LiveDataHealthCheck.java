@@ -1,7 +1,7 @@
 package com.tramchester.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

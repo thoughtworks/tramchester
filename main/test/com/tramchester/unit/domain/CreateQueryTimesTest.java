@@ -3,11 +3,10 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.TestConfig;
 import com.tramchester.domain.CreateQueryTimes;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramTime;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 

@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.DaysOfWeek;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.time.DaysOfWeek;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.junit.Test;
 

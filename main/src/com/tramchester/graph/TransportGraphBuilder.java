@@ -6,6 +6,8 @@ import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.DaysOfWeek;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 
 import org.neo4j.graphdb.*;

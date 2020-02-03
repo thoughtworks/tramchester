@@ -5,14 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.repository.LiveDataSource;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.healthchecks.ProvidesNow;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
@@ -47,13 +47,14 @@ public class StationResource extends UsesRecentCookie {
     private final ProvidesNotes providesNotes;
     private final MyLocationFactory locationFactory;
     private final StationDTOFactory stationDTOFactory;
+    private final ProvidesNow providesNow;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
                            ProvidesNotes providesNotes,
-                           MyLocationFactory locationFactory, StationDTOFactory stationDTOFactory) {
+                           MyLocationFactory locationFactory, StationDTOFactory stationDTOFactory, ProvidesNow providesNow) {
         super(updateRecentJourneys, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
@@ -61,11 +62,8 @@ public class StationResource extends UsesRecentCookie {
         this.providesNotes = providesNotes;
         this.locationFactory = locationFactory;
         this.stationDTOFactory = stationDTOFactory;
+        this.providesNow = providesNow;
         allStationsSorted = new ArrayList<>();
-    }
-
-    private LocalDateTime getLocalNow() {
-        return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDateTime();
     }
 
     @GET
@@ -126,8 +124,10 @@ public class StationResource extends UsesRecentCookie {
     public Response getLive(@PathParam("id") String id) {
         logger.info("Get station " + id);
         Optional<Station> station = stationRepository.getStation(id);
+        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
+
         if (station.isPresent()) {
-            LocationDTO locationDTO = stationDTOFactory.build(station.get(), getLocalNow());
+            LocationDTO locationDTO = stationDTOFactory.build(station.get(), queryDate, providesNow.getNow());
             return Response.ok(locationDTO).build();
         }
         else {
@@ -141,17 +141,16 @@ public class StationResource extends UsesRecentCookie {
     @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-        LocalDateTime localNow = getLocalNow();
 
         LatLong latLong = new LatLong(lat,lon);
         List<Station> stations = spatialService.getNearestStations(latLong);
 
-        TramServiceDate queryDate = new TramServiceDate(localNow.toLocalDate());
-        List<String> notes = providesNotes.createNotesForStations(queryDate, stations);
+        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
+        List<String> notes = providesNotes.createNotesForStations(stations, queryDate, providesNow.getNow());
 
         List<StationDTO> stationsDTO = new ArrayList<>();
         stations.forEach(station -> {
-            stationsDTO.add(stationDTOFactory.build(station, localNow));
+            stationsDTO.add(stationDTOFactory.build(station, queryDate, providesNow.getNow()));
         });
 
         return Response.ok(new StationListDTO(stationsDTO, notes, ProximityGroup.ALL_GROUPS)).build();

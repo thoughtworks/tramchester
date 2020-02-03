@@ -1,7 +1,7 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.TramServiceDate;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

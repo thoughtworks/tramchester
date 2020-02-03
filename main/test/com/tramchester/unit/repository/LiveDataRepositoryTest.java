@@ -2,19 +2,15 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.TramServiceDate;
-import com.tramchester.domain.TramTime;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.Stations;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
-import com.tramchester.repository.LiveDataObserver;
 import com.tramchester.repository.LiveDataRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -22,7 +18,6 @@ import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +54,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         replayAll();
         repository.refreshRespository();
-        List<StationDepartureInfo> departures = repository.departuresFor(station);
+        List<StationDepartureInfo> departures = repository.departuresFor(station, TramServiceDate.of(lastUpdate), TramTime.of(lastUpdate));
         verifyAll();
 
         assertEquals(1, departures.size());
@@ -114,12 +109,19 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     @Test
     public void shouldUpdateStatusWhenRefreshingStaleData() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
+        Station altrincham = Stations.Altrincham;
+        String platformId1 = Stations.Altrincham.getId() + "1";
+        String platformId2 = Stations.Altrincham.getId() + "2";
+
+        altrincham.addPlatform(new Platform(platformId1, "Altrincham Platform 1"));
+        altrincham.addPlatform(new Platform(platformId2, "Altrincham Platform 2"));
 
         LocalDateTime current = LocalDateTime.now();
-        LocalDateTime staleDate = current.minusDays(5).minusMinutes(60); // stale
-        addStationInfo(info, staleDate, "yyy", "platformIdC", "some message", Stations.Altrincham);
-        addStationInfo(info, staleDate, "303", "platformIdD", "some message", Stations.Altrincham);
-        addStationInfo(info, current, "303", "platformIdF", "some message", Stations.Altrincham);
+        LocalDateTime staleDataAndTime = current.minusDays(5).minusMinutes(60); // stale
+
+        addStationInfo(info, staleDataAndTime, "yyy", platformId1, "some message", altrincham);
+        addStationInfo(info, staleDataAndTime, "303", platformId2, "some message", altrincham);
+        addStationInfo(info, current, "303", "platformIdF", "some message", altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -131,7 +133,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(3, repository.countEntries());
         assertEquals(3, repository.countMessages());
         assertEquals(2, repository.staleDataCount());
-        assertEquals(1, repository.upToDateEntries(TramTime.of(current.toLocalTime())));
+        assertEquals(1, repository.upToDateEntries(TramTime.of(current)));
+
+        List<DueTram> dueTrams = repository.dueTramsFor(altrincham, TramServiceDate.of(current), TramTime.of(current));
+        assertEquals(0, dueTrams.size());
     }
 
     public static StationDepartureInfo addStationInfo(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
