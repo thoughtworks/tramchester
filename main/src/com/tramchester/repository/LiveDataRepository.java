@@ -182,26 +182,7 @@ public class LiveDataRepository implements LiveDataSource {
         return total-withinCutof;
     }
 
-    @Deprecated
-    @Override
-    public List<StationDepartureInfo> departuresFor(Station station) {
-        List<StationDepartureInfo> result = new LinkedList<>();
-
-        station.getPlatforms().forEach(platform -> {
-            String platformId = platform.getId();
-            if (stationInformation.containsKey(platformId)) {
-                result.add(stationInformation.get(platformId));
-            } else {
-                logger.error("Unable to find stationInformation for platform " + platform);
-            }
-        });
-
-        return result;
-    }
-
-    @Deprecated
-    @Override
-    public Optional<StationDepartureInfo> departuresFor(Platform platform) {
+    private Optional<StationDepartureInfo> departuresFor(Platform platform) {
         String platformId = platform.getId();
 
         if (!stationInformation.containsKey(platformId)) {
@@ -209,16 +190,6 @@ public class LiveDataRepository implements LiveDataSource {
             return Optional.empty();
         }
         return Optional.of(stationInformation.get(platformId));
-    }
-
-    @Deprecated
-    @Override
-    public List<DueTram> dueTramsFor(Station station) {
-        return departuresFor(station).stream().
-                map(info -> info.getDueTrams()).
-                flatMap(Collection::stream).
-                filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
-                collect(Collectors.toList());
     }
 
     public void observeUpdates(LiveDataObserver observer) {

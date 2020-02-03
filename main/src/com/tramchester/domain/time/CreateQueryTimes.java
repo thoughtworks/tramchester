@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.time;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;

@@ -1,7 +1,6 @@
 package com.tramchester.domain.time;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.healthchecks.ProvidesNow;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

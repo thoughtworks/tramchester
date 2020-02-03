@@ -3,7 +3,7 @@ package com.tramchester.unit.healthchecks;
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataMessagesHealthCheck;
-import com.tramchester.healthchecks.ProvidesNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.LiveDataRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;

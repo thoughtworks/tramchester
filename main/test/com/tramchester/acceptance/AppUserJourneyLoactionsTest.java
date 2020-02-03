@@ -167,7 +167,8 @@ public class AppUserJourneyLoactionsTest {
                 Stations.Altrincham.getName(), -1, "RouteWalking", "Walk", 0);
 
         Stage secondStage = stages.get(1);
-        validateAStage(secondStage, firstResult.getDepartTime(), "Board", Stations.Altrincham.getName(), 1,
+        LocalTime departTime = LocalTime.of(10,25);
+        validateAStage(secondStage, departTime, "Board", Stations.Altrincham.getName(), 1,
                 AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }
 

@@ -1,6 +1,4 @@
-package com.tramchester.healthchecks;
-
-import com.tramchester.domain.time.TramTime;
+package com.tramchester.domain.time;
 
 import java.time.LocalDate;
 
