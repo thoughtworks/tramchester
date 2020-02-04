@@ -54,13 +54,11 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     private ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
-    private DateTimeFormatter timeFormatter;
 
     @Before
     public void beforeEachTestRuns() {
         when = TestConfig.nextTuesday(0);
         mapper.registerModule(new JodaModule());
-        timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     }
 
     @Test
@@ -283,7 +281,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldSetCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
-        String time = LocalTime.now().format(timeFormatter);
+        String time = LocalTime.now().format(TestConfig.timeFormatter);
         String date = LocalDate.now().format(dateFormatDashes);
         Response result = getResponseForJourney(testRule, start, end, time, date, null);
 
@@ -300,7 +298,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldUdateCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
-        String time = LocalTime.now().format(timeFormatter);
+        String time = LocalTime.now().format(TestConfig.timeFormatter);
         String date = LocalDate.now().format(dateFormatDashes);
 
         // cookie with ashton
@@ -332,7 +330,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         String start = MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
         String end = Stations.ManAirport.getId();
-        String time = LocalTime.now().format(timeFormatter);
+        String time = LocalTime.now().format(TestConfig.timeFormatter);
         String date = LocalDate.now().format(dateFormatDashes);
         Response response = getResponseForJourney(testRule, start, end, time, date, latlong);
 
@@ -361,7 +359,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime,
                                                        TramServiceDate queryDate) {
         String date = queryDate.getDate().format(dateFormatDashes);
-        String time = queryTime.asLocalTime().format(timeFormatter);
+        String time = queryTime.asLocalTime().format(TestConfig.timeFormatter);
         Response response = getResponseForJourney(testRule, start.getId(), end.getId(), time, date, null);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);

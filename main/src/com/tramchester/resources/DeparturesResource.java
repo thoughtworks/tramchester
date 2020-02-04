@@ -30,6 +30,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 @Api
 @Path("/departures")
 @Produces(MediaType.APPLICATION_JSON)
@@ -51,10 +53,6 @@ public class DeparturesResource {
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
         this.providesNow = providesNow;
-    }
-
-    private LocalDateTime getLocalNow() {
-        return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDateTime();
     }
 
     @GET
@@ -90,9 +88,10 @@ public class DeparturesResource {
             response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getDepartureForStation(@PathParam("station") String stationId,
-                                           @DefaultValue("1") @QueryParam("notes") String notesParam) {
+                                           @DefaultValue("1") @QueryParam("notes") String notesParam,
+                                           @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
 
-        logger.info("Get departs for station " + stationId);
+        logger.info(format("Get departs for station %s at %s with notes %s ", stationId, queryTimeRaw, notesParam));
         boolean includeNotes = true;
         if (!notesParam.isEmpty()) {
             includeNotes = !notesParam.equals("0");
@@ -102,21 +101,31 @@ public class DeparturesResource {
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
         TramTime queryTime = providesNow.getNow();
 
-        if (maybeStation.isPresent()) {
-            logger.info("Found stations, now find departures");
-            Station station = maybeStation.get();
-
-            //trams
-            List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
-            SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
-
-            //notes
-            List<String> notes = Collections.emptyList();
-            if (includeNotes) {
-                notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
+        if (!queryTimeRaw.isEmpty()) {
+            Optional<TramTime> optionalTramTime = TramTime.parse(queryTimeRaw);
+            if (optionalTramTime.isPresent()) {
+                queryTime = optionalTramTime.get();
+            } else {
+                logger.warn("Unable to parse time " + queryTimeRaw);
+                Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
+        }
 
-            return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
+        if (maybeStation.isPresent()) {
+        logger.info("Found stations, now find departures");
+        Station station = maybeStation.get();
+
+        //trams
+        List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
+        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
+
+        //notes
+        List<String> notes = Collections.emptyList();
+        if (includeNotes) {
+            notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
+        }
+
+        return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
         }
 
         logger.warn("Unable to find station " + stationId);

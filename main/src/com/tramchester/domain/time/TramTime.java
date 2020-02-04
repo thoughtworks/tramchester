@@ -162,7 +162,7 @@ public class  TramTime implements Comparable<TramTime> {
 
     // "HH:mm:ss"
     public String tramDataFormat() {
-        return String.format("%s:00",toPattern());
+        return String.format("%s:00", toPattern());
     }
 
     // is after with compensation for late nights

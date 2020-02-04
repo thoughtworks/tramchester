@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.CreateQueryTimes;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
@@ -138,19 +139,7 @@ public class Dependencies {
         picoContainer.addComponent(StationDTOFactory.class);
         picoContainer.addComponent(HeadsignMapper.class);
         picoContainer.addComponent(TramPositionInference.class);
-
-        picoContainer.addComponent(ProvidesNow.class, new ProvidesNow() {
-            @Override
-            public TramTime getNow() {
-                return TramTime.of(ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalTime());
-            }
-
-            @Override
-            public LocalDate getDate() {
-                return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDate();
-            }
-        });
-
+        picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);

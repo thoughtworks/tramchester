@@ -7,13 +7,14 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 public class ProvidesLocalNow implements ProvidesNow {
-    @Override
-    public TramTime getNow() {
-        return TramTime.of(getLocalNow());
-    }
 
     private LocalDateTime getLocalNow() {
         return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDateTime();
+    }
+
+    @Override
+    public TramTime getNow() {
+        return TramTime.of(getLocalNow());
     }
 
     @Override
