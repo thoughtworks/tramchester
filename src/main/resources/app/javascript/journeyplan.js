@@ -37,15 +37,16 @@ function livedataUrlFromLocation(app) {
 
 function livedataUrl(app) {
     if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
-        return livedataUrlFromLocation(app);
+        return livedataUrlFromLocation(app)+'?querytime='+app.time;
     } else {
-        return '/api/departures/station/'+app.startStop;
+        return '/api/departures/station/'+app.startStop+'?querytime='+app.time;
     }
 }
 
 function displayLiveData(app) {
     var queryDate = moment(app.date, "YYYY-MM-DD");
     var today = moment();
+    // check live data for today only - todo, into the API
     if (today.month()==queryDate.month()
         && today.year()==queryDate.year()
         && today.date()==queryDate.date()) {

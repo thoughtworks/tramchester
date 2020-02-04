@@ -83,7 +83,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(0, repository.staleDataCount());
         assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime())));
         assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(14))));
-        assertEquals(0, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(16))));
+        assertEquals(0, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(21))));
     }
 
     @Test

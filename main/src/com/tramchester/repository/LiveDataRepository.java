@@ -24,7 +24,7 @@ import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
 public class LiveDataRepository implements LiveDataSource {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
 
-    private static final int TIME_LIMIT = 15; // only enrich if data is within this many minutes
+    private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
     private static final String NO_MESSAGE = "<no message>";
 
     // platformId -> StationDepartureInfo

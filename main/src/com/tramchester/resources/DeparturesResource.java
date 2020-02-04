@@ -72,7 +72,7 @@ public class DeparturesResource {
             optionalTramTime = TramTime.parse(queryTimeRaw);
             if (optionalTramTime.isEmpty()) {
                 logger.warn("Unable to parse time " + queryTimeRaw);
-                Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         }
         TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
@@ -115,7 +115,7 @@ public class DeparturesResource {
             optionalTramTime = TramTime.parse(queryTimeRaw);
             if (optionalTramTime.isEmpty()) {
                 logger.warn("Unable to parse time " + queryTimeRaw);
-                Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         }
         TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
