@@ -60,12 +60,22 @@ public class DeparturesResource {
     @Path("/{lat}/{lon}")
     @ApiOperation(value = "Get geographically close departures", response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon) {
+    public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon,
+                                         @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
         LatLong latLong = new LatLong(lat,lon);
         List<Station> nearbyStations = spatialService.getNearestStations(latLong);
 
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
-        TramTime queryTime = providesNow.getNow();
+
+        Optional<TramTime> optionalTramTime = Optional.empty();
+        if (!queryTimeRaw.isEmpty()) {
+            optionalTramTime = TramTime.parse(queryTimeRaw);
+            if (optionalTramTime.isEmpty()) {
+                logger.warn("Unable to parse time " + queryTimeRaw);
+                Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+        TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
 
         // trams
         SortedSet<DepartureDTO> departs = new TreeSet<>();
@@ -99,17 +109,16 @@ public class DeparturesResource {
 
         Optional<Station> maybeStation = stationRepository.getStation(stationId);
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
-        TramTime queryTime = providesNow.getNow();
 
+        Optional<TramTime> optionalTramTime = Optional.empty();
         if (!queryTimeRaw.isEmpty()) {
-            Optional<TramTime> optionalTramTime = TramTime.parse(queryTimeRaw);
-            if (optionalTramTime.isPresent()) {
-                queryTime = optionalTramTime.get();
-            } else {
+            optionalTramTime = TramTime.parse(queryTimeRaw);
+            if (optionalTramTime.isEmpty()) {
                 logger.warn("Unable to parse time " + queryTimeRaw);
                 Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         }
+        TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
 
         if (maybeStation.isPresent()) {
         logger.info("Found stations, now find departures");

@@ -53,31 +53,26 @@ public class DeparturesResourceTest {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStation() {
-        Response response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty(), 200);
-        assertEquals(200, response.getStatus());
+        Station station = Stations.StPetersSquare;
 
+        Response response = IntegrationClient.getResponse(
+                testRule, String.format("departures/station/%s", station.getId()), Optional.empty(), 200);
+        assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+
         SortedSet<DepartureDTO> departures = departureList.getDepartures();
         assertFalse(departures.isEmpty());
-
-        departures.forEach(depart -> assertEquals(Stations.StPetersSquare.getName(),depart.getFrom()));
+        departures.forEach(depart -> assertEquals(station.getName(),depart.getFrom()));
+        assertFalse(departureList.getNotes().isEmpty()); // off by deafult
     }
 
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimeNow() {
         LocalTime queryTime = LocalTime.now();
-
         Station station = Stations.MarketStreet;
 
-        String time = queryTime.format(TestConfig.timeFormatter);
-        Response response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s?querytime=%s", station.getId(), time), Optional.empty(), 200);
-        assertEquals(200, response.getStatus());
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        SortedSet<DepartureDTO> departures = departureList.getDepartures();
+        SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
         assertFalse(departures.isEmpty());
         departures.forEach(depart -> assertEquals(station.getName(),depart.getFrom()));
     }
@@ -86,16 +81,9 @@ public class DeparturesResourceTest {
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = LocalTime.now().minusMinutes(120);
-
         Station station = Stations.MarketStreet;
 
-        String time = queryTime.format(TestConfig.timeFormatter);
-        Response response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s?querytime=%s", station.getId(), time), Optional.empty(), 200);
-        assertEquals(200, response.getStatus());
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        SortedSet<DepartureDTO> departures = departureList.getDepartures();
+        SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
         assertTrue(departures.isEmpty());
     }
 
@@ -103,17 +91,62 @@ public class DeparturesResourceTest {
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimeFuture() {
         LocalTime queryTime = LocalTime.now().plusMinutes(120);
-
         Station station = Stations.MarketStreet;
 
+        SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
+
+        assertTrue(departures.isEmpty());
+    }
+
+    private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, Station station) {
         String time = queryTime.format(TestConfig.timeFormatter);
         Response response = IntegrationClient.getResponse(
                 testRule, String.format("departures/station/%s?querytime=%s", station.getId(), time), Optional.empty(), 200);
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        SortedSet<DepartureDTO> departures = departureList.getDepartures();
+        return departureList.getDepartures();
+    }
+
+    @Test
+    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
+    public void shouldGetNearbyDeparturesQuerytimeNow() {
+        double lat = 53.4804263d;
+        double lon = -2.2392436d;
+        LocalTime queryTime = LocalTime.now();
+        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
+        assertFalse(departures.isEmpty());
+    }
+
+    @Test
+    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
+    public void shouldGetNearbyDeparturesQuerytimeFuture() {
+        double lat = 53.4804263d;
+        double lon = -2.2392436d;
+        LocalTime queryTime = LocalTime.now().plusMinutes(120);
+        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
         assertTrue(departures.isEmpty());
+    }
+
+    @Test
+    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
+    public void shouldGetNearbyDeparturesQuerytimePast() {
+        double lat = 53.4804263d;
+        double lon = -2.2392436d;
+        LocalTime queryTime = LocalTime.now().minusMinutes(120);
+
+        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
+
+        assertTrue(departures.isEmpty());
+    }
+
+    private SortedSet<DepartureDTO> getDeparturesForLatlongTime(double lat, double lon, LocalTime queryTime) {
+        String time = queryTime.format(TestConfig.timeFormatter);
+        Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s?querytime=%s", lat, lon, time),
+                Optional.empty(), 200);
+        assertEquals(200, response.getStatus());
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        return departureList.getDepartures();
     }
 
     @Test
@@ -121,8 +154,6 @@ public class DeparturesResourceTest {
     public void shouldGetNearbyDeparturesWithNotes() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
-
-        TramTime queryTime = TramTime.of(LocalTime.now().minusMinutes(5));
 
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s", lat, lon),
                 Optional.empty(), 200);
@@ -135,7 +166,9 @@ public class DeparturesResourceTest {
 
         DepartureDTO departureDTO = departures.first();
         TramTime when = departureDTO.getWhen();
-        assertTrue(when.asLocalTime().isAfter(queryTime.asLocalTime()) );
+
+        TramTime nowWithin5mins = TramTime.of(LocalTime.now().minusMinutes(5));
+        assertTrue(when.asLocalTime().isAfter(nowWithin5mins.asLocalTime()) );
 
         String nextDepart = departureDTO.getFrom();
         assertTrue(nextDepart,nearby.contains(nextDepart));
@@ -151,19 +184,8 @@ public class DeparturesResourceTest {
             ignore++;
         }
         Assert.assertTrue((notes.size())-ignore>0);
-
     }
 
-    @Test
-    @Category({LiveDataTestCategory.class,LiveDataMessagesCategory.class})
-    public void shouldGetDueTramsNotesForStation() {
-        Response response = IntegrationClient.getResponse(
-                testRule, String.format("departures/station/%s", Stations.StPetersSquare.getId()), Optional.empty(), 200);
-        assertEquals(200, response.getStatus());
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        assertFalse(departureList.getNotes().isEmpty());
-    }
 
     @Test
     @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
