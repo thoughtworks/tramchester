@@ -62,13 +62,13 @@ public class LiveDataRepository implements LiveDataSource {
             }
         }
         if (newMap.isEmpty()) {
-            logger.error("Unable to refresh live data from payload: " + payload);
+            logger.error(format("Unable to refresh live data from payload: '%s'", payload));
         } else {
             logger.info("Refreshed live data, count is: " + newMap.size());
+            stationInformation = newMap;
+            lastRefresh = LocalDateTime.now();
+            invokeObservers();
         }
-        stationInformation = newMap;
-        lastRefresh = LocalDateTime.now();
-        invokeObservers();
     }
 
     private HashMap<String, StationDepartureInfo> consumeDepartInfo(List<StationDepartureInfo> infos) {

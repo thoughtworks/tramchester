@@ -6,8 +6,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -30,7 +32,8 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
 
     @Override
     public String fetch()  {
-        HttpClient httpclient = HttpClients.createDefault();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30 * 1000).build();
+        HttpClient httpclient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
 
         String configLiveDataUrl = config.getLiveDataUrl();
         String liveDataSubscriptionKey = config.getLiveDataSubscriptionKey();
@@ -64,7 +67,7 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
             }
         }
         catch(TramchesterException | IOException | URISyntaxException exception) {
-            logger.error("Unable to load live data",exception);
+            logger.error("Unable to load live data", exception);
         }
         return "";
 

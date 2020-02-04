@@ -121,20 +121,20 @@ public class DeparturesResource {
         TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
 
         if (maybeStation.isPresent()) {
-        logger.info("Found stations, now find departures");
-        Station station = maybeStation.get();
+            logger.info("Found stations, now find departures");
+            Station station = maybeStation.get();
 
-        //trams
-        List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
-        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
+            //trams
+            List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
+            SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
 
-        //notes
-        List<String> notes = Collections.emptyList();
-        if (includeNotes) {
-            notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
-        }
+            //notes
+            List<String> notes = Collections.emptyList();
+            if (includeNotes) {
+                notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
+            }
 
-        return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
+            return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
         }
 
         logger.warn("Unable to find station " + stationId);

@@ -20,7 +20,7 @@ public class RedirectToAppFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
     }
 
     @Override
@@ -28,7 +28,9 @@ public class RedirectToAppFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String userAgent = httpServletRequest.getHeader("User-Agent");
         HttpServletResponse servletResponse = (HttpServletResponse) response;
-        if (userAgent.startsWith("ELB-HealthChecker")) {
+        if (userAgent==null) {
+            logger.warn("Got null user agent, request from " + request.getRemoteAddr());
+        } else if (userAgent.startsWith("ELB-HealthChecker")) {
             servletResponse.setStatus(SC_OK);
             return;
         }

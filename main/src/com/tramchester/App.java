@@ -134,9 +134,9 @@ public class App extends Application<AppConfiguration>  {
         // custom metrics for live data and messages
         MetricRegistry metricRegistry = environment.metrics();
         metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "number"),
-                (Gauge<Integer>) () -> liveDataRepository.countEntries());
+                (Gauge<Integer>) liveDataRepository::countEntries);
         metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
-                (Gauge<Integer>) () -> liveDataRepository.countMessages());
+                (Gauge<Integer>) liveDataRepository::countMessages);
 
         // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,

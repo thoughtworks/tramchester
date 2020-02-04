@@ -24,20 +24,18 @@ public class RedirectHttpFilter implements Filter {
     private TramchesterConfig config;
 
     // no cert for these hosts
-    List<String> unsecureHosts = Arrays.asList(new String[]{
-            "trambuster.com",
+    List<String> unsecureHosts = Arrays.asList("trambuster.com",
             "trambuster.info",
             "trambuster.co.uk",
             "tramchester.co.uk",
-            "tramchester.info"
-    });
+            "tramchester.info");
 
     public RedirectHttpFilter(TramchesterConfig config) {
         this.config = config;
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
     }
 
     @Override

@@ -58,6 +58,7 @@ function queryLiveData(url) {
  axios.get( url, { timeout: 11000 }).
             then(function (response) {
                 app.localDueTrams = response.data.departures;
+                app.notes = response.data.notes;
                 app.noLiveResults = (app.localDueTrams.length==0);
                 app.networkError = false;
                 app.liveInProgress = false;
@@ -176,7 +177,7 @@ var app = new Vue({
                 }
                 app.currentPage = 1;
                 this.$nextTick(function () {
-                    queryLiveData(livedataUrlFromLocation(this));
+                    queryLiveData(livedataUrlFromLocation(this)+'?notes=1');
                 });
             },
             queryServer() {
@@ -192,7 +193,7 @@ var app = new Vue({
                         app.networkError = false;
                         app.journeys = app.journeys.concat(response.data.journeys);
                         app.noResults = app.journeys.length==0;
-                        app.notes = app.notes.concat(response.data.notes);
+                        app.notes = response.data.notes;
                         app.getStations();
                         app.searchInProgress = false;
                         }).
