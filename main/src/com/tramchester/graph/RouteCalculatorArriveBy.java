@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationWalk;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Node;
@@ -37,15 +36,15 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     /// TODO For walking have to do the cost calculation after adding the walking nodes to the graph
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(String startId, LatLong destination, List<StationWalk> walksToDest,
+    public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<String> destStations,
                                                    TramTime queryTime, TramServiceDate queryDate) {
         logger.error("Not implemented");
         throw new RuntimeException("Not implemented yet");
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Node origin, List<StationWalk> walksToStartStations,
-                                                     String destinationId, TramTime queryTime, TramServiceDate queryDate) {
+    public Stream<Journey> calculateRouteWalkAtStart(Node origin, String destinationId, TramTime queryTime,
+                                                     TramServiceDate queryDate) {
         logger.error("Not implemented");
         throw new RuntimeException("Not implemented yet");
 

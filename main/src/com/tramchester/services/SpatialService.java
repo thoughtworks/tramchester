@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 public class SpatialService {
     private static final Logger logger = LoggerFactory.getLogger(SpatialService.class);
 
@@ -89,6 +91,7 @@ public class SpatialService {
         finally {
             tx.close();
         }
+        logger.info(format("Found %s stations close to %s", result.size(), latLong));
         return result;
     }
 

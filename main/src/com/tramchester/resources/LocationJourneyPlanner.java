@@ -16,6 +16,7 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -49,54 +50,73 @@ public class LocationJourneyPlanner {
 
     public Stream<Journey> quickestRouteForLocation(LatLong latLong, String destinationId, TramTime queryTime,
                                                     TramServiceDate queryDate) {
-
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s",
-                latLong, destinationId, queryDate, queryTime));
-
-        List<String> nearbyStations = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
-
-        logger.info(format("Found %s stations close to %s", nearbyStations.size(), latLong));
-        return createJourneyPlan(latLong, nearbyStations, destinationId, queryTime, queryDate);
-    }
-
-    public Stream<Journey> quickestRouteForLocation(String startId, LatLong latLong, TramTime queryTime,
-                                                    TramServiceDate queryDate) {
-        List<String> nearbyStations = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
-
-        List<StationWalk> walksToDest = nearestStations(latLong, nearbyStations);
-        return routeCalculator.calculateRouteWalkAtEnd(startId, latLong, walksToDest, queryTime, queryDate);
-    }
-
-    private Stream<Journey> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, TramTime queryTime,
-                                              TramServiceDate queryDate) {
-        List<StationWalk> walksToStart = nearestStations(latLong, startIds);
+        logger.info(format("Finding shortest path for %s --> %s on %s at %s", latLong, destinationId, queryDate, queryTime));
+        List<StationWalk> walksToStart = getStationWalks(latLong);
 
         Node startOfWalkNode = createWalkingNode(latLong);
-
-        // todo extract method
-        List<Relationship> addedWalks = new LinkedList<>();
+        List<Relationship> addedRelationships = new LinkedList<>();
 
         walksToStart.forEach(stationWalk -> {
-            String walkStationId = stationWalk.getStationId();
-            Node stationNode = stationIndexs.getStationNode(walkStationId);
-            int cost = stationWalk.getCost();
-            logger.info(format("Add walking relationship from %s to %s cost %s", startOfWalkNode, walkStationId, cost));
-            Relationship walkingRelationship = startOfWalkNode.createRelationshipTo(stationNode, TransportRelationshipTypes.WALKS_TO);
-            walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
-            walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
-            addedWalks.add(walkingRelationship);
+            addedRelationships.add(createWalkRelationship(startOfWalkNode, stationWalk, TransportRelationshipTypes.WALKS_TO));
         });
 
-        Stream<Journey> journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, walksToStart, destinationId,
+        Stream<Journey> journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, destinationId,
                 queryTime, queryDate);
 
         journeys.onClose(() -> {
-            logger.info("Removed added walks and start of walk node");
-            addedWalks.forEach(Relationship::delete);
-            nodeOperations.deleteNode(startOfWalkNode);
+            removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
         });
 
         return journeys;
+    }
+
+    public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, TramTime queryTime,
+                                                    TramServiceDate queryDate) {
+        logger.info(format("Finding shortest path for %s --> %s on %s at %s", startId, destination, queryDate, queryTime));
+        List<StationWalk> walksToDest = getStationWalks(destination);
+
+        List<Relationship> addedRelationships = new LinkedList<>();
+        List<String> destinationStationIds = new ArrayList<>();
+        Node endOfWalk = createWalkingNode(destination);
+
+        walksToDest.forEach(stationWalk -> {
+            String walkStationId = stationWalk.getStationId();
+            destinationStationIds.add(walkStationId);
+            addedRelationships.add(createWalkRelationship(endOfWalk, stationWalk, TransportRelationshipTypes.WALKS_FROM));
+        });
+
+        Stream<Journey> journeys = routeCalculator.calculateRouteWalkAtEnd(startId, endOfWalk, destinationStationIds,
+                queryTime, queryDate);
+
+        journeys.onClose(() -> {
+            removeWalkNodeAndRelationships(addedRelationships, endOfWalk);
+        });
+
+        return journeys;
+    }
+
+    private List<StationWalk> getStationWalks(LatLong latLong) {
+        List<String> nearbyStations = spatialService.getNearestStationsTo(latLong, Integer.MAX_VALUE);
+        return nearestStations(latLong, nearbyStations);
+    }
+
+    private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
+        String walkStationId = stationWalk.getStationId();
+        int cost = stationWalk.getCost();
+        logger.info(format("Add walking relationship from %s to %s cost %s direction %s",
+                walkStationId, walkNode,  cost, direction));
+
+        Relationship walkingRelationship;
+        Node stationNode = stationIndexs.getStationNode(walkStationId);
+        if (direction==TransportRelationshipTypes.WALKS_FROM) {
+            walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
+        } else {
+            walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);
+        }
+
+        walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
+        walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
+        return walkingRelationship;
     }
 
     private Node createWalkingNode(LatLong origin) {
@@ -108,8 +128,14 @@ public class LocationJourneyPlanner {
         return startOfWalkNode;
     }
 
+    private void removeWalkNodeAndRelationships(List<Relationship> addedRelationships, Node endOfWalk) {
+        logger.info("Removed added walks and start of walk node");
+        addedRelationships.forEach(Relationship::delete);
+        nodeOperations.deleteNode(endOfWalk);
+    }
+
     private List<StationWalk> nearestStations(LatLong latLong, List<String> startIds) {
-        List<Location> starts = startIds.stream().map(id -> stationRepository.getStation(id)).
+        List<Location> starts = startIds.stream().map(stationRepository::getStation).
                 filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         return starts.stream().map(station ->

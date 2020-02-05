@@ -14,9 +14,9 @@ public interface TramRouteCalculator {
     Stream<Journey> calculateRoute(String startStationId, String destinationId, TramTime queryTime,
                                    TramServiceDate queryDate);
 
-    Stream<Journey> calculateRouteWalkAtEnd(String startId, LatLong destination, List<StationWalk> walksToDest,
-                                            TramTime queryTime, TramServiceDate queryDate);
+    Stream<Journey> calculateRouteWalkAtEnd(String startId, Node destination, List<String> destStations, TramTime queryTime,
+                                            TramServiceDate queryDate);
 
-    Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, List<StationWalk> walksToStartStations, String destinationId,
-                                              TramTime queryTime, TramServiceDate queryDate);
+    Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, String destinationId, TramTime queryTime,
+                                              TramServiceDate queryDate);
 }
