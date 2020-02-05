@@ -231,7 +231,7 @@ public class TransportGraphBuilder {
             LatLong latLong = station.getLatLong();
             setLatLongFor(stationNode, latLong);
 
-            stationIndexs.graphQuery.getSpatialLayer().add(stationNode);
+            stationIndexs.getSpatialLayer().add(stationNode);
         }
 
 //        Node areaNode = getAreaNode(station.getArea());
@@ -432,7 +432,7 @@ public class TransportGraphBuilder {
         String beginSvcNodeId = format("%s_%s_%s_%s", startLocation.getId(), endStop.getStation().getId(),
                 service.getServiceId(), routeIdClean);
 
-        Node beginServiceNode = stationIndexs.graphQuery.getServiceNode(beginSvcNodeId);
+        Node beginServiceNode = stationIndexs.getServiceNode(beginSvcNodeId);
         String tripId = trip.getTripId();
 
         if (beginServiceNode==null) {
@@ -480,7 +480,7 @@ public class TransportGraphBuilder {
         // Node for the hour
         int hourOfDay = departureTime.getHourOfDay();
         String hourNodeId = format("%s_%s", beginSvcNodeId, hourOfDay);
-        Node hourNode = stationIndexs.graphQuery.getHourNode(hourNodeId);
+        Node hourNode = stationIndexs.getHourNode(hourNodeId);
         if (hourNode==null) {
             hourNode = createGraphNode(Labels.HOUR);
             hourNode.setProperty(GraphStaticKeys.ID, hourNodeId);
@@ -497,7 +497,7 @@ public class TransportGraphBuilder {
     private Node getOrCreateTimeNode(Node previousNode, String baseId, TramTime departureTime, String tripId) {
         // Node for the departure time
         String timeNodeId = format("%s_%s", baseId, departureTime.toPattern());
-        Node timeNode = stationIndexs.graphQuery.getTimeNode(timeNodeId);
+        Node timeNode = stationIndexs.getTimeNode(timeNodeId);
         if (timeNode==null) {
             LocalTime time = departureTime.asLocalTime();
 
@@ -527,7 +527,7 @@ public class TransportGraphBuilder {
     }
 
     private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
-        return days.values().contains(true);
+        return days.containsValue(true);
     }
 
 }

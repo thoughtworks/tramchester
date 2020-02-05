@@ -10,7 +10,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import com.tramchester.resources.LocationToLocationJourneyPlanner;
+import com.tramchester.resources.LocationJourneyPlanner;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -25,7 +25,7 @@ import static com.tramchester.TestConfig.nearAltrincham;
 import static com.tramchester.TestConfig.nearPiccGardens;
 import static org.junit.Assert.*;
 
-public class LocationToLocationJourneyPlannerTest {
+public class LocationJourneyPlannerTest {
     public static final int TXN_TIMEOUT = 5*60;
 
     private static Dependencies dependencies;
@@ -34,7 +34,7 @@ public class LocationToLocationJourneyPlannerTest {
 
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
     private Transaction tx;
-    private LocationToLocationJourneyPlanner planner;
+    private LocationJourneyPlanner planner;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -52,7 +52,7 @@ public class LocationToLocationJourneyPlannerTest {
     @Before
     public void beforeEachTestRuns() {
         tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        planner = dependencies.get(LocationToLocationJourneyPlanner.class);
+        planner = dependencies.get(LocationJourneyPlanner.class);
     }
 
     @After

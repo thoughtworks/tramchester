@@ -99,23 +99,24 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(LatLong origin, List<StationWalk> walksToStartStations, String destinationId,
+    public Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, List<StationWalk> walksToStartStations, String destinationId,
                                                      TramTime queryTime, TramServiceDate queryDate) {
-        List<Relationship> addedWalks = new LinkedList<>();
 
-        Node startOfWalkNode = createWalkingNode(origin);
-
-        // todo extract method
-        walksToStartStations.forEach(stationWalk -> {
-            String walkStationId = stationWalk.getStationId();
-            Node stationNode = stationIndexs.getStationNode(walkStationId);
-            int cost = stationWalk.getCost();
-            logger.info(format("Add walking relationship from %s to %s cost %s", startOfWalkNode, walkStationId, cost));
-            Relationship walkingRelationship = startOfWalkNode.createRelationshipTo(stationNode, TransportRelationshipTypes.WALKS_TO);
-            walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
-            walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
-            addedWalks.add(walkingRelationship);
-        });
+//        Node startOfWalkNode = createWalkingNode(origin);
+//
+//        // todo extract method
+//        List<Relationship> addedWalks = new LinkedList<>();
+//
+//        walksToStartStations.forEach(stationWalk -> {
+//            String walkStationId = stationWalk.getStationId();
+//            Node stationNode = stationIndexs.getStationNode(walkStationId);
+//            int cost = stationWalk.getCost();
+//            logger.info(format("Add walking relationship from %s to %s cost %s", startOfWalkNode, walkStationId, cost));
+//            Relationship walkingRelationship = startOfWalkNode.createRelationshipTo(stationNode, TransportRelationshipTypes.WALKS_TO);
+//            walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
+//            walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
+//            addedWalks.add(walkingRelationship);
+//        });
 
         Node endNode = stationIndexs.getStationNode(destinationId);
         List<String> destinationIds = Collections.singletonList(destinationId);
@@ -123,11 +124,11 @@ public class RouteCalculator implements TramRouteCalculator {
 
         // must delete relationships first, otherwise may not delete node
         //noinspection ResultOfMethodCallIgnored
-        journeys.onClose(() -> {
-            logger.info("Removed added walks and start of walk node");
-            addedWalks.forEach(Relationship::delete);
-            nodeOperations.deleteNode(startOfWalkNode);
-        });
+//        journeys.onClose(() -> {
+//            logger.info("Removed added walks and start of walk node");
+//            addedWalks.forEach(Relationship::delete);
+//            nodeOperations.deleteNode(startOfWalkNode);
+//        });
 
         return journeys;
     }
@@ -163,6 +164,7 @@ public class RouteCalculator implements TramRouteCalculator {
         return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedWeightedPath(path, serviceHeutistics.getQueryTime()));
     }
 
+    @Deprecated
     private Node createWalkingNode(LatLong origin) {
         Node startOfWalkNode = nodeOperations.createQueryNode(stationIndexs);
         startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());

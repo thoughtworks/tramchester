@@ -8,12 +8,15 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.RouteCalculator;
+import com.tramchester.graph.*;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.services.SpatialService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,20 +24,27 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class LocationToLocationJourneyPlanner {
-    private static final Logger logger = LoggerFactory.getLogger(LocationToLocationJourneyPlanner.class);
+public class LocationJourneyPlanner {
+    private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
+
+    private final String queryNodeName = "BEGIN";
 
     private final double walkingSpeed;
-    private SpatialService spatialService;
-    private RouteCalculator routeCalculator;
-    private StationRepository stationRepository;
+    private final SpatialService spatialService;
+    private final RouteCalculator routeCalculator;
+    private final StationRepository stationRepository;
+    private final CachedNodeOperations nodeOperations;
+    private final StationIndexs stationIndexs;
 
-    public LocationToLocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config,
-                                            RouteCalculator routeCalculator, StationRepository stationRepository) {
+    public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config,
+                                  RouteCalculator routeCalculator, StationRepository stationRepository,
+                                  CachedNodeOperations nodeOperations, StationIndexs stationIndexs) {
         this.spatialService = spatialService;
         this.walkingSpeed = config.getWalkingMPH();
         this.routeCalculator = routeCalculator;
         this.stationRepository = stationRepository;
+        this.nodeOperations = nodeOperations;
+        this.stationIndexs = stationIndexs;
     }
 
     public Stream<Journey> quickestRouteForLocation(LatLong latLong, String destinationId, TramTime queryTime,
@@ -60,7 +70,42 @@ public class LocationToLocationJourneyPlanner {
     private Stream<Journey> createJourneyPlan(LatLong latLong, List<String> startIds, String destinationId, TramTime queryTime,
                                               TramServiceDate queryDate) {
         List<StationWalk> walksToStart = nearestStations(latLong, startIds);
-        return routeCalculator.calculateRouteWalkAtStart(latLong, walksToStart, destinationId, queryTime, queryDate);
+
+        Node startOfWalkNode = createWalkingNode(latLong);
+
+        // todo extract method
+        List<Relationship> addedWalks = new LinkedList<>();
+
+        walksToStart.forEach(stationWalk -> {
+            String walkStationId = stationWalk.getStationId();
+            Node stationNode = stationIndexs.getStationNode(walkStationId);
+            int cost = stationWalk.getCost();
+            logger.info(format("Add walking relationship from %s to %s cost %s", startOfWalkNode, walkStationId, cost));
+            Relationship walkingRelationship = startOfWalkNode.createRelationshipTo(stationNode, TransportRelationshipTypes.WALKS_TO);
+            walkingRelationship.setProperty(GraphStaticKeys.COST, cost);
+            walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
+            addedWalks.add(walkingRelationship);
+        });
+
+        Stream<Journey> journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, walksToStart, destinationId,
+                queryTime, queryDate);
+
+        journeys.onClose(() -> {
+            logger.info("Removed added walks and start of walk node");
+            addedWalks.forEach(Relationship::delete);
+            nodeOperations.deleteNode(startOfWalkNode);
+        });
+
+        return journeys;
+    }
+
+    private Node createWalkingNode(LatLong origin) {
+        Node startOfWalkNode = nodeOperations.createQueryNode(stationIndexs);
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
+        startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
+        logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
+        return startOfWalkNode;
     }
 
     private List<StationWalk> nearestStations(LatLong latLong, List<String> startIds) {

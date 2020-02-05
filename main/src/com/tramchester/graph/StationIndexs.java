@@ -18,16 +18,18 @@ public final class StationIndexs {
     private final ConcurrentMap<String,Node> routeStationNodeCache;
     private final ConcurrentMap<String,Node> stationNodeCache;
     private final ConcurrentMap<String,Node> platformNodeCache;
+
     private SimplePointLayer spatialLayer;
 
-    protected final GraphDatabaseService graphDatabaseService;
-    protected final GraphQuery graphQuery;
+    private final GraphDatabaseService graphDatabaseService;
+    private final GraphQuery graphQuery;
     private final boolean warnIfMissing = false;
 
     public StationIndexs(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery) {
 
         this.graphDatabaseService = graphDatabaseService;
         this.graphQuery = graphQuery;
+
         routeStationNodeCache = new ConcurrentHashMap<>();
         stationNodeCache = new ConcurrentHashMap<>();
         platformNodeCache = new ConcurrentHashMap<>();
@@ -88,5 +90,20 @@ public final class StationIndexs {
 
     public Node createNode(TransportGraphBuilder.Labels labels) {
         return graphDatabaseService.createNode(labels);
+    }
+
+    // TODO cahce?
+    public Node getServiceNode(String svcNodeId) {
+        return graphQuery.getServiceNode(svcNodeId);
+    }
+
+    // TODO cahce?
+    public Node getHourNode(String hourNodeId) {
+        return graphQuery.getHourNode(hourNodeId);
+    }
+
+    // TODO cahce?
+    public Node getTimeNode(String timeNodeId) {
+        return graphQuery.getTimeNode(timeNodeId);
     }
 }

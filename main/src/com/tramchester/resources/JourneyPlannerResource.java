@@ -41,7 +41,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
 
     private final TramchesterConfig config;
-    private final LocationToLocationJourneyPlanner locToLocPlanner;
+    private final LocationJourneyPlanner locToLocPlanner;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final JourneysMapper journeysMapper;
@@ -49,7 +49,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private final GraphDatabaseService graphDatabaseService;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
-                                  LocationToLocationJourneyPlanner locToLocPlanner, UpdateRecentJourneys updateRecentJourneys,
+                                  LocationJourneyPlanner locToLocPlanner, UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, RouteCalculatorArriveBy routeCalculatorArriveBy, ProvidesNotes providesNotes, GraphDatabaseService graphDatabaseService) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;

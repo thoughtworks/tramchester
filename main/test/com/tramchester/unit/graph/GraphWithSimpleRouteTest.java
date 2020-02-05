@@ -3,7 +3,6 @@ package com.tramchester.unit.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.*;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -11,6 +10,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportDataSource;
+import com.tramchester.resources.LocationJourneyPlanner;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GraphWithSimpleRouteTest {
 
@@ -35,8 +34,8 @@ public class GraphWithSimpleRouteTest {
     private static TransportDataSource transportData;
     private static RouteCalculator calculator;
     private static Dependencies dependencies;
-    private static IntegrationTramTestConfig config;
     private static GraphDatabaseService database;
+    private static LocationJourneyPlanner locationJourneyPlanner;
 
     private TramServiceDate queryDate;
     private Station firstStation;
@@ -48,13 +47,14 @@ public class GraphWithSimpleRouteTest {
         transportData = new TransportDataForTest();
 
         dependencies = new Dependencies();
-        config = new IntegrationTramTestConfig(TMP_DB);
+        IntegrationTramTestConfig config = new IntegrationTramTestConfig(TMP_DB);
         FileUtils.deleteDirectory( new File(TMP_DB));
 
         dependencies.initialise(config, transportData);
 
         database = dependencies.get(GraphDatabaseService.class);
         calculator = dependencies.get(RouteCalculator.class);
+        locationJourneyPlanner = dependencies.get(LocationJourneyPlanner.class);
     }
 
     @AfterClass
@@ -66,11 +66,8 @@ public class GraphWithSimpleRouteTest {
     @Before
     public void beforeEachTestRuns() {
         queryDate = new TramServiceDate("20140630");
-        // note: trams only run at specific times so still only getPlatformById one journey in results
-        //queryTimes = Arrays.asList(new Integer[]{minutesPastMidnight, minutesPastMidnight+6});
         firstStation = transportData.getStation(TransportDataForTest.FIRST_STATION).get();
         queryTime = TramTime.of(7, 57);
-//        queryTimes = Collections.singletonList(queryTime);
         tx = database.beginTx();
     }
 
@@ -90,31 +87,32 @@ public class GraphWithSimpleRouteTest {
     }
 
     @Test
-    public void shouldHaveWalkAndTramTripWithChange() {
+    public void shouldHaveJourneyWithLocationBasedStart() {
         LatLong origin = new LatLong(180.001, 270.001);
-        List<StationWalk> walks = Collections.singletonList(new StationWalk(firstStation, 1));
 
-        Stream<Journey> journeys = calculator.calculateRouteWalkAtStart(origin, walks, TransportDataForTest.LAST_STATION,
-                TramTime.of(7,55), queryDate);
-        assertFalse(journeys.limit(1).count()==0);
-    }
-
-    @Test
-    public void shouldTestJourneyWithLocationBasedStart() {
-        LatLong origin = new LatLong(180.001, 270.001);
-        int walkCost = 1;
-
-        List<StationWalk> stationWalks = Collections.singletonList(new StationWalk(firstStation, walkCost));
-
-        Set<Journey> journeys = calculator.calculateRouteWalkAtStart(origin, stationWalks, TransportDataForTest.SECOND_STATION,
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin, TransportDataForTest.SECOND_STATION,
                 TramTime.of(7,55), queryDate).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
             List<TransportStage> stages = journey.getStages();
-            assertEquals(2, stages.size());
+            assertEquals(1, stages.size());
             assertTrue(stages.get(0).getMode().isWalk());
-            assertTrue(stages.get(1).getMode().isVehicle());
+        });
+    }
+
+    @Test
+    public void shouldHaveJourneyWithLocationBasedEnd() {
+        LatLong origin = new LatLong(180.001, 270.001);
+
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(TransportDataForTest.SECOND_STATION, origin,
+                TramTime.of(7,55), queryDate).collect(Collectors.toSet());
+
+        assertEquals(1, journeys.size());
+        journeys.forEach(journey ->{
+            List<TransportStage> stages = journey.getStages();
+            assertEquals(1, stages.size());
+            assertTrue(stages.get(0).getMode().isWalk());
         });
     }
 

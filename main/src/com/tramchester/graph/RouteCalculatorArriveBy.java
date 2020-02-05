@@ -5,6 +5,7 @@ import com.tramchester.domain.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(LatLong origin, List<StationWalk> walksToStartStations,
+    public Stream<Journey> calculateRouteWalkAtStart(Node origin, List<StationWalk> walksToStartStations,
                                                      String destinationId, TramTime queryTime, TramServiceDate queryDate) {
         logger.error("Not implemented");
         throw new RuntimeException("Not implemented yet");

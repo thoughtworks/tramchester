@@ -5,6 +5,7 @@ import com.tramchester.domain.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import org.neo4j.graphdb.Node;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -16,6 +17,6 @@ public interface TramRouteCalculator {
     Stream<Journey> calculateRouteWalkAtEnd(String startId, LatLong destination, List<StationWalk> walksToDest,
                                             TramTime queryTime, TramServiceDate queryDate);
 
-    Stream<Journey> calculateRouteWalkAtStart(LatLong origin, List<StationWalk> walksToStartStations, String destinationId,
+    Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, List<StationWalk> walksToStartStations, String destinationId,
                                               TramTime queryTime, TramServiceDate queryDate);
 }
