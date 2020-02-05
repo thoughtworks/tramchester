@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static java.lang.String.format;
 
-public class StationIndexs {
+public final class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
 
     // TODO with the indexes is the cache needed?
@@ -22,13 +22,12 @@ public class StationIndexs {
 
     protected final GraphDatabaseService graphDatabaseService;
     protected final GraphQuery graphQuery;
-    private final boolean warnIfMissing;
+    private final boolean warnIfMissing = false;
 
-    public StationIndexs(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery, boolean warnIfMissing) {
+    public StationIndexs(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery) {
 
         this.graphDatabaseService = graphDatabaseService;
         this.graphQuery = graphQuery;
-        this.warnIfMissing = warnIfMissing;
         routeStationNodeCache = new ConcurrentHashMap<>();
         stationNodeCache = new ConcurrentHashMap<>();
         platformNodeCache = new ConcurrentHashMap<>();
@@ -87,4 +86,7 @@ public class StationIndexs {
         return spatialLayer;
     }
 
+    public Node createNode(TransportGraphBuilder.Labels labels) {
+        return graphDatabaseService.createNode(labels);
+    }
 }

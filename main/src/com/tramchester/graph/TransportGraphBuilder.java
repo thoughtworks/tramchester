@@ -33,14 +33,14 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 // RouteStation-[onRoute]->RouteStation
 ///
 
-public class TransportGraphBuilder extends StationIndexs {
+public class TransportGraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 
-    public static final int INTERCHANGE_DEPART_COST = 1;
-    public static final int INTERCHANGE_BOARD_COST = 1;
+    private static final int INTERCHANGE_DEPART_COST = 1;
+    private static final int INTERCHANGE_BOARD_COST = 1;
 
-    public static final int DEPARTS_COST = 1;
-    public static final int BOARDING_COST = 2;
+    private static final int DEPARTS_COST = 1;
+    private static final int BOARDING_COST = 2;
 
     // TODO compute actual costs depend on physical configuration of platforms at the station? No data available yet.
     private static final int ENTER_PLATFORM_COST = 0;
@@ -60,14 +60,18 @@ public class TransportGraphBuilder extends StationIndexs {
     private Map<String,TransportRelationshipTypes> departs;
     private List<String> platforms;
 
-    private TransportData transportData;
+    private final GraphDatabaseService graphDatabaseService;
+    private final TransportData transportData;
     private final NodeIdLabelMap nodeIdLabelMap;
+    private final StationIndexs stationIndexs;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
-                                 NodeIdLabelMap nodeIdLabelMap, GraphQuery graphQuery) {
-        super(graphDatabaseService, graphQuery, false);
+                                 NodeIdLabelMap nodeIdLabelMap, StationIndexs stationIndexs) {
+        this.graphDatabaseService = graphDatabaseService;
         this.transportData = transportData;
         this.nodeIdLabelMap = nodeIdLabelMap;
+        this.stationIndexs = stationIndexs;
+
         boardings = new HashMap<>();
         departs = new HashMap<>();
         platforms = new LinkedList<>();
@@ -217,7 +221,7 @@ public class TransportGraphBuilder extends StationIndexs {
 
         String id = station.getId();
         String stationName = station.getName();
-        Node stationNode = getStationNode(id);
+        Node stationNode = stationIndexs.getStationNode(id);
 
         if (stationNode == null) {
             logger.info(format("Creating station node: %s ",station));
@@ -227,7 +231,7 @@ public class TransportGraphBuilder extends StationIndexs {
             LatLong latLong = station.getLatLong();
             setLatLongFor(stationNode, latLong);
 
-            getSpatialLayer().add(stationNode);
+            stationIndexs.graphQuery.getSpatialLayer().add(stationNode);
         }
 
 //        Node areaNode = getAreaNode(station.getArea());
@@ -253,7 +257,7 @@ public class TransportGraphBuilder extends StationIndexs {
     private Node getOrCreatePlatform(Stop stop) {
         String stopId = stop.getId();
 
-        Node platformNode = getPlatformNode(stopId);
+        Node platformNode = stationIndexs.getPlatformNode(stopId);
         if (platformNode==null) {
             platformNode = createGraphNode(Labels.PLATFORM);
             platformNode.setProperty(GraphStaticKeys.ID, stopId);
@@ -275,7 +279,7 @@ public class TransportGraphBuilder extends StationIndexs {
         String stationId = station.getId();
         String routeStationId = createRouteStationId(station, route);
 
-        Node routeStationNode = getRouteStationNode(routeStationId);
+        Node routeStationNode = stationIndexs.getRouteStationNode(routeStationId);
         if ( routeStationNode == null) {
              routeStationNode = createRouteStationNode(station, route, routeStationId, service);
         }
@@ -428,7 +432,7 @@ public class TransportGraphBuilder extends StationIndexs {
         String beginSvcNodeId = format("%s_%s_%s_%s", startLocation.getId(), endStop.getStation().getId(),
                 service.getServiceId(), routeIdClean);
 
-        Node beginServiceNode = graphQuery.getServiceNode(beginSvcNodeId);
+        Node beginServiceNode = stationIndexs.graphQuery.getServiceNode(beginSvcNodeId);
         String tripId = trip.getTripId();
 
         if (beginServiceNode==null) {
@@ -476,7 +480,7 @@ public class TransportGraphBuilder extends StationIndexs {
         // Node for the hour
         int hourOfDay = departureTime.getHourOfDay();
         String hourNodeId = format("%s_%s", beginSvcNodeId, hourOfDay);
-        Node hourNode = graphQuery.getHourNode(hourNodeId);
+        Node hourNode = stationIndexs.graphQuery.getHourNode(hourNodeId);
         if (hourNode==null) {
             hourNode = createGraphNode(Labels.HOUR);
             hourNode.setProperty(GraphStaticKeys.ID, hourNodeId);
@@ -493,7 +497,7 @@ public class TransportGraphBuilder extends StationIndexs {
     private Node getOrCreateTimeNode(Node previousNode, String baseId, TramTime departureTime, String tripId) {
         // Node for the departure time
         String timeNodeId = format("%s_%s", baseId, departureTime.toPattern());
-        Node timeNode = graphQuery.getTimeNode(timeNodeId);
+        Node timeNode = stationIndexs.graphQuery.getTimeNode(timeNodeId);
         if (timeNode==null) {
             LocalTime time = departureTime.asLocalTime();
 
@@ -524,18 +528,6 @@ public class TransportGraphBuilder extends StationIndexs {
 
     private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
         return days.values().contains(true);
-    }
-
-    private boolean[] toBoolArray(HashMap<DaysOfWeek, Boolean> days) {
-        boolean[] daysArray = new boolean[7];
-        daysArray[0] = days.get(DaysOfWeek.Monday);
-        daysArray[1] = days.get(DaysOfWeek.Tuesday);
-        daysArray[2] = days.get(DaysOfWeek.Wednesday);
-        daysArray[3] = days.get(DaysOfWeek.Thursday);
-        daysArray[4] = days.get(DaysOfWeek.Friday);
-        daysArray[5] = days.get(DaysOfWeek.Saturday);
-        daysArray[6] = days.get(DaysOfWeek.Sunday);
-        return daysArray;
     }
 
 }

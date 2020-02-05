@@ -21,19 +21,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class SpatialService extends StationIndexs {
+public class SpatialService {
     private static final Logger logger = LoggerFactory.getLogger(SpatialService.class);
 
-    private GraphDatabaseService graphDatabaseService;
-    private StationRepository stationRepository;
-    private TramchesterConfig config;
+    private final GraphDatabaseService graphDatabaseService;
+    private final StationRepository stationRepository;
+    private final TramchesterConfig config;
+    private final GraphQuery graphQuery;
 
     public SpatialService(GraphDatabaseService graphDatabaseService, StationRepository stationRepository,
                           TramchesterConfig config, GraphQuery graphQuery) {
-        super(graphDatabaseService, graphQuery, false);
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.config = config;
+        this.graphQuery = graphQuery;
     }
 
 
@@ -92,7 +93,7 @@ public class SpatialService extends StationIndexs {
     }
 
     private List<String> getNearestStationsToNoTransaction(LatLong latLong, int count) {
-        List<GeoPipeFlow> results = getSpatialLayer().findClosestPointsTo(LatLong.getCoordinate(latLong),
+        List<GeoPipeFlow> results = graphQuery.getSpatialLayer().findClosestPointsTo(LatLong.getCoordinate(latLong),
                 config.getNearestStopRangeKM());
 
         List<String> ids =results.stream().limit(count).

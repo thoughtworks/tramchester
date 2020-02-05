@@ -39,13 +39,12 @@ public class GraphWithSimpleRouteTest {
     private static GraphDatabaseService database;
 
     private TramServiceDate queryDate;
-    private List<TramTime> queryTimes;
     private Station firstStation;
     private TramTime queryTime;
     private Transaction tx;
 
     @BeforeClass
-    public static void onceBeforeAllTestRuns() throws IOException, TramchesterException {
+    public static void onceBeforeAllTestRuns() throws IOException {
         transportData = new TransportDataForTest();
 
         dependencies = new Dependencies();

@@ -13,8 +13,6 @@ import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
@@ -23,7 +21,6 @@ import com.tramchester.mappers.*;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
-import com.tramchester.services.StationLocalityService;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -39,8 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
 
 public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
@@ -103,7 +98,7 @@ public class Dependencies {
 
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(RouteCalculatorArriveBy.class);
-        picoContainer.addComponent(StationLocalityService.class);
+        picoContainer.addComponent(StationIndexs.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
         picoContainer.addComponent(TramJourneyToDTOMapper.class);
@@ -205,7 +200,7 @@ public class Dependencies {
         }
 
         if (configuration.getCreateLocality()) {
-            picoContainer.getComponent(StationLocalityService.class).populateLocality();
+            //picoContainer.getComponent(StationLocalityService.class).populateLocality();
         }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
 

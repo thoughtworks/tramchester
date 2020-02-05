@@ -1,10 +1,7 @@
 package com.tramchester.unit.graph;
 
 
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.NodeIdLabelMap;
-import com.tramchester.graph.TransportGraphBuilder;
+import com.tramchester.graph.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -38,10 +35,11 @@ public class GraphQueryTest {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graphDBService);
 
         graphQuery = new GraphQuery(graphDBService, spatialDatabaseService);
+        StationIndexs stationIndexs = new StationIndexs(graphDBService, graphQuery);
 
         TransportDataForTest transportData = new TransportDataForTest();
         NodeIdLabelMap nodeLabelIdMap = new NodeIdLabelMap();
-        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, nodeLabelIdMap, graphQuery);
+        TransportGraphBuilder builder = new TransportGraphBuilder(graphDBService, transportData, nodeLabelIdMap, stationIndexs);
         builder.buildGraph();
     }
 

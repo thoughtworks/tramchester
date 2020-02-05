@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class RouteCalculator extends StationIndexs implements TramRouteCalculator {
+public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
     private final String queryNodeName = "BEGIN";
@@ -36,18 +36,18 @@ public class RouteCalculator extends StationIndexs implements TramRouteCalculato
     private final TransportData transportData;
     private final ReachabilityRepository reachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
+    private final StationIndexs stationIndexs;
 
-    public RouteCalculator(GraphDatabaseService db, TransportData transportData,
-                           CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
+    public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository,
-                           GraphQuery graphQuery, CreateQueryTimes createQueryTimes) {
-        super(db, graphQuery, true);
+                           CreateQueryTimes createQueryTimes, StationIndexs stationIndexs) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.config = config;
         this.reachabilityRepository = reachabilityRepository;
         this.createQueryTimes = createQueryTimes;
+        this.stationIndexs = stationIndexs;
     }
 
     @Override
@@ -56,12 +56,11 @@ public class RouteCalculator extends StationIndexs implements TramRouteCalculato
         logger.info(format("Finding shortest path for %s --> %s on %s at %s", startStationId, destinationId,
                 queryDate, queryTime));
 
-        Node startNode = getStationNode(startStationId);
-        Node endNode = getStationNode(destinationId);
+        Node startNode = stationIndexs.getStationNode(startStationId);
+        Node endNode = stationIndexs.getStationNode(destinationId);
         List<String> destinationIds = Collections.singletonList(destinationId);
 
         return getJourneyStream(startNode, endNode, queryTime, destinationIds, queryDate, false);
-
     }
 
     @Override
@@ -77,7 +76,7 @@ public class RouteCalculator extends StationIndexs implements TramRouteCalculato
         walksToDest.forEach(stationWalk -> {
             String walkStationId = stationWalk.getStationId();
             desinationStationIds.add(walkStationId);
-            Node stationNode = getStationNode(walkStationId);
+            Node stationNode = stationIndexs.getStationNode(walkStationId);
             int cost = stationWalk.getCost();
             logger.info(format("Add walking relationship from %s to %s cost %s", walkStationId, endOfWalk,  cost));
             Relationship walkingRelationship = stationNode.createRelationshipTo(endOfWalk,
@@ -87,7 +86,7 @@ public class RouteCalculator extends StationIndexs implements TramRouteCalculato
             addedWalks.add(walkingRelationship);
         });
 
-        Node startNode = getStationNode(startId);
+        Node startNode = stationIndexs.getStationNode(startId);
         Stream<Journey> journeys = getJourneyStream(startNode, endOfWalk, queryTime, desinationStationIds, queryDate, false);
 
         //noinspection ResultOfMethodCallIgnored
@@ -109,7 +108,7 @@ public class RouteCalculator extends StationIndexs implements TramRouteCalculato
         // todo extract method
         walksToStartStations.forEach(stationWalk -> {
             String walkStationId = stationWalk.getStationId();
-            Node stationNode = getStationNode(walkStationId);
+            Node stationNode = stationIndexs.getStationNode(walkStationId);
             int cost = stationWalk.getCost();
             logger.info(format("Add walking relationship from %s to %s cost %s", startOfWalkNode, walkStationId, cost));
             Relationship walkingRelationship = startOfWalkNode.createRelationshipTo(stationNode, TransportRelationshipTypes.WALKS_TO);
@@ -118,7 +117,7 @@ public class RouteCalculator extends StationIndexs implements TramRouteCalculato
             addedWalks.add(walkingRelationship);
         });
 
-        Node endNode = getStationNode(destinationId);
+        Node endNode = stationIndexs.getStationNode(destinationId);
         List<String> destinationIds = Collections.singletonList(destinationId);
         Stream<Journey> journeys = getJourneyStream(startOfWalkNode, endNode, queryTime, destinationIds, queryDate, true);
 
@@ -165,7 +164,7 @@ public class RouteCalculator extends StationIndexs implements TramRouteCalculato
     }
 
     private Node createWalkingNode(LatLong origin) {
-        Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabaseService);
+        Node startOfWalkNode = nodeOperations.createQueryNode(stationIndexs);
         startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
         startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
         startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);

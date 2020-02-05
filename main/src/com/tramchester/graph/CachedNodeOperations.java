@@ -120,8 +120,8 @@ public class CachedNodeOperations {
     }
 
     // for creating query nodes, to support MyLocation joruneys
-    public Node createQueryNode(GraphDatabaseService graphDatabaseService) {
-        Node result = graphDatabaseService.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
+    public Node createQueryNode(StationIndexs stationIndexs) {
+        Node result = stationIndexs.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
         nodeIdLabelMap.putQueryNode(result.getId());
         return result;
     }

@@ -21,10 +21,15 @@ import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
-public class TramRouteReachable extends StationIndexs {
+public class TramRouteReachable {
 
-    public TramRouteReachable(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery) {
-        super(graphDatabaseService, graphQuery, false);
+    private final GraphDatabaseService graphDatabaseService;
+    private final StationIndexs stationIndexs;
+
+    public TramRouteReachable(GraphDatabaseService graphDatabaseService, StationIndexs stationIndexs) {
+        //super(graphDatabaseService, graphQuery, false);
+        this.graphDatabaseService = graphDatabaseService;
+        this.stationIndexs = stationIndexs;
     }
 
     public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, String routeId) {
@@ -39,7 +44,7 @@ public class TramRouteReachable extends StationIndexs {
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
-                Node routeStation = getRouteStationNode(startStationId + route.getId());
+                Node routeStation = stationIndexs.getRouteStationNode(startStationId + route.getId());
                 Iterable<Relationship> edges = routeStation.getRelationships(ON_ROUTE, Direction.OUTGOING);
                 for (Relationship edge : edges) {
                     if (endStationId.equals(edge.getEndNode().getProperty(STATION_ID).toString())) {
@@ -80,8 +85,8 @@ public class TramRouteReachable extends StationIndexs {
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
             PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
-            Node startNode = getStationNode(startId);
-            Node endNode = getStationNode(desinationId);
+            Node startNode = stationIndexs.getStationNode(startId);
+            Node endNode = stationIndexs.getStationNode(desinationId);
 
             WeightedPath path = finder.findSinglePath(startNode, endNode);
             Double weight  = Math.floor(path.weight());
@@ -92,7 +97,7 @@ public class TramRouteReachable extends StationIndexs {
     }
 
     private ResourceIterator<Path> generatePaths(String startStationId, Evaluator evaluator) {
-        Node startNode = getStationNode(startStationId);
+        Node startNode = stationIndexs.getStationNode(startStationId);
         Traverser traverser = new MonoDirectionalTraversalDescription().
                 relationships(ON_ROUTE, Direction.OUTGOING).
                 relationships(ENTER_PLATFORM, Direction.OUTGOING).
