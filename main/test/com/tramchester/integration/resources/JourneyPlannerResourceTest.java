@@ -45,6 +45,7 @@ import static org.hamcrest.collection.IsIn.oneOf;
 import static org.joda.time.DateTimeConstants.SATURDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
@@ -70,6 +71,22 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldPlanSimpleJourneyFromAltyToCornbrookArriveBy() {
         TramTime arriveByTime = TramTime.of(8, 15);
         checkAltyToCornbrook(arriveByTime, true);
+    }
+
+    @Test
+    public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
+        TramTime queryTime = TramTime.of(11,45);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, queryTime,
+                new TramServiceDate(when), true);
+
+        List<JourneyDTO> found = new ArrayList<>();
+        plan.getJourneys().forEach(journeyDTO -> {
+            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
+            if (journeyDTO.getExpectedArrivalTime().isBefore(queryTime)) {
+                found.add(journeyDTO);
+            }
+        });
+        assertFalse(found.isEmpty());
     }
 
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {

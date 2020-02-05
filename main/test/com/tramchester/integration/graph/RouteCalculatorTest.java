@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 public class RouteCalculatorTest {
 
     // TODO this needs to be > time for whole test fixture, see note below in @After
-    public static final int TXN_TIMEOUT = 5*60;
+    private static final int TXN_TIMEOUT = 5*60;
 
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;

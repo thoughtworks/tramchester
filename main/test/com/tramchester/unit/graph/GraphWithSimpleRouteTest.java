@@ -18,11 +18,9 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
@@ -91,7 +89,7 @@ public class GraphWithSimpleRouteTest {
         LatLong origin = new LatLong(180.001, 270.001);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin, TransportDataForTest.SECOND_STATION,
-                TramTime.of(7,55), queryDate).collect(Collectors.toSet());
+                TramTime.of(7,55), queryDate, false).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -106,7 +104,7 @@ public class GraphWithSimpleRouteTest {
         LatLong origin = new LatLong(180.001, 270.001);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(TransportDataForTest.SECOND_STATION, origin,
-                TramTime.of(7,55), queryDate).collect(Collectors.toSet());
+                TramTime.of(7,55), queryDate, false).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{

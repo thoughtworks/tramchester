@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.StationWalk;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Node;
@@ -18,35 +18,43 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
 
     private final TramRouteReachable tramRouteReachable;
     private final RouteCalculator routeCalculator;
+    private final TramchesterConfig config;
 
-    public RouteCalculatorArriveBy(TramRouteReachable tramRouteReachable, RouteCalculator routeCalculator) {
+    public RouteCalculatorArriveBy(TramRouteReachable tramRouteReachable, RouteCalculator routeCalculator, TramchesterConfig config) {
         this.tramRouteReachable = tramRouteReachable;
         this.routeCalculator = routeCalculator;
+        this.config = config;
     }
 
     @Override
     public Stream<Journey> calculateRoute(String startStationId, String destinationId, TramTime queryTime,
                                           TramServiceDate queryDate) {
         int costToDest = tramRouteReachable.getApproxCostBetween(startStationId, destinationId);
-        TramTime departureTime = queryTime.minusMinutes(costToDest);
-        logger.info(format("Plan journey, arrive by %s so depart by %s", queryDate, departureTime));
+        TramTime departureTime = calcDepartTime(queryTime, costToDest);
+        logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
         return routeCalculator.calculateRoute(startStationId, destinationId, departureTime, queryDate);
     }
-
-    /// TODO For walking have to do the cost calculation after adding the walking nodes to the graph
 
     @Override
     public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<String> destStations,
                                                    TramTime queryTime, TramServiceDate queryDate) {
-        logger.error("Not implemented");
-        throw new RuntimeException("Not implemented yet");
+        int costToDest = tramRouteReachable.getApproxCostBetween(startId, endOfWalk);
+        TramTime departureTime = calcDepartTime(queryTime, costToDest);
+        logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
+        return routeCalculator.calculateRouteWalkAtEnd(startId, endOfWalk, destStations, departureTime, queryDate);
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStart(Node origin, String destinationId, TramTime queryTime,
                                                      TramServiceDate queryDate) {
-        logger.error("Not implemented");
-        throw new RuntimeException("Not implemented yet");
+        int costToDest = tramRouteReachable.getApproxCostBetween(origin, destinationId);
+        TramTime departureTime = calcDepartTime(queryTime, costToDest);
+        logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
+        return routeCalculator.calculateRouteWalkAtStart(origin, destinationId, departureTime, queryDate);
+    }
 
+    private TramTime calcDepartTime(TramTime queryTime, int costToDest) {
+        int buffer = config.getMaxWait() / 2;
+        return queryTime.minusMinutes(costToDest).minusMinutes(buffer);
     }
 }

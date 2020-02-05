@@ -66,11 +66,24 @@ public class TramRouteReachable {
         return number>0;
     }
 
-    public int getApproxCostBetween(Station start, Station desination) {
-        return getApproxCostBetween(start.getId(), desination.getId());
+    public int getApproxCostBetween(String startId, Node endOfWalk) {
+        Node startNode = stationIndexs.getStationNode(startId);
+        return getApproxCostBetween(startNode, endOfWalk);
+    }
+
+    public int getApproxCostBetween(Node origin, String destinationId) {
+        Node endNode = stationIndexs.getStationNode(destinationId);
+        return getApproxCostBetween(origin, endNode);
     }
 
     public int getApproxCostBetween(String startId, String desinationId) {
+        Node startNode = stationIndexs.getStationNode(startId);
+        Node endNode = stationIndexs.getStationNode(desinationId);
+        return getApproxCostBetween(startNode, endNode);
+    }
+
+    private int getApproxCostBetween(Node startNode, Node endNode) {
+
         PathExpander<Object> forTypesAndDirections = PathExpanders.forTypesAndDirections(
                 ON_ROUTE, Direction.OUTGOING,
                 ENTER_PLATFORM, Direction.OUTGOING,
@@ -78,23 +91,18 @@ public class TramRouteReachable {
                 BOARD, Direction.OUTGOING,
                 DEPART, Direction.OUTGOING,
                 INTERCHANGE_BOARD, Direction.OUTGOING,
-                INTERCHANGE_DEPART, Direction.OUTGOING
+                INTERCHANGE_DEPART, Direction.OUTGOING,
+                WALKS_TO, Direction.OUTGOING,
+                WALKS_FROM, Direction.OUTGOING
         );
 
-        int result;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
+        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
+        WeightedPath path = finder.findSinglePath(startNode, endNode);
+        Double weight  = Math.floor(path.weight());
+        return weight.intValue();
 
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
-            Node startNode = stationIndexs.getStationNode(startId);
-            Node endNode = stationIndexs.getStationNode(desinationId);
-
-            WeightedPath path = finder.findSinglePath(startNode, endNode);
-            Double weight  = Math.floor(path.weight());
-            result = weight.intValue();
-        }
-
-        return result;
     }
+
 
     private ResourceIterator<Path> generatePaths(String startStationId, Evaluator evaluator) {
         Node startNode = stationIndexs.getStationNode(startStationId);

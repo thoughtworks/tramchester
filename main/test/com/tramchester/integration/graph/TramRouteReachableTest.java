@@ -7,10 +7,9 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.StationRepository;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 
@@ -24,6 +23,8 @@ public class TramRouteReachableTest {
     private String manAirportToVictoria = "MET:   6:O:";
     private String victoriaToManAirport = "MET:   6:I:";
     private StationRepository stationRepository;
+    private GraphDatabaseService database;
+    private Transaction tx;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -41,6 +42,13 @@ public class TramRouteReachableTest {
     public void beforeEachTestRuns() {
         stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(TramRouteReachable.class);
+        database = dependencies.get(GraphDatabaseService.class);
+        tx = database.beginTx();
+    }
+
+    @After
+    public void afterEachTestRuns() {
+        tx.close();
     }
 
     @Test
@@ -77,14 +85,14 @@ public class TramRouteReachableTest {
 
     @Test
     public void shouldComputeSimpleCostBetweenStations() {
-        assertEquals(60, reachable.getApproxCostBetween(Stations.Bury, Stations.Altrincham));
-        assertEquals(59, reachable.getApproxCostBetween(Stations.Altrincham, Stations.Bury));
+        assertEquals(60, reachable.getApproxCostBetween(Stations.Bury.getId(), Stations.Altrincham.getId()));
+        assertEquals(59, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.Bury.getId()));
 
-        assertEquals(5, reachable.getApproxCostBetween(Stations.NavigationRoad, Stations.Altrincham));
-        assertEquals(6, reachable.getApproxCostBetween(Stations.Altrincham, Stations.NavigationRoad));
+        assertEquals(5, reachable.getApproxCostBetween(Stations.NavigationRoad.getId(), Stations.Altrincham.getId()));
+        assertEquals(6, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.NavigationRoad.getId()));
 
-        assertEquals(61, reachable.getApproxCostBetween(Stations.MediaCityUK, Stations.ManAirport));
-        assertEquals(61, reachable.getApproxCostBetween(Stations.ManAirport, Stations.MediaCityUK));
+        assertEquals(61, reachable.getApproxCostBetween(Stations.MediaCityUK.getId(), Stations.ManAirport.getId()));
+        assertEquals(61, reachable.getApproxCostBetween(Stations.ManAirport.getId(), Stations.MediaCityUK.getId()));
     }
 
     private Station getReal(Station testStation) {

@@ -90,10 +90,10 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
                     if (isWalking(startId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, queryDate, queryTime);
+                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, queryDate, queryTime, arriveBy);
                     } else if (isWalking(endId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, queryDate, queryTime);
+                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, queryDate, queryTime, arriveBy);
                     } else {
                         planRepresentation = createJourneyPlan(startId, endId, queryDate, queryTime, arriveBy);
                     }
@@ -121,11 +121,11 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, TramServiceDate queryDate,
-                                                                      TramTime queryTime) {
+                                                                      TramTime queryTime, boolean arriveBy) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, endId,queryDate.getDay(),
                 queryDate, queryTime));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTime, queryDate);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTime, queryDate, arriveBy);
         // todo limit?
         Set<Journey> journeySet = journeys.collect(Collectors.toSet());
 
@@ -133,12 +133,11 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     }
 
     private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, TramServiceDate queryDate,
-                                                                      TramTime queryTime) {
+                                                                    TramTime queryTime, boolean arriveBy) {
         logger.info(format("Plan journey from %s to %s on %s %s at %s", startId, latLong, queryDate.getDay(),
                 queryDate, queryTime));
 
-
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTime, queryDate);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTime, queryDate, arriveBy);
         // todo limit?
         Set<Journey> journeySet = journeys.collect(Collectors.toSet());
         return createPlan(queryDate, journeySet);
