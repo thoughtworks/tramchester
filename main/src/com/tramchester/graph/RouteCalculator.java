@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class RouteCalculator extends StationIndexs {
+public class RouteCalculator extends StationIndexs implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
     private final String queryNodeName = "BEGIN";
@@ -50,6 +50,7 @@ public class RouteCalculator extends StationIndexs {
         this.createQueryTimes = createQueryTimes;
     }
 
+    @Override
     public Stream<Journey> calculateRoute(String startStationId, String destinationId, TramTime queryTime,
                                           TramServiceDate queryDate) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s", startStationId, destinationId,
@@ -61,9 +62,9 @@ public class RouteCalculator extends StationIndexs {
 
         return getJourneyStream(startNode, endNode, queryTime, destinationIds, queryDate, false);
 
-//        return gatherJounerys(getStationNode(startStationId), endStationId, queryTime, queryDate);
     }
 
+    @Override
     public Stream<Journey> calculateRouteWalkAtEnd(String startId, LatLong destination, List<StationWalk> walksToDest,
                                                    TramTime queryTime, TramServiceDate queryDate)
     {
@@ -98,6 +99,7 @@ public class RouteCalculator extends StationIndexs {
         return journeys;
     }
 
+    @Override
     public Stream<Journey> calculateRouteWalkAtStart(LatLong origin, List<StationWalk> walksToStartStations, String destinationId,
                                                      TramTime queryTime, TramServiceDate queryDate) {
         List<Relationship> addedWalks = new LinkedList<>();
@@ -116,7 +118,6 @@ public class RouteCalculator extends StationIndexs {
             addedWalks.add(walkingRelationship);
         });
 
-//        Stream<Journey> journeys = gatherJounerys(startOfWalkNode, destinationId, queryTime, queryDate);
         Node endNode = getStationNode(destinationId);
         List<String> destinationIds = Collections.singletonList(destinationId);
         Stream<Journey> journeys = getJourneyStream(startOfWalkNode, endNode, queryTime, destinationIds, queryDate, true);
@@ -131,13 +132,6 @@ public class RouteCalculator extends StationIndexs {
 
         return journeys;
     }
-
-//    private Stream<Journey> gatherJounerys(Node startNode, String destinationId, TramTime queryTime,
-//                                           TramServiceDate queryDate) {
-//        Node endNode = getStationNode(destinationId);
-//        List<String> destinationIds = Collections.singletonList(destinationId);
-//        return getJourneyStream(startNode, endNode, queryTime, destinationIds, queryDate, true);
-//    }
 
     private Stream<Journey> getJourneyStream(Node startNode, Node endNode, TramTime queryTime,
                                              List<String> destinationIds, TramServiceDate queryDate, boolean walkAtStart) {

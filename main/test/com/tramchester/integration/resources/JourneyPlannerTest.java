@@ -49,8 +49,8 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         dependencies.close();
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, TramServiceDate queryDate) {
-        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, queryTime);
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, TramServiceDate queryDate, boolean arriveBy) {
+        return planner.createJourneyPlan(start.getId(), end.getId(), queryDate, queryTime, false);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
         // todo currently finds far too many start points
 
         JourneyPlanRepresentation plan = planner.createJourneyPlan(startId, Stations.PiccadillyGardens.getId(),
-                today, TramTime.of(9,0));
+                today, TramTime.of(9,0), false);
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>=1);
         JourneyDTO journey = journeys.first();
@@ -82,7 +82,7 @@ public class JourneyPlannerTest extends JourneyPlannerHelper {
     @Category({BusTest.class})
     @Ignore("experimental")
     public void reproduceIssueWithRoute() {
-        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, TramTime.of(9,0));
+        planner.createJourneyPlan("1800SB34231", "1800SB01681", today, TramTime.of(9,0), false);
     }
 
 }

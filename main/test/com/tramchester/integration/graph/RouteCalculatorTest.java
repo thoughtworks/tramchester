@@ -417,7 +417,7 @@ public class RouteCalculatorTest {
                 TramTime time = TramTime.of(hour, minutes);
                 Stream<Journey> journeys = calculator.calculateRoute(start.getId(), dest.getId(),
                         time, new TramServiceDate(nextTuesday));
-                if (!journeys.limit(1).findFirst().isPresent()) {
+                if (journeys.limit(1).findFirst().isEmpty()) {
                     missing.add(time);
                 }
             }
@@ -441,7 +441,7 @@ public class RouteCalculatorTest {
 
         // check all results present, collect failures into a list
         List<Pair<String, String>> failed = results.entrySet().stream().
-                filter(journey -> !journey.getValue().isPresent()).
+                filter(journey -> journey.getValue().isEmpty()).
                 map(Map.Entry::getKey).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toList());

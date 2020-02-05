@@ -62,6 +62,10 @@ public class TramRouteReachable extends StationIndexs {
     }
 
     public int getApproxCostBetween(Station start, Station desination) {
+        return getApproxCostBetween(start.getId(), desination.getId());
+    }
+
+    public int getApproxCostBetween(String startId, String desinationId) {
         PathExpander<Object> forTypesAndDirections = PathExpanders.forTypesAndDirections(
                 ON_ROUTE, Direction.OUTGOING,
                 ENTER_PLATFORM, Direction.OUTGOING,
@@ -76,8 +80,8 @@ public class TramRouteReachable extends StationIndexs {
         try (Transaction tx = graphDatabaseService.beginTx()) {
 
             PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
-            Node startNode = getStationNode(start.getId());
-            Node endNode = getStationNode(desination.getId());
+            Node startNode = getStationNode(startId);
+            Node endNode = getStationNode(desinationId);
 
             WeightedPath path = finder.findSinglePath(startNode, endNode);
             Double weight  = Math.floor(path.weight());
@@ -85,14 +89,6 @@ public class TramRouteReachable extends StationIndexs {
         }
 
         return result;
-    }
-
-    int sum(Iterable<Relationship> relationships) {
-        int total = 0;
-        while (relationships.iterator().hasNext()) {
-            total = total + ((int)relationships.iterator().next().getProperty(COST));
-        }
-        return total;
     }
 
     private ResourceIterator<Path> generatePaths(String startStationId, Evaluator evaluator) {
@@ -106,32 +102,6 @@ public class TramRouteReachable extends StationIndexs {
                 .evaluator(evaluator)
                 .traverse(startNode);
         return traverser.iterator();
-    }
-
-
-
-    private static class ExactMatchEvaluator implements Evaluator {
-
-        private final String finishNodeId;
-
-        public ExactMatchEvaluator(String targetStationId) {
-            this.finishNodeId = targetStationId;
-        }
-
-        @Override
-        public Evaluation evaluate(Path path) {
-            Node queryNode = path.endNode();
-
-            // route stations include the ID of the final station
-            if (queryNode.hasLabel(ROUTE_STATION)) {
-                String routeStationId = queryNode.getProperty(STATION_ID).toString();
-                if (finishNodeId.equals(routeStationId)) {
-                    return Evaluation.INCLUDE_AND_PRUNE;
-                }
-            }
-
-            return Evaluation.INCLUDE_AND_CONTINUE;
-        }
     }
 
     private static class MatchOrInterchangeEvaluator implements Evaluator {

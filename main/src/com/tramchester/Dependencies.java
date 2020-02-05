@@ -102,6 +102,7 @@ public class Dependencies {
         picoContainer.addComponent(ServiceHeuristics.class);
 
         picoContainer.addComponent(RouteCalculator.class);
+        picoContainer.addComponent(RouteCalculatorArriveBy.class);
         picoContainer.addComponent(StationLocalityService.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);

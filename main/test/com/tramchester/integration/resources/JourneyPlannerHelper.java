@@ -30,7 +30,6 @@ public abstract class JourneyPlannerHelper {
                     String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
                             firstDepartureTime, previousArrive, stage);
                     if (stage.getMode()!= TransportMode.Walk) {
-//                        assertTrue(prefix + message, firstDepartureTime.asLocalTime().isAfter(previousArrive.asLocalTime()));
                         assertTrue(prefix + message, firstDepartureTime.isAfter(previousArrive));
                     }
                 }
@@ -42,7 +41,7 @@ public abstract class JourneyPlannerHelper {
     JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, TramTime queryTime,
                                                         LocalDate date) throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(date);
-        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryTime, queryDate);
+        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryTime, queryDate, false);
         Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, queryTime, queryDate);
@@ -53,11 +52,11 @@ public abstract class JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, LocalDate queryDate) throws TramchesterException {
-        return getJourneyPlan(start, end, queryTime, new TramServiceDate(queryDate));
+        return getJourneyPlan(start, end, queryTime, new TramServiceDate(queryDate), false);
     }
 
     abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime,
-                                                      TramServiceDate queryDate) throws TramchesterException;
+                                                      TramServiceDate queryDate, boolean arriveBy) throws TramchesterException;
 
 
 }

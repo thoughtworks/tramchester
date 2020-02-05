@@ -51,9 +51,10 @@ public class JourneyState implements ImmutableJourneyState {
 
     public static InitialBranchState<JourneyState> initialState(TramTime queryTime,
                                                                 TraversalState traversalState) {
-        return new InitialBranchState<JourneyState>() {
+        return new InitialBranchState<>() {
             @Override
-            public JourneyState initialState(Path path) { return new JourneyState(queryTime, traversalState);
+            public JourneyState initialState(Path path) {
+                return new JourneyState(queryTime, traversalState);
             }
 
             @Override

@@ -33,7 +33,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.tramchester.TestConfig.dateFormatDashes;
@@ -63,19 +62,34 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldPlanSimpleJourneyFromAltyToCornbrook() {
+        TramTime departTime = TramTime.of(8, 15);
+        checkAltyToCornbrook(departTime, false);
+    }
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, TramTime.of(8,15),
-                new TramServiceDate(when));
+    @Test
+    public void shouldPlanSimpleJourneyFromAltyToCornbrookArriveBy() {
+        TramTime arriveByTime = TramTime.of(8, 15);
+        checkAltyToCornbrook(arriveByTime, true);
+    }
+
+    private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, queryTime,
+                new TramServiceDate(when), arriveBy);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size()>0);
+        assertTrue(journeys.size() > 0);
         JourneyDTO journey = journeys.first();
         StageDTO firstStage = journey.getStages().get(0);
         PlatformDTO platform = firstStage.getPlatform();
+        if (arriveBy) {
+            assertTrue(journey.getFirstDepartureTime().isBefore(queryTime));
+        } else {
+            assertTrue(journey.getFirstDepartureTime().isAfter(queryTime));
+        }
 
         assertEquals("1", platform.getPlatformNumber());
-        assertEquals( "Altrincham platform 1", platform.getName());
-        assertEquals( Stations.Altrincham.getId()+"1", platform.getId());
+        assertEquals("Altrincham platform 1", platform.getName());
+        assertEquals(Stations.Altrincham.getId() + "1", platform.getId());
     }
 
     @Test
@@ -87,7 +101,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         TramTime timeForQuery = TramTime.of(currentLocalTime);
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, timeForQuery,
-                new TramServiceDate(LocalDate.now()));
+                new TramServiceDate(LocalDate.now()), false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -106,7 +120,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldReproLateNightIssueShudehillToAltrincham() {
         TramTime timeForQuery = TramTime.of(23,11);
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, timeForQuery,
-                new TramServiceDate(LocalDate.now()));
+                new TramServiceDate(LocalDate.now()), false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -119,7 +133,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldPlanSimpleJourneyFromAltyToAshton() {
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, TramTime.of(17,45),
-                new TramServiceDate(when));
+                new TramServiceDate(when), false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -188,75 +202,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
-    public void shouldFindRouteVeloToEtihad() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Etihad, TramTime.of(8,0), when);
-    }
-
-    @Test
     public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, TramTime.of(23,34), when);
     }
 
     @Test
-    public void shouldFindRoutePiccadilyGardensToCornbrook() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Cornbrook, TramTime.of(23,0), when);
-    }
-
-    @Test
-    public void shouldFindRouteCornbrookToManAirport() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, TramTime.of(23,20), when);
-    }
-
-    @Test
     public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, TramTime.of(23,41), when);
-    }
-
-    @Test
-    public void shouldFindRouteVeloToHoltTownAt8AM() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, TramTime.of(8,0), when);
-    }
-
-    @Test
-    public void shouldFindRouteVeloToEndOfLines() throws TramchesterException {
-        LocalDate weekOnTuesday = when.plusWeeks(1);
-
-        for (Location dest : Stations.EndOfTheLine) {
-            validateAtLeastOneJourney(Stations.VeloPark, dest, TramTime.of(8,0), weekOnTuesday);
-        }
-    }
-
-    @Test
-    public void shouldFindRouteVeloInterchanges() throws TramchesterException {
-        for (Location dest : Stations.Interchanges) {
-            validateAtLeastOneJourney(Stations.VeloPark, dest, TramTime.of(8,0), when);
-        }
-    }
-
-    @Test
-    public void shouldReproIssueWithChangesVeloToRoch() throws TramchesterException {
-        LocalDate weekOnTuesday = when.plusWeeks(1);
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Rochdale, TramTime.of(8,0), weekOnTuesday);
-    }
-
-    @Test
-    public void shouldReproIssueWithChangesVeloToTraffordBar() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, TramTime.of(8,0), when);
-    }
-
-    @Test
-    public void shouldFindRouteVeloToDeansgate() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Deansgate, TramTime.of(8,0), when);
-    }
-
-    @Test
-    public void shouldFindRouteVeloToBroadway() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Broadway, TramTime.of(8,0), when);
-    }
-
-    @Test
-    public void shouldFindRouteVeloToPomona() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.Pomona, TramTime.of(8,0), when);
     }
 
     @Test
@@ -283,7 +235,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().format(TestConfig.timeFormatter);
         String date = LocalDate.now().format(dateFormatDashes);
-        Response result = getResponseForJourney(testRule, start, end, time, date, null);
+        Response result = getResponseForJourney(testRule, start, end, time, date, null, false);
 
         assertEquals(200, result.getStatus());
 
@@ -326,13 +278,12 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     public void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
-        //String latlong = "%7B%22lat%22:53.3949553,%22lon%22:-2.3580997999999997%7D";
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         String start = MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
         String end = Stations.ManAirport.getId();
         String time = LocalTime.now().format(TestConfig.timeFormatter);
         String date = LocalDate.now().format(dateFormatDashes);
-        Response response = getResponseForJourney(testRule, start, end, time, date, latlong);
+        Response response = getResponseForJourney(testRule, start, end, time, date, latlong, false);
 
         assertEquals(200, response.getStatus());
         RecentJourneys result = getRecentJourneysFromCookie(response);
@@ -342,32 +293,29 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertTrue(recents.contains(new Timestamped(end, LocalDateTime.now())));
     }
 
-    @Test
-    public void shouldReproduceIssueWithMissingRoutes() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.TraffordBar, Stations.ExchangeSquare, TramTime.of(10,0), when);
-    }
-
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {
         Map<String, NewCookie> cookies = response.getCookies();
         NewCookie recent = cookies.get("tramchesterRecent");
         assertNotNull(recent);
         String value = recent.toCookie().getValue();
-        RecentJourneys result = RecentJourneys.decodeCookie(mapper,value);
-        return result;
+        return RecentJourneys.decodeCookie(mapper,value);
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime,
-                                                       TramServiceDate queryDate) {
+                                                       TramServiceDate queryDate, boolean arriveBy) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestConfig.timeFormatter);
-        Response response = getResponseForJourney(testRule, start.getId(), end.getId(), time, date, null);
+        Response response = getResponseForJourney(testRule, start.getId(), end.getId(), time, date,
+                null, arriveBy);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
     public static Response getResponseForJourney(IntegrationTestRun rule, String start, String end, String time,
-                                                 String date, LatLong latlong) {
-        String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date);
+                                                 String date, LatLong latlong, boolean arriveBy) {
+        String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s",
+                start, end, time, date, arriveBy);
+
         if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(start) || MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(end)) {
             if (latlong==null) {
                 fail("must provide latlong");
