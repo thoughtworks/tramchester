@@ -127,12 +127,12 @@ public class AppPage extends Page {
 
     public String getFromStop() {
         Select selector = new Select(driver.findElement(By.id(FROM_STOP)));
-        return selector.getFirstSelectedOption().getText();
+        return selector.getFirstSelectedOption().getText().trim();
     }
 
     public String getToStop() {
         Select selector = new Select(driver.findElement(By.id(TO_STOP)));
-        return selector.getFirstSelectedOption().getText();
+        return selector.getFirstSelectedOption().getText().trim();
     }
 
     public String getTime() {
@@ -229,7 +229,7 @@ public class AppPage extends Page {
 
     private List<String> getStopNames(WebElement groupElement) {
         List<WebElement> stopElements = groupElement.findElements(By.className("stop"));
-        List<String> results = stopElements.stream().map(WebElement::getText).collect(Collectors.toList());
+        List<String> results = stopElements.stream().map(WebElement::getText).map(String::trim).collect(Collectors.toList());
         return results;
     }
 
