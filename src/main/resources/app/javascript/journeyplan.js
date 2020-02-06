@@ -95,6 +95,7 @@ var app = new Vue({
                 proximityGroups: [],
                 startStop: null,
                 endStop: null,
+                arriveBy: false,
                 time: getCurrentTime(),
                 date: getCurrentDate(),
                 journeys: [],
@@ -182,7 +183,7 @@ var app = new Vue({
             },
             queryServer() {
                 var urlParams = { start: this.startStop, end: this.endStop, departureTime: this.time,
-                    departureDate: this.date};
+                    departureDate: this.date, arriveby: this.arriveBy};
                 if (this.startStop=='MyLocationPlaceholderId' || this.endStop=='MyLocationPlaceholderId') {
                     const place = app.location;
                     urlParams.lat = place.coords.latitude;

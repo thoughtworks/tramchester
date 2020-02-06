@@ -38,11 +38,14 @@
                     </div>
                 </b-col>
                 <b-col cols="1" class="pl-0">
-                    <b-button @click="swap">Swap</b-button>
+                    <b-button @click="swap">&#8645;</b-button>
                 </b-col>
             </b-row>
             <b-row>
-                <b-col cols="11" class="pl-0">
+                <b-col cols="3" class="pl-0">
+                    <b-form-checkbox size="sm" v-model="arriveBy">arrive by</b-form-checkbox>
+                </b-col>
+                <b-col cols="8" >
                     <b-input-group class="mb-3">
                         <b-form-input id="time" v-model="time" type="time" required></b-form-input>
                         <b-input-group-append>
