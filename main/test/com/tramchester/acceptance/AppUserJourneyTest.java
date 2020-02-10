@@ -107,12 +107,14 @@ public class AppUserJourneyTest {
 
         assertEquals(LocalDate.now(), appPage.getDate());
 
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
-        assertJourney(appPage, altrincham, bury, "10:15", nextTuesday);
-        desiredJourney(appPage, altrincham, bury, nextTuesday.plusMonths(1), LocalTime.parse("03:15"));
-        assertJourney(appPage, altrincham, bury, "03:15", nextTuesday.plusMonths(1));
-        desiredJourney(appPage, altrincham, bury, nextTuesday.plusYears(1), LocalTime.parse("20:15"));
-        assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1));
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
+        assertJourney(appPage, altrincham, bury, "10:15", nextTuesday, false);
+        desiredJourney(appPage, altrincham, bury, nextTuesday.plusMonths(1), LocalTime.parse("03:15"), false);
+        assertJourney(appPage, altrincham, bury, "03:15", nextTuesday.plusMonths(1), false);
+        desiredJourney(appPage, altrincham, bury, nextTuesday.plusYears(1), LocalTime.parse("20:15"), false);
+        assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1), false);
+        desiredJourney(appPage, altrincham, bury, nextTuesday.plusYears(1), LocalTime.parse("20:15"), true);
+        assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1), true);
 
         appPage.selectNow();
         validateCurrentTimeIsSelected(appPage);
@@ -136,7 +138,7 @@ public class AppUserJourneyTest {
     @Test
     public void shouldTravelAltyToBuryAndSetRecents() {
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
@@ -157,14 +159,14 @@ public class AppUserJourneyTest {
         assertEquals(Stations.NumberOf-1, remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, Stations.ExchangeSquare.getName(), bury, "10:15", nextTuesday);
+        assertJourney(appPage, Stations.ExchangeSquare.getName(), bury, "10:15", nextTuesday, false);
     }
 
     @Test
     public void shouldCheckAltrinchamToDeansgate() {
         AppPage appPage = prepare();
         LocalTime planTime = LocalTime.parse("10:00");
-        desiredJourney(appPage, altrincham, deansgate, nextTuesday, planTime);
+        desiredJourney(appPage, altrincham, deansgate, nextTuesday, planTime, false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable());
@@ -197,7 +199,7 @@ public class AppUserJourneyTest {
     @Test
     public void shouldHideStationInToListWhenSelectedInFromList() {
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         List<String> toStops = appPage.getToStops();
         assertFalse(toStops.contains(altrincham));
     }
@@ -205,7 +207,7 @@ public class AppUserJourneyTest {
     @Test
     public void shouldShowNoRoutesMessage() {
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("03:15"));
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("03:15"), false);
         appPage.planAJourney();
 
         assertTrue(appPage.noResults());
@@ -217,7 +219,7 @@ public class AppUserJourneyTest {
         LocalTime eightFifteen = LocalTime.parse("08:15");
 
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen);
+        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
@@ -225,7 +227,7 @@ public class AppUserJourneyTest {
         List<SummaryResult> results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
 
-        desiredJourney(appPage, altrincham, bury, nextTuesday, eightFifteen);
+        desiredJourney(appPage, altrincham, bury, nextTuesday, eightFifteen, false);
         appPage.planAJourney();
         // need way to delay response for this test to be useful
         //assertFalse(appPage.searchEnabled());
@@ -242,7 +244,7 @@ public class AppUserJourneyTest {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen);
+        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
@@ -264,7 +266,7 @@ public class AppUserJourneyTest {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
         AppPage appPage = prepare();
-        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen);
+        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
@@ -285,7 +287,7 @@ public class AppUserJourneyTest {
     public void shouldHaveMultistageJourney() {
         AppPage appPage = prepare();
         LocalTime planTime = LocalTime.parse("10:00");
-        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, planTime);
+        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, planTime, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
@@ -333,20 +335,20 @@ public class AppUserJourneyTest {
         AppPage appPage = prepare();
         LocalDate aSaturday = TestConfig.nextSaturday();
 
-        desiredJourney(appPage, altrincham, bury, aSaturday, time);
+        desiredJourney(appPage, altrincham, bury, aSaturday, time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
         assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
 
-        desiredJourney(appPage, altrincham, bury, nextTuesday, time);
+        desiredJourney(appPage, altrincham, bury, nextTuesday, time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         if (appPage.notesPresent()) {
             assertThat(appPage.getAllNotes(), not(hasItem(weekendMsg)));
         }
 
-        desiredJourney(appPage, altrincham, bury, aSaturday.plusDays(1), time);
+        desiredJourney(appPage, altrincham, bury, aSaturday.plusDays(1), time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
@@ -421,18 +423,20 @@ public class AppUserJourneyTest {
         return appPage;
     }
 
-    public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time) {
+    public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time, boolean arriveBy) {
         appPage.setStart(start);
         appPage.setDest(dest);
         appPage.setDate(date);
         appPage.setTime(time);
+        appPage.setArriveBy(arriveBy);
     }
 
-    public static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date) {
+    public static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date, boolean arriveBy) {
         assertEquals(start, appPage.getFromStop());
         assertEquals(dest, appPage.getToStop());
         assertEquals(time, appPage.getTime());
         assertEquals(date, appPage.getDate());
+        assertEquals(arriveBy, appPage.getArriveBy());
     }
 
     public static void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,

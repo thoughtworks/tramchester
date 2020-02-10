@@ -85,7 +85,6 @@ public class AppPage extends Page {
         selector.selectByVisibleText(start);
     }
 
-    // TODO
     public void setDate(LocalDate localDate) {
         WebElement element = getDateElement();
 
@@ -333,6 +332,24 @@ public class AppPage extends Page {
     public void selectToday() {
         WebElement todayButton = driver.findElement(By.id("todayButton"));
         todayButton.click();
+    }
+
+    public boolean getArriveBy() {
+        WebElement arriveByElement = driver.findElement(By.id("arriveBy"));
+        return arriveByElement.isSelected();
+    }
+
+    public void setArriveBy(boolean arriveBy) {
+        WebElement arriveByElement = driver.findElement(By.id("arriveBy"));
+
+
+        boolean currently = arriveByElement.isSelected();
+        if (currently!=arriveBy) {
+            Actions actions = new Actions(driver);
+
+            actions.moveToElement(arriveByElement).click().perform();
+            //arriveByElement.click();
+        }
     }
 
     private List<String> getStopsByGroupName(String groupName) {

@@ -11,7 +11,7 @@
             <b-row align-h="start">
                 <b-col cols="11" class="pl-0">
                     <div id="selectStart">
-                        <b-form-select id="fromStop" v-model="startStop" class="mb-3" required>
+                        <b-form-select id="fromStop" v-model="startStop" class="mb-2" required>
                             <option :value="null" disabled>Please select start</option>
                             <optgroup v-for="group in proximityGroups" :label="group.name" :name="group.name"
                                       :id="'fromGroup' + group.name">
@@ -26,7 +26,7 @@
             <b-row>
                 <b-col cols="11" class="pl-0">
                     <div id="selectEnd">
-                        <b-form-select id="toStop" v-model="endStop" class="mb-3" required>
+                        <b-form-select id="toStop" v-model="endStop" class="mb-2" required>
                             <option :value="null" disabled>Please select destination</option>
                             <optgroup v-for="group in endProximityGroups" :label="group.name" :name="group.name"
                                       :id="'toGroup' + group.name">
@@ -43,10 +43,10 @@
             </b-row>
             <b-row>
                 <b-col cols="3" class="pl-0">
-                    <b-form-checkbox size="sm" v-model="arriveBy">arrive by</b-form-checkbox>
+                    <b-form-checkbox id="arriveBy" size="sm" v-model="arriveBy">arrive by</b-form-checkbox>
                 </b-col>
                 <b-col cols="8" >
-                    <b-input-group class="mb-3">
+                    <b-input-group class="mb-2">
                         <b-form-input id="time" v-model="time" type="time" required></b-form-input>
                         <b-input-group-append>
                             <b-button id="nowButton" variant="info" @click="timeToNow()">Now</b-button>
@@ -56,7 +56,7 @@
             </b-row>
             <b-row>
                 <b-col cols="11" class="pl-0">
-                    <b-input-group class="mb-3">
+                    <b-input-group class="mb-2">
                         <b-form-input id="date" v-model="date" type="date" required></b-form-input>
                         <b-input-group-append>
                             <b-button id="todayButton" variant="info" @click="dateToNow()">Today</b-button>

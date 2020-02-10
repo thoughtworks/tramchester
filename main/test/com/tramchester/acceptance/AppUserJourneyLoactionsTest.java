@@ -125,7 +125,7 @@ public class AppUserJourneyLoactionsTest {
         assertEquals(Stations.NumberOf, nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"));
+        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         appPage.planAJourney();
         appPage.waitForReady();
 
@@ -140,7 +140,7 @@ public class AppUserJourneyLoactionsTest {
     public void shouldCheckNearAltrinchamToDeansgate() {
         AppPage appPage = prepare();
         LocalTime planTime = LocalTime.of(10,15);
-        desiredJourney(appPage, "My Location", deansgate, nextTuesday, planTime);
+        desiredJourney(appPage, "My Location", deansgate, nextTuesday, planTime, false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable());
