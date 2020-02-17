@@ -29,14 +29,14 @@ public class StageDTO {
     private String action;
 
     public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
-                    PlatformDTO platform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
+                    PlatformDTO boardingPlatform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode,
                     String displayClass, int passedStops, String routeName, TravelAction action) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
         this.hasPlatform = hasPlatform;
-        this.platform = platform;
+        this.platform = boardingPlatform;
         this.firstDepartureTime = firstDepartureTime;
         this.expectedArrivalTime = expectedArrivalTime;
         this.duration = duration;

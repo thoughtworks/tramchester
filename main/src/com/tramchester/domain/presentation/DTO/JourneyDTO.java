@@ -1,28 +1,19 @@
 package com.tramchester.domain.presentation.DTO;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.CallsAtPlatforms;
+import com.tramchester.domain.HasPlatformId;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class JourneyDTO implements Comparable<JourneyDTO> {
-    @Override
-    public String toString() {
-        return "JourneyDTO{" +
-                "begin=" + begin +
-                ", end=" + end +
-                ", stages=" + stages +
-                ", expectedArrivalTime=" + expectedArrivalTime +
-                ", firstDepartureTime=" + firstDepartureTime +
-                ", dueTram='" + dueTram + '\'' +
-                ", isDirect=" + isDirect +
-                ", changeStations=" + changeStations +
-                '}';
-    }
+public class JourneyDTO implements Comparable<JourneyDTO>, CallsAtPlatforms {
 
     private LocationDTO begin;
     private LocationDTO end;
@@ -32,6 +23,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
     private String dueTram;
     private boolean isDirect;
     private List<String> changeStations;
+    private TramTime queryTime;
 
     public JourneyDTO() {
         // Deserialization
@@ -39,7 +31,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
 
     public JourneyDTO(LocationDTO begin, LocationDTO end, List<StageDTO> stages,
                       TramTime expectedArrivalTime, TramTime firstDepartureTime,
-                      boolean isDirect, List<String> changeStations) {
+                      boolean isDirect, List<String> changeStations, TramTime queryTime) {
         this.begin = begin;
         this.end = end;
         this.stages = stages;
@@ -47,6 +39,7 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
         this.firstDepartureTime = firstDepartureTime;
         this.isDirect = isDirect;
         this.changeStations = changeStations;
+        this.queryTime = queryTime;
     }
 
     public List<StageDTO> getStages() {
@@ -115,5 +108,30 @@ public class JourneyDTO implements Comparable<JourneyDTO> {
 
     public List<String> getChangeStations() {
         return changeStations;
+    }
+
+    @Override
+    public String toString() {
+        return "JourneyDTO{" +
+                "begin=" + begin +
+                ", end=" + end +
+                ", stages=" + stages +
+                ", expectedArrivalTime=" + expectedArrivalTime +
+                ", firstDepartureTime=" + firstDepartureTime +
+                ", dueTram='" + dueTram + '\'' +
+                ", isDirect=" + isDirect +
+                ", changeStations=" + changeStations +
+                '}';
+    }
+
+    @JsonIgnore
+    @Override
+    public List<HasPlatformId> getCallingPlatformIds() {
+        return stages.stream().filter(StageDTO::getHasPlatform).map(StageDTO::getPlatform).collect(Collectors.toList());
+    }
+
+    @JsonIgnore
+    public TramTime getQueryTime() {
+        return queryTime;
     }
 }

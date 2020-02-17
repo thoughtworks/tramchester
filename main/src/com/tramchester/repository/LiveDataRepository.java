@@ -1,11 +1,11 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.Platform;
+import com.tramchester.domain.HasPlatformId;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
@@ -116,7 +116,7 @@ public class LiveDataRepository implements LiveDataSource {
     }
 
     @Override
-    public Optional<StationDepartureInfo> departuresFor(Platform platform, TramServiceDate tramServiceDate, TramTime queryTime) {
+    public Optional<StationDepartureInfo> departuresFor(HasPlatformId platform, TramServiceDate tramServiceDate, TramTime queryTime) {
         if (!tramServiceDate.getDate().equals(lastRefresh.toLocalDate())) {
             logger.warn("No data for date, not querying for departure info " + tramServiceDate);
             return Optional.empty();
@@ -144,7 +144,7 @@ public class LiveDataRepository implements LiveDataSource {
     @Override
     public List<DueTram> dueTramsFor(Station station, TramServiceDate when, TramTime queryTime) {
         return departuresFor(station, when, queryTime).stream().
-                map(info -> info.getDueTrams()).
+                map(StationDepartureInfo::getDueTrams).
                 flatMap(Collection::stream).
                 filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
                 collect(Collectors.toList());
@@ -182,7 +182,7 @@ public class LiveDataRepository implements LiveDataSource {
         return total-withinCutof;
     }
 
-    private Optional<StationDepartureInfo> departuresFor(Platform platform) {
+    private Optional<StationDepartureInfo> departuresFor(HasPlatformId platform) {
         String platformId = platform.getId();
 
         if (!stationInformation.containsKey(platformId)) {

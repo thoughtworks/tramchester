@@ -43,7 +43,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     @Test
     public void shouldAddNotesForClosedStations() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
-        List<String> result = provider.createNotesForJourneys(queryDate, Collections.emptySet());
+        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
         assertThat(result, hasItem("St Peters Square is currently closed. "+ProvidesNotes.website));
     }
@@ -51,7 +51,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     @Test
     public void shouldAddNotesForSaturdayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
-        List<String> result = provider.createNotesForJourneys(queryDate, Collections.emptySet());
+        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
         assertThat(result, hasItem(ProvidesNotes.weekend));
     }
@@ -59,7 +59,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     @Test
     public void shouldAddNotesForSundayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,30));
-        List<String> result = provider.createNotesForJourneys(queryDate, Collections.emptySet());
+        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
         assertThat(result, hasItem(ProvidesNotes.weekend));
     }
@@ -67,7 +67,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     @Test
     public void shouldNotShowNotesOnOtherDay() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
-        List<String> result = provider.createNotesForJourneys(queryDate, Collections.emptySet());
+        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
         assertThat(result, not(hasItem(ProvidesNotes.weekend)));
     }
@@ -77,17 +77,17 @@ public class ProvidesNotesTest extends EasyMockSupport {
         int year = 2018;
         LocalDate date = LocalDate.of(year, 12, 23);
 
-        List<String> result = provider.createNotesForJourneys(new TramServiceDate(date), Collections.emptySet());
+        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), new TramServiceDate(date));
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
 
         for(int offset=1; offset<11; offset++) {
             TramServiceDate queryDate = new TramServiceDate(date.plusDays(offset));
-            result = provider.createNotesForJourneys(queryDate, Collections.emptySet());
+            result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
             assertThat(queryDate.toString(), result, hasItem(ProvidesNotes.christmas));
         }
 
         date = LocalDate.of(year+1, 1, 3);
-        result = provider.createNotesForJourneys(new TramServiceDate(date), Collections.emptySet());
+        result = provider.createNotesForJourneys(Collections.emptySet(), new TramServiceDate(date));
         assertThat(result, not(hasItem(ProvidesNotes.christmas)));
     }
 
@@ -110,7 +110,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
+        List<String> notes = provider.createNotesForJourneys(journeys, serviceDate);
         verifyAll();
 
         // 1 is for the closure
@@ -135,7 +135,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
+        List<String> notes = provider.createNotesForJourneys(journeys, serviceDate);
         verifyAll();
 
         int expected = 1; // 1 is for the closure
@@ -164,7 +164,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(queryDate, journeys);
+        List<String> notes = provider.createNotesForJourneys(journeys, queryDate);
         verifyAll();
 
         int expected = 1; // 1 is for the closure
@@ -205,7 +205,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(stages, queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
+        List<String> notes = provider.createNotesForJourneys(journeys, serviceDate);
         verifyAll();
 
         int expected = 3; // +1 for station closure

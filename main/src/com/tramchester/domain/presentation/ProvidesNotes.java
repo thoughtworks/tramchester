@@ -11,7 +11,6 @@ import org.apache.commons.collections4.map.HashedMap;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -30,7 +29,7 @@ public class ProvidesNotes {
         this.liveDataRepository = liveDataRepository;
     }
 
-    public List<String> createNotesForJourneys(TramServiceDate queryDate, Set<Journey> journeys) {
+    public <T extends CallsAtPlatforms> List<String> createNotesForJourneys(Set<T> journeys, TramServiceDate queryDate) {
         List<String> notes = new LinkedList<>();
         notes.addAll(createNotesForADate(queryDate));
         notes.addAll(liveNotesForJourneys(journeys, queryDate));
@@ -72,26 +71,27 @@ public class ProvidesNotes {
         return messages;
     }
 
-    private List<String> liveNotesForJourneys(Set<Journey> journeys, TramServiceDate queryDate) {
+    private <T extends CallsAtPlatforms> List<String> liveNotesForJourneys(Set<T> journeys, TramServiceDate queryDate) {
         // Map: Message -> Location
         Map<String,String> messageMap = new HashedMap<>();
 
         // find all the platforms involved in a journey, so board, depart and changes
         journeys.forEach(journey -> {
-            List<Platform> platformsForJourney = journey.getStages().stream().
-                    filter(stage -> stage.getMode().equals(TransportMode.Tram)).
-                    map(stage -> (VehicleStage) stage).
-                    map(VehicleStage::getBoardingPlatform).filter(Optional::isPresent).
-                    map(Optional::get).
-                    collect(Collectors.toList());
+//            List<HasPlatformId> platformsForJourney = journey.getStages().stream().
+//                    //filter(stage -> stage.getMode().equals(TransportMode.Tram)).
+//                    //map(stage -> (VehicleStage) stage).
+//                    filter(StageDTO::getHasPlatform).
+//                    map(StageDTO::getPlatform).
+//                    collect(Collectors.toList());
             // add messages for those platforms
-            platformsForJourney.forEach(platform -> addRelevantMessage(messageMap, platform, queryDate, journey.getQueryTime()));
+            journey.getCallingPlatformIds().forEach(platform -> addRelevantMessage(messageMap, platform, queryDate,
+                    journey.getQueryTime()));
             });
 
         return createMessageList(messageMap);
     }
 
-    private void addRelevantMessage(Map<String, String> messageMap, Platform platform, TramServiceDate queryDate, TramTime queryTime) {
+    private void addRelevantMessage(Map<String, String> messageMap, HasPlatformId platform, TramServiceDate queryDate, TramTime queryTime) {
         Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platform, queryDate, queryTime);
         if (maybe.isEmpty()) {
             return;

@@ -5,7 +5,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class Platform {
+public class Platform implements HasPlatformId {
 
     private final String id;
     private final String name;
@@ -28,6 +28,7 @@ public class Platform {
         return format("%s platform %s", name, platformNumber);
     }
 
+    @Override
     public String getId() {
         return id;
     }

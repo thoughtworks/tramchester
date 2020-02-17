@@ -1,9 +1,10 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.HasPlatformId;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 
-public class PlatformDTO {
+public class PlatformDTO implements HasPlatformId {
 
     private String id;
     private String name;
@@ -64,6 +65,5 @@ public class PlatformDTO {
     public int hashCode() {
         return id.hashCode();
     }
-
 
 }

@@ -152,6 +152,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         } else {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
         }
+        // NOTE: Limit here relys on search giving lowest cost routes first
         Set<Journey> journeySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
         return createPlan(queryDate, journeySet);
     }
@@ -159,8 +160,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Set<Journey> journeys) {
         logger.info("number of journeys: " + journeys.size());
 
-        List<String> notes = providesNotes.createNotesForJourneys(queryDate, journeys);
         SortedSet<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate);
+        List<String> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
         return new JourneyPlanRepresentation(journeyDTOs, notes);
     }
 

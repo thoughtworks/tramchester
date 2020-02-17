@@ -5,8 +5,10 @@ import com.tramchester.domain.time.TramTime;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class Journey implements Iterable<TransportStage> {
+public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
 
     private final List<TransportStage> stages;
     private final TramTime queryTime;
@@ -22,6 +24,14 @@ public class Journey implements Iterable<TransportStage> {
 
     public List<TransportStage> getStages() {
         return stages;
+    }
+
+    @Override
+    public List<HasPlatformId> getCallingPlatformIds() {
+       return stages.stream().map(TransportStage::getBoardingPlatform).
+               filter(Optional::isPresent).
+               map(Optional::get).
+               collect(Collectors.toList());
     }
 
     public TramTime getQueryTime() {

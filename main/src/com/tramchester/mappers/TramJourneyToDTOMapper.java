@@ -47,7 +47,7 @@ public class TramJourneyToDTOMapper {
             logger.error("Failed to create valid journey");
             return Optional.empty();
         }
-        JourneyDTO journeyDTO = journeyFactory.build(stages);
+        JourneyDTO journeyDTO = journeyFactory.build(stages, queryTime);
         return Optional.of(journeyDTO);
     }
 

@@ -25,14 +25,14 @@ public class JourneyDTOFactory {
         this.headsignMapper = headsignMapper;
     }
 
-    public JourneyDTO build(List<StageDTO> stages) {
+    public JourneyDTO build(List<StageDTO> stages, TramTime queryTime) {
         boolean isDirect = isDirect(stages);
         LocationDTO begin = getBegin(stages);
         LocationDTO end = getEnd(stages);
 
         JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages),
                 getFirstDepartureTime(stages),
-                isDirect, getChangeStationNames(stages));
+                isDirect, getChangeStationNames(stages), queryTime);
 
         addTopLevelDueTramToJourney(journeyDTO);
 
