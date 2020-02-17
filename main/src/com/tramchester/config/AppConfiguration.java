@@ -59,7 +59,7 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("numOfNearestStops")
     private int numOfNearestStops;
 
-    @JsonProperty("numOfNearestStops")
+    @JsonProperty("numOfNearestStopsForWalking")
     private int numOfNearestStopsForWalking;
 
     @JsonProperty("walkingMPH")
