@@ -28,7 +28,6 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -125,10 +124,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 queryDate, queryTime));
 
         Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTime, queryDate, arriveBy);
-        // todo limit?
-        Set<Journey> journeySet = journeys.collect(Collectors.toSet());
-
-        return createPlan(queryDate, journeySet);
+        return createPlan(queryDate, journeys);
     }
 
     private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, TramServiceDate queryDate,
@@ -137,8 +133,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 queryDate, queryTime));
 
         Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTime, queryDate, arriveBy);
-        Set<Journey> journeySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
-        return createPlan(queryDate, journeySet);
+        return createPlan(queryDate, journeys);
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
@@ -152,18 +147,14 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         } else {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
         }
-        // NOTE: Limit here relys on search giving lowest cost routes first
-        Set<Journey> journeySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
-        return createPlan(queryDate, journeySet);
+        // ASSUME: Limit here rely's on search giving lowest cost routes first
+        return createPlan(queryDate, journeys.limit(config.getMaxNumResults()));
     }
 
-    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Set<Journey> journeys) {
-        logger.info("number of journeys: " + journeys.size());
-
-        SortedSet<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate);
+    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeys) {
+        SortedSet<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate, config.getMaxNumResults());
         List<String> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
         return new JourneyPlanRepresentation(journeyDTOs, notes);
     }
-
 
 }

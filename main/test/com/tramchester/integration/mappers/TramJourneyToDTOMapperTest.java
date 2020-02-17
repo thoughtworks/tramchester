@@ -80,11 +80,9 @@ public class TramJourneyToDTOMapperTest {
         TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, 16);
         stages.add(vicToRoch);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, time), tramServiceDate);
+        JourneyDTO result = mapper.createJourneyDTO(new Journey(stages, time), tramServiceDate);
 
-        assertTrue(result.isPresent());
-        JourneyDTO journey = result.get();
-        StageDTO stage = journey.getStages().get(0);
+        StageDTO stage = result.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
         assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(LocalTime.of(16,0)));
     }
@@ -97,10 +95,8 @@ public class TramJourneyToDTOMapperTest {
                 pm1044, 42, 14);
 
         stages.add(rawStage);
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm1044), tramServiceDate);
+        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm1044), tramServiceDate);
 
-        assertTrue(result.isPresent());
-        JourneyDTO journey = result.get();
         assertFalse(journey.getStages().isEmpty());
         StageDTO stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
@@ -114,10 +110,8 @@ public class TramJourneyToDTOMapperTest {
         VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, 8);
 
         stages.add(altToCorn);
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am7), tramServiceDate);
+        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am7), tramServiceDate);
 
-        assertTrue(result.isPresent());
-        JourneyDTO journey = result.get();
         assertEquals(1, journey.getStages().size());
         StageDTO stage = journey.getStages().get(0);
         assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
@@ -142,10 +136,7 @@ public class TramJourneyToDTOMapperTest {
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
-
-        assertTrue(result.isPresent());
-        JourneyDTO journey = result.get();
+        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
         assertEquals(2, journey.getStages().size());
 
@@ -165,10 +156,7 @@ public class TramJourneyToDTOMapperTest {
         WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, false);
         stages.add(walkingStage);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
-
-        assertTrue(result.isPresent());
-        JourneyDTO journey = result.get();
+        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
         assertEquals(1, journey.getStages().size());
 
         StageDTO stage = journey.getStages().get(0);
@@ -184,10 +172,7 @@ public class TramJourneyToDTOMapperTest {
         WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, true);
         stages.add(walkingStage);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
-
-        assertTrue(result.isPresent());
-        JourneyDTO journey = result.get();
+        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
         assertEquals(1, journey.getStages().size());
 
         StageDTO stage = journey.getStages().get(0);
@@ -213,10 +198,8 @@ public class TramJourneyToDTOMapperTest {
         stages.add(walkingStage);
         stages.add(finalStage);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
+        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
-        assertTrue(result.isPresent());
-        JourneyDTO journey = result.get();
         assertEquals(3, journey.getStages().size());
 
 //        StageDTO stage1 = journey.getStages().get(0);
@@ -248,9 +231,11 @@ public class TramJourneyToDTOMapperTest {
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, startTime), tramServiceDate);
+        JourneyDTO result = mapper.createJourneyDTO(new Journey(stages, startTime), tramServiceDate);
 
-        assertTrue(result.isPresent());
+        assertEquals(2, result.getStages().size());
+        // +1, leave tram time
+        assertEquals(startTime.plusMinutes(18+42+1), result.getExpectedArrivalTime());
     }
 
     private VehicleStage getRawVehicleStage(Location start, Location finish, String routeName, TramTime startTime,

@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,7 +51,7 @@ public class LocationJourneyPlanner {
     public Stream<Journey> quickestRouteForLocation(LatLong latLong, String destinationId, TramTime queryTime,
                                                     TramServiceDate queryDate, boolean arriveBy) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s", latLong, destinationId, queryDate, queryTime));
-        List<StationWalk> walksToStart = getStationWalks(latLong);
+        List<StationWalk> walksToStart = getStationWalks(latLong,  config.getNearestStopRangeKM());
 
         Node startOfWalkNode = createWalkingNode(latLong);
         List<Relationship> addedRelationships = new LinkedList<>();
@@ -78,7 +77,7 @@ public class LocationJourneyPlanner {
     public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, TramTime queryTime,
                                                     TramServiceDate queryDate, boolean arriveBy) {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s", startId, destination, queryDate, queryTime));
-        List<StationWalk> walksToDest = getStationWalks(destination);
+        List<StationWalk> walksToDest = getStationWalks(destination,  config.getNearestStopRangeKM());
 
         List<Relationship> addedRelationships = new LinkedList<>();
         List<String> destinationStationIds = new ArrayList<>();
@@ -171,9 +170,12 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private List<StationWalk> getStationWalks(LatLong latLong) {
-        List<String> nearbyStationIds = spatialService.getNearestStationsTo(latLong, config.getNumOfNearestStopsForWalking());
-        return nearestStations(latLong, nearbyStationIds);
+    private List<StationWalk> getStationWalks(LatLong latLong, double rangeInKM) {
+        int num = config.getNumOfNearestStopsForWalking();
+        List<String> nearbyStationIds = spatialService.getNearestStationsTo(latLong, num, rangeInKM);
+        List<StationWalk> stationWalks = nearestStations(latLong, nearbyStationIds);
+        logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));
+        return stationWalks;
     }
 
     private List<StationWalk> nearestStations(LatLong latLong, List<String> startIds) {

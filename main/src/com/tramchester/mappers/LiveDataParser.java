@@ -136,7 +136,7 @@ public class LiveDataParser {
 
     private String mapLiveAPIToTimetableDataNames(String destinationName) {
         int viaIndex = destinationName.toLowerCase().indexOf(" via");
-        if (viaIndex >0) {
+        if (viaIndex > 0) {
             destinationName = destinationName.substring(0, viaIndex);
         }
         if ("Firswood".equals(destinationName)) {

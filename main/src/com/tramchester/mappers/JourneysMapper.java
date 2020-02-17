@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -19,18 +20,14 @@ public class JourneysMapper {
         this.mapper = mapper;
     }
 
-    public SortedSet<JourneyDTO> createJourneyDTOs(Set<Journey> rawJourneys, TramServiceDate tramServiceDate) {
-        logger.info("Creating journey DTOs " + rawJourneys.size());
+    public SortedSet<JourneyDTO> createJourneyDTOs(Stream<Journey> rawJourneys, TramServiceDate tramServiceDate, long limit) {
+        logger.info("Creating journey DTOs");
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
-        rawJourneys.forEach(rawJourney -> {
-            Optional<JourneyDTO> journey = mapper.createJourneyDTO(rawJourney, tramServiceDate);
-            if (journey.isPresent()) {
-                journeys.add(journey.get());
-                logger.info("Added journey " +journey);
-            } else {
-                logger.warn(format("Unable to parse %s to journey", rawJourney));
-            }
-        });
+        
+        rawJourneys.map(rawJourney -> mapper.createJourneyDTO(rawJourney, tramServiceDate)).
+                sorted(JourneyDTO::compareTo).
+                limit(limit).
+                forEachOrdered(journeys::add);
 
         return journeys;
     }

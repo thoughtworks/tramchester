@@ -26,32 +26,27 @@ public class TramJourneyToDTOMapper {
         this.stageFactory = stageFactory;
     }
 
-    public Optional<JourneyDTO> createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
+    public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
         List<TransportStage> rawJourneyStages = journey.getStages();
         List<StageDTO> stages = new LinkedList<>();
 
         TramTime queryTime = journey.getQueryTime();
-        for(TransportStage rawStage : rawJourneyStages)
-            if (rawStage.getMode().isVehicle()) {
-                StageDTO stageDTO = stageFactory.build(rawStage, decideAction(stages), queryTime, tramServiceDate);
-                stages.add(stageDTO);
-            } else if (rawStage.getMode().isWalk()) {
-                logger.info("Adding walking stage " + rawStage);
-                WalkingStage walkingStage = (WalkingStage) rawStage;
-                TravelAction action = walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo ;
-                StageDTO stageDTO = stageFactory.build(rawStage, action, queryTime, tramServiceDate);
-                stages.add(stageDTO);
-            }
-
-        if (rawJourneyStages.size()!=stages.size()) {
-            logger.error("Failed to create valid journey");
-            return Optional.empty();
+        for(TransportStage rawStage : rawJourneyStages) {
+            logger.info("Adding stage " + rawStage);
+            TravelAction action = rawStage.getMode().isVehicle() ? decideActionTram(stages) : decideWalkingAction(rawStage);
+            StageDTO stageDTO = stageFactory.build(rawStage, action, queryTime, tramServiceDate);
+            stages.add(stageDTO);
         }
-        JourneyDTO journeyDTO = journeyFactory.build(stages, queryTime);
-        return Optional.of(journeyDTO);
+
+        return journeyFactory.build(stages, queryTime);
     }
 
-    private TravelAction decideAction(List<StageDTO> stagesSoFar) {
+    private TravelAction decideWalkingAction(TransportStage rawStage) {
+        WalkingStage walkingStage = (WalkingStage) rawStage;
+        return walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo;
+    }
+
+    private TravelAction decideActionTram(List<StageDTO> stagesSoFar) {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }
