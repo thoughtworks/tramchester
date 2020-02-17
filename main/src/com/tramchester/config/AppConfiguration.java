@@ -59,6 +59,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("numOfNearestStops")
     private int numOfNearestStops;
 
+    @JsonProperty("numOfNearestStops")
+    private int numOfNearestStopsForWalking;
+
     @JsonProperty("walkingMPH")
     private double walkingMPH;
 
@@ -215,6 +218,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getNumOfNearestStops() {
         return numOfNearestStops;
+    }
+
+    @Override
+    public int getNumOfNearestStopsForWalking() {
+        return numOfNearestStopsForWalking;
     }
 
     @Override

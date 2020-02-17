@@ -43,7 +43,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.interchangesOnly = interchangesOnly;
     }
 
-    public Stream<WeightedPath> findPaths(Node startNode) {
+    public Stream<Path> findPaths(Node startNode) {
 
         TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons);
         NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, interchangesOnly);
@@ -79,22 +79,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             reasons.reportReasons(queryTime);
         });
 
-        return stream.filter(path -> path.endNode().getId()==destinationNodeId)
-                .map(this::calculateWeight);
-    }
-
-    private WeightedPath calculateWeight(Path path) {
-        int result = getTotalCost(path);
-        return new WeightedPathImpl(result, path);
-    }
-
-    private int getTotalCost(Path path) {
-        // TODO Use state?
-        int result = 0;
-        for (Relationship relat: path.relationships()) {
-            result = result + nodeOperations.getCost(relat);
-        }
-        return result;
+        return stream.filter(path -> path.endNode().getId()==destinationNodeId);
     }
 
     @Override

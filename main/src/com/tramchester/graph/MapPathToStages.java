@@ -12,6 +12,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class MapPathToStages {
     }
 
     // TODO Use Traversal State from the path instead of the Path itself??
-    public List<TransportStage> mapDirect(WeightedPath path, TramTime queryTime) {
+    public List<TransportStage> mapDirect(Path path, TramTime queryTime) {
         logger.info(format("Mapping path length %s to transport stages for %s", path.length(), queryTime));
         ArrayList<TransportStage> results = new ArrayList<>();
 
@@ -61,7 +62,7 @@ public class MapPathToStages {
             return results;
         }
 
-        State state = new State(transportData, platformRepository);
+        State state = new State(transportData, platformRepository, queryTime);
         for(Relationship relationship : relationships) {
             TransportRelationshipTypes type = TransportRelationshipTypes.valueOf(relationship.getType().name());
             logger.debug("Mapping type " + type);
@@ -97,6 +98,8 @@ public class MapPathToStages {
                     state.leavePlatform(relationship);
                     break;
                 case TO_HOUR:
+                    break;
+                case FINISH_WALK:
                     break;
                 default:
                     throw new RuntimeException("Unexpected relationship in path " + path.toString());
@@ -151,6 +154,7 @@ public class MapPathToStages {
     private class State {
         private final TransportData transportData;
         private final PlatformRepository platformRepository;
+        private final TramTime queryTime;
 
         private WalkStarted walkStarted;
         private TramTime boardingTime;
@@ -168,9 +172,10 @@ public class MapPathToStages {
         private int platformLeaveCost;
         private int departCost;
 
-        private State(TransportData transportData, PlatformRepository platformRepository) {
+        private State(TransportData transportData, PlatformRepository platformRepository, TramTime queryTime) {
             this.transportData = transportData;
             this.platformRepository = platformRepository;
+            this.queryTime = queryTime;
             reset();
         }
 
@@ -248,7 +253,13 @@ public class MapPathToStages {
         }
 
         public TransportStage walkFrom(Relationship relationship) {
-            TramTime walkStartTime = departTime.plusMinutes(platformLeaveCost + departCost);
+            TramTime walkStartTime;
+            if (departTime==null) {
+                walkStartTime = queryTime.plusMinutes(platformLeaveCost + departCost);
+            } else {
+                walkStartTime = departTime.plusMinutes(platformLeaveCost + departCost);
+
+            }
             return createWalkFrom(relationship, walkStartTime);
         }
 

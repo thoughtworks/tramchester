@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -16,6 +17,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -94,12 +96,12 @@ public class LocationJourneyPlannerTest {
 
     @Test
     public void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
-        Set<Journey> results = getJourneysForTramThenWalk(Stations.Deansgate.getId(), nearAltrincham,
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Deansgate.getId(), nearAltrincham,
                 TramTime.of(8,00), false);
+        List<Journey> twoStageJourneys = results.stream().filter(journey -> journey.getStages().size() == 2).collect(Collectors.toList());
 
-        assertFalse(results.isEmpty());
-        results.forEach(journey -> assertEquals(2, journey.getStages().size()));
-        Journey firstJourney = results.iterator().next();
+        assertFalse(twoStageJourneys.isEmpty());
+        Journey firstJourney = twoStageJourneys.get(0);
         TransportStage tramStage = firstJourney.getStages().get(0);
         TransportStage walkStage = firstJourney.getStages().get(1);
 
@@ -134,11 +136,39 @@ public class LocationJourneyPlannerTest {
     @Test
     public void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 00);
-        Set<Journey> results = getJourneysForTramThenWalk(Stations.Deansgate.getId(), nearAltrincham,
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Deansgate.getId(), nearAltrincham,
                 queryTime, true);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertTrue(journey.getQueryTime().isBefore(queryTime)));
+    }
+
+    @Test
+    public void shouldFindJourneyWithWalkingAtEndNearShudehill() {
+        TramTime queryTime = TramTime.of(8, 30);
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Shudehill.getId(), TestConfig.nearShudehill,
+                queryTime, false);
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    public void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
+        TramTime queryTime = TramTime.of(8, 30);
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Altrincham.getId(), TestConfig.nearShudehill,
+                queryTime, false);
+
+        assertFalse(results.isEmpty());
+
+        // find the lowest cost journey, should be tram to shudehill and then a walk
+        Journey lowestCostJourney = results.get(0);// results.stream().sorted(Comparator.comparingDouble(Journey::getTotalCost)).findFirst().get();
+
+        assertEquals(lowestCostJourney.toString(), 33, RouteCalculatorTest.costOfJourney(lowestCostJourney));
+
+        List<TransportStage> stages = lowestCostJourney.getStages();
+        assertTrue(stages.size() >= 2);
+        // lowest cost should be walk from shudehill
+        assertEquals(Stations.Shudehill, stages.get(0).getLastStation());
+        assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
     }
 
     @Test
@@ -160,7 +190,7 @@ public class LocationJourneyPlannerTest {
             assertEquals(TransportMode.Walk, rawStage.getMode());
             assertEquals(Stations.PiccadillyGardens, ((WalkingStage) rawStage).getDestination());
             assertEquals(nearPiccGardens, ((WalkingStage) rawStage).getStart().getLatLong());
-            assertEquals(3, ((WalkingStage) rawStage).getDuration());
+            assertEquals(3, rawStage.getDuration());
         });
     }
 
@@ -170,9 +200,12 @@ public class LocationJourneyPlannerTest {
         return planner.quickestRouteForLocation(latLong, destinationId, queryTime, date, arriveBy).collect(Collectors.toSet());
     }
 
-    private Set<Journey> getJourneysForTramThenWalk(String startId, LatLong latLong, TramTime queryTime, boolean arriveBy) {
+    private List<Journey> getSortedJourneysForTramThenWalk(String startId, LatLong latLong, TramTime queryTime, boolean arriveBy) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        return planner.quickestRouteForLocation(startId, latLong, queryTime, date, arriveBy).collect(Collectors.toSet());
+        return planner.quickestRouteForLocation(startId, latLong, queryTime, date, arriveBy)
+                .sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney))
+                .collect(Collectors.toList());
+
     }
 }

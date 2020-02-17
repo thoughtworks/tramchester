@@ -30,8 +30,11 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // range to scan for nearby stations
     public abstract Double getNearestStopRangeKM();
 
-    // limit on number of near stops to consider
+    // limit on number of near stops to display front-end
     public abstract int getNumOfNearestStops();
+
+    // limit on number of near stops to consider when walking to/from a station
+    public abstract int getNumOfNearestStopsForWalking();
 
     // an assumed mph for walking
     public abstract double getWalkingMPH();
@@ -78,9 +81,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // name of AWS S3 bucket where live data is archived
     public abstract String getLiveDataS3Bucket();
-
-    // Edge per trip/time instead of an array of time
-//    public abstract boolean getEdgePerTrip();
 
     // remove the (Purple Line) part of the route name?
     public abstract boolean getRemoveRouteNameSuffix();

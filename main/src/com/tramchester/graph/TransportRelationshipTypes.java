@@ -13,6 +13,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     INTERCHANGE_DEPART,
     WALKS_TO,
     WALKS_FROM,
+    FINISH_WALK,
     ENTER_PLATFORM,
     LEAVE_PLATFORM,
     TO_SERVICE,

@@ -107,7 +107,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(info));
 
         double cost = 42;
-        journeys.add(new Journey(Collections.singletonList(stageA), queryTime, cost));
+        journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
         List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
@@ -132,7 +132,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "a message");
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(info));
 
-        journeys.add(new Journey(Collections.singletonList(stageA), queryTime, 42));
+        journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
         List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);
@@ -161,7 +161,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), queryDate, queryTime))
                 .andReturn(Optional.of(info));
 
-        journeys.add(new Journey(Collections.singletonList(stageA), queryTime, 42));
+        journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
         List<String> notes = provider.createNotesForJourneys(queryDate, journeys);
@@ -202,7 +202,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
 
         List<TransportStage> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
-        journeys.add(new Journey(stages, queryTime, 89));
+        journeys.add(new Journey(stages, queryTime));
 
         replayAll();
         List<String> notes = provider.createNotesForJourneys(serviceDate, journeys);

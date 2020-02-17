@@ -83,7 +83,6 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             if (maybeDepartureTime.isPresent()) {
                 TramTime queryTime = maybeDepartureTime.get();
 
-                // TODO doesn't work for walking
                 boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
 
                 JourneyPlanRepresentation planRepresentation;
@@ -138,8 +137,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 queryDate, queryTime));
 
         Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTime, queryDate, arriveBy);
-        // todo limit?
-        Set<Journey> journeySet = journeys.collect(Collectors.toSet());
+        Set<Journey> journeySet = journeys.limit(config.getMaxNumResults()).collect(Collectors.toSet());
         return createPlan(queryDate, journeySet);
     }
 

@@ -34,6 +34,9 @@ public class StationState extends TraversalState {
             return new PlatformState(this,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
         }
+        if (nodeLabel == TransportGraphBuilder.Labels.QUERY_NODE) {
+            return new WalkingState(this, node.getRelationships(OUTGOING), cost);
+        }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
 
     }

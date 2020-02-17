@@ -236,8 +236,17 @@ public class RouteCalculatorTest {
                 combinations, TramTime.of(9,0));
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
-        double longest = allResults.stream().map(Journey::getTotalCost).max(Double::compare).get();
+        double longest = allResults.stream().map(journey -> costOfJourney(journey)).max(Integer::compare).get();
         assertEquals(testConfig.getMaxJourneyDuration(), longest, 0.001);
+
+    }
+
+    public static int costOfJourney(Journey journey) {
+        List<TransportStage> stages = journey.getStages();
+        TramTime departs = stages.get(0).getFirstDepartureTime();
+        TramTime arrive = stages.get(stages.size() - 1).getExpectedArrivalTime();
+
+        return TramTime.diffenceAsMinutes(departs, arrive);
     }
 
     @Test

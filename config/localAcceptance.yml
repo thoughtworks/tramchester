@@ -32,8 +32,8 @@ numberQueries: 3
 queryInterval: 12
 nearestStopRangeKM: 2
 numOfNearestStops: 5
+numOfNearestStopsForWalking: 3
 walkingMPH: 3
-addWalkingRoutes: false
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true

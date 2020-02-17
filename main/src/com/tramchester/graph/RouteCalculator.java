@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.TramServiceDate;
@@ -12,7 +11,7 @@ import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,6 @@ import static java.lang.String.format;
 public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    private final String queryNodeName = "BEGIN";
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
     private final CachedNodeOperations nodeOperations;
@@ -89,31 +87,30 @@ public class RouteCalculator implements TramRouteCalculator {
                 flatMap(Function.identity()).
                 map(path -> {
                     List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime());
-                    return new Journey(stages, path.getQueryTime(), path.path.weight());
+                    return new Journey(stages, path.getQueryTime());
                 });
     }
 
-    private Stream<TimedWeightedPath> findShortestPath(Node startNode, Node endNode,
-                                                       ServiceHeuristics serviceHeutistics,
-                                                       ServiceReasons reasons, List<String> endStationIds) {
+    private Stream<TimedPath> findShortestPath(Node startNode, Node endNode,
+                                               ServiceHeuristics serviceHeutistics,
+                                               ServiceReasons reasons, List<String> endStationIds) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(serviceHeutistics, reasons, nodeOperations,
                 endNode, endStationIds, config.getChangeAtInterchangeOnly());
 
-        return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedWeightedPath(path, serviceHeutistics.getQueryTime()));
+        return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedPath(path, serviceHeutistics.getQueryTime()));
     }
 
-    private static class TimedWeightedPath {
-        private final WeightedPath path;
+    private static class TimedPath {
+        private final Path path;
         private final TramTime queryTime;
 
-        public TimedWeightedPath(WeightedPath path, TramTime queryTime) {
-
+        public TimedPath(Path path, TramTime queryTime) {
             this.path = path;
             this.queryTime = queryTime;
         }
 
-        public WeightedPath getPath() {
+        public Path getPath() {
             return path;
         }
 

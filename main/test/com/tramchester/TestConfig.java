@@ -18,6 +18,7 @@ import static java.util.Arrays.asList;
 
 public abstract class TestConfig extends AppConfiguration {
 
+
     public static AppConfiguration GET() {
         return new TestConfig() {
             @Override
@@ -75,6 +76,11 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public int getNumOfNearestStops() {
         return 6;
+    }
+
+    @Override
+    public int getNumOfNearestStopsForWalking() {
+        return 3;
     }
 
     @Override
@@ -180,6 +186,7 @@ public abstract class TestConfig extends AppConfiguration {
     //public static final LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
     public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
+    public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
     public static boolean isCircleci() {
         return System.getenv("CIRCLECI") != null;
     }

@@ -80,7 +80,7 @@ public class TramJourneyToDTOMapperTest {
         TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, 16);
         stages.add(vicToRoch);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, time, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, time), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -97,7 +97,7 @@ public class TramJourneyToDTOMapperTest {
                 pm1044, 42, 14);
 
         stages.add(rawStage);
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm1044, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm1044), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -114,7 +114,7 @@ public class TramJourneyToDTOMapperTest {
         VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, 8);
 
         stages.add(altToCorn);
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am7, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am7), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -142,7 +142,7 @@ public class TramJourneyToDTOMapperTest {
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am10, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -165,7 +165,7 @@ public class TramJourneyToDTOMapperTest {
         WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, false);
         stages.add(walkingStage);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -184,7 +184,7 @@ public class TramJourneyToDTOMapperTest {
         WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, true);
         stages.add(walkingStage);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -213,7 +213,7 @@ public class TramJourneyToDTOMapperTest {
         stages.add(walkingStage);
         stages.add(finalStage);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am10, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
         assertTrue(result.isPresent());
         JourneyDTO journey = result.get();
@@ -248,7 +248,7 @@ public class TramJourneyToDTOMapperTest {
         stages.add(rawStageA);
         stages.add(rawStageB);
 
-        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, startTime, 42), tramServiceDate);
+        Optional<JourneyDTO> result = mapper.createJourneyDTO(new Journey(stages, startTime), tramServiceDate);
 
         assertTrue(result.isPresent());
     }

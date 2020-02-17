@@ -38,8 +38,8 @@ maxNumberResults: 5
 maxJourneyDuration: 170
 nearestStopRangeKM: 2
 numOfNearestStops: 5
-walkingMPH: 3
-addWalkingRoutes: false
+numOfNearestStopsForWalking: 3
+walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 

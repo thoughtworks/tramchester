@@ -93,7 +93,8 @@ public class TramRouteReachable {
                 INTERCHANGE_BOARD, Direction.OUTGOING,
                 INTERCHANGE_DEPART, Direction.OUTGOING,
                 WALKS_TO, Direction.OUTGOING,
-                WALKS_FROM, Direction.OUTGOING
+                WALKS_FROM, Direction.OUTGOING,
+                FINISH_WALK, Direction.OUTGOING
         );
 
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);

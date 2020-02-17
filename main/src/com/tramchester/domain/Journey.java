@@ -10,12 +10,10 @@ public class Journey implements Iterable<TransportStage> {
 
     private final List<TransportStage> stages;
     private final TramTime queryTime;
-    private final double totalCost;
 
-    public Journey(List<TransportStage> stages, TramTime queryTime, double totalCost) {
+    public Journey(List<TransportStage> stages, TramTime queryTime) {
         this.stages = stages;
         this.queryTime = queryTime;
-        this.totalCost = totalCost;
     }
     
     public Iterator<TransportStage> iterator() {
@@ -38,7 +36,4 @@ public class Journey implements Iterable<TransportStage> {
                 '}';
     }
 
-    public double getTotalCost() {
-        return totalCost;
-    }
 }

@@ -95,6 +95,7 @@ public class SpatialService {
         return result;
     }
 
+    // TODO Range depends on location, i.e. in city center limit the range, further out have a larger range?
     private List<String> getNearestStationsToNoTransaction(LatLong latLong, int count) {
         List<GeoPipeFlow> results = graphQuery.getSpatialLayer().findClosestPointsTo(LatLong.getCoordinate(latLong),
                 config.getNearestStopRangeKM());
