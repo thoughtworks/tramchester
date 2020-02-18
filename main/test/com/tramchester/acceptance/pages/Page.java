@@ -4,8 +4,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
@@ -14,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class Page {
     protected WebDriver driver;
-    protected long timeOut = 4;
+    private long timeOut = 4;
 
     public Page(WebDriver driver) {
         this.driver = driver;
@@ -22,12 +20,13 @@ public class Page {
 
     protected WebElement waitForElement(String elementId, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        return wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementId)));
+        By id = By.id(elementId);
+        wait.until(webDriver ->  driver.findElement(id));
+        return driver.findElement(id);
     }
 
-    public WebElement findElementById(String id) {
-        waitForElement(id, timeOut);
-        return driver.findElement(By.id(id));
+    protected WebElement findElementById(String id) {
+        return waitForElement(id, timeOut);
     }
 
     public List<String> getAllNotes() {

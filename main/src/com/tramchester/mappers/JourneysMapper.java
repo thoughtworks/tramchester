@@ -23,7 +23,8 @@ public class JourneysMapper {
     public SortedSet<JourneyDTO> createJourneyDTOs(Stream<Journey> rawJourneys, TramServiceDate tramServiceDate, long limit) {
         logger.info("Creating journey DTOs");
         SortedSet<JourneyDTO> journeys = new TreeSet<>();
-        
+
+        // note: sort, then limit
         rawJourneys.map(rawJourney -> mapper.createJourneyDTO(rawJourney, tramServiceDate)).
                 sorted(JourneyDTO::compareTo).
                 limit(limit).

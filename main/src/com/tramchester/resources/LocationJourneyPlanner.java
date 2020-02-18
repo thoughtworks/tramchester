@@ -1,8 +1,5 @@
 package com.tramchester.resources;
 
-import com.javadocmd.simplelatlng.LatLng;
-import com.javadocmd.simplelatlng.LatLngTool;
-import com.javadocmd.simplelatlng.util.LengthUnit;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -26,6 +23,7 @@ import static java.lang.String.format;
 public class LocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
 
+    private static final double EARTH_RADIUS = 3958.75;
     private final String queryNodeName = "BEGIN";
 
     private final SpatialService spatialService;
@@ -34,7 +32,7 @@ public class LocationJourneyPlanner {
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;
-    private final StationIndexs stationIndexs;
+    private final StationIndexs stationIndexs;// miles
 
     public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config,
                                   RouteCalculator routeCalculator, RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
@@ -108,32 +106,6 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-//    public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, TramTime queryTime,
-//                                                    TramServiceDate queryDate, boolean arriveBy) {
-//        logger.info(format("Finding shortest path for %s --> %s on %s at %s", startId, destination, queryDate, queryTime));
-//        List<StationWalk> walksToDest = getStationWalks(destination);
-//
-//        Node midWalkNode = createWalkingNode(destination);
-//        Node endWalk = createWalkingNode(destination);
-//        Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
-//        relationshipTo.setProperty(COST,0);
-//
-//        TramRouteCalculator tramRouteCalculator = arriveBy ? routeCalculatorArriveBy : routeCalculator;
-//
-//        Stream<Journey> journeys = walksToDest.stream().map(stationWalk -> {
-//            Relationship singleWalkRelationship = createWalkRelationship(midWalkNode, stationWalk, TransportRelationshipTypes.WALKS_FROM);
-//            Set<Journey> journeyForOneWalks = tramRouteCalculator.calculateRouteWalkAtEnd(startId, endWalk, Collections.singletonList(stationWalk.getStationId()),
-//                    queryTime, queryDate).collect(Collectors.toSet());
-//            singleWalkRelationship.delete();
-//            return journeyForOneWalks;
-//        }).map(Collection::stream).flatMap(Function.identity());
-//
-//        //noinspection ResultOfMethodCallIgnored
-//        journeys.onClose(() -> removeWalkNodeAndRelationships(Collections.singletonList(relationshipTo), midWalkNode, endWalk));
-//
-//        return journeys;
-//    }
-
     private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
         String walkStationId = stationWalk.getStationId();
         int cost = stationWalk.getCost();
@@ -187,11 +159,25 @@ public class LocationJourneyPlanner {
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {
-        LatLng point1 = LatLong.getLatLng(latLong);
-        LatLng point2 = LatLong.getLatLng(station.getLatLong());
+        //LatLong point1 = LatLong.getLatLng(latLong);
+        //LatLong point2 = LatLong.getLatLng(station.getLatLong());
 
-        double distanceInMiles = LatLngTool.distance(point1, point2, LengthUnit.MILE);
+        double distanceInMiles = distFrom(latLong, station.getLatLong());
         double hours = distanceInMiles / config.getWalkingMPH();
         return (int)Math.ceil(hours * 60D);
+    }
+
+    private double distFrom(LatLong point1, LatLong point2) {
+        double lat1 = point1.getLat();
+        double lat2 = point2.getLat();
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(point2.getLon()-point1.getLon());
+        double sindLat = Math.sin(dLat / 2D);
+        double sindLng = Math.sin(dLng / 2D);
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
+                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
+        double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        return EARTH_RADIUS * fractionOfRadius;
     }
 }

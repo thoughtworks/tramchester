@@ -2,7 +2,6 @@ package com.tramchester.acceptance.pages.App;
 
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.Stations;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -19,57 +18,58 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AppPage extends Page {
+    public static final String MODAL_COOKIE_CONSENT = "modal-cookieConsent";
+    public static final String MODAL_DISCLAIMER = "modal-disclaimer";
+    public static final String PLAN = "plan";
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 5;
 
-//    public static LatLong NearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
-//    public static LatLong NearPiccGardens = new LatLong(53.480972D,-2.2380073D);
-
-    public static final String DATE = "date";
+    private static final String DATE = "date";
     private String FROM_STOP = "fromStop";
     private String TO_STOP = "toStop";
     private String TIME = "time";
     private String RESULTS = "results";
-    private By disclaimer;
-    private By cookieDialogue;
 
     public AppPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
         this.providesDateInput = providesDateInput;
-        disclaimer = By.id("modal-disclaimer");
-        cookieDialogue = By.id("modal-cookieConsent");
     }
 
     public void load(String url) {
         driver.get(url);
     }
 
-    public void waitForToStops() {
+    public boolean waitForToStops() {
         WebDriverWait wait = createWait();
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(FROM_STOP)));
+        wait.until(webDriver -> ExpectedConditions.presenceOfElementLocated(By.id(FROM_STOP)));
         WebElement fromStopElement = findElementById(FROM_STOP);
-        wait.until(ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.ManAirport.getName()));
+        wait.until(webDriver -> ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.ManAirport.getName()));
+        return fromStopElement.isEnabled() && fromStopElement.isDisplayed();
     }
 
     public void planAJourney() {
-        findPlanButton().click();
+        //findPlanButton().click();
+        findAndClickElement(PLAN);
     }
 
+    private void findAndClickElement(String elementId) {
+        WebElement arriveByElement = driver.findElement(By.id(elementId));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(arriveByElement).click().perform();
+    }
 
     public void earlier() {
-        findElementById("earlierButton").click();
+        findAndClickElement("earlierButton");
     }
 
     public void later() {
-        findElementById("laterButton").click();
+        findAndClickElement("laterButton");
     }
 
     public boolean searchEnabled() {
-        return findPlanButton().isEnabled();
-    }
-
-    private WebElement findPlanButton() {
-        return findElementById("plan");
+        WebElement planButton = findElementById(PLAN);
+        createWait().until(ExpectedConditions.elementToBeClickable(planButton));
+        return planButton.isEnabled();
     }
 
     public void setStart(String start) {
@@ -81,18 +81,27 @@ public class AppPage extends Page {
     }
 
     private void setSelector(String start, String id) {
-        Select selector = new Select(driver.findElement(By.id(id)));
+        WebElement element = driver.findElement(By.id(id));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(element).perform();
+
+        Select selector = new Select(element);
         selector.selectByVisibleText(start);
     }
 
     public void setDate(LocalDate localDate) {
+
         WebElement element = getDateElement();
 
         String input = providesDateInput.createDateInput(localDate);
 
-        element.click();
-        element.sendKeys(Keys.ARROW_LEFT);
-        element.sendKeys(input);
+        Actions actions = new Actions(driver);
+        actions.moveToElement(element).click().perform();
+        actions.sendKeys(element, Keys.ARROW_LEFT).perform();
+        actions.sendKeys(element, input).perform();
+
+        // space to close picker
+        actions.sendKeys(element, Keys.SPACE).perform();
     }
 
     public void setTime(LocalTime time) {
@@ -102,6 +111,7 @@ public class AppPage extends Page {
         String input = providesDateInput.createTimeFormat(time);
         int chars = input.length();
 
+        builder.moveToElement(element);
         while (chars-- > 0) {
             builder.sendKeys(element, Keys.ARROW_LEFT);
         }
@@ -160,9 +170,10 @@ public class AppPage extends Page {
 
     public List<SummaryResult> getResults() {
         List<SummaryResult> results = new ArrayList<>();
-        By findResults = By.id(RESULTS);
-        WebElement resultsDiv = driver.findElement(findResults);
+        By resultsById = By.id(RESULTS);
+        createWait().until(ExpectedConditions.elementToBeClickable(resultsById));
 
+        WebElement resultsDiv = driver.findElement(resultsById);
         WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
         List<WebElement> rows = tableBody.findElements(By.className("journeySummary"));
         rows.forEach(row -> results.add(new SummaryResult(row, tableBody)));
@@ -243,11 +254,11 @@ public class AppPage extends Page {
     }
 
     public void waitForClickable(WebElement element) {
-        createWait().until(ExpectedConditions.elementToBeClickable(element));
+        createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(element));
     }
 
     private void waitForClickableLocator(By fromGroupRecent) {
-        createWait().until(ExpectedConditions.elementToBeClickable(fromGroupRecent));
+        createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(fromGroupRecent));
     }
 
     public boolean notesPresent() {
@@ -267,61 +278,85 @@ public class AppPage extends Page {
     }
 
     private String waitForAndGet(By locator) {
-        createWait().until(ExpectedConditions.presenceOfElementLocated(locator));
+        createWait().until(webDriver -> ExpectedConditions.presenceOfElementLocated(locator));
         return driver.findElement(locator).getText();
     }
 
     public void displayDisclaimer() {
-        WebElement button = createWait().until(ExpectedConditions.presenceOfElementLocated(By.id("disclaimerButton")));
-        button.click();
+        WebDriverWait wait = createWait();
+        By disclaimerButtonId = By.id("disclaimerButton");
+        wait.until(driver -> ExpectedConditions.presenceOfElementLocated(disclaimerButtonId));
+
+        WebElement disclaimerButton = driver.findElement(disclaimerButtonId);
+        Actions action = new Actions(driver);
+        action.moveToElement(disclaimerButton).click().perform();
     }
 
     public boolean waitForDisclaimerVisible() {
-        return waitForVisability(disclaimer);
+        return waitForModalToOpen(By.id(MODAL_DISCLAIMER));
     }
 
     public boolean waitForDisclaimerInvisible() {
-        return waitForInvisability(disclaimer);
-    }
-
-
-    public boolean waitForCookieAgreementInvisible() {
-        return waitForInvisability(cookieDialogue);
+        return waitForModalToClose(By.id(MODAL_DISCLAIMER));
     }
 
     public boolean waitForCookieAgreementVisible() {
-        return waitForVisability(cookieDialogue);
+        return waitForModalToOpen(By.id(MODAL_COOKIE_CONSENT));
+    }
+
+    public boolean waitForCookieAgreementInvisible() {
+        return waitForModalToClose(By.id(MODAL_COOKIE_CONSENT));
     }
 
     public void dismissDisclaimer() {
-        okToModal(disclaimer);
+        okToModal(By.id(MODAL_DISCLAIMER));
     }
 
     public void agreeToCookies() {
-        okToModal(cookieDialogue);
+        okToModal(By.id(MODAL_COOKIE_CONSENT));
     }
+
+    private boolean waitForModalToOpen(By byId) {
+        waitForCondition(ExpectedConditions.elementToBeClickable(byId));
+        WebElement diag = driver.findElement(byId);
+        WebElement button = diag.findElement(By.tagName("button"));
+        return waitForCondition(ExpectedConditions.elementToBeClickable(button));
+    }
+
+    private boolean waitForModalToClose(By byId) {
+        int count = 10;
+        try {
+            while(true) {
+                // will throw once element good
+                if (count--<0) {
+                    return false;
+                }
+                driver.findElement(byId);
+                Thread.sleep(400);
+            }
+        } catch (InterruptedException e) {
+           return false;
+        } catch (NoSuchElementException expected) {
+            return true;
+        }
+    }
+
 
     private boolean waitForCondition(ExpectedCondition<?> expectedCondition) {
         try {
-            createWait().until(expectedCondition);
+            createWait().until(webDriver -> expectedCondition);
             return true;
         } catch (TimeoutException notShown) {
             return false;
         }
     }
 
-    private boolean waitForVisability(By locator) {
-        return waitForCondition(ExpectedConditions.visibilityOfElementLocated(locator));
-    }
-
-    private boolean waitForInvisability(By locator) {
-        return waitForCondition(ExpectedConditions.invisibilityOfElementLocated(locator));
-    }
-
     private void okToModal(By locator) {
         WebElement diag = driver.findElement(locator);
         WebElement button = diag.findElement(By.tagName("button"));
-        button.click();
+        createWait().until(ExpectedConditions.elementToBeClickable(button));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(button).click().perform();
     }
 
     public void selectNow() {
@@ -341,14 +376,10 @@ public class AppPage extends Page {
 
     public void setArriveBy(boolean arriveBy) {
         WebElement arriveByElement = driver.findElement(By.id("arriveBy"));
-
-
         boolean currently = arriveByElement.isSelected();
         if (currently!=arriveBy) {
             Actions actions = new Actions(driver);
-
             actions.moveToElement(arriveByElement).click().perform();
-            //arriveByElement.click();
         }
     }
 
@@ -363,10 +394,15 @@ public class AppPage extends Page {
         return "true".equals(findElementById("havePos").getText());
     }
 
-    public void waitForReady() {
+    public boolean waitForReady() {
         // geo loc on firefox can be slow even when stubbing location via a file....
         WebDriverWait wait = new WebDriverWait(driver, 10);
-        wait.until(ExpectedConditions.elementToBeClickable(By.id("plan")));
+        By plan = By.id(PLAN);
+        WebElement element = driver.findElement(plan);
+
+        wait.until(webDriver -> (element.isDisplayed() && element.isEnabled()));
+
+        return element.isDisplayed() && element.isEnabled();
     }
 
 }

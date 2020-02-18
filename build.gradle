@@ -28,7 +28,7 @@ def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains(
 version = 1.0
 
 project.ext {
-    dropwizardVersion = '1.3.15'
+    dropwizardVersion = '1.3.18'
 }
 
 repositories {
@@ -49,33 +49,33 @@ repositories {
 dependencies {
     compile('io.dropwizard:dropwizard-core:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
     compile('io.dropwizard:dropwizard-assets:' + dropwizardVersion) { exclude group: 'asm', module: 'asm' }
-    compile 'org.picocontainer:picocontainer:2.14.3',
+    compile 'org.picocontainer:picocontainer:2.15',
             'org.neo4j:neo4j:3.4.12',
             'org.neo4j:neo4j-slf4j:3.4.12',
             'org.neo4j:neo4j-spatial:0.26.2-neo4j-3.4.12', //v0.26.2 for Neo4j 3.4.12
-            'net.lingala.zip4j:zip4j:2.1.4',
-            'commons-io:commons-io:2.4',
-            'org.apache.commons:commons-csv:1.7',
-            'org.apache.httpcomponents:httpclient:4.5.1',
-            'org.apache.commons:commons-collections4:4.1',
-            'com.javadocmd:simplelatlng:1.3.1',
-            'com.amazonaws:aws-java-sdk-cloudwatch:1.11.449',
-            'com.amazonaws:aws-java-sdk-s3:1.11.449',
-            'com.smoketurner:dropwizard-swagger:1.1.1-1',
-            'io.dropwizard-bundles:dropwizard-configurable-assets-bundle:1.0.5'
+            'net.lingala.zip4j:zip4j:2.3.0',
+            'commons-io:commons-io:2.6',
+            'org.apache.commons:commons-csv:1.8',
+            'org.apache.httpcomponents:httpclient:4.5.11',
+            'org.apache.commons:commons-collections4:4.4',
+            'com.amazonaws:aws-java-sdk-cloudwatch:1.11.723',
+            'com.amazonaws:aws-java-sdk-s3:1.11.723',
+            'com.smoketurner:dropwizard-swagger:1.3.17-1',
+            'io.dropwizard-bundles:dropwizard-configurable-assets-bundle:1.3.5'
 
-    testCompile 'junit:junit:4.12',
+    testCompile 'junit:junit:4.13',
             'org.assertj:assertj-core:1.2.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
-            'org.easymock:easymock:3.4',
+            'org.easymock:easymock:4.2',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
-            'io.appium:java-client:4.1.2',
+            'io.appium:java-client:7.2.0',
             'org.hamcrest:hamcrest:2.1'
 
     dependencies {
         // JAX-B dependencies for JDK 9+
         implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
         implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+        implementation "com.google.guava:guava:28.2-jre"
     }
 }
 

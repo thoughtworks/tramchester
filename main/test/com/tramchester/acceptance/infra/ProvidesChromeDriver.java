@@ -1,5 +1,6 @@
 package com.tramchester.acceptance.infra;
 
+import com.google.common.collect.ImmutableMap;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.presentation.LatLong;
@@ -35,11 +36,14 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
+        //capabilities.setCapability("appium:chromeOptions", ImmutableMap.of("w3c", false));
+
         setGeoLocation(enableGeo, chromeOptions);
         if (enableGeo) {
             // geolocation fails on headless chrome, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
             chromeOptions.setHeadless(false);
-
+            // exception on set location otherwise
+            chromeOptions.setExperimentalOption("w3c",false);
         } else {
             chromeOptions.setHeadless(true);
         }
@@ -47,7 +51,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         providesDateInput = new ProvidesChromeDateInput();
     }
 
-    public void setGeoLocation(boolean flag, ChromeOptions chromeOptions) {
+    private void setGeoLocation(boolean flag, ChromeOptions chromeOptions) {
         int option = flag ? 1 : 2;
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("geolocation", option);
@@ -58,6 +62,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public void init() {
 
         if (driver == null) {
+
             chromeOptions.merge(capabilities);
 
             chromeDriver = new ChromeDriver(chromeOptions);

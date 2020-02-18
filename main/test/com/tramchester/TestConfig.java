@@ -156,6 +156,7 @@ public abstract class TestConfig extends AppConfiguration {
 
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
+    public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
 
     public static LocalDate nextTuesday(int offsetDays) {
         DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;

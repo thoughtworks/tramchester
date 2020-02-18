@@ -7,17 +7,21 @@ import org.joda.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static com.tramchester.TestConfig.dateFormatDashes;
+import static com.tramchester.TestConfig.dateFormatSimple;
 
 public class ProvidesFirefoxDateInput implements ProvidesDateInput {
 
     @Override
     public String createDateInput(LocalDate localDate) {
-        return localDate.format(dateFormatDashes);
+        // firefox - day/month/year = dd/mm/yyyy
+
+        return localDate.format(dateFormatSimple);
     }
 
     @Override
     public String createTimeFormat(LocalTime time) {
+
+
         DateTimeFormatter format = DateTimeFormat.shortTime();
         org.joda.time.LocalTime jodaTime = new org.joda.time.LocalTime(time.getHour(), time.getMinute());
         String output = format.print(jodaTime);

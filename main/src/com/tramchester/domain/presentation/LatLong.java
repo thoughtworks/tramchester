@@ -1,7 +1,5 @@
 package com.tramchester.domain.presentation;
 
-
-import com.javadocmd.simplelatlng.LatLng;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import java.util.Objects;
@@ -65,7 +63,4 @@ public class LatLong {
         return new Coordinate(latLong.getLon(), latLong.getLat());
     }
 
-    public static LatLng getLatLng(LatLong latLong) {
-        return new LatLng(latLong.getLat(), latLong.getLon());
-    }
 }

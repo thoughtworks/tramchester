@@ -21,8 +21,8 @@ public class DateInputTest {
         LocalDate date = LocalDate.of(2019, 11, 30);
         String result = firefoxProvider.createDateInput(date);
 
-        // UK is 2019-11-30
-        assertEquals(10, result.length());
+        // UK is30112019
+        assertEquals(8, result.length());
         assertTrue(result.contains("30"));
         assertTrue(result.contains("11"));
         assertTrue(result.contains("2019"));
