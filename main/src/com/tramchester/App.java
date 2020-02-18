@@ -89,7 +89,7 @@ public class App extends Application<AppConfiguration>  {
             }
         });
 
-        // https://www.tramchester.com/swagger-ui/index.html
+        // https://www.tramchester.com/api/swagger
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
         logger.info("initialize finished");
     }
