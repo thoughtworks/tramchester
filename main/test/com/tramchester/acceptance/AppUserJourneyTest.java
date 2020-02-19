@@ -48,20 +48,21 @@ public class AppUserJourneyTest {
     private LocalDate nextTuesday;
     private String url;
     private ProvidesDriver providesDriver;
-    public static final String altyToBuryClass = "RouteClass1";
+    private static final String altyToBuryClass = "RouteClass1";
     public static final String altyToPiccClass = "RouteClass2";
-    public static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
+    private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private static List<String> getBrowserList() {
-        if (!TestConfig.isCircleci()) {
-            return Arrays.asList("chrome", "firefox");
-        }
-
-        // TODO - confirm this is still an issue
-        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
-        return Collections.singletonList("firefox");
+        return Arrays.asList("chrome", "firefox");
+//        if (!TestConfig.isCircleci()) {
+//            return Arrays.asList("chrome", "firefox");
+//        }
+//
+//        // TODO - confirm this is still an issue
+//        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
+//        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
+//        return Collections.singletonList("firefox");
     }
 
     @Parameterized.Parameters
