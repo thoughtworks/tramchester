@@ -343,7 +343,6 @@ public class AppPage extends Page {
         }
     }
 
-
     private boolean waitForCondition(ExpectedCondition<?> expectedCondition) {
         try {
             createWait().until(webDriver -> expectedCondition);
@@ -356,7 +355,7 @@ public class AppPage extends Page {
     private void okToModal(By locator) {
         WebElement diag = driver.findElement(locator);
         WebElement button = diag.findElement(By.tagName("button"));
-        createWait().until(ExpectedConditions.elementToBeClickable(button));
+        createWait().until(webDriver -> button.isEnabled());
         Actions actions = new Actions(driver);
         actions.moveToElement(button).click().perform();
     }
