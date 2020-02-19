@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AppPage extends Page {
-    public static final String MODAL_COOKIE_CONSENT = "modal-cookieConsent";
-    public static final String MODAL_DISCLAIMER = "modal-disclaimer";
-    public static final String PLAN = "plan";
+    private static final String MODAL_COOKIE_CONSENT = "modal-cookieConsent";
+    private static final String MODAL_DISCLAIMER = "modal-disclaimer";
+    private static final String PLAN = "plan";
     private final ProvidesDateInput providesDateInput;
-    private long timeoutInSeconds = 5;
+    private long timeoutInSeconds = 7;
 
     private static final String DATE = "date";
     private String FROM_STOP = "fromStop";
@@ -324,7 +324,9 @@ public class AppPage extends Page {
     }
 
     private boolean waitForModalToClose(By byId) {
-        int count = 10;
+        int pauseMs = 400;
+
+        long count = (timeoutInSeconds*1000) / pauseMs;
         try {
             while(true) {
                 // will throw once element good
@@ -332,7 +334,7 @@ public class AppPage extends Page {
                     return false;
                 }
                 driver.findElement(byId);
-                Thread.sleep(400);
+                Thread.sleep(pauseMs);
             }
         } catch (InterruptedException e) {
            return false;

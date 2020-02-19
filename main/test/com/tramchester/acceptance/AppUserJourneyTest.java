@@ -395,9 +395,12 @@ public class AppUserJourneyTest {
         assertTrue(appPage.waitForCookieAgreementVisible());
 
         appPage.agreeToCookies();
+        assertTrue("wait for cookie agreement to close", appPage.waitForCookieAgreementInvisible());
 
         // cookie should now be set
         Cookie cookie = providesDriver.getCookieNamed("tramchesterVisited");
+        assertNotNull("cookie null", cookie);
+        assertNotNull("cookie null", cookie.getValue());
         String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
         assertEquals("{\"visited\":true}", cookieContents);
         assertTrue(appPage.waitForCookieAgreementInvisible());
@@ -410,8 +413,6 @@ public class AppUserJourneyTest {
     @Test
     public void shouldDisplayDisclaimer() {
         AppPage appPage = prepare();
-
-        //assertFalse(appPage.waitForDisclaimerVisible());
 
         appPage.displayDisclaimer();
         assertTrue(appPage.waitForDisclaimerVisible());
@@ -429,11 +430,11 @@ public class AppUserJourneyTest {
         AppPage appPage = providesDriver.getAppPage();
         appPage.load(url);
 
-        assertTrue(appPage.waitForCookieAgreementVisible());
+        assertTrue("cookie agreement visible", appPage.waitForCookieAgreementVisible());
         appPage.agreeToCookies();
-        assertTrue(appPage.waitForCookieAgreementInvisible());
-        assertTrue(appPage.waitForReady());
-        assertTrue(appPage.waitForToStops());
+        assertTrue("wait for cookie agreement to close", appPage.waitForCookieAgreementInvisible());
+        assertTrue("app ready", appPage.waitForReady());
+        assertTrue("stops appeared", appPage.waitForToStops());
 
         return appPage;
     }
@@ -446,7 +447,7 @@ public class AppUserJourneyTest {
         appPage.setArriveBy(arriveBy);
     }
 
-    public static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date, boolean arriveBy) {
+    private static void assertJourney(AppPage appPage, String start, String dest, String time, LocalDate date, boolean arriveBy) {
         assertEquals(start, appPage.getFromStop());
         assertEquals(dest, appPage.getToStop());
         assertEquals(time, appPage.getTime());
