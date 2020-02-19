@@ -54,15 +54,14 @@ public class AppUserJourneyTest {
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private static List<String> getBrowserList() {
-        return Arrays.asList("chrome", "firefox");
-//        if (!TestConfig.isCircleci()) {
-//            return Arrays.asList("chrome", "firefox");
-//        }
-//
-//        // TODO - confirm this is still an issue
-//        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
-//        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
-//        return Collections.singletonList("firefox");
+        if (!TestConfig.isCircleci()) {
+            return Arrays.asList("chrome", "firefox");
+        }
+
+        // TODO - confirm this is still an issue
+        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
+        return Collections.singletonList("firefox");
     }
 
     @Parameterized.Parameters
