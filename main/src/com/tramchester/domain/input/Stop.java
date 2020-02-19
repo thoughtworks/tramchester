@@ -40,16 +40,6 @@ public class Stop {
                 '}';
     }
 
-    @Deprecated
-    public int getDepartureMinFromMidnight() {
-        return departureTime.minutesOfDay();
-    }
-
-    @Deprecated
-    public int getArriveMinsFromMidnight() {
-        return arrivalTime.minutesOfDay();
-    }
-
     public String getId() {
         return stopId;
     }

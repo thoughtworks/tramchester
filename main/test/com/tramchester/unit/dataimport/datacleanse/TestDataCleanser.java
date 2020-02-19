@@ -56,7 +56,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.EMPTY_SET);
+        RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
         validateWriter("routes", "R1,MET,CODE1,AtoB name with issue,0");
 
@@ -93,7 +93,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         StopData stopData = new StopData("9400IdB", "codeB", "areaB", "nameB", 0.33, 0.44, true);
 
-        StopDataMapper stopDataMapper = new StopDataMapper(Collections.EMPTY_SET);
+        StopDataMapper stopDataMapper = new StopDataMapper(Collections.emptySet());
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
         EasyMock.expect(reader.getStops(stopDataMapper)).andReturn(Stream.of(stopData));
 
@@ -133,7 +133,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        TripDataMapper tripDataMapper = new TripDataMapper(Collections.EMPTY_SET);
+        TripDataMapper tripDataMapper = new TripDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getTrips(tripDataMapper)).andReturn(trips);
         validateWriter("trips", "METrouteIdB,svcIdB,tripIdB,headsignB", "METrouteIdB,svcIdB,tripIdC,headsignC");
 
@@ -165,7 +165,7 @@ public class TestDataCleanser extends EasyMockSupport {
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeB);
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        StopTimeDataMapper stopTimeDataMapper = new StopTimeDataMapper(Collections.EMPTY_SET);
+        StopTimeDataMapper stopTimeDataMapper = new StopTimeDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getStopTimes(stopTimeDataMapper)).andReturn(stopTimes);
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
         validateWriter("stop_times", String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB",
@@ -192,7 +192,7 @@ public class TestDataCleanser extends EasyMockSupport {
         Stream<CalendarData> calendar = Stream.of(dayA, dayB, dayC);
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        CalendarDataMapper calendarDataMapper = new CalendarDataMapper(Collections.EMPTY_SET);
+        CalendarDataMapper calendarDataMapper = new CalendarDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getCalendar(calendarDataMapper)).andReturn(calendar);
         validateWriter("calendar", "svcIDA,0,0,0,0,0,0,0,20151025,20151026",
                 "svcIDB,1,1,1,1,1,1,1,20151025,20151026",

@@ -43,7 +43,6 @@ repositories {
     maven {
         url "https://raw.github.com/neo4j-contrib/m2/master/releases"
     }
-
 }
 
 dependencies {

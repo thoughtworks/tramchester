@@ -18,7 +18,7 @@ import java.io.IOException;
 public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     private final boolean enableGeo;
-    private AppiumDriver driver;
+    private AppiumDriver<WebElement> driver;
     private ProvidesDateInput providesDateInput;
 
     public ProvidesChromeOnAndroid(boolean enableGeo) {
@@ -34,7 +34,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
             DesiredCapabilities capabilities = new DesiredCapabilities();
             capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
-            //capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "4.4");
             capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Pixel_API_25");
             capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Chrome");
             capabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, 10);
@@ -58,7 +57,7 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
         if (driver!=null) {
             takeScreenShot(testName);
             LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-            logs.forEach(log -> System.out.println(log));
+            logs.forEach(System.out::println);
         }
     }
 

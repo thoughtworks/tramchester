@@ -131,7 +131,7 @@ public class TransportGraphBuilder {
 
             graphDatabaseService.schema().getIndexes().forEach(indexDefinition -> {
                 logger.info(String.format("Index label %s keys %s",
-                        indexDefinition.getLabel(), indexDefinition.getPropertyKeys()));
+                        indexDefinition.getLabels(), indexDefinition.getPropertyKeys()));
             });
 
             tx.success();

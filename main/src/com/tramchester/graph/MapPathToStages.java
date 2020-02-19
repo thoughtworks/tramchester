@@ -45,7 +45,6 @@ public class MapPathToStages {
         this.platformRepository = platformRepository;
     }
 
-    // TODO Use Traversal State from the path instead of the Path itself??
     public List<TransportStage> mapDirect(Path path, TramTime queryTime) {
         logger.info(format("Mapping path length %s to transport stages for %s", path.length(), queryTime));
         ArrayList<TransportStage> results = new ArrayList<>();
@@ -98,7 +97,6 @@ public class MapPathToStages {
                     state.leavePlatform(relationship);
                     break;
                 case TO_HOUR:
-                    break;
                 case FINISH_WALK:
                     break;
                 default:
@@ -233,6 +231,9 @@ public class MapPathToStages {
 
             int totalCostOfWalk = walkStarted.cost + boardCost + platformEnterCost;
             TramTime timeWalkStarted = boardingTime.minusMinutes(totalCostOfWalk);
+            if (timeWalkStarted.isBefore(queryTime)) {
+                logger.error("Computed walk start ahead of query time");
+            }
             WalkingStage walkingStage = new WalkingStage(walkStarted.start, walkStarted.destination,
                     walkStarted.cost, timeWalkStarted, false);
             walkStarted = null;

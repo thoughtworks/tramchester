@@ -9,7 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
-import org.neo4j.graphalgo.WeightedPath;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
@@ -32,10 +32,11 @@ public class RouteCalculator implements TramRouteCalculator {
     private final ReachabilityRepository reachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
     private final StationIndexs stationIndexs;
+    private final GraphDatabaseService graphDatabaseService;
 
     public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository,
-                           CreateQueryTimes createQueryTimes, StationIndexs stationIndexs) {
+                           CreateQueryTimes createQueryTimes, StationIndexs stationIndexs, GraphDatabaseService graphDatabaseService) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
@@ -43,6 +44,7 @@ public class RouteCalculator implements TramRouteCalculator {
         this.reachabilityRepository = reachabilityRepository;
         this.createQueryTimes = createQueryTimes;
         this.stationIndexs = stationIndexs;
+        this.graphDatabaseService = graphDatabaseService;
     }
 
     @Override
@@ -92,13 +94,13 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     private Stream<TimedPath> findShortestPath(Node startNode, Node endNode,
-                                               ServiceHeuristics serviceHeutistics,
+                                               ServiceHeuristics serviceHeuristics,
                                                ServiceReasons reasons, List<String> endStationIds) {
 
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(serviceHeutistics, reasons, nodeOperations,
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics, reasons, nodeOperations,
                 endNode, endStationIds, config.getChangeAtInterchangeOnly());
 
-        return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedPath(path, serviceHeutistics.getQueryTime()));
+        return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }
 
     private static class TimedPath {

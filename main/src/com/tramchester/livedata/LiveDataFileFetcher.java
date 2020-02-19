@@ -1,11 +1,11 @@
 package com.tramchester.livedata;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 public class LiveDataFileFetcher implements LiveDataFetcher {
@@ -19,7 +19,7 @@ public class LiveDataFileFetcher implements LiveDataFetcher {
     @Override
     public String fetch() {
         try {
-            return FileUtils.readFileToString(path.toFile(), Charsets.US_ASCII);
+            return FileUtils.readFileToString(path.toFile(),  StandardCharsets.US_ASCII);
         } catch (IOException excep) {
             logger.error("Unable to read from file "+path.toAbsolutePath(), excep);
         }

@@ -149,8 +149,11 @@ public class AppUserJourneyLoactionsTest {
         assertTrue(results.size()>=3);
 
         for (SummaryResult result : results) {
-            assertTrue(result.getDepartTime().isAfter(planTime));
-            assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
+            LocalTime departTime = result.getDepartTime();
+            assertTrue(departTime.toString(), departTime.isAfter(planTime));
+
+            LocalTime arriveTime = result.getArriveTime();
+            assertTrue(arriveTime.toString(), arriveTime.isAfter(departTime));
             assertEquals("Direct", result.getChanges());
         }
 

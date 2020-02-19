@@ -2,6 +2,7 @@ package com.tramchester.domain.time;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -115,17 +116,15 @@ public class  TramTime implements Comparable<TramTime> {
         return true;
     }
 
-    public static boolean isLateNight(int hour) {
+    private static boolean isLateNight(int hour) {
         return hour==23 || hour==22;
     }
 
-    public static boolean isEarlyMorning(int hour) {
+    private static boolean isEarlyMorning(int hour) {
         return hour==0 || hour==1;
     }
 
-    // try to avoid this method due to ambiguity in early hours - is it today or tomorrow?
-    @Deprecated
-    public int minutesOfDay() {
+    private int minutesOfDay() {
         return (hour * 60) + minute;
     }
 
@@ -166,7 +165,7 @@ public class  TramTime implements Comparable<TramTime> {
     }
 
     // is after with compensation for late nights
-    public boolean isAfterBasic(TramTime other) {
+    private boolean isAfterBasic(TramTime other) {
         if (hour>other.hour) {
             return true;
         }

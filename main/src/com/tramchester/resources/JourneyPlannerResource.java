@@ -124,7 +124,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 queryDate, queryTime));
 
         Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTime, queryDate, arriveBy);
-        return createPlan(queryDate, journeys);
+        JourneyPlanRepresentation plan = createPlan(queryDate, journeys);
+        journeys.close();
+        return plan;
     }
 
     private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, TramServiceDate queryDate,
@@ -133,7 +135,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 queryDate, queryTime));
 
         Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTime, queryDate, arriveBy);
-        return createPlan(queryDate, journeys);
+        JourneyPlanRepresentation plan = createPlan(queryDate, journeys);
+        journeys.close();
+        return plan;
     }
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
@@ -148,7 +152,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
             journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
         }
         // ASSUME: Limit here rely's on search giving lowest cost routes first
-        return createPlan(queryDate, journeys.limit(config.getMaxNumResults()));
+        JourneyPlanRepresentation journeyPlanRepresentation = createPlan(queryDate, journeys.limit(config.getMaxNumResults()));
+        journeys.close();
+        return journeyPlanRepresentation;
     }
 
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeys) {

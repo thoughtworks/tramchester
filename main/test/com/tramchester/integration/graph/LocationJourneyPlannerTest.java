@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.TestConfig.nearAltrincham;
 import static com.tramchester.TestConfig.nearPiccGardens;
@@ -66,8 +67,8 @@ public class LocationJourneyPlannerTest {
     public void shouldHaveDirectWalkNearPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
-        Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens,
-                Stations.PiccadillyGardens.getId(), TramTime.of(9, 0), queryDate, false).collect(Collectors.toSet());
+        Set<Journey> unsortedResults = getJourneySet(queryDate, nearPiccGardens, Stations.PiccadillyGardens.getId(),
+                TramTime.of(9, 0), false);
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -78,12 +79,21 @@ public class LocationJourneyPlannerTest {
         });
     }
 
+    private Set<Journey> getJourneySet(TramServiceDate queryDate, LatLong nearPiccGardens, String id, TramTime of, boolean b) {
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(nearPiccGardens, id, of, queryDate, b);
+        Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
+        journeyStream.close();
+        return journeySet;
+    }
+
     @Test
     public void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
-        Set<Journey> unsortedResults = planner.quickestRouteForLocation(Stations.PiccadillyGardens.getId(),
-                nearPiccGardens, TramTime.of(9, 0), queryDate, false).collect(Collectors.toSet());
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.PiccadillyGardens.getId(),
+                nearPiccGardens, TramTime.of(9, 0), queryDate, false);
+        Set<Journey> unsortedResults = journeyStream.collect(Collectors.toSet());
+        journeyStream.close();
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -160,7 +170,7 @@ public class LocationJourneyPlannerTest {
         assertFalse(results.isEmpty());
 
         // find the lowest cost journey, should be tram to shudehill and then a walk
-        Journey lowestCostJourney = results.get(0);// results.stream().sorted(Comparator.comparingDouble(Journey::getTotalCost)).findFirst().get();
+        Journey lowestCostJourney = results.get(0);
 
         assertEquals(lowestCostJourney.toString(), 33, RouteCalculatorTest.costOfJourney(lowestCostJourney));
 
@@ -197,15 +207,17 @@ public class LocationJourneyPlannerTest {
     private Set<Journey> getJourneysForWalkThenTram(LatLong latLong, String destinationId, TramTime queryTime, boolean arriveBy) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        return planner.quickestRouteForLocation(latLong, destinationId, queryTime, date, arriveBy).collect(Collectors.toSet());
+        return getJourneySet(date, latLong, destinationId, queryTime, arriveBy);
     }
 
     private List<Journey> getSortedJourneysForTramThenWalk(String startId, LatLong latLong, TramTime queryTime, boolean arriveBy) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        return planner.quickestRouteForLocation(startId, latLong, queryTime, date, arriveBy)
-                .sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney))
-                .collect(Collectors.toList());
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(startId, latLong, queryTime, date, arriveBy)
+                .sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));
+        List<Journey> journeyList = journeyStream.collect(Collectors.toList());
+        journeyStream.close();
+        return journeyList;
 
     }
 }

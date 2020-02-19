@@ -4,13 +4,10 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.states.ImmuatableTraversalState;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.graph.states.TraversalState;
-import org.neo4j.graphalgo.WeightedPath;
-import org.neo4j.graphalgo.impl.util.WeightedPathImpl;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicies;
 import org.neo4j.graphdb.traversal.BranchState;
-import org.neo4j.graphdb.traversal.Traverser;
-import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
+import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +20,7 @@ import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
+    private final GraphDatabaseService graphDatabaseService;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
     private final TramTime queryTime;
@@ -31,9 +29,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final boolean interchangesOnly;
     private final ServiceReasons reasons;
 
-    public TramNetworkTraverser(ServiceHeuristics serviceHeuristics,
+    public TramNetworkTraverser(GraphDatabaseService graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 ServiceReasons reasons, CachedNodeOperations nodeOperations, Node destinationNode,
                                 List<String> endStationIds, boolean interchangesOnly) {
+        this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.reasons = reasons;
         this.nodeOperations = nodeOperations;
@@ -50,7 +49,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         logger.info("Begin traversal");
 
-        Traverser traverser = new MonoDirectionalTraversalDescription().
+        TraversalDescription traverser = //new MonoDirectionalTraversalDescription().
+                graphDatabaseService.traversalDescription().
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
                 relationships(BOARD, Direction.OUTGOING).
                 relationships(DEPART, Direction.OUTGOING).
@@ -66,10 +66,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 expand(this, JourneyState.initialState(queryTime, traversalState)).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST). // Breadth first hits shortest trips sooner
-                traverse(startNode);
+                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST); // Breadth first hits shortest trips sooner
 
-        ResourceIterator<Path> iterator = traverser.iterator();
+        ResourceIterator<Path> iterator =  traverser.traverse(startNode).iterator();
 
         logger.info("Return traversal stream");
         Stream<Path> stream = iterator.stream();
@@ -102,7 +101,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Label firstLabel = endNode.getLabels().iterator().next();
         TransportGraphBuilder.Labels nodeLabel = TransportGraphBuilder.Labels.valueOf(firstLabel.toString());
 
-        TraversalState traversalStateForChildren = traversalState.nextState(path, nodeLabel, endNode, journeyStateForChildren, cost);
+        TraversalState traversalStateForChildren = traversalState.nextState(path, nodeLabel, endNode,
+                journeyStateForChildren, cost);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
         graphState.setState(journeyStateForChildren);

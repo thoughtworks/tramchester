@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.TestConfig;
+import com.tramchester.acceptance.pages.App.SummaryResult;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.MyLocationFactory;
@@ -15,10 +16,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.Stations;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
@@ -70,6 +68,25 @@ public class JourneyPlannerLocationResourceTest {
 
         //assertEquals(firstJourney.toString(), TramTime.of(20,19), firstJourney.getFirstDepartureTime());
         assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
+    }
+
+    @Test
+    public void reproCacheStalenessIssueWithNearAltyToDeansgate() {
+        for (int i = 0; i <1000; i++) {
+            LocalTime localTime = LocalTime.of(10, 15);
+            SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Stations.Deansgate.getId(),
+                    localTime, false);
+            assertTrue(journeys.size()>0);
+
+            TramTime planTime = TramTime.of(localTime);
+            for (JourneyDTO result : journeys) {
+                TramTime departTime = result.getFirstDepartureTime();
+                assertTrue(result.toString(), departTime.isAfter(planTime));
+
+                TramTime arriveTime = result.getExpectedArrivalTime();
+                assertTrue(result.toString(), arriveTime.isAfter(departTime));
+            }
+        }
     }
 
     @Test

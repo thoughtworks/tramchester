@@ -75,22 +75,24 @@ public class JourneyDTOFactory {
     }
 
     @Deprecated
-    private Comparator<DepartureDTO> createDueTramComparator(TramTime firstDepartTime) {
-        return (a, b) -> {
-            int gapA = Math.abs(a.getWhen().minutesOfDay() - firstDepartTime.minutesOfDay());
-            int gapB = Math.abs(b.getWhen().minutesOfDay() - firstDepartTime.minutesOfDay());
-            return Integer.compare(gapA,gapB);
+    private Comparator<DepartureDTO> createDueTramComparator(TramTime departTime) {
+        return (departA, departB) -> {
+            int gapToDepartA = TramTime.diffenceAsMinutes(departA.getWhen(), departTime);
+            int gapToDepartB = TramTime.diffenceAsMinutes(departB.getWhen(), departTime);
+            return Integer.compare(gapToDepartA,gapToDepartB);
         };
     }
 
     private boolean filterDueTram(String headsign, DepartureDTO dueTram, TramTime firstDepartTime) {
-        int dueAsMins = dueTram.getWhen().minutesOfDay();
-        int departAsMins = firstDepartTime.minutesOfDay();
         String destination = dueTram.getDestination().toLowerCase();
+
+        TramTime limit = firstDepartTime.plusMinutes(TIME_LIMIT);
+        boolean withinTime =  dueTram.getWhen().between(firstDepartTime, limit);
+
+//        boolean withinTime = dueTram.getWhen().isBefore(firstDepartTime.plusMinutes(TIME_LIMIT));
         
         return headsign.equals(destination) &&
-                ("Due".equals(dueTram.getStatus()) &&
-                        (Math.abs(dueAsMins-departAsMins)< TIME_LIMIT));
+                ("Due".equals(dueTram.getStatus()) && withinTime);
     }
 
     private LocationDTO getBegin(List<StageDTO> allStages) {
@@ -138,11 +140,6 @@ public class JourneyDTOFactory {
         if (allStages.size() == 0) {
             return TramTime.midnight();
         }
-//        if (firstStageIsWalk(allStages)) {
-//            if (allStages.size()>1) {
-//                return allStages.get(1).getFirstDepartureTime();
-//            }
-//        }
         return getFirstStage(allStages).getFirstDepartureTime();
     }
 

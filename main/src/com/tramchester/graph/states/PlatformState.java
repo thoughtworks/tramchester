@@ -38,7 +38,8 @@ public class PlatformState extends TraversalState {
                 return new DestinationState(this, cost);
             }
             return new StationState(this,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformNodeId), cost);
+                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformNodeId),
+                    cost, node.getId());
         }
 
         if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {

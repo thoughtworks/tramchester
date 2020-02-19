@@ -151,7 +151,8 @@ public class LiveDataRepository implements LiveDataSource {
     }
 
     private boolean withinTime(TramTime queryTime, LocalTime updateTime) {
-        return Math.abs(queryTime.minutesOfDay()-updateTime.get(MINUTE_OF_DAY)) < TIME_LIMIT;
+        TramTime limit = TramTime.of(updateTime).plusMinutes(TIME_LIMIT);
+        return queryTime.between(TramTime.of(updateTime), limit);
     }
 
     public long upToDateEntries(TramTime queryTime) {

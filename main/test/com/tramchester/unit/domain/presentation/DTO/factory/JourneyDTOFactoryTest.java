@@ -26,6 +26,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 
 public class JourneyDTOFactoryTest extends EasyMockSupport {

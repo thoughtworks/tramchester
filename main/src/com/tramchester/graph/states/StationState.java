@@ -11,21 +11,25 @@ import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_BOARD
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class StationState extends TraversalState {
+    private final long stationNodeId;
 
-    public StationState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
+    public StationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
+        this.stationNodeId = stationNodeId;
     }
 
     @Override
     public String toString() {
         return "StationState{" +
-                "cost=" + super.getCurrentCost() +
+                "stationNodeId=" + stationNodeId +
+                ", cost=" + super.getCurrentCost() +
                 ", parent=" + parent +
                 '}';
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
+                                    JourneyState journeyState, int cost) {
         if (node.getId()==destinationNodeId) {
             // TODO Cost of platform depart?
             return new DestinationState(this, cost);

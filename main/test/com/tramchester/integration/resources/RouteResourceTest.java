@@ -28,7 +28,7 @@ public class RouteResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
     private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
             new LinkedList<>(), "displayClass");
 
@@ -39,7 +39,7 @@ public class RouteResourceTest {
 
     @Test
     public void shouldGetAllRoutes() {
-        Response result = IntegrationClient.getResponse(testRule, String.format("routes"), Optional.empty(), 200);
+        Response result = IntegrationClient.getResponse(testRule, "routes", Optional.empty(), 200);
         List<RouteDTO> routes = result.readEntity(new GenericType<List<RouteDTO>>(){});
 
         assertEquals(12, routes.size());
@@ -52,7 +52,7 @@ public class RouteResourceTest {
         RouteDTO ashtonRoute = routes.get(index);
         List<StationDTO> ashtonRouteStations = ashtonRoute.getStations();
 
-        assertTrue(ashtonRouteStations.contains(new StationDTO((Station)Stations.Ashton, ProximityGroup.ALL)));
-        assertTrue(ashtonRouteStations.contains(new StationDTO((Station)Stations.Eccles, ProximityGroup.ALL)));
+        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Ashton, ProximityGroup.ALL)));
+        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Eccles, ProximityGroup.ALL)));
     }
 }

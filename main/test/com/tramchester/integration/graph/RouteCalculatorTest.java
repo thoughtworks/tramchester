@@ -167,6 +167,7 @@ public class RouteCalculatorTest {
         Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport.getId(),
                 TramTime.of(11, 43), today);
         Set<Journey> results = stream.collect(Collectors.toSet());
+        stream.close();
 
         assertTrue(results.size()>0);    // results is iterator
         for (Journey result : results) {
@@ -275,6 +276,7 @@ public class RouteCalculatorTest {
         Stream<Journey> stream = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham.getId(), TramTime.of(11,45),
                 new TramServiceDate(nextTuesday));
         Set<Journey> journeys = stream.collect(Collectors.toSet());
+        stream.close();
 
         assertTrue(journeys.size()>0);
 
@@ -384,9 +386,10 @@ public class RouteCalculatorTest {
     public static void validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, String destId,
                                                  TramTime time, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
-        Set<Journey> journeys = theCalculator.calculateRoute(startId, destId, time,
-                new TramServiceDate(date)).
-                limit(1).collect(Collectors.toSet());
+        Stream<Journey> journeyStream = theCalculator.calculateRoute(startId, destId, time,
+                new TramServiceDate(date));
+        Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
+        journeyStream.close();
 
         String message = String.format("from %s to %s at %s on %s", startId, destId, time, queryDate);
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
@@ -429,6 +432,7 @@ public class RouteCalculatorTest {
                 if (journeys.limit(1).findFirst().isEmpty()) {
                     missing.add(time);
                 }
+                journeys.close();
             }
 
         }
@@ -478,7 +482,10 @@ public class RouteCalculatorTest {
     }
 
     private Set<Journey> calculateRoutes(Location start, Location destination, TramTime queryTime, TramServiceDate today) {
-        return calculator.calculateRoute(start.getId(), destination.getId(), queryTime, today).collect(Collectors.toSet());
+        Stream<Journey> journeyStream = calculator.calculateRoute(start.getId(), destination.getId(), queryTime, today);
+        Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
+        journeyStream.close();
+        return journeySet;
     }
 
 }

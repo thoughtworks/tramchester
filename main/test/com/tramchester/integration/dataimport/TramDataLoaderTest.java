@@ -35,7 +35,7 @@ public class TramDataLoaderTest {
 
     @Test
     public void shouldLoadCalendarData() {
-        DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar.txt", new CalendarDataMapper(Collections.EMPTY_SET));
+        DataLoader<CalendarData> dataLoader = new DataLoader<>("data/test/calendar.txt", new CalendarDataMapper(Collections.emptySet()));
         List<CalendarData> calendarData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(12);
@@ -46,7 +46,7 @@ public class TramDataLoaderTest {
 
     @Test
     public void shouldLoadStopData() {
-        DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops.txt", new StopDataMapper(Collections.EMPTY_SET));
+        DataLoader<StopData> dataLoader = new DataLoader<>("data/test/stops.txt", new StopDataMapper(Collections.emptySet()));
         List<StopData> stopData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(stopData).hasSize(178);
@@ -76,7 +76,7 @@ public class TramDataLoaderTest {
 
     @Test
     public void shouldLoadTripData() {
-        DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips.txt", new TripDataMapper(Collections.EMPTY_SET));
+        DataLoader<TripData> dataLoader = new DataLoader<>("data/test/trips.txt", new TripDataMapper(Collections.emptySet()));
         List<TripData> tripData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(tripData).hasSize(20);

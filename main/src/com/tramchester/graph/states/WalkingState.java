@@ -10,7 +10,6 @@ import static com.tramchester.graph.TransportRelationshipTypes.ENTER_PLATFORM;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
-
     public WalkingState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
         super(parent, relationships, cost);
     }
@@ -32,6 +31,6 @@ public class WalkingState extends TraversalState {
         if (node.getId()==destinationNodeId) {
             return new DestinationState(this, cost);
         }
-        return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost);
+        return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
     }
 }

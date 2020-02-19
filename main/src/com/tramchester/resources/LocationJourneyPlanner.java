@@ -136,7 +136,10 @@ public class LocationJourneyPlanner {
 
     private void removeWalkNodeAndRelationships(List<Relationship> relationshipsToDelete, Node... nodesToDelete) {
         logger.info("Removed added walks and start of walk node");
-        relationshipsToDelete.forEach(Relationship::delete);
+        relationshipsToDelete.forEach(relationship -> {
+            nodeOperations.deleteFromCache(relationship);
+            relationship.delete();
+        });
         for (int i = 0; i <nodesToDelete.length; i++) {
             nodeOperations.deleteNode(nodesToDelete[i]);
         }

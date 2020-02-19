@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -19,7 +20,6 @@ public abstract class ServiceReason {
 
     public enum ReasonCode {
         Valid,
-        InflightChangeOfService,
         NotOnQueryDate,
         NotAtQueryTime,
         NotReachable,
@@ -68,6 +68,20 @@ public abstract class ServiceReason {
     @Override
     public String toString() {
         return code.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ServiceReason that = (ServiceReason) o;
+        return Objects.equals(pathToRenderAsString, that.pathToRenderAsString) &&
+                code == that.code;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pathToRenderAsString, code);
     }
 
     //////////////
@@ -131,20 +145,6 @@ public abstract class ServiceReason {
         @Override
         public boolean isValid() {
             return true;
-        }
-    }
-
-    //////////////
-
-    private static class InflightChangeOfService extends HasDiag
-    {
-        public InflightChangeOfService(String diag, Path path) {
-            super(ReasonCode.InflightChangeOfService, diag, path);
-        }
-
-        @Override
-        public String textForGraph() {
-            return ReasonCode.InflightChangeOfService.name();
         }
     }
 
@@ -218,8 +218,6 @@ public abstract class ServiceReason {
 
     ///////////////////////////////////
     /// convenience methods
-
-    public static InflightChangeOfService InflightChangeOfService(String diag, Path path) { return new InflightChangeOfService(diag, path);}
 
     public static IsValid IsValid(Path path) { return new IsValid(path);}
 

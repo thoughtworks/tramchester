@@ -93,6 +93,13 @@ public class CachedNodeOperations {
         return cost;
     }
 
+    public void deleteFromCache(Relationship relationship) {
+        long relationshipId = relationship.getId();
+        if (relationshipCostCache.containsKey(relationshipId)) {
+            relationshipCostCache.remove(relationshipId);
+        }
+    }
+
     public boolean isService(long nodeId) {
         return nodeIdLabelMap.has(TransportGraphBuilder.Labels.SERVICE, nodeId);
     }

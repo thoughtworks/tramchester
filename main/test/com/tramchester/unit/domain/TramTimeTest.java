@@ -34,18 +34,6 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldCalculateMinsOfDay() {
-        TramTime midnight = TramTime.of(0,0);
-        assertEquals(0, midnight.minutesOfDay());
-
-        TramTime timeA = TramTime.of(11,23);
-        assertEquals((11*60)+23, timeA.minutesOfDay());
-
-        TramTime timeB = TramTime.of(23,45);
-        assertEquals((24*60)-15, timeB.minutesOfDay());
-    }
-
-    @Test
     public void shouldParseHMS() {
         checkCorrectTimePresent(TramTime.parse("11:23:00"), 11, 23);
         checkCorrectTimePresent(TramTime.parse("00:15:00"), 00, 15);
