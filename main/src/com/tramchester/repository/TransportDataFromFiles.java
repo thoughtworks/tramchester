@@ -26,6 +26,8 @@ public class TransportDataFromFiles implements TransportDataSource {
     private HashMap<String, Service> services = new HashMap<>();  // service id -> service
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
     private HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
+    private HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
+    private Set<String> agencies = new HashSet<>(); // agencies
 
     private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
@@ -87,20 +89,26 @@ public class TransportDataFromFiles implements TransportDataSource {
         stopTimes.forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
 
-            String platformId = stopTimeData.getStopId();
-            String stationId = Station.formId(platformId);
+            String stopId = stopTimeData.getStopId();
+            String stationId = Station.formId(stopId);
             if (stationsById.containsKey(stationId)) {
                 Route route = routes.get(trip.getRouteId());
                 Station station = stationsById.get(stationId);
                 station.addRoute(route);
-                Platform platform = platforms.get(platformId);
-                platform.addRoute(route);
+                RouteStation routeStation = new RouteStation(station, route);
+                if (!routeStations.containsKey(routeStation.getId())) {
+                    routeStations.put(routeStation.getId(), routeStation);
+                }
+                if (platforms.containsKey(stopId)) {
+                    Platform platform = platforms.get(stopId);
+                    platform.addRoute(route);
+                }
 
                 int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
-                Stop stop = new Stop(platformId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
+                Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 trip.addStop(stop);
             } else {
-                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, platformId));
+                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));
             }
         });
     }
@@ -125,8 +133,12 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     private void populateRoutes(Stream<RouteData> routes) {
         routes.forEach((routeData) -> {
-            Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName(), routeData.getAgency());
+            String agency = routeData.getAgency();
+            Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName(), agency);
             this.routes.put(route.getId(), route);
+            if (!agencies.contains(agency)) {
+                agencies.add(agency);
+            }
         });
     }
 
@@ -212,6 +224,21 @@ public class TransportDataFromFiles implements TransportDataSource {
         Set<Station> stationList = new HashSet<>();
         stationList.addAll(stationsById.values());
         return stationList;
+    }
+
+    @Override
+    public Set<String> getAgencies() {
+        return agencies;
+    }
+
+    @Override
+    public Set<RouteStation> getRouteStations() {
+        return new HashSet<>(routeStations.values());
+    }
+
+    @Override
+    public RouteStation getRouteStation(String routeStationId) {
+        return routeStations.get(routeStationId);
     }
 
     @Override

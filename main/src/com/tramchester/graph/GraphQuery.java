@@ -55,25 +55,25 @@ public class GraphQuery {
         return graphDatabaseService.findNode(label, GraphStaticKeys.ID, id);
     }
 
-    public ArrayList<Node> findStartNodesFor(String routeName) {
-        ArrayList<Node> arrayList = new ArrayList<>();
-
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("routeName",routeName);
-        String query = "MATCH (begin:ROUTE_STATION) " +
-                "WHERE begin.route_name={ routeName } " +
-                "AND NOT ()-[:TRAM_GOES_TO]->(begin) " +
-                "RETURN begin";
-
-        Result results = graphDatabaseService.execute(query,parameters);
-        ResourceIterator<Node> nodes = results.columnAs("begin");
-        nodes.forEachRemaining(n -> arrayList.add(n));
-        logger.debug(String.format("Found %s start nodes for route %s", arrayList.size(), routeName));
-        if (arrayList.size()>1) {
-            logger.warn(String.format("Found more than one (%s) start nodes for route %s", arrayList.size(), routeName));
-        }
-        return arrayList;
-    }
+//    public ArrayList<Node> findStartNodesFor(String routeName) {
+//        ArrayList<Node> arrayList = new ArrayList<>();
+//
+//        Map<String, Object> parameters = new HashMap<>();
+//        parameters.put("routeName",routeName);
+//        String query = "MATCH (begin:ROUTE_STATION) " +
+//                "WHERE begin.route_name={ routeName } " +
+//                "AND NOT ()-[:TRAM_GOES_TO]->(begin) " +
+//                "RETURN begin";
+//
+//        Result results = graphDatabaseService.execute(query,parameters);
+//        ResourceIterator<Node> nodes = results.columnAs("begin");
+//        nodes.forEachRemaining(n -> arrayList.add(n));
+//        logger.debug(String.format("Found %s start nodes for route %s", arrayList.size(), routeName));
+//        if (arrayList.size()>1) {
+//            logger.warn(String.format("Found more than one (%s) start nodes for route %s", arrayList.size(), routeName));
+//        }
+//        return arrayList;
+//    }
 
     public SimplePointLayer getSpatialLayer() {
         return (SimplePointLayer) spatialDatabaseService.getOrCreateLayer("stations",

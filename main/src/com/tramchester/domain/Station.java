@@ -18,6 +18,7 @@ public class Station implements Location {
     private boolean tram;
     private List<Platform> platforms;
     private Set<Route> servesRoutes;
+    private Set<String> servesAgencies;
 
     public Station () {
         // deserialisation
@@ -39,6 +40,7 @@ public class Station implements Location {
         this.area = area;
         platforms = new LinkedList<>();
         servesRoutes = new HashSet<>();
+        servesAgencies = new HashSet<>();
     }
 
     @Override
@@ -127,9 +129,14 @@ public class Station implements Location {
 
     public void addRoute(Route route) {
         servesRoutes.add(route);
+        servesAgencies.add(route.getAgency());
     }
 
     public Set<Route> getRoutes() {
         return servesRoutes;
+    }
+
+    public Set<String> getAgencies() {
+        return servesAgencies;
     }
 }

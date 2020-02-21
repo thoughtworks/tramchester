@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
@@ -17,4 +18,7 @@ public interface TransportData extends ProvidesFeedInfo, StationRepository {
     Collection<Route> getRoutes();
     Route getRoute(String routeId);
     Set<Station> getStations();
+    Set<String> getAgencies();
+    Set<RouteStation> getRouteStations();
+    RouteStation getRouteStation(String routeStationId);
 }

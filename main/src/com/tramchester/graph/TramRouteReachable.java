@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import org.neo4j.graphalgo.GraphAlgoFactory;
@@ -12,6 +13,8 @@ import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +25,12 @@ import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class TramRouteReachable {
+    private static final Logger logger = LoggerFactory.getLogger(TramRouteReachable.class);
 
     private final GraphDatabaseService graphDatabaseService;
     private final StationIndexs stationIndexs;
 
     public TramRouteReachable(GraphDatabaseService graphDatabaseService, StationIndexs stationIndexs) {
-        //super(graphDatabaseService, graphQuery, false);
         this.graphDatabaseService = graphDatabaseService;
         this.stationIndexs = stationIndexs;
     }
@@ -40,11 +43,10 @@ public class TramRouteReachable {
     public List<Route> getRoutesFromStartToNeighbour(Station startStation, String endStationId) {
         List<Route> results = new ArrayList<>();
         Set<Route> firstRoutes = startStation.getRoutes();
-        String startStationId = startStation.getId();
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
-                Node routeStation = stationIndexs.getRouteStationNode(startStationId + route.getId());
+                Node routeStation = stationIndexs.getRouteStationNode(RouteStation.formId(startStation, route));
                 Iterable<Relationship> edges = routeStation.getRelationships(ON_ROUTE, Direction.OUTGOING);
                 for (Relationship edge : edges) {
                     if (endStationId.equals(edge.getEndNode().getProperty(STATION_ID).toString())) {
@@ -60,7 +62,13 @@ public class TramRouteReachable {
     private boolean evaluatePaths(String startStationId, Evaluator evaluator) {
         long number = 0;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            number = generatePaths(startStationId, evaluator).stream().count();
+            Node found = stationIndexs.getStationNode(startStationId);
+            if (found!=null) {
+                number = generatePaths(startStationId, evaluator).stream().count();
+            } else {
+                // should only happen in testing when looking at subsets of the graph
+                logger.warn("Cannot find node for station id " + startStationId);
+            }
             tx.success();
         }
         return number>0;
@@ -99,11 +107,9 @@ public class TramRouteReachable {
 
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
         WeightedPath path = finder.findSinglePath(startNode, endNode);
-        Double weight  = Math.floor(path.weight());
-        return weight.intValue();
-
+        double weight  = Math.floor(path.weight());
+        return (int) weight;
     }
-
 
     private ResourceIterator<Path> generatePaths(String startStationId, Evaluator evaluator) {
         Node startNode = stationIndexs.getStationNode(startStationId);
@@ -129,6 +135,10 @@ public class TramRouteReachable {
 
         @Override
         public Evaluation evaluate(Path path) {
+            if (path.length()==0) {
+                return Evaluation.INCLUDE_AND_CONTINUE;
+            }
+
             Node queryNode = path.endNode();
 
             if (queryNode.hasLabel(ROUTE_STATION)) {

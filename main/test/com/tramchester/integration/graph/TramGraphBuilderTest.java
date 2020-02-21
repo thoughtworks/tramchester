@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TramGraphBuilderEdgePerTripTest {
+public class TramGraphBuilderTest {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
@@ -63,16 +63,10 @@ public class TramGraphBuilderEdgePerTripTest {
         outbounds.addAll(getOutboundRouteStationRelationships(
                 mediaCityUKId + RouteCodesForTesting.ASH_TO_ECCLES ));
 
-        List<Relationship> graphServicesRelationships = new LinkedList<>();
         Set<String> graphSvcIds = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 map(relationship -> relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString()).
                 collect(Collectors.toSet());
-//        outbounds.forEach(out -> {
-//            if (out instanceof ServiceRelationship) graphServicesRelationships.add((ServiceRelationship) out);
-//        });
-
-//        Set<String> graphSvcIds = graphServicesRelationships.stream().map(ServiceRelationship::getServiceId).collect(Collectors.toSet());
 
         // check number of outbound services matches services in transport data files
         Set<String> fileSvcIds = transportData.getTripsFor(mediaCityUKId).stream().

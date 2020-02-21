@@ -10,7 +10,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
-import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.GraphStaticKeys.RouteStation.ROUTE_NAME;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static java.lang.String.format;
@@ -181,7 +179,8 @@ public class MapPathToStages {
             boardCost = getCost(relationship);
             boardingStation = transportData.getStation(relationship.getProperty(STATION_ID).toString()).get();
             routeCode = relationship.getProperty(ROUTE_ID).toString();
-            routeName = relationship.getProperty(ROUTE_NAME).toString();
+            Route route = transportData.getRoute(routeCode);
+            routeName = route.getName(); //relationship.getProperty(ROUTE_NAME).toString();
             String stopId = relationship.getProperty(PLATFORM_ID).toString();
             boardingPlatform = platformRepository.getPlatformById(stopId);
             departTime = null;

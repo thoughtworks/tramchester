@@ -58,6 +58,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Before
     public void beforeEachTestRuns() {
         when = TestConfig.nextTuesday(0);
+        // todo NO longer needed?
         mapper.registerModule(new JodaModule());
     }
 

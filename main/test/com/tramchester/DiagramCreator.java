@@ -171,7 +171,8 @@ public class DiagramCreator {
             return getNameOfNode(node);
         }
         if (node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)) {
-            String stationName = node.getProperty(GraphStaticKeys.RouteStation.STATION_NAME).toString();
+            // TODO Look up station name from the ID?
+            String stationName = node.getProperty(GraphStaticKeys.STATION_ID).toString();
             return format("%s\n%s", node.getProperty(GraphStaticKeys.ROUTE_ID).toString(), stationName);
         }
         if (node.hasLabel(TransportGraphBuilder.Labels.STATION)) {
@@ -193,7 +194,8 @@ public class DiagramCreator {
     }
 
     private String getNameOfNode(Node node) {
-        return node.getProperty(GraphStaticKeys.Station.NAME).toString();
+        // todo look up station name from ID?
+        return node.getProperty(GraphStaticKeys.ID).toString();
     }
 
     private void addLine(StringBuilder builder, String line) {

@@ -53,17 +53,17 @@ public class GraphQueryTest {
         FileUtils.deleteDirectory(dbFile);
     }
 
-    @Test
-    public void shouldHaveCorrectEndNodesForRoute() {
-
-        try (Transaction tx = graphDBService.beginTx()) {
-            ArrayList<Node> nodes = graphQuery.findStartNodesFor("routeA");
-            assertEquals(1, nodes.size());
-            Node node = nodes.get(0);
-
-            assertEquals(TransportDataForTest.FIRST_STATION+"MET:   1:I:",node.getProperty(GraphStaticKeys.ID).toString());
-            tx.success();
-        }
-    }
+//    @Test
+//    public void shouldHaveCorrectEndNodesForRoute() {
+//
+//        try (Transaction tx = graphDBService.beginTx()) {
+//            ArrayList<Node> nodes = graphQuery.findStartNodesFor("routeA");
+//            assertEquals(1, nodes.size());
+//            Node node = nodes.get(0);
+//
+//            assertEquals(TransportDataForTest.FIRST_STATION+"MET:   1:I:",node.getProperty(GraphStaticKeys.ID).toString());
+//            tx.success();
+//        }
+//    }
 
 }

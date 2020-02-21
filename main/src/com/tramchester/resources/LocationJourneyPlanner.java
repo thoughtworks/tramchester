@@ -129,7 +129,7 @@ public class LocationJourneyPlanner {
         Node startOfWalkNode = nodeOperations.createQueryNode(stationIndexs);
         startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
         startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
-        startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
+        //startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

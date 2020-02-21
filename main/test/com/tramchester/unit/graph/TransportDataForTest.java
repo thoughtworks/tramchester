@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.RouteCodesForTesting;
 import com.tramchester.integration.Stations;
 import com.tramchester.repository.TransportDataSource;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -36,7 +37,8 @@ public class TransportDataForTest implements TransportDataSource {
     private Map<String, Station> stationNameMap = new HashMap<>();
 
     private Map<String,Platform> platforms;
-    private Collection<Route> routes;
+    private Map<String, Route> routes;
+    private Map<String, RouteStation> routeStations;
     private Set<Service> services;
     private Map<String, Trip> trips;
 
@@ -44,18 +46,19 @@ public class TransportDataForTest implements TransportDataSource {
         double latitude = 180.00;
         double longitude = 270.0;
 
-        routes = new LinkedList<>();
+        routes = new HashMap<>();
         services = new HashSet<>();
         platforms = new HashMap<>();
         trips = new HashMap<>();
+        routeStations = new HashMap<>();
 
         Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", "MET");
         Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", "MET");
         Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", "MET");
 
-        routes.add(routeA);
-        routes.add(routeB);
-        routes.add(routeC);
+        routes.put(routeA.getId(), routeA);
+        routes.put(routeB.getId(), routeB);
+        routes.put(routeC.getId(), routeC);
 
         Service serviceA = new Service(serviceAId, routeA.getId());
         Service serviceB = new Service(serviceBId, routeB.getId());
@@ -85,6 +88,7 @@ public class TransportDataForTest implements TransportDataSource {
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area1", "startStation", latLong, true);
         addStation(first);
+        addRouteStation(first, routeA);
         Stop stopA = createStop(first, TramTime.of(8, 0), TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
@@ -92,40 +96,53 @@ public class TransportDataForTest implements TransportDataSource {
         Stop stopB = createStop(second, TramTime.of(8, 11), TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
         addStation(second);
+        addRouteStation(second, routeA);
 
         Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", latLong, true);
         Stop stopC = createStop(interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
         addStation(interchangeStation);
+        addRouteStation(interchangeStation, routeA);
 
         Station last = new Station(LAST_STATION, "area4", "endStation", latLong, true);
         addStation(last);
+        addRouteStation(last, routeA);
         Stop stopD = createStop(last, TramTime.of(8, 40), TramTime.of(8, 40), 4);
         tripA.addStop(stopD);
         // service
         serviceA.addTrip(tripA);
 
-        Station four = new Station(STATION_FOUR, "area4", "Station4", new LatLong(170.00, 160.00), true);
-        addStation(four);
+        Station stationFour = new Station(STATION_FOUR, "area4", "Station4", new LatLong(170.00, 160.00), true);
+        addStation(stationFour);
 
-        Station five = new Station(STATION_FIVE, "area5", "Station5", new LatLong(170.00, 160.00), true);
-        addStation(five);
+        Station stationFive = new Station(STATION_FIVE, "area5", "Station5", new LatLong(170.00, 160.00), true);
+        addStation(stationFive);
 
         //
         Trip tripC = new Trip("tripCId", "headSignC", serviceCId, routeC.getId());
         Stop stopG = createStop(interchangeStation, TramTime.of(8, 26), TramTime.of(8, 27), 1);
-        Stop stopH = createStop(five, TramTime.of(8, 31), TramTime.of(8, 33), 2);
+        addRouteStation(interchangeStation, routeC);
+        Stop stopH = createStop(stationFive, TramTime.of(8, 31), TramTime.of(8, 33), 2);
+        addRouteStation(stationFive, routeC);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         serviceC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
-        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(8, 26), "tripBId");
-        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 10), "tripB2Id");
-        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, four, LocalTime.of(9, 20), "tripB3Id");
+        addRouteStation(stationFour, routeB);
+        addRouteStation(interchangeStation, routeB);
+
+        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, stationFour, LocalTime.of(8, 26), "tripBId");
+        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, stationFour, LocalTime.of(9, 10), "tripB2Id");
+        createInterchangeToStation4Trip(routeB, serviceB, interchangeStation, stationFour, LocalTime.of(9, 20), "tripB3Id");
 
         addTrip(tripA);
         addTrip(tripC);
+    }
+
+    private void addRouteStation(Station station, Route route) {
+        RouteStation routeStation = new RouteStation(station, route);
+        routeStations.put(routeStation.getId(), routeStation);
     }
 
     private void addTrip(Trip trip) {
@@ -161,8 +178,6 @@ public class TransportDataForTest implements TransportDataSource {
         throw new RuntimeException("Not implemented");
     }
 
-
-
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
         return services;
@@ -170,7 +185,7 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public Collection<Route> getRoutes() {
-        return routes;
+        return routes.values();
     }
 
     @Override
@@ -180,12 +195,29 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public Route getRoute(String routeId) {
-        throw new RuntimeException("Not implemented");
+        return routes.get(routeId);
     }
 
     @Override
     public Set<Station> getStations() {
-        throw new RuntimeException("Not implemented");
+        return new HashSet<>(stationIdMap.values());
+    }
+
+    @Override
+    public Set<String> getAgencies() {
+        HashSet<String> strings = new HashSet<>();
+        strings.add("MET");
+        return strings;
+    }
+
+    @Override
+    public Set<RouteStation> getRouteStations() {
+       return new HashSet<>(routeStations.values());
+    }
+
+    @Override
+    public RouteStation getRouteStation(String routeStationId) {
+        return routeStations.get(routeStationId);
     }
 
     @Override

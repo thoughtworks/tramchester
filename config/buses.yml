@@ -1,11 +1,13 @@
 server:
-  type: simple
   applicationContextPath: /
   rootPath: /api/*
+  applicationConnectors:
+    - type: http
+      port: 8080
   adminContextPath: /admin
-  connector:
-    type: http
-    port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
   gzip:
     enabled: true
     bufferSize: 8KiB
@@ -14,32 +16,40 @@ server:
 redirectHTTP: ${REDIRECTHTTP:- false}
 secureHost: tramchester.com
 
-rebuildGraph: ${TRAM_GRAPH:- true}
-pullData: ${TRAM_PULLDATA:- true}
+rebuildGraph: true
 graphName: buses.db
+unzipPath: gtdf-out
 closedStations: []
 agencies:
   - MET
   - GMS
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
+tramDataCheckUrl: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
+liveDataUrl: https://api.tfgm.com/odata/Metrolinks
+liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
+liveDataS3Bucket: tramchesterlivedata
+liveDataRefreshPeriodSeconds: 20
 dataPath: data/bus
-timeWindow: 60
+removeRouteNameSuffix: true
 maxWait: 25
-queryInterval: 6
-nearestStopRangeKM: 2
-numOfNearestStops: 6
-walkingMPH: 3
-addWalkingRoutes: false
+numberQueries: 3
+queryInterval: 12
+maxNumberResults: 5
+maxJourneyDuration: 170
+nearestStopRangeKM: 1.6
+numOfNearestStops: 5
+numOfNearestStopsForWalking: 3
+walkingMPH: 3.0
 recentStopsToShow: 5
-
 dataExpiryThreadhold: 3
 
-
-createLocality: true
+changeAtInterchangeOnly: true
+createLocality: false
 
 swagger:
   resourcePackage: com.tramchester.resources
+  title: tramchester
 
 logging:
   level: INFO
@@ -57,3 +67,10 @@ logging:
       archivedLogFilenamePattern: log/tramchester-%d.log
       archivedFileCount: 5
       timeZone: UTC
+
+# TODO only for dev environments
+assets:
+  overrides:
+    # Override requests to /app/${1} to instead look in
+    # ${working directory}/src/main/app/${1}
+    /app: src/main/resources/app/
