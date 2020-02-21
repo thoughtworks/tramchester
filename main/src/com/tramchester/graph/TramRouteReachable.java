@@ -135,9 +135,9 @@ public class TramRouteReachable {
 
         @Override
         public Evaluation evaluate(Path path) {
-            if (path.length()==0) {
-                return Evaluation.INCLUDE_AND_CONTINUE;
-            }
+//            if (path.length()==0) {
+//                return Evaluation.INCLUDE_AND_CONTINUE;
+//            }
 
             Node queryNode = path.endNode();
 

@@ -53,12 +53,30 @@ public class JourneyPlannerBusTest {
         mapper.registerModule(new JodaModule());
     }
 
-    @Test
-    @Category({BusTest.class})
     @Ignore("experimental")
+    @Category({BusTest.class})
+    @Test
+    public void shouldPlanSimpleJourney() {
+        TramTime queryTime = TramTime.of(11,45);
+        JourneyPlanRepresentation plan = getJourneyPlan("1800EB07881", "1800EB07921", queryTime,
+                new TramServiceDate(when), false);
+
+        List<JourneyDTO> found = new ArrayList<>();
+        plan.getJourneys().forEach(journeyDTO -> {
+            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
+            if (journeyDTO.getExpectedArrivalTime().isBefore(queryTime)) {
+                found.add(journeyDTO);
+            }
+        });
+        assertFalse(found.isEmpty());
+    }
+
+    @Ignore("experimental")
+    @Category({BusTest.class})
+    @Test
     public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyPlan("1800SB34231", "1800SB01681", queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan("1800EB07881", "1800EB07921", queryTime,
                 new TramServiceDate(when), true);
 
         List<JourneyDTO> found = new ArrayList<>();
