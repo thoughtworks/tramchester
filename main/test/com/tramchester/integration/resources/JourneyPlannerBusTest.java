@@ -54,6 +54,8 @@ public class JourneyPlannerBusTest {
     }
 
     @Test
+    @Category({BusTest.class})
+    @Ignore("experimental")
     public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan("1800SB34231", "1800SB01681", queryTime,
