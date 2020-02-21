@@ -22,7 +22,7 @@ public class AppPage extends Page {
     private static final String MODAL_DISCLAIMER = "modal-disclaimer";
     private static final String PLAN = "plan";
     private final ProvidesDateInput providesDateInput;
-    private long timeoutInSeconds = 10;
+    private long timeoutInSeconds = 15;
 
     private static final String DATE = "date";
     private String FROM_STOP = "fromStop";
