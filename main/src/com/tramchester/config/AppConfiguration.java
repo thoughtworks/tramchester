@@ -123,6 +123,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("numberQueries")
     private int numberQueries;
 
+    @JsonProperty("bus")
+    private boolean bus;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -270,5 +273,10 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
+    }
+
+    @Override
+    public boolean getBus() {
+        return bus;
     }
 }

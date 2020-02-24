@@ -280,6 +280,7 @@ public class TransportGraphBuilder {
         if ( routeStationNode == null) {
              routeStationNode = createRouteStationNode(station, route, routeStationId, service);
         }
+        // TODO Bus interchanges?
         boolean isInterchange = TramInterchanges.has(station);
         int enterPlatformCost = ENTER_PLATFORM_COST;
         int leavePlatformCost = LEAVE_PLATFORM_COST;
@@ -297,7 +298,7 @@ public class TransportGraphBuilder {
             // add a platform node between station and calling points
             platformNode = getOrCreatePlatform(stop);
             stationOrPlatformID = stop.getId();
-            // station -> platform & platform -> station
+            // station -> platform AND platform -> station
             if (!hasPlatform(stationId, stationOrPlatformID)) {
                 // station -> platform
                 Relationship crossToPlatform = createRelationships(stationNode, platformNode,
@@ -341,9 +342,11 @@ public class TransportGraphBuilder {
                 boardRelationship.setProperty(COST, boardCost);
                 boardRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
                 boardRelationship.setProperty(ROUTE_ID, route.getId());
-//                boardRelationship.setProperty(ROUTE_NAME, route.getName());
                 boardRelationship.setProperty(STATION_ID, station.getId());
-                boardRelationship.setProperty(PLATFORM_ID, stationOrPlatformID);
+                // No platform ID on buses
+                if (route.isTram()) {
+                    boardRelationship.setProperty(PLATFORM_ID, stationOrPlatformID);
+                }
                 boardings.put(boardKey(routeStationId, stationOrPlatformID), boardType);
             }
         }

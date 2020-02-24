@@ -19,6 +19,11 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
+    public boolean getBus() {
+        return true;
+    }
+
+    @Override
     public Set<String> getAgencies() {
         return new HashSet<>(Arrays.asList("MET","GMS"));
 //        return new HashSet<>(Arrays.asList("*"));

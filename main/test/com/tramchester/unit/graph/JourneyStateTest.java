@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.TestConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.CachedNodeOperations;
@@ -26,7 +27,7 @@ public class JourneyStateTest {
     public void onceBeforeEachTestRuns() {
         List<String> destinationStationIds = Arrays.asList("destinationStationId");
         traversalState = new NotStartedState(new CachedNodeOperations(new NodeIdLabelMap()),
-                42, destinationStationIds, false);
+                42, destinationStationIds, TestConfig.GET());
         queryTime = TramTime.of(9, 15);
     }
 

@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.states.ImmuatableTraversalState;
 import com.tramchester.graph.states.NotStartedState;
@@ -26,12 +27,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TramTime queryTime;
     private final long destinationNodeId;
     private final List<String> endStationIds;
-    private final boolean interchangesOnly;
+    private final TramchesterConfig config;
     private final ServiceReasons reasons;
 
     public TramNetworkTraverser(GraphDatabaseService graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 ServiceReasons reasons, CachedNodeOperations nodeOperations, Node destinationNode,
-                                List<String> endStationIds, boolean interchangesOnly) {
+                                List<String> endStationIds, TramchesterConfig config) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.reasons = reasons;
@@ -39,13 +40,13 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeId = destinationNode.getId();
         this.endStationIds = endStationIds;
-        this.interchangesOnly = interchangesOnly;
+        this.config = config;
     }
 
     public Stream<Path> findPaths(Node startNode) {
 
         TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, interchangesOnly);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, config);
 
         logger.info("Begin traversal");
 

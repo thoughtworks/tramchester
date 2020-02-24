@@ -152,7 +152,13 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public boolean getRemoveRouteNameSuffix() {
         // issue with truncation of source data, until this is fixed this needs to remain true
-        return true; }
+        return true;
+    }
+
+    @Override
+    public boolean getBus() {
+        return false;
+    }
 
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");

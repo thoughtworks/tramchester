@@ -98,8 +98,8 @@ public class RouteCalculator implements TramRouteCalculator {
                                                ServiceHeuristics serviceHeuristics,
                                                ServiceReasons reasons, List<String> endStationIds) {
 
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics, reasons, nodeOperations,
-                endNode, endStationIds, config.getChangeAtInterchangeOnly());
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
+                reasons, nodeOperations, endNode, endStationIds, config);
 
         return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }

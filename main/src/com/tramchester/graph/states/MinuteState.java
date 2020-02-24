@@ -57,7 +57,7 @@ public class MinuteState extends TraversalState {
         boolean tripFinishedHere = routeStationOutbound.isEmpty();
 
         // add outgoing to platforms
-        if (interchangesOnly) {
+        if (config.getChangeAtInterchangeOnly()) {
             Iterable<Relationship> interchanges = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
             interchanges.forEach(routeStationOutbound::add);
         } else {

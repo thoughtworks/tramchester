@@ -88,4 +88,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     public abstract long getLiveDataRefreshPeriodSeconds();
 
     public abstract boolean getChangeAtInterchangeOnly();
+
+    public abstract boolean getBus();
 }

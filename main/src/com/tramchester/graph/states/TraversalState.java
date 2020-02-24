@@ -1,5 +1,6 @@
 package com.tramchester.graph.states;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
@@ -22,26 +23,31 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     private final int costForLastEdge;
     private final int parentCost;
+
+    protected final TramchesterConfig config;
     protected final CachedNodeOperations nodeOperations;
     protected final long destinationNodeId;
     protected final TraversalState parent;
     protected final List<String> destinationStationdIds;
-    protected final boolean interchangesOnly;
+//    protected final boolean interchangesOnly;
 
     @Override
     public int hashCode() {
         return Objects.hash(parent);
     }
 
+    // initial only
     protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> outbounds,
-                             long destinationNodeId, List<String> destinationStationdId, int costForLastEdge, boolean interchangesOnly) {
+                             long destinationNodeId, List<String> destinationStationdId, int costForLastEdge,
+                             TramchesterConfig config) {
         this.parent = parent;
         this.nodeOperations = nodeOperations;
         this.outbounds = outbounds;
         this.destinationNodeId = destinationNodeId;
         this.destinationStationdIds = destinationStationdId;
         this.costForLastEdge = costForLastEdge;
-        this.interchangesOnly = interchangesOnly;
+        this.config = config;
+        //this.interchangesOnly = interchangesOnly;
         parentCost = 0;
     }
 
@@ -49,7 +55,8 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
         this.destinationStationdIds = parent.destinationStationdIds;
-        this.interchangesOnly = parent.interchangesOnly;
+//        this.interchangesOnly = parent.interchangesOnly;
+        this.config = parent.config;
 
         this.parent = parent;
         this.outbounds = outbounds;

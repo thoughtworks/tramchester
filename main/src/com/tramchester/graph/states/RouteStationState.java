@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationState extends TraversalState {
@@ -57,7 +58,18 @@ public class RouteStationState extends TraversalState {
         if (nodeLabel == TransportGraphBuilder.Labels.SERVICE) {
             return toService(nextNode, cost);
         }
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+        if (config.getBus()) {
+            if (nodeLabel == TransportGraphBuilder.Labels.STATION) {
+                long id = nextNode.getId();
+                if (id == destinationNodeId) {
+                    return new DestinationState(this, cost);
+                }
+                List<Relationship> relationships = filterExcludingEndNode(nextNode.getRelationships(OUTGOING, BOARD,
+                        INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
+                return new StationState(this, relationships, cost, id);
+            }
+        }
+        throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
     }
 
     private TraversalState toService(Node serviceNode, int cost) {

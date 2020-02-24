@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.tramchester.graph.TransportRelationshipTypes.BUS_GOES_TO;
 import static com.tramchester.graph.TransportRelationshipTypes.TRAM_GOES_TO;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -45,11 +46,12 @@ public class HourState extends TraversalState {
             // continuing an existing trip
             String existingTripId = maybeExistingTrip.get();
             journeyState.recordTramDetails(time, getTotalCost());
-            Iterable<Relationship> relationships = filterBySingleTripId(node.getRelationships(OUTGOING, TRAM_GOES_TO), existingTripId);
+            Iterable<Relationship> relationships = filterBySingleTripId(node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO),
+                    existingTripId);
             return new MinuteState(this, relationships, existingTripId, cost);
         } else {
             // starting a brand new journey
-            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO);
+            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
             String tripId = nodeOperations.getTrip(node);
             journeyState.recordTramDetails(time, getTotalCost());
             return new MinuteState(this, relationships, tripId, cost);

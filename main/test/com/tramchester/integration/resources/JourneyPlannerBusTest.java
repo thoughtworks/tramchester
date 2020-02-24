@@ -4,28 +4,20 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
-import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
-import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.*;
-import com.tramchester.resources.JourneyPlannerResource;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
 
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.SortedSet;
 
 import static com.tramchester.TestConfig.dateFormatDashes;
 import static junit.framework.TestCase.assertTrue;
@@ -44,11 +36,11 @@ public class JourneyPlannerBusTest {
             new IntegrationBusTestConfig("int_test_bus_tramchester.db"));
 
     private ObjectMapper mapper = new ObjectMapper();
-    private LocalDate when;
+    private LocalDate nextTuesday;
 
     @Before
     public void beforeEachTestRuns() {
-        when = TestConfig.nextTuesday(0);
+        nextTuesday = TestConfig.nextTuesday(0);
         // todo NO longer needed?
         mapper.registerModule(new JodaModule());
     }
@@ -57,9 +49,9 @@ public class JourneyPlannerBusTest {
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleJourney() {
-        TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyPlan("1800EB07881", "1800EB07921", queryTime,
-                new TramServiceDate(when), false);
+        TramTime queryTime = TramTime.of(8,45);
+        JourneyPlanRepresentation plan = getJourneyPlan("1800NF31171", "1800NF31191", queryTime,
+                new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
@@ -77,7 +69,7 @@ public class JourneyPlannerBusTest {
     public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan("1800EB07881", "1800EB07921", queryTime,
-                new TramServiceDate(when), true);
+                new TramServiceDate(nextTuesday), true);
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
