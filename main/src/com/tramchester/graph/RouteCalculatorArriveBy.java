@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Node;
@@ -27,16 +28,16 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(String startStationId, String destinationId, TramTime queryTime,
+    public Stream<Journey> calculateRoute(String startStationId, Station destination, TramTime queryTime,
                                           TramServiceDate queryDate) {
-        int costToDest = tramRouteReachable.getApproxCostBetween(startStationId, destinationId);
+        int costToDest = tramRouteReachable.getApproxCostBetween(startStationId, destination.getId());
         TramTime departureTime = calcDepartTime(queryTime, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
-        return routeCalculator.calculateRoute(startStationId, destinationId, departureTime, queryDate);
+        return routeCalculator.calculateRoute(startStationId, destination, departureTime, queryDate);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<String> destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<Station> destStations,
                                                    TramTime queryTime, TramServiceDate queryDate) {
         int costToDest = tramRouteReachable.getApproxCostBetween(startId, endOfWalk);
         TramTime departureTime = calcDepartTime(queryTime, costToDest);
@@ -45,12 +46,12 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Node origin, String destinationId, TramTime queryTime,
+    public Stream<Journey> calculateRouteWalkAtStart(Node origin, Station destination, TramTime queryTime,
                                                      TramServiceDate queryDate) {
-        int costToDest = tramRouteReachable.getApproxCostBetween(origin, destinationId);
+        int costToDest = tramRouteReachable.getApproxCostBetween(origin, destination.getId());
         TramTime departureTime = calcDepartTime(queryTime, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
-        return routeCalculator.calculateRouteWalkAtStart(origin, destinationId, departureTime, queryDate);
+        return routeCalculator.calculateRouteWalkAtStart(origin, destination, departureTime, queryDate);
     }
 
     private TramTime calcDepartTime(TramTime queryTime, int costToDest) {

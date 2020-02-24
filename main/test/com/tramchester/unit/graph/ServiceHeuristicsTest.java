@@ -1,10 +1,12 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.Stations;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import org.easymock.EasyMock;
@@ -24,7 +26,7 @@ import static org.junit.Assert.*;
 public class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
-    private final List<String> endStationIds = Arrays.asList("endStationId");
+    private final List<Station> endStationIds = Arrays.asList(Stations.Deansgate);
 
     private TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private CachedNodeOperations nodeOperations;

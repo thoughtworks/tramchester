@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphFilter;
@@ -98,20 +99,17 @@ public class RouteCalculatorSubGraphMonsallTest {
         }
     }
 
-    private void validateNumberOfStages(Location start, Location dest, TramTime time, LocalDate date, int numStages) {
-
+    private void validateNumberOfStages(Location start, Station dest, TramTime time, LocalDate date, int numStages) {
         String startId = start.getId();
-        String destId = dest.getId();
-
-        validateNumberOfStages( startId, destId,time, date, numStages);
+        validateNumberOfStages(startId, dest, time, date, numStages);
     }
 
-    private void validateNumberOfStages(String startId, String destId, TramTime time, LocalDate date, int numStages) {
-        Set<Journey> journeys = calculator.calculateRoute(startId, destId, time,
+    private void validateNumberOfStages(String startId, Station destination, TramTime time, LocalDate date, int numStages) {
+        Set<Journey> journeys = calculator.calculateRoute(startId, destination, time,
                 new TramServiceDate(date)).
                 collect(Collectors.toSet());
 
-        assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destId, time.toString(), date),
+        assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destination, time.toString(), date),
                 journeys.isEmpty());
         journeys.forEach(journey -> assertEquals(numStages, journey.getStages().size()));
     }

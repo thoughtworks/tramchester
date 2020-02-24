@@ -5,6 +5,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphFilter;
@@ -32,18 +33,21 @@ public class RouteCalculatorSubGraphMediaCityTest {
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
     private GraphDatabaseService graphService;
 
-    private static List<String> stations = Arrays.asList(
-            Stations.ExchangeSquare.getId(),
-            Stations.StPetersSquare.getId(),
-            Stations.Deansgate.getId(),
-            Stations.Cornbrook.getId(),
-            Stations.Pomona.getId(),
-            "9400ZZMAEXC", // Exchange Quay
-            "9400ZZMASQY", // Salford Quays
-            "9400ZZMAANC", // Anchorage
-            Stations.HarbourCity.getId(),
-            Stations.MediaCityUK.getId(),
-            Stations.TraffordBar.getId());
+    private static List<Station> stations = Arrays.asList(
+            Stations.ExchangeSquare,
+            Stations.StPetersSquare,
+            Stations.Deansgate,
+            Stations.Cornbrook,
+            Stations.Pomona,
+            Stations.ExchangeQuay,
+            Stations.SalfordQuay,
+            Stations.Anchorage,
+//            "9400ZZMAEXC", // Exchange Quay
+//            "9400ZZMASQY", // Salford Quays
+//            "9400ZZMAANC", // Anchorage
+            Stations.HarbourCity,
+            Stations.MediaCityUK,
+            Stations.TraffordBar);
     private Transaction tx;
 
     @BeforeClass
@@ -90,12 +94,12 @@ public class RouteCalculatorSubGraphMediaCityTest {
     public void shouldHaveJourneyFromEveryStationToEveryOther() {
         List<String> failures = new LinkedList<>();
 
-        for (String start: stations) {
-            for (String destination: stations) {
+        for (Station start: stations) {
+            for (Station destination: stations) {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
-                        Set<Journey> journeys = calculator.calculateRoute(start, destination, TramTime.of(9,0),
+                        Set<Journey> journeys = calculator.calculateRoute(start.getId(), destination, TramTime.of(9,0),
                                 new TramServiceDate(day)).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
@@ -119,7 +123,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     public void shouldHaveSimpleJourney() {
-        Set<Journey> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK,
                 TramTime.of(12, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
@@ -146,7 +150,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date);
+    private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest, time, date);
     }
 }

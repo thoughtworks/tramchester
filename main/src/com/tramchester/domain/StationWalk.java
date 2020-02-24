@@ -2,16 +2,12 @@ package com.tramchester.domain;
 
 
 public class StationWalk {
-    private Location station;
+    private Station station;
     private int cost;
 
-    public StationWalk(Location station, int cost) {
+    public StationWalk(Station station, int cost) {
         this.cost = cost;
         this.station = station;
-    }
-
-    public String getStationId() {
-        return station.getId();
     }
 
     public int getCost() {
@@ -24,5 +20,9 @@ public class StationWalk {
                 "station=" + station +
                 ", cost=" + cost +
                 '}';
+    }
+
+    public Station getStation() {
+        return station;
     }
 }

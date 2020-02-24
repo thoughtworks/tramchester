@@ -3,7 +3,8 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -24,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
 public class RouteCalculatorTestAllJourneys {
@@ -79,15 +80,15 @@ public class RouteCalculatorTestAllJourneys {
         Set<Station> allStations = data.getStations();
 
         // pairs of stations to check
-        Set<Pair<String, String>> combinations = allStations.stream().map(start -> allStations.stream().
+        Set<Pair<String, Station>> combinations = allStations.stream().map(start -> allStations.stream().
                 map(dest -> Pair.of(start, dest))).
                 flatMap(Function.identity()).
                 filter(pair -> !matches(pair, Stations.Interchanges)).
                 filter(pair -> !matches(pair, Stations.EndOfTheLine)).
-                map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight().getId())).
+                map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight())).
                 collect(Collectors.toSet());
 
-        Map<Pair<String, String>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
+        Map<Pair<String, Station>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
                 combinations, TramTime.of(6, 5));
 
         // now find longest journey
@@ -109,10 +110,10 @@ public class RouteCalculatorTestAllJourneys {
         return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
-    private Map<Pair<String, String>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<Pair<String, String>> combinations, TramTime queryTime) {
+    private Map<Pair<String, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
+            LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
 
-        ConcurrentMap<Pair<String, String>, Optional<Journey>> results;
+        ConcurrentMap<Pair<String, Station>, Optional<Journey>> results;
 
         // check each pair, collect results into (station,station)->result
         results =
@@ -136,7 +137,7 @@ public class RouteCalculatorTestAllJourneys {
         return results;
     }
 
-    private Pair<String, String>  checkForTx(Pair<String, String> journey) {
+    private <A,B> Pair<A, B>  checkForTx(Pair<A, B> journey) {
         long id = Thread.currentThread().getId();
         if (threadToTxnMap.containsKey(id)) {
             return journey;
@@ -149,9 +150,9 @@ public class RouteCalculatorTestAllJourneys {
             Transaction txn = database.beginTx(TXN_TIMEOUT_SECS, TimeUnit.SECONDS);
             threadToTxnMap.put(id, txn);
         }
-        catch(Exception uncaught) {
-            throw uncaught;
-        }
+//        catch(Exception uncaught) {
+//            throw uncaught;
+//        }
         return journey;
     }
 

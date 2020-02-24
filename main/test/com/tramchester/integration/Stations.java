@@ -42,6 +42,11 @@ public class Stations {
     public static Station StWerburghsRoad = createStation("9400ZZMASTW", "Chorlton", "St Werburgh's Road");
     public static Station Shudehill = createStation("9400ZZMASHU","Manchester City Centre", "Shudehill");
     public static Station Monsall = createStation("9400ZZMAMON", "Manchester City Centre", "Monsall");
+    public static Station ExchangeQuay = createStation("9400ZZMAEXC", "media city area", "Exchange Quay");
+    public static Station SalfordQuay = createStation("9400ZZMASQY", "media city area", "Salford Quay");
+    public static Station Anchorage = createStation("9400ZZMAANC", "media city area", "Anchorage");
+    public static Station HeatonPark = createStation("9400ZZMAHEA", "Heaton", "Heaton Park");
+    public static Station BurtonRoad = createStation("9400ZZMABNR", "Heaton", "Burton Road");
     public static Station RochdaleRail = createStation("9400ZZMARRS", "Rochsdale Town Centr", "Rochsdale Railway Station");
 
     private static List<Station> EndOfTheLineWest = Arrays.asList(Altrincham,

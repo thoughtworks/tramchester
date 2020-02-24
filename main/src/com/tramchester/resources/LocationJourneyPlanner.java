@@ -24,7 +24,6 @@ public class LocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
 
     private static final double EARTH_RADIUS = 3958.75;
-    private final String queryNodeName = "BEGIN";
 
     private final SpatialService spatialService;
     private TramchesterConfig config;
@@ -46,9 +45,9 @@ public class LocationJourneyPlanner {
         this.stationIndexs = stationIndexs;
     }
 
-    public Stream<Journey> quickestRouteForLocation(LatLong latLong, String destinationId, TramTime queryTime,
+    public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, TramTime queryTime,
                                                     TramServiceDate queryDate, boolean arriveBy) {
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s", latLong, destinationId, queryDate, queryTime));
+        logger.info(format("Finding shortest path for %s --> %s on %s at %s", latLong, destination, queryDate, queryTime));
         List<StationWalk> walksToStart = getStationWalks(latLong,  config.getNearestStopRangeKM());
 
         Node startOfWalkNode = createWalkingNode(latLong);
@@ -59,10 +58,10 @@ public class LocationJourneyPlanner {
 
         Stream<Journey> journeys;
         if (arriveBy) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(startOfWalkNode, destinationId,
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(startOfWalkNode, destination,
                     queryTime, queryDate);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, destinationId,
+            journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, destination,
                     queryTime, queryDate);
         }
 
@@ -78,12 +77,11 @@ public class LocationJourneyPlanner {
         List<StationWalk> walksToDest = getStationWalks(destination,  config.getNearestStopRangeKM());
 
         List<Relationship> addedRelationships = new LinkedList<>();
-        List<String> destinationStationIds = new ArrayList<>();
+        List<Station> destinationStations = new ArrayList<>();
         Node midWalkNode = createWalkingNode(destination);
 
         walksToDest.forEach(stationWalk -> {
-            String walkStationId = stationWalk.getStationId();
-            destinationStationIds.add(walkStationId);
+            destinationStations.add(stationWalk.getStation());
             addedRelationships.add(createWalkRelationship(midWalkNode, stationWalk, TransportRelationshipTypes.WALKS_FROM));
         });
         Node endWalk = createWalkingNode(destination);
@@ -93,10 +91,10 @@ public class LocationJourneyPlanner {
 
         Stream<Journey> journeys;
         if (arriveBy) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(startId, endWalk, destinationStationIds,
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(startId, endWalk, destinationStations,
                     queryTime, queryDate);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(startId, endWalk, destinationStationIds,
+            journeys = routeCalculator.calculateRouteWalkAtEnd(startId, endWalk, destinationStations,
                     queryTime, queryDate);
         }
 
@@ -107,13 +105,13 @@ public class LocationJourneyPlanner {
     }
 
     private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
-        String walkStationId = stationWalk.getStationId();
+        Station walkStation = stationWalk.getStation();
         int cost = stationWalk.getCost();
         logger.info(format("Add walking relationship from %s to %s cost %s direction %s",
-                walkStationId, walkNode,  cost, direction));
+                walkStation, walkNode,  cost, direction));
 
         Relationship walkingRelationship;
-        Node stationNode = stationIndexs.getStationNode(walkStationId);
+        Node stationNode = stationIndexs.getStationNode(walkStation.getId());
         if (direction==TransportRelationshipTypes.WALKS_FROM) {
             walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
         } else {
@@ -121,7 +119,7 @@ public class LocationJourneyPlanner {
         }
 
         walkingRelationship.setProperty(COST, cost);
-        walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStationId);
+        walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStation.getId());
         return walkingRelationship;
     }
 
@@ -154,7 +152,7 @@ public class LocationJourneyPlanner {
     }
 
     private List<StationWalk> nearestStations(LatLong latLong, List<String> startIds) {
-        List<Location> stations = startIds.stream().map(stationRepository::getStation).
+        List<Station> stations = startIds.stream().map(stationRepository::getStation).
                 filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         return stations.stream().map(station ->

@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCalculator;
@@ -42,12 +43,12 @@ public class RouteCalculatorArriveByTest extends EasyMockSupport {
         LocalDate localDate = TestConfig.nextTuesday(0);
 
         String startId = Stations.Bury.getId();
-        String destinationId = Stations.Cornbrook.getId();
+        Station destinationId = Stations.Cornbrook;
         TramServiceDate serviceDate = TramServiceDate.of(localDate);
 
         Stream<Journey> journeyStream = Stream.empty();
 
-        EasyMock.expect(routeReachable.getApproxCostBetween(startId, destinationId)).andReturn(costBetweenStartDest);
+        EasyMock.expect(routeReachable.getApproxCostBetween(startId, destinationId.getId())).andReturn(costBetweenStartDest);
         TramTime requiredDepartTime = arriveBy.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
         EasyMock.expect(routeCalculator.calculateRoute(startId, destinationId, requiredDepartTime, serviceDate)).andReturn(journeyStream);
         EasyMock.expect(config.getMaxWait()).andReturn(34);

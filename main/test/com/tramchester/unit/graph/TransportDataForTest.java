@@ -140,6 +140,7 @@ public class TransportDataForTest implements TransportDataSource {
         addTrip(tripC);
     }
 
+
     private void addRouteStation(Station station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         routeStations.put(routeStation.getId(), routeStation);
@@ -266,5 +267,21 @@ public class TransportDataForTest implements TransportDataSource {
 
     public Station getInterchange() {
         return stationIdMap.get(INTERCHANGE);
+    }
+
+    public Station getSecondStation() {
+        return stationIdMap.get(SECOND_STATION);
+    }
+
+    public Station getLast() {
+        return stationIdMap.get(LAST_STATION);
+    }
+
+    public Station getFifthStation() {
+        return stationIdMap.get(STATION_FIVE);
+    }
+
+    public Station getFourthStation() {
+        return stationIdMap.get(STATION_FOUR);
     }
 }

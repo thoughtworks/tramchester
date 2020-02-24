@@ -34,4 +34,12 @@ public class RouteStation {
     public boolean isTram() {
         return route.isTram();
     }
+
+    @Override
+    public String toString() {
+        return "RouteStation{" +
+                "station=" + station +
+                ", route=" + route +
+                '}';
+    }
 }

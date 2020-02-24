@@ -61,9 +61,13 @@ public class ReachabilityRepository {
     public boolean reachable(String routeStationId, String destinationStationId) {
         RouteStation routeStation =  transportData.getRouteStation(routeStationId);
         if (!routeStation.isTram()) {
-            return true; // no efficient way to compute this for buses yet
+            return true; // TODO no efficient way to compute this for buses yet...
         }
         int index = stationIndexing.indexOf(destinationStationId);
+        if (index<0) {
+            throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStationId,
+                    routeStation));
+        }
         return matrix.get(routeStationId)[index];
     }
 

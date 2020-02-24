@@ -128,12 +128,18 @@ public class JourneyPlannerResource extends UsesRecentCookie {
 
     private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, TramServiceDate queryDate,
                                                                       TramTime queryTime, boolean arriveBy) {
-        Optional<Station> finalStation = transportData.getStation(endId);
+        Optional<Station> findFinalStation = transportData.getStation(endId);
+        if (findFinalStation.isEmpty()) {
+            String msg = "Unable to find station from id " + endId;
+            logger.warn(msg);
+            throw new RuntimeException(msg);
+        }
 
-        logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, finalStation.get(), queryDate.getDay(),
+        Station finalStation = findFinalStation.get();
+        logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, finalStation, queryDate.getDay(),
                 queryDate, queryTime));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, endId, queryTime, queryDate, arriveBy);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, finalStation, queryTime, queryDate, arriveBy);
         JourneyPlanRepresentation plan = createPlan(queryDate, journeys);
         journeys.close();
         return plan;
@@ -154,17 +160,30 @@ public class JourneyPlannerResource extends UsesRecentCookie {
 
     public JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
                                                        TramTime queryTime, boolean arriveBy) {
-        Optional<Station> startStation = transportData.getStation(startId);
-        Optional<Station> endStation = transportData.getStation(endId);
+        Optional<Station> findStartStation = transportData.getStation(startId);
+        Optional<Station> findEndStation = transportData.getStation(endId);
 
-        logger.info(format("Plan journey from %s to %s on %s %s at %s (arrive by = %s)", startStation.get(),
-                endStation.get(), queryDate.getDay(), queryDate,queryTime, arriveBy));
+        if (findStartStation.isEmpty()) {
+            String msg = "Unable to find start station from id " + startId;
+            logger.warn(msg);
+            throw new RuntimeException(msg);
+        }
+
+        if (findEndStation.isEmpty()) {
+            String msg = "Unable to find end station from id " + endId;
+            logger.warn(msg);
+            throw new RuntimeException(msg);
+        }
+
+        Station endStation = findEndStation.get();
+        logger.info(format("Plan journey from %s to %s on %s %s at %s (arrive by = %s)", findStartStation.get(),
+                endStation, queryDate.getDay(), queryDate,queryTime, arriveBy));
 
         Stream<Journey> journeys;
         if (arriveBy) {
-            journeys = routeCalculatorArriveBy.calculateRoute(startId, endId, queryTime, queryDate);
+            journeys = routeCalculatorArriveBy.calculateRoute(startId, endStation, queryTime, queryDate);
         } else {
-            journeys = routeCalculator.calculateRoute(startId, endId, queryTime, queryDate);
+            journeys = routeCalculator.calculateRoute(startId, endStation, queryTime, queryDate);
         }
         // ASSUME: Limit here rely's on search giving lowest cost routes first
         JourneyPlanRepresentation journeyPlanRepresentation = createPlan(queryDate, journeys.limit(config.getMaxNumResults()));

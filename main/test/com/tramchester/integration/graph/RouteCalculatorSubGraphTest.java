@@ -5,6 +5,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphFilter;
@@ -33,7 +34,8 @@ public class RouteCalculatorSubGraphTest {
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
     private GraphDatabaseService graphService;
-    private static List<Location> stations = Arrays.asList(Stations.Cornbrook, Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
+    private static List<Station> stations = Arrays.asList(Stations.Cornbrook,
+            Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
     private Transaction tx;
 
     @BeforeClass
@@ -88,7 +90,7 @@ public class RouteCalculatorSubGraphTest {
     public void shouldHaveJourneysBetweenAllStations() {
         TramTime time = TramTime.of(9, 0);
         for (Location start: stations) {
-            for (Location destination: stations) {
+            for (Station destination: stations) {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
@@ -101,21 +103,21 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void shouldHaveSimpleOneStopJourney() {
-        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona,
                 TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate,
                 TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleJourney() {
-        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook.getId(),
+        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook,
                 TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
@@ -139,7 +141,7 @@ public class RouteCalculatorSubGraphTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Location dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest.getId(), time, date);
+    private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest, time, date);
     }
 }

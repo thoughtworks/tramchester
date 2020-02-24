@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
@@ -18,7 +19,7 @@ public class ServiceHeuristics {
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
     private final RunningServices runningServices;
-    private final List<String> endStationIds;
+    private final List<Station> endStations;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
     private final ReachabilityRepository reachabilityRepository;
@@ -30,7 +31,7 @@ public class ServiceHeuristics {
 
     public ServiceHeuristics(CachedNodeOperations nodeOperations,
                              ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
-                             RunningServices runningServices, List<String> endStationIds, ServiceReasons reasons) {
+                             RunningServices runningServices, List<Station> endStations, ServiceReasons reasons) {
         this.nodeOperations = nodeOperations;
         this.reachabilityRepository = reachabilityRepository;
 
@@ -38,7 +39,7 @@ public class ServiceHeuristics {
         this.maxJourneyDuration = config.getMaxJourneyDuration();
         this.queryTime = queryTime;
         this.runningServices = runningServices;
-        this.endStationIds = endStationIds;
+        this.endStations = endStations;
         this.reasons = reasons;
     }
     
@@ -120,8 +121,9 @@ public class ServiceHeuristics {
 
     public ServiceReason canReachDestination(Node endNode, Path path) {
         String stationId = endNode.getProperty(ID).toString();
-        for(String endStationId : endStationIds) {
-            boolean flag = reachabilityRepository.reachable(stationId, endStationId);
+        for(Station endStation : endStations) {
+            // TODO only have reachability between tram stations
+            boolean flag = !endStation.isTram() || reachabilityRepository.reachable(stationId, endStation.getId());
             if (flag) {
                 return valid(path);
             }
