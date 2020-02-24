@@ -200,11 +200,11 @@ public class DataCleanser {
                 routeName = routeName.substring(0,indexOf).trim();
             }
         }
-        writer.writeLine(String.format("%s,%s,%s,%s,0",
+        writer.writeLine(String.format("%s,%s,%s,%s,%s",
                 id,
                 route.getAgency(),
                 route.getShortName(),
-                routeName));
+                routeName, route.getRouteType()));
         routeCodes.add(id);
         logger.info("Added route " + id);
     }

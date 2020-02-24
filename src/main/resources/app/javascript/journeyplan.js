@@ -120,10 +120,10 @@ var app = new Vue({
                     ],
                 stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
                     {key:'action',label:'Action',tdClass:'action' },
-                    {key:'actionStation.name',label:'Station', tdClass:'actionStation', formatter: this.stationFormatter},
+                    {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: this.stationFormatter},
                     {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                     {key:'headSign', label:'Towards', tdClass: this.stageHeadsignClass },
-                    {key:'routeName', label:'Line', tdClass: this.stageRowClass },
+                    {key:'mode', label:'Line', formatter: this.lineFormatter },
                     {key:'passedStops', label:'Stops', tdClass:'passedStops'}],
                 departureFields: [
                     {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
@@ -232,6 +232,14 @@ var app = new Vue({
                     if (result.length>0) result = result.concat(", ");
                     result = result.concat(change)});
                 return result;
+            },
+            lineFormatter(value, key, row) {
+                if (value==='Bus') {
+                    return row.routeShortName;
+                } else {
+                    return row.routeName;
+                }
+
             },
             rowExpandedFormatter(value, key, row) {
                 if (row._showDetails!=null && row._showDetails) {

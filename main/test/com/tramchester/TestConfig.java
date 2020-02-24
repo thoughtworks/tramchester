@@ -2,6 +2,7 @@ package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.presentation.LatLong;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -201,7 +202,7 @@ public abstract class TestConfig extends AppConfiguration {
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
 
     public static Route getTestRoute() {
-        return new Route("RouteId", "routeCode", "routeName", "MET");
+        return new Route("RouteId", "routeCode", "routeName", "MET", TransportMode.Tram);
     }
 
 }

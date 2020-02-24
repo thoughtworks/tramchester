@@ -35,7 +35,7 @@ public class TripTest {
     public void shouldKnowIfTramTrip() {
         Trip tripA = new Trip("tripId", "headSign", "svcId", TestConfig.getTestRoute());
         assertTrue(tripA.getTram());
-        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", "BUS");
+        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", "BUS", TransportMode.Bus);
         Trip tripB = new Trip("tripId", "headSign", "svcId", busRoute);
         assertFalse(tripB.getTram());
     }

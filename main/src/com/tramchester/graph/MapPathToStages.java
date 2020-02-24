@@ -194,7 +194,7 @@ public class MapPathToStages {
             Trip trip = transportData.getTrip(tripId);
 
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
-                    TransportMode.Tram, routeIdToClass.map(route.getId()), trip, boardingTime,
+                    route.getMode(), routeIdToClass.map(route.getId()), trip, boardingTime,
                     departStation, passedStops);
 
             boardingPlatform.ifPresent(vehicleStage::setPlatform);

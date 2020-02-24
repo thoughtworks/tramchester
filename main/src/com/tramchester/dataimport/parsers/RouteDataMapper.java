@@ -26,8 +26,9 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
         String agency = data.get(1);
         String shortName = data.get(2);
         String longName = data.get(3);
+        String routeType = data.get(4);
 
-        return new RouteData(id, agency, shortName, longName);
+        return new RouteData(id, agency, shortName, longName, routeType);
     }
 
     @Override

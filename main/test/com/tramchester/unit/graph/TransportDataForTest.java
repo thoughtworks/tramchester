@@ -52,9 +52,9 @@ public class TransportDataForTest implements TransportDataSource {
         trips = new HashMap<>();
         routeStations = new HashMap<>();
 
-        Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", "MET");
-        Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", "MET");
-        Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", "MET");
+        Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", "MET", TransportMode.Tram);
+        Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", "MET", TransportMode.Tram);
+        Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", "MET", TransportMode.Tram);
 
         routes.put(routeA.getId(), routeA);
         routes.put(routeB.getId(), routeB);

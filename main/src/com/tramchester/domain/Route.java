@@ -6,22 +6,20 @@ import java.util.Set;
 public class Route {
     private static final String METROLINK = "MET";
 
-    private String id;
-    private String code;
-    private String name;
-    private String agency;
-    private Set<Service> services;
-    private Set<String> headsigns;
+    private final String id;
+    private final String code;
+    private final String name;
+    private final String agency;
+    private final TransportMode transportMode;
+    private final Set<Service> services;
+    private final Set<String> headsigns;
 
-    public Route() {
-        // deserialisation
-    }
-
-    public Route(String id, String code, String name, String agency) {
+    public Route(String id, String code, String name, String agency, TransportMode transportMode) {
         this.id = id.intern();
         this.code = code.intern();
         this.name = name.intern();
         this.agency = agency.intern();
+        this.transportMode = transportMode;
         services = new HashSet<>();
         headsigns = new HashSet<>();
     }
@@ -70,20 +68,14 @@ public class Route {
     }
 
     public boolean isTram() {
-        return agency.equals(METROLINK);
+        return transportMode.equals(TransportMode.Tram);
     }
 
     public String getShortName() {
         return code;
     }
 
-    @Override
-    public String toString() {
-        return "Route{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", shortName='" + code + '\'' +
-                ", agency='" + agency + '\'' +
-                '}';
+    public TransportMode getMode() {
+        return transportMode;
     }
 }

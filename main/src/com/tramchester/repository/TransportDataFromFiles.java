@@ -19,6 +19,8 @@ import static java.lang.String.format;
 
 public class TransportDataFromFiles implements TransportDataSource {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
+    private static final String BUS_TYPE = "3";
+    private static final String TRAM_TYPE = "0";
 
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
@@ -134,12 +136,23 @@ public class TransportDataFromFiles implements TransportDataSource {
     private void populateRoutes(Stream<RouteData> routes) {
         routes.forEach((routeData) -> {
             String agency = routeData.getAgency();
-            Route route = new Route(routeData.getId(), routeData.getShortName(), routeData.getLongName(), agency);
+            Route route = new Route(routeData.getId(), routeData.getShortName(), routeData.getLongName(), agency,
+                    getMode(routeData.getRouteType()));
             this.routes.put(route.getId(), route);
             if (!agencies.contains(agency)) {
                 agencies.add(agency);
             }
         });
+    }
+
+    private TransportMode getMode(String routeType) {
+        if (BUS_TYPE.equals(routeType)) {
+            return TransportMode.Bus;
+        }
+        if (TRAM_TYPE.equals(routeType)) {
+            return TransportMode.Tram;
+        }
+        throw new RuntimeException("Unexpected route type " + routeType);
     }
 
     private void populateStationsAndAreas(Stream<StopData> stops) {

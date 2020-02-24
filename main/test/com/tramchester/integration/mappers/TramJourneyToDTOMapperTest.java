@@ -151,7 +151,7 @@ public class TramJourneyToDTOMapperTest {
     }
 
     private Route createRoute(String name) {
-        return new Route("routeId", "shortName", name, "MET");
+        return new Route("routeId", "shortName", name, "MET", TransportMode.Tram);
     }
 
     @Test

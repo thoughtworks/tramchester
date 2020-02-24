@@ -49,9 +49,9 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCleanseRoutes() throws IOException {
+    public void shouldCleanseRoutesTram() throws IOException {
 
-        RouteData routeB = new RouteData("R1", "MET", "CODE1", "AtoB name with issue (ignore me");
+        RouteData routeB = new RouteData("R1", "MET", "CODE1", "AtoB name with issue (ignore me", "0");
         Stream<RouteData> routes = Stream.of(routeB);
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
@@ -69,9 +69,29 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     @Test
+    public void shouldCleanseRoutesBus() throws IOException {
+
+        RouteData routeB = new RouteData("R2", "GMS", "X58", "Altrincham - Strockport", "3");
+        Stream<RouteData> routes = Stream.of(routeB);
+
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
+
+        RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet());
+        EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
+        validateWriter("routes", "R2,GMS,X58,Altrincham - Strockport,3");
+
+        replayAll();
+        Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
+        verifyAll();
+
+        assertEquals(1, routeCodes.size());
+        assertTrue(routeCodes.contains("R2"));
+    }
+
+    @Test
     public void shouldCleanseRoutesWildcard() throws IOException {
-        RouteData routeA = new RouteData("R2", "ANY", "CODE2", "CtoD");
-        RouteData routeB = new RouteData("R1", "XYX", "CODE1", "AtoB");
+        RouteData routeA = new RouteData("R2", "ANY", "CODE2", "CtoD", "0");
+        RouteData routeB = new RouteData("R1", "XYX", "CODE1", "AtoB", "3");
         Stream<RouteData> routes = Stream.of(routeA, routeB);
         HashSet<String> agencyCodes = new HashSet<>(Arrays.asList("*"));
 
@@ -79,7 +99,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         RouteDataMapper routeDataMapper = new RouteDataMapper(agencyCodes);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
-        validateWriter("routes", "R1,XYX,CODE1,AtoB,0", "R2,ANY,CODE2,CtoD,0");
+        validateWriter("routes", "R1,XYX,CODE1,AtoB,3", "R2,ANY,CODE2,CtoD,0");
 
         replayAll();
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
