@@ -104,4 +104,8 @@ public class Trip {
     public TramTime latestDepartTime() {
         return latestDepart;
     }
+
+    public boolean getTram() {
+        return route.isTram();
+    }
 }

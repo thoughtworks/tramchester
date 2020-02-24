@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class TripTest {
 
@@ -29,6 +29,15 @@ public class TripTest {
         stationA = new Station("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), false);
         stationB = new Station("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
         stationC = new Station("statC","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
+    }
+
+    @Test
+    public void shouldKnowIfTramTrip() {
+        Trip tripA = new Trip("tripId", "headSign", "svcId", TestConfig.getTestRoute());
+        assertTrue(tripA.getTram());
+        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", "BUS");
+        Trip tripB = new Trip("tripId", "headSign", "svcId", busRoute);
+        assertFalse(tripB.getTram());
     }
 
     @Test

@@ -93,7 +93,8 @@ var mapApp = new Vue({
             positionsList: null,
             buses: false,
             uniqueStations: [],
-            tramPositions: [],
+            busLinks: [],
+            tramLinks: [],
             networkError: false,
             projection: null,
             path: null,
@@ -108,8 +109,10 @@ var mapApp = new Vue({
         filterPositions() {
             var ids = [];
             mapApp.positionsList.forEach(item => {
-                if (item.tram) {
-                    tramPositions.push(item);
+                if (item.first.tram && item.second.tram) {
+                    mapApp.tramLinks.push(item);
+                } else {
+                    mapApp.busLinks.push(item);
                 }
                 if (ids.indexOf(item.first.id)<0) {
                     ids.push(item.first.id);
@@ -145,10 +148,10 @@ var mapApp = new Vue({
             mapApp.scaleLat = (height-margin) / (maxLat-minLat);
         },
         draw() {
-            // lines between stations
+            // lines between tram stations
             var lineGenerator = d3.line().curve(d3.curveCardinal);
             mapApp.svg.selectAll("line")
-                    .data(mapApp.positionsList).enter().append("path")
+                    .data(mapApp.tramLinks).enter().append("path")
                     .attr("id", d=> d.first.id+d.second.id)
                     .attr("d", function (d) {
                     let normalLen = 3; // length of normal line, pixels
@@ -161,28 +164,52 @@ var mapApp = new Vue({
                     let normalPoint = normal(d.first, d.second, normalLen);
                     var points = [[x1, y1], normalPoint, [x2, y2]];
                     return lineGenerator(points);
-                }).style("fill", "none").style("stroke", "grey").style("stroke-width", "2px");
+                }).style("fill", "none").style("stroke", "darkgrey").style("stroke-width", "2px");
 
-            // stations
+                 // lines between bus stations
+                var lineGenerator = d3.line();
+                mapApp.svg.selectAll("line")
+                        .data(mapApp.busLinks).enter().append("path")
+                        .attr("id", d=> d.first.id+d.second.id)
+                        .attr("d", function (d) {
+
+                        let x1 = mapApp.scaleX(d.first);
+                        let y1 = mapApp.scaleY(d.first);
+                        let x2 = mapApp.scaleX(d.second);
+                        let y2 = mapApp.scaleY(d.second);
+
+                        var points = [[x1, y1], [x2, y2]];
+                        return lineGenerator(points);
+                    }).style("fill", "none").style("stroke", "grey").style("stroke-width", "1px");
+
+            // tram stations
             mapApp.svg.selectAll("circle")
-                .data(mapApp.uniqueStations)
+                .data(mapApp.uniqueStations.filter(d=> d.tram))
                 .enter().append("circle").attr("fill", "blue")
                 .attr("cx", mapApp.scaleX)
                 .attr("cy", mapApp.scaleY)
-                .attr("r", 3).attr("title", d => d.name).attr("id", d=> d.id);
+                .attr("r", 2).attr("title", d => d.name).attr("id", d=> d.id);
 
-            // only have one pair for each location
-            var ids = [];
-            var oneDirectionOnly = [];
-            mapApp.positionsList.forEach(item => {
-                if (ids.indexOf(item.first.id)<0) {
-                    ids.push(item.first.id);
-                    oneDirectionOnly.push(item);
-                }
-            });
+            // bus stations
+            mapApp.svg.selectAll("circle")
+                .data(mapApp.uniqueStations.filter(d=> !d.tram))
+                .enter().append("circle").attr("fill", "green")
+                .attr("cx", mapApp.scaleX)
+                .attr("cy", mapApp.scaleY)
+                .attr("r", 1).attr("title", d => d.name).attr("id", d=> d.id);
 
-            // station labels on map
+            // station labels on map, only when trams only, too cluttered otherwise
             if (!mapApp.buses) {
+                // only have one pair for each location
+                var ids = [];
+                var oneDirectionOnly = [];
+                mapApp.positionsList.forEach(item => {
+                    if (ids.indexOf(item.first.id)<0) {
+                        ids.push(item.first.id);
+                        oneDirectionOnly.push(item);
+                    }
+                });
+
                 mapApp.svg.selectAll("g")
                     .data(oneDirectionOnly).enter().append("g")
                     .attr("transform", function(d) {
@@ -201,7 +228,7 @@ var mapApp = new Vue({
 
             // live tram labels
             mapApp.svg.selectAll("g")
-                .data(mapApp.tramPositions).enter().append("g")
+                .data(mapApp.tramLinks).enter().append("g")
                 .attr("id", d=> "between"+d.first.id+d.second.id)
                 .attr("transform", function(d) {
                     let normalPoint = normal(d.first,d.second,15);

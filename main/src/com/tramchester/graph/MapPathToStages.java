@@ -77,6 +77,7 @@ public class MapPathToStages {
                     state.beginTrip(relationship).ifPresent(results::add);
                     break;
                 case TRAM_GOES_TO:
+                case BUS_GOES_TO:
                     state.passStop(relationship);
                     break;
                 case WALKS_TO:
@@ -98,7 +99,7 @@ public class MapPathToStages {
                 case FINISH_WALK:
                     break;
                 default:
-                    throw new RuntimeException("Unexpected relationship in path " + path.toString());
+                    throw new RuntimeException(format("Unexpected relationship %s in path %s", type, path));
             }
         }
         return results;
@@ -180,9 +181,11 @@ public class MapPathToStages {
             boardingStation = transportData.getStation(relationship.getProperty(STATION_ID).toString()).get();
             routeCode = relationship.getProperty(ROUTE_ID).toString();
             Route route = transportData.getRoute(routeCode);
-            routeName = route.getName(); //relationship.getProperty(ROUTE_NAME).toString();
-            String stopId = relationship.getProperty(PLATFORM_ID).toString();
-            boardingPlatform = platformRepository.getPlatformById(stopId);
+            routeName = route.getName();
+            if (route.isTram()) {
+                String stopId = relationship.getProperty(PLATFORM_ID).toString();
+                boardingPlatform = platformRepository.getPlatformById(stopId);
+            }
             departTime = null;
         }
 

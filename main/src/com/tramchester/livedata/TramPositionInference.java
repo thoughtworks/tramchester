@@ -52,6 +52,18 @@ public class TramPositionInference {
             return new TramPosition(start, neighbour, Collections.emptySet(), cost);
         }
 
+        Set<DueTram> dueTrams = getDueTrams(start, neighbour, date, time, cost);
+
+        logger.info(format("Found %s trams between %s and %s", dueTrams.size(), start, neighbour));
+
+        return new TramPosition(start, neighbour, dueTrams, cost);
+    }
+
+    private Set<DueTram> getDueTrams(Station start, Station neighbour, TramServiceDate date, TramTime time, int cost) {
+        if (! (start.isTram() && neighbour.isTram()) ) {
+            logger.info(format("Not both tram stations %s and %s", start, neighbour));
+            return Collections.emptySet();
+        }
         List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(start, neighbour.getId());
 
         // get departure info at neighbouring station for relevant routes
@@ -65,15 +77,14 @@ public class TramPositionInference {
 
         if (departureInfos.isEmpty()) {
             logger.warn("Unable to find departure information for " + neighbour.getPlatforms());
-            return new TramPosition(start, neighbour, Collections.emptySet(), cost);
+            return Collections.emptySet();
+        } else {
+            return departureInfos.stream().
+                    map(info -> info.getDueTramsWithinWindow(cost)).
+                    flatMap(Collection::stream).
+                    filter(dueTram -> !DEPARTING.equals(dueTram.getStatus())).
+                    collect(Collectors.toSet());
         }
 
-        Set<DueTram> dueTrams = departureInfos.stream().
-                map(info -> info.getDueTramsWithinWindow(cost)).
-                flatMap(Collection::stream).
-                filter(dueTram -> !DEPARTING.equals(dueTram.getStatus())).
-                collect(Collectors.toSet());
-        logger.info(format("Found %s trams between %s and %s",dueTrams.size(), start, neighbour));
-        return new TramPosition(start, neighbour, dueTrams, cost);
     }
 }

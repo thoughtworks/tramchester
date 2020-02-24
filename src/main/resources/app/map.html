@@ -13,7 +13,7 @@
         </b-popover>
     </div>
     <div id="linePopOvers">
-        <b-popover v-for="target in positionsList" :target="target.first.id+target.second.id" triggers="hover" placement="top">
+        <b-popover v-for="target in tramLinks" :target="target.first.id+target.second.id" triggers="hover" placement="top">
             <template v-slot:title>Trams between {{target.first.name}} and {{target.second.name}}</template>
             <div v-for="tram in target.trams">
                 <div>To: {{tram.destination}} due at {{target.second.name}} at {{tram.when}}</div>
@@ -21,7 +21,7 @@
         </b-popover>
     </div>
     <div id="tramsPopOvers">
-        <b-popover v-for="target in positionsList" :target="'between'+target.first.id+target.second.id" triggers="hover" placement="top">
+        <b-popover v-for="target in tramLinks" :target="'between'+target.first.id+target.second.id" triggers="hover" placement="top">
             <template v-slot:title>Trams between {{target.first.name}} and {{target.second.name}}</template>
             <div v-for="tram in target.trams">
                 <div>To: {{tram.destination}} due at {{target.second.name}} at {{tram.when}}</div>

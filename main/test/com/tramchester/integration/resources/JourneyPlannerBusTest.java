@@ -27,6 +27,8 @@ import static org.junit.Assert.assertFalse;
 
 public class JourneyPlannerBusTest {
 
+    private static final String AltrinchamInterchange = "1800AMIC001";
+    private static final String stockportBus = "1800STBS001";
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10*60);
@@ -50,13 +52,13 @@ public class JourneyPlannerBusTest {
     @Test
     public void shouldPlanSimpleJourney() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan("1800NF31171", "1800NF31191", queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan(AltrinchamInterchange, stockportBus, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
-            if (journeyDTO.getExpectedArrivalTime().isBefore(queryTime)) {
+            assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime));
+            if (journeyDTO.getExpectedArrivalTime().isAfter(queryTime)) {
                 found.add(journeyDTO);
             }
         });
@@ -102,17 +104,7 @@ public class JourneyPlannerBusTest {
 //        );
 //    }
 //
-//    private static String formId(LatLong startLocation) {
-//        return String.format("lat=%f&lon=%f", startLocation.getLat(), startLocation.getLon());
-//    }
-//
-//    @Test
-//    @Category({BusTest.class})
-//    @Ignore("experimental")
-//    public void reproduceIssueWithRoute() {
-//        planner.createJourneyPlan("1800SB34231", "1800SB01681", new TramServiceDate(when),
-//                TramTime.of(9,0), false);
-//    }
+
 
     private JourneyPlanRepresentation getJourneyPlan(String startId, String endId, TramTime queryTime,
                                                        TramServiceDate queryDate, boolean arriveBy) {
