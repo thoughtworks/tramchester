@@ -134,7 +134,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     private void populateRoutes(Stream<RouteData> routes) {
         routes.forEach((routeData) -> {
             String agency = routeData.getAgency();
-            Route route = new Route(routeData.getId(), routeData.getCode(), routeData.getName(), agency);
+            Route route = new Route(routeData.getId(), routeData.getShortName(), routeData.getLongName(), agency);
             this.routes.put(route.getId(), route);
             if (!agencies.contains(agency)) {
                 agencies.add(agency);

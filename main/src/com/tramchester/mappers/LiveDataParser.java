@@ -24,10 +24,10 @@ import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
-    public static final String TERMINATES_HERE = "Terminates Here";
+    private static final String TERMINATES_HERE = "Terminates Here";
     private TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
     private final StationRepository stationRepository;
-    private static List<String> NotDestination = Arrays.asList("See Tram Front", "Not in Service");
+    private static List<String> NotADestination = Arrays.asList("See Tram Front", "Not in Service");
 
     // live data api has limit in number of results
     private int MAX_DUE_TRAMS = 4;
@@ -60,12 +60,11 @@ public class LiveDataParser {
         String atcoCode = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
-        //String rawlocation = (String)jsonObject.get("StationLocation");
         String rawDirection = (String)jsonObject.get("Direction");
 
         StationDepartureInfo.Direction direction = StationDepartureInfo.Direction.valueOf(rawDirection);
         Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
-        if (!maybeStation.isPresent()) {
+        if (maybeStation.isEmpty()) {
             logger.warn("Unable to map atco code name "+ atcoCode);
             return Optional.empty();
         }
@@ -126,8 +125,13 @@ public class LiveDataParser {
 
     private Optional<Station> getTramDestination(String name) {
         String destinationName = mapLiveAPIToTimetableDataNames(name);
-        if (destinationName.isEmpty() || NotDestination.contains(destinationName)) {
-            logger.info(format("Unable to map destination name: '%s'", destinationName));
+        if (destinationName.isEmpty())
+        {
+            logger.warn("Got empty name");
+            return Optional.empty();
+        }
+        if (NotADestination.contains(destinationName)) {
+            logger.debug(format("Not mapping destination name: '%s'", destinationName));
             return Optional.empty();
         }
 

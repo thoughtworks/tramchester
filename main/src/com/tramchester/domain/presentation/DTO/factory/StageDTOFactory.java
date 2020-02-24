@@ -31,7 +31,7 @@ public class StageDTOFactory {
                 source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
                 source.getDuration(), source.getHeadSign(),
                 source.getMode(), source.getDisplayClass(),
-                source.getPassedStops(), source.getRouteName(), travelAction);
+                source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
     }
 
     private PlatformDTO createPlatform(Optional<Platform> maybe, TramTime queryTime, TramServiceDate tramServiceDate) {

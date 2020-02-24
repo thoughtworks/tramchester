@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Route {
-    public static final String METROLINK = "MET";
+    private static final String METROLINK = "MET";
 
     private String id;
     private String code;
@@ -73,12 +73,16 @@ public class Route {
         return agency.equals(METROLINK);
     }
 
+    public String getShortName() {
+        return code;
+    }
+
     @Override
     public String toString() {
         return "Route{" +
                 "id='" + id + '\'' +
-                ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
+                ", shortName='" + code + '\'' +
                 ", agency='" + agency + '\'' +
                 '}';
     }

@@ -30,8 +30,8 @@ public class RouteDataParserTest {
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(routeA));
 
         assertThat(result.getId()).isEqualTo("MET:MET4:O:");
-        assertThat(result.getCode()).isEqualTo("MET4");
-        assertThat(result.getName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
+        assertThat(result.getShortName()).isEqualTo("MET4");
+        assertThat(result.getLongName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
         assertThat(result.getAgency()).isEqualTo("MET");
     }
 

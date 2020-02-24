@@ -53,6 +53,11 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
+    public String getRouteShortName() {
+        return "Walk";
+    }
+
+    @Override
     public String getDisplayClass() {
         return "RouteWalking";
     }

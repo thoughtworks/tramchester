@@ -5,18 +5,19 @@ import java.util.List;
 public class RouteDTO {
 
     private List<StationDTO> stations;
-
-    public RouteDTO() {
-        // deserialisation
-    }
-
     private String routeName;
     private String displayClass;
+    private String shortName;
 
-    public RouteDTO(String routeName, List<StationDTO> stations, String displayClass) {
+    public RouteDTO(String routeName, String shortName, List<StationDTO> stations, String displayClass) {
+        this.shortName = shortName;
         this.stations = stations;
         this.routeName = routeName;
         this.displayClass = displayClass;
+    }
+
+    public RouteDTO() {
+        // deserialisation
     }
 
     public String getRouteName() {
@@ -45,5 +46,9 @@ public class RouteDTO {
 
     public String getDisplayClass() {
         return displayClass;
+    }
+
+    public String getShortName() {
+        return shortName;
     }
 }

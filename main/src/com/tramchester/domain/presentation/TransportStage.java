@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface TransportStage {
     String getHeadSign();
     String getRouteName();
+    String getRouteShortName();
 
     Location getActionStation(); // place where action happens, i.e. Board At X or Walk To X
     Location getLastStation();

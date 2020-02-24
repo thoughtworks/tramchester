@@ -27,9 +27,9 @@ public class TramDataLoaderTest {
 
         assertThat(routeData).hasSize(2);
         RouteData theRoute = routeData.get(0);
-        assertThat(theRoute.getCode()).isEqualTo("MET1");
+        assertThat(theRoute.getShortName()).isEqualTo("MET1");
         assertThat(theRoute.getId()).isEqualTo("MET:MET1:I:");
-        assertThat(theRoute.getName()).isEqualTo("Abraham Moss - Bury");
+        assertThat(theRoute.getLongName()).isEqualTo("Abraham Moss - Bury");
         assertThat(theRoute.getAgency()).isEqualTo("MET");
     }
 

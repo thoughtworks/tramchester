@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertEquals;
@@ -77,7 +76,8 @@ public class TramJourneyToDTOMapperTest {
     public void shouldEnsureTripsAreOrderByEarliestFirst() {
         TramTime time = TramTime.of(15,30);
 
-        TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, "routeText", time, 42, 16);
+        TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, TestConfig.getTestRoute(),
+                time, 42, 16);
         stages.add(vicToRoch);
 
         JourneyDTO result = mapper.createJourneyDTO(new Journey(stages, time), tramServiceDate);
@@ -91,7 +91,7 @@ public class TramJourneyToDTOMapperTest {
     public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() {
         TramTime pm1044  = TramTime.of(22,44);
 
-        VehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, "routename",
+        VehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, TestConfig.getTestRoute(),
                 pm1044, 42, 14);
 
         stages.add(rawStage);
@@ -107,7 +107,8 @@ public class TramJourneyToDTOMapperTest {
     public void shouldMapSimpleJourney() {
         TramTime am7 = TramTime.of(7,0);
 
-        VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, "route name", am7, 42, 8);
+        VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, TestConfig.getTestRoute(),
+                am7, 42, 8);
 
         stages.add(altToCorn);
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am7), tramServiceDate);
@@ -131,8 +132,8 @@ public class TramJourneyToDTOMapperTest {
         Location middle = Stations.Cornbrook;
         Location end = Stations.ManAirport;
 
-        VehicleStage rawStageA = getRawVehicleStage(begin, middle, "route text", am10, 42, 8);
-        VehicleStage rawStageB = getRawVehicleStage(middle, end, "route2 text", am10.plusMinutes(42), 20, 8);
+        VehicleStage rawStageA = getRawVehicleStage(begin, middle, createRoute("route text"), am10, 42, 8);
+        VehicleStage rawStageB = getRawVehicleStage(middle, end, createRoute("route2 text"), am10.plusMinutes(42), 20, 8);
         stages.add(rawStageA);
         stages.add(rawStageB);
 
@@ -147,6 +148,10 @@ public class TramJourneyToDTOMapperTest {
         StageDTO stage2 = journey.getStages().get(1);
         assertEquals(middle.getId(),stage2.getFirstStation().getId());
         assertEquals(end.getId(),stage2.getLastStation().getId());
+    }
+
+    private Route createRoute(String name) {
+        return new Route("routeId", "shortName", name, "MET");
     }
 
     @Test
@@ -189,10 +194,10 @@ public class TramJourneyToDTOMapperTest {
         Location middleB = Stations.MarketStreet;
         Location end = Stations.Bury;
 
-        VehicleStage rawStageA = getRawVehicleStage(begin, middleA, "route text", am10, 42, 8);
+        VehicleStage rawStageA = getRawVehicleStage(begin, middleA, createRoute("route text"), am10, 42, 8);
         int walkCost = 10;
         WalkingStage walkingStage = new WalkingStage(middleA, middleB, walkCost, am10, false);
-        VehicleStage finalStage = getRawVehicleStage(middleB, end, "route3 text", am10, 42, 9);
+        VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42, 9);
 
         stages.add(rawStageA);
         stages.add(walkingStage);
@@ -225,8 +230,10 @@ public class TramJourneyToDTOMapperTest {
         Location middle = Stations.TraffordBar;
         Location finish = Stations.ManAirport;
 
-        VehicleStage rawStageA = getRawVehicleStage(start, middle, "route text", startTime, 18, 8);
-        VehicleStage rawStageB = getRawVehicleStage(middle, finish, "route2 text", startTime.plusMinutes(18), 42, 9);
+        VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
+                18, 8);
+        VehicleStage rawStageB = getRawVehicleStage(middle, finish, createRoute("route2 text"), startTime.plusMinutes(18),
+                42, 9);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
@@ -238,12 +245,12 @@ public class TramJourneyToDTOMapperTest {
         assertEquals(startTime.plusMinutes(18+42+1), result.getExpectedArrivalTime());
     }
 
-    private VehicleStage getRawVehicleStage(Location start, Location finish, String routeName, TramTime startTime,
+    private VehicleStage getRawVehicleStage(Location start, Location finish, Route route, TramTime startTime,
                                             int cost, int passedStops) {
 
         Trip validTrip = transportData.getTripsFor(start.getId()).iterator().next();
 
-        VehicleStage vehicleStage = new VehicleStage(start, routeName, TransportMode.Tram, "cssClass", validTrip,
+        VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, "cssClass", validTrip,
                 startTime.plusMinutes(1), finish, passedStops);
 
         vehicleStage.setCost(cost);

@@ -57,13 +57,19 @@ public class JourneyPlannerBusTest {
         JourneyPlanRepresentation plan = getJourneyPlan(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUS, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
-        List<JourneyDTO> found = new ArrayList<>();
-        plan.getJourneys().forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime));
-            if (journeyDTO.getExpectedArrivalTime().isAfter(queryTime)) {
-                found.add(journeyDTO);
-            }
-        });
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
+        assertFalse(found.isEmpty());
+    }
+
+    @Ignore("experimental")
+    @Category({BusTest.class})
+    @Test
+    public void shouldPlanSimpleJourneyFromLocationDirect() {
+        TramTime queryTime = TramTime.of(8,15);
+        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, ALTRINCHAM_INTERCHANGE, queryTime,
+                new TramServiceDate(nextTuesday), false);
+
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         assertFalse(found.isEmpty());
     }
 
@@ -71,17 +77,12 @@ public class JourneyPlannerBusTest {
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleJourneyFromLocation() {
-        TramTime queryTime = TramTime.of(8,45);
+        TramTime queryTime = TramTime.of(8,15);
         JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUS, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
-        List<JourneyDTO> found = new ArrayList<>();
-        plan.getJourneys().forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime));
-            if (journeyDTO.getExpectedArrivalTime().isAfter(queryTime)) {
-                found.add(journeyDTO);
-            }
-        });
+
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         assertFalse(found.isEmpty());
     }
 
@@ -101,6 +102,17 @@ public class JourneyPlannerBusTest {
             }
         });
         assertFalse(found.isEmpty());
+    }
+
+    private List<JourneyDTO> getValidJourneysAfter(TramTime queryTime, JourneyPlanRepresentation plan) {
+        List<JourneyDTO> found = new ArrayList<>();
+        plan.getJourneys().forEach(journeyDTO -> {
+            assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime));
+            if (journeyDTO.getExpectedArrivalTime().isAfter(queryTime)) {
+                found.add(journeyDTO);
+            }
+        });
+        return found;
     }
 
 

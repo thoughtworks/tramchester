@@ -23,15 +23,11 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
 
     public RouteData parseEntry(CSVRecord data) {
         String id = data.get(0);
-        String agency = getAgency(data);
-        String code = data.get(2);
-        String name = data.get(3);
+        String agency = data.get(1);
+        String shortName = data.get(2);
+        String longName = data.get(3);
 
-        return new RouteData(id, code, name, agency);
-    }
-
-    private String getAgency(CSVRecord data) {
-        return data.get(1);
+        return new RouteData(id, agency, shortName, longName);
     }
 
     @Override
@@ -39,6 +35,6 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
         if (includeAll) {
             return true;
         }
-        return agencies.contains(getAgency(data));
+        return agencies.contains(data.get(1));
     }
 }

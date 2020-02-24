@@ -17,13 +17,12 @@ public class RouteDTOTest {
 
         List<StationDTO> stations = new LinkedList<>();
 
-        RouteDTO routeA = new RouteDTO("nameA", stations, "displayClass");
-        RouteDTO routeB = new RouteDTO("nameB", stations, "displayClass");
-        RouteDTO routeC = new RouteDTO("nameA", stations, "displayClass");
+        RouteDTO routeA = new RouteDTO("nameA", "A", stations, "displayClass");
+        RouteDTO routeB = new RouteDTO("nameB", "B", stations, "displayClass");
+        RouteDTO routeC = new RouteDTO("nameA", "C", stations, "displayClass");
 
         assertTrue(routeA.equals(routeC));
         assertTrue(routeC.equals(routeA));
-
         assertFalse(routeA.equals(routeB));
 
     }

@@ -51,7 +51,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldCreateStageDTOCorrectlyForTransportStage() {
         Trip trip = new Trip("tripId", "headSign", "svcId", TestConfig.getTestRoute());
-        VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, "routeName",
+        VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, TestConfig.getTestRoute(),
                 TransportMode.Tram, "Displayclass", trip, TramTime.of(0, 0), Stations.Bury, 23);
         vehicleStage.setCost(5);
 
@@ -75,7 +75,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     public void shouldCreateStageDTOCorrectlyForTransportStageHasLiveData() {
         Trip trip = new Trip("tripId", "headSign", "svcId", TestConfig.getTestRoute());
-        VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, "routeName",
+        VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, TestConfig.getTestRoute(),
                 TransportMode.Tram, "Displayclass", trip, TramTime.of(0, 0), Stations.Bury, 23);
         vehicleStage.setCost(5);
 

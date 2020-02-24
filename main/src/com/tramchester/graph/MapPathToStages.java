@@ -162,7 +162,7 @@ public class MapPathToStages {
         private int passedStops;
         private int tripCost;
         private Optional<Platform> boardingPlatform;
-        private String routeName;
+        private Route route;
 
         private int boardCost;
         private int platformEnterCost;
@@ -180,8 +180,7 @@ public class MapPathToStages {
             boardCost = getCost(relationship);
             boardingStation = transportData.getStation(relationship.getProperty(STATION_ID).toString()).get();
             routeCode = relationship.getProperty(ROUTE_ID).toString();
-            Route route = transportData.getRoute(routeCode);
-            routeName = route.getName();
+            route = transportData.getRoute(routeCode);
             if (route.isTram()) {
                 String stopId = relationship.getProperty(PLATFORM_ID).toString();
                 boardingPlatform = platformRepository.getPlatformById(stopId);
@@ -194,8 +193,8 @@ public class MapPathToStages {
             Station departStation = transportData.getStation(stationId).get();
             Trip trip = transportData.getTrip(tripId);
 
-            VehicleStage vehicleStage = new VehicleStage(boardingStation, routeName,
-                    TransportMode.Tram, routeIdToClass.map(routeCode), trip, boardingTime,
+            VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
+                    TransportMode.Tram, routeIdToClass.map(route.getId()), trip, boardingTime,
                     departStation, passedStops);
 
             boardingPlatform.ifPresent(vehicleStage::setPlatform);

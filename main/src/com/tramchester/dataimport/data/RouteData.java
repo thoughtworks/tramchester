@@ -4,14 +4,14 @@ import java.util.Objects;
 
 public class RouteData {
     private String id;
-    private String code;
-    private String name;
+    private String shortName;
+    private String longName;
     private String agency;
 
-    public RouteData(String id, String code, String name, String agency) {
+    public RouteData(String id, String agency, String shortName, String longName) {
         this.id = id.intern();
-        this.code = code;
-        this.name = name;
+        this.shortName = shortName;
+        this.longName = longName;
         this.agency = agency;
     }
 
@@ -19,12 +19,12 @@ public class RouteData {
         return id;
     }
 
-    public String getCode() {
-        return code;
+    public String getShortName() {
+        return shortName;
     }
 
-    public String getName() {
-        return name;
+    public String getLongName() {
+        return longName;
     }
 
     public String getAgency() {

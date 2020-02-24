@@ -45,7 +45,7 @@ public class RoutesRepository {
             });
         });
 
-        gather.add(new RouteDTO(routeName, new LinkedList<>(stations), mapper.map(route.getId())));
+        gather.add(new RouteDTO(routeName, route.getShortName(), new LinkedList<>(stations), mapper.map(route.getId())));
     }
 
 }

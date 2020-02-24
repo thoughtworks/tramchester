@@ -222,14 +222,14 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         return new StageDTO(new LocationDTO(firstStation), new LocationDTO(lastStation), new LocationDTO(firstStation),
                 false, null, TramTime.of(10, 8), TramTime.of(10, 20), 20-8,
                 "headSign", TransportMode.Tram,
-                "cssClass", passedStops, "routeName", travelAction);
+                "cssClass", passedStops, "routeName", travelAction, "routeShortName");
     }
 
     private StageDTO createStage(TramTime departs, TramTime arrivesEnd, int passedStops) {
         return new StageDTO(new LocationDTO(stationA), new LocationDTO(stationB), new LocationDTO(stationA),
                 false, null, departs, arrivesEnd, 42,
                 "headSign", TransportMode.Tram,
-                "cssClass", passedStops, "routeName", TravelAction.Board);
+                "cssClass", passedStops, "routeName", TravelAction.Board, "routeShortName");
 
     }
 
@@ -238,7 +238,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         return new StageDTO(new LocationDTO(start), new LocationDTO(destination), new LocationDTO(stationA),
                 false, null, departs, arrivesEnd, 9,
                 "walking", TransportMode.Walk,
-                "cssClass", 0, "walking", TravelAction.Board);
+                "cssClass", 0, "walking", TravelAction.Board, "routeShortName");
     }
 
     private StageDTO createStageDTOWithDueTram(Station station, LocalDateTime whenTime, int wait) {
@@ -262,6 +262,6 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
                 TramTime.of(when.plusMinutes(durationOfStage)),
                 durationOfStage,
                 station.getName(), TransportMode.Tram,
-                "displayClass", 23,"routeName", TravelAction.Board);
+                "displayClass", 23,"routeName", TravelAction.Board, "routeShortName");
     }
 }

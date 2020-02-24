@@ -192,7 +192,7 @@ public class DataCleanser {
 
     private void addRoute(Set<String> routeCodes, TransportDataWriter writer, RouteData route) {
         String id = route.getId();
-        String routeName = route.getName();
+        String routeName = route.getLongName();
 
         if (config.getRemoveRouteNameSuffix()) {
             int indexOf = routeName.indexOf("(");
@@ -203,7 +203,7 @@ public class DataCleanser {
         writer.writeLine(String.format("%s,%s,%s,%s,0",
                 id,
                 route.getAgency(),
-                route.getCode(),
+                route.getShortName(),
                 routeName));
         routeCodes.add(id);
         logger.info("Added route " + id);

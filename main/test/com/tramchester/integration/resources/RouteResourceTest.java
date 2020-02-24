@@ -3,7 +3,6 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
-import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
@@ -30,7 +29,7 @@ public class RouteResourceTest {
 
     private ObjectMapper mapper = new ObjectMapper();
     private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
-            new LinkedList<>(), "displayClass");
+            "shortName", new LinkedList<>(), "displayClass");
 
     @Before
     public void beforeEachTestRuns() {
@@ -40,7 +39,7 @@ public class RouteResourceTest {
     @Test
     public void shouldGetAllRoutes() {
         Response result = IntegrationClient.getResponse(testRule, "routes", Optional.empty(), 200);
-        List<RouteDTO> routes = result.readEntity(new GenericType<List<RouteDTO>>(){});
+        List<RouteDTO> routes = result.readEntity(new GenericType<>() {});
 
         assertEquals(12, routes.size());
 
@@ -52,6 +51,7 @@ public class RouteResourceTest {
         RouteDTO ashtonRoute = routes.get(index);
         List<StationDTO> ashtonRouteStations = ashtonRoute.getStations();
 
+        assertEquals("3", ashtonRoute.getShortName().trim());
         assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Ashton, ProximityGroup.ALL)));
         assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Eccles, ProximityGroup.ALL)));
     }

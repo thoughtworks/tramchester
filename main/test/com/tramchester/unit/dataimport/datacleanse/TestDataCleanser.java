@@ -51,7 +51,7 @@ public class TestDataCleanser extends EasyMockSupport {
     @Test
     public void shouldCleanseRoutes() throws IOException {
 
-        RouteData routeB = new RouteData("R1", "CODE1", "AtoB name with issue (ignore me", "MET");
+        RouteData routeB = new RouteData("R1", "MET", "CODE1", "AtoB name with issue (ignore me");
         Stream<RouteData> routes = Stream.of(routeB);
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
@@ -70,8 +70,8 @@ public class TestDataCleanser extends EasyMockSupport {
 
     @Test
     public void shouldCleanseRoutesWildcard() throws IOException {
-        RouteData routeA = new RouteData("R2", "CODE2", "CtoD", "ANY");
-        RouteData routeB = new RouteData("R1", "CODE1", "AtoB", "XYX");
+        RouteData routeA = new RouteData("R2", "ANY", "CODE2", "CtoD");
+        RouteData routeB = new RouteData("R1", "XYX", "CODE1", "AtoB");
         Stream<RouteData> routes = Stream.of(routeA, routeB);
         HashSet<String> agencyCodes = new HashSet<>(Arrays.asList("*"));
 
