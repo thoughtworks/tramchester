@@ -89,7 +89,7 @@ public class JourneyPlannerBusTest {
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleBusJourneyFromLocation() {
-        TramTime queryTime = TramTime.of(8,15);
+        TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUS, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
@@ -109,7 +109,7 @@ public class JourneyPlannerBusTest {
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
             assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
-            if (journeyDTO.getExpectedArrivalTime().isBefore(queryTime)) {
+            if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<6) {
                 found.add(journeyDTO);
             }
         });
@@ -119,7 +119,9 @@ public class JourneyPlannerBusTest {
     private List<JourneyDTO> getValidJourneysAfter(TramTime queryTime, JourneyPlanRepresentation plan) {
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime));
+            TramTime firstDepartureTime = journeyDTO.getFirstDepartureTime();
+            assertTrue(firstDepartureTime.toString(), firstDepartureTime.isAfter(queryTime)
+                    || firstDepartureTime.equals(queryTime));
             if (journeyDTO.getExpectedArrivalTime().isAfter(queryTime)) {
                 found.add(journeyDTO);
             }
