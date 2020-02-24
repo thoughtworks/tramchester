@@ -83,7 +83,7 @@ public class TransportDataForTest implements TransportDataSource {
         services.add(serviceC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip("tripAId", "headSign", serviceAId, routeA.getId());
+        Trip tripA = new Trip("tripAId", "headSign", serviceAId, routeA);
 
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area1", "startStation", latLong, true);
@@ -119,7 +119,7 @@ public class TransportDataForTest implements TransportDataSource {
         addStation(stationFive);
 
         //
-        Trip tripC = new Trip("tripCId", "headSignC", serviceCId, routeC.getId());
+        Trip tripC = new Trip("tripCId", "headSignC", serviceCId, routeC);
         Stop stopG = createStop(interchangeStation, TramTime.of(8, 26), TramTime.of(8, 27), 1);
         addRouteStation(interchangeStation, routeC);
         Stop stopH = createStop(stationFive, TramTime.of(8, 31), TramTime.of(8, 33), 2);
@@ -151,7 +151,7 @@ public class TransportDataForTest implements TransportDataSource {
 
     public void createInterchangeToStation4Trip(Route route, Service service, Station interchangeStation, Station station,
                                                 LocalTime startTime, String tripB2Id) {
-        Trip trip = new Trip(tripB2Id, "headSignTripB2", serviceBId, route.getId());
+        Trip trip = new Trip(tripB2Id, "headSignTripB2", serviceBId, route);
         Stop stop1 = createStop(interchangeStation, TramTime.of(startTime),
                 TramTime.of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
@@ -189,7 +189,7 @@ public class TransportDataForTest implements TransportDataSource {
     }
 
     @Override
-    public Stream<Trip> getTripsByRouteId(String routeId) {
+    public Stream<Trip> getTripsByRoute(Route route) {
         throw new RuntimeException("Not implemented");
     }
 

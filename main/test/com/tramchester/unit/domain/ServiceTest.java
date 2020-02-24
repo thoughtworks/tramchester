@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.TestConfig;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramTime;
@@ -45,7 +46,7 @@ public class ServiceTest {
 
         Service service = new Service("", "");
 
-        Trip trip = new Trip("001", "Deansgate", "SVC002", "");
+        Trip trip = new Trip("001", "Deansgate", "SVC002", TestConfig.getTestRoute());
         trip.addStop(new Stop("stopId1", Stations.Deansgate, 3, TramTime.of(9,5), TramTime.of(9,6)));
         trip.addStop(new Stop("stopId2", Stations.Deansgate, 2, TramTime.of(8,15), TramTime.of(8,16)));
         trip.addStop(new Stop("stopId3", Stations.Deansgate, 4, TramTime.of(10,25), TramTime.of(10,26)));

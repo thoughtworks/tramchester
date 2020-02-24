@@ -1,5 +1,6 @@
 package com.tramchester.domain.input;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
 
@@ -8,7 +9,7 @@ import java.util.List;
 public class Trip {
 
     private final String serviceId;
-    private final String routeId;
+    private final Route route;
     private final String tripId;
     private final String headSign;
     private final Stops stops;
@@ -16,11 +17,11 @@ public class Trip {
     private TramTime latestDepart = null;
     private int lastIndex;
 
-    public Trip(String tripId, String headSign, String serviceId, String routeId) {
+    public Trip(String tripId, String headSign, String serviceId, Route route) {
         this.tripId = tripId.intern();
         this.headSign = headSign.intern();
         this.serviceId = serviceId.intern();
-        this.routeId = routeId.intern();
+        this.route = route;
         stops = new Stops();
         lastIndex = 0;
     }
@@ -69,7 +70,7 @@ public class Trip {
     public String toString() {
         return "Trip{" +
                 "serviceId='" + serviceId + '\'' +
-                ", routeId='" + routeId + '\'' +
+                ", route='" + route + '\'' +
                 ", tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +
                 ", stops=" + stops +
@@ -92,8 +93,8 @@ public class Trip {
         return headSign;
     }
 
-    public String getRouteId() {
-        return routeId;
+    public Route getRoute() {
+        return route;
     }
 
     public TramTime earliestDepartTime() {

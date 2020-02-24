@@ -91,7 +91,9 @@ var mapApp = new Vue({
     data() {
         return {
             positionsList: null,
+            buses: false,
             uniqueStations: [],
+            tramPositions: [],
             networkError: false,
             projection: null,
             path: null,
@@ -106,6 +108,9 @@ var mapApp = new Vue({
         filterPositions() {
             var ids = [];
             mapApp.positionsList.forEach(item => {
+                if (item.tram) {
+                    tramPositions.push(item);
+                }
                 if (ids.indexOf(item.first.id)<0) {
                     ids.push(item.first.id);
                     mapApp.uniqueStations.push(item.first);
@@ -176,25 +181,27 @@ var mapApp = new Vue({
                 }
             });
 
-            // station labels
-            mapApp.svg.selectAll("g")
-                .data(oneDirectionOnly).enter().append("g")
-                .attr("transform", function(d) {
-                    let x = mapApp.scaleX(d.first);
-                    let y = mapApp.scaleY(d.first);
-                    let angle = textRotation(d.first, d.second)+90;
-                    if (angle>90) {
-                        angle = 180-angle;
-                    }
-                    return "translate(" + x +","+ y + ") rotate("+ angle +")";
-                })
-                .append("text")
-                .text(d => d.first.name)
-                .attr("font-family", "sans-serif").attr("font-size", "8px").attr("fill", "blue");
+            // station labels on map
+            if (!mapApp.buses) {
+                mapApp.svg.selectAll("g")
+                    .data(oneDirectionOnly).enter().append("g")
+                    .attr("transform", function(d) {
+                        let x = mapApp.scaleX(d.first);
+                        let y = mapApp.scaleY(d.first);
+                        let angle = textRotation(d.first, d.second)+90;
+                        if (angle>90) {
+                            angle = 180-angle;
+                        }
+                        return "translate(" + x +","+ y + ") rotate("+ angle +")";
+                    })
+                    .append("text")
+                    .text(d => d.first.name)
+                    .attr("font-family", "sans-serif").attr("font-size", "8px").attr("fill", "blue");
+            }
 
             // live tram labels
             mapApp.svg.selectAll("g")
-                .data(mapApp.positionsList).enter().append("g")
+                .data(mapApp.tramPositions).enter().append("g")
                 .attr("id", d=> "between"+d.first.id+d.second.id)
                 .attr("transform", function(d) {
                     let normalPoint = normal(d.first,d.second,15);
@@ -218,6 +225,7 @@ var mapApp = new Vue({
             .then(function (response) {
                 mapApp.networkError = false;
                 mapApp.positionsList = response.data.positionsList;
+                mapApp.buses = response.data.buses;
                 mapApp.filterPositions();
                 mapApp.draw();
             })

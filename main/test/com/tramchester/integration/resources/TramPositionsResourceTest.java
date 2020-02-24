@@ -28,6 +28,8 @@ public class TramPositionsResourceTest {
 
         TramsPositionsDTO filtered = responce.readEntity(TramsPositionsDTO.class);
 
+        assertFalse(filtered.getBuses());
+
         // should have some positions
         List<TramPositionDTO> positions = filtered.getPositionsList();
         assertFalse(positions.isEmpty());
@@ -43,8 +45,6 @@ public class TramPositionsResourceTest {
 
         long hasCost = positions.stream().filter(position -> position.getCost()>0).count();
         assertEquals(positions.size(), hasCost);
-
-
 
         long departingTrams = positions.stream().map(position -> position.getTrams()).
                 flatMap(dueTrams -> dueTrams.stream()).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();

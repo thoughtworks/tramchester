@@ -15,5 +15,5 @@ public interface StationRepository {
     Optional<Station> getStationByName(String name);
     Set<Station> getStations();
     Collection<Route> getRoutes();
-    Stream<Trip> getTripsByRouteId(String routeId);
+    Stream<Trip> getTripsByRoute(Route route);
 }

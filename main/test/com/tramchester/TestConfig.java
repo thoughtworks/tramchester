@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.presentation.LatLong;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -190,7 +191,6 @@ public abstract class TestConfig extends AppConfiguration {
     public static LocalDate nextSunday() {
         return getNextDate(DayOfWeek.SUNDAY, LocalDate.now());
     }
-    //public static final LatLong nearAltrincham = new LatLong(53.394982299999995D,-2.3581502D);
     public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
@@ -199,5 +199,9 @@ public abstract class TestConfig extends AppConfiguration {
     }
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
+
+    public static Route getTestRoute() {
+        return new Route("RouteId", "routeCode", "routeName", "MET");
+    }
 
 }

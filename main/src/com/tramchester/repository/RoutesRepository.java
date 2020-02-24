@@ -1,7 +1,6 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.Station;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
@@ -28,7 +27,7 @@ public class RoutesRepository {
     public List<RouteDTO> getAllRoutes() {
         List<RouteDTO> routeDTOs = new LinkedList<>();
         Collection<Route> routes = stationRepository.getRoutes();
-        routes.forEach(route-> populateDTOFor(route,routeDTOs));
+        routes.forEach(route-> populateDTOFor(route, routeDTOs));
         logger.info(String.format("Found %s routes", routes.size()));
         return routeDTOs;
     }
@@ -38,7 +37,7 @@ public class RoutesRepository {
         String routeName = route.getName();
         logger.debug("Finding stations for route "  + routeName);
 
-        Stream<Trip> trips = stationRepository.getTripsByRouteId(route.getId());
+        Stream<Trip> trips = stationRepository.getTripsByRoute(route);
 
         trips.forEach(trip -> {
             trip.getStops().stream().forEach(stop -> {

@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
@@ -24,7 +25,7 @@ public class TripTest {
 
     @Before
     public void beforeEachTestRuns() {
-        trip = new Trip("tripId","headSign", "svcId", "routeId");
+        trip = new Trip("tripId","headSign", "svcId", TestConfig.getTestRoute());
         stationA = new Station("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), false);
         stationB = new Station("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
         stationC = new Station("statC","areaA", "stopNameB", new LatLong(2.0, -2.0), false);

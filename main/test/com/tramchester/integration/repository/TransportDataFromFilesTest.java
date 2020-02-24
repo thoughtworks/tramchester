@@ -360,7 +360,7 @@ public class TransportDataFromFilesTest {
         Set<String> toMediaCity = allTrips.stream().
                 filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).
                 filter(trip -> trip.callsAt(Stations.MediaCityUK.getId())).
-                filter(trip -> trip.getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES)).
+                filter(trip -> trip.getRoute().getId().equals(RouteCodesForTesting.ASH_TO_ECCLES)).
                 map(trip -> trip.getServiceId()).collect(Collectors.toSet());
 
         Set<Service> services = toMediaCity.stream().
@@ -389,7 +389,7 @@ public class TransportDataFromFilesTest {
 
         Set<Trip> trips = allTrips.stream().
                 filter(trip -> trip.callsAt(Stations.Pomona.getId())).
-                filter(trip -> trip.getRouteId().equals(RouteCodesForTesting.ASH_TO_ECCLES)).
+                filter(trip -> trip.getRoute().getId().equals(RouteCodesForTesting.ASH_TO_ECCLES)).
                 filter(trip -> trip.earliestDepartTime().isBefore(problemTime) || trip.earliestDepartTime().equals(problemTime)).
                 filter(trip -> trip.latestDepartTime().isAfter(problemTime) || trip.latestDepartTime().equals(problemTime)).
                 filter(trip -> trip.travelsBetween(Stations.StPetersSquare.getId(),Stations.Pomona.getId(), timeWindow)).

@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
 import com.tramchester.domain.presentation.TramPositionDTO;
@@ -28,23 +29,28 @@ public class TramPositionsResource {
     private final TramPositionInference positionInference;
     private final DeparturesMapper depatureMapper;
     private final ProvidesNow providesNow;
+    private final TramchesterConfig config;
 
-    public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper, ProvidesNow providesNow) {
+    public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper,
+                                 ProvidesNow providesNow, TramchesterConfig config) {
         this.positionInference = positionInference;
         this.depatureMapper = depatureMapper;
         this.providesNow = providesNow;
+        this.config = config;
     }
 
     @GET
     @Timed
     @ApiOperation(value = "Infered positions of trams within network",
-            notes = "Infered from live tram data feed and timetime data",
+            notes = "Infered from live tram data feed and timetime data, unfiltered will give all stations whether " +
+                    "trams present between them or not",
             response = TramsPositionsDTO.class)
     @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
     public Response get(@QueryParam("unfiltered") @DefaultValue("false") String unfilteredRaw) {
         boolean unfilteredFlag = unfilteredRaw.equals("true");
 
-        List<TramPosition> results = positionInference.inferWholeNetwork(TramServiceDate.of(providesNow.getDate()), providesNow.getNow());
+        List<TramPosition> results = positionInference.inferWholeNetwork(TramServiceDate.of(providesNow.getDate()),
+                providesNow.getNow());
         List<TramPositionDTO> dtoList = results.stream().
                 filter(pos -> unfilteredFlag || (!pos.getTrams().isEmpty())).
                 map(pos -> new TramPositionDTO(
@@ -54,7 +60,7 @@ public class TramPositionsResource {
                         pos.getCost())).
                 collect(Collectors.toList());
 
-        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList);
+        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList, config.getBus());
         return Response.ok(dto).build();
     }
 

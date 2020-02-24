@@ -92,7 +92,7 @@ public class TransportDataFromFiles implements TransportDataSource {
             String stopId = stopTimeData.getStopId();
             String stationId = Station.formId(stopId);
             if (stationsById.containsKey(stationId)) {
-                Route route = routes.get(trip.getRouteId());
+                Route route = trip.getRoute(); //routes.get(trip.getRouteId());
                 Station station = stationsById.get(stationId);
                 station.addRoute(route);
                 RouteStation routeStation = new RouteStation(station, route);
@@ -117,10 +117,10 @@ public class TransportDataFromFiles implements TransportDataSource {
         trips.forEach((tripData) -> {
             String serviceId = tripData.getServiceId();
             String routeId = tripData.getRouteId();
+            Route route = routes.get(routeId);
 
             Service service = getOrInsertService(serviceId, routeId);
-            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), serviceId, routeId);
-            Route route = routes.get(routeId);
+            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), serviceId, route );
             if (route != null) {
                 service.addTrip(trip);
                 route.addService(service);
@@ -179,13 +179,13 @@ public class TransportDataFromFiles implements TransportDataSource {
         return new Platform(stop.getId(), stop.getName());
     }
 
-    private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId, String routeId) {
+    private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId, Route route) {
         if (!trips.keySet().contains(tripId)) {
-            trips.put(tripId, new Trip(tripId, tripHeadsign, serviceId, routeId));
+            trips.put(tripId, new Trip(tripId, tripHeadsign, serviceId, route));
         }
 
         Trip matched = trips.get(tripId);
-        if (matched.getRouteId()!=routeId || matched.getServiceId()!=serviceId || matched.getHeadsign()!=tripHeadsign) {
+        if ((!matched.getRoute().equals(route)) || matched.getServiceId()!=serviceId || matched.getHeadsign()!=tripHeadsign) {
             logger.error("Mismatch on trip id: " + tripId);
         }
         return matched;
@@ -207,8 +207,8 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     @Override
-    public Stream<Trip> getTripsByRouteId(String routeId) {
-        return trips.values().stream().filter(t->t.getRouteId().equals(routeId));
+    public Stream<Trip> getTripsByRoute(Route route) {
+        return trips.values().stream().filter(t->t.getRoute().equals(route));
     }
 
     @Override
