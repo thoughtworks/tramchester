@@ -28,11 +28,11 @@ public class TramRouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteReachable.class);
 
     private final GraphDatabaseService graphDatabaseService;
-    private final StationIndexs stationIndexs;
+    private final StationIndexs stationIndexQuery;
 
-    public TramRouteReachable(GraphDatabaseService graphDatabaseService, StationIndexs stationIndexs) {
+    public TramRouteReachable(GraphDatabaseService graphDatabaseService, StationIndexs stationIndexQuery) {
         this.graphDatabaseService = graphDatabaseService;
-        this.stationIndexs = stationIndexs;
+        this.stationIndexQuery = stationIndexQuery;
     }
 
     public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, String routeId) {
@@ -46,7 +46,7 @@ public class TramRouteReachable {
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
-                Node routeStation = stationIndexs.getRouteStationNode(RouteStation.formId(startStation, route));
+                Node routeStation = stationIndexQuery.getRouteStationNode(RouteStation.formId(startStation, route));
                 Iterable<Relationship> edges = routeStation.getRelationships(ON_ROUTE, Direction.OUTGOING);
                 for (Relationship edge : edges) {
                     if (endStationId.equals(edge.getEndNode().getProperty(STATION_ID).toString())) {
@@ -62,7 +62,7 @@ public class TramRouteReachable {
     private boolean evaluatePaths(String startStationId, Evaluator evaluator) {
         long number = 0;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            Node found = stationIndexs.getStationNode(startStationId);
+            Node found = stationIndexQuery.getStationNode(startStationId);
             if (found!=null) {
                 number = generatePaths(startStationId, evaluator).stream().count();
             } else {
@@ -75,18 +75,18 @@ public class TramRouteReachable {
     }
 
     public int getApproxCostBetween(String startId, Node endOfWalk) {
-        Node startNode = stationIndexs.getStationNode(startId);
+        Node startNode = stationIndexQuery.getStationNode(startId);
         return getApproxCostBetween(startNode, endOfWalk);
     }
 
     public int getApproxCostBetween(Node origin, String destinationId) {
-        Node endNode = stationIndexs.getStationNode(destinationId);
+        Node endNode = stationIndexQuery.getStationNode(destinationId);
         return getApproxCostBetween(origin, endNode);
     }
 
     public int getApproxCostBetween(String startId, String desinationId) {
-        Node startNode = stationIndexs.getStationNode(startId);
-        Node endNode = stationIndexs.getStationNode(desinationId);
+        Node startNode = stationIndexQuery.getStationNode(startId);
+        Node endNode = stationIndexQuery.getStationNode(desinationId);
         return getApproxCostBetween(startNode, endNode);
     }
 
@@ -112,7 +112,7 @@ public class TramRouteReachable {
     }
 
     private ResourceIterator<Path> generatePaths(String startStationId, Evaluator evaluator) {
-        Node startNode = stationIndexs.getStationNode(startStationId);
+        Node startNode = stationIndexQuery.getStationNode(startStationId);
         Traverser traverser = new MonoDirectionalTraversalDescription().
                 relationships(ON_ROUTE, Direction.OUTGOING).
                 relationships(ENTER_PLATFORM, Direction.OUTGOING).

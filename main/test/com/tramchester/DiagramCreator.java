@@ -38,7 +38,7 @@ public class DiagramCreator {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
-                Node startNode = graphDatabaseService.findNode(TransportGraphBuilder.Labels.STATION,
+                Node startNode = graphDatabaseService.findNode(TransportGraphBuilder.Labels.TRAM_STATION,
                         GraphStaticKeys.ID, startPoint);
                 visit(startNode, builder, seen, 0);
             });
@@ -150,7 +150,7 @@ public class DiagramCreator {
         if (node.hasLabel(TransportGraphBuilder.Labels.ROUTE_STATION)) {
             return "oval";
         }
-        if (node.hasLabel(TransportGraphBuilder.Labels.STATION)) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.TRAM_STATION)) {
             return "house";
         }
         if (node.hasLabel(TransportGraphBuilder.Labels.SERVICE)) {
@@ -175,7 +175,7 @@ public class DiagramCreator {
             String stationName = node.getProperty(GraphStaticKeys.STATION_ID).toString();
             return format("%s\n%s", node.getProperty(GraphStaticKeys.ROUTE_ID).toString(), stationName);
         }
-        if (node.hasLabel(TransportGraphBuilder.Labels.STATION)) {
+        if (node.hasLabel(TransportGraphBuilder.Labels.TRAM_STATION)) {
             return getNameOfNode(node);
         }
         if (node.hasLabel(TransportGraphBuilder.Labels.SERVICE)) {

@@ -22,7 +22,7 @@ public class NodeIdLabelMap {
     private int getCapacity(TransportGraphBuilder.Labels label) {
         switch (label) {
             case ROUTE_STATION: return 282;
-            case STATION: return 93;
+            case TRAM_STATION: return 93;
             case PLATFORM: return 185;
             case SERVICE: return 8680;
             case HOUR: return 62525;

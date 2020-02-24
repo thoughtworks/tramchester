@@ -59,7 +59,7 @@ public class RouteStationState extends TraversalState {
             return toService(nextNode, cost);
         }
         if (config.getBus()) {
-            if (nodeLabel == TransportGraphBuilder.Labels.STATION) {
+            if (nodeLabel == TransportGraphBuilder.Labels.BUS_STATION) {
                 long id = nextNode.getId();
                 if (id == destinationNodeId) {
                     return new DestinationState(this, cost);

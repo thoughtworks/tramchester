@@ -52,7 +52,19 @@ public class JourneyPlannerBusTest {
     @Ignore("experimental")
     @Category({BusTest.class})
     @Test
-    public void shouldPlanSimpleJourney() {
+    public void shouldPlanSimpleTramJourney() {
+        TramTime queryTime = TramTime.of(8,45);
+        JourneyPlanRepresentation plan =  JourneyPlannerResourceTest.getJourneyPlanRepresentation(testRule,
+                Stations.Deansgate, Stations.Altrincham, queryTime, new TramServiceDate(nextTuesday), false);
+
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
+        assertFalse(found.isEmpty());
+    }
+
+    @Ignore("experimental")
+    @Category({BusTest.class})
+    @Test
+    public void shouldPlanSimpleBusJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUS, queryTime,
                 new TramServiceDate(nextTuesday), false);
@@ -64,7 +76,7 @@ public class JourneyPlannerBusTest {
     @Ignore("experimental")
     @Category({BusTest.class})
     @Test
-    public void shouldPlanSimpleJourneyFromLocationDirect() {
+    public void shouldPlanSimpleBusJourneyFromLocationDirect() {
         TramTime queryTime = TramTime.of(8,15);
         JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, ALTRINCHAM_INTERCHANGE, queryTime,
                 new TramServiceDate(nextTuesday), false);
@@ -76,7 +88,7 @@ public class JourneyPlannerBusTest {
     @Ignore("experimental")
     @Category({BusTest.class})
     @Test
-    public void shouldPlanSimpleJourneyFromLocation() {
+    public void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,15);
         JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUS, queryTime,
                 new TramServiceDate(nextTuesday), false);

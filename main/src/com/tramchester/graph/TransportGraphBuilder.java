@@ -57,7 +57,7 @@ public class TransportGraphBuilder {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
+        ROUTE_STATION, TRAM_STATION, BUS_STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
     }
 
     private Map<String,TransportRelationshipTypes> boardings;
@@ -164,7 +164,8 @@ public class TransportGraphBuilder {
         try ( Transaction tx = graphDatabaseService.beginTx() )
         {
             Schema schema = graphDatabaseService.schema();
-            schema.indexFor(Labels.STATION).on(GraphStaticKeys.ID).create();
+            schema.indexFor(Labels.TRAM_STATION).on(GraphStaticKeys.ID).create();
+            schema.indexFor(Labels.BUS_STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(Labels.PLATFORM).on(GraphStaticKeys.ID).create();
             // edge per trip indexs
@@ -226,11 +227,14 @@ public class TransportGraphBuilder {
     private Node getOrCreateStation(Location station) {
 
         String id = station.getId();
+        boolean tram = station.isTram();
+
         Node stationNode = stationIndexs.getStationNode(id);
 
         if (stationNode == null) {
-            logger.debug(format("Creating station node: %s ",station));
-            stationNode = createGraphNode(Labels.STATION);
+            Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
+            logger.debug(format("Creating station node: %s with label: ", station, label));
+            stationNode = createGraphNode(label) ;
             stationNode.setProperty(GraphStaticKeys.ID, id);
             LatLong latLong = station.getLatLong();
             setLatLongFor(stationNode, latLong);

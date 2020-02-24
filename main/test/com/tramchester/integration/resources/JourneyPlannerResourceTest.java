@@ -321,9 +321,15 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime,
                                                        TramServiceDate queryDate, boolean arriveBy) {
+        return getJourneyPlanRepresentation(testRule, start, end, queryTime, queryDate, arriveBy);
+    }
+
+    public static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationTestRun rule, Location start, Location end,
+                                                                         TramTime queryTime,
+                                                                         TramServiceDate queryDate, boolean arriveBy) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestConfig.timeFormatter);
-        Response response = getResponseForJourney(testRule, start.getId(), end.getId(), time, date,
+        Response response = getResponseForJourney(rule, start.getId(), end.getId(), time, date,
                 null, arriveBy);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);

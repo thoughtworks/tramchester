@@ -24,13 +24,14 @@ public class WalkingState extends TraversalState {
 
     @Override
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        if (!TransportGraphBuilder.Labels.STATION.equals(nodeLabel)) {
-            throw new RuntimeException("Unexpected node type: " + nodeLabel);
+        if (TransportGraphBuilder.Labels.TRAM_STATION==nodeLabel || TransportGraphBuilder.Labels.BUS_STATION==nodeLabel)  {
+            // could be we've walked to our destination
+            if (node.getId()==destinationNodeId) {
+                return new DestinationState(this, cost);
+            }
+            return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
         }
-        // could be we've walked to our destination
-        if (node.getId()==destinationNodeId) {
-            return new DestinationState(this, cost);
-        }
-        return new StationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+
+        throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }
 }
