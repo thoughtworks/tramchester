@@ -13,17 +13,17 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class StationState extends TraversalState {
+public class TramStationState extends TraversalState {
     private final long stationNodeId;
 
-    public StationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
+    public TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
     }
 
     @Override
     public String toString() {
-        return "StationState{" +
+        return "TramStationState{" +
                 "stationNodeId=" + stationNodeId +
                 ", cost=" + super.getCurrentCost() +
                 ", parent=" + parent +
@@ -34,7 +34,7 @@ public class StationState extends TraversalState {
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
                                     JourneyState journeyState, int cost) {
         long nodeId = node.getId();
-        if (nodeId ==destinationNodeId) {
+        if (nodeId == destinationNodeId) {
             // TODO Cost of platform depart?
             return new DestinationState(this, cost);
         }
@@ -45,19 +45,19 @@ public class StationState extends TraversalState {
         if (nodeLabel == TransportGraphBuilder.Labels.QUERY_NODE) {
             return new WalkingState(this, node.getRelationships(OUTGOING), cost);
         }
-        if (config.getBus()) {
-            if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
-                try {
-                    journeyState.boardTram();
-                } catch (TramchesterException e) {
-                    throw new RuntimeException("unable to board tram", e);
-                }
-                List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
-                        DEPART, INTERCHANGE_DEPART), stationNodeId);
-                node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
-                return new RouteStationState(this, outbounds, nodeId, cost, false);
-            }
-        }
+//        if (config.getBus()) {
+//            if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
+//                try {
+//                    journeyState.boardTram();
+//                } catch (TramchesterException e) {
+//                    throw new RuntimeException("unable to board tram", e);
+//                }
+//                List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
+//                        DEPART, INTERCHANGE_DEPART), stationNodeId);
+//                node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
+//                return new RouteStationState(this, outbounds, nodeId, cost, false);
+//            }
+//        }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
 
     }

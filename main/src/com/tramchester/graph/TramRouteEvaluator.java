@@ -19,6 +19,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
 
+    // TODO TRAM or BUS?
     private final int maxPathLength = 400; // path length limit, includes *all* edges
 
     private final long destinationNodeId;

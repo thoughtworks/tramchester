@@ -73,7 +73,6 @@ public class ServiceHeuristics {
         return valid(path);
     }
 
-    // edge per trip
     public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed) {
         reasons.incrementTotalChecked();
 
@@ -90,8 +89,6 @@ public class ServiceHeuristics {
 
     private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
         TramTime earliest = nodeTime.minusMinutes(maxWaitMinutes);
-        //TramTime clock = TramTime.of(elapsedTimed);
-
         return elapsedTimed.between(earliest, nodeTime);
     }
 

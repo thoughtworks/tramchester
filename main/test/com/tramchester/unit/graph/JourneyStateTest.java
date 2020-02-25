@@ -23,6 +23,8 @@ public class JourneyStateTest {
     private TramTime queryTime;
     private NotStartedState traversalState;
 
+    // TODO ON BUS
+
     @Before
     public void onceBeforeEachTestRuns() {
         List<String> destinationStationIds = Arrays.asList("destinationStationId");

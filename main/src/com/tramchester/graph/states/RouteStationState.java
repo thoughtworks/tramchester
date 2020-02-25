@@ -58,18 +58,38 @@ public class RouteStationState extends TraversalState {
         if (nodeLabel == TransportGraphBuilder.Labels.SERVICE) {
             return toService(nextNode, cost);
         }
-        if (config.getBus()) {
-            if (nodeLabel == TransportGraphBuilder.Labels.BUS_STATION) {
-                long id = nextNode.getId();
-                if (id == destinationNodeId) {
-                    return new DestinationState(this, cost);
-                }
-                List<Relationship> relationships = filterExcludingEndNode(nextNode.getRelationships(OUTGOING, BOARD,
-                        INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
-                return new StationState(this, relationships, cost, id);
-            }
+        if (config.getBus() && (nodeLabel == TransportGraphBuilder.Labels.BUS_STATION)) {
+            return toBusStation(nextNode, journeyState, cost);
         }
+
         throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
+    }
+
+    private TraversalState toBusStation(Node busStationNode, JourneyState journeyState, int cost) {
+        // no platforms in bus network, direct to station
+        try {
+            journeyState.leaveBus(getTotalCost());
+        } catch (TramchesterException e) {
+            throw new RuntimeException("Unable to depart tram",e);
+        }
+
+        // if bus station then may have arrived
+        long busStationNodeId = busStationNode.getId();
+        if (busStationNodeId == destinationNodeId) {
+            return new DestinationState(this, cost);
+        }
+
+        List<Relationship> stationRelationships = filterExcludingEndNode(busStationNode.getRelationships(OUTGOING, BOARD,
+                INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
+        if (maybeExistingTrip.isPresent() || justBoarded) {
+            // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
+            List<Relationship> filterExcludingEndNode = filterExcludingEndNode(stationRelationships, routeStationNodeId);
+            //return new PlatformState(this, filterExcludingEndNode, platformNode.getId(), cost);
+            return new BusStationState(this, filterExcludingEndNode, cost, busStationNodeId);
+        } else {
+            // end of a trip, may need to go back to this route station to catch new service
+            return new BusStationState(this, stationRelationships, cost, busStationNodeId);
+        }
     }
 
     private TraversalState toService(Node serviceNode, int cost) {

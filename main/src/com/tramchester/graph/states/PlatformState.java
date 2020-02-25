@@ -33,11 +33,11 @@ public class PlatformState extends TraversalState {
     @Override
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
 
-        if (nodeLabel == TransportGraphBuilder.Labels.TRAM_STATION || nodeLabel == TransportGraphBuilder.Labels.BUS_STATION) {
+        if (nodeLabel == TransportGraphBuilder.Labels.TRAM_STATION) {
             if (node.getId()==destinationNodeId) {
                 return new DestinationState(this, cost);
             }
-            return new StationState(this,
+            return new TramStationState(this,
                     filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformNodeId),
                     cost, node.getId());
         }

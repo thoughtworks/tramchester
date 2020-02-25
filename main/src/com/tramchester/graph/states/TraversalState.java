@@ -29,7 +29,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected final long destinationNodeId;
     protected final TraversalState parent;
     protected final List<String> destinationStationdIds;
-//    protected final boolean interchangesOnly;
 
     @Override
     public int hashCode() {
@@ -55,7 +54,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
         this.destinationStationdIds = parent.destinationStationdIds;
-//        this.interchangesOnly = parent.interchangesOnly;
         this.config = parent.config;
 
         this.parent = parent;

@@ -36,10 +36,10 @@ public class NotStartedState extends TraversalState {
             case QUERY_NODE:
                 return new WalkingState(this, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
             case TRAM_STATION:
-                return new StationState(this, firstNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost,
+                return new TramStationState(this, firstNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost,
                         firstNode.getId());
             case BUS_STATION:
-                return new StationState(this, firstNode.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM), cost,
+                return new BusStationState(this, firstNode.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM), cost,
                         firstNode.getId());
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);

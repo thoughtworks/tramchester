@@ -50,7 +50,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         logger.info("Begin traversal");
 
-        TraversalDescription traverser = //new MonoDirectionalTraversalDescription().
+        TraversalDescription traverser =
                 graphDatabaseService.traversalDescription().
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
                 relationships(BUS_GOES_TO, Direction.OUTGOING).

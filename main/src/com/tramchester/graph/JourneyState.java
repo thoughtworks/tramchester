@@ -11,6 +11,7 @@ import java.util.Objects;
 public class JourneyState implements ImmutableJourneyState {
     private TramTime journeyClock;
     private boolean onTram;
+    private boolean onBus;
 
     private int journeyOffset;
     private TramTime boardingTime;
@@ -20,6 +21,7 @@ public class JourneyState implements ImmutableJourneyState {
         return "JourneyState{" +
                 "journeyClock=" + journeyClock +
                 ", onTram=" + onTram +
+                ", onBus=" + onBus +
                 ", journeyOffset=" + journeyOffset +
                 ", boardingTime=" + boardingTime +
                 ", traversalState=" + traversalState +
@@ -32,6 +34,7 @@ public class JourneyState implements ImmutableJourneyState {
         this.journeyClock = queryTime;
         journeyOffset = 0;
         onTram = false;
+        onBus = false;
         this.traversalState = traversalState;
     }
 
@@ -42,9 +45,10 @@ public class JourneyState implements ImmutableJourneyState {
     private JourneyState(JourneyState previousState) {
         this.journeyClock = previousState.journeyClock;
         this.onTram = previousState.onTram;
+        this.onBus = previousState.onBus;
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
-        if (onTram) {
+        if (onTram || onBus) {
             this.boardingTime = previousState.boardingTime;
         }
     }
@@ -71,7 +75,7 @@ public class JourneyState implements ImmutableJourneyState {
     public JourneyState updateJourneyClock(int currentTotalCost) {
         int costForTrip = currentTotalCost - journeyOffset;
 
-        if (onTram) {
+        if (onTram || onBus) {
             journeyClock = boardingTime.plusMinutes(costForTrip);
         } else {
             journeyClock = journeyClock.plusMinutes(costForTrip);
@@ -80,7 +84,7 @@ public class JourneyState implements ImmutableJourneyState {
     }
 
     public JourneyState recordTramDetails(TramTime boardingTime, int currentCost) throws TramchesterException {
-        if (!onTram) {
+        if (!(onTram||onBus)) {
             throw new TramchesterException("Not on a tram");
         }
         this.journeyClock = boardingTime;
@@ -89,29 +93,53 @@ public class JourneyState implements ImmutableJourneyState {
         return this;
     }
 
-    public JourneyState leaveTram(int currentTotalCost) throws TramchesterException {
+
+    public void leaveBus(int totalCost) throws TramchesterException {
+        if (!onBus) {
+            throw new TramchesterException("Not currently on a tram");
+        }
+        leave(totalCost);
+        onBus = false;
+    }
+
+    public void leaveTram(int totalCost) throws TramchesterException {
         if (!onTram) {
             throw new TramchesterException("Not currently on a tram");
         }
+        leave(totalCost);
+        onTram = false;
+    }
+
+    private void leave(int currentTotalCost) {
+
         int tripCost = currentTotalCost - journeyOffset;
         journeyClock = boardingTime.plusMinutes(tripCost);
 
         journeyOffset = currentTotalCost;
-        onTram = false;
         boardingTime = null;
-        return this;
     }
 
     public boolean isOnTram() {
         return onTram;
     }
 
-    public JourneyState boardTram() throws TramchesterException {
-        if (isOnTram()) {
+    public void boardTram() throws TramchesterException {
+        guardAlreadyOnboard();
+        onTram = true;
+    }
+
+    public void boardBus() throws TramchesterException {
+        guardAlreadyOnboard();
+        onBus = true;
+    }
+
+    private void guardAlreadyOnboard() throws TramchesterException {
+        if (onTram) {
             throw new TramchesterException("Already on a tram");
         }
-        onTram = true;
-        return this;
+        if (onBus) {
+            throw new TramchesterException("Already on a bus");
+        }
     }
 
     public TraversalState getTraversalState() {
@@ -128,12 +156,13 @@ public class JourneyState implements ImmutableJourneyState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JourneyState that = (JourneyState) o;
-        return onTram == that.onTram &&
+        return onTram == that.onTram && onBus == that.onBus &&
                 Objects.equals(journeyClock, that.journeyClock);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(journeyClock, onTram);
+        return Objects.hash(journeyClock, onTram, onBus);
     }
+
 }

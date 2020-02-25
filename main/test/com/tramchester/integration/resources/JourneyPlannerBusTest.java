@@ -27,6 +27,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+@Ignore("Experimental")
 public class JourneyPlannerBusTest {
 
     private static final String ALTRINCHAM_INTERCHANGE = "1800AMIC001";
@@ -49,7 +50,6 @@ public class JourneyPlannerBusTest {
         mapper.registerModule(new JodaModule());
     }
 
-    @Ignore("experimental")
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleTramJourney() {
@@ -61,7 +61,6 @@ public class JourneyPlannerBusTest {
         assertFalse(found.isEmpty());
     }
 
-    @Ignore("experimental")
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleBusJourney() {
@@ -73,7 +72,6 @@ public class JourneyPlannerBusTest {
         assertFalse(found.isEmpty());
     }
 
-    @Ignore("experimental")
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleBusJourneyFromLocationDirect() {
@@ -85,7 +83,6 @@ public class JourneyPlannerBusTest {
         assertFalse(found.isEmpty());
     }
 
-    @Ignore("experimental")
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleBusJourneyFromLocation() {
@@ -98,7 +95,18 @@ public class JourneyPlannerBusTest {
         assertFalse(found.isEmpty());
     }
 
-    @Ignore("experimental")
+    @Category({BusTest.class})
+    @Test
+    public void shouldPlanSimpleTramJourneyFromLocation() {
+        TramTime queryTime = TramTime.of(8,45);
+        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, Stations.StPetersSquare.getId(), queryTime,
+                new TramServiceDate(nextTuesday), false);
+
+
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
+        assertFalse(found.isEmpty());
+    }
+
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleJourneyArriveByRequiredTime() {

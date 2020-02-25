@@ -31,7 +31,7 @@ public class LocationJourneyPlanner {
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;
-    private final StationIndexs stationIndexs;// miles
+    private final StationIndexs stationIndexs;
 
     public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config,
                                   RouteCalculator routeCalculator, RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
@@ -107,8 +107,8 @@ public class LocationJourneyPlanner {
     private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
         Station walkStation = stationWalk.getStation();
         int cost = stationWalk.getCost();
-        logger.info(format("Add walking relationship from %s to %s cost %s direction %s",
-                walkStation, walkNode,  cost, direction));
+        logger.info(format("Add walking %s relationship between %s to %s cost %s direction",
+                direction, walkStation, walkNode,  cost));
 
         Relationship walkingRelationship;
         Node stationNode = stationIndexs.getStationNode(walkStation.getId());
@@ -160,8 +160,6 @@ public class LocationJourneyPlanner {
     }
 
     private int findCostInMinutes(LatLong latLong, Location station) {
-        //LatLong point1 = LatLong.getLatLng(latLong);
-        //LatLong point2 = LatLong.getLatLng(station.getLatLong());
 
         double distanceInMiles = distFrom(latLong, station.getLatLong());
         double hours = distanceInMiles / config.getWalkingMPH();
@@ -171,14 +169,15 @@ public class LocationJourneyPlanner {
     private double distFrom(LatLong point1, LatLong point2) {
         double lat1 = point1.getLat();
         double lat2 = point2.getLat();
-        double dLat = Math.toRadians(lat2-lat1);
-        double dLng = Math.toRadians(point2.getLon()-point1.getLon());
-        double sindLat = Math.sin(dLat / 2D);
-        double sindLng = Math.sin(dLng / 2D);
-        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
-                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
-        double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double diffLat = Math.toRadians(lat2-lat1);
+        double diffLong = Math.toRadians(point2.getLon()-point1.getLon());
+        double sineDiffLat = Math.sin(diffLat / 2D);
+        double sineDiffLong = Math.sin(diffLong / 2D);
 
+        double a = Math.pow(sineDiffLat, 2) + Math.pow(sineDiffLong, 2)
+                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
+
+        double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return EARTH_RADIUS * fractionOfRadius;
     }
 }
