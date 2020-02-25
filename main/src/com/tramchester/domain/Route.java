@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Route {
-    private static final String METROLINK = "MET";
 
     private final String id;
     private final String code;
@@ -77,5 +76,17 @@ public class Route {
 
     public TransportMode getMode() {
         return transportMode;
+    }
+
+    @Override
+    public String toString() {
+        return "Route{" +
+                "id='" + id + '\'' +
+                ", code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", agency='" + agency + '\'' +
+                ", transportMode=" + transportMode +
+                ", headsigns=" + headsigns +
+                '}';
     }
 }

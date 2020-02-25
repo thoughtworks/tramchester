@@ -6,4 +6,5 @@ import com.tramchester.graph.states.TraversalState;
 public interface ImmutableJourneyState {
     TraversalState getTraversalState();
     TramTime getJourneyClock();
+    boolean onTram();
 }

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphStaticKeys.ID;
 
@@ -20,6 +21,7 @@ public class ServiceHeuristics {
 
     private final RunningServices runningServices;
     private final List<Station> endStations;
+    private final List<Station> endTramStations;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
     private final ReachabilityRepository reachabilityRepository;
@@ -41,6 +43,8 @@ public class ServiceHeuristics {
         this.runningServices = runningServices;
         this.endStations = endStations;
         this.reasons = reasons;
+
+        endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toList());
     }
     
     public ServiceReason checkServiceDate(Node node, Path path) {
@@ -116,16 +120,22 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
     }
 
-    public ServiceReason canReachDestination(Node endNode, Path path) {
-        String stationId = endNode.getProperty(ID).toString();
-        for(Station endStation : endStations) {
-            // TODO only have reachability between tram stations
-            boolean flag = !endStation.isTram() || reachabilityRepository.reachable(stationId, endStation.getId());
-            if (flag) {
+    public ServiceReason canReachDestination(Node endNode, Path path, boolean onTram) {
+        if (!onTram) {
+            // for now we can't check this for buses, so continue
+            return valid(path);
+        }
+        if (endTramStations.isEmpty()) {
+            // cannot directly reach non-tram station from a tram route
+            reasons.recordReason(ServiceReason.StationNotReachable(path));
+        }
+
+        String routeStationId = endNode.getProperty(ID).toString();
+        for(Station endStation : endTramStations) {
+            if (reachabilityRepository.reachable(routeStationId, endStation.getId())) {
                 return valid(path);
             }
         }
-
         return reasons.recordReason(ServiceReason.StationNotReachable(path));
     }
 

@@ -38,6 +38,7 @@ public class TramStationState extends TraversalState {
             // TODO Cost of platform depart?
             return new DestinationState(this, cost);
         }
+
         if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
             return new PlatformState(this,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), nodeId, cost);
@@ -45,19 +46,7 @@ public class TramStationState extends TraversalState {
         if (nodeLabel == TransportGraphBuilder.Labels.QUERY_NODE) {
             return new WalkingState(this, node.getRelationships(OUTGOING), cost);
         }
-//        if (config.getBus()) {
-//            if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
-//                try {
-//                    journeyState.boardTram();
-//                } catch (TramchesterException e) {
-//                    throw new RuntimeException("unable to board tram", e);
-//                }
-//                List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
-//                        DEPART, INTERCHANGE_DEPART), stationNodeId);
-//                node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
-//                return new RouteStationState(this, outbounds, nodeId, cost, false);
-//            }
-//        }
+
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
 
     }

@@ -115,7 +115,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.has(TransportGraphBuilder.Labels.ROUTE_STATION, 42)).andReturn(true);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node,path)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node,path, true)).
                 andReturn(ServiceReason.StationNotReachable(path));
 
         replayAll();

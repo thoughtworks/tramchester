@@ -102,4 +102,13 @@ public class ServiceReasons {
     public void recordSuccess() {
         success = true;
     }
+
+    public void record(ImmutableJourneyState journeyState) {
+        if (journeyState.onTram()) {
+            incrementStat(ServiceReason.ReasonCode.OnTram);
+        } else {
+            incrementStat(ServiceReason.ReasonCode.OnBus);
+
+        }
+    }
 }

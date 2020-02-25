@@ -29,7 +29,9 @@ public abstract class ServiceReason {
         AlreadyDeparted,
         Cached,
         LongerPath,
-        PathTooLong
+        PathTooLong,
+        OnTram,
+        OnBus
     }
 
     private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;

@@ -40,9 +40,18 @@ public class BusStationState extends TraversalState {
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
                     DEPART, INTERCHANGE_DEPART), stationNodeId);
             node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
-            return new RouteStationState(this, outbounds, nodeId, cost, false);
+            return new RouteStationState(this, outbounds, nodeId, cost, true);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
 
+    }
+
+    @Override
+    public String toString() {
+        return "BusStationState{" +
+                "stationNodeId=" + stationNodeId +
+                ", cost=" + super.getCurrentCost() +
+                ", parent=" + parent +
+                '}';
     }
 }

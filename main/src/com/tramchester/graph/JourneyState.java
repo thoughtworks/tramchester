@@ -119,7 +119,7 @@ public class JourneyState implements ImmutableJourneyState {
         boardingTime = null;
     }
 
-    public boolean isOnTram() {
+    public boolean onTram() {
         return onTram;
     }
 

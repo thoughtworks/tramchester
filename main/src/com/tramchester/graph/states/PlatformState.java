@@ -33,13 +33,15 @@ public class PlatformState extends TraversalState {
     @Override
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
 
+        long nodeId = node.getId();
+
         if (nodeLabel == TransportGraphBuilder.Labels.TRAM_STATION) {
-            if (node.getId()==destinationNodeId) {
+            if (nodeId ==destinationNodeId) {
                 return new DestinationState(this, cost);
             }
             return new TramStationState(this,
                     filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformNodeId),
-                    cost, node.getId());
+                    cost, nodeId);
         }
 
         if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
@@ -50,7 +52,7 @@ public class PlatformState extends TraversalState {
             }
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId);
             node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
-            return new RouteStationState(this, outbounds, node.getId(), cost, true);
+            return new RouteStationState(this, outbounds, nodeId, cost, true);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

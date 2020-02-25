@@ -110,6 +110,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
+        reasons.record(journeyState);
+
         // no journey longer than N nodes
         if (path.length()>maxPathLength) {
             logger.warn("Hit max path length");
@@ -119,7 +121,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // is even reachable from here?
         if (nodeOperations.isRouteStation(endNodeId)) {
-            if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
+            if (!serviceHeuristics.canReachDestination(endNode, path, journeyState.onTram()).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }

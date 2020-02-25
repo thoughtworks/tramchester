@@ -36,31 +36,31 @@ public class JourneyStateTest {
     @Test
     public void shouldBeginJourney() {
         JourneyState state = new JourneyState(queryTime, traversalState);
-        assertFalse(state.isOnTram());
+        assertFalse(state.onTram());
 
         int currentCost = 0;
         state.updateJourneyClock(currentCost);
         assertEquals(queryTime, state.getJourneyClock());
-        assertFalse(state.isOnTram());
+        assertFalse(state.onTram());
 
         currentCost = 14;
         state.updateJourneyClock(currentCost);
         assertEquals(TramTime.of(9,29), state.getJourneyClock());
-        assertFalse(state.isOnTram());
+        assertFalse(state.onTram());
 
     }
 
     @Test
     public void shouldBoardATram() throws TramchesterException {
         JourneyState state = new JourneyState(queryTime, traversalState);
-        assertFalse(state.isOnTram());
+        assertFalse(state.onTram());
 
         int currentCost = 10;
         TramTime boardingTime = TramTime.of(9, 30);
         state.boardTram();
         state.recordTramDetails(boardingTime,currentCost);
 
-        assertTrue(state.isOnTram());
+        assertTrue(state.onTram());
         assertEquals(boardingTime, state.getJourneyClock());
 //        assertEquals("tripId1", state.getTripId());
     }
@@ -116,16 +116,16 @@ public class JourneyStateTest {
     @Test
     public void shouldHaveCorrectTimeWhenDepartingTram() throws TramchesterException {
         JourneyState state = new JourneyState(queryTime, traversalState);
-        assertFalse(state.isOnTram());
+        assertFalse(state.onTram());
 
         state.boardTram();
         state.recordTramDetails(TramTime.of(9,30),10);         // 10 mins cost
-        assertTrue(state.isOnTram());
+        assertTrue(state.onTram());
 //        assertEquals("tripId1", state.getTripId());
 
         state.leaveTram(25);                            // 25 mins cost, offset is 15 mins
         assertEquals(TramTime.of(9,45), state.getJourneyClock()); // should be depart tram time
-        assertFalse(state.isOnTram());
+        assertFalse(state.onTram());
 //        assertEquals("", state.getTripId());
 
         state.updateJourneyClock(35);
@@ -158,7 +158,7 @@ public class JourneyStateTest {
 
         JourneyState newStateA = JourneyState.fromPrevious(journeyState);
         assertEquals(TramTime.of(7,55), journeyState.getJourneyClock());
-        assertFalse(journeyState.isOnTram());
+        assertFalse(journeyState.onTram());
 //        assertTrue(journeyState.getTripId().isEmpty());
 
         newStateA.boardTram();
@@ -167,7 +167,7 @@ public class JourneyStateTest {
 
         JourneyState newStateB = JourneyState.fromPrevious(newStateA);
         assertEquals(TramTime.of(8,15), newStateB.getJourneyClock());
-        assertTrue(newStateB.isOnTram());
+        assertTrue(newStateB.onTram());
 //        assertEquals("tripId1", newStateB.getTripId());
     }
 }

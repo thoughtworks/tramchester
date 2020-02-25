@@ -27,7 +27,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-@Ignore("Experimental")
+//@Ignore("Experimental")
 public class JourneyPlannerBusTest {
 
     private static final String ALTRINCHAM_INTERCHANGE = "1800AMIC001";
@@ -74,6 +74,17 @@ public class JourneyPlannerBusTest {
 
     @Category({BusTest.class})
     @Test
+    public void shouldPlanSimpleBusJourneyFromLocation() {
+        TramTime queryTime = TramTime.of(8,45);
+        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUS, queryTime,
+                new TramServiceDate(nextTuesday), false);
+
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
+        assertFalse(found.isEmpty());
+    }
+
+    @Category({BusTest.class})
+    @Test
     public void shouldPlanSimpleBusJourneyFromLocationDirect() {
         TramTime queryTime = TramTime.of(8,15);
         JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, ALTRINCHAM_INTERCHANGE, queryTime,
@@ -83,17 +94,7 @@ public class JourneyPlannerBusTest {
         assertFalse(found.isEmpty());
     }
 
-    @Category({BusTest.class})
-    @Test
-    public void shouldPlanSimpleBusJourneyFromLocation() {
-        TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUS, queryTime,
-                new TramServiceDate(nextTuesday), false);
 
-
-        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
-        assertFalse(found.isEmpty());
-    }
 
     @Category({BusTest.class})
     @Test
