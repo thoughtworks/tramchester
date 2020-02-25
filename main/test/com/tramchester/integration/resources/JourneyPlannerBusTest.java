@@ -27,7 +27,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-//@Ignore("Experimental")
+@Ignore("Experimental")
 public class JourneyPlannerBusTest {
 
     private static final String ALTRINCHAM_INTERCHANGE = "1800AMIC001";
