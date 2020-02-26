@@ -4,6 +4,7 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
 import com.tramchester.domain.input.TramInterchanges;
@@ -19,10 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
@@ -63,6 +61,7 @@ public class TransportGraphBuilder {
     private Map<String,TransportRelationshipTypes> boardings;
     private Map<String,TransportRelationshipTypes> departs;
     private List<String> platforms;
+    private HashSet<String> timeNodeIds;
 
     private final GraphDatabaseService graphDatabaseService;
     private final TransportData transportData;
@@ -79,6 +78,7 @@ public class TransportGraphBuilder {
         boardings = new HashMap<>();
         departs = new HashMap<>();
         platforms = new LinkedList<>();
+        timeNodeIds = new HashSet<>();
     }
 
     public void buildGraphwithFilter(GraphFilter filter) {
@@ -229,7 +229,7 @@ public class TransportGraphBuilder {
         String id = station.getId();
         boolean tram = station.isTram();
 
-        Node stationNode = stationIndexs.getStationNode(id);
+        Node stationNode = station.isTram() ? stationIndexs.getTramStationNode(id) : stationIndexs.getBusStationNode(id);
 
         if (stationNode == null) {
             Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
@@ -276,7 +276,7 @@ public class TransportGraphBuilder {
 
     private Node getOrCreateCallingPointAndStation(Stop stop, Route route, Service service,
                                                    boolean firstStop, boolean lastStop) {
-        Location station = stop.getStation();
+        Station station = stop.getStation();
         String stationId = station.getId();
         String routeStationId = RouteStation.formId(station, route);
 
@@ -494,8 +494,8 @@ public class TransportGraphBuilder {
     private Node getOrCreateTimeNode(Node previousNode, String baseId, TramTime departureTime, String tripId) {
         // Node for the departure time
         String timeNodeId = baseId +"_"+ departureTime.toPattern();
-        Node timeNode = stationIndexs.getTimeNode(timeNodeId);
-        if (timeNode==null) {
+        Node timeNode = null;
+        if (!timeNodeIds.contains(timeNodeId)) {
             LocalTime time = departureTime.asLocalTime();
 
             timeNode = createGraphNode(Labels.MINUTE);
@@ -508,6 +508,9 @@ public class TransportGraphBuilder {
             fromPrevious.setProperty(COST, 0);
             fromPrevious.setProperty(TIME, time);
             fromPrevious.setProperty(TRIP_ID, tripId);
+            timeNodeIds.add(timeNodeId);
+        } else {
+            timeNode = stationIndexs.getTimeNode(timeNodeId);
         }
         return timeNode;
     }

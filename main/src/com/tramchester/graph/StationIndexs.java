@@ -20,9 +20,8 @@ public final class StationIndexs {
     private final CacheOfNodes minuteNodeCache;
     private final CacheOfNodes hourNodeCache;
     private final CacheOfNodes serviceNodeCache;
-    
-    private final ConcurrentMap<String,Node> tramStationNodeCache;
-    private final ConcurrentMap<String,Node> busStationNodeCache;
+    private final CacheOfNodes tramStationNodeCache;
+    private final CacheOfNodes busStationNodeCache;
 
     private SimplePointLayer spatialLayer;
 
@@ -43,9 +42,9 @@ public final class StationIndexs {
         hourNodeCache = new CacheOfNodes(GraphQuery::getHourNode);
         serviceNodeCache = new CacheOfNodes(GraphQuery::getServiceNode);
 
-        tramStationNodeCache = new ConcurrentHashMap<>();
+        tramStationNodeCache = new CacheOfNodes(GraphQuery::getTramStationNode);
         if (buses) {
-            busStationNodeCache = new ConcurrentHashMap<>();
+            busStationNodeCache = new CacheOfNodes(GraphQuery::getBusStationNode);
         } else {
             busStationNodeCache = null;
         }
@@ -59,45 +58,51 @@ public final class StationIndexs {
         return platformNodeCache.getNode(platformId);
     }
 
+    public Node getServiceNode(String svcId) {
+        return serviceNodeCache.getNode(svcId);
+    }
+
+    public Node getHourNode(String hourId) {
+        return hourNodeCache.getNode(hourId);
+    }
+
+    public Node getTimeNode(String timeId) {
+        return minuteNodeCache.getNode(timeId);
+    }
+
+    public Node getTramStationNode(String stationId) {
+        return tramStationNodeCache.getNode(stationId);
+    }
+
+    public Node getBusStationNode(String stationId) {
+        return busStationNodeCache.getNode(stationId);
+    }
+
     public Node getStationNode(String stationId) {
         if (buses) {
             return getStationNodeForEither(stationId);
         }
-
-        return getNode(tramStationNodeCache, GraphQuery::getTramStationNode, stationId);
-    }
-
-    private Node getNode(ConcurrentMap<String, Node> nodeCache, FindNode findNode, String nodeId) {
-        if (nodeCache.containsKey(nodeId)) {
-            return nodeCache.get(nodeId);
-        }
-        Node node = findNode.find(graphQuery, nodeId);
-        if (node!=null) {
-            nodeCache.put(nodeId, node);
-        } else if (warnIfMissing) {
-            logger.warn(format("Could not find graph node for: '%s'", nodeId));
-        }
-        return node;
+        return tramStationNodeCache.getNode(stationId);
     }
 
     // ASSUME: stationId uniqueness
     private Node getStationNodeForEither(String stationId) {
-        if (tramStationNodeCache.containsKey(stationId)) {
-            return tramStationNodeCache.get(stationId);
+        // performance
+        if (tramStationNodeCache.has(stationId)) {
+            return tramStationNodeCache.getNode(stationId);
         }
-        if (busStationNodeCache.containsKey(stationId)) {
-            return busStationNodeCache.get(stationId);
+        if (busStationNodeCache.has(stationId)) {
+            return busStationNodeCache.getNode(stationId);
         }
 
-        Node tramNode = graphQuery.getTramStationNode(stationId);
+        // neither cached at this point
+        Node tramNode = tramStationNodeCache.getNode(stationId);
         if (tramNode!=null) {
-            tramStationNodeCache.put(stationId, tramNode);
             return tramNode;
         }
 
         Node busNode = graphQuery.getBusStationNode(stationId);
         if (busNode!=null) {
-            busStationNodeCache.put(stationId, busNode);
             return busNode;
         }
 
@@ -125,17 +130,6 @@ public final class StationIndexs {
         return graphDatabaseService.createNode(labels);
     }
 
-    public Node getServiceNode(String svcNodeId) {
-        return serviceNodeCache.getNode(svcNodeId);
-    }
-
-    public Node getHourNode(String hourNodeId) {
-        return hourNodeCache.getNode(hourNodeId);
-    }
-
-    public Node getTimeNode(String timeNodeId) {
-        return minuteNodeCache.getNode(timeNodeId);
-    }
 
     private interface FindNode {
         Node find(GraphQuery query, String id);
@@ -163,5 +157,8 @@ public final class StationIndexs {
             return node;
         }
 
+        public boolean has(String stationId) {
+            return theCache.containsKey(stationId);
+        }
     }
 }
