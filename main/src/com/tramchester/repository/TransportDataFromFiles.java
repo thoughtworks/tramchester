@@ -94,7 +94,7 @@ public class TransportDataFromFiles implements TransportDataSource {
             String stopId = stopTimeData.getStopId();
             String stationId = Station.formId(stopId);
             if (stationsById.containsKey(stationId)) {
-                Route route = trip.getRoute(); //routes.get(trip.getRouteId());
+                Route route = trip.getRoute();
                 Station station = stationsById.get(stationId);
                 station.addRoute(route);
                 RouteStation routeStation = new RouteStation(station, route);

@@ -6,10 +6,7 @@ import org.apache.commons.csv.CSVParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -25,8 +22,9 @@ public class DataLoader<T> {
 
     public Stream<T> loadAll(boolean skipHeaders) {
             try {
-            Reader in = new FileReader(fileName);
-                CSVParser parser = createParser(in);
+                Reader in = new FileReader(fileName);
+                BufferedReader bufferedReader = new BufferedReader(in);
+                CSVParser parser = createParser(bufferedReader);
                 if (skipHeaders) {
                     parser.iterator().next();
                 }
@@ -36,12 +34,13 @@ public class DataLoader<T> {
                 //noinspection ResultOfMethodCallIgnored
                 result.onClose(() -> {
                     try {
+                        bufferedReader.close();
                         in.close();
                     } catch (IOException e) {
                         logger.error("Exception while closing file "+fileName, e);
                     }
             });
-                return result;
+            return result;
         } catch (FileNotFoundException e) {
             String msg = "Unable to load from file " + fileName;
             logger.error(msg,e);
