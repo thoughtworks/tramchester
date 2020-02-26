@@ -476,7 +476,7 @@ public class TransportGraphBuilder {
     private Node getOrCreateHourNode(Node previousNode, String beginSvcNodeId, TramTime departureTime) {
         // Node for the hour
         int hourOfDay = departureTime.getHourOfDay();
-        String hourNodeId = format("%s_%s", beginSvcNodeId, hourOfDay);
+        String hourNodeId = beginSvcNodeId +"_"+ hourOfDay;
         Node hourNode = stationIndexs.getHourNode(hourNodeId);
         if (hourNode==null) {
             hourNode = createGraphNode(Labels.HOUR);
@@ -493,7 +493,7 @@ public class TransportGraphBuilder {
 
     private Node getOrCreateTimeNode(Node previousNode, String baseId, TramTime departureTime, String tripId) {
         // Node for the departure time
-        String timeNodeId = format("%s_%s", baseId, departureTime.toPattern());
+        String timeNodeId = baseId +"_"+ departureTime.toPattern();
         Node timeNode = stationIndexs.getTimeNode(timeNodeId);
         if (timeNode==null) {
             LocalTime time = departureTime.asLocalTime();
@@ -518,9 +518,6 @@ public class TransportGraphBuilder {
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
-//        if (transportRelationshipType.equals(TransportRelationshipTypes.BUS_GOES_TO)) {
-//            relationship.setProperty(ROUTE_NAME, route.getName());
-//        }
     }
 
     private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {

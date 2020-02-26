@@ -15,11 +15,14 @@ import static java.lang.String.format;
 public final class StationIndexs {
     private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
 
-    // TODO with the indexes is the cache needed?
-    private final ConcurrentMap<String,Node> routeStationNodeCache;
+    private final CacheOfNodes routeStationNodeCache;
+    private final CacheOfNodes platformNodeCache;
+    private final CacheOfNodes minuteNodeCache;
+    private final CacheOfNodes hourNodeCache;
+    private final CacheOfNodes serviceNodeCache;
+    
     private final ConcurrentMap<String,Node> tramStationNodeCache;
     private final ConcurrentMap<String,Node> busStationNodeCache;
-    private final ConcurrentMap<String,Node> platformNodeCache;
 
     private SimplePointLayer spatialLayer;
 
@@ -34,9 +37,13 @@ public final class StationIndexs {
         this.graphQuery = graphQuery;
         this.buses = config.getBus();
 
-        routeStationNodeCache = new ConcurrentHashMap<>();
+        routeStationNodeCache = new CacheOfNodes(GraphQuery::getRouteStationNode);
+        platformNodeCache = new CacheOfNodes(GraphQuery::getPlatformNode);
+        minuteNodeCache = new CacheOfNodes(GraphQuery::getTimeNode);
+        hourNodeCache = new CacheOfNodes(GraphQuery::getHourNode);
+        serviceNodeCache = new CacheOfNodes(GraphQuery::getServiceNode);
+
         tramStationNodeCache = new ConcurrentHashMap<>();
-        platformNodeCache = new ConcurrentHashMap<>();
         if (buses) {
             busStationNodeCache = new ConcurrentHashMap<>();
         } else {
@@ -45,21 +52,11 @@ public final class StationIndexs {
     }
 
     protected Node getRouteStationNode(String routeStationId) {
-        return getNode(routeStationNodeCache, GraphQuery::getRouteStationNode, routeStationId);
+        return routeStationNodeCache.getNode(routeStationId);
     }
 
     public Node getPlatformNode(String platformId) {
-        return getNode(platformNodeCache, GraphQuery::getPlatformNode, platformId);
-//        if (platformNodeCache.containsKey(id)) {
-//            return platformNodeCache.get(id);
-//        }
-//        Node node = graphQuery.getPlatformNode(id);
-//        if (node!=null) {
-//            platformNodeCache.put(id,node);
-//        } else if (warnIfMissing) {
-//            logger.warn(format("Could not find graph node for platform: '%s'", id));
-//        }
-//        return node;
+        return platformNodeCache.getNode(platformId);
     }
 
     public Node getStationNode(String stationId) {
@@ -68,19 +65,6 @@ public final class StationIndexs {
         }
 
         return getNode(tramStationNodeCache, GraphQuery::getTramStationNode, stationId);
-//        if (tramStationNodeCache.containsKey(stationId)) {
-//            return tramStationNodeCache.get(stationId);
-//        }
-//        Node node = graphQuery.getTramStationNode(stationId);
-//        if (node!=null) {
-//            tramStationNodeCache.put(stationId, node);
-//            return node;
-//        }
-//
-//        if (warnIfMissing) {
-//            logger.warn(format("Could not find graph node for station: '%s'", stationId));
-//        }
-//        return null;
     }
 
     private Node getNode(ConcurrentMap<String, Node> nodeCache, FindNode findNode, String nodeId) {
@@ -141,22 +125,43 @@ public final class StationIndexs {
         return graphDatabaseService.createNode(labels);
     }
 
-    // TODO cahce?
     public Node getServiceNode(String svcNodeId) {
-        return graphQuery.getServiceNode(svcNodeId);
+        return serviceNodeCache.getNode(svcNodeId);
     }
 
-    // TODO cahce?
     public Node getHourNode(String hourNodeId) {
-        return graphQuery.getHourNode(hourNodeId);
+        return hourNodeCache.getNode(hourNodeId);
     }
 
-    // TODO cahce?
     public Node getTimeNode(String timeNodeId) {
-        return graphQuery.getTimeNode(timeNodeId);
+        return minuteNodeCache.getNode(timeNodeId);
     }
 
     private interface FindNode {
         Node find(GraphQuery query, String id);
+    }
+
+    private class CacheOfNodes {
+        private final ConcurrentMap<String,Node> theCache;
+        private final FindNode findNode;
+
+        public CacheOfNodes(FindNode findNode) {
+            this.findNode = findNode;
+            theCache = new ConcurrentHashMap<>();
+        }
+
+        public Node getNode(String nodeId) {
+            if (theCache.containsKey(nodeId)) {
+                return theCache.get(nodeId);
+            }
+            Node node = findNode.find(graphQuery, nodeId);
+            if (node!=null) {
+                theCache.put(nodeId, node);
+            } else if (warnIfMissing) {
+                logger.warn(format("Could not find graph node for: '%s'", nodeId));
+            }
+            return node;
+        }
+
     }
 }
