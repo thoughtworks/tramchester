@@ -11,7 +11,7 @@ import java.util.*;
 
 public class GraphQuery {
 
-    // TODO REFACTOR Methods onlt used for tests into own class
+    // TODO REFACTOR Methods only used for tests into own class
     private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
     private SpatialDatabaseService spatialDatabaseService;

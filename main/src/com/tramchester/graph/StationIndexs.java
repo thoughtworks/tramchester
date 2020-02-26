@@ -45,16 +45,21 @@ public final class StationIndexs {
     }
 
     protected Node getRouteStationNode(String routeStationId) {
-        if (routeStationNodeCache.containsKey(routeStationId)) {
-            return routeStationNodeCache.get(routeStationId);
-        }
-        Node node = graphQuery.getRouteStationNode(routeStationId);
-        if (node!=null) {
-            routeStationNodeCache.put(routeStationId, node);
-        } else if (warnIfMissing) {
-            logger.warn(format("Could not find graph node for route station: '%s'", routeStationId));
-        }
-        return node;
+        return getNode(routeStationNodeCache, GraphQuery::getRouteStationNode, routeStationId);
+    }
+
+    public Node getPlatformNode(String platformId) {
+        return getNode(platformNodeCache, GraphQuery::getPlatformNode, platformId);
+//        if (platformNodeCache.containsKey(id)) {
+//            return platformNodeCache.get(id);
+//        }
+//        Node node = graphQuery.getPlatformNode(id);
+//        if (node!=null) {
+//            platformNodeCache.put(id,node);
+//        } else if (warnIfMissing) {
+//            logger.warn(format("Could not find graph node for platform: '%s'", id));
+//        }
+//        return node;
     }
 
     public Node getStationNode(String stationId) {
@@ -62,19 +67,33 @@ public final class StationIndexs {
             return getStationNodeForEither(stationId);
         }
 
-        if (tramStationNodeCache.containsKey(stationId)) {
-            return tramStationNodeCache.get(stationId);
-        }
-        Node node = graphQuery.getTramStationNode(stationId);
-        if (node!=null) {
-            tramStationNodeCache.put(stationId, node);
-            return node;
-        }
+        return getNode(tramStationNodeCache, GraphQuery::getTramStationNode, stationId);
+//        if (tramStationNodeCache.containsKey(stationId)) {
+//            return tramStationNodeCache.get(stationId);
+//        }
+//        Node node = graphQuery.getTramStationNode(stationId);
+//        if (node!=null) {
+//            tramStationNodeCache.put(stationId, node);
+//            return node;
+//        }
+//
+//        if (warnIfMissing) {
+//            logger.warn(format("Could not find graph node for station: '%s'", stationId));
+//        }
+//        return null;
+    }
 
-        if (warnIfMissing) {
-            logger.warn(format("Could not find graph node for station: '%s'", stationId));
+    private Node getNode(ConcurrentMap<String, Node> nodeCache, FindNode findNode, String nodeId) {
+        if (nodeCache.containsKey(nodeId)) {
+            return nodeCache.get(nodeId);
         }
-        return null;
+        Node node = findNode.find(graphQuery, nodeId);
+        if (node!=null) {
+            nodeCache.put(nodeId, node);
+        } else if (warnIfMissing) {
+            logger.warn(format("Could not find graph node for: '%s'", nodeId));
+        }
+        return node;
     }
 
     // ASSUME: stationId uniqueness
@@ -104,18 +123,6 @@ public final class StationIndexs {
         return null;
     }
 
-    public Node getPlatformNode(String id) {
-        if (platformNodeCache.containsKey(id)) {
-            return platformNodeCache.get(id);
-        }
-        Node node = graphQuery.getPlatformNode(id);
-        if (node!=null) {
-            platformNodeCache.put(id,node);
-        } else if (warnIfMissing) {
-            logger.warn(format("Could not find graph node for platform: '%s'", id));
-        }
-        return node;
-    }
 
     public Node getAreaNode(String areaName) {
         // TODO Cache
@@ -147,5 +154,9 @@ public final class StationIndexs {
     // TODO cahce?
     public Node getTimeNode(String timeNodeId) {
         return graphQuery.getTimeNode(timeNodeId);
+    }
+
+    private interface FindNode {
+        Node find(GraphQuery query, String id);
     }
 }
