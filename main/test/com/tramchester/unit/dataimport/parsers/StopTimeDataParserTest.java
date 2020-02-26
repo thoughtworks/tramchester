@@ -38,7 +38,7 @@ public class StopTimeDataParserTest {
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
-        assertFalse(stopTimeData.isInError());
+        //assertFalse(stopTimeData.isInError());
         assertThat(stopTimeData.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6,41));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6,42));
@@ -52,7 +52,7 @@ public class StopTimeDataParserTest {
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
-        assertFalse(stopTimeData.isInError());
+        //assertFalse(stopTimeData.isInError());
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(0,0));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(0,0));
     }
@@ -63,15 +63,15 @@ public class StopTimeDataParserTest {
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
-        assertFalse(stopTimeData.isInError());
+        //assertFalse(stopTimeData.isInError());
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(1,5));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(1,7));
     }
 
-    @Test
-    public void shouldHandleErrorsInStopParse() throws IOException {
-        String exampleError = "Trip041339,38:58:00,38:58:00,1800STBS001,0045,1,0\n";
-        StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(exampleError));
-        assertTrue(stopTimeData.isInError());
-    }
+//    @Test
+//    public void shouldHandleErrorsInStopParse() throws IOException {
+//        String exampleError = "Trip041339,38:58:00,38:58:00,1800STBS001,0045,1,0\n";
+//        StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(exampleError));
+//        //assertTrue(stopTimeData.isInError());
+//    }
 }

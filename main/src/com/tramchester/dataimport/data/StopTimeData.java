@@ -6,20 +6,21 @@ import java.util.Optional;
 
 public class StopTimeData {
     private final String tripId;
-    private final Optional<TramTime> arrivalTime ;
-    private final Optional<TramTime> departureTime;
+    private final TramTime arrivalTime ;
+    private final TramTime departureTime;
     private final String stopId;
     private final String stopSequence;
     private final String pickupType;
     private final String dropOffType;
 
-    public StopTimeData(String tripId, Optional<TramTime> arrivalTime, Optional<TramTime> departureTime, String stopId,
+    public static final String COMMA = ",";
+
+
+    public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                         String stopSequence, String pickupType, String dropOffType) {
-        if (arrivalTime==null || departureTime==null) {
-            throw new RuntimeException("Constrain violation");
-        }
-        this.tripId = tripId.intern();
-        this.stopId = stopId.intern();
+        this.tripId = tripId;
+        this.stopId = stopId;
+
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.stopSequence = stopSequence;
@@ -45,11 +46,11 @@ public class StopTimeData {
     }
 
     public TramTime getArrivalTime() {
-        return arrivalTime.orElse(null);
+        return arrivalTime;
     }
 
     public TramTime getDepartureTime() {
-        return departureTime.orElse(null);
+        return departureTime;
     }
 
     public String getStopId() {
@@ -68,13 +69,14 @@ public class StopTimeData {
         return dropOffType;
     }
 
-    public boolean isInError() {
-        if (!arrivalTime.isPresent()) {
-            return true;
-        }
-        if (!departureTime.isPresent()) {
-            return true;
-        }
-        return false;
+    public String asOutputLine() {
+        return tripId+ COMMA +
+                arrivalTime.tramDataFormat()+ COMMA +
+                departureTime.tramDataFormat()+ COMMA +
+                stopId+ COMMA +
+                stopSequence + COMMA +
+                pickupType+ COMMA +
+                dropOffType;
     }
+
 }

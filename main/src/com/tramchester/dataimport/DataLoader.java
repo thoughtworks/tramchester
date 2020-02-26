@@ -32,12 +32,14 @@ public class DataLoader<T> {
                 }
                 Stream<T> result = StreamSupport.stream(parser.spliterator(), false)
                         .filter(mapper::filter).map(mapper::parseEntry);
-            result.onClose(() -> {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    logger.error("Exception while closing file "+fileName, e);
-                }
+
+                //noinspection ResultOfMethodCallIgnored
+                result.onClose(() -> {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        logger.error("Exception while closing file "+fileName, e);
+                    }
             });
                 return result;
         } catch (FileNotFoundException e) {

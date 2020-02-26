@@ -87,27 +87,9 @@ public class DataCleanser {
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stop_times");
 
         stopTimes.forEach(stopTime -> {
-                    if (stopTime.isInError()) {
-                        logger.warn("Unable to process " + stopTime);
-                        count.inc();
-                    } else {
-                        try {
-                            writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
-                                    stopTime.getTripId(),
-                                    stopTime.getArrivalTime().tramDataFormat(),
-                                    stopTime.getDepartureTime().tramDataFormat(),
-                                    stopTime.getStopId(),
-                                    stopTime.getStopSequence(),
-                                    stopTime.getPickupType(),
-                                    stopTime.getDropOffType()));
-                            stopIds.add(stopTime.getStopId());
-                        } catch (NullPointerException exception) {
-                            count.inc();
-                            logger.error("Unable to add " + stopTime, exception);
-                        }
-                    }
-                });
-
+            writer.writeLine(stopTime.asOutputLine());
+            stopIds.add(stopTime.getStopId());
+        });
         writer.close();
         stopTimes.close();
         logger.info("**** End cleansing stop times.\n");

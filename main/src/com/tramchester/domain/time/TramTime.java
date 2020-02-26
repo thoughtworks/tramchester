@@ -12,9 +12,10 @@ import static java.lang.String.format;
 
 public class  TramTime implements Comparable<TramTime> {
 
-    private int hour;
-    private int minute;
-    private int hash;
+    private final int hour;
+    private final int minute;
+    private final int hash;
+    private final String toPattern;
 
     private static TramTime[][] tramTimes = new TramTime[24][60];
 
@@ -70,6 +71,7 @@ public class  TramTime implements Comparable<TramTime> {
         this.hour = hour;
         this.minute = minute;
         this.hash = Objects.hash(hour, minute);
+        toPattern = format("%02d:%02d",hour,minute);
     }
 
     public static TramTime of(int hours, int minutes) {
@@ -156,12 +158,12 @@ public class  TramTime implements Comparable<TramTime> {
     }
 
     public String toPattern() {
-        return format("%02d:%02d",hour,minute);
+        return toPattern;
     }
 
     // "HH:mm:ss"
     public String tramDataFormat() {
-        return String.format("%s:00", toPattern());
+        return toPattern+":00";
     }
 
     // is after with compensation for late nights

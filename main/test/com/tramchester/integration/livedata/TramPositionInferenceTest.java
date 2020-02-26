@@ -74,7 +74,7 @@ public class TramPositionInferenceTest {
         TramPosition between = positionInference.findBetween(first, second, date, time);
         assertEquals(first, between.getFirst());
         assertEquals(second, between.getSecond());
-        assertTrue(between.getTrams().size()>=1);
+        assertTrue("trams between", between.getTrams().size()>=1);
         assertEquals(cost, between.getCost());
         between.getTrams().forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
 

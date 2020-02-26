@@ -11,7 +11,6 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-
 public class StopTimeDataMapper implements CSVEntryMapper<StopTimeData> {
     private static final Logger logger = LoggerFactory.getLogger(StopTimeDataMapper.class);
     private final Set<String> tripIds;
@@ -39,14 +38,12 @@ public class StopTimeDataMapper implements CSVEntryMapper<StopTimeData> {
         String pickupType = data.get(5);
         String dropOffType = data.get(6);
 
-        if (!arrivalTime.isPresent()) {
-            logger.error("Failed to parse arrival time from fields", data);
-        }
-        if (!departureTime.isPresent()) {
-            logger.error("Failed to parse arrival time from fields", data);
+        if (arrivalTime.isEmpty() || departureTime.isEmpty()) {
+            logger.error("Failed to parse arrival time from fields " + data);
+            throw new RuntimeException("Unable to parse time for " + data);
         }
 
-        return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
+        return new StopTimeData(tripId, arrivalTime.get(), departureTime.get(), stopId, stopSequence, pickupType, dropOffType);
     }
 
     private String getTripId(CSVRecord data) {

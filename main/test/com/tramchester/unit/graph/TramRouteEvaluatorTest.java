@@ -2,6 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.TestConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.states.NotStartedState;
@@ -104,23 +105,56 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExcludeIfUnreachableNode() {
+    public void shouldExcludeIfUnreachableNode() throws TramchesterException {
         TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
         BranchState<JourneyState> state = new TestBranchState();
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, config);
-        state.setState(new JourneyState(time, traversalState));
+        JourneyState journeyState = new JourneyState(time, traversalState);
+        journeyState.boardTram();
+        state.setState(journeyState);
 
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.has(TransportGraphBuilder.Labels.ROUTE_STATION, 42)).andReturn(true);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node,path, true)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, path, true)).
                 andReturn(ServiceReason.StationNotReachable(path));
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        verifyAll();
+    }
+
+    @Test
+    public void shouldIncludeIfNotOnTramNode() throws TramchesterException {
+        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        BranchState<JourneyState> state = new TestBranchState();
+
+        TramTime time = TramTime.of(8, 15);
+        NotStartedState traversalState = new NotStartedState(nodeOperations, 88L, destinationStationIds, config);
+        JourneyState journeyState = new JourneyState(time, traversalState);
+        journeyState.boardBus();
+        state.setState(journeyState);
+
+        Relationship relationship = createMock(Relationship.class);
+
+        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(nodeIdLabelMap.has(TransportGraphBuilder.Labels.ROUTE_STATION, 42)).andReturn(true);
+        EasyMock.expect(nodeIdLabelMap.has(TransportGraphBuilder.Labels.SERVICE, 42)).andReturn(false);
+        EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(true);
+        EasyMock.expect(nodeIdLabelMap.has(TransportGraphBuilder.Labels.MINUTE, 42)).andReturn(false);
+        EasyMock.expect(nodeIdLabelMap.has(TransportGraphBuilder.Labels.HOUR, 42)).andReturn(false);
+        
+        EasyMock.expect(path.lastRelationship()).andReturn(relationship);
+
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, path, false)).
+                andReturn(ServiceReason.IsValid(path));
+
+        replayAll();
+        Evaluation result = evaluator.evaluate(path, state);
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
 

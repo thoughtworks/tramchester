@@ -170,16 +170,12 @@ public class TestDataCleanser extends EasyMockSupport {
         assertTrue(tripIds.contains("tripIdC"));
     }
 
-    private Optional<TramTime> formTramTimeParam(LocalTime time) {
-        return Optional.of(TramTime.of(time));
-    }
-
     @Test
     public void shouldCleanseStopTimes() throws IOException {
         LocalTime arrivalTime = LocalTime.parse("11:10:00");
         LocalTime departureTime = LocalTime.parse("12:09:00");
 
-        StopTimeData stopTimeB = new StopTimeData("tripIdB", formTramTimeParam(arrivalTime), formTramTimeParam(departureTime),
+        StopTimeData stopTimeB = new StopTimeData("tripIdB", TramTime.of(arrivalTime), TramTime.of(departureTime),
                 "9400stopIdB", "stopSeqB", "pickupB", "dropB");
 
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeB);
