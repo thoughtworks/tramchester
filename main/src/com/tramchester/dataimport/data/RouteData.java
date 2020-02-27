@@ -3,6 +3,9 @@ package com.tramchester.dataimport.data;
 import java.util.Objects;
 
 public class RouteData {
+    public static final String BUS_TYPE = "3";
+    public static final String TRAM_TYPE = "0";
+
     private final String id;
     private final String shortName;
     private final String longName;

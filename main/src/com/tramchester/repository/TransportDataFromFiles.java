@@ -15,12 +15,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.dataimport.data.RouteData.BUS_TYPE;
+import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
 import static java.lang.String.format;
 
 public class TransportDataFromFiles implements TransportDataSource {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
-    private static final String BUS_TYPE = "3";
-    private static final String TRAM_TYPE = "0";
+
 
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station

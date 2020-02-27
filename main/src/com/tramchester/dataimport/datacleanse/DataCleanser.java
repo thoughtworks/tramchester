@@ -156,16 +156,6 @@ public class DataCleanser {
         TransportDataWriter writer = transportDataWriterFactory.getWriter("routes");
         routes.forEach(route -> addRoute(routeCodes, writer, route));
 
-//        if ((agencyCodes.size()==1) && (agencyCodes.contains(WILDCARD))) {
-//            logger.info("Adding all routes");
-//            routes.forEach(route -> addRoute(routeCodes, writer, route));
-//
-//        } else {
-//            logger.info("Adding filtered routes");
-//            routes.filter(route -> agencyCodes.contains(route.getAgency())).forEach(route ->
-//                    addRoute(routeCodes, writer, route));
-//        }
-
         writer.close();
         routes.close();
         logger.info("**** End cleansing routes.\n\n");
@@ -182,7 +172,7 @@ public class DataCleanser {
                 routeName = routeName.substring(0,indexOf).trim();
             }
         }
-        writer.writeLine(String.format("%s,%s,%s,%s,%s",
+        writer.writeLine(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
                 id,
                 route.getAgency(),
                 route.getShortName(),

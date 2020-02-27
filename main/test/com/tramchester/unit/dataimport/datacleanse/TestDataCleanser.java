@@ -58,7 +58,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
-        validateWriter("routes", "R1,MET,CODE1,AtoB name with issue,0");
+        validateWriter("routes", "\"R1\",\"MET\",\"CODE1\",\"AtoB name with issue\",\"0\"");
 
         replayAll();
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
@@ -78,7 +78,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
-        validateWriter("routes", "R2,GMS,X58,Altrincham - Strockport,3");
+        validateWriter("routes", "\"R2\",\"GMS\",\"X58\",\"Altrincham - Strockport\",\"3\"");
 
         replayAll();
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
@@ -99,7 +99,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         RouteDataMapper routeDataMapper = new RouteDataMapper(agencyCodes);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
-        validateWriter("routes", "R1,XYX,CODE1,AtoB,3", "R2,ANY,CODE2,CtoD,0");
+        validateWriter("routes", "\"R1\",\"XYX\",\"CODE1\",\"AtoB\",\"3\"", "\"R2\",\"ANY\",\"CODE2\",\"CtoD\",\"0\"");
 
         replayAll();
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
