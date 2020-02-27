@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
@@ -10,8 +10,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphFilter;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.RouteCodesForTesting;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.RouteCodesForTesting;
+import com.tramchester.testSupport.Stations;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;

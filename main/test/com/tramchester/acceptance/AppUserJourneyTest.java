@@ -1,14 +1,14 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.acceptance.infra.AcceptanceTestRun;
 import com.tramchester.acceptance.infra.DriverFactory;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.integration.resources.FeedInfoResourceTest;
 import org.junit.*;
 import org.junit.rules.TestName;
@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.TestConfig.dateFormatDashes;
+import static com.tramchester.testSupport.TestConfig.dateFormatDashes;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;

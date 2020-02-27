@@ -1,9 +1,8 @@
 package com.tramchester.integration;
 
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

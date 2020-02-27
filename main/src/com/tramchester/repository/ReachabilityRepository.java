@@ -31,10 +31,8 @@ public class ReachabilityRepository {
     public void buildRepository() {
         logger.info("Build repository");
 
-        Set<RouteStation> routeStations = transportData.getRouteStations().stream().
-                filter(RouteStation::isTram).collect(Collectors.toSet());
-        Set<Station> tramStations = transportData.getStations().stream().
-                filter(Station::isTram).collect(Collectors.toSet());
+        Set<RouteStation> routeStations = transportData.getRouteStations().stream().filter(RouteStation::isTram).collect(Collectors.toSet());
+        Set<Station> tramStations = transportData.getStations().stream().filter(Station::isTram).collect(Collectors.toSet());
 
         tramStations.forEach(uniqueStation -> stationIndexing.add(uniqueStation.getId()));
 
@@ -61,7 +59,7 @@ public class ReachabilityRepository {
     public boolean reachable(String routeStationId, String destinationStationId) {
         RouteStation routeStation =  transportData.getRouteStation(routeStationId);
         if (!routeStation.isTram()) {
-            return true; // TODO no efficient way to compute this for buses yet...
+            return reachableForRouteCodeAndInterchange(routeStation, destinationStationId);
         }
         int index = stationIndexing.indexOf(destinationStationId);
         if (index<0) {
@@ -69,6 +67,10 @@ public class ReachabilityRepository {
                     routeStation));
         }
         return matrix.get(routeStationId)[index];
+    }
+
+    private boolean reachableForRouteCodeAndInterchange(RouteStation routeStation, String destinationStationId) {
+        return false;
     }
 
 }

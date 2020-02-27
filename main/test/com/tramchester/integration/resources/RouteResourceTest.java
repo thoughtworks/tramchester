@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;

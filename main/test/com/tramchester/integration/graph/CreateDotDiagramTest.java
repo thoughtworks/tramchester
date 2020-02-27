@@ -5,7 +5,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Location;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 

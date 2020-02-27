@@ -1,13 +1,11 @@
 package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
-import com.tramchester.LiveDataTestCategory;
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
-import com.tramchester.livedata.LiveDataFileFetcher;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportDataFromFiles;

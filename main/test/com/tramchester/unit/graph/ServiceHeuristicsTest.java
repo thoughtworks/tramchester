@@ -6,7 +6,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.*;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import org.easymock.EasyMock;

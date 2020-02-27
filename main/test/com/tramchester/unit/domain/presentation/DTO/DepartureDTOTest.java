@@ -3,7 +3,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.junit.Test;
 
 import java.time.LocalTime;

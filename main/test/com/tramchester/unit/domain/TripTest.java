@@ -1,12 +1,12 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.junit.Before;
 import org.junit.Test;
 

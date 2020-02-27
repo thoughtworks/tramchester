@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Station;
-import com.tramchester.integration.BusTest;
+import com.tramchester.testSupport.BusTest;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 
-@Ignore("Experimental")
+//@Ignore("Experimental")
 public class InterchangeRepositoryTest {
     private static Dependencies dependencies;
     private TransportDataSource dataSource;
@@ -37,10 +37,14 @@ public class InterchangeRepositoryTest {
 
     @Category({BusTest.class})
     @Test
-    public void shouldTestSomething() {
+    public void shouldFindBusInterchanges() {
         InterchangeRepository repository = new InterchangeRepository(dataSource);
 
-        List<Station> interchanges = repository.findAgencyInterchanges();
+        List<Station> interchanges = repository.findAgencyInterchanges(6);
+
+        for (Station interchange : interchanges) {
+            assertFalse(interchange.isTram());
+        }
 
         assertFalse(interchanges.isEmpty());
     }

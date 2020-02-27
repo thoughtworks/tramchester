@@ -3,7 +3,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.StationRepository;
 import org.easymock.EasyMock;

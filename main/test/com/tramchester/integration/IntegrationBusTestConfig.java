@@ -1,6 +1,6 @@
 package com.tramchester.integration;
 
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
 

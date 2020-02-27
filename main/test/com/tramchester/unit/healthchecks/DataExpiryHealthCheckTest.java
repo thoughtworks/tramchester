@@ -2,7 +2,7 @@ package com.tramchester.unit.healthchecks;
 
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.repository.ProvidesFeedInfo;
@@ -11,7 +11,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.file.Path;
 import java.time.LocalDate;
 
 import static junit.framework.TestCase.assertTrue;

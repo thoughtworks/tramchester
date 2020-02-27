@@ -3,7 +3,7 @@ package com.tramchester.unit.cloud;
 import com.tramchester.cloud.ClientForS3;
 import com.tramchester.cloud.UploadsLiveData;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.unit.repository.LiveDataRepositoryTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;

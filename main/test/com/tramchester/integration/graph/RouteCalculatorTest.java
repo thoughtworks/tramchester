@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.TransportStage;
@@ -9,7 +9,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.*;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.TestConfig.avoidChristmasDate;
-import static com.tramchester.integration.Stations.HeatonPark;
+import static com.tramchester.testSupport.TestConfig.avoidChristmasDate;
+import static com.tramchester.testSupport.Stations.HeatonPark;
 import static org.junit.Assert.*;
 
 public class RouteCalculatorTest {

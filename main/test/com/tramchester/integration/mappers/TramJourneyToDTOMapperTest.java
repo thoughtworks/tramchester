@@ -2,7 +2,7 @@ package com.tramchester.integration.mappers;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -11,7 +11,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;

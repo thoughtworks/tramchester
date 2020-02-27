@@ -5,7 +5,7 @@ import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

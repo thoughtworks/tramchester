@@ -1,14 +1,14 @@
 package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
-import com.tramchester.LiveDataTestCategory;
+import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TramRouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;

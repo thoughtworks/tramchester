@@ -1,6 +1,5 @@
-package com.tramchester.integration;
+package com.tramchester.testSupport;
 
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.collections4.ListUtils;
@@ -65,10 +64,7 @@ public class Stations {
             TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
 
     public static Station createStation(String id, String area, String name) {
-        Station station = new Station(id, area, name, position, true);
-//        station.addPlatform(new Platform(id+"1", name));
-//        station.addPlatform(new Platform(id+"2", name));
-        return station;
+        return new Station(id, area, name, position, true);
     }
 
 }

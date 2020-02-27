@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
@@ -9,7 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.RouteCalculatorArriveBy;
 import com.tramchester.graph.TramRouteReachable;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;

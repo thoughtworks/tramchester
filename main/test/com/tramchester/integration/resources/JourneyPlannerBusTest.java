@@ -4,14 +4,17 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
-import com.tramchester.TestConfig;
 import com.tramchester.domain.MyLocationFactory;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.*;
+import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.testSupport.BusTest;
+import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
@@ -21,17 +24,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.TestConfig.dateFormatDashes;
+import static com.tramchester.testSupport.BusStations.ALTRINCHAM_INTERCHANGE;
+import static com.tramchester.testSupport.BusStations.STOCKPORT_BUSSTATION;
+import static com.tramchester.testSupport.TestConfig.dateFormatDashes;
 import static junit.framework.TestCase.assertTrue;
-import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 @Ignore("Experimental")
 public class JourneyPlannerBusTest {
-
-    private static final String ALTRINCHAM_INTERCHANGE = "1800AMIC001";
-    private static final String STOCKPORT_BUS = "1800STBS001";
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10*60);
@@ -65,7 +66,7 @@ public class JourneyPlannerBusTest {
     @Test
     public void shouldPlanSimpleBusJourney() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUS, queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUSSTATION, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -76,7 +77,7 @@ public class JourneyPlannerBusTest {
     @Test
     public void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUS, queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUSSTATION, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -112,7 +113,7 @@ public class JourneyPlannerBusTest {
     @Test
     public void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(STOCKPORT_BUS, ALTRINCHAM_INTERCHANGE, queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan(STOCKPORT_BUSSTATION, ALTRINCHAM_INTERCHANGE, queryTime,
                 new TramServiceDate(nextTuesday), true);
 
         List<JourneyDTO> found = new ArrayList<>();

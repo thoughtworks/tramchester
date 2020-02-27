@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.CachedNodeOperations;

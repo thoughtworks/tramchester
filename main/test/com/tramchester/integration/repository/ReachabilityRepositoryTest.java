@@ -2,18 +2,16 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.RouteCodesForTesting;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.RouteCodesForTesting;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.ReachabilityRepository;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
 
 public class ReachabilityRepositoryTest {
     private static Dependencies dependencies;
@@ -76,4 +74,5 @@ public class ReachabilityRepositoryTest {
         assertTrue(repo.reachable(Stations.StPetersSquare.getId()+ RouteCodesForTesting.ALTY_TO_PICC,
                 Stations.Deansgate.getId()));
     }
+
 }

@@ -134,9 +134,9 @@ public class VehicleStage implements TransportStage {
                 "firstStation=" + firstStation +
                 ", lastStation=" + lastStation +
                 ", mode=" + mode +
-                ", route='" + route + '\'' +
+                ", routeId='" + route.getId() + '\'' +
                 ", displayClass='" + displayClass + '\'' +
-                ", trip=" + trip +
+                ", tripId=" + trip.getTripId() +
                 ", passedStops=" + passedStops +
                 ", departTime=" + departTime +
                 ", cost=" + cost +

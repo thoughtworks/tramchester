@@ -7,7 +7,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static com.tramchester.TestConfig.dateFormatSimple;
+import static com.tramchester.testSupport.TestConfig.dateFormatSimple;
 
 public class ProvidesFirefoxDateInput implements ProvidesDateInput {
 

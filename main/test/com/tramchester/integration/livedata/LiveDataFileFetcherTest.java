@@ -1,12 +1,9 @@
 package com.tramchester.integration.livedata;
 
 
-import com.tramchester.TestConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.livedata.LiveDataFileFetcher;
 import org.junit.Test;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static junit.framework.TestCase.assertTrue;
 

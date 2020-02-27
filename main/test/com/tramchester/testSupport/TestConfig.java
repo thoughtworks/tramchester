@@ -1,4 +1,4 @@
-package com.tramchester;
+package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Route;

@@ -2,7 +2,7 @@ package com.tramchester.acceptance.pages.App;
 
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;

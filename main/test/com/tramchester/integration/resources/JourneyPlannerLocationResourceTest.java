@@ -3,8 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
-import com.tramchester.TestConfig;
-import com.tramchester.acceptance.pages.App.SummaryResult;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.MyLocationFactory;
@@ -15,7 +14,7 @@ import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.junit.*;
 
 import javax.ws.rs.core.Response;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
-import static com.tramchester.TestConfig.*;
+import static com.tramchester.testSupport.TestConfig.*;
 import static org.junit.Assert.*;
 
 public class JourneyPlannerLocationResourceTest {

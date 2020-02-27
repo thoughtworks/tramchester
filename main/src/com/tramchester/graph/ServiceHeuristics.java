@@ -24,7 +24,7 @@ public class ServiceHeuristics {
     private final List<Station> endTramStations;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
-    private final ReachabilityRepository reachabilityRepository;
+    private final ReachabilityRepository tramReachabilityRepository;
 
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
@@ -32,10 +32,10 @@ public class ServiceHeuristics {
     private final int maxWaitMinutes;
 
     public ServiceHeuristics(CachedNodeOperations nodeOperations,
-                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
+                             ReachabilityRepository tramReachabilityRepository, TramchesterConfig config, TramTime queryTime,
                              RunningServices runningServices, List<Station> endStations, ServiceReasons reasons) {
         this.nodeOperations = nodeOperations;
-        this.reachabilityRepository = reachabilityRepository;
+        this.tramReachabilityRepository = tramReachabilityRepository;
 
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
@@ -125,14 +125,15 @@ public class ServiceHeuristics {
             // for now we can't check this for buses, so continue
             return valid(path);
         }
+
+        // none of the end stations are tram stations, so can't reach them from a tram station?
         if (endTramStations.isEmpty()) {
             // cannot directly reach non-tram station from a tram route
             reasons.recordReason(ServiceReason.StationNotReachable(path));
         }
-
         String routeStationId = endNode.getProperty(ID).toString();
         for(Station endStation : endTramStations) {
-            if (reachabilityRepository.reachable(routeStationId, endStation.getId())) {
+            if (tramReachabilityRepository.reachable(routeStationId, endStation.getId())) {
                 return valid(path);
             }
         }

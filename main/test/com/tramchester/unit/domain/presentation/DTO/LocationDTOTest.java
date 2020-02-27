@@ -3,7 +3,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.integration.Stations;
+import com.tramchester.testSupport.Stations;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
