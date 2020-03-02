@@ -259,9 +259,8 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldGetStation() {
-        Optional<Station> result = transportData.getStation(Stations.Altrincham.getId());
-        assertTrue(result.isPresent());
-        Station station = result.get();
+        assertTrue(transportData.hasStationId(Stations.Altrincham.getId()));
+        Station station = transportData.getStation(Stations.Altrincham.getId());
         assertEquals("Altrincham", station.getName());
 
         assertTrue(station.hasPlatforms());

@@ -227,8 +227,13 @@ public class TransportDataForTest implements TransportDataSource {
     }
 
     @Override
-    public Optional<Station> getStation(String stationId) {
-        return Optional.of(stationIdMap.get(stationId));
+    public Station getStation(String stationId) {
+        return stationIdMap.get(stationId);
+    }
+
+    @Override
+    public boolean hasStationId(String stationId) {
+        return stationIdMap.containsKey(stationId);
     }
 
     @Override

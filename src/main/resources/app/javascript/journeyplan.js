@@ -123,7 +123,7 @@ var app = new Vue({
                     {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: this.stationFormatter},
                     {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                     {key:'headSign', label:'Towards', tdClass: this.stageHeadsignClass },
-                    {key:'mode', label:'Line', formatter: this.lineFormatter },
+                    {key:'mode', label:'Line', formatter: this.lineFormatter, tdClass: this.stageRowClass },
                     {key:'passedStops', label:'Stops', tdClass:'passedStops'}],
                 departureFields: [
                     {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
@@ -213,10 +213,10 @@ var app = new Vue({
                 row._showDetails = !row._showDetails;
             },
             stageRowClass(value, key, item) {
-                if (value && key === 'routeName') {
+//                if (value && key === 'routeName') {
                     return item.displayClass;
-                }
-                return null;
+//                }
+//                return null;
             },
             stationFormatter(value, key, row) {
                 var url = 'https://www.google.com/maps/search/?api=1&query='
@@ -239,7 +239,6 @@ var app = new Vue({
                 } else {
                     return row.routeName;
                 }
-
             },
             rowExpandedFormatter(value, key, row) {
                 if (row._showDetails!=null && row._showDetails) {

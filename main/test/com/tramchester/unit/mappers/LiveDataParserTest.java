@@ -39,11 +39,14 @@ public class LiveDataParserTest extends EasyMockSupport {
         stationRepository = createStrictMock(StationRepository.class);
         parser = new LiveDataParser(stationRepository);
 
-        EasyMock.expect(stationRepository.getStation(Stations.MediaCityUK.getId())).andStubReturn(Optional.of(Stations.MediaCityUK));
-        EasyMock.expect(stationRepository.getStation(Stations.ManAirport.getId())).andStubReturn(Optional.of(Stations.ManAirport));
+        EasyMock.expect(stationRepository.getStation(Stations.MediaCityUK.getId())).andStubReturn(Stations.MediaCityUK);
+        EasyMock.expect(stationRepository.getStation(Stations.ManAirport.getId())).andStubReturn(Stations.ManAirport);
 
         EasyMock.expect(stationRepository.getStationByName("Piccadilly")).andStubReturn(Optional.of(Stations.Piccadilly));
+        EasyMock.expect(stationRepository.hasStationId(Stations.MediaCityUK.getId())).andStubReturn(true);
         EasyMock.expect(stationRepository.getStationByName("MediaCityUK")).andStubReturn(Optional.of(Stations.MediaCityUK));
+
+        EasyMock.expect(stationRepository.hasStationId(Stations.ManAirport.getId())).andStubReturn(true);
         EasyMock.expect(stationRepository.getStationByName("Manchester Airport")).andStubReturn(Optional.of(Stations.ManAirport));
 
         EasyMock.expect(stationRepository.getStationByName("")).andStubReturn(Optional.empty());

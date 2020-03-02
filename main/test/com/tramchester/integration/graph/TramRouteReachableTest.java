@@ -96,6 +96,6 @@ public class TramRouteReachableTest {
     }
 
     private Station getReal(Station testStation) {
-        return stationRepository.getStation(testStation.getId()).get();
+        return stationRepository.getStation(testStation.getId());
     }
 }

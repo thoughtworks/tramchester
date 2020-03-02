@@ -68,7 +68,7 @@ public class StationAdjacencyRepositoryTest {
     }
 
     private int getAdjacent(Station first, Station second) {
-        return repository.getAdjacent(transportDataSource.getStation(first.getId()).get(),
-                transportDataSource.getStation(second.getId()).get());
+        return repository.getAdjacent(transportDataSource.getStation(first.getId()),
+                transportDataSource.getStation(second.getId()));
     }
 }

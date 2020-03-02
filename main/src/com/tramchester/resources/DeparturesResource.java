@@ -102,12 +102,16 @@ public class DeparturesResource {
                                            @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
 
         logger.info(format("Get departs for station %s at %s with notes %s ", stationId, queryTimeRaw, notesParam));
+        if (!stationRepository.hasStationId(stationId)) {
+            logger.warn("Unable to find station " + stationId);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
         boolean includeNotes = true;
         if (!notesParam.isEmpty()) {
             includeNotes = !notesParam.equals("0");
         }
 
-        Optional<Station> maybeStation = stationRepository.getStation(stationId);
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
 
         Optional<TramTime> optionalTramTime = Optional.empty();
@@ -120,25 +124,20 @@ public class DeparturesResource {
         }
         TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
 
-        if (maybeStation.isPresent()) {
-            logger.info("Found stations, now find departures");
-            Station station = maybeStation.get();
+        logger.info("Found station, now find departures");
+        Station station = stationRepository.getStation(stationId);
 
-            //trams
-            List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
-            SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
+        //trams
+        List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
+        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
 
-            //notes
-            List<String> notes = Collections.emptyList();
-            if (includeNotes) {
-                notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
-            }
-
-            return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
+        //notes
+        List<String> notes = Collections.emptyList();
+        if (includeNotes) {
+            notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
         }
 
-        logger.warn("Unable to find station " + stationId);
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
 
     }
 }

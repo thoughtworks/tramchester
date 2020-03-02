@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import static com.tramchester.testSupport.BusStations.ALTRINCHAM_INTERCHANGE;
 import static com.tramchester.testSupport.BusStations.STOCKPORT_BUSSTATION;
+import static com.tramchester.testSupport.RouteCodesForTesting.ALTY_TO_STOCKPORT;
 import static junit.framework.TestCase.assertTrue;
 
 @Ignore("Experimental")
@@ -43,9 +44,9 @@ public class ReachabilityRepositoryBusTest {
     @Category({BusTest.class})
     @Test
     public void shouldHaveRoutebasedReachability() {
-        String routeCode = "GMS: 11A:I:";
-        assertTrue(repository.stationReachable(ALTRINCHAM_INTERCHANGE+routeCode, transportData.getStation(STOCKPORT_BUSSTATION).get()));
-        assertTrue(repository.stationReachable(STOCKPORT_BUSSTATION+routeCode, transportData.getStation(ALTRINCHAM_INTERCHANGE).get()));
+
+        assertTrue(repository.stationReachable(ALTRINCHAM_INTERCHANGE+ALTY_TO_STOCKPORT, transportData.getStation(STOCKPORT_BUSSTATION)));
+        assertTrue(repository.stationReachable(STOCKPORT_BUSSTATION+ALTY_TO_STOCKPORT, transportData.getStation(ALTRINCHAM_INTERCHANGE)));
        //assertFalse(repository.reachable(BusStations.SHUDEHILL_INTERCHANGE +routeCode, ALTRINCHAM_INTERCHANGE));
 
     }

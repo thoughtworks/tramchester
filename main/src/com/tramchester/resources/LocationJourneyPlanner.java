@@ -152,8 +152,10 @@ public class LocationJourneyPlanner {
     }
 
     private List<StationWalk> nearestStations(LatLong latLong, List<String> startIds) {
-        List<Station> stations = startIds.stream().map(stationRepository::getStation).
-                filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        List<Station> stations = startIds.stream().
+                filter(stationRepository::hasStationId).
+                map(stationRepository::getStation).
+                collect(Collectors.toList());
 
         return stations.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());

@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import org.slf4j.Logger;
@@ -50,5 +51,18 @@ public class InterchangeRepository {
             return TramInterchanges.has(station);
         }
         return busInterchanges.contains(station);
+    }
+
+    public Set<Route> findRoutesViaInterchangeFor(String targetBusStationId) {
+        Set<Route> results = new HashSet<>();
+        Station target = dataSource.getStation(targetBusStationId);
+
+        Set<Route> routesAtTarget = target.getRoutes();
+        for (Station interchange:busInterchanges) {
+            Set<Route> overlaps = interchange.getRoutes().stream().filter(routesAtTarget::contains).collect(Collectors.toSet());
+            results.addAll(overlaps);
+        }
+        return results;
+
     }
 }

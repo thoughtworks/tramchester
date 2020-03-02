@@ -261,13 +261,19 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     @Override
-    public Optional<Station> getStation(String stationId) {
-        if (stationsById.containsKey(stationId)) {
-            return Optional.of(stationsById.get(stationId));
-        } else {
-            logger.warn("Unable to find station with ID:"+stationId);
-            return Optional.empty();
+    public Station getStation(String stationId) {
+        if (!stationsById.containsKey(stationId)) {
+            String msg = "Unable to find station from ID " + stationId;
+            logger.error(msg);
+            throw new RuntimeException(msg);
         }
+        return stationsById.get(stationId);
+
+    }
+
+    @Override
+    public boolean hasStationId(String stationId) {
+        return stationsById.containsKey(stationId);
     }
 
     @Override

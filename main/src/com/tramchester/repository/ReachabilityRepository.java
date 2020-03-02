@@ -15,13 +15,16 @@ import static java.lang.String.format;
 public class ReachabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
+    private final InterchangeRepository interchangeRepository;
     private final TramRouteReachable tramRouteReachable;
     private final TransportData transportData;
 
     private List<String> tramStationIndexing; // a list as we need ordering and IndexOf
     private Map<String, boolean[]> matrix; // stationId -> boolean[]
 
-    public ReachabilityRepository(TramRouteReachable tramRouteReachable, TransportData transportData) {
+    public ReachabilityRepository(InterchangeRepository interchangeRepository, TramRouteReachable tramRouteReachable,
+                                  TransportData transportData) {
+        this.interchangeRepository = interchangeRepository;
         this.tramRouteReachable = tramRouteReachable;
         this.transportData = transportData;
         tramStationIndexing = new ArrayList<>();
@@ -75,14 +78,17 @@ public class ReachabilityRepository {
 
     private boolean reachableForRouteCodeAndInterchange(RouteStation routeStation, String destinationStationId) {
         String routeStationRouteId = routeStation.getRouteId();
-        Optional<Station> findDestinationStation = transportData.getStation(destinationStationId);
-        if (findDestinationStation.isEmpty()) {
-            return false;
+
+        // desintation shares a route with current location
+        Station destinationStation = transportData.getStation(destinationStationId);
+        Set<String> destinationRoutes = destinationStation.getRoutes().stream().map(Route::getId).collect(Collectors.toSet());
+        if (destinationRoutes.contains(routeStationRouteId)) {
+            return true;
         }
 
-        Station destinationStation = findDestinationStation.get();
-        Set<String> destinationRoutes = destinationStation.getRoutes().stream().map(Route::getId).collect(Collectors.toSet());
-        return destinationRoutes.contains(routeStationRouteId);
+        // TODO factor out routeVia as don't change during a query
+        Set<Route> routesVia = interchangeRepository.findRoutesViaInterchangeFor(destinationStationId);
+        return routesVia.contains(routeStation.getRoute());
     }
 
 }

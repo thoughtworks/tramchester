@@ -42,4 +42,8 @@ public class RouteStation {
                 ", route=" + route +
                 '}';
     }
+
+    public Route getRoute() {
+        return route;
+    }
 }

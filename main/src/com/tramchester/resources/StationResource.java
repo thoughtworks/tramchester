@@ -79,8 +79,12 @@ public class StationResource extends UsesRecentCookie {
 
         recentJourneys.getRecentIds().forEach(recent -> {
             logger.info("Adding recent station to list " + recent);
-            Optional<Station> recentStation = stationRepository.getStation(recent.getId());
-            recentStation.ifPresent(station -> displayStations.add(new StationDTO(station, ProximityGroup.RECENT)));
+            String recentId = recent.getId();
+            if (stationRepository.hasStationId(recentId)) {
+                displayStations.add(new StationDTO(stationRepository.getStation(recentId), ProximityGroup.RECENT));
+            } else {
+                logger.warn("Unrecognised recent stationid " + recentId);
+            }
         });
 
         return Response.ok(new StationListDTO(displayStations, ProximityGroup.ALL_GROUPS)).build();
@@ -104,9 +108,8 @@ public class StationResource extends UsesRecentCookie {
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
-        Optional<Station> station = stationRepository.getStation(id);
-        if (station.isPresent()) {
-            return Response.ok(new LocationDTO(station.get())).build();
+        if (stationRepository.hasStationId(id)) {
+            return Response.ok(new LocationDTO(stationRepository.getStation(id))).build();
         }
         else {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -120,11 +123,10 @@ public class StationResource extends UsesRecentCookie {
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getLive(@PathParam("id") String id) {
         logger.info("Get station " + id);
-        Optional<Station> station = stationRepository.getStation(id);
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
 
-        if (station.isPresent()) {
-            LocationDTO locationDTO = stationDTOFactory.build(station.get(), queryDate, providesNow.getNow());
+        if (stationRepository.hasStationId(id)) {
+            LocationDTO locationDTO = stationDTOFactory.build(stationRepository.getStation(id), queryDate, providesNow.getNow());
             return Response.ok(locationDTO).build();
         }
         else {
@@ -168,11 +170,14 @@ public class StationResource extends UsesRecentCookie {
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
         recentJourneys.getRecentIds().forEach(recent -> {
-            Optional<Station> recentStation = stationRepository.getStation(recent.getId());
-            recentStation.ifPresent(station -> {
-                orderedStations.remove(new StationDTO(station, ProximityGroup.ALL));
-                orderedStations.add(0, new StationDTO(station, ProximityGroup.RECENT));
-            });
+            String recentId = recent.getId();
+            if (stationRepository.hasStationId(recentId)) {
+                Station recentStation = stationRepository.getStation(recentId);
+                orderedStations.remove(new StationDTO(recentStation, ProximityGroup.ALL));
+                orderedStations.add(0, new StationDTO(recentStation, ProximityGroup.RECENT));
+            } else {
+                logger.warn("Unrecognised recent station id: " + recentId);
+            }
         });
 
 

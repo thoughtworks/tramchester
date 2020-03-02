@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -43,9 +42,7 @@ public class SpatialService {
         List<Station> results = new LinkedList<>();
         List<String> ids = getNearestStationsTo(latLong, config.getNumOfNearestStops(),
                 config.getNearestStopRangeKM());
-        ids.forEach(id -> {
-            stationRepository.getStation(id).ifPresent(results::add);
-        });
+        ids.forEach(id -> results.add(stationRepository.getStation(id)));
         return results;
     }
 
@@ -62,12 +59,10 @@ public class SpatialService {
             }
 
             for (String id : nearestStations) {
-                Optional<Station> maybeNearestStation = stationRepository.getStation(id);
-                maybeNearestStation.ifPresent(nearestStation -> {
-                    StationDTO displayStation = new StationDTO(nearestStation, ProximityGroup.NEAREST_STOPS);
-                    reorderedStations.add(displayStation);
-                    seen.add(nearestStation);
-                });
+                Station nearestStation = stationRepository.getStation(id);
+                StationDTO displayStation = new StationDTO(nearestStation, ProximityGroup.NEAREST_STOPS);
+                reorderedStations.add(displayStation);
+                seen.add(nearestStation);
             }
 
             List<StationDTO> remainingStations = sortedStations.stream().filter(station -> !seen.contains(station)).
@@ -101,11 +96,9 @@ public class SpatialService {
         List<GeoPipeFlow> results = graphQuery.getSpatialLayer().findClosestPointsTo(LatLong.getCoordinate(latLong),
                rangeInKM);
 
-        List<String> ids =results.stream().limit(count).
+        return results.stream().limit(count).
                 map(item -> (String)item.getRecord().getGeomNode().getProperty(GraphStaticKeys.ID)).
                 collect(Collectors.toList());
-
-        return ids;
     }
 
 }

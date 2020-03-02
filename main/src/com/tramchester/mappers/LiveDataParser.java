@@ -120,7 +120,11 @@ public class LiveDataParser {
 
     private Optional<Station> getStationByAtcoCode(String atcoCode) {
         String stationId = Station.formId(atcoCode);
-        return stationRepository.getStation(stationId);
+        if (stationRepository.hasStationId(stationId)) {
+            return Optional.of(stationRepository.getStation(stationId));
+        } else {
+            return Optional.empty();
+        }
     }
 
     private Optional<Station> getTramDestination(String name) {
