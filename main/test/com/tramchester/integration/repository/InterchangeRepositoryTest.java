@@ -65,7 +65,6 @@ public class InterchangeRepositoryTest {
 
         assertFalse(interchanges.isEmpty());
         Set<String> interchangeIds = interchanges.stream().map(Station::getId).collect(Collectors.toSet());
-//        assertTrue(interchangeIds.contains(BusStations.STOCKPORT_BUSSTATION));
         assertTrue(interchangeIds.contains(BusStations.ALTRINCHAM_INTERCHANGE));
     }
 

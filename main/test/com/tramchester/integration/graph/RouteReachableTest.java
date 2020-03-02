@@ -18,6 +18,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 
+import static com.tramchester.testSupport.BusStations.*;
 import static junit.framework.TestCase.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -102,12 +103,14 @@ public class RouteReachableTest {
         assertEquals(61, reachable.getApproxCostBetween(Stations.ManAirport.getId(), Stations.MediaCityUK.getId()));
     }
 
-    @Ignore("WIP")
     @Category({BusTest.class})
     @Test
-    public void shouldTestSomethingForBuses() {
+    public void shouldFindCostsCorrectlyForBusJourneys() {
         assumeTrue(config.getBus());
-        fail("todo for buses only");
+        assertEquals(37, reachable.getApproxCostBetween(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUSSTATION));
+        assertEquals(39, reachable.getApproxCostBetween(STOCKPORT_BUSSTATION, ALTRINCHAM_INTERCHANGE));
+        assertEquals(59, reachable.getApproxCostBetween(SHUDEHILL_INTERCHANGE, ALTRINCHAM_INTERCHANGE));
+        assertEquals(56, reachable.getApproxCostBetween(ALTRINCHAM_INTERCHANGE, SHUDEHILL_INTERCHANGE));
     }
 
     private Station getReal(Station testStation) {

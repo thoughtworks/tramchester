@@ -18,12 +18,14 @@ public class InterchangeRepository {
 
     private static final int NUMBER_INTERCHANGES = 6;
     private final TransportDataSource dataSource;
+    private final TramchesterConfig config;
 
     // id -> Station
     private final Map<String, Station> busInterchanges;
 
     public InterchangeRepository(TransportDataSource dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
+        this.config = config;
         if (config.getBus()) {
             // potentially expensive
             busInterchanges = createBusInterchangeList(NUMBER_INTERCHANGES);
@@ -33,18 +35,14 @@ public class InterchangeRepository {
         }
     }
 
-    // sorted by agency numbers
     private Map<String, Station> createBusInterchangeList(int numberAgencies) {
         logger.info("Finding bus interchanges bused on agency overlap of " + numberAgencies);
 
         Set<Station> allStations = dataSource.getStations();
 
-        Function<Station, String> collectionFunction = station -> station.getId();
-
         return allStations.stream().
                 filter(station -> !station.isTram()).
                 filter(station -> station.getAgencies().size()>=numberAgencies).
-//                sorted(Comparator.comparingInt(a -> a.getAgencies().size())).
                 collect(Collectors.toMap(Station::getId, (station -> station)));
     }
 
@@ -61,11 +59,16 @@ public class InterchangeRepository {
 
     public boolean isInterchange(String stationId) {
         if (TramInterchanges.has(stationId)) {
-            return true ;
+            return true;
         }
-        return busInterchanges.containsKey(stationId);
+        if (config.getBus()) {
+            return busInterchanges.containsKey(stationId);
+        }
+        return false;
     }
 
+    // remove, too approximate to be useful
+    @Deprecated
     public Set<Route> findRoutesViaInterchangeFor(String targetBusStationId) {
         Set<Route> results = new HashSet<>();
         Station target = dataSource.getStation(targetBusStationId);
