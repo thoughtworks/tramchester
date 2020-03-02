@@ -32,19 +32,19 @@ public class RouteCalculator implements TramRouteCalculator {
     private final TransportData transportData;
     private final ReachabilityRepository reachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
-    private final StationIndexs stationIndexs;
+    private final NodeIdQuery nodeIdQuery;
     private final GraphDatabaseService graphDatabaseService;
 
     public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository,
-                           CreateQueryTimes createQueryTimes, StationIndexs stationIndexs, GraphDatabaseService graphDatabaseService) {
+                           CreateQueryTimes createQueryTimes, NodeIdQuery nodeIdQuery, GraphDatabaseService graphDatabaseService) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.config = config;
         this.reachabilityRepository = reachabilityRepository;
         this.createQueryTimes = createQueryTimes;
-        this.stationIndexs = stationIndexs;
+        this.nodeIdQuery = nodeIdQuery;
         this.graphDatabaseService = graphDatabaseService;
     }
 
@@ -54,24 +54,33 @@ public class RouteCalculator implements TramRouteCalculator {
         logger.info(format("Finding shortest path for %s --> %s on %s at %s", startStationId, destination,
                 queryDate, queryTime));
 
-        Node startNode = stationIndexs.getStationNode(startStationId);
-        Node endNode = stationIndexs.getStationNode(destination.getId());
+        Node startNode = getStationNodeSafe(startStationId);
+        Node endNode = getStationNodeSafe(destination.getId());
+
         List<Station> destinations = Collections.singletonList(destination);
 
         return getJourneyStream(startNode, endNode, queryTime, destinations, queryDate, false);
     }
 
+    private Node getStationNodeSafe(String startStationId) {
+        Node stationNode = nodeIdQuery.getStationNode(startStationId);
+        if (stationNode==null) {
+            throw new RuntimeException("Unable to find station node based on " + startStationId);
+        }
+        return stationNode;
+    }
+
     public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<Station> desinationStations,
                                                    TramTime queryTime, TramServiceDate queryDate)
     {
-        Node startNode = stationIndexs.getStationNode(startId);
+        Node startNode = getStationNodeSafe(startId);
         return getJourneyStream(startNode, endOfWalk, queryTime, desinationStations, queryDate, false);
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, Station destination,
                                                      TramTime queryTime, TramServiceDate queryDate) {
-        Node endNode = stationIndexs.getStationNode(destination.getId());
+        Node endNode = getStationNodeSafe(destination.getId());
         List<Station> destinationIds = Collections.singletonList(destination);
         return getJourneyStream(startOfWalkNode, endNode, queryTime, destinationIds, queryDate, true);
     }

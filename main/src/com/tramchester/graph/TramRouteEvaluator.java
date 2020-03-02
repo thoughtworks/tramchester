@@ -121,6 +121,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // is even reachable from here?
         if (nodeOperations.isRouteStation(endNodeId)) {
+            // Note: journeyState.onTram() not true for all tram journeys as we might just be boarding....
             if (!serviceHeuristics.canReachDestination(endNode, path, journeyState.onTram()).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }

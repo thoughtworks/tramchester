@@ -24,8 +24,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.testSupport.BusStations.ALTRINCHAM_INTERCHANGE;
-import static com.tramchester.testSupport.BusStations.STOCKPORT_BUSSTATION;
+import static com.tramchester.testSupport.BusStations.*;
 import static com.tramchester.testSupport.TestConfig.dateFormatDashes;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -67,6 +66,17 @@ public class JourneyPlannerBusTest {
     public void shouldPlanSimpleBusJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUSSTATION, queryTime,
+                new TramServiceDate(nextTuesday), false);
+
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
+        assertFalse(found.isEmpty());
+    }
+
+    @Category({BusTest.class})
+    @Test
+    public void shouldPlanLongBusJourney() {
+        TramTime queryTime = TramTime.of(8,45);
+        JourneyPlanRepresentation plan = getJourneyPlan(SHUDEHILL_INTERCHANGE, STOCKPORT_BUSSTATION, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);

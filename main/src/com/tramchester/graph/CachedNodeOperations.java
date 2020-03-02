@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.time.TramTime;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -127,8 +126,8 @@ public class CachedNodeOperations {
     }
 
     // for creating query nodes, to support MyLocation joruneys
-    public Node createQueryNode(StationIndexs stationIndexs) {
-        Node result = stationIndexs.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
+    public Node createQueryNode(NodeIdQuery nodeIdQuery) {
+        Node result = nodeIdQuery.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
         nodeIdLabelMap.putQueryNode(result.getId());
         return result;
     }

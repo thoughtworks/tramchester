@@ -14,15 +14,17 @@ import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 
-//@Ignore("Experimental")
+@Ignore("Experimental")
 public class InterchangeRepositoryTest {
     private static Dependencies dependencies;
+    private static IntegrationBusTestConfig config;
     private TransportDataSource dataSource;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationBusTestConfig("int_test_bus_tramchester.db"));
+        config = new IntegrationBusTestConfig("int_test_bus_tramchester.db");
+        dependencies.initialise(config);
     }
 
     @AfterClass
@@ -38,9 +40,9 @@ public class InterchangeRepositoryTest {
     @Category({BusTest.class})
     @Test
     public void shouldFindBusInterchanges() {
-        InterchangeRepository repository = new InterchangeRepository(dataSource);
+        InterchangeRepository repository = new InterchangeRepository(dataSource, config);
 
-        List<Station> interchanges = repository.findAgencyInterchanges(6);
+        List<Station> interchanges = repository.getBusInterchanges();
 
         for (Station interchange : interchanges) {
             assertFalse(interchange.isTram());

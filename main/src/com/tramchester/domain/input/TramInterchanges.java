@@ -20,7 +20,7 @@ public class TramInterchanges {
         VICTORIA("9400ZZMAVIC"),
         DEANSGATE("9400ZZMAGMX"),
         PICCADILLY("9400ZZMAPIC"),
-        // additional route swap points, needed for journeys when restrict change over points
+        // additional route swap points, needed for journeys when restrict change-over points
         SHAW_AND_CROMPTON("9400ZZMASHA"),
         HARBOUR_CITY("9400ZZMAHCY");
 

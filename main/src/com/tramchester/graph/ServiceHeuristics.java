@@ -24,7 +24,7 @@ public class ServiceHeuristics {
     private final List<Station> endTramStations;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
-    private final ReachabilityRepository tramReachabilityRepository;
+    private final ReachabilityRepository reachabilityRepository;
 
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
@@ -32,10 +32,10 @@ public class ServiceHeuristics {
     private final int maxWaitMinutes;
 
     public ServiceHeuristics(CachedNodeOperations nodeOperations,
-                             ReachabilityRepository tramReachabilityRepository, TramchesterConfig config, TramTime queryTime,
+                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
                              RunningServices runningServices, List<Station> endStations, ServiceReasons reasons) {
         this.nodeOperations = nodeOperations;
-        this.tramReachabilityRepository = tramReachabilityRepository;
+        this.reachabilityRepository = reachabilityRepository;
 
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
@@ -120,23 +120,25 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
     }
 
+    // TODO will need re-working once interchange between tram/bus is defined
     public ServiceReason canReachDestination(Node endNode, Path path, boolean onTram) {
-        if (!onTram) {
-            // for now we can't check this for buses, so continue
-            return valid(path);
-        }
+
+        String routeStationId = endNode.getProperty(ID).toString();
 
         // none of the end stations are tram stations, so can't reach them from a tram station?
-        if (endTramStations.isEmpty()) {
-            // cannot directly reach non-tram station from a tram route
-            reasons.recordReason(ServiceReason.StationNotReachable(path));
+        List<Station> stationsToCheck;
+        if (onTram) {
+            stationsToCheck = endTramStations;
+        } else {
+            stationsToCheck = endStations;
         }
-        String routeStationId = endNode.getProperty(ID).toString();
-        for(Station endStation : endTramStations) {
-            if (tramReachabilityRepository.reachable(routeStationId, endStation.getId())) {
+
+        for(Station endStation : stationsToCheck) {
+            if (reachabilityRepository.stationReachable(routeStationId, endStation)) {
                 return valid(path);
             }
         }
+
         return reasons.recordReason(ServiceReason.StationNotReachable(path));
     }
 

@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import static java.lang.String.format;
 
-public final class StationIndexs {
-    private static final Logger logger = LoggerFactory.getLogger(StationIndexs.class);
+public final class NodeIdQuery {
+    private static final Logger logger = LoggerFactory.getLogger(NodeIdQuery.class);
 
     private final CacheOfNodes routeStationNodeCache;
     private final CacheOfNodes platformNodeCache;
@@ -31,7 +31,7 @@ public final class StationIndexs {
     // TODO remove
     private final boolean warnIfMissing = false;
 
-    public StationIndexs(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery, TramchesterConfig config) {
+    public NodeIdQuery(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery, TramchesterConfig config) {
         this.graphDatabaseService = graphDatabaseService;
         this.graphQuery = graphQuery;
         this.buses = config.getBus();

@@ -1,9 +1,9 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
 import com.tramchester.graph.TramRouteReachable;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,13 +18,13 @@ public class ReachabilityRepository {
     private final TramRouteReachable tramRouteReachable;
     private final TransportData transportData;
 
-    private List<String> stationIndexing; // a list as we need ordering and IndexOf
+    private List<String> tramStationIndexing; // a list as we need ordering and IndexOf
     private Map<String, boolean[]> matrix; // stationId -> boolean[]
 
     public ReachabilityRepository(TramRouteReachable tramRouteReachable, TransportData transportData) {
         this.tramRouteReachable = tramRouteReachable;
         this.transportData = transportData;
-        stationIndexing = new ArrayList<>();
+        tramStationIndexing = new ArrayList<>();
         matrix = new HashMap<>();
     }
 
@@ -34,7 +34,7 @@ public class ReachabilityRepository {
         Set<RouteStation> routeStations = transportData.getRouteStations().stream().filter(RouteStation::isTram).collect(Collectors.toSet());
         Set<Station> tramStations = transportData.getStations().stream().filter(Station::isTram).collect(Collectors.toSet());
 
-        tramStations.forEach(uniqueStation -> stationIndexing.add(uniqueStation.getId()));
+        tramStations.forEach(uniqueStation -> tramStationIndexing.add(uniqueStation.getId()));
 
         int size = tramStations.size();
         routeStations.forEach(routeStation -> {
@@ -49,28 +49,40 @@ public class ReachabilityRepository {
                     result = tramRouteReachable.getRouteReachableWithInterchange(startStationId,
                             destinationStationId, routeStation.getRouteId());
                 }
-                flags[stationIndexing.indexOf(destinationStationId)] = result;
+                flags[tramStationIndexing.indexOf(destinationStationId)] = result;
             });
             matrix.put(routeStation.getId(), flags);
         });
         logger.info(format("Added %s entries", size));
     }
 
-    public boolean reachable(String routeStationId, String destinationStationId) {
+    public boolean stationReachable(String routeStationId, Station destinationStation) {
         RouteStation routeStation =  transportData.getRouteStation(routeStationId);
-        if (!routeStation.isTram()) {
-            return reachableForRouteCodeAndInterchange(routeStation, destinationStationId);
+        if (routeStation.isTram() ^ destinationStation.isTram()) {
+            return false;
         }
-        int index = stationIndexing.indexOf(destinationStationId);
-        if (index<0) {
-            throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStationId,
-                    routeStation));
+        if (routeStation.isTram() && destinationStation.isTram()) {
+            // route station is a tram station
+            int index = tramStationIndexing.indexOf(destinationStation.getId());
+            if (index<0) {
+                throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStation,
+                        routeStation));
+            }
+            return matrix.get(routeStationId)[index];
         }
-        return matrix.get(routeStationId)[index];
+        return reachableForRouteCodeAndInterchange(routeStation, destinationStation.getId());
     }
 
     private boolean reachableForRouteCodeAndInterchange(RouteStation routeStation, String destinationStationId) {
-        return false;
+        String routeStationRouteId = routeStation.getRouteId();
+        Optional<Station> findDestinationStation = transportData.getStation(destinationStationId);
+        if (findDestinationStation.isEmpty()) {
+            return false;
+        }
+
+        Station destinationStation = findDestinationStation.get();
+        Set<String> destinationRoutes = destinationStation.getRoutes().stream().map(Route::getId).collect(Collectors.toSet());
+        return destinationRoutes.contains(routeStationRouteId);
     }
 
 }

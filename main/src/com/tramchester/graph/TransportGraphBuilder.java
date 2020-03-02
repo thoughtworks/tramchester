@@ -7,11 +7,11 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
-import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
@@ -66,14 +66,17 @@ public class TransportGraphBuilder {
     private final GraphDatabaseService graphDatabaseService;
     private final TransportData transportData;
     private final NodeIdLabelMap nodeIdLabelMap;
-    private final StationIndexs stationIndexs;
+    private final NodeIdQuery nodeIdQuery;
+    private final InterchangeRepository interchangeRepository;
 
     public TransportGraphBuilder(GraphDatabaseService graphDatabaseService, TransportData transportData,
-                                 NodeIdLabelMap nodeIdLabelMap, StationIndexs stationIndexs) {
+                                 NodeIdLabelMap nodeIdLabelMap, NodeIdQuery nodeIdQuery,
+                                 InterchangeRepository interchangeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.transportData = transportData;
         this.nodeIdLabelMap = nodeIdLabelMap;
-        this.stationIndexs = stationIndexs;
+        this.nodeIdQuery = nodeIdQuery;
+        this.interchangeRepository = interchangeRepository;
 
         boardings = new HashMap<>();
         departs = new HashMap<>();
@@ -229,7 +232,7 @@ public class TransportGraphBuilder {
         String id = station.getId();
         boolean tram = station.isTram();
 
-        Node stationNode = station.isTram() ? stationIndexs.getTramStationNode(id) : stationIndexs.getBusStationNode(id);
+        Node stationNode = station.isTram() ? nodeIdQuery.getTramStationNode(id) : nodeIdQuery.getBusStationNode(id);
 
         if (stationNode == null) {
             Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
@@ -239,7 +242,7 @@ public class TransportGraphBuilder {
             LatLong latLong = station.getLatLong();
             setLatLongFor(stationNode, latLong);
 
-            stationIndexs.getSpatialLayer().add(stationNode);
+            nodeIdQuery.getSpatialLayer().add(stationNode);
         }
 
 //        Node areaNode = getAreaNode(station.getArea());
@@ -265,7 +268,7 @@ public class TransportGraphBuilder {
     private Node getOrCreatePlatform(Stop stop) {
         String stopId = stop.getId();
 
-        Node platformNode = stationIndexs.getPlatformNode(stopId);
+        Node platformNode = nodeIdQuery.getPlatformNode(stopId);
         if (platformNode==null) {
             platformNode = createGraphNode(Labels.PLATFORM);
             platformNode.setProperty(GraphStaticKeys.ID, stopId);
@@ -280,12 +283,12 @@ public class TransportGraphBuilder {
         String stationId = station.getId();
         String routeStationId = RouteStation.formId(station, route);
 
-        Node routeStationNode = stationIndexs.getRouteStationNode(routeStationId);
+        Node routeStationNode = nodeIdQuery.getRouteStationNode(routeStationId);
         if ( routeStationNode == null) {
              routeStationNode = createRouteStationNode(station, route, routeStationId, service);
         }
         // TODO Bus interchanges?
-        boolean isInterchange = TramInterchanges.has(station);
+        boolean isInterchange = interchangeRepository.isInterchange(station);
         int enterPlatformCost = ENTER_PLATFORM_COST;
         int leavePlatformCost = LEAVE_PLATFORM_COST;
 
@@ -429,7 +432,7 @@ public class TransportGraphBuilder {
         String beginSvcNodeId = format("%s_%s_%s_%s", startLocation.getId(), endStop.getStation().getId(),
                 service.getServiceId(), routeIdClean);
 
-        Node beginServiceNode = stationIndexs.getServiceNode(beginSvcNodeId);
+        Node beginServiceNode = nodeIdQuery.getServiceNode(beginSvcNodeId);
         String tripId = trip.getTripId();
 
         if (beginServiceNode==null) {
@@ -477,7 +480,7 @@ public class TransportGraphBuilder {
         // Node for the hour
         int hourOfDay = departureTime.getHourOfDay();
         String hourNodeId = beginSvcNodeId +"_"+ hourOfDay;
-        Node hourNode = stationIndexs.getHourNode(hourNodeId);
+        Node hourNode = nodeIdQuery.getHourNode(hourNodeId);
         if (hourNode==null) {
             hourNode = createGraphNode(Labels.HOUR);
             hourNode.setProperty(GraphStaticKeys.ID, hourNodeId);
@@ -510,7 +513,7 @@ public class TransportGraphBuilder {
             fromPrevious.setProperty(TRIP_ID, tripId);
             timeNodeIds.add(timeNodeId);
         } else {
-            timeNode = stationIndexs.getTimeNode(timeNodeId);
+            timeNode = nodeIdQuery.getTimeNode(timeNodeId);
         }
         return timeNode;
     }

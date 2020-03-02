@@ -31,18 +31,18 @@ public class LocationJourneyPlanner {
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;
-    private final StationIndexs stationIndexs;
+    private final NodeIdQuery stationIndexs;
 
     public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config,
                                   RouteCalculator routeCalculator, RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
-                                  CachedNodeOperations nodeOperations, StationIndexs stationIndexs) {
+                                  CachedNodeOperations nodeOperations, NodeIdQuery nodeIdQuery) {
         this.spatialService = spatialService;
         this.config = config;
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
-        this.stationIndexs = stationIndexs;
+        this.stationIndexs = nodeIdQuery;
     }
 
     public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, TramTime queryTime,

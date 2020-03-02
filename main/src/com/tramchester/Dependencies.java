@@ -98,7 +98,7 @@ public class Dependencies {
 
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(RouteCalculatorArriveBy.class);
-        picoContainer.addComponent(StationIndexs.class);
+        picoContainer.addComponent(NodeIdQuery.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
         picoContainer.addComponent(TramJourneyToDTOMapper.class);
@@ -141,6 +141,7 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataHealthCheck.class);
         picoContainer.addComponent(NewDataAvailableHealthCheck.class);
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
+        picoContainer.addComponent(InterchangeRepository.class);
 
         createGraph(configuration);
 

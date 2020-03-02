@@ -172,7 +172,7 @@ task buses(type:JavaExec) {
 
 task busTest(type: Test) {
     useJUnit {
-        includeCategories 'com.tramchester.BusTest'
+        includeCategories 'com.tramchester.testSupport.BusTest'
     }
 }
 
@@ -215,7 +215,7 @@ task integration(type: Test, dependsOn: compileJava) {
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
-            excludeCategories "com.tramchester.LiveDataMessagesCategory" // hopefully temporary exclusion
+            excludeCategories "com.tramchester.testSupport.LiveDataMessagesCategory" // hopefully temporary exclusion
         }
         testLogging {
             exceptionFormat "full" // default is "short"

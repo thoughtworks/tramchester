@@ -28,9 +28,9 @@ public class TramRouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteReachable.class);
 
     private final GraphDatabaseService graphDatabaseService;
-    private final StationIndexs stationIndexQuery;
+    private final NodeIdQuery stationIndexQuery;
 
-    public TramRouteReachable(GraphDatabaseService graphDatabaseService, StationIndexs stationIndexQuery) {
+    public TramRouteReachable(GraphDatabaseService graphDatabaseService, NodeIdQuery stationIndexQuery) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationIndexQuery = stationIndexQuery;
     }

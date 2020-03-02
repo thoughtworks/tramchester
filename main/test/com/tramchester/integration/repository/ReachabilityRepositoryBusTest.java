@@ -1,10 +1,11 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
-import com.tramchester.testSupport.TestConfig;
-import com.tramchester.testSupport.BusTest;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.ReachabilityRepository;
+import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.BusTest;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 
@@ -19,6 +20,7 @@ public class ReachabilityRepositoryBusTest {
     private static Dependencies dependencies;
     private static TestConfig testConfig;
     private ReachabilityRepository repository;
+    private TransportData transportData;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
@@ -34,14 +36,18 @@ public class ReachabilityRepositoryBusTest {
 
     @Before
     public void beforeEachTestRuns() {
+        transportData = dependencies.get(TransportData.class);
         repository = dependencies.get(ReachabilityRepository.class);
     }
 
     @Category({BusTest.class})
     @Test
     public void shouldHaveRoutebasedReachability() {
-        String route_code = "GMS: 11A:I:";
-        assertTrue(repository.reachable(ALTRINCHAM_INTERCHANGE+route_code, STOCKPORT_BUSSTATION));
+        String routeCode = "GMS: 11A:I:";
+        assertTrue(repository.stationReachable(ALTRINCHAM_INTERCHANGE+routeCode, transportData.getStation(STOCKPORT_BUSSTATION).get()));
+        assertTrue(repository.stationReachable(STOCKPORT_BUSSTATION+routeCode, transportData.getStation(ALTRINCHAM_INTERCHANGE).get()));
+       //assertFalse(repository.reachable(BusStations.SHUDEHILL_INTERCHANGE +routeCode, ALTRINCHAM_INTERCHANGE));
+
     }
 
 }

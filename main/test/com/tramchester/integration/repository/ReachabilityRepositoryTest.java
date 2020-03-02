@@ -39,40 +39,43 @@ public class ReachabilityRepositoryTest {
     public void shouldCreateReachabilityMatrix() {
 
         // wrong direction
-        assertFalse(repo.reachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.BURY_TO_ALTY,
-                Stations.TraffordBar.getId()));
+        assertFalse(repo.stationReachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.BURY_TO_ALTY,
+                Stations.TraffordBar));
         // right direction
-        assertTrue(repo.reachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
-                Stations.TraffordBar.getId()));
+        assertTrue(repo.stationReachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
+                Stations.TraffordBar));
         // wrong direction
-        assertFalse(repo.reachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.BURY_TO_ALTY,
-                Stations.ManAirport.getId()));
+        assertFalse(repo.stationReachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.BURY_TO_ALTY,
+                Stations.ManAirport));
         // right direction with interchange
-        assertTrue(repo.reachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
-                Stations.ManAirport.getId()));
+        assertTrue(repo.stationReachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
+                Stations.ManAirport));
         // self reachable
-        assertTrue(repo.reachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
-                Stations.NavigationRoad.getId()));
+        assertTrue(repo.stationReachable(Stations.NavigationRoad.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
+                Stations.NavigationRoad));
 
         // right direction
-        assertTrue(repo.reachable(Stations.RochdaleRail.getId() + RouteCodesForTesting.ROCH_TO_DIDS, Stations.Monsall.getId()));
+        assertTrue(repo.stationReachable(Stations.RochdaleRail.getId() + RouteCodesForTesting.ROCH_TO_DIDS,
+                Stations.Monsall));
         // wrong direction
-        assertFalse(repo.reachable(Stations.RochdaleRail.getId() + RouteCodesForTesting.DIDS_TO_ROCH, Stations.Monsall.getId()));
+        assertFalse(repo.stationReachable(Stations.RochdaleRail.getId() + RouteCodesForTesting.DIDS_TO_ROCH,
+                Stations.Monsall));
         // towards victoria, so find an interchange
-        assertTrue(repo.reachable(Stations.Monsall.getId() + RouteCodesForTesting.ROCH_TO_DIDS, Stations.RochdaleRail.getId()));
+        assertTrue(repo.stationReachable(Stations.Monsall.getId() + RouteCodesForTesting.ROCH_TO_DIDS,
+                Stations.RochdaleRail));
 
     }
 
     @Test
     public void shouldRepoIssueAltyToDeangates() {
-        assertTrue(repo.reachable(Stations.Altrincham.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
-                Stations.Deansgate.getId()));
-        assertTrue(repo.reachable(Stations.Altrincham.getId()+ RouteCodesForTesting.ALTY_TO_PICC,
-                Stations.Deansgate.getId()));
-        assertTrue(repo.reachable(Stations.StPetersSquare.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
-                Stations.Deansgate.getId()));
-        assertTrue(repo.reachable(Stations.StPetersSquare.getId()+ RouteCodesForTesting.ALTY_TO_PICC,
-                Stations.Deansgate.getId()));
+        assertTrue(repo.stationReachable(Stations.Altrincham.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
+                Stations.Deansgate));
+        assertTrue(repo.stationReachable(Stations.Altrincham.getId()+ RouteCodesForTesting.ALTY_TO_PICC,
+                Stations.Deansgate));
+        assertTrue(repo.stationReachable(Stations.StPetersSquare.getId()+ RouteCodesForTesting.ALTY_TO_BURY,
+                Stations.Deansgate));
+        assertTrue(repo.stationReachable(Stations.StPetersSquare.getId()+ RouteCodesForTesting.ALTY_TO_PICC,
+                Stations.Deansgate));
     }
 
 }
