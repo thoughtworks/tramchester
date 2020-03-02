@@ -1,18 +1,24 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.Dependencies;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.integration.IntegrationTramTestConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -20,6 +26,8 @@ import static java.util.Arrays.asList;
 
 public abstract class TestConfig extends AppConfiguration {
 
+    private static Dependencies tramIntegrationDependencies = null;
+    private static Dependencies busIntegrationDependencies = null;
 
     public static AppConfiguration GET() {
         return new TestConfig() {
@@ -162,7 +170,6 @@ public abstract class TestConfig extends AppConfiguration {
         return false;
     }
 
-
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
 
@@ -172,7 +179,7 @@ public abstract class TestConfig extends AppConfiguration {
         return getNextDate(dayOfWeek, date);
     }
 
-    public static LocalDate getNextDate(DayOfWeek dayOfWeek, LocalDate date) {
+    private static LocalDate getNextDate(DayOfWeek dayOfWeek, LocalDate date) {
         while (date.getDayOfWeek()!= dayOfWeek) {
             date = date.plusDays(1);
         }
@@ -203,6 +210,40 @@ public abstract class TestConfig extends AppConfiguration {
 
     public static Route getTestRoute() {
         return new Route("RouteId", "routeCode", "routeName", "MET", TransportMode.Tram);
+    }
+
+    public static Iterable<Dependencies> getDependencies() throws IOException {
+        if (TestConfig.isCircleci()) {
+            return Collections.singletonList(getTramDependencies());
+        }
+        return Arrays.asList(getTramDependencies(), getBusDependencies());
+    }
+
+    private static Dependencies getBusDependencies() throws IOException {
+        if (busIntegrationDependencies==null) {
+            busIntegrationDependencies = new Dependencies();
+            busIntegrationDependencies.initialise(new IntegrationBusTestConfig());
+        }
+        return busIntegrationDependencies;
+    }
+
+    private static Dependencies getTramDependencies() throws IOException {
+        if (tramIntegrationDependencies==null) {
+            tramIntegrationDependencies = new Dependencies();
+            tramIntegrationDependencies.initialise(new IntegrationTramTestConfig());
+        }
+        return tramIntegrationDependencies;
+    }
+
+    public static void closeDependencies() {
+        if (tramIntegrationDependencies!=null) {
+            tramIntegrationDependencies.close();
+            tramIntegrationDependencies = null;
+        }
+        if (busIntegrationDependencies!=null) {
+            busIntegrationDependencies.close();
+            busIntegrationDependencies = null;
+        }
     }
 
 }

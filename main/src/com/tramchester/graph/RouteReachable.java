@@ -3,7 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.input.TramInterchanges;
+import com.tramchester.repository.InterchangeRepository;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
@@ -24,19 +24,22 @@ import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
-public class TramRouteReachable {
-    private static final Logger logger = LoggerFactory.getLogger(TramRouteReachable.class);
+public class RouteReachable {
+    private static final Logger logger = LoggerFactory.getLogger(RouteReachable.class);
 
     private final GraphDatabaseService graphDatabaseService;
     private final NodeIdQuery stationIndexQuery;
+    private final InterchangeRepository interchangeRepository;
 
-    public TramRouteReachable(GraphDatabaseService graphDatabaseService, NodeIdQuery stationIndexQuery) {
+    public RouteReachable(GraphDatabaseService graphDatabaseService, NodeIdQuery stationIndexQuery,
+                          InterchangeRepository interchangeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationIndexQuery = stationIndexQuery;
+        this.interchangeRepository = interchangeRepository;
     }
 
     public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, String routeId) {
-        Evaluator evaluator = new MatchOrInterchangeEvaluator(endStationId, routeId);
+        Evaluator evaluator = new MatchOrInterchangeEvaluator(endStationId, routeId, interchangeRepository);
         return evaluatePaths(startStationId, evaluator);
     }
 
@@ -127,17 +130,16 @@ public class TramRouteReachable {
     private static class MatchOrInterchangeEvaluator implements Evaluator {
         private final String endStationId;
         private final String routeId;
+        private final InterchangeRepository interchangeRepository;
 
-        public MatchOrInterchangeEvaluator(String endStationId, String routeId) {
+        public MatchOrInterchangeEvaluator(String endStationId, String routeId, InterchangeRepository interchangeRepository) {
             this.endStationId = endStationId;
             this.routeId = routeId;
+            this.interchangeRepository = interchangeRepository;
         }
 
         @Override
         public Evaluation evaluate(Path path) {
-//            if (path.length()==0) {
-//                return Evaluation.INCLUDE_AND_CONTINUE;
-//            }
 
             Node queryNode = path.endNode();
 
@@ -146,7 +148,7 @@ public class TramRouteReachable {
                 if (endStationId.equals(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE; // finished, at dest
                 }
-                if (TramInterchanges.has(currentStationId)) {
+                if (interchangeRepository.isInterchange(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE; // finished, at interchange
                 }
             }

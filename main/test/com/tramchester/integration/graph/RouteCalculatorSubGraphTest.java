@@ -130,10 +130,14 @@ public class RouteCalculatorSubGraphTest {
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
-        @Override
-        public String getGraphName() {
-            return "int_test_sub_tramchester.db";
+        public SubgraphConfig() {
+            super("subgraph_tramchester.db");
         }
+
+//        @Override
+//        public String getGraphName() {
+//            return "int_test_sub_tramchester.db";
+//        }
 
         @Override
         public boolean getRebuildGraph() {

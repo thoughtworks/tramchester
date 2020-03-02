@@ -12,10 +12,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class IntegrationBusTestConfig extends TestConfig {
-    private final String dbName;
+    private final Path dbName;
+
+    public IntegrationBusTestConfig() {
+        this("bus_tramchester.db");
+    }
 
     public IntegrationBusTestConfig(String dbName) {
-        this.dbName = dbName;
+        this.dbName = Path.of("databases", "integrationBusTest", dbName);
     }
 
     @Override
@@ -41,12 +45,12 @@ public class IntegrationBusTestConfig extends TestConfig {
 
     @Override
     public boolean getRebuildGraph() {
-        return !Files.exists(Paths.get(dbName));
+        return !Files.exists(dbName);
     }
 
     @Override
     public String getGraphName() {
-        return dbName;
+        return dbName.toAbsolutePath().toString();
     }
 
     @Override

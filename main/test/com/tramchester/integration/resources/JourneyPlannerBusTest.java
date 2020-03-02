@@ -38,7 +38,7 @@ public class JourneyPlannerBusTest {
 
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class,
-            new IntegrationBusTestConfig("int_test_bus_tramchester.db"));
+            new IntegrationBusTestConfig());
 
     private ObjectMapper mapper = new ObjectMapper();
     private LocalDate nextTuesday;
@@ -105,15 +105,12 @@ public class JourneyPlannerBusTest {
         assertFalse(found.isEmpty());
     }
 
-
-
     @Category({BusTest.class})
     @Test
     public void shouldPlanSimpleTramJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, Stations.StPetersSquare.getId(), queryTime,
                 new TramServiceDate(nextTuesday), false);
-
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         assertFalse(found.isEmpty());
@@ -148,7 +145,6 @@ public class JourneyPlannerBusTest {
         });
         return found;
     }
-
 
     private JourneyPlanRepresentation getJourneyPlan(String startId, String endId, TramTime queryTime,
                                                        TramServiceDate queryDate, boolean arriveBy) {

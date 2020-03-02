@@ -5,7 +5,7 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.TramRouteReachable;
+import com.tramchester.graph.RouteReachable;
 import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationAdjacenyRepository;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,9 +24,9 @@ public class TramPositionInference {
 
     private final LiveDataSource liveDataSource;
     private final StationAdjacenyRepository adjacenyRepository;
-    private final TramRouteReachable routeReachable;
+    private final RouteReachable routeReachable;
 
-    public TramPositionInference(LiveDataSource liveDataSource, StationAdjacenyRepository adjacenyRepository, TramRouteReachable routeReachable) {
+    public TramPositionInference(LiveDataSource liveDataSource, StationAdjacenyRepository adjacenyRepository, RouteReachable routeReachable) {
         this.liveDataSource = liveDataSource;
         this.adjacenyRepository = adjacenyRepository;
         this.routeReachable = routeReachable;

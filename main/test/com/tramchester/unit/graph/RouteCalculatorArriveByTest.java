@@ -8,7 +8,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.RouteCalculatorArriveBy;
-import com.tramchester.graph.TramRouteReachable;
+import com.tramchester.graph.RouteReachable;
 import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -24,13 +24,13 @@ public class RouteCalculatorArriveByTest extends EasyMockSupport {
 
     private RouteCalculatorArriveBy routeCalculatorArriveBy;
     private RouteCalculator routeCalculator;
-    private TramRouteReachable routeReachable;
+    private RouteReachable routeReachable;
     private int costBetweenStartDest;
     private TramchesterConfig config;
 
     @Before
     public void onceBeforeEachTestRuns() {
-        routeReachable = createStrictMock(TramRouteReachable.class);
+        routeReachable = createStrictMock(RouteReachable.class);
         routeCalculator = createStrictMock(RouteCalculator.class);
         config = createStrictMock(TramchesterConfig.class);
         routeCalculatorArriveBy = new RouteCalculatorArriveBy(routeReachable, routeCalculator, config);

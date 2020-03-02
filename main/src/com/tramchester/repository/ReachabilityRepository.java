@@ -3,7 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
-import com.tramchester.graph.TramRouteReachable;
+import com.tramchester.graph.RouteReachable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,16 +16,16 @@ public class ReachabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
     private final InterchangeRepository interchangeRepository;
-    private final TramRouteReachable tramRouteReachable;
+    private final RouteReachable routeReachable;
     private final TransportData transportData;
 
     private List<String> tramStationIndexing; // a list as we need ordering and IndexOf
     private Map<String, boolean[]> matrix; // stationId -> boolean[]
 
-    public ReachabilityRepository(InterchangeRepository interchangeRepository, TramRouteReachable tramRouteReachable,
+    public ReachabilityRepository(InterchangeRepository interchangeRepository, RouteReachable routeReachable,
                                   TransportData transportData) {
         this.interchangeRepository = interchangeRepository;
-        this.tramRouteReachable = tramRouteReachable;
+        this.routeReachable = routeReachable;
         this.transportData = transportData;
         tramStationIndexing = new ArrayList<>();
         matrix = new HashMap<>();
@@ -49,7 +49,7 @@ public class ReachabilityRepository {
                 if (destinationStationId.equals(startStationId)) {
                     result = true;
                 } else {
-                    result = tramRouteReachable.getRouteReachableWithInterchange(startStationId,
+                    result = routeReachable.getRouteReachableWithInterchange(startStationId,
                             destinationStationId, routeStation.getRouteId());
                 }
                 flags[tramStationIndexing.indexOf(destinationStationId)] = result;

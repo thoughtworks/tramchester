@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 public class StationDepartureInfo implements HasPlatformMessage {
 
+    // TOOD Should Add Both
     public enum Direction {
         Incoming, Outgoing, Unknown
     }

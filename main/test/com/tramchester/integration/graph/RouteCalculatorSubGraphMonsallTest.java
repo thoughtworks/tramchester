@@ -88,9 +88,9 @@ public class RouteCalculatorSubGraphMonsallTest {
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
-        @Override
-        public String getGraphName() {
-            return "int_test_sub_monsall_tramchester.db";
+
+        public SubgraphConfig() {
+            super("sub_monsall_tramchester.db");
         }
 
         @Override

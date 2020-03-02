@@ -75,6 +75,7 @@ public class Dependencies {
         initialise(configuration, transportData);
     }
 
+    // init dependencies but possibly with alternative source of transport data
     public void initialise(TramchesterConfig configuration, TransportDataSource transportData) throws IOException {
         logger.info("Creating dependencies");
 
@@ -124,7 +125,7 @@ public class Dependencies {
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(MyLocationFactory.class);
-        picoContainer.addComponent(TramRouteReachable.class);
+        picoContainer.addComponent(RouteReachable.class);
         picoContainer.addComponent(ReachabilityRepository.class);
         picoContainer.addComponent(NodeIdLabelMap.class);
         picoContainer.addComponent(GraphQuery.class);
@@ -200,9 +201,9 @@ public class Dependencies {
             populateNodeLabelMap(graphDatabaseService);
         }
 
-        if (configuration.getCreateLocality()) {
-            //picoContainer.getComponent(StationLocalityService.class).populateLocality();
-        }
+//        if (configuration.getCreateLocality()) {
+//            picoContainer.getComponent(StationLocalityService.class).populateLocality();
+//        }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
 
     }
@@ -247,5 +248,9 @@ public class Dependencies {
         } catch (Exception exceptionInClose) {
             logger.error("Exception during close down", exceptionInClose);
         }
+    }
+
+    public TramchesterConfig getConfig() {
+        return get(TramchesterConfig.class);
     }
 }

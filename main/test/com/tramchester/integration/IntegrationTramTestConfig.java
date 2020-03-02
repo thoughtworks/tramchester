@@ -12,19 +12,19 @@ import java.util.Set;
 
 public class IntegrationTramTestConfig extends TestConfig {
 
-    private final String dbName;
+    private final Path dbName;
 
     public IntegrationTramTestConfig() {
        this("int_test_tramchester.db");
     }
 
     public IntegrationTramTestConfig(String dbName) {
-        this.dbName = dbName;
+        this.dbName = Path.of("databases", "integrationTramTest", dbName);
     }
 
     @Override
-    public String getGraphName() {
-        return dbName;
+    final public String getGraphName() {
+        return dbName.toAbsolutePath().toString();
     }
 
     @Override

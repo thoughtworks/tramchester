@@ -139,9 +139,8 @@ public class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
-        @Override
-        public String getGraphName() {
-            return "int_test_sub_mediacity_tramchester.db";
+        public SubgraphConfig() {
+            super("sub_mediacity_tramchester.db");
         }
 
         @Override
