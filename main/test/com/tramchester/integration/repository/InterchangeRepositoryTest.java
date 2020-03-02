@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 public class InterchangeRepositoryTest {
     private static Dependencies dependencies;
     private static IntegrationBusTestConfig config;
-    private TransportDataSource dataSource;
     private InterchangeRepository repository;
 
     @BeforeClass
@@ -41,7 +40,6 @@ public class InterchangeRepositoryTest {
 
     @Before
     public void onceBeforeEachTestRuns() {
-        dataSource = dependencies.get(TransportDataFromFiles.class);
         repository = dependencies.get(InterchangeRepository.class);
     }
 

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class StationDepartureInfo implements HasPlatformMessage {
 
     public enum Direction {
-        Incoming, Outgoing
+        Incoming, Outgoing, Unknown
     }
 
     private String lineName;

@@ -19,6 +19,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static com.tramchester.domain.liveUpdates.StationDepartureInfo.Direction.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
@@ -62,10 +63,13 @@ public class LiveDataParser {
         String dateString = (String) jsonObject.get("LastUpdated");
         String rawDirection = (String)jsonObject.get("Direction");
 
-        StationDepartureInfo.Direction direction = StationDepartureInfo.Direction.valueOf(rawDirection);
+        StationDepartureInfo.Direction direction = getDirection(rawDirection);
+        if (direction==Unknown) {
+            logger.warn("Unable to map direction code name "+ rawDirection + " for JSON " +jsonObject.toString());
+        }
         Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
         if (maybeStation.isEmpty()) {
-            logger.warn("Unable to map atco code name "+ atcoCode);
+            logger.warn("Unable to map atco code name "+ atcoCode + " for JSON " +jsonObject.toString());
             return Optional.empty();
         }
 
@@ -77,6 +81,16 @@ public class LiveDataParser {
 
         logger.debug("Parsed live data to " + departureInfo);
         return Optional.of(departureInfo);
+    }
+
+    private StationDepartureInfo.Direction getDirection(String rawDirection) {
+        try {
+            return StationDepartureInfo.Direction.valueOf(rawDirection);
+        }
+        catch (IllegalArgumentException unexpectedValueInTheApi) {
+            logger.warn("Unable to parse " + rawDirection);
+        }
+        return Unknown;
     }
 
     private LocalDateTime getStationUpdateTime(String dateString) {
