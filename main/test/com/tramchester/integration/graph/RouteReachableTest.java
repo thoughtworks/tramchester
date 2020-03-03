@@ -17,6 +17,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static com.tramchester.testSupport.BusStations.*;
 import static junit.framework.TestCase.*;
@@ -77,7 +78,7 @@ public class RouteReachableTest {
     }
 
     @Test
-    public void shouldHaveAdjacentReachableCorrect() {
+    public void shouldHaveAdjacentRoutesCorrectly() {
 
         assertEquals(2,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
         assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad.getId()).size());
@@ -111,6 +112,27 @@ public class RouteReachableTest {
         assertEquals(39, reachable.getApproxCostBetween(STOCKPORT_BUSSTATION, ALTRINCHAM_INTERCHANGE));
         assertEquals(59, reachable.getApproxCostBetween(SHUDEHILL_INTERCHANGE, ALTRINCHAM_INTERCHANGE));
         assertEquals(56, reachable.getApproxCostBetween(ALTRINCHAM_INTERCHANGE, SHUDEHILL_INTERCHANGE));
+        assertEquals(44, reachable.getApproxCostBetween(SHUDEHILL_INTERCHANGE, STOCKPORT_BUSSTATION));
+        assertEquals(34, reachable.getApproxCostBetween(STOCKPORT_BUSSTATION, SHUDEHILL_INTERCHANGE));
+    }
+
+    @Category({BusTest.class})
+    @Test
+    public void shouldHaveRoutesBetweenBusStations() {
+        assumeTrue(config.getBus());
+        assertTrue(reachable.getRouteReachableWithInterchange(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUSSTATION, RouteCodesForTesting.ALTY_TO_STOCKPORT));
+        assertTrue(reachable.getRouteReachableWithInterchange(ALTRINCHAM_INTERCHANGE, SHUDEHILL_INTERCHANGE, RouteCodesForTesting.ALTY_TO_STOCKPORT));
+    }
+
+    @Category({BusTest.class})
+    @Test
+    public void shouldListRoutesBetweenBusStations() {
+        assumeTrue(config.getBus());
+        Set<String> routesSeenAltToStockport = reachable.getRoutesSeenBetween(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUSSTATION);
+        assertEquals(20, routesSeenAltToStockport.size());
+
+        Set<String> routesSeenStockToShudehill = reachable.getRoutesSeenBetween(STOCKPORT_BUSSTATION, SHUDEHILL_INTERCHANGE);
+        assertEquals(8, routesSeenStockToShudehill.size());
     }
 
     private Station getReal(Station testStation) {

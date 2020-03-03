@@ -16,9 +16,7 @@ import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
@@ -38,11 +36,13 @@ public class RouteReachable {
         this.interchangeRepository = interchangeRepository;
     }
 
+    // supports building tram station reachability matrix
     public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, String routeId) {
         Evaluator evaluator = new MatchOrInterchangeEvaluator(endStationId, routeId, interchangeRepository);
-        return evaluatePaths(startStationId, evaluator);
+        return hasAnyPaths(startStationId, evaluator);
     }
 
+    // supports position inference on live data
     public List<Route> getRoutesFromStartToNeighbour(Station startStation, String endStationId) {
         List<Route> results = new ArrayList<>();
         Set<Route> firstRoutes = startStation.getRoutes();
@@ -62,7 +62,24 @@ public class RouteReachable {
         return results;
     }
 
-    private boolean evaluatePaths(String startStationId, Evaluator evaluator) {
+    public Set<String> getRoutesSeenBetween(String startStationId, String endStationId) {
+        Set<String> results = new HashSet<>();
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            Evaluator eval = new MatchOrInterchangeEvaluator(endStationId, interchangeRepository);
+            ResourceIterator<Path> paths = generatePaths(startStationId, eval);
+            paths.forEachRemaining(path -> path.nodes().forEach(node -> {
+                if (node.hasLabel(ROUTE_STATION)) {
+                    String routeId = node.getProperty(ROUTE_ID).toString();
+                    results.add(routeId);
+                }
+            }));
+            tx.success();
+        }
+
+        return results;
+    }
+
+    private boolean hasAnyPaths(String startStationId, Evaluator evaluator) {
         long number = 0;
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node found = stationIndexQuery.getStationNode(startStationId);
@@ -77,24 +94,25 @@ public class RouteReachable {
         return number>0;
     }
 
-    public int getApproxCostBetween(String startId, Node endOfWalk) {
-        Node startNode = stationIndexQuery.getStationNode(startId);
-        return getApproxCostBetween(startNode, endOfWalk);
+    public int getApproxCostBetween(String startStationId, Node endNode) {
+        Node startNode = stationIndexQuery.getStationNode(startStationId);
+        return getApproxCostBetween(startNode, endNode);
     }
 
-    public int getApproxCostBetween(Node origin, String destinationId) {
-        Node endNode = stationIndexQuery.getStationNode(destinationId);
-        return getApproxCostBetween(origin, endNode);
+    public int getApproxCostBetween(Node startNode, String endStationId) {
+        Node endNode = stationIndexQuery.getStationNode(endStationId);
+        return getApproxCostBetween(startNode, endNode);
     }
 
-    public int getApproxCostBetween(String startId, String desinationId) {
-        Node startNode = stationIndexQuery.getStationNode(startId);
-        Node endNode = stationIndexQuery.getStationNode(desinationId);
+    public int getApproxCostBetween(String startStationId, String endStationId) {
+        Node startNode = stationIndexQuery.getStationNode(startStationId);
+        Node endNode = stationIndexQuery.getStationNode(endStationId);
         return getApproxCostBetween(startNode, endNode);
     }
 
     private int getApproxCostBetween(Node startNode, Node endNode) {
 
+        // follow the ON_ROUTE relationships to quickly find a route without any timing information or check
         PathExpander<Object> forTypesAndDirections = PathExpanders.forTypesAndDirections(
                 ON_ROUTE, Direction.OUTGOING,
                 ENTER_PLATFORM, Direction.OUTGOING,
@@ -138,6 +156,12 @@ public class RouteReachable {
             this.interchangeRepository = interchangeRepository;
         }
 
+        public MatchOrInterchangeEvaluator(String endStationId, InterchangeRepository interchangeRepository) {
+            this.endStationId = endStationId;
+            this.routeId = "";
+            this.interchangeRepository = interchangeRepository;
+        }
+
         @Override
         public Evaluation evaluate(Path path) {
 
@@ -155,9 +179,12 @@ public class RouteReachable {
 
             if (queryNode.hasRelationship(Direction.OUTGOING, ON_ROUTE)) {
                 Relationship routeRelat = queryNode.getSingleRelationship(ON_ROUTE, Direction.OUTGOING);
+                if (routeId.isEmpty()) {
+                    return Evaluation.EXCLUDE_AND_CONTINUE;
+                }
                 String id = routeRelat.getProperty(ROUTE_ID).toString();
                 if (routeId.equals(id)) {
-                    return Evaluation.EXCLUDE_AND_CONTINUE; // only follow if on same route
+                    return Evaluation.EXCLUDE_AND_CONTINUE; // if have routeId then only follow if on same route
                 } else {
                     return Evaluation.EXCLUDE_AND_PRUNE;
                 }

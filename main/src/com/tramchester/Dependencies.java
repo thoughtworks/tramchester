@@ -126,7 +126,7 @@ public class Dependencies {
         picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(MyLocationFactory.class);
         picoContainer.addComponent(RouteReachable.class);
-        picoContainer.addComponent(ReachabilityRepository.class);
+        picoContainer.addComponent(TramReachabilityRepository.class);
         picoContainer.addComponent(NodeIdLabelMap.class);
         picoContainer.addComponent(GraphQuery.class);
         picoContainer.addComponent(StationAdjacenyRepository.class);
@@ -146,8 +146,8 @@ public class Dependencies {
 
         createGraph(configuration);
 
-        ReachabilityRepository reachabilityRepository = get(ReachabilityRepository.class);
-        reachabilityRepository.buildRepository();
+        TramReachabilityRepository tramReachabilityRepository = get(TramReachabilityRepository.class);
+        tramReachabilityRepository.buildRepository();
     }
 
     private void cleanseData() throws IOException {

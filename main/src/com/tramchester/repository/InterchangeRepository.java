@@ -67,18 +67,17 @@ public class InterchangeRepository {
         return false;
     }
 
-    // remove, too approximate to be useful
-    @Deprecated
-    public Set<Route> findRoutesViaInterchangeFor(String targetBusStationId) {
-        Set<Route> results = new HashSet<>();
-        Station target = dataSource.getStation(targetBusStationId);
-
-        Set<Route> routesAtTarget = target.getRoutes();
-        for (Station interchange:busInterchanges.values()) {
-            Set<Route> overlaps = interchange.getRoutes().stream().filter(routesAtTarget::contains).collect(Collectors.toSet());
-            results.addAll(overlaps);
-        }
-        return results;
-
-    }
+//    // remove, too approximate to be useful
+//    @Deprecated
+//    public Set<Route> findRoutesViaInterchangeFor(String targetBusStationId) {
+//        Set<Route> results = new HashSet<>();
+//        Station target = dataSource.getStation(targetBusStationId);
+//
+//        Set<Route> routesAtTarget = target.getRoutes();
+//        for (Station interchange:busInterchanges.values()) {
+//            Set<Route> overlaps = interchange.getRoutes().stream().filter(routesAtTarget::contains).collect(Collectors.toSet());
+//            results.addAll(overlaps);
+//        }
+//        return results;
+//    }
 }

@@ -3,7 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.ReachabilityRepository;
+import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -24,7 +24,8 @@ public class ServiceHeuristics {
     private final List<Station> endTramStations;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
-    private final ReachabilityRepository reachabilityRepository;
+    private final TramReachabilityRepository tramReachabilityRepository;
+    private final int maxPathLength;
 
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
@@ -32,10 +33,10 @@ public class ServiceHeuristics {
     private final int maxWaitMinutes;
 
     public ServiceHeuristics(CachedNodeOperations nodeOperations,
-                             ReachabilityRepository reachabilityRepository, TramchesterConfig config, TramTime queryTime,
-                             RunningServices runningServices, List<Station> endStations, ServiceReasons reasons) {
+                             TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config, TramTime queryTime,
+                             RunningServices runningServices, List<Station> endStations, ServiceReasons reasons, int maxPathLength) {
         this.nodeOperations = nodeOperations;
-        this.reachabilityRepository = reachabilityRepository;
+        this.tramReachabilityRepository = tramReachabilityRepository;
 
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
@@ -45,6 +46,7 @@ public class ServiceHeuristics {
         this.reasons = reasons;
 
         endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toList());
+        this.maxPathLength = maxPathLength;
     }
     
     public ServiceReason checkServiceDate(Node node, Path path) {
@@ -125,21 +127,16 @@ public class ServiceHeuristics {
 
         String routeStationId = endNode.getProperty(ID).toString();
 
-        // none of the end stations are tram stations, so can't reach them from a tram station?
-        List<Station> stationsToCheck;
         if (onTram) {
-            stationsToCheck = endTramStations;
-        } else {
-            stationsToCheck = endStations;
-        }
-
-        for(Station endStation : stationsToCheck) {
-            if (reachabilityRepository.stationReachable(routeStationId, endStation)) {
-                return valid(path);
+            for(Station endStation : endTramStations) {
+                if (tramReachabilityRepository.stationReachable(routeStationId, endStation)) {
+                    return valid(path);
+                }
             }
         }
 
-        return reasons.recordReason(ServiceReason.StationNotReachable(path));
+        // can't exclude unless we know for sure not reachable
+        return valid(path);
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final Path path) {
@@ -168,4 +165,7 @@ public class ServiceHeuristics {
         return queryTime;
     }
 
+    public int getMaxPathLength() {
+        return maxPathLength;
+    }
 }

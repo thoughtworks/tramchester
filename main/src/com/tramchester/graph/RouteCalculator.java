@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.ReachabilityRepository;
+import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -26,23 +26,26 @@ import static java.lang.String.format;
 public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
+    private static int BUSES_MAX_PATH_LENGTH = 1000;
+    private static int TRAMS_MAX_PATH_LENGTH = 400;
+
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
     private final CachedNodeOperations nodeOperations;
     private final TransportData transportData;
-    private final ReachabilityRepository reachabilityRepository;
+    private final TramReachabilityRepository tramReachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
     private final NodeIdQuery nodeIdQuery;
     private final GraphDatabaseService graphDatabaseService;
 
     public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
-                           TramchesterConfig config, ReachabilityRepository reachabilityRepository,
+                           TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
                            CreateQueryTimes createQueryTimes, NodeIdQuery nodeIdQuery, GraphDatabaseService graphDatabaseService) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.config = config;
-        this.reachabilityRepository = reachabilityRepository;
+        this.tramReachabilityRepository = tramReachabilityRepository;
         this.createQueryTimes = createQueryTimes;
         this.nodeIdQuery = nodeIdQuery;
         this.graphDatabaseService = graphDatabaseService;
@@ -92,9 +95,11 @@ public class RouteCalculator implements TramRouteCalculator {
 
         List<TramTime> queryTimes = createQueryTimes.generate(queryTime, walkAtStart);
 
+        int maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
+
         return queryTimes.stream().
-                map(time -> new ServiceHeuristics(nodeOperations, reachabilityRepository, config,
-                        time, runningServicesIds, destinations, serviceReasons)).
+                map(time -> new ServiceHeuristics(nodeOperations, tramReachabilityRepository, config,
+                        time, runningServicesIds, destinations, serviceReasons, maxPathLength)).
                 map(serviceHeuristics -> findShortestPath(startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
                 flatMap(Function.identity()).
                 map(path -> {

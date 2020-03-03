@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class ReachabilityRepository {
+public class TramReachabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
     private final InterchangeRepository interchangeRepository;
@@ -22,8 +22,8 @@ public class ReachabilityRepository {
     private List<String> tramStationIndexing; // a list as we need ordering and IndexOf
     private Map<String, boolean[]> matrix; // stationId -> boolean[]
 
-    public ReachabilityRepository(InterchangeRepository interchangeRepository, RouteReachable routeReachable,
-                                  TransportData transportData) {
+    public TramReachabilityRepository(InterchangeRepository interchangeRepository, RouteReachable routeReachable,
+                                      TransportData transportData) {
         this.interchangeRepository = interchangeRepository;
         this.routeReachable = routeReachable;
         this.transportData = transportData;
@@ -61,9 +61,7 @@ public class ReachabilityRepository {
 
     public boolean stationReachable(String routeStationId, Station destinationStation) {
         RouteStation routeStation =  transportData.getRouteStation(routeStationId);
-        if (routeStation.isTram() ^ destinationStation.isTram()) {
-            return false;
-        }
+
         if (routeStation.isTram() && destinationStation.isTram()) {
             // route station is a tram station
             int index = tramStationIndexing.indexOf(destinationStation.getId());
@@ -73,22 +71,22 @@ public class ReachabilityRepository {
             }
             return matrix.get(routeStationId)[index];
         }
-        return reachableForRouteCodeAndInterchange(routeStation, destinationStation.getId());
+        throw new RuntimeException("Call for trams only");
     }
 
-    private boolean reachableForRouteCodeAndInterchange(RouteStation routeStation, String destinationStationId) {
-        String routeStationRouteId = routeStation.getRouteId();
-
-        // desintation shares a route with current location
-        Station destinationStation = transportData.getStation(destinationStationId);
-        Set<String> destinationRoutes = destinationStation.getRoutes().stream().map(Route::getId).collect(Collectors.toSet());
-        if (destinationRoutes.contains(routeStationRouteId)) {
-            return true;
-        }
-
-        // TODO factor out routeVia as don't change during a query
-        Set<Route> routesVia = interchangeRepository.findRoutesViaInterchangeFor(destinationStationId);
-        return routesVia.contains(routeStation.getRoute());
-    }
+//    private boolean reachableForRouteCodeAndInterchange(RouteStation routeStation, String destinationStationId) {
+//        String routeStationRouteId = routeStation.getRouteId();
+//
+//        // quick win: desintation shares a route with current location
+//        Station destinationStation = transportData.getStation(destinationStationId);
+//        Set<String> destinationRoutes = destinationStation.getRoutes().stream().map(Route::getId).collect(Collectors.toSet());
+//        if (destinationRoutes.contains(routeStationRouteId)) {
+//            return true;
+//        }
+//
+//        // TODO factor out routeVia as don't change during a query
+//        Set<Route> routesVia = interchangeRepository.findRoutesViaInterchangeFor(destinationStationId);
+//        return routesVia.contains(routeStation.getRoute());
+//    }
 
 }

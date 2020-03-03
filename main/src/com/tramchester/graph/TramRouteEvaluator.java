@@ -20,7 +20,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
 
     // TODO TRAM or BUS?
-    private final int maxPathLength = 400; // path length limit, includes *all* edges
+//    private final int maxPathLength = 400; // path length limit, includes *all* edges
 
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
@@ -113,7 +113,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         reasons.record(journeyState);
 
         // no journey longer than N nodes
-        if (path.length()>maxPathLength) {
+        if (path.length()>serviceHeuristics.getMaxPathLength()) {
             logger.warn("Hit max path length");
             reasons.recordReason(ServiceReason.PathToLong(path));
             return Evaluation.EXCLUDE_AND_PRUNE;
