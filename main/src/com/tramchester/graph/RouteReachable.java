@@ -8,10 +8,7 @@ import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.BranchOrderingPolicies;
-import org.neo4j.graphdb.traversal.Evaluation;
-import org.neo4j.graphdb.traversal.Evaluator;
-import org.neo4j.graphdb.traversal.Traverser;
+import org.neo4j.graphdb.traversal.*;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,7 @@ public class RouteReachable {
 
     // supports building tram station reachability matrix
     public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, String routeId) {
-        Evaluator evaluator = new MatchOrInterchangeEvaluator(endStationId, routeId, interchangeRepository);
+        Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId(endStationId, routeId, interchangeRepository);
         return hasAnyPaths(startStationId, evaluator);
     }
 
@@ -62,15 +59,25 @@ public class RouteReachable {
         return results;
     }
 
-    public Set<String> getRoutesSeenBetween(String startStationId, String endStationId) {
-        Set<String> results = new HashSet<>();
+    public Map<String,String> getShortestRoutesBetween(String startStationId, String endStationId) {
+        HashMap<String, String> results = new HashMap<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            Evaluator eval = new MatchOrInterchangeEvaluator(endStationId, interchangeRepository);
-            ResourceIterator<Path> paths = generatePaths(startStationId, eval);
-            paths.forEachRemaining(path -> path.nodes().forEach(node -> {
-                if (node.hasLabel(ROUTE_STATION)) {
+            Node startNode = stationIndexQuery.getStationNode(startStationId);
+            Node endNode = stationIndexQuery.getStationNode(endStationId);
+
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(fullExpanderForRoutes(), COST);
+            Iterable<WeightedPath> paths = finder.findAllPaths(startNode, endNode);
+
+            paths.forEach(path -> path.relationships().forEach(relationship -> {
+//                if (relationship.isType(ON_ROUTE)) {
+//                    String routeId = relationship.getProperty(ROUTE_ID).toString();
+//                    results.add(routeId);
+//                }
+                if (relationship.isType(BOARD) || relationship.isType(INTERCHANGE_BOARD)) {
+                    Node node = relationship.getEndNode();
                     String routeId = node.getProperty(ROUTE_ID).toString();
-                    results.add(routeId);
+                    String stationId = node.getProperty(STATION_ID).toString();
+                    results.put(stationId, routeId);
                 }
             }));
             tx.success();
@@ -84,7 +91,7 @@ public class RouteReachable {
         try (Transaction tx = graphDatabaseService.beginTx()) {
             Node found = stationIndexQuery.getStationNode(startStationId);
             if (found!=null) {
-                number = generatePaths(startStationId, evaluator).stream().count();
+                number = generateNoChangesPaths(startStationId, evaluator).stream().count();
             } else {
                 // should only happen in testing when looking at subsets of the graph
                 logger.warn("Cannot find node for station id " + startStationId);
@@ -111,9 +118,16 @@ public class RouteReachable {
     }
 
     private int getApproxCostBetween(Node startNode, Node endNode) {
-
         // follow the ON_ROUTE relationships to quickly find a route without any timing information or check
-        PathExpander<Object> forTypesAndDirections = PathExpanders.forTypesAndDirections(
+        PathExpander<Object> forTypesAndDirections = fullExpanderForRoutes();
+        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
+        WeightedPath path = finder.findSinglePath(startNode, endNode);
+        double weight  = Math.floor(path.weight());
+        return (int) weight;
+    }
+
+    private PathExpander<Object> fullExpanderForRoutes() {
+        return PathExpanders.forTypesAndDirections(
                 ON_ROUTE, Direction.OUTGOING,
                 ENTER_PLATFORM, Direction.OUTGOING,
                 LEAVE_PLATFORM, Direction.OUTGOING,
@@ -125,14 +139,9 @@ public class RouteReachable {
                 WALKS_FROM, Direction.OUTGOING,
                 FINISH_WALK, Direction.OUTGOING
         );
-
-        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);
-        WeightedPath path = finder.findSinglePath(startNode, endNode);
-        double weight  = Math.floor(path.weight());
-        return (int) weight;
     }
 
-    private ResourceIterator<Path> generatePaths(String startStationId, Evaluator evaluator) {
+    private ResourceIterator<Path> generateNoChangesPaths(String startStationId, Evaluator evaluator) {
         Node startNode = stationIndexQuery.getStationNode(startStationId);
         Traverser traverser = new MonoDirectionalTraversalDescription().
                 relationships(ON_ROUTE, Direction.OUTGOING).
@@ -145,20 +154,14 @@ public class RouteReachable {
         return traverser.iterator();
     }
 
-    private static class MatchOrInterchangeEvaluator implements Evaluator {
+    private static class FindRouteNodesForDesintationAndRouteId implements Evaluator {
         private final String endStationId;
         private final String routeId;
         private final InterchangeRepository interchangeRepository;
 
-        public MatchOrInterchangeEvaluator(String endStationId, String routeId, InterchangeRepository interchangeRepository) {
+        public FindRouteNodesForDesintationAndRouteId(String endStationId, String routeId, InterchangeRepository interchangeRepository) {
             this.endStationId = endStationId;
             this.routeId = routeId;
-            this.interchangeRepository = interchangeRepository;
-        }
-
-        public MatchOrInterchangeEvaluator(String endStationId, InterchangeRepository interchangeRepository) {
-            this.endStationId = endStationId;
-            this.routeId = "";
             this.interchangeRepository = interchangeRepository;
         }
 
@@ -193,4 +196,6 @@ public class RouteReachable {
             return Evaluation.EXCLUDE_AND_CONTINUE;
         }
     }
+
+
 }

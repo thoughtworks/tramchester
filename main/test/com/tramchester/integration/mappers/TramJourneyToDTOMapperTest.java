@@ -105,16 +105,15 @@ public class TramJourneyToDTOMapperTest {
 
     @Test
     public void shouldMapSimpleJourney() {
-        TramTime am7 = TramTime.of(7,0);
 
         VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, TestConfig.getTestRoute(),
-                am7, 42, 8);
+                TramTime.of(7,0), 42, 8);
 
         stages.add(altToCorn);
-        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am7), tramServiceDate);
+        JourneyDTO journeyDTO = mapper.createJourneyDTO(new Journey(stages, TramTime.of(7,0)), tramServiceDate);
 
-        assertEquals(1, journey.getStages().size());
-        StageDTO stage = journey.getStages().get(0);
+        assertEquals(1, journeyDTO.getStages().size());
+        StageDTO stage = journeyDTO.getStages().get(0);
         assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
         assertEquals(Stations.Cornbrook.getId(),stage.getLastStation().getId());
         assertTrue(stage.getDuration()>0);
@@ -123,6 +122,7 @@ public class TramJourneyToDTOMapperTest {
         assertTrue(stage.getExpectedArrivalTime().asLocalTime().isAfter(sevenAM));
         assertTrue(stage.getExpectedArrivalTime().asLocalTime().isBefore(eightAM));
         assertEquals(8, stage.getPassedStops());
+        assertEquals(TramTime.of(7,0), journeyDTO.getQueryTime());
     }
 
     @Test

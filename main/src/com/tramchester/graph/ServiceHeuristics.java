@@ -135,7 +135,7 @@ public class ServiceHeuristics {
             }
         }
 
-        // can't exclude unless we know for sure not reachable
+        // TODO can't exclude unless we know for sure not reachable, so include all for buses
         return valid(path);
     }
 

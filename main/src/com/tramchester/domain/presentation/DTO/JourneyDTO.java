@@ -77,9 +77,11 @@ public class JourneyDTO implements Comparable<JourneyDTO>, CallsAtPlatforms {
         // then number of stages
         if (compare==0) {
             // if arrival times match, put journeys with fewer stages first
-            if (this.stages.size()<other.stages.size()) {
+            int size = this.stages.size();
+            int otherSize = other.stages.size();
+            if (size < otherSize) {
                 compare = -1;
-            } else if (other.stages.size()>stages.size()) {
+            } else if (otherSize >stages.size()) {
                 compare = 1;
             }
         }
@@ -121,6 +123,7 @@ public class JourneyDTO implements Comparable<JourneyDTO>, CallsAtPlatforms {
                 ", dueTram='" + dueTram + '\'' +
                 ", isDirect=" + isDirect +
                 ", changeStations=" + changeStations +
+                ", queryTime=" + queryTime +
                 '}';
     }
 
@@ -130,7 +133,8 @@ public class JourneyDTO implements Comparable<JourneyDTO>, CallsAtPlatforms {
         return stages.stream().filter(StageDTO::getHasPlatform).map(StageDTO::getPlatform).collect(Collectors.toList());
     }
 
-    @JsonIgnore
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     public TramTime getQueryTime() {
         return queryTime;
     }

@@ -1,14 +1,12 @@
 package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -16,7 +14,7 @@ import static java.lang.String.format;
 public class InterchangeRepository {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
-    private static final int NUMBER_INTERCHANGES = 6;
+    private static final int NUMBER_AGENCIES = 5;
     private final TransportDataSource dataSource;
     private final TramchesterConfig config;
 
@@ -28,7 +26,7 @@ public class InterchangeRepository {
         this.config = config;
         if (config.getBus()) {
             // potentially expensive
-            busInterchanges = createBusInterchangeList(NUMBER_INTERCHANGES);
+            busInterchanges = createBusInterchangeList(NUMBER_AGENCIES);
             logger.info(format("Added %s bus interchanges", busInterchanges.size()));
         } else {
             busInterchanges = Collections.emptyMap();
@@ -42,8 +40,28 @@ public class InterchangeRepository {
 
         return allStations.stream().
                 filter(station -> !station.isTram()).
-                filter(station -> station.getAgencies().size()>=numberAgencies).
+                filter(station -> checkForInterchange(station.getName())).
                 collect(Collectors.toMap(Station::getId, (station -> station)));
+
+
+//        return allStations.stream().
+//                filter(station -> !station.isTram()).
+//                filter(station -> station.getAgencies().size()>=numberAgencies).
+//                collect(Collectors.toMap(Station::getId, (station -> station)));
+    }
+
+    private boolean checkForInterchange(String name) {
+        String lower = name.toLowerCase();
+
+        if (lower.contains("interchange")) {
+            return true;
+        }
+
+        if (lower.contains("bus station")) {
+            return true;
+        }
+
+        return false;
     }
 
     public Collection<Station> getBusInterchanges() {
@@ -67,17 +85,4 @@ public class InterchangeRepository {
         return false;
     }
 
-//    // remove, too approximate to be useful
-//    @Deprecated
-//    public Set<Route> findRoutesViaInterchangeFor(String targetBusStationId) {
-//        Set<Route> results = new HashSet<>();
-//        Station target = dataSource.getStation(targetBusStationId);
-//
-//        Set<Route> routesAtTarget = target.getRoutes();
-//        for (Station interchange:busInterchanges.values()) {
-//            Set<Route> overlaps = interchange.getRoutes().stream().filter(routesAtTarget::contains).collect(Collectors.toSet());
-//            results.addAll(overlaps);
-//        }
-//        return results;
-//    }
 }

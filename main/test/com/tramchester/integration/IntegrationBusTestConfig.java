@@ -34,7 +34,7 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean getCreateLocality() {
+    public boolean getChangeAtInterchangeOnly() {
         return false;
     }
 

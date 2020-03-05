@@ -287,7 +287,7 @@ public class TransportGraphBuilder {
         if ( routeStationNode == null) {
              routeStationNode = createRouteStationNode(station, route, routeStationId, service);
         }
-        // TODO Bus interchanges?
+
         boolean isInterchange = interchangeRepository.isInterchange(station);
         int enterPlatformCost = ENTER_PLATFORM_COST;
         int leavePlatformCost = LEAVE_PLATFORM_COST;

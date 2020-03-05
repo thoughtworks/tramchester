@@ -74,19 +74,4 @@ public class TramReachabilityRepository {
         throw new RuntimeException("Call for trams only");
     }
 
-//    private boolean reachableForRouteCodeAndInterchange(RouteStation routeStation, String destinationStationId) {
-//        String routeStationRouteId = routeStation.getRouteId();
-//
-//        // quick win: desintation shares a route with current location
-//        Station destinationStation = transportData.getStation(destinationStationId);
-//        Set<String> destinationRoutes = destinationStation.getRoutes().stream().map(Route::getId).collect(Collectors.toSet());
-//        if (destinationRoutes.contains(routeStationRouteId)) {
-//            return true;
-//        }
-//
-//        // TODO factor out routeVia as don't change during a query
-//        Set<Route> routesVia = interchangeRepository.findRoutesViaInterchangeFor(destinationStationId);
-//        return routesVia.contains(routeStation.getRoute());
-//    }
-
 }
