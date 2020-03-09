@@ -131,21 +131,21 @@ public class RouteReachableTest {
         assertTrue(reachable.getRouteReachableWithInterchange(ALTRINCHAM_INTERCHANGE, SHUDEHILL_INTERCHANGE, RouteCodesForTesting.ALTY_TO_STOCKPORT));
     }
 
-//    @Category({BusTest.class})
-//    @Test
-//    public void shouldListRoutesBetweenBusStations() {
-//        assumeTrue(config.getBus());
-//        Map<String, String> stepsSeen = reachable.getShortestRoutesBetween(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUSSTATION);
+    @Category({BusTest.class})
+    @Test
+    public void shouldListRoutesBetweenBusStations() {
+        assumeTrue(config.getBus());
+        Map<String, String> stepsSeen = reachable.getShortestRoutesBetween(ALTRINCHAM_INTERCHANGE, STOCKPORT_BUSSTATION);
+
+        Map<Station, Route> steps = stepsSeen.entrySet().stream().
+                collect(Collectors.toMap(entry -> transportData.getStation(entry.getKey()), entry -> transportData.getRoute(entry.getValue())));
+
+        assertEquals(4, stepsSeen.size());
+//        assertTrue(routesSeenAltToStockportId.containsValue(RouteCodesForTesting.ALTY_TO_STOCKPORT));
 //
-//        Map<Station, Route> steps = stepsSeen.entrySet().stream().
-//                collect(Collectors.toMap(entry -> transportData.getStation(entry.getKey()), entry -> transportData.getRoute(entry.getValue())));
-//
-//        assertEquals(2, stepsSeen.size());
-////        assertTrue(routesSeenAltToStockportId.containsValue(RouteCodesForTesting.ALTY_TO_STOCKPORT));
-////
-////        Map<String, String> routesSeenStockToShudehill = reachable.getShortestRoutesBetween(STOCKPORT_BUSSTATION, SHUDEHILL_INTERCHANGE);
-////        assertEquals(8, routesSeenStockToShudehill.size());
-//    }
+//        Map<String, String> routesSeenStockToShudehill = reachable.getShortestRoutesBetween(STOCKPORT_BUSSTATION, SHUDEHILL_INTERCHANGE);
+//        assertEquals(8, routesSeenStockToShudehill.size());
+    }
 
     private Station getReal(Station testStation) {
         return stationRepository.getStation(testStation.getId());
