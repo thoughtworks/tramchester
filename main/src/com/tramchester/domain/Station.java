@@ -2,10 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.presentation.LatLong;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Station implements Location {
@@ -122,9 +119,17 @@ public class Station implements Location {
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", tram=" + tram +
-                //", platforms=" + platforms +
-                //", servesRoutes=" + servesRoutes +
+                ", platforms=" + asIds(platforms) +
+                ", servesRoutes=" + asIds(servesRoutes) +
                 '}';
+    }
+
+    private <T extends HasId> String asIds(Collection<T> platforms) {
+        StringBuilder ids = new StringBuilder();
+        ids.append("[");
+        platforms.forEach(platform -> ids.append(" '").append(platform.getId()).append("'"));
+        ids.append("]");
+        return ids.toString();
     }
 
     public void addRoute(Route route) {

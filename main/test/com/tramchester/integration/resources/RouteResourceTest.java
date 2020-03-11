@@ -41,7 +41,7 @@ public class RouteResourceTest {
         Response result = IntegrationClient.getResponse(testRule, "routes", Optional.empty(), 200);
         List<RouteDTO> routes = result.readEntity(new GenericType<>() {});
 
-        assertEquals(12, routes.size());
+        assertEquals(14, routes.size());
 
         routes.forEach(route -> assertFalse("Route no stations "+route.getRouteName(),route.getStations().isEmpty()));
 

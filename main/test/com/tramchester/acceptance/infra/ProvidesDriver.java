@@ -28,13 +28,20 @@ public abstract class ProvidesDriver {
         try {
             TakesScreenshot takesScreenshot = driver;
             byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
-            File target = new File(format("build/reports/tests/%s.png", testName.getMethodName()));
+            File target = new File(format("build/reports/tests/%s.png", safeFilename(testName)));
             FileOutputStream output = new FileOutputStream(target);
             output.write(bytes);
             output.close();
         } catch (IOException e) {
             // unable to take screenshot
         }
+    }
+
+    private String safeFilename(TestName testName) {
+        String result = testName.getMethodName().
+                replaceAll(":","_").
+                replaceAll(" ","");
+        return result;
     }
 
     protected abstract RemoteWebDriver getDriver();

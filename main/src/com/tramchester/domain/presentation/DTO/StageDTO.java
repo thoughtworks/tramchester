@@ -14,7 +14,7 @@ public class StageDTO {
     private LocationDTO actionStation;
 
     private boolean hasPlatform;
-    private PlatformDTO platform;
+    private DTO platform;
 
     private TramTime firstDepartureTime;
     private TramTime expectedArrivalTime;
@@ -30,7 +30,7 @@ public class StageDTO {
     private String action;
 
     public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
-                    PlatformDTO boardingPlatform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
+                    DTO boardingPlatform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, String displayClass, int passedStops,
                     String routeName, TravelAction action, String routeShortName) {
         this.firstStation = firstStation;
@@ -94,7 +94,7 @@ public class StageDTO {
         return displayClass;
     }
 
-    public PlatformDTO getPlatform() {
+    public DTO getPlatform() {
         return platform;
     }
 

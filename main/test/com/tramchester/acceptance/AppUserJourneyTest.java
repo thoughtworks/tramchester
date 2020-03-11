@@ -64,7 +64,7 @@ public class AppUserJourneyTest {
         return Collections.singletonList("firefox");
     }
 
-    @Parameterized.Parameters(name="{index}: browserName")
+    @Parameterized.Parameters(name="{index}: {0}")
     public static Iterable<? extends Object> data() {
         return getBrowserList();
     }
@@ -153,7 +153,9 @@ public class AppUserJourneyTest {
         AppPage appPage = prepare();
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         appPage.planAJourney();
+
         assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.searchEnabled());
 
         // check 'from' recents are set
         List<String> fromRecent = appPage.getRecentFromStops();

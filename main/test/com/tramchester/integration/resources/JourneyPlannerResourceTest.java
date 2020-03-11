@@ -98,7 +98,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertTrue(journeys.size() > 0);
         JourneyDTO journey = journeys.first();
         StageDTO firstStage = journey.getStages().get(0);
-        PlatformDTO platform = firstStage.getPlatform();
+        DTO platform = firstStage.getPlatform();
         if (arriveBy) {
             assertTrue(journey.getFirstDepartureTime().isBefore(queryTime));
         } else {
@@ -125,7 +125,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertTrue(journeys.size()>0);
         JourneyDTO journey = journeys.first();
         StageDTO firstStage = journey.getStages().get(0);
-        PlatformDTO platform = firstStage.getPlatform();
+        DTO platform = firstStage.getPlatform();
 
         // depends on up to date departure info and current query time
         StationDepartureInfoDTO departInfo = platform.getStationDepartureInfo();
@@ -158,14 +158,14 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyDTO journey = journeys.first();
 
         StageDTO firstStage = journey.getStages().get(0);
-        PlatformDTO platform1 = firstStage.getPlatform();
+        DTO platform1 = firstStage.getPlatform();
 
         assertEquals("1", platform1.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platform1.getName());
         assertEquals( Stations.Altrincham.getId()+"1", platform1.getId());
 
         StageDTO secondStage = journey.getStages().get(1);
-        PlatformDTO platform2 = secondStage.getPlatform();
+        DTO platform2 = secondStage.getPlatform();
 
         assertEquals("1", platform2.getPlatformNumber());
         // multiple possible places to change depending on timetable etc

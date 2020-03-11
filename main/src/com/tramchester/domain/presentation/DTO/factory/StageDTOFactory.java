@@ -5,7 +5,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.DTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.TransportStage;
@@ -34,13 +34,13 @@ public class StageDTOFactory {
                 source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
     }
 
-    private PlatformDTO createPlatform(Optional<Platform> maybe, TramTime queryTime, TramServiceDate tramServiceDate) {
+    private DTO createPlatform(Optional<Platform> maybe, TramTime queryTime, TramServiceDate tramServiceDate) {
         if (!maybe.isPresent()) {
             return null;
         }
 
         Platform platform = maybe.get();
-        PlatformDTO platformDTO = new PlatformDTO(platform);
+        DTO platformDTO = new DTO(platform);
         Optional<StationDepartureInfo> info = liveDataRepository.departuresFor(platform, tramServiceDate, queryTime);
         info.ifPresent(stationDepartureInfo -> platformDTO.setDepartureInfo(new StationDepartureInfoDTO(stationDepartureInfo)));
         return platformDTO;

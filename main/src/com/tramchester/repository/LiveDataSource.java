@@ -1,6 +1,6 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.HasPlatformId;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LiveDataSource {
-    Optional<StationDepartureInfo> departuresFor(HasPlatformId platform, TramServiceDate tramServiceDate, TramTime queryTime);
+    Optional<StationDepartureInfo> departuresFor(HasId platform, TramServiceDate tramServiceDate, TramTime queryTime);
     List<StationDepartureInfo> departuresFor(Station station, TramServiceDate tramServiceDate, TramTime queryTime);
     List<DueTram> dueTramsFor(Station station, TramServiceDate tramServiceDate, TramTime queryTime);
 }

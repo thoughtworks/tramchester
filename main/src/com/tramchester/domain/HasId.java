@@ -1,5 +1,5 @@
 package com.tramchester.domain;
 
-public interface HasPlatformId {
+public interface HasId {
     String getId();
 }

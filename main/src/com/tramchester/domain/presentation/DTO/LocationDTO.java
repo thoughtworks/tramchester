@@ -1,7 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.tramchester.domain.Location;
-import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.LinkedList;
@@ -13,7 +12,7 @@ public class LocationDTO {
     private String name;
     private LatLong latLong;
     private boolean tram;
-    private List<PlatformDTO> platforms;
+    private List<DTO> platforms;
 
     public LocationDTO() {
         // deserialisation
@@ -27,11 +26,11 @@ public class LocationDTO {
         this.area = source.getArea();
         platforms = new LinkedList<>();
         if (source.hasPlatforms()) {
-            source.getPlatforms().forEach(platform -> platforms.add(new PlatformDTO(platform)));
+            source.getPlatforms().forEach(platform -> platforms.add(new DTO(platform)));
         }
     }
 
-    public LocationDTO(Location source, List<PlatformDTO> platformDTOS) {
+    public LocationDTO(Location source, List<DTO> platformDTOS) {
         this.id = source.getId();
         this.name = source.getName();
         this.latLong = source.getLatLong();
@@ -79,7 +78,7 @@ public class LocationDTO {
         return id.hashCode();
     }
 
-    public List<PlatformDTO> getPlatforms() {
+    public List<DTO> getPlatforms() {
         return platforms;
     }
 

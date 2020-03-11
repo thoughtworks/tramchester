@@ -5,7 +5,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class Platform implements HasPlatformId {
+public class Platform implements HasId {
 
     private final String id;
     private final String name;

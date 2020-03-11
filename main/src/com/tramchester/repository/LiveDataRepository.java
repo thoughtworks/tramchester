@@ -1,6 +1,6 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.HasPlatformId;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
 
 public class LiveDataRepository implements LiveDataSource {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
@@ -116,7 +115,7 @@ public class LiveDataRepository implements LiveDataSource {
     }
 
     @Override
-    public Optional<StationDepartureInfo> departuresFor(HasPlatformId platform, TramServiceDate tramServiceDate, TramTime queryTime) {
+    public Optional<StationDepartureInfo> departuresFor(HasId platform, TramServiceDate tramServiceDate, TramTime queryTime) {
         if (!tramServiceDate.getDate().equals(lastRefresh.toLocalDate())) {
             logger.warn("No data for date, not querying for departure info " + tramServiceDate);
             return Optional.empty();
@@ -183,7 +182,7 @@ public class LiveDataRepository implements LiveDataSource {
         return total-withinCutof;
     }
 
-    private Optional<StationDepartureInfo> departuresFor(HasPlatformId platform) {
+    private Optional<StationDepartureInfo> departuresFor(HasId platform) {
         String platformId = platform.getId();
 
         if (!stationInformation.containsKey(platformId)) {

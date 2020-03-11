@@ -3,7 +3,7 @@ package com.tramchester.domain;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Route {
+public class Route implements HasId {
 
     private final String id;
     private final String code;

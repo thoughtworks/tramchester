@@ -64,7 +64,7 @@ public class RouteCalculatorSubGraphMonsallTest {
 
         // Can be direct or with a change depending on the timetable data
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5),
-                nextTuesday, 2);
+                nextTuesday, 1);
 
         // direct
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,10),

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CallsAtPlatforms;
-import com.tramchester.domain.HasPlatformId;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
@@ -129,7 +129,7 @@ public class JourneyDTO implements Comparable<JourneyDTO>, CallsAtPlatforms {
 
     @JsonIgnore
     @Override
-    public List<HasPlatformId> getCallingPlatformIds() {
+    public List<HasId> getCallingPlatformIds() {
         return stages.stream().filter(StageDTO::getHasPlatform).map(StageDTO::getPlatform).collect(Collectors.toList());
     }
 

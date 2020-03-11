@@ -1,17 +1,16 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.tramchester.domain.HasPlatformId;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 
-public class PlatformDTO implements HasPlatformId {
+public class DTO implements HasId {
 
     private String id;
     private String name;
     private String platformNumber;
     private StationDepartureInfoDTO stationDepartureInfo;
 
-    public PlatformDTO() {
+    public DTO() {
         // for deserialisation
     }
 
@@ -25,7 +24,7 @@ public class PlatformDTO implements HasPlatformId {
                 '}';
     }
 
-    public PlatformDTO(Platform original) {
+    public DTO(Platform original) {
         this.id = original.getId();
         this.name = original.getName();
         this.platformNumber = original.getPlatformNumber();
@@ -56,7 +55,7 @@ public class PlatformDTO implements HasPlatformId {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PlatformDTO that = (PlatformDTO) o;
+        DTO that = (DTO) o;
 
         return id.equals(that.id);
     }

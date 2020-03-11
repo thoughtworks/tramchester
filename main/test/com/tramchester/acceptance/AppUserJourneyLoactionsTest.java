@@ -59,7 +59,7 @@ public class AppUserJourneyLoactionsTest {
         return Collections.singletonList("firefox");
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name="{index}: {0}")
     public static Iterable<? extends Object> data() {
         return getBrowserList();
     }

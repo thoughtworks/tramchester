@@ -82,7 +82,7 @@ public class TransportDataFromFilesTest {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals("MET")).count();
 
-        assertEquals(12, tramRoutes);
+        assertEquals(14, tramRoutes);
     }
 
     @Test
@@ -182,15 +182,16 @@ public class TransportDataFromFilesTest {
 
         for (int day = 0; day < 7; day++) {
             LocalDate date = TestConfig.nextTuesday(day);
-            Set<Service> servicesOnDate = transportData.getServicesOnDate(new TramServiceDate(date));
+            TramServiceDate tramServiceDate = new TramServiceDate(date);
+            Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);
 
             Set<String> servicesOnDateIds = servicesOnDate.stream().map(Service::getServiceId).collect(Collectors.toSet());
-            transportData.getStations().forEach(station -> {
+            transportData.getStations().stream().filter(station -> checkForNewRouteStationOpen(date, station)).forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                         filter(trip -> trip.callsAt(station.getId())).
                         filter(trip -> servicesOnDateIds.contains(trip.getServiceId())).
                         collect(Collectors.toSet());
-                assertFalse(String.format("%s %s", date, station.getName()), callingTripsOnDate.isEmpty());
+                assertFalse(String.format("%s %s", date, station), callingTripsOnDate.isEmpty());
 
                 Set<String> callingServicesIds = callingTripsOnDate.stream().map(Trip::getServiceId).collect(Collectors.toSet());
 
@@ -215,6 +216,21 @@ public class TransportDataFromFilesTest {
 
             });
         }
+    }
+
+    //////
+    // Temporary until 22/March/2020
+    //////
+    private boolean checkForNewRouteStationOpen(LocalDate date, Station station) {
+        if (date.isAfter(LocalDate.of(2020,3, 21))) {
+            return true;
+        }
+        Set<String> newRoutesServed = station.getRoutes().stream().
+                map(Route::getId).
+                filter(routeId -> (routeId.equals(RouteCodesForTesting.CORN_TO_INTU) ||
+                    routeId.equals(RouteCodesForTesting.INTU_TO_CORN))).
+                collect(Collectors.toSet());
+        return newRoutesServed.isEmpty();
     }
 
     @Test
@@ -246,15 +262,14 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toList());
 
         // not date specific
-        assertEquals(2, atRequiredTimed.size());
+        assertEquals(4, atRequiredTimed.size());
     }
 
     @Test
     public void shouldHaveAtLeastOnePlatformForEveryStation() {
         Set<Station> stations = transportData.getStations();
-        List<Platform> found = new LinkedList<>();
-        stations.forEach(station-> transportData.getPlatformById(station.getId()+"1").ifPresent(found::add));
-        assertEquals(stations.size(),found.size());
+        Set<Station> noPlatforms = stations.stream().filter(station -> station.getPlatforms().isEmpty()).collect(Collectors.toSet());
+        assertEquals(Collections.emptySet(),noPlatforms);
     }
 
     @Test

@@ -257,8 +257,8 @@ public class AppPage extends Page {
         createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(element));
     }
 
-    private void waitForClickableLocator(By fromGroupRecent) {
-        createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(fromGroupRecent));
+    private void waitForClickableLocator(By selector) {
+        createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(selector));
     }
 
     public boolean notesPresent() {

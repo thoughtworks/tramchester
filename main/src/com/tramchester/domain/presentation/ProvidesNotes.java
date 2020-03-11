@@ -91,7 +91,7 @@ public class ProvidesNotes {
         return createMessageList(messageMap);
     }
 
-    private void addRelevantMessage(Map<String, String> messageMap, HasPlatformId platform, TramServiceDate queryDate, TramTime queryTime) {
+    private void addRelevantMessage(Map<String, String> messageMap, HasId platform, TramServiceDate queryDate, TramTime queryTime) {
         Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platform, queryDate, queryTime);
         if (maybe.isEmpty()) {
             return;

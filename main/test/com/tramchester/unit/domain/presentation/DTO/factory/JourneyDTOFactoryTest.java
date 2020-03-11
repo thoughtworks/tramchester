@@ -252,7 +252,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         departureInfo.addDueTram(new DueTram(station, "Due", wait, "Double",when));
         departureInfo.addDueTram(new DueTram(station, "Due", wait+2, "Double",when));
 
-        PlatformDTO platform = new PlatformDTO(new Platform("platformId", "platformName"));
+        DTO platform = new DTO(new Platform("platformId", "platformName"));
         platform.setDepartureInfo(new StationDepartureInfoDTO(departureInfo));
 
         int durationOfStage = 15;
