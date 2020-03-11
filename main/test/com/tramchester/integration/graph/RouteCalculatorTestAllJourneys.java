@@ -1,6 +1,8 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.Route;
+import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
@@ -25,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static java.lang.String.format;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
 public class RouteCalculatorTestAllJourneys {
@@ -83,8 +85,10 @@ public class RouteCalculatorTestAllJourneys {
         Set<Pair<String, Station>> combinations = allStations.stream().map(start -> allStations.stream().
                 map(dest -> Pair.of(start, dest))).
                 flatMap(Function.identity()).
+                filter(pair -> !pair.getRight().getId().equals(pair.getLeft().getId())).
                 filter(pair -> !matches(pair, Stations.Interchanges)).
                 filter(pair -> !matches(pair, Stations.EndOfTheLine)).
+                filter(this::notNewRoute).
                 map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight())).
                 collect(Collectors.toSet());
 
@@ -106,12 +110,26 @@ public class RouteCalculatorTestAllJourneys {
         assertEquals(39, maxNumberStops.get().intValue());
     }
 
+    //////
+    // temporary remove by 22/3/2020
+    /////
+    private boolean notNewRoute(Pair<Station, Station> pair) {
+        if (pair.getLeft().getRoutes().stream().map(Route::getId).anyMatch(RouteCodesForTesting.RouteSeven::contains)) {
+            return false;
+        }
+        return pair.getRight().getRoutes().stream().map(Route::getId).noneMatch(RouteCodesForTesting.RouteSeven::contains);
+
+    }
+
     private boolean matches(Pair<Station, Station> locationPair, List<Station> locations) {
         return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
     private Map<Pair<String, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
+
+        assertFalse("Need to remove filtering of new routes below",
+                queryDate.isAfter(LocalDate.of(2020,3,21)));
 
         ConcurrentMap<Pair<String, Station>, Optional<Journey>> results;
 
@@ -124,16 +142,18 @@ public class RouteCalculatorTestAllJourneys {
                                         new TramServiceDate(queryDate)).limit(1).findAny())).
                         collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
 
-        // expensive: use for diag only
-        // check all results present, collect failures into a list
-//        List<Pair<String, String>> failed = results.entrySet().stream().
-//                filter(journey -> !journey.getValue().isPresent()).
-//                map(Map.Entry::getKey).
-//                map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
-//                collect(Collectors.toList());
-//        assertEquals(format("Failed some of %s (finished %s) combinations", results.size(), combinations.size()) + failed.toString(),
-//                0L, failed.size());
         assertEquals("Not enough results", combinations.size(), results.size());
+
+        // check all results present, collect failures into a list
+        List<Pair<String, Station>> failed = results.
+                entrySet().stream().
+                filter(journey -> journey.getValue().isEmpty()).
+                map(Map.Entry::getKey).
+                map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
+                collect(Collectors.toList());
+        assertEquals(format("Failed some of %s (finished %s) combinations %s", results.size(), combinations.size(), failed.toString()),
+                0L, failed.size());
+
         return results;
     }
 

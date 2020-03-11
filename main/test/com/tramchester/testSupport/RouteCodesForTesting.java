@@ -1,6 +1,9 @@
 package com.tramchester.testSupport;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 public class RouteCodesForTesting {
     // TRAM
     public static final String ALTY_TO_BURY = "MET:   1:I:";
@@ -21,4 +24,6 @@ public class RouteCodesForTesting {
 
     // BUS
     public static final String ALTY_TO_STOCKPORT = "GMS: 11A:I:";
+
+    public static final List<String> RouteSeven = Arrays.asList(CORN_TO_INTU, INTU_TO_CORN);
 }

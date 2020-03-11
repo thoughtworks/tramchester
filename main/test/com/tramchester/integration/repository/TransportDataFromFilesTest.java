@@ -227,8 +227,7 @@ public class TransportDataFromFilesTest {
         }
         Set<String> newRoutesServed = station.getRoutes().stream().
                 map(Route::getId).
-                filter(routeId -> (routeId.equals(RouteCodesForTesting.CORN_TO_INTU) ||
-                    routeId.equals(RouteCodesForTesting.INTU_TO_CORN))).
+                filter(RouteCodesForTesting.RouteSeven::contains).
                 collect(Collectors.toSet());
         return newRoutesServed.isEmpty();
     }
