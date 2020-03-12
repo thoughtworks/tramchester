@@ -48,7 +48,6 @@ public class AppPage extends Page {
     }
 
     public void planAJourney() {
-        //findPlanButton().click();
         findAndClickElement(PLAN);
     }
 
@@ -156,7 +155,7 @@ public class AppPage extends Page {
     public boolean resultsClickable() {
         try {
             By locateResults = By.id((RESULTS));
-            waitForClickable(locateResults);
+            waitForClickableLocator(locateResults);
             return true;
         }
         catch (TimeoutException exception) {
@@ -164,16 +163,16 @@ public class AppPage extends Page {
         }
     }
 
-    private void waitForClickable(By locator) {
-        waitForClickableLocator(locator);
-    }
+//    private void waitForClickable(By locator) {
+//        waitForClickableLocator(locator);
+//    }
 
     public List<SummaryResult> getResults() {
         List<SummaryResult> results = new ArrayList<>();
         By resultsById = By.id(RESULTS);
-        createWait().until(ExpectedConditions.elementToBeClickable(resultsById));
+        WebElement resultsDiv = new WebDriverWait(driver, 10).
+                until(ExpectedConditions.elementToBeClickable(resultsById));
 
-        WebElement resultsDiv = driver.findElement(resultsById);
         WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
         List<WebElement> rows = tableBody.findElements(By.className("journeySummary"));
         rows.forEach(row -> results.add(new SummaryResult(row, tableBody)));
@@ -231,9 +230,7 @@ public class AppPage extends Page {
 
     public List<String> getToStops() {
         By toStops = By.id(TO_STOP);
-        waitForClickable(toStops);
-
-        WebElement elements = driver.findElement(toStops);
+        WebElement elements = waitForClickableLocator(toStops);
         return getStopNames(elements);
     }
 
@@ -257,8 +254,8 @@ public class AppPage extends Page {
         createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(element));
     }
 
-    private void waitForClickableLocator(By selector) {
-        createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(selector));
+    private WebElement waitForClickableLocator(By selector) {
+        return createWait().until(ExpectedConditions.elementToBeClickable(selector));
     }
 
     public boolean notesPresent() {
@@ -386,8 +383,7 @@ public class AppPage extends Page {
 
     private List<String> getStopsByGroupName(String groupName) {
         By fromGroup = By.id(groupName);
-        waitForClickableLocator(fromGroup);
-        WebElement groupElement = driver.findElement(fromGroup);
+        WebElement groupElement = waitForClickableLocator(fromGroup);
         return getStopNames(groupElement);
     }
 

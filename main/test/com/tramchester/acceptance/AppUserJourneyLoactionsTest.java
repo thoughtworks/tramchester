@@ -101,6 +101,7 @@ public class AppUserJourneyLoactionsTest {
         AppPage appPage = prepare();
 
         assertTrue(appPage.hasLocation());
+        assertTrue(appPage.searchEnabled());
 
         // from
         List<String> myLocationStops = appPage.getNearbyFromStops();
@@ -142,8 +143,6 @@ public class AppUserJourneyLoactionsTest {
         LocalTime planTime = LocalTime.of(10,15);
         desiredJourney(appPage, "My Location", deansgate, nextTuesday, planTime, false);
         appPage.planAJourney();
-
-        assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
         assertTrue(results.size()>=3);
