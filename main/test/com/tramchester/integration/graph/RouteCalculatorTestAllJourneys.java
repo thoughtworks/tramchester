@@ -22,10 +22,12 @@ import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.junit.Assert.*;
@@ -131,16 +133,15 @@ public class RouteCalculatorTestAllJourneys {
         assertFalse("Need to remove filtering of new routes below",
                 queryDate.isAfter(LocalDate.of(2020,3,21)));
 
-        ConcurrentMap<Pair<String, Station>, Optional<Journey>> results;
+        final ConcurrentMap<Pair<String, Station>, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
+        combinations.forEach(pair -> results.put(pair, Optional.empty()));
 
-        // check each pair, collect results into (station,station)->result
-        results =
-                combinations.parallelStream().
-                        map(this::checkForTx).
-                        map(journey -> Pair.of(journey,
-                                calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTime,
-                                        new TramServiceDate(queryDate)).limit(1).findAny())).
-                        collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
+        combinations.parallelStream().
+                map(this::checkForTx).
+                map(journey -> Pair.of(journey,
+                        calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTime,
+                                new TramServiceDate(queryDate)).findAny())).
+                forEach(stationsJourneyPair -> results.put(stationsJourneyPair.getLeft(), stationsJourneyPair.getRight()));
 
         assertEquals("Not enough results", combinations.size(), results.size());
 
@@ -151,10 +152,27 @@ public class RouteCalculatorTestAllJourneys {
                 map(Map.Entry::getKey).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toList());
-        assertEquals(format("Failed some of %s (finished %s) combinations %s", results.size(), combinations.size(), failed.toString()),
+        List<Journey> retry = failed.stream().map(pair -> calculator.calculateRoute(pair.getLeft(), pair.getRight(), queryTime,
+                new TramServiceDate(queryDate))).
+                map(Stream::findAny).
+                filter(Optional::isPresent).
+                map(Optional::get).
+                collect(Collectors.toList());
+        assertEquals(format("Failed some of %s (finished %s) combinations %s retry is %s", results.size(), combinations.size(), displayFailed(failed), retry),
                 0L, failed.size());
 
         return results;
+    }
+
+    private String displayFailed(List<Pair<String, Station>> pairs) {
+        StringBuilder stringBuilder = new StringBuilder();
+        pairs.forEach(pair -> {
+            Station dest = pair.getRight();
+            stringBuilder.append("[").
+                append(pair.getLeft()).
+                append(" to ").append(dest.getName()).
+                append(" id=").append(dest.getId()).append("] "); });
+        return stringBuilder.toString();
     }
 
     private <A,B> Pair<A, B>  checkForTx(Pair<A, B> journey) {
