@@ -52,11 +52,7 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     public String getUrl() {
-        if (serverURLFromEnv.isPresent()) {
-            return serverURLFromEnv.get();
-        } else {
-            return format("http://%s:%s", localRunHost, getLocalPort());
-        }
+        return serverURLFromEnv.orElseGet(() -> format("http://%s:%s", localRunHost, getLocalPort()));
     }
 
 }

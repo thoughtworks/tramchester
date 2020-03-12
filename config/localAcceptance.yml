@@ -58,9 +58,9 @@ logging:
       host: localhost
       port: 514
     - type: file
-      currentLogFilename: log/tramchester.log
+      currentLogFilename: build/reports/tests/accept_tramchester.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: log/tramchester-%d.log
+      archivedLogFilenamePattern: build/reports/tests/accept_tramchester-%d.log
       archivedFileCount: 5
       timeZone: UTC

@@ -211,12 +211,7 @@ public class AppPage extends Page {
     }
 
     public List<String> getNearbyToStops() {
-        try {
-            return getStopsByGroupName("toGroupNearby");
-        }
-        catch (TimeoutException notFound) {
-            return new ArrayList<>();
-        }
+        return getStopsByGroupName("toGroupNearby");
     }
 
     public List<String> getNearbyFromStops() {

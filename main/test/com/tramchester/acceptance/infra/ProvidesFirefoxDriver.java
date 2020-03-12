@@ -76,7 +76,9 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         FirefoxProfile profile = new FirefoxProfile();
         profile.setPreference("geo.prompt.testing", true);
         profile.setPreference("geo.prompt.testing.allow", true);
-        profile.setPreference("geo.wifi.uri", "file://" + locationStubJSON.toAbsolutePath().toString());
+        String locationURL = "file://" + locationStubJSON.toAbsolutePath().toString();
+        profile.setPreference("geo.wifi.uri", locationURL); // OLD
+        profile.setPreference("geo.provider.network.url", locationURL); // NEW
         capabilities.setBrowserName("firefox");
 
         capabilities.setCapability(FirefoxDriver.PROFILE, profile);

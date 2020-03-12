@@ -108,7 +108,7 @@ public class AppUserJourneyLoactionsTest {
         assertEquals(1, myLocationStops.size());
 
         List<String> nearestFromStops = appPage.getNearestFromStops();
-        assertThat(nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
+        assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
         List<String> allFrom = appPage.getAllStopsFromStops();
         assertThat(allFrom, not(contains(nearestFromStops)));
         int recentFromCount = appPage.getRecentFromStops().size();
@@ -176,12 +176,12 @@ public class AppUserJourneyLoactionsTest {
 
     private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
                                       String lineClass, String lineName, int stops) {
-        assertEquals(departTime, stage.getDepartTime());
-        assertEquals(action, stage.getAction());
-        assertEquals(actionStation, stage.getActionStation());
-        assertEquals(platform, stage.getPlatform());
-        assertEquals(lineName, stage.getLine(lineClass));
-        assertEquals(stops, stage.getPassedStops());
+        assertEquals("departtime", departTime, stage.getDepartTime());
+        assertEquals("action",action, stage.getAction());
+        assertEquals("actionStation", actionStation, stage.getActionStation());
+        assertEquals("platform", platform, stage.getPlatform());
+        assertEquals("lineName", lineName, stage.getLine(lineClass));
+        assertEquals("stops", stops, stage.getPassedStops());
     }
 
     private AppPage prepare() {
