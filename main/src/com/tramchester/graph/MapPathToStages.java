@@ -159,7 +159,7 @@ public class MapPathToStages {
         private Station boardingStation;
         private String routeCode;
         private String tripId;
-        private int passedStops;
+        private int stopsSeen;
         private int tripCost;
         private Optional<Platform> boardingPlatform;
         private Route route;
@@ -193,9 +193,14 @@ public class MapPathToStages {
             Station departStation = transportData.getStation(stationId);
             Trip trip = transportData.getTrip(tripId);
 
+            int passedStops = stopsSeen - 1;
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
                     route.getMode(), routeIdToClass.map(route.getId()), trip, boardingTime,
                     departStation, passedStops);
+
+            if (stopsSeen == 0) {
+                logger.error("Zero passed stops " + vehicleStage);
+            }
 
             boardingPlatform.ifPresent(vehicleStage::setPlatform);
             vehicleStage.setCost(tripCost);
@@ -208,7 +213,7 @@ public class MapPathToStages {
         }
 
         private void reset() {
-            passedStops = -1; // don't count single stops
+            stopsSeen = 0; // don't count single stops
             tripId = "";
             routeCode = "";
             tripCost = 0;
@@ -243,7 +248,7 @@ public class MapPathToStages {
 
         public void passStop(Relationship relationship) {
             tripCost = tripCost + getCost(relationship);
-            passedStops = passedStops + 1;
+            stopsSeen = stopsSeen + 1;
         }
 
         public void walk(Relationship relationship) {

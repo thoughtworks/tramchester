@@ -121,7 +121,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.has(TransportGraphBuilder.Labels.ROUTE_STATION, 42)).andReturn(true);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, path, true)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, path)).
                 andReturn(ServiceReason.StationNotReachable(path));
 
         replayAll();
@@ -153,7 +153,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         
         EasyMock.expect(path.lastRelationship()).andReturn(relationship);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, path, false)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, path)).
                 andReturn(ServiceReason.IsValid(path));
 
         replayAll();

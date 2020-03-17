@@ -16,17 +16,17 @@ import java.util.stream.Stream;
 public class RoutesRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
-    private final StationRepository stationRepository;
+    private final TransportData transportData;
     private RouteCodeToClassMapper mapper;
 
-    public RoutesRepository(StationRepository stationRepository, RouteCodeToClassMapper mapper) {
-        this.stationRepository = stationRepository;
+    public RoutesRepository(TransportData transportData, RouteCodeToClassMapper mapper) {
+        this.transportData = transportData;
         this.mapper = mapper;
     }
 
     public List<RouteDTO> getAllRoutes() {
         List<RouteDTO> routeDTOs = new LinkedList<>();
-        Collection<Route> routes = stationRepository.getRoutes();
+        Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route-> populateDTOFor(route, routeDTOs));
         logger.info(String.format("Found %s routes", routes.size()));
         return routeDTOs;
@@ -37,7 +37,7 @@ public class RoutesRepository {
         String routeName = route.getName();
         logger.debug("Finding stations for route "  + routeName);
 
-        Stream<Trip> trips = stationRepository.getTripsByRoute(route);
+        Stream<Trip> trips = transportData.getTripsByRoute(route);
 
         trips.forEach(trip -> {
             trip.getStops().stream().forEach(stop -> {

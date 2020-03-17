@@ -46,7 +46,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.destinationStationdIds = destinationStationdId;
         this.costForLastEdge = costForLastEdge;
         this.config = config;
-        //this.interchangesOnly = interchangesOnly;
         parentCost = 0;
     }
 

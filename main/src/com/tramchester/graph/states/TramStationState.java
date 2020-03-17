@@ -1,16 +1,13 @@
 package com.tramchester.graph.states;
 
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.List;
-
-import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
+import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
+import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_BOARD;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class TramStationState extends TraversalState {

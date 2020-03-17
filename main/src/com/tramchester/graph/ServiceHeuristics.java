@@ -1,8 +1,11 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import org.neo4j.graphdb.Node;
@@ -10,10 +13,12 @@ import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphStaticKeys.ID;
+import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
 
 public class ServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
@@ -26,15 +31,18 @@ public class ServiceHeuristics {
     private final ServiceReasons reasons;
     private final TramReachabilityRepository tramReachabilityRepository;
     private final int maxPathLength;
+    private final List<Route> busRoutesSeen;
 
+    private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;
     private final int maxJourneyDuration;
 
     private final int maxWaitMinutes;
 
-    public ServiceHeuristics(CachedNodeOperations nodeOperations,
-                             TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config, TramTime queryTime,
-                             RunningServices runningServices, List<Station> endStations, ServiceReasons reasons, int maxPathLength) {
+    public ServiceHeuristics(StationRepository stationRepository, CachedNodeOperations nodeOperations, TramReachabilityRepository tramReachabilityRepository,
+                             TramchesterConfig config, TramTime queryTime, RunningServices runningServices,
+                             List<Station> endStations, ServiceReasons reasons, int maxPathLength) {
+        this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.tramReachabilityRepository = tramReachabilityRepository;
 
@@ -47,6 +55,8 @@ public class ServiceHeuristics {
 
         endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toList());
         this.maxPathLength = maxPathLength;
+
+        busRoutesSeen = new ArrayList<>();
     }
     
     public ServiceReason checkServiceDate(Node node, Path path) {
@@ -123,17 +133,26 @@ public class ServiceHeuristics {
     }
 
     // TODO will need re-working once interchange between tram/bus is defined
-    public ServiceReason canReachDestination(Node endNode, Path path, boolean onTram) {
+    public ServiceReason canReachDestination(Node endNode, Path path) {
 
         String routeStationId = endNode.getProperty(ID).toString();
+        RouteStation routeStation = stationRepository.getRouteStation(routeStationId);
 
-        if (onTram) {
+        if (routeStation.isTram()) {
             for(Station endStation : endTramStations) {
-                if (tramReachabilityRepository.stationReachable(routeStationId, endStation)) {
+                if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
                     return valid(path);
                 }
             }
+            return reasons.recordReason(ServiceReason.StationNotReachable(path));
         }
+
+        // On bus
+        Route route = routeStation.getRoute();
+        if (busRoutesSeen.contains(route)) {
+            return reasons.recordReason(ServiceReason.RouteAlreadySeen(path));
+        }
+        busRoutesSeen.add(route);
 
         // TODO can't exclude unless we know for sure not reachable, so include all for buses
         return valid(path);

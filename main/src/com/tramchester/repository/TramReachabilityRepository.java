@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
 import com.tramchester.graph.RouteReachable;
@@ -15,16 +14,13 @@ import static java.lang.String.format;
 public class TramReachabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
-    private final InterchangeRepository interchangeRepository;
     private final RouteReachable routeReachable;
     private final TransportData transportData;
 
     private List<String> tramStationIndexing; // a list as we need ordering and IndexOf
     private Map<String, boolean[]> matrix; // stationId -> boolean[]
 
-    public TramReachabilityRepository(InterchangeRepository interchangeRepository, RouteReachable routeReachable,
-                                      TransportData transportData) {
-        this.interchangeRepository = interchangeRepository;
+    public TramReachabilityRepository(RouteReachable routeReachable, TransportData transportData) {
         this.routeReachable = routeReachable;
         this.transportData = transportData;
         tramStationIndexing = new ArrayList<>();
@@ -34,8 +30,12 @@ public class TramReachabilityRepository {
     public void buildRepository() {
         logger.info("Build repository");
 
-        Set<RouteStation> routeStations = transportData.getRouteStations().stream().filter(RouteStation::isTram).collect(Collectors.toSet());
-        Set<Station> tramStations = transportData.getStations().stream().filter(Station::isTram).collect(Collectors.toSet());
+        Set<RouteStation> routeStations = transportData.getRouteStations().stream().
+                filter(RouteStation::isTram).
+                collect(Collectors.toSet());
+        Set<Station> tramStations = transportData.getStations().stream().
+                filter(Station::isTram).
+                collect(Collectors.toSet());
 
         tramStations.forEach(uniqueStation -> tramStationIndexing.add(uniqueStation.getId()));
 
@@ -61,7 +61,10 @@ public class TramReachabilityRepository {
 
     public boolean stationReachable(String routeStationId, Station destinationStation) {
         RouteStation routeStation =  transportData.getRouteStation(routeStationId);
+        return stationReachable(routeStation, destinationStation);
+    }
 
+    public boolean stationReachable(RouteStation routeStation, Station destinationStation) {
         if (routeStation.isTram() && destinationStation.isTram()) {
             // route station is a tram station
             int index = tramStationIndexing.indexOf(destinationStation.getId());
@@ -69,7 +72,7 @@ public class TramReachabilityRepository {
                 throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStation,
                         routeStation));
             }
-            return matrix.get(routeStationId)[index];
+            return matrix.get(routeStation.getId())[index];
         }
         throw new RuntimeException("Call for trams only");
     }

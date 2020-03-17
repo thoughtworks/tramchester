@@ -38,7 +38,7 @@ public class StopDataMapper implements CSVEntryMapper<StopData> {
             area = "";
             stopName = nameParts[0].trim().replace("\"","");
         }
-        // todo use prefix on stop id instead or agency instead?
+        // todo use prefix (9400ZZ) on stop id or agency name instead?
         boolean isTram = false;
         if (stopName.contains(tramStation)) {
             stopName = stopName.replace(tramStation,"");

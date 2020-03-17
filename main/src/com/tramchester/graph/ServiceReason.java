@@ -31,7 +31,8 @@ public abstract class ServiceReason {
         LongerPath,
         PathTooLong,
         OnTram,
-        OnBus
+        OnBus,
+        RouteAlreadySeen
     }
 
     private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;
@@ -126,6 +127,24 @@ public abstract class ServiceReason {
             return code.name();
         }
     }
+
+    //////////////
+
+    private static class RouteAlreadySeen extends ServiceReason {
+
+        private final ReasonCode code;
+
+        protected RouteAlreadySeen(ReasonCode code, Path path) {
+            super(code, path);
+            this.code = code;
+        }
+
+        @Override
+        public String textForGraph() {
+            return code.name();
+        }
+    }
+
 
     //////////////
 
@@ -233,6 +252,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason StationNotReachable(Path path) {
         return new Unreachable(ReasonCode.NotReachable, path);
+    }
+
+    public static ServiceReason RouteAlreadySeen(Path path) {
+        return new RouteAlreadySeen(ReasonCode.RouteAlreadySeen, path);
     }
 
     public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, Path path) {

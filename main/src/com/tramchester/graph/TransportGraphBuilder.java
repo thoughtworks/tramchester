@@ -497,7 +497,7 @@ public class TransportGraphBuilder {
     private Node getOrCreateTimeNode(Node previousNode, String baseId, TramTime departureTime, String tripId) {
         // Node for the departure time
         String timeNodeId = baseId +"_"+ departureTime.toPattern();
-        Node timeNode = null;
+        Node timeNode;
         if (!timeNodeIds.contains(timeNodeId)) {
             LocalTime time = departureTime.asLocalTime();
 

@@ -23,10 +23,6 @@ public class RouteStation {
         return formId(station, route);
     }
 
-    public static String formId(Location station, Route route) {
-        return station.getId() + route.getId();
-    }
-
     public String getAgency() {
         return route.getAgency();
     }
@@ -46,4 +42,9 @@ public class RouteStation {
     public Route getRoute() {
         return route;
     }
+
+    public static String formId(Location station, Route route) {
+        return station.getId() + route.getId();
+    }
+
 }

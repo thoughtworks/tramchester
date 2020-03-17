@@ -1,24 +1,25 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.TramServiceDate;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public interface TransportData extends ProvidesFeedInfo, StationRepository {
     Collection<Service> getServices();
+    Set<Service> getServicesOnDate(TramServiceDate date);
+
     Collection<Trip> getTrips();
     Trip getTrip(String tripId);
-    Set<Service> getServicesOnDate(TramServiceDate date);
+    Stream<Trip> getTripsByRoute(Route route);
+
     Collection<Route> getRoutes();
     Route getRoute(String routeId);
-    Set<Station> getStations();
+
     Set<String> getAgencies();
-    Set<RouteStation> getRouteStations();
-    RouteStation getRouteStation(String routeStationId);
+
 }

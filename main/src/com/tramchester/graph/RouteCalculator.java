@@ -98,7 +98,7 @@ public class RouteCalculator implements TramRouteCalculator {
         int maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
 
         return queryTimes.stream().
-                map(time -> new ServiceHeuristics(nodeOperations, tramReachabilityRepository, config,
+                map(time -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
                         time, runningServicesIds, destinations, serviceReasons, maxPathLength)).
                 map(serviceHeuristics -> findShortestPath(startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
                 flatMap(Function.identity()).

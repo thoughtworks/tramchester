@@ -19,9 +19,6 @@ import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
 
-    // TODO TRAM or BUS?
-//    private final int maxPathLength = 400; // path length limit, includes *all* edges
-
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
@@ -31,7 +28,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     private final Map<Long, TramTime> previousSuccessfulVisit;
 
-    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId, ServiceReasons reasons) {
+    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId,
+                              ServiceReasons reasons) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.destinationNodeId = destinationNodeId;
@@ -101,7 +99,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         } else if (success>0) {
-            // Not arrived, but we do have at least one successful route to our destintation
+            // Not arrived, but we do have at least one successful route to our destination
             int totalCost = traversalState.getTotalCost();
             if (totalCost>currentLowestCost) {
                 // already longer that current shortest, no need to continue
@@ -122,7 +120,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is even reachable from here?
         if (nodeOperations.isRouteStation(endNodeId)) {
             // Note: journeyState.onTram() not true for all tram journeys as we might just be boarding....
-            if (!serviceHeuristics.canReachDestination(endNode, path, journeyState.onTram()).isValid()) {
+            if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
