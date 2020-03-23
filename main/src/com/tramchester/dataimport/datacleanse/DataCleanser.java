@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 public class DataCleanser {
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("YYYMMdd");
-    public static final String WILDCARD = "*";
 
     private final TransportDataReaderFactory dataReaderFactory;
     private final TransportDataWriterFactory transportDataWriterFactory;

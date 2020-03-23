@@ -26,9 +26,6 @@ import static java.util.Arrays.asList;
 
 public abstract class TestConfig extends AppConfiguration {
 
-    private static Dependencies tramIntegrationDependencies = null;
-    private static Dependencies busIntegrationDependencies = null;
-
     public static AppConfiguration GET() {
         return new TestConfig() {
             @Override
@@ -210,40 +207,6 @@ public abstract class TestConfig extends AppConfiguration {
 
     public static Route getTestRoute() {
         return new Route("RouteId", "routeCode", "routeName", "MET", TransportMode.Tram);
-    }
-
-    public static Iterable<Dependencies> getDependencies() throws IOException {
-        if (TestConfig.isCircleci()) {
-            return Collections.singletonList(getTramDependencies());
-        }
-        return Arrays.asList(getTramDependencies(), getBusDependencies());
-    }
-
-    private static Dependencies getBusDependencies() throws IOException {
-        if (busIntegrationDependencies==null) {
-            busIntegrationDependencies = new Dependencies();
-            busIntegrationDependencies.initialise(new IntegrationBusTestConfig());
-        }
-        return busIntegrationDependencies;
-    }
-
-    private static Dependencies getTramDependencies() throws IOException {
-        if (tramIntegrationDependencies==null) {
-            tramIntegrationDependencies = new Dependencies();
-            tramIntegrationDependencies.initialise(new IntegrationTramTestConfig());
-        }
-        return tramIntegrationDependencies;
-    }
-
-    public static void closeDependencies() {
-        if (tramIntegrationDependencies!=null) {
-            tramIntegrationDependencies.close();
-            tramIntegrationDependencies = null;
-        }
-        if (busIntegrationDependencies!=null) {
-            busIntegrationDependencies.close();
-            busIntegrationDependencies = null;
-        }
     }
 
 }

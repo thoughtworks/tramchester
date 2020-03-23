@@ -119,17 +119,9 @@ public class Station implements Location {
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", tram=" + tram +
-                ", platforms=" + asIds(platforms) +
-                ", servesRoutes=" + asIds(servesRoutes) +
+                ", platforms=" + HasId.asIds(platforms) +
+                ", servesRoutes=" + HasId.asIds(servesRoutes) +
                 '}';
-    }
-
-    private <T extends HasId> String asIds(Collection<T> platforms) {
-        StringBuilder ids = new StringBuilder();
-        ids.append("[");
-        platforms.forEach(platform -> ids.append(" '").append(platform.getId()).append("'"));
-        ids.append("]");
-        return ids.toString();
     }
 
     public void addRoute(Route route) {

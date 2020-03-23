@@ -57,7 +57,7 @@ public class InterchangeRepository {
             return true;
         }
 
-        if (lower.contains("bus station")) {
+        if ( lower.contains("bus station") && (!lower.contains("adj bus station")) ) {
             return true;
         }
 

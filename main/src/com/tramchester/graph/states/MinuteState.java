@@ -48,8 +48,8 @@ public class MinuteState extends TraversalState {
         // towards final destination, just follow this one
         for (Relationship depart : allDeparts) {
             if (destinationStationdIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                return new RouteStationState(this,
-                        Collections.singleton(depart), node.getId(), tripId, cost);
+                // we've arrived
+                return new RouteStationState(this, Collections.singleton(depart), node.getId(), tripId, cost);
             }
         }
 

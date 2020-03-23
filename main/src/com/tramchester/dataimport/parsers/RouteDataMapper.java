@@ -2,8 +2,9 @@ package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
-import com.tramchester.domain.TransportMode;
 import org.apache.commons.csv.CSVRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
 import static java.lang.String.format;
 
 public class RouteDataMapper implements CSVEntryMapper<RouteData> {
+    private static final Logger logger = LoggerFactory.getLogger(RouteDataMapper.class);
 
     private final Set<String> agencies;
     private boolean includeAll;
@@ -19,10 +21,8 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
     public RouteDataMapper(Set<String> agencies) {
         this.agencies = agencies;
         if (agencies.size()==0) {
+            logger.warn("Loading all agencies and routes");
             includeAll = true;
-        }
-        else {
-            includeAll = (agencies.size()==1) && (agencies.contains(DataCleanser.WILDCARD));
         }
     }
 

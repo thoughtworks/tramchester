@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,8 +30,9 @@ public class IntegrationBusTestConfig extends TestConfig {
 
     @Override
     public Set<String> getAgencies() {
-//        return new HashSet<>(Arrays.asList("MET","GMS"));
-        return new HashSet<>(Arrays.asList("*"));
+            return new HashSet<>(Arrays.asList("MET","GMS"));
+        // Empty set means all
+//        return Collections.emptySet();
     }
 
     @Override

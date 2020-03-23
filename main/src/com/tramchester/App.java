@@ -2,7 +2,6 @@ package com.tramchester;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;

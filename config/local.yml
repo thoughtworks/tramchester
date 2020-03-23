@@ -36,7 +36,7 @@ maxWait: 25
 numberQueries: 3
 queryInterval: 12
 maxNumberResults: 5
-maxJourneyDuration: 170
+maxJourneyDuration: 112
 nearestStopRangeKM: 1.6
 numOfNearestStops: 5
 numOfNearestStopsForWalking: 3

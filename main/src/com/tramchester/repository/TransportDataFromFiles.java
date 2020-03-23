@@ -30,7 +30,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
     private HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
     private HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
-    private Set<String> agencies = new HashSet<>(); // agencies
+    private HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
 
     private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
@@ -140,9 +140,10 @@ public class TransportDataFromFiles implements TransportDataSource {
             Route route = new Route(routeData.getId(), routeData.getShortName(), routeData.getLongName(), agency,
                     getMode(routeData.getRouteType()));
             this.routes.put(route.getId(), route);
-            if (!agencies.contains(agency)) {
-                agencies.add(agency);
+            if (!agencies.containsKey(agency)) {
+                agencies.put(agency, new Agency(agency));
             }
+            agencies.get(agency).addRoute(route);
         });
     }
 
@@ -241,8 +242,8 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     @Override
-    public Set<String> getAgencies() {
-        return agencies;
+    public Collection<Agency> getAgencies() {
+        return agencies.values();
     }
 
     @Override

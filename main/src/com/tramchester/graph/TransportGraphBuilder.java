@@ -1,9 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.Location;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteStation;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Stops;
@@ -58,10 +55,12 @@ public class TransportGraphBuilder {
         ROUTE_STATION, TRAM_STATION, BUS_STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
     }
 
-    private Map<String,TransportRelationshipTypes> boardings;
-    private Map<String,TransportRelationshipTypes> departs;
-    private List<String> platforms;
-    private HashSet<String> timeNodeIds;
+    // caching of various id's for peformance
+    private final Map<String,TransportRelationshipTypes> boardings;
+    private final Map<String,TransportRelationshipTypes> departs;
+    private final List<String> platforms;
+    private final HashSet<String> timeNodeIds;
+    private final Set<Long> nodesWithRouteRelationship;
 
     private final GraphDatabaseService graphDatabaseService;
     private final TransportData transportData;
@@ -82,6 +81,7 @@ public class TransportGraphBuilder {
         departs = new HashMap<>();
         platforms = new LinkedList<>();
         timeNodeIds = new HashSet<>();
+        nodesWithRouteRelationship = new HashSet<>();
     }
 
     public void buildGraphwithFilter(GraphFilter filter) {
@@ -92,18 +92,22 @@ public class TransportGraphBuilder {
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             logger.info("Rebuilding the graph...");
-            for (Route route : transportData.getRoutes()) {
-                logger.info("Add nodes for route " + route.getId());
-                if (filter.shouldInclude(route)) {
-                    for (Service service : route.getServices()) {
-                        if (filter.shouldInclude(service)) {
-                            for (Trip trip : service.getTrips()) {
-                                AddRouteServiceTrip(route, service, trip, filter);
+            for (Agency agency : transportData.getAgencies()) {
+                logger.info("Add routes for agency " + agency.getName());
+                for (Route route : agency.getRoutes()) {
+                    logger.info("Add nodes for route " + route.getId());
+                    if (filter.shouldInclude(route)) {
+                        for (Service service : route.getServices()) {
+                            if (filter.shouldInclude(service)) {
+                                for (Trip trip : service.getTrips()) {
+                                    AddRouteServiceTrip(route, service, trip, filter);
+                                }
                             }
                         }
                     }
                 }
             }
+
             tx.success();
             Duration duration = Duration.between(start, LocalTime.now());
             logger.info("Graph rebuild finished, took " + duration.getSeconds());
@@ -112,6 +116,15 @@ public class TransportGraphBuilder {
             logger.error("Exception while rebuilding the graph", except);
         }
         reportStats();
+        clearLocalCaches();
+    }
+
+    private void clearLocalCaches() {
+        nodesWithRouteRelationship.clear();
+        timeNodeIds.clear();
+        platforms.clear();
+        boardings.clear();
+        departs.clear();
     }
 
     public void buildGraph() {
@@ -123,18 +136,21 @@ public class TransportGraphBuilder {
         Transaction tx = graphDatabaseService.beginTx();
         try {
             logger.info("Rebuilding the graph...");
-            for (Route route : transportData.getRoutes()) {
-                logger.info("Add nodes for route " + route.getId());
+            for(Agency agency : transportData.getAgencies()) {
+                logger.info("Add routes for agency " + agency.getName());
 
-                for (Service service : route.getServices()) {
-                    for (Trip trip : service.getTrips()) {
-                        AddRouteServiceTrip(route, service, trip);
+                for (Route route : agency.getRoutes()) {
+                    logger.info("Add nodes for route " + route.getId());
+                    for (Service service : route.getServices()) {
+                        for (Trip trip : service.getTrips()) {
+                            AddRouteServiceTrip(route, service, trip);
+                        }
                     }
-                    // performance
-                    tx.success();
-                    tx.close();
-                    tx = graphDatabaseService.beginTx();
                 }
+                // performance
+                tx.success();
+                tx.close();
+                tx = graphDatabaseService.beginTx();
             }
 
             logger.info("Wait for indexes online");
@@ -156,6 +172,7 @@ public class TransportGraphBuilder {
             tx.close();
         }
         reportStats();
+        clearLocalCaches();
     }
 
     private void reportStats() {
@@ -171,14 +188,9 @@ public class TransportGraphBuilder {
             schema.indexFor(Labels.BUS_STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(Labels.PLATFORM).on(GraphStaticKeys.ID).create();
-            // edge per trip indexs
             schema.indexFor(Labels.SERVICE).on(GraphStaticKeys.ID).create();
-            schema.indexFor(Labels.SERVICE).on(SERVICE_ID).create();
             schema.indexFor(Labels.HOUR).on(GraphStaticKeys.ID).create();
-            schema.indexFor(Labels.HOUR).on(GraphStaticKeys.HOUR).create();
             schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.ID).create();
-            schema.indexFor(Labels.MINUTE).on(GraphStaticKeys.TIME).create();
-            schema.indexFor(Labels.MINUTE).on(TRIP_ID).create();
 
             tx.success();
         }
@@ -219,12 +231,14 @@ public class TransportGraphBuilder {
     }
 
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {
-        if (from.hasRelationship(TransportRelationshipTypes.ON_ROUTE, OUTGOING)) {
+        long fromNodeId = from.getId();
+        if (nodesWithRouteRelationship.contains(fromNodeId)) {
             return;
         }
         Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
         onRoute.setProperty(ROUTE_ID, route.getId());
         onRoute.setProperty(COST, cost);
+        nodesWithRouteRelationship.add(fromNodeId);
     }
 
     private Node getOrCreateStation(Location station) {
@@ -236,7 +250,7 @@ public class TransportGraphBuilder {
 
         if (stationNode == null) {
             Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
-            logger.debug(format("Creating station node: %s with label: ", station, label));
+            logger.debug(format("Creating station node: %s with label: %s ", station, label));
             stationNode = createGraphNode(label) ;
             stationNode.setProperty(GraphStaticKeys.ID, id);
             LatLong latLong = station.getLatLong();
@@ -429,8 +443,8 @@ public class TransportGraphBuilder {
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
         String routeIdClean = route.getId().replaceAll(" ", "");
-        String beginSvcNodeId = format("%s_%s_%s_%s", startLocation.getId(), endStop.getStation().getId(),
-                service.getServiceId(), routeIdClean);
+        String beginSvcNodeId = startLocation.getId()+"_"+endStop.getStation().getId()+"_"+
+                service.getServiceId()+"_"+routeIdClean;
 
         Node beginServiceNode = nodeIdQuery.getServiceNode(beginSvcNodeId);
         String tripId = trip.getTripId();

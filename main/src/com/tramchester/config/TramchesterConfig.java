@@ -21,8 +21,11 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // a list of currently close stations
     public abstract List<String> getClosedStations();
 
-    // transport agencies to load data for, * means all
+    // transport agencies to load data for, empty list [] means all
     public abstract Set<String> getAgencies();
+
+    // are bus routes includes, see also agencies list
+    public abstract boolean getBus();
 
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
@@ -46,7 +49,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     public abstract String getSecureHost();
 
     // EXPERIMENTAL FOR BUSES /////////
-
     // try to create walking links between stations close together
     public abstract boolean getCreateLocality();
 
@@ -85,9 +87,10 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // remove the (Purple Line) part of the route name?
     public abstract boolean getRemoveRouteNameSuffix();
 
+    // how often to refresh the live data from tfgm
     public abstract long getLiveDataRefreshPeriodSeconds();
 
+    // only allow changing vehicles at interchanges
     public abstract boolean getChangeAtInterchangeOnly();
 
-    public abstract boolean getBus();
 }

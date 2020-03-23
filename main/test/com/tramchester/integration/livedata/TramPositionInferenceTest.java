@@ -69,7 +69,7 @@ public class TramPositionInferenceTest {
         int cost = 3; // cost between the stations, no due trams outside this limit should appear
 
         Station first = stationRepository.getStation(Stations.Deansgate.getId());
-        Station second = stationRepository.getStation(Stations.StPetersSquare.getId());
+        Station second = stationRepository.getStation(Stations.Cornbrook.getId());
 
         TramPosition between = positionInference.findBetween(first, second, date, time);
         assertEquals(first, between.getFirst());

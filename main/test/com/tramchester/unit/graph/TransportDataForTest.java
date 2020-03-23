@@ -204,10 +204,10 @@ public class TransportDataForTest implements TransportDataSource {
     }
 
     @Override
-    public Set<String> getAgencies() {
-        HashSet<String> strings = new HashSet<>();
-        strings.add("MET");
-        return strings;
+    public Collection<Agency> getAgencies() {
+        Agency agency = new Agency("MET");
+        routes.values().forEach(agency::addRoute);
+        return Arrays.asList(agency);
     }
 
     @Override

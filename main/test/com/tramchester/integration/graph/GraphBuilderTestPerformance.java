@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+@Ignore("for performance testing")
 public class GraphBuilderTestPerformance {
 
     private static Dependencies dependencies;
@@ -29,7 +30,7 @@ public class GraphBuilderTestPerformance {
     }
 
     @Test
-    @Ignore("for performance testing")
+
     public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
 
         LocalTime start = LocalTime.now();

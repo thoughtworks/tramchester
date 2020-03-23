@@ -212,7 +212,7 @@ task ci_unit(type: Test) {
 
 task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "2000m"
-    maxHeapSize = "3000m"
+    maxHeapSize = "4000m"
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.*"
@@ -228,7 +228,7 @@ task integration(type: Test, dependsOn: compileJava) {
 
 task allStations(type: Test, dependsOn: compileJava) {
     minHeapSize = "2000m"
-    maxHeapSize = "3000m"
+    maxHeapSize = "4000m"
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.integration.graph.RouteCalculatorTestAllJourneys"

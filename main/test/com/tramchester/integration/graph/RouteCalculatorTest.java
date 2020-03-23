@@ -19,6 +19,7 @@ import org.neo4j.graphdb.Transaction;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -223,8 +224,15 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindEndOfLinesToEndOfLines() {
+        // todo: changed from 9 to 10.15 as airport to eccles fails for 10.15am
         Set<Pair<String, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
-        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
+        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(10,15), 7);
+    }
+
+    @Test
+    public void reproducdeIssueWithEndToEndTest() {
+        validateAtLeastOneJourney(Stations.ManAirport, Stations.EastDidsbury, TramTime.of(10,15),
+                LocalDate.of(2020,3,24));
     }
 
     @Test
@@ -234,7 +242,7 @@ public class RouteCalculatorTest {
 
         List<Journey> allResults = new ArrayList<>();
 
-        Map<Pair<String, Station>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
+        Map<Pair<String, Station>, JourneyOrNot> results = validateAllHaveAtLeastOneJourney(nextTuesday,
                 combinations, TramTime.of(9,0));
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
@@ -313,6 +321,8 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), nextTuesday);
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), nextTuesday);
     }
+
+
 
     @Test
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
@@ -441,26 +451,26 @@ public class RouteCalculatorTest {
         return missing.size();
     }
 
-    private Map<Pair<String, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
+    private Map<Pair<String, Station>, JourneyOrNot> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
 
         // check each pair, collect results into (station,station)->result
-        Map<Pair<String, Station>, Optional<Journey>> results =
+        Map<Pair<String, Station>, JourneyOrNot> results =
                 combinations.parallelStream().
                         map(this::checkForTx).
-                        map(journey -> Pair.of(journey,
-                                calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTime,
-                                        new TramServiceDate(queryDate)).limit(1).
-                                        findAny())).
+                        map(requested -> {
+                            Optional<Journey> optionalJourney = calculator.calculateRoute(requested.getLeft(), requested.getRight(),
+                                    queryTime, new TramServiceDate(queryDate)).limit(1).findAny();
+                            JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
+                            return Pair.of(requested, journeyOrNot); } ).
                         collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
         // check all results present, collect failures into a list
-        List<Pair<String, Station>> failed = results.entrySet().stream().
-                filter(journey -> journey.getValue().isEmpty()).
-                map(Map.Entry::getKey).
-                map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
+        List<JourneyOrNot> failed = results.entrySet().stream().
+                filter(journeyOrNot -> journeyOrNot.getValue().missing()).
+                map(Map.Entry::getValue).
                 collect(Collectors.toList());
-        assertEquals(failed.toString(), 0L, failed.size());
+        assertTrue("missing routes: " + failed.toString(), failed.isEmpty());
         return results;
     }
 
@@ -477,9 +487,7 @@ public class RouteCalculatorTest {
             Transaction txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
             threadToTxnMap.put(id, txn);
         }
-        catch(Exception uncaught) {
-            throw uncaught;
-        }
+
         return journey;
     }
 
@@ -490,4 +498,37 @@ public class RouteCalculatorTest {
         return journeySet;
     }
 
+    private class JourneyOrNot {
+        private final Pair<String, Station> requested;
+        private final LocalDate queryDate;
+        private final TramTime queryTime;
+        private final Journey journey;
+
+        public JourneyOrNot(Pair<String, Station> requested, LocalDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
+            this.requested = requested;
+            this.queryDate = queryDate;
+            this.queryTime = queryTime;
+            this.journey = optionalJourney.orElse(null);
+        }
+
+        public boolean missing() {
+            return journey==null;
+        }
+
+        public void ifPresent(Consumer<Journey> action) {
+            if (this.journey != null) {
+                action.accept(this.journey);
+            }
+
+        }
+
+        @Override
+        public String toString() {
+            return "JourneyOrNot{" +
+                    " queryDate=" + queryDate +
+                    ", queryTime=" + queryTime +
+                    ", requested=" + requested +
+                    '}';
+        }
+    }
 }

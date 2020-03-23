@@ -41,8 +41,8 @@ public final class NodeIdQuery {
         minuteNodeCache = new CacheOfNodes(GraphQuery::getTimeNode);
         hourNodeCache = new CacheOfNodes(GraphQuery::getHourNode);
         serviceNodeCache = new CacheOfNodes(GraphQuery::getServiceNode);
-
         tramStationNodeCache = new CacheOfNodes(GraphQuery::getTramStationNode);
+
         if (buses) {
             busStationNodeCache = new CacheOfNodes(GraphQuery::getBusStationNode);
         } else {
