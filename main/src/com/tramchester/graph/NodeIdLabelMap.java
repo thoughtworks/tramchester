@@ -20,7 +20,7 @@ public class NodeIdLabelMap {
     }
 
     private int getCapacity(TransportGraphBuilder.Labels label) {
-        // aprox. sizings
+        // approx. sizings
         switch (label) {
             case ROUTE_STATION: return 282;
             case TRAM_STATION: return 93;
