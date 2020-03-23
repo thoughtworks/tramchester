@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.neo4j.graphdb.Node;
@@ -12,14 +13,12 @@ import org.neo4j.graphdb.Relationship;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 
-public class CachedNodeOperations {
+public class CachedNodeOperations implements ReportsCacheStats {
 
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, String> tripRelationshipCache;
@@ -27,19 +26,19 @@ public class CachedNodeOperations {
     private final Cache<Long, Integer> hourNodeCache;
 
     // cached times
-    private final ConcurrentMap<Long, TramTime> times;
+    private final Cache<Long, TramTime> times;
     // node types
     private final NodeIdLabelMap nodeIdLabelMap;
 
     public CachedNodeOperations(NodeIdLabelMap nodeIdLabelMap) {
         this.nodeIdLabelMap = nodeIdLabelMap;
 
-        times = new ConcurrentHashMap<>();
         // size tuned from stats
         relationshipCostCache = createCache(85000);
         svcIdCache = createCache(3000);
         hourNodeCache = createCache(38000);
         tripRelationshipCache = createCache(32500);
+        times = createCache(40000);
     }
 
     @NonNull
@@ -53,6 +52,7 @@ public class CachedNodeOperations {
         result.add(Pair.of("svcIdCache",svcIdCache.stats()));
         result.add(Pair.of("hourNodeCache",hourNodeCache.stats()));
         result.add(Pair.of("tripRelationshipCache", tripRelationshipCache.stats()));
+        result.add(Pair.of("times", times.stats()));
 
         return result;
     }
@@ -88,8 +88,9 @@ public class CachedNodeOperations {
 
     public TramTime getTime(Node node) {
         long nodeId = node.getId();
-        if (times.containsKey(nodeId)) {
-            return times.get(nodeId);
+        TramTime ifPresent = times.getIfPresent(nodeId);
+        if (ifPresent!=null) {
+            return ifPresent;
         }
         LocalTime value = (LocalTime) node.getProperty(TIME);
         TramTime tramTime = TramTime.of(value);

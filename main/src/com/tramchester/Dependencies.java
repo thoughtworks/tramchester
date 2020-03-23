@@ -238,14 +238,15 @@ public class Dependencies {
     public void close() {
         logger.info("Dependencies close");
         shutdownGraphDB();
-        CachedNodeOperations cachedNodeOps = picoContainer.getComponent(CachedNodeOperations.class);
-        reportCacheStats(cachedNodeOps.stats());
-
+        logger.info("Begin cache stats");
+        List<ReportsCacheStats> components = picoContainer.getComponents(ReportsCacheStats.class);
+        components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
+        logger.info("End cache stats");
+        logger.info("Dependencies closed");
     }
 
-    private void reportCacheStats(List<Pair<String, CacheStats>> stats) {
-        logger.info("Cache stats");
-        stats.forEach(stat -> logger.info(format("%s: %s",stat.getLeft(), stat.getRight().toString())));
+    private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {
+        stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
     }
 
     private void shutdownGraphDB() {

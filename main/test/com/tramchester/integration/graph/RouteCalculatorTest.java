@@ -322,8 +322,6 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), nextTuesday);
     }
 
-
-
     @Test
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         assertEquals(0, checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));

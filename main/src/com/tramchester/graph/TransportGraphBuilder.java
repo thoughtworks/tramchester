@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 ///
 // Station-[enter]->Platform-[board]->RouteStation-[toHour]->Hour-[toMinute]->Minute-[toService]->
@@ -116,15 +115,16 @@ public class TransportGraphBuilder {
             logger.error("Exception while rebuilding the graph", except);
         }
         reportStats();
-        clearLocalCaches();
+        clearBuildCaches();
     }
 
-    private void clearLocalCaches() {
+    private void clearBuildCaches() {
         nodesWithRouteRelationship.clear();
         timeNodeIds.clear();
         platforms.clear();
         boardings.clear();
         departs.clear();
+        nodeIdQuery.clearAfterGraphBuild();
     }
 
     public void buildGraph() {
@@ -172,7 +172,7 @@ public class TransportGraphBuilder {
             tx.close();
         }
         reportStats();
-        clearLocalCaches();
+        clearBuildCaches();
     }
 
     private void reportStats() {
@@ -527,7 +527,7 @@ public class TransportGraphBuilder {
             fromPrevious.setProperty(TRIP_ID, tripId);
             timeNodeIds.add(timeNodeId);
         } else {
-            timeNode = nodeIdQuery.getTimeNode(timeNodeId);
+            timeNode = graphDatabaseService.findNode(Labels.MINUTE, GraphStaticKeys.ID, timeNodeId);
         }
         return timeNode;
     }
