@@ -90,7 +90,6 @@ public class RouteCalculatorTestAllJourneys {
                 filter(pair -> !pair.getRight().getId().equals(pair.getLeft().getId())).
                 filter(pair -> !matches(pair, Stations.Interchanges)).
                 filter(pair -> !matches(pair, Stations.EndOfTheLine)).
-                filter(this::notNewRoute).
                 map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight())).
                 collect(Collectors.toSet());
 
@@ -112,16 +111,6 @@ public class RouteCalculatorTestAllJourneys {
         assertEquals(39, maxNumberStops.get().intValue());
     }
 
-    //////
-    // temporary remove by 22/3/2020
-    /////
-    private boolean notNewRoute(Pair<Station, Station> pair) {
-        if (pair.getLeft().getRoutes().stream().map(Route::getId).anyMatch(RouteCodesForTesting.RouteSeven::contains)) {
-            return false;
-        }
-        return pair.getRight().getRoutes().stream().map(Route::getId).noneMatch(RouteCodesForTesting.RouteSeven::contains);
-
-    }
 
     private boolean matches(Pair<Station, Station> locationPair, List<Station> locations) {
         return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());

@@ -47,18 +47,18 @@ public class Stations {
     public static Station HeatonPark = createStation("9400ZZMAHEA", "Heaton", "Heaton Park");
     public static Station BurtonRoad = createStation("9400ZZMABNR", "Heaton", "Burton Road");
     public static Station RochdaleRail = createStation("9400ZZMARRS", "Rochsdale Town Centr", "Rochsdale Railway Station");
+    public static Station Intu = createStation("9400ZZMATRC", "The Trafford Centre", "intu Trafford Centre");
 
-    private static List<Station> EndOfTheLineWest = Arrays.asList(Altrincham,
+    public static List<Station> EndOfTheLine = Arrays.asList(Altrincham,
             ManAirport,
             Eccles,
-            EastDidsbury);
-
-    private static List<Station> EndOfTheLineEast = Arrays.asList(Ashton,
+            EastDidsbury,
+            Ashton,
             Rochdale,
             Bury,
-            ExchangeSquare);
+            ExchangeSquare,
+            Intu);
 
-    public static List<Station> EndOfTheLine = ListUtils.union(EndOfTheLineEast, EndOfTheLineWest);
 
     public static List<Station> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
             TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
