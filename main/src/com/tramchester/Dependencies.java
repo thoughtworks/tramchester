@@ -170,9 +170,9 @@ public class Dependencies {
             logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
             try {
                 FileUtils.deleteDirectory(graphFile);
-            } catch (IOException e) {
-                logger.error("Error deleting the graph!", e);
-                throw e;
+            } catch (IOException ioException) {
+                logger.error("Error deleting the graph!", ioException);
+                throw ioException;
             }
         }
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());

@@ -96,7 +96,13 @@ public class App extends Application<AppConfiguration>  {
     @Override
     public void run(AppConfiguration configuration, Environment environment) throws Exception {
         logger.info("App run");
-        dependencies.initialise(configuration);
+        try {
+            dependencies.initialise(configuration);
+        }
+        catch (Exception exception) {
+            logger.error("Uncaught exception during init ", exception);
+            System.exit(-1);
+        }
 
         ScheduledExecutorServiceBuilder builder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
         executor = builder.build();

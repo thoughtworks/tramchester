@@ -114,7 +114,7 @@ tasks.withType(JavaCompile) {
 task stage(dependsOn: ['clean', 'installApp'])
 
 task cleanGraph {
-    delete 'databases/integrationBusTest' , 'databases/integrationTramTest', 'buses.db', 'tramchester.db'
+    delete 'databases/integrationBusTest' , 'databases/integrationTramTest', 'buses.db', 'tramchester.db', 'databases/tramchesterAcceptance.db'
 }
 
 clean {
@@ -261,6 +261,8 @@ task appium(type: Test) {
 task localAppium(type: Test) {
     dependsOn 'webpack'
     dependsOn 'compileJava'
+    minHeapSize = "2000m"
+    maxHeapSize = "4000m"
     useJUnit {
         filter {
             includeTestsMatching "com.tramchester.acceptance.*"

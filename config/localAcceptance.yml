@@ -12,7 +12,7 @@ secureHost: tramchester.com
 
 rebuildGraph: true
 unzipPath: gtdf-out
-graphName: tramchester.db
+graphName: databases/tramchesterAcceptance.db
 closedStations: []
 agencies:
   - MET
