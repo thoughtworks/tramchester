@@ -119,9 +119,6 @@ public class RouteCalculatorTestAllJourneys {
     private Map<Pair<String, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
 
-//        assertFalse("Need to remove filtering of new routes below",
-//                queryDate.isAfter(LocalDate.of(2020,3,21)));
-
         final ConcurrentMap<Pair<String, Station>, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
         combinations.forEach(pair -> results.put(pair, Optional.empty()));
 

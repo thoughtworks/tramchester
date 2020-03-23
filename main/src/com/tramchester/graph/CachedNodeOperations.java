@@ -1,22 +1,30 @@
 package com.tramchester.graph;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
+import org.apache.commons.lang3.tuple.Pair;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 
 public class CachedNodeOperations {
 
-    private final ConcurrentMap<Long, Integer> relationshipCostCache;
-    private final ConcurrentMap<Long, String> tripRelationshipCache;
-    private final ConcurrentMap<Long, String> svcIdCache;
-    private final ConcurrentMap<Long, Integer> hourNodeCache;
+    private final Cache<Long, Integer> relationshipCostCache;
+    private final Cache<Long, String> tripRelationshipCache;
+    private final Cache<Long, String> svcIdCache;
+    private final Cache<Long, Integer> hourNodeCache;
 
     // cached times
     private final ConcurrentMap<Long, TramTime> times;
@@ -27,16 +35,33 @@ public class CachedNodeOperations {
         this.nodeIdLabelMap = nodeIdLabelMap;
 
         times = new ConcurrentHashMap<>();
-        tripRelationshipCache = new ConcurrentHashMap<>();
-        svcIdCache = new ConcurrentHashMap<>();
-        hourNodeCache = new ConcurrentHashMap<>();
-        relationshipCostCache = new ConcurrentHashMap<>();
+        // size tuned from stats
+        relationshipCostCache = createCache(85000);
+        svcIdCache = createCache(3000);
+        hourNodeCache = createCache(38000);
+        tripRelationshipCache = createCache(32500);
+    }
+
+    @NonNull
+    private <T> Cache<Long, T> createCache(int maximumSize) {
+        return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(10, TimeUnit.MINUTES).recordStats().build();
+    }
+
+    public List<Pair<String,CacheStats>> stats() {
+        List<Pair<String,CacheStats>> result = new ArrayList<>();
+        result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
+        result.add(Pair.of("svcIdCache",svcIdCache.stats()));
+        result.add(Pair.of("hourNodeCache",hourNodeCache.stats()));
+        result.add(Pair.of("tripRelationshipCache", tripRelationshipCache.stats()));
+
+        return result;
     }
 
     public String getTrips(Relationship relationship) {
         long relationshipId = relationship.getId();
-        if (tripRelationshipCache.containsKey(relationshipId)) {
-            return tripRelationshipCache.get(relationshipId);
+        String ifPresent = tripRelationshipCache.getIfPresent(relationshipId);
+        if (ifPresent!=null) {
+            return ifPresent;
         }
         String trips = relationship.getProperty(TRIPS).toString();
         tripRelationshipCache.put(relationshipId, trips);
@@ -45,8 +70,9 @@ public class CachedNodeOperations {
 
     public String getTrip(Relationship relationship) {
         long relationshipId = relationship.getId();
-        if (tripRelationshipCache.containsKey(relationshipId)) {
-            return tripRelationshipCache.get(relationshipId);
+        String ifPresent = tripRelationshipCache.getIfPresent(relationshipId);
+        if (ifPresent!=null) {
+            return ifPresent;
         }
         String trip = relationship.getProperty(TRIP_ID).toString().intern();
         tripRelationshipCache.put(relationshipId, trip);
@@ -73,8 +99,9 @@ public class CachedNodeOperations {
 
     public String getServiceId(Node node) {
         long id = node.getId();
-        if (svcIdCache.containsKey(id)) {
-            return svcIdCache.get(id);
+        String ifPresent = svcIdCache.getIfPresent(id);
+        if (ifPresent!=null) {
+            return ifPresent;
         }
         String svcId = node.getProperty(GraphStaticKeys.SERVICE_ID).toString().intern();
         svcIdCache.put(id, svcId);
@@ -83,8 +110,9 @@ public class CachedNodeOperations {
 
     public int getCost(Relationship relationship) {
         long relationshipId = relationship.getId();
-        if (relationshipCostCache.containsKey(relationshipId)) {
-            return relationshipCostCache.get(relationshipId);
+        Integer ifPresent = relationshipCostCache.getIfPresent(relationshipId);
+        if (ifPresent!=null) {
+            return ifPresent;
         }
 
         int cost = (int) relationship.getProperty(GraphStaticKeys.COST);
@@ -94,9 +122,10 @@ public class CachedNodeOperations {
 
     public void deleteFromCache(Relationship relationship) {
         long relationshipId = relationship.getId();
-        if (relationshipCostCache.containsKey(relationshipId)) {
-            relationshipCostCache.remove(relationshipId);
-        }
+        relationshipCostCache.invalidate(relationshipId);
+//        if (relationshipCostCache.containsKey(relationshipId)) {
+//            relationshipCostCache.remove(relationshipId);
+//        }
     }
 
     public boolean isService(long nodeId) {
@@ -117,8 +146,9 @@ public class CachedNodeOperations {
 
     public int getHour(Node node) {
         long id = node.getId();
-        if (hourNodeCache.containsKey(id)) {
-            return hourNodeCache.get(id);
+        Integer ifPresent = hourNodeCache.getIfPresent(id);
+        if (ifPresent!=null) {
+            return ifPresent;
         }
         int hour = (int) node.getProperty(GraphStaticKeys.HOUR);
         hourNodeCache.put(id,hour);

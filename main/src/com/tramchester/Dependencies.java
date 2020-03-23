@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.cloud.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
@@ -22,6 +23,7 @@ import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -36,6 +38,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+
+import static java.lang.String.format;
 
 public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
@@ -232,19 +237,31 @@ public class Dependencies {
 
     public void close() {
         logger.info("Dependencies close");
+        shutdownGraphDB();
+        CachedNodeOperations cachedNodeOps = picoContainer.getComponent(CachedNodeOperations.class);
+        reportCacheStats(cachedNodeOps.stats());
+
+    }
+
+    private void reportCacheStats(List<Pair<String, CacheStats>> stats) {
+        logger.info("Cache stats");
+        stats.forEach(stat -> logger.info(format("%s: %s",stat.getLeft(), stat.getRight().toString())));
+    }
+
+    private void shutdownGraphDB() {
         try {
-        GraphDatabaseService graphService = picoContainer.getComponent(GraphDatabaseService.class);
-            if (graphService==null) {
-                    logger.error("Unable to obtain GraphDatabaseService for shutdown");
-            } else {
-                if (graphService.isAvailable(1000)) {
-                    logger.info("Shutting down graphDB");
-                    graphService.shutdown();
+            GraphDatabaseService graphService = picoContainer.getComponent(GraphDatabaseService.class);
+                if (graphService==null) {
+                        logger.error("Unable to obtain GraphDatabaseService for shutdown");
                 } else {
-                    logger.warn("Graph reported unavailable, attempt shutdown anyway");
-                    graphService.shutdown();
+                    if (graphService.isAvailable(1000)) {
+                        logger.info("Shutting down graphDB");
+                        graphService.shutdown();
+                    } else {
+                        logger.warn("Graph reported unavailable, attempt shutdown anyway");
+                        graphService.shutdown();
+                    }
                 }
-            }
         } catch (Exception exceptionInClose) {
             logger.error("Exception during close down", exceptionInClose);
         }

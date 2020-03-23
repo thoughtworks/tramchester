@@ -13,13 +13,14 @@ public class NodeIdLabelMap {
         map = new EnumMap<>(TransportGraphBuilder.Labels.class);
         for (TransportGraphBuilder.Labels label: TransportGraphBuilder.Labels.values()) {
             if (label != TransportGraphBuilder.Labels.QUERY_NODE) {
-                map.put(label, new HashSet<Long>(getCapacity(label), 1.0F));
+                map.put(label, new HashSet<>(getCapacity(label), 1.0F));
             }
         }
         queryNodes = new ConcurrentHashMap<>();
     }
 
     private int getCapacity(TransportGraphBuilder.Labels label) {
+        // aprox. sizings
         switch (label) {
             case ROUTE_STATION: return 282;
             case TRAM_STATION: return 93;
