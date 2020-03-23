@@ -1,6 +1,7 @@
 package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
+import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -61,8 +62,9 @@ public class TramPositionInferenceTest {
         dependencies.close();
     }
 
+    // TODO rework this test to account for new 12 minutes frequency which is causing frequent intermittent failures
     @Test
-    @Category(LiveDataTestCategory.class)
+    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
     public void shouldInferTramPosition() {
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
         // Guess this is down to signalling, track, etc.
@@ -79,7 +81,7 @@ public class TramPositionInferenceTest {
         between.getTrams().forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
 
         TramPosition otherDirection = positionInference.findBetween(second, first, date, time);
-        assertTrue(otherDirection.getTrams().size()>=1);
+        assertTrue("no trams in other direction", otherDirection.getTrams().size()>=1);
         assertEquals(cost, between.getCost());
         otherDirection.getTrams().forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
     }
