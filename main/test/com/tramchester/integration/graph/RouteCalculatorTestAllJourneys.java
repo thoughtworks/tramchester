@@ -174,9 +174,6 @@ public class RouteCalculatorTestAllJourneys {
             Transaction txn = database.beginTx(TXN_TIMEOUT_SECS, TimeUnit.SECONDS);
             threadToTxnMap.put(id, txn);
         }
-//        catch(Exception uncaught) {
-//            throw uncaught;
-//        }
         return journey;
     }
 

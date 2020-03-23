@@ -38,6 +38,7 @@ public class ServiceReasons {
 
     public void reportReasons(TramTime queryTime) {
         if (success && !debugEnabled) {
+            reset();
             return;
         }
 
@@ -103,12 +104,13 @@ public class ServiceReasons {
         success = true;
     }
 
-    public void record(ImmutableJourneyState journeyState) {
+    public void record(final ImmutableJourneyState journeyState) {
         if (journeyState.onTram()) {
             incrementStat(ServiceReason.ReasonCode.OnTram);
         } else {
             incrementStat(ServiceReason.ReasonCode.OnBus);
-
         }
     }
+
+
 }

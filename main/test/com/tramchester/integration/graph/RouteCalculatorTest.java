@@ -246,7 +246,7 @@ public class RouteCalculatorTest {
                 combinations, TramTime.of(9,0));
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
-        double longest = allResults.stream().map(journey -> costOfJourney(journey)).max(Integer::compare).get();
+        double longest = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare).get();
         assertEquals(testConfig.getMaxJourneyDuration(), longest, 0.001);
 
     }
@@ -400,7 +400,7 @@ public class RouteCalculatorTest {
         Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
         journeyStream.close();
 
-        String message = String.format("from %s to %s at %s on %s", startId, destination, time, queryDate);
+        String message = "from " + startId + " to " + destination + " at " + time + " on " + queryDate;
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
         journeys.forEach(journey -> assertFalse(message + " missing stages for journey" + journey, journey.getStages().isEmpty()));
         journeys.forEach(RouteCalculatorTest::checkStages);
@@ -496,7 +496,7 @@ public class RouteCalculatorTest {
         return journeySet;
     }
 
-    private class JourneyOrNot {
+    private static class JourneyOrNot {
         private final Pair<String, Station> requested;
         private final LocalDate queryDate;
         private final TramTime queryTime;

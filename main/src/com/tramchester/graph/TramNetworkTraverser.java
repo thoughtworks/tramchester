@@ -8,6 +8,7 @@ import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicies;
 import org.neo4j.graphdb.traversal.BranchState;
+import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public Stream<Path> findPaths(Node startNode) {
 
         TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons);
-        NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, config);
+        final NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, config);
+        final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Begin traversal");
 
@@ -65,7 +67,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 relationships(TO_SERVICE, Direction.OUTGOING).
                 relationships(TO_HOUR, Direction.OUTGOING).
                 relationships(TO_MINUTE, Direction.OUTGOING).
-                expand(this, JourneyState.initialState(queryTime, traversalState)).
+                expand(this, initialJourneyState).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
                 order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST); // Breadth first hits shortest trips sooner
@@ -78,6 +80,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         stream.onClose(() -> {
             iterator.close();
             reasons.reportReasons(queryTime);
+            tramRouteEvaluator.dispose();
         });
 
         return stream.filter(path -> path.endNode().getId()==destinationNodeId);

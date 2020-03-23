@@ -15,20 +15,8 @@ public class JourneyState implements ImmutableJourneyState {
 
     private int journeyOffset;
     private TramTime boardingTime;
-
-    @Override
-    public String toString() {
-        return "JourneyState{" +
-                "journeyClock=" + journeyClock +
-                ", onTram=" + onTram +
-                ", onBus=" + onBus +
-                ", journeyOffset=" + journeyOffset +
-                ", boardingTime=" + boardingTime +
-                ", traversalState=" + traversalState +
-                '}';
-    }
-
     private TraversalState traversalState;
+
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
@@ -72,7 +60,7 @@ public class JourneyState implements ImmutableJourneyState {
         return journeyClock;
     }
 
-    public JourneyState updateJourneyClock(int currentTotalCost) {
+    public void updateJourneyClock(int currentTotalCost) {
         int costForTrip = currentTotalCost - journeyOffset;
 
         if (onTram || onBus) {
@@ -80,17 +68,15 @@ public class JourneyState implements ImmutableJourneyState {
         } else {
             journeyClock = journeyClock.plusMinutes(costForTrip);
         }
-        return this;
     }
 
-    public JourneyState recordTramDetails(TramTime boardingTime, int currentCost) throws TramchesterException {
+    public void recordTramDetails(TramTime boardingTime, int currentCost) throws TramchesterException {
         if (!(onTram||onBus)) {
             throw new TramchesterException("Not on a tram");
         }
         this.journeyClock = boardingTime;
         this.boardingTime = boardingTime;
         this.journeyOffset = currentCost;
-        return this;
     }
 
 
@@ -146,9 +132,8 @@ public class JourneyState implements ImmutableJourneyState {
         return traversalState;
     }
 
-    public JourneyState updateTraversalState(TraversalState traversalState) {
+    public void updateTraversalState(TraversalState traversalState) {
         this.traversalState = traversalState;
-        return this;
     }
 
     @Override
@@ -163,6 +148,18 @@ public class JourneyState implements ImmutableJourneyState {
     @Override
     public int hashCode() {
         return Objects.hash(journeyClock, onTram, onBus);
+    }
+
+    @Override
+    public String toString() {
+        return "JourneyState{" +
+                "journeyClock=" + journeyClock +
+                ", onTram=" + onTram +
+                ", onBus=" + onBus +
+                ", journeyOffset=" + journeyOffset +
+                ", boardingTime=" + boardingTime +
+                ", traversalState=" + traversalState +
+                '}';
     }
 
 }

@@ -39,6 +39,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         currentLowestCost = Integer.MAX_VALUE;
     }
 
+    public void dispose() {
+        previousSuccessfulVisit.clear();
+    }
+
     @Override
     public Evaluation evaluate(Path path) {
         return null;

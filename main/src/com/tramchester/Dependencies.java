@@ -192,6 +192,8 @@ public class Dependencies {
         }
         picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseService);
 
+        picoContainer.start();
+
         if (rebuildGraph) {
             logger.info("Rebuild of graph DB for " + graphName);
             TransportGraphBuilder graphBuilder = picoContainer.getComponent(TransportGraphBuilder.class);
@@ -243,6 +245,8 @@ public class Dependencies {
         components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
         logger.info("End cache stats");
         logger.info("Dependencies closed");
+        picoContainer.stop();
+        picoContainer.dispose();
     }
 
     private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {
