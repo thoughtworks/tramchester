@@ -49,8 +49,8 @@ public class RouteStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node nextNode,
-                                    JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node nextNode,
+                                          JourneyState journeyState, int cost) {
         if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
             return toPlatform(nextNode, journeyState, cost);
         }

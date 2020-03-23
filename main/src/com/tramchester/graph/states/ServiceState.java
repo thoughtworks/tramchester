@@ -30,7 +30,7 @@ public class ServiceState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == TransportGraphBuilder.Labels.HOUR) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
             return new HourState(this, relationships, maybeExistingTrip, cost);

@@ -22,7 +22,7 @@ public class DestinationState extends TraversalState
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         throw new RuntimeException("Already at destination, id is " + destinationNodeId);
     }
 

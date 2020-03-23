@@ -28,7 +28,7 @@ public class HourState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         try {
             if (nodeLabel == TransportGraphBuilder.Labels.MINUTE) {
                 return toMinute(node, journeyState, cost);

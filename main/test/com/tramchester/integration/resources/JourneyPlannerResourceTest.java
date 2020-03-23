@@ -19,10 +19,7 @@ import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Cookie;
@@ -134,6 +131,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertEquals("got "+departInfo.getStationPlatform(), expected,departInfo.getStationPlatform());
     }
 
+    @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldReproLateNightIssueShudehillToAltrincham() {
         TramTime timeForQuery = TramTime.of(23,11);
@@ -228,26 +226,31 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertThat(notes, not(hasItem(prefix)));
     }
 
+    @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, TramTime.of(23,34), when);
     }
 
+    @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, TramTime.of(23,41), when);
     }
 
+    @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, TramTime.of(22,56), when);
     }
 
+    @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, TramTime.of(22,45), when);
     }
 
+    @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,

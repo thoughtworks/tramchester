@@ -172,7 +172,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     public static LocalDate nextTuesday(int offsetDays) {
         DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;
-        LocalDate date = LocalDate.now().minusDays(offsetDays);
+        LocalDate date = LocalDate.now().plusDays(offsetDays);
         return getNextDate(dayOfWeek, date);
     }
 

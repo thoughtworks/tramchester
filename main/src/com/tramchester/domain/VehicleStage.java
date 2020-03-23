@@ -131,8 +131,8 @@ public class VehicleStage implements TransportStage {
     @Override
     public String toString() {
         return "VehicleStage{" +
-                "firstStation=" + firstStation +
-                ", lastStation=" + lastStation +
+                "firstStation=" + firstStation.getName() +
+                ", lastStation=" + lastStation.getName() +
                 ", mode=" + mode +
                 ", routeId='" + route.getId() + '\'' +
                 ", displayClass='" + displayClass + '\'' +

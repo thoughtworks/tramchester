@@ -7,10 +7,7 @@ import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -61,8 +58,15 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalCost();
     }
 
-    public abstract TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
-                                             JourneyState journeyState, int cost);
+    protected abstract TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
+                                                      JourneyState journeyState, int cost);
+
+    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
+                             JourneyState journeyState, int cost) {
+        TraversalState newState = createNextState(path, nodeLabel, node, journeyState, cost);
+
+        return newState;
+    }
 
     public Iterable<Relationship> getOutbounds() {
         return outbounds;

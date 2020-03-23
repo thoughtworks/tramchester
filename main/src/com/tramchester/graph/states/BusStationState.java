@@ -21,7 +21,7 @@ public class BusStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         long nodeId = node.getId();
         if (nodeId == destinationNodeId) {
             // TODO Cost of platform depart?

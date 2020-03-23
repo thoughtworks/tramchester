@@ -31,7 +31,7 @@ public class NotStartedState extends TraversalState {
         return 0;
     }
 
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
                 return new WalkingState(this, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);

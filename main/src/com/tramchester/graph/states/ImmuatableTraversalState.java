@@ -8,5 +8,5 @@ import org.neo4j.graphdb.Path;
 public interface ImmuatableTraversalState {
     int getTotalCost();
     TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
-              JourneyState journeyState, int cost);
+                                        JourneyState journeyState, int cost);
 }

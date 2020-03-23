@@ -94,7 +94,7 @@ public class RouteCalculatorTestAllJourneys {
                 collect(Collectors.toSet());
 
         Map<Pair<String, Station>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
-                combinations, TramTime.of(6, 5));
+                combinations, TramTime.of(8, 5));
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().

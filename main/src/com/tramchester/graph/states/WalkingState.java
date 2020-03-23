@@ -23,7 +23,7 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         // could be we've walked to our destination
         if (node.getId()==destinationNodeId) {
             return new DestinationState(this, cost);

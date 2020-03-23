@@ -81,6 +81,7 @@ public class RouteCalculatorSubGraphTest {
         validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), nextTuesday);
     }
 
+    @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldHandleCrossingMidnightDirect() {
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), nextTuesday);
