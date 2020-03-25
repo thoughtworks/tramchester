@@ -32,22 +32,18 @@ jobs:
       - run: gradle dependencies --no-daemon
       # run unit tests
       - run:
-          command: gradle ci_unit --no-daemon
           name: ci_unit
-          environment:
-            SERVER_URL: https://alpha.tramchester.com
-            ENV: Dev
-            PLACE: Dev
+          command: gradle ci_unit --no-daemon
       - run:
-          command: gradle integration --no-daemon
           name: integration
+          command: gradle integration --no-daemon
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-gradle-deps-{{ checksum "build.gradle" }}
       - run:
-          command: gradle upload --no-daemon
           name: upload
+          command: gradle upload --no-daemon
       - save_cache:
           paths:
             - ./node_modules
