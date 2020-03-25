@@ -167,10 +167,10 @@ public class TransportDataForTest implements TransportDataSource {
         stationNameMap.put(station.getName().toLowerCase(), station);
     }
 
-    private Stop createStop(Station startStation, TramTime arrivalTime, TramTime departureTime, int seuqenceId) {
+    private Stop createStop(Station startStation, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         String platformId = startStation.getId() + "1";
         platforms.put(platformId, new Platform(platformId, format("%s platform 1", startStation.getName())));
-        return new Stop(platformId, startStation, seuqenceId, arrivalTime, departureTime);
+        return new Stop(platformId, startStation, (byte) sequenceNum, arrivalTime, departureTime);
     }
 
     @Override

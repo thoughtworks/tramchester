@@ -107,7 +107,7 @@ public class TransportDataFromFiles implements TransportDataSource {
                     platform.addRoute(route);
                 }
 
-                int stopSequence = Integer.parseInt(stopTimeData.getStopSequence());
+                byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
                 Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 trip.addStop(stop);
             } else {
