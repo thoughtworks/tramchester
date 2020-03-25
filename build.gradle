@@ -179,35 +179,13 @@ task busTest(type: Test) {
 }
 
 task unit(type: Test, dependsOn: compileJava) {
-    useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.unit.*"
-        }
-        testLogging {
-            exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started",  "standardError"
-        }
-        reports {
-            junitXml.enabled = true
-            html.enabled = true
-        }
+    useJUnit()
+    filter {
+        includeTestsMatching "com.tramchester.unit.*"
     }
-}
-
-task ci_unit(type: Test) {
-    dependsOn 'allowhost'
-    dependsOn 'compileJava'
-    useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.unit.*"
-        }
-        testLogging {
-            exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started",  "standardError"
-        }
-    }
-    finalizedBy {
-        blockhost
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started",  "standardError"
     }
 }
 
@@ -215,28 +193,29 @@ task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "2000m"
     maxHeapSize = "3000m"
     useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.integration.*"
-            excludeCategories "com.tramchester.testSupport.LiveDataMessagesCategory" // hopefully temporary exclusion
-        }
-        testLogging {
-            exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
-        }
+        excludeCategories "com.tramchester.testSupport.LiveDataMessagesCategory" // hopefully temporary exclusion
     }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
+    }
+
+    forkEvery = 10 // bascially a workaround for memory growth over time, which TODO needs to get fixed!
 }
 
 task allStations(type: Test, dependsOn: compileJava) {
     minHeapSize = "2000m"
     maxHeapSize = "3000m"
-    useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.integration.graph.RouteCalculatorTestAllJourneys"
-        }
-        testLogging {
-            exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
-        }
+    useJUnit()
+    filter {
+        includeTestsMatching "com.tramchester.integration.graph.RouteCalculatorTestAllJourneys"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
     }
 }
 
@@ -244,14 +223,13 @@ task appium(type: Test) {
     dependsOn 'allowhost'
     dependsOn 'compileJava'
     dependsOn 'webpack'
-    useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.acceptance.*"
-        }
-        testLogging {
-            exceptionFormat "full" // default is "short"
-            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
-        }
+    useJUnit()
+    filter {
+        includeTestsMatching "com.tramchester.acceptance.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
     finalizedBy {
         blockhost
@@ -263,13 +241,12 @@ task localAppium(type: Test) {
     dependsOn 'compileJava'
     minHeapSize = "2000m"
     maxHeapSize = "3000m"
-    useJUnit {
-        filter {
-            includeTestsMatching "com.tramchester.acceptance.*"
-        }
-        testLogging {
-            events "passed", "skipped", "failed", "started", "standardError", "standardOut"
-        }
+    useJUnit()
+    filter {
+        includeTestsMatching "com.tramchester.acceptance.*"
+    }
+    testLogging {
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
 }
 
