@@ -86,14 +86,17 @@ public class FetchDataFromUrl implements TransportDataFetcher {
                 logger.info(format("Server mod time: %s File mod time: %s ", serverMod, localMod));
 
                 if (serverMod.isAfter(localMod)) {
+                    logger.warn("Server time is after local, downing new data");
                     downloader.downloadTo(destination, url);
+                } else {
+                    logger.info("No newer data");
                 }
             }
             catch (UnknownHostException disconnected) {
                 logger.error("Cannot connect to check or refresh data", disconnected);
             }
         } else {
-            logger.info("No local file " + destination);
+            logger.info("No local file " + destination + " so down loading new data");
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
             downloader.downloadTo(destination, url);
         }
