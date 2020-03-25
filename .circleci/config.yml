@@ -8,9 +8,7 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/openjdk:11.0.6-jdk-buster-node-browsers
-        resource_class: medium
-        environment:
-          AWS_REGION: eu-west-1
+    resource_class: medium
 
     working_directory: ~/repo
 
@@ -18,6 +16,8 @@ jobs:
       # Customize the JVM maximum heap limit
       JAVA_TOOL_OPTIONS: -Xmx3500m
       TERM: dumb
+      AWS_REGION: eu-west-1
+
 
     steps:
       - checkout
