@@ -1,6 +1,7 @@
 package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.input.Stops;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -26,22 +27,24 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class LiveDataHTTPFetcherTest {
 
     private static Dependencies dependencies;
     private static LiveDataHTTPFetcher fetcher;
     private static String payload;
+    private static IntegrationTramTestConfig configuration;
 
     private TransportDataFromFiles transportData;
-    private List<StationDepartureInfo> departureInfos;
+    private LiveDataParser parser;
+    //private List<StationDepartureInfo> departureInfos;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        configuration = new IntegrationTramTestConfig();
+        dependencies.initialise(configuration);
         // don't want to fetch every time
         fetcher = dependencies.get(LiveDataHTTPFetcher.class);
         payload = fetcher.fetch();
@@ -53,15 +56,28 @@ public class LiveDataHTTPFetcherTest {
     }
 
     @Before
-    public void beforeEachTestRuns() throws ParseException {
+    public void beforeEachTestRuns() {
         transportData = dependencies.get(TransportDataFromFiles.class);
-        LiveDataParser parser = dependencies.get(LiveDataParser.class);
-        departureInfos = parser.parse(payload);
+        parser = dependencies.get(LiveDataParser.class);
+    }
+
+    @Test
+    public void shouldHaveTFGMKeyInConfig() {
+        assertNotNull("missing tfgm live data key", configuration.getLiveDataSubscriptionKey());
     }
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldFetchDataFromTFGMAPI() {
+    public void shouldFetchSomethingFromTFGM() {
+        assertNotNull(payload);
+        assertFalse(payload.isEmpty());
+    }
+    
+    @Test
+    @Category(LiveDataTestCategory.class)
+    public void shouldFetchValidDataFromTFGMAPI() throws ParseException {
+        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+
         assertTrue(departureInfos.size()>0);
 
         String target = Stations.PiccadillyGardens.getId() + "1";
@@ -84,7 +100,9 @@ public class LiveDataHTTPFetcherTest {
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldHaveCrosscheckOnLiveDateDestinations() {
+    public void shouldHaveCrosscheckOnLiveDateDestinations() throws ParseException {
+        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+
         assertTrue(departureInfos.size()>0);
 
         Set<Station> destinations = departureInfos.stream().map(entry -> entry.getDueTrams().stream()).
