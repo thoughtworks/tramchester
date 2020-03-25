@@ -15,7 +15,7 @@ jobs:
 
     environment:
       # Customize the JVM maximum heap limit
-      JAVA_TOOL_OPTIONS: -Xmx3g
+      JAVA_TOOL_OPTIONS: -Xmx3500m
       TERM: dumb
 
     steps:
