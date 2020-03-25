@@ -70,8 +70,8 @@ public class TramGraphBuilderTest {
 
         // check number of outbound services matches services in transport data files
         Set<String> fileSvcIds = transportData.getTripsFor(mediaCityUKId).stream().
-                filter(trip -> transportData.getServiceById(trip.getServiceId()).isRunning())
-                .map(Trip::getServiceId).
+                filter(trip -> trip.getService().isRunning())
+                .map(trip -> trip.getService().getServiceId()).
                 collect(Collectors.toSet());
         fileSvcIds.removeAll(graphSvcIds);
 
@@ -156,7 +156,7 @@ public class TramGraphBuilderTest {
                 collect(Collectors.toSet());
 
         Set<String> fileSvcIdFromTrips = fileCallingTrips.stream().
-                map(Trip::getServiceId).
+                map(trip -> trip.getService().getServiceId()).
                 collect(Collectors.toSet());
 
         // each svc should be one outbound, no dups, so use list not set of ids
@@ -192,7 +192,7 @@ public class TramGraphBuilderTest {
 
         SortedSet<String> svcIdsFromCallingTrips = new TreeSet<>();
         svcIdsFromCallingTrips.addAll(callingTrips.stream().
-                map(Trip::getServiceId).
+                map(trip -> trip.getService().getServiceId()).
                 collect(Collectors.toSet()));
 
         assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);

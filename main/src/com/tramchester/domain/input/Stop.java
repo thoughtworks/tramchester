@@ -8,9 +8,9 @@ public class Stop {
     private final TramTime arrivalTime;
     private final TramTime departureTime;
     private final String stopId;
-    private final int sequenceNumber;
+    private final byte sequenceNumber;
 
-    public Stop(String stopId, Station station, int sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
+    public Stop(String stopId, Station station, byte sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
         this.stopId = stopId.intern();
         this.sequenceNumber = sequenceNumber;
         this.arrivalTime = arrivalTime;
@@ -30,6 +30,14 @@ public class Stop {
         return station;
     }
 
+    public String getId() {
+        return stopId;
+    }
+
+    public int getGetSequenceNumber() {
+        return sequenceNumber;
+    }
+
     @Override
     public String toString() {
         return "Stop{" +
@@ -40,11 +48,4 @@ public class Stop {
                 '}';
     }
 
-    public String getId() {
-        return stopId;
-    }
-
-    public int getGetSequenceNumber() {
-        return sequenceNumber;
-    }
 }

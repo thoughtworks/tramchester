@@ -102,9 +102,9 @@ public class RouteStationState extends TraversalState {
             journeyState.leaveTram(getTotalCost());
 
             // if towards ONE destination just return that one relationship
-            if (destinationStationdIds.size()==1) {
+            if (destinationStationIds.size()==1) {
                 for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
-                    if (destinationStationdIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
+                    if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
                         return new PlatformState(this, Collections.singleton(relationship), routeStationNodeId, cost);
                     }
                 }

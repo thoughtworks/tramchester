@@ -200,13 +200,13 @@ task integration(type: Test, dependsOn: compileJava) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
 
     forkEvery = 10 // bascially a workaround for memory growth over time, which TODO needs to get fixed!
 }
 
-task allStations(type: Test, dependsOn: compileJava) {
+task allStationsTest(type: Test, dependsOn: compileJava) {
     minHeapSize = "2000m"
     maxHeapSize = "3000m"
     useJUnit()
@@ -215,7 +215,20 @@ task allStations(type: Test, dependsOn: compileJava) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
+        events "passed", "skipped", "failed", "started" , "standardError", "standardOut"
+    }
+}
+
+task buildGraphTest(type: Test, dependsOn: compileJava) {
+    minHeapSize = "2000m"
+    maxHeapSize = "3000m"
+    useJUnit()
+    filter {
+        includeTestsMatching "com.tramchester.integration.graph.GraphBuildAndStartTest"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
 }
 
@@ -229,7 +242,7 @@ task appium(type: Test) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
     }
     finalizedBy {
         blockhost
@@ -246,7 +259,7 @@ task localAppium(type: Test) {
         includeTestsMatching "com.tramchester.acceptance.*"
     }
     testLogging {
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
     }
 }
 

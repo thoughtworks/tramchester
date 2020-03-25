@@ -46,6 +46,7 @@ public class NodeIdLabelMap {
     public void putQueryNode(long id) {
         queryNodes.put(id,true);
     }
+
     public void removeQueryNode(long id) {
         queryNodes.remove(id);
     }

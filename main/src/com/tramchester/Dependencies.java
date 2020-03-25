@@ -46,14 +46,13 @@ public class Dependencies {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
-    private final GraphFilter graphFilter;
 
     public Dependencies() {
-        graphFilter=null;
+        picoContainer.addComponent(GraphFilter.class, new IncludeAllFilter());
     }
 
     public Dependencies(GraphFilter graphFilter) {
-        this.graphFilter = graphFilter;
+        picoContainer.addComponent(GraphFilter.class, graphFilter);
     }
 
     public void initialise(TramchesterConfig configuration) throws IOException {
@@ -180,16 +179,8 @@ public class Dependencies {
                 throw ioException;
             }
         }
-        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
 
-        GraphDatabaseBuilder builder = graphDatabaseFactory.
-                newEmbeddedDatabaseBuilder(graphFile).
-                loadPropertiesFromFile("config/neo4j.conf");
-
-        GraphDatabaseService graphDatabaseService = builder.newGraphDatabase();
-        if (!graphDatabaseService.isAvailable(1000)) {
-            logger.error("DB Service is not available");
-        }
+        GraphDatabaseService graphDatabaseService = createGraphDatabaseService(graphFile);
         picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseService);
 
         picoContainer.start();
@@ -197,10 +188,11 @@ public class Dependencies {
         if (rebuildGraph) {
             logger.info("Rebuild of graph DB for " + graphName);
             TransportGraphBuilder graphBuilder = picoContainer.getComponent(TransportGraphBuilder.class);
-            if (graphFilter==null) {
-                graphBuilder.buildGraph();
-            } else {
+            GraphFilter graphFilter = picoContainer.getComponent(GraphFilter.class);
+            if (graphFilter.isFiltered()) {
                 graphBuilder.buildGraphwithFilter(graphFilter);
+            } else {
+                graphBuilder.buildGraph();
             }
             logger.info("Graph rebuild is finished for " + graphName);
         } else {
@@ -213,6 +205,20 @@ public class Dependencies {
 //        }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
 
+    }
+
+    public static GraphDatabaseService createGraphDatabaseService(File graphFile) {
+        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
+
+        GraphDatabaseBuilder builder = graphDatabaseFactory.
+                newEmbeddedDatabaseBuilder(graphFile).
+                loadPropertiesFromFile("config/neo4j.conf");
+
+        GraphDatabaseService graphDatabaseService = builder.newGraphDatabase();
+        if (!graphDatabaseService.isAvailable(1000)) {
+            logger.error("DB Service is not available");
+        }
+        return graphDatabaseService;
     }
 
     private void populateNodeLabelMap(GraphDatabaseService graphDatabaseService) {

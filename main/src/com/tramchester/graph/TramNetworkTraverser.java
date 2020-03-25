@@ -81,6 +81,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             iterator.close();
             reasons.reportReasons(queryTime);
             tramRouteEvaluator.dispose();
+            traversalState.dispose();
         });
 
         return stream.filter(path -> path.endNode().getId()==destinationNodeId);

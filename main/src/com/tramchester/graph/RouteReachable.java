@@ -25,12 +25,14 @@ public class RouteReachable {
     private final GraphDatabaseService graphDatabaseService;
     private final NodeIdQuery stationIndexQuery;
     private final InterchangeRepository interchangeRepository;
+    private final boolean warnForMissing;
 
     public RouteReachable(GraphDatabaseService graphDatabaseService, NodeIdQuery stationIndexQuery,
-                          InterchangeRepository interchangeRepository) {
+                          InterchangeRepository interchangeRepository, GraphFilter filter) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationIndexQuery = stationIndexQuery;
         this.interchangeRepository = interchangeRepository;
+        this.warnForMissing = !filter.isFiltered();
     }
 
     // supports building tram station reachability matrix
@@ -92,8 +94,7 @@ public class RouteReachable {
             Node found = stationIndexQuery.getStationNode(startStationId);
             if (found!=null) {
                 number = generateNoChangesPaths(startStationId, evaluator).stream().count();
-            } else {
-                // should only happen in testing when looking at subsets of the graph
+            } else if (warnForMissing) {
                 logger.warn("Cannot find node for station id " + startStationId);
             }
             tx.success();

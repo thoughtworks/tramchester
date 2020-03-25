@@ -36,18 +36,18 @@ public class StopsTest {
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        stopA = new Stop("statA1", stationA, 1, TramTime.of(10, 0), TramTime.of(10, 1));
-        stopB = new Stop("statB1", stationB, 2, TramTime.of(10, 2), TramTime.of(10, 3));
-        stopC = new Stop("statC1", stationC, 3, TramTime.of(10, 10), TramTime.of(10, 10));
-        busStopD = new Stop("statD1", stationD, 4, TramTime.of(10,10), TramTime.of(10,11));
+        stopA = new Stop("statA1", stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
+        stopB = new Stop("statB1", stationB, (byte) 2, TramTime.of(10, 2), TramTime.of(10, 3));
+        stopC = new Stop("statC1", stationC, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        busStopD = new Stop("statD1", stationD, (byte) 4, TramTime.of(10,10), TramTime.of(10,11));
         am10 = TramTime.of(10,0);
     }
 
     @Test
     public void shouldFindStopsByTimeCrossingMidnight() {
-        Stop stopF = new Stop("stop1", stationA, 1, TramTime.of(LocalTime.of(23, 45)),
+        Stop stopF = new Stop("stop1", stationA, (byte) 1, TramTime.of(LocalTime.of(23, 45)),
                 TramTime.of(LocalTime.of(23, 46)));
-        Stop stopG = new Stop("stop2", stationB, 2, TramTime.of(LocalTime.of(0, 5)),
+        Stop stopG = new Stop("stop2", stationB, (byte) 2, TramTime.of(LocalTime.of(0, 5)),
                 TramTime.of(LocalTime.of(0, 6)));
         Stops stops = new Stops();
 
@@ -112,7 +112,7 @@ public class StopsTest {
         stops.add(stopB);
         stops.add(stopC);
 
-        Stop stopD = new Stop("stopA1", stationA, 4, TramTime.of(10, 20),
+        Stop stopD = new Stop("stopA1", stationA, (byte) 4, TramTime.of(10, 20),
                 TramTime.of(10, 21));
         stops.add(stopD);
 

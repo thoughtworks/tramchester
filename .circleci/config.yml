@@ -50,13 +50,13 @@ jobs:
       - run:
           name: integration
           command: gradle integration --no-daemon
-      - run:
-          name: upload
-          command: gradle upload --no-daemon
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
           path: ~/repo/build/reports/tests
+      - run:
+          name: upload
+          command: gradle upload --no-daemon
   acceptance:
     docker:
       - image: circleci/openjdk:11.0.6-jdk-buster-node-browsers

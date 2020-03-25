@@ -25,7 +25,9 @@ public class TripTest {
 
     @Before
     public void beforeEachTestRuns() {
-        trip = new Trip("tripId","headSign", "svcId", TestConfig.getTestRoute());
+        Service service = new Service("svcId", TestConfig.getTestRoute().getId());
+
+        trip = new Trip("tripId","headSign", service, TestConfig.getTestRoute());
         stationA = new Station("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), false);
         stationB = new Station("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
         stationC = new Station("statC","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
@@ -33,10 +35,12 @@ public class TripTest {
 
     @Test
     public void shouldKnowIfTramTrip() {
-        Trip tripA = new Trip("tripId", "headSign", "svcId", TestConfig.getTestRoute());
+        Service service = new Service("svcId", TestConfig.getTestRoute().getId());
+
+        Trip tripA = new Trip("tripId", "headSign", service, TestConfig.getTestRoute());
         assertTrue(tripA.getTram());
         Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", "BUS", TransportMode.Bus);
-        Trip tripB = new Trip("tripId", "headSign", "svcId", busRoute);
+        Trip tripB = new Trip("tripId", "headSign", service, busRoute);
         assertFalse(tripB.getTram());
     }
 

@@ -123,7 +123,7 @@ public class TransportDataFromFiles implements TransportDataSource {
             Route route = routes.get(routeId);
 
             Service service = getOrInsertService(serviceId, routeId);
-            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), serviceId, route );
+            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), service, route );
             if (route != null) {
                 service.addTrip(trip);
                 route.addService(service);
@@ -194,13 +194,13 @@ public class TransportDataFromFiles implements TransportDataSource {
         return new Platform(stop.getId(), stop.getName());
     }
 
-    private Trip getOrCreateTrip(String tripId, String tripHeadsign, String serviceId, Route route) {
+    private Trip getOrCreateTrip(String tripId, String tripHeadsign, Service service, Route route) {
         if (!trips.keySet().contains(tripId)) {
-            trips.put(tripId, new Trip(tripId, tripHeadsign, serviceId, route));
+            trips.put(tripId, new Trip(tripId, tripHeadsign, service, route));
         }
 
         Trip matched = trips.get(tripId);
-        if ((!matched.getRoute().equals(route)) || matched.getServiceId()!=serviceId || matched.getHeadsign()!=tripHeadsign) {
+        if ((!matched.getRoute().equals(route)) || !matched.getService().equals(service) || matched.getHeadsign()!=tripHeadsign) {
             logger.error("Mismatch on trip id: " + tripId);
         }
         return matched;

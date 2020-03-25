@@ -14,18 +14,17 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
-//    private static final Logger logger = LoggerFactory.getLogger(TraversalState.class);
 
     private final Iterable<Relationship> outbounds;
-
     private final int costForLastEdge;
     private final int parentCost;
+    private TraversalState child;
 
     protected final TramchesterConfig config;
     protected final CachedNodeOperations nodeOperations;
     protected final long destinationNodeId;
     protected final TraversalState parent;
-    protected final List<String> destinationStationdIds;
+    protected final List<String> destinationStationIds;
 
     @Override
     public int hashCode() {
@@ -40,7 +39,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.nodeOperations = nodeOperations;
         this.outbounds = outbounds;
         this.destinationNodeId = destinationNodeId;
-        this.destinationStationdIds = destinationStationdId;
+        this.destinationStationIds = destinationStationdId;
         this.costForLastEdge = costForLastEdge;
         this.config = config;
         parentCost = 0;
@@ -49,7 +48,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
-        this.destinationStationdIds = parent.destinationStationdIds;
+        this.destinationStationIds = parent.destinationStationIds;
         this.config = parent.config;
 
         this.parent = parent;
@@ -63,9 +62,15 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
                              JourneyState journeyState, int cost) {
-        TraversalState newState = createNextState(path, nodeLabel, node, journeyState, cost);
+        child = createNextState(path, nodeLabel, node, journeyState, cost);
+        return child;
+    }
 
-        return newState;
+    public void dispose() {
+        if (child!=null) {
+            child.dispose();
+        }
+        child = null;
     }
 
     public Iterable<Relationship> getOutbounds() {

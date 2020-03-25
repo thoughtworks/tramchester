@@ -131,7 +131,7 @@ public class TransportDataFromFilesTest {
         assertFalse(trips.isEmpty());
 
         List<String> callingServices = trips.stream()
-                .map(Trip::getServiceId)
+                .map(trip -> trip.getService().getServiceId())
                 .collect(Collectors.toList());
 
         // find one service id from trips
@@ -165,12 +165,12 @@ public class TransportDataFromFilesTest {
 
         Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
 
-        Set<String> sundayServiceIds = sundayServices.stream().map(svc -> svc.getServiceId()).collect(Collectors.toSet());
+        Set<String> sundayServiceIds = sundayServices.stream().map(Service::getServiceId).collect(Collectors.toSet());
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
                 filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).collect(Collectors.toSet());
 
-        Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.contains(trip.getServiceId())).collect(Collectors.toSet());
+        Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.contains(trip.getService().getServiceId())).collect(Collectors.toSet());
 
         assertFalse(sundayTrips.isEmpty());
     }
@@ -193,11 +193,11 @@ public class TransportDataFromFilesTest {
             transportData.getStations().stream().filter(station -> checkForNewRouteStationOpen(date, station)).forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                         filter(trip -> trip.callsAt(station.getId())).
-                        filter(trip -> servicesOnDateIds.contains(trip.getServiceId())).
+                        filter(trip -> servicesOnDateIds.contains(trip.getService().getServiceId())).
                         collect(Collectors.toSet());
                 assertFalse(String.format("%s %s", date, station), callingTripsOnDate.isEmpty());
 
-                Set<String> callingServicesIds = callingTripsOnDate.stream().map(Trip::getServiceId).collect(Collectors.toSet());
+                Set<String> callingServicesIds = callingTripsOnDate.stream().map(trip -> trip.getService().getServiceId()).collect(Collectors.toSet());
 
                 for (int hour = earlistHour; hour < latestHour; hour++) {
                     TramTime tramTime = TramTime.of(hour,00);
@@ -244,7 +244,7 @@ public class TransportDataFromFilesTest {
         List<String> servicesIds = deansgateTrips.stream().
                 filter(trip -> trip.callsAt(Stations.Ashton.getId())).
                 filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(),Stations.Ashton.getId(),timeWindow)).
-                map(Trip::getServiceId).collect(Collectors.toList());
+                map(trip->trip.getService().getServiceId()).collect(Collectors.toList());
         assertTrue(servicesIds.size()>0);
 
         List<Service> sundays = transportData.getServices().stream().
@@ -366,7 +366,7 @@ public class TransportDataFromFilesTest {
         assertEquals(tripsSize, tripIdsFromSvcs.size());
 
         Set<String> tripServicesId = new HashSet<>();
-        allTrips.forEach(trip -> tripServicesId.add(trip.getServiceId()));
+        allTrips.forEach(trip -> tripServicesId.add(trip.getService().getServiceId()));
         assertEquals(allSvcs, tripServicesId.size());
     }
 
@@ -378,7 +378,7 @@ public class TransportDataFromFilesTest {
                 filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).
                 filter(trip -> trip.callsAt(Stations.MediaCityUK.getId())).
                 filter(trip -> trip.getRoute().getId().equals(RouteCodesForTesting.ASH_TO_ECCLES)).
-                map(trip -> trip.getServiceId()).collect(Collectors.toSet());
+                map(trip -> trip.getService().getServiceId()).collect(Collectors.toSet());
 
         Set<Service> services = toMediaCity.stream().
                 map(svc->transportData.getServiceById(svc)).collect(Collectors.toSet());
@@ -413,7 +413,7 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toSet());
 
 
-        Set<Service> svcs = trips.stream().map(trip -> trip.getServiceId()).
+        Set<Service> svcs = trips.stream().map(trip -> trip.getService().getServiceId()).
                 map(svcId -> transportData.getServiceById(svcId)).
                 collect(Collectors.toSet());
 
@@ -422,7 +422,7 @@ public class TransportDataFromFilesTest {
                 map(service -> service.getServiceId()).
                 collect(Collectors.toList());
 
-        List<Trip> runningTrips = trips.stream().filter(trip -> runTuesday.contains(trip.getServiceId())).collect(Collectors.toList());
+        List<Trip> runningTrips = trips.stream().filter(trip -> runTuesday.contains(trip.getService().getServiceId())).collect(Collectors.toList());
 
         assertTrue(runTuesday.size()>0);
 
@@ -439,14 +439,14 @@ public class TransportDataFromFilesTest {
                 .collect(Collectors.toSet());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID
-        List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayAshToManServices.contains(trip.getServiceId())).
+        List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayAshToManServices.contains(trip.getService().getServiceId())).
                 collect(Collectors.toList());
 
         assertTrue(filteredTrips.size()>0);
 
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<Stop> stoppingAtVelopark = filteredTrips.stream()
-                .filter(trip -> mondayAshToManServices.contains(trip.getServiceId()))
+                .filter(trip -> mondayAshToManServices.contains(trip.getService().getServiceId()))
                 .map(trip -> trip.getStopsFor(Stations.VeloPark.getId()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());

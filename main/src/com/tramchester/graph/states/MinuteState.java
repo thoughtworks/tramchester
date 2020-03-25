@@ -6,8 +6,6 @@ import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +45,7 @@ public class MinuteState extends TraversalState {
 
         // towards final destination, just follow this one
         for (Relationship depart : allDeparts) {
-            if (destinationStationdIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
+            if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
                 // we've arrived
                 return new RouteStationState(this, Collections.singleton(depart), node.getId(), tripId, cost);
             }

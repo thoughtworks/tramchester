@@ -8,7 +8,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphFilter;
+import com.tramchester.graph.ActiveGraphFilter;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
@@ -40,7 +40,7 @@ public class RouteCalculatorSubGraphTest {
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
-        GraphFilter graphFilter = new GraphFilter();
+        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
 
         stations.forEach(graphFilter::addStation);
