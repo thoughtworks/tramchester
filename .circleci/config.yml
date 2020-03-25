@@ -32,8 +32,8 @@ jobs:
       - run: gradle dependencies --no-daemon
       # run unit tests
       - run:
-          name: ci_unit
-          command: gradle ci_unit --no-daemon
+          name: unit
+          command: gradle unit --no-daemon
       - run:
           name: integration
           command: gradle integration --no-daemon
