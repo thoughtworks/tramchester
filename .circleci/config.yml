@@ -6,23 +6,12 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:11.0.6-jdk-buster-node-browsers
+      - image: circleci/openjdk:11.0.6-jdk-buster
     resource_class: medium
-
     working_directory: ~/repo
-
-    environment:
-      # Customize the JVM maximum heap limit
-      JAVA_TOOL_OPTIONS: -Xmx3500m
-      TERM: dumb
-      AWS_REGION: eu-west-1
-
 
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-gradle-deps-{{ checksum "build.gradle" }}
@@ -31,24 +20,46 @@ jobs:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
 
       - run: gradle dependencies --no-daemon
-      # run unit tests
       - run:
           name: unit
           command: gradle unit --no-daemon
+  integration:
+    docker:
+      - image: circleci/openjdk:11.0.6-jdk-buster
+    resource_class: medium
+    working_directory: ~/repo
+
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx3500m
+      TERM: dumb
+      AWS_REGION: eu-west-1
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-gradle-deps-{{ checksum "build.gradle" }}
+      - restore_cache:
+          keys:
+            - v2-npm-deps-{{ checksum "package-lock.json" }}
+      - run: gradle dependencies --no-daemon
       - run:
           name: integration
           command: gradle integration --no-daemon
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: v1-gradle-deps-{{ checksum "build.gradle" }}
       - run:
           name: upload
           command: gradle upload --no-daemon
-      - save_cache:
-          paths:
-            - ./node_modules
-          key: v2-npm-deps-{{ checksum "package-lock.json" }}
+  acceptance:
+    docker:
+      - image: circleci/openjdk:11.0.6-jdk-buster-node-browsers
+    resource_class: medium
+    working_directory: ~/repo
+
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx3500m
+      TERM: dumb
+      AWS_REGION: eu-west-1
+    steps:
       - run:
           name: deployDev
           command: gradle deploy updateLB tidy --no-daemon
@@ -85,7 +96,7 @@ jobs:
   deployProd:
     docker:
     # specify the version you desire here
-      - image: circleci/openjdk:8-jdk-node-browsers
+      - image: circleci/openjdk:11.0.6-jdk-buster
     working_directory: ~/repo
     steps:
       - checkout
@@ -112,13 +123,19 @@ jobs:
             gradle updateLB --no-daemon
 workflows:
   version: 2
-  buildStep:
+  build:
     jobs:
     - build
+    - integration:
+        requires:
+          - build
+    - acceptance:
+        requires:
+          - integration
     - hold:
         type: approval
         requires:
-        - build
+          - acceptance
     - deployProd:
         requires:
         - hold
