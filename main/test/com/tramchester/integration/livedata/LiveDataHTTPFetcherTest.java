@@ -38,7 +38,6 @@ public class LiveDataHTTPFetcherTest {
 
     private TransportDataFromFiles transportData;
     private LiveDataParser parser;
-    //private List<StationDepartureInfo> departureInfos;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -72,7 +71,7 @@ public class LiveDataHTTPFetcherTest {
         assertNotNull(payload);
         assertFalse(payload.isEmpty());
     }
-    
+
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldFetchValidDataFromTFGMAPI() throws ParseException {
