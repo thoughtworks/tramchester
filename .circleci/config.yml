@@ -34,7 +34,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      JAVA_TOOL_OPTIONS: -Xmx3500m
+      #JAVA_TOOL_OPTIONS: -Xmx3500m
       TERM: dumb
       AWS_REGION: eu-west-1
 
@@ -64,7 +64,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      JAVA_TOOL_OPTIONS: -Xmx3500m
+      #JAVA_TOOL_OPTIONS: -Xmx3500m
       TERM: dumb
       AWS_REGION: eu-west-1
     steps:
