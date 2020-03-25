@@ -10,6 +10,7 @@ import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
+import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class TransportGraphBuilder {
     private static final int LEAVE_PLATFORM_COST = 0;
     private static final int ENTER_INTER_PLATFORM_COST = 0;
     private static final int LEAVE_INTER_PLATFORM_COST = 0;
+    private final SimplePointLayer spatialLayer;
 
     private int numberNodes = 0;
     private int numberRelationships = 0;
@@ -81,6 +83,7 @@ public class TransportGraphBuilder {
         platforms = new LinkedList<>();
         timeNodeIds = new HashSet<>();
         nodesWithRouteRelationship = new HashSet<>();
+        spatialLayer = nodeIdQuery.getSpatialLayer();
     }
 
     public void buildGraphwithFilter(GraphFilter filter) {
@@ -127,8 +130,9 @@ public class TransportGraphBuilder {
         nodeIdQuery.clearAfterGraphBuild();
     }
 
-    public void buildGraph() {
+    public boolean buildGraph() {
         logger.info("Building graph from " + transportData.getFeedInfo());
+        logMemory("Before graph build");
         LocalTime start = LocalTime.now();
 
         createIndexs();
@@ -145,12 +149,12 @@ public class TransportGraphBuilder {
                         for (Trip trip : service.getTrips()) {
                             AddRouteServiceTrip(route, service, trip);
                         }
+                        // performance & memory use control
+                        tx.success();
+                        tx.close();
+                        tx = graphDatabaseService.beginTx();
                     }
                 }
-                // performance
-                tx.success();
-                tx.close();
-                tx = graphDatabaseService.beginTx();
             }
 
             logger.info("Wait for indexes online");
@@ -168,11 +172,20 @@ public class TransportGraphBuilder {
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
+            return false;
         } finally {
             tx.close();
         }
         reportStats();
         clearBuildCaches();
+        logMemory("After graph build");
+        System.gc();
+        return true;
+    }
+
+    private void logMemory(String prefix) {
+        logger.warn(format("MemoryUsage %s free:%s total:%s ", prefix,
+                Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory()));
     }
 
     private void reportStats() {
@@ -256,7 +269,7 @@ public class TransportGraphBuilder {
             LatLong latLong = station.getLatLong();
             setLatLongFor(stationNode, latLong);
 
-            nodeIdQuery.getSpatialLayer().add(stationNode);
+            spatialLayer.add(stationNode);
         }
 
 //        Node areaNode = getAreaNode(station.getArea());

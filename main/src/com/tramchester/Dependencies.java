@@ -179,16 +179,8 @@ public class Dependencies {
                 throw ioException;
             }
         }
-        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
 
-        GraphDatabaseBuilder builder = graphDatabaseFactory.
-                newEmbeddedDatabaseBuilder(graphFile).
-                loadPropertiesFromFile("config/neo4j.conf");
-
-        GraphDatabaseService graphDatabaseService = builder.newGraphDatabase();
-        if (!graphDatabaseService.isAvailable(1000)) {
-            logger.error("DB Service is not available");
-        }
+        GraphDatabaseService graphDatabaseService = createGraphDatabaseService(graphFile);
         picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseService);
 
         picoContainer.start();
@@ -213,6 +205,20 @@ public class Dependencies {
 //        }
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
 
+    }
+
+    public static GraphDatabaseService createGraphDatabaseService(File graphFile) {
+        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
+
+        GraphDatabaseBuilder builder = graphDatabaseFactory.
+                newEmbeddedDatabaseBuilder(graphFile).
+                loadPropertiesFromFile("config/neo4j.conf");
+
+        GraphDatabaseService graphDatabaseService = builder.newGraphDatabase();
+        if (!graphDatabaseService.isAvailable(1000)) {
+            logger.error("DB Service is not available");
+        }
+        return graphDatabaseService;
     }
 
     private void populateNodeLabelMap(GraphDatabaseService graphDatabaseService) {

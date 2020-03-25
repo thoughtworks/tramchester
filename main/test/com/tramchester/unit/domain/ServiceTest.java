@@ -44,9 +44,9 @@ public class ServiceTest {
     @Test
     public void shouldAddTripsToService() {
 
-        Service service = new Service("", "");
+        Service service = new Service("SVC002", "");
 
-        Trip trip = new Trip("001", "Deansgate", "SVC002", TestConfig.getTestRoute());
+        Trip trip = new Trip("001", "Deansgate", service, TestConfig.getTestRoute());
         trip.addStop(new Stop("stopId1", Stations.Deansgate, 3, TramTime.of(9,5), TramTime.of(9,6)));
         trip.addStop(new Stop("stopId2", Stations.Deansgate, 2, TramTime.of(8,15), TramTime.of(8,16)));
         trip.addStop(new Stop("stopId3", Stations.Deansgate, 4, TramTime.of(10,25), TramTime.of(10,26)));

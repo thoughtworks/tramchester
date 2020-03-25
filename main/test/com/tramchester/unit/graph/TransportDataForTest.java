@@ -21,6 +21,7 @@ import static com.tramchester.domain.Station.METROLINK_PREFIX;
 import static java.lang.String.format;
 
 public class TransportDataForTest implements TransportDataSource {
+    private final Service serviceB;
     private String serviceAId = "serviceAId";
     private String serviceBId = "serviceBId";
     private String serviceCId = "serviceCId";
@@ -60,7 +61,7 @@ public class TransportDataForTest implements TransportDataSource {
         routes.put(routeC.getId(), routeC);
 
         Service serviceA = new Service(serviceAId, routeA.getId());
-        Service serviceB = new Service(serviceBId, routeB.getId());
+        serviceB = new Service(serviceBId, routeB.getId());
         Service serviceC = new Service(serviceCId, routeC.getId());
 
         routeA.addService(serviceA);
@@ -82,7 +83,7 @@ public class TransportDataForTest implements TransportDataSource {
         services.add(serviceC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip("tripAId", "headSign", serviceAId, routeA);
+        Trip tripA = new Trip("tripAId", "headSign", serviceA, routeA);
 
         LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area1", "startStation", latLong, true);
@@ -118,7 +119,7 @@ public class TransportDataForTest implements TransportDataSource {
         addStation(stationFive);
 
         //
-        Trip tripC = new Trip("tripCId", "headSignC", serviceCId, routeC);
+        Trip tripC = new Trip("tripCId", "headSignC", serviceC, routeC);
         Stop stopG = createStop(interchangeStation, TramTime.of(8, 26), TramTime.of(8, 27), 1);
         addRouteStation(interchangeStation, routeC);
         Stop stopH = createStop(stationFive, TramTime.of(8, 31), TramTime.of(8, 33), 2);
@@ -139,7 +140,6 @@ public class TransportDataForTest implements TransportDataSource {
         addTrip(tripC);
     }
 
-
     private void addRouteStation(Station station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         routeStations.put(routeStation.getId(), routeStation);
@@ -151,7 +151,7 @@ public class TransportDataForTest implements TransportDataSource {
 
     public void createInterchangeToStation4Trip(Route route, Service service, Station interchangeStation, Station station,
                                                 LocalTime startTime, String tripB2Id) {
-        Trip trip = new Trip(tripB2Id, "headSignTripB2", serviceBId, route);
+        Trip trip = new Trip(tripB2Id, "headSignTripB2", serviceB, route);
         Stop stop1 = createStop(interchangeStation, TramTime.of(startTime),
                 TramTime.of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
