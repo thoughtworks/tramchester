@@ -5,8 +5,7 @@ import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.*;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
@@ -31,8 +30,14 @@ public class DiagramCreator {
 
     public void create(String fileName, List<String> startPointsList) throws IOException {
 
-        List<Long> seen = new LinkedList<>();
-        StringBuilder builder = new StringBuilder();
+        Set<Long> nodeSeen = new HashSet<>();
+        Set<Long> relationshipSeen = new HashSet<>();
+
+        OutputStream fileStream = new FileOutputStream(fileName);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);
+        PrintStream printStream = new PrintStream(bufferedOutputStream);
+
+        DiagramBuild builder = new DiagramBuild(printStream);
 
         try (Transaction tx = graphDatabaseService.beginTx()) {
             builder.append("digraph G {\n");
@@ -40,48 +45,51 @@ public class DiagramCreator {
             startPointsList.forEach(startPoint -> {
                 Node startNode = graphDatabaseService.findNode(TransportGraphBuilder.Labels.TRAM_STATION,
                         GraphStaticKeys.ID, startPoint);
-                visit(startNode, builder, seen, 0);
+                visit(startNode, builder, 0, nodeSeen, relationshipSeen);
             });
 
             builder.append("}");
             tx.success();
         }
 
-        FileWriter writer = new FileWriter(fileName);
-        writer.write(builder.toString());
-        writer.close();
+        relationshipSeen.clear();
+        nodeSeen.clear();
+
+        printStream.close();
+        bufferedOutputStream.close();
+        fileStream.close();
     }
 
-    private void visit(Node node, StringBuilder builder, List<Long> seen, int depth) {
+    private void visit(Node node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen) {
         if (depth>=depthLimit) {
             return;
         }
-        if (seen.contains(node.getId())) {
+        if (nodeSeen.contains(node.getId())) {
             return;
         }
-        seen.add(node.getId());
+        nodeSeen.add(node.getId());
 
         addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(node),
                 getLabelFor(node), getShapeFor(node)));
 
-        visitOutbounds(node, builder, seen, depth);
-        visitInbounds(node, builder, seen, depth);
+        visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen);
+        visitInbounds(node, builder, depth, nodeSeen, relationshipSeen);
 
     }
 
-    private void visitInbounds(Node targetNode, StringBuilder builder, List<Long> seen, int depth) {
+    private void visitInbounds(Node targetNode, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen) {
         targetNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.values()).forEach(towards -> {
 
             Node startNode = towards.getStartNode();
             addNode(builder, startNode);
 
             // startNode -> targetNode
-            addEdge(builder, towards, createNodeId(startNode), createNodeId(targetNode));
-            visit(startNode, builder, seen, depth+1);
+            addEdge(builder, towards, createNodeId(startNode), createNodeId(targetNode), relationshipSeen);
+            visit(startNode, builder, depth+1, nodeSeen, relationshipSeen);
         });
     }
 
-    private void visitOutbounds(Node startNode, StringBuilder builder, List<Long> seen, int depth) {
+    private void visitOutbounds(Node startNode, DiagramBuild builder, int depth, Set<Long> seen, Set<Long> relationshipSeen) {
         Map<Long,Relationship> tramGoesToRelationships = new HashMap<>();
 
         startNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.forPlanning()).forEach(awayFrom -> {
@@ -91,14 +99,14 @@ public class DiagramCreator {
             Node rawEndNode = awayFrom.getEndNode();
 
             addNode(builder, startNode);
-            addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode));
+            addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
 
             if (relationshipType==TransportRelationshipTypes.TRAM_GOES_TO) {
                 if (!tramGoesToRelationships.containsKey(awayFrom.getId())) {
                     tramGoesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
             }
-            visit(rawEndNode, builder, seen, depth+1);
+            visit(rawEndNode, builder, depth+1, seen, relationshipSeen);
         });
 
         // add services for this node
@@ -119,9 +127,14 @@ public class DiagramCreator {
     }
 
 
-    private void addEdge(StringBuilder builder, Relationship edge, String startNodeId, String endNodeId) {
+    private void addEdge(DiagramBuild builder, Relationship edge, String startNodeId, String endNodeId, Set<Long> relationshipSeen) {
 
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
+
+        if (relationshipSeen.contains(edge.getId())) {
+            return;
+        }
+        relationshipSeen.add(edge.getId());
 
         if (relationshipType==TransportRelationshipTypes.TRAM_GOES_TO) {
             // use outbound
@@ -134,7 +147,7 @@ public class DiagramCreator {
         }
     }
 
-    private void addNode(StringBuilder builder, Node sourceNode) {
+    private void addNode(DiagramBuild builder, Node sourceNode) {
         addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(sourceNode),
                 getLabelFor(sourceNode), getShapeFor(sourceNode)));
     }
@@ -198,10 +211,8 @@ public class DiagramCreator {
         return node.getProperty(GraphStaticKeys.ID).toString();
     }
 
-    private void addLine(StringBuilder builder, String line) {
-        if (builder.lastIndexOf(line) < 0) {
-            builder.append(line);
-        }
+    private void addLine(DiagramBuild builder, String line) {
+        builder.append(line);
     }
 
     private String createShortForm(TransportRelationshipTypes relationshipType) {
@@ -220,6 +231,19 @@ public class DiagramCreator {
             case DEPART: return "D";
             case BUS_GOES_TO: return "Bus";
             default: return "Unkn";
+        }
+    }
+
+    private class DiagramBuild {
+        private final PrintStream printStream;
+
+        public DiagramBuild(PrintStream printStream) {
+
+            this.printStream = printStream;
+        }
+
+        public void append(String text) {
+            printStream.print(text);
         }
     }
 }

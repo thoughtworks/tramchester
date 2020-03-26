@@ -15,10 +15,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,11 +31,6 @@ public class TransportDataFromFilesTest {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
-    // use JourneyPlannerResourceTest.shouldFindRouteDeansgateToVictoria to find svc id
-    private final String svcDeansgateToVic = "Serv003592";
-    // use JourneyPlannerResourceTest.shouldFindRouteVicToShawAndCrompton to find svc id
-    private String svcShawAndCrompton = "Serv003591";
-
     private Collection<Service> allServices;
 
     @BeforeClass

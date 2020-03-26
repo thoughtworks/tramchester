@@ -77,10 +77,10 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
         stationsById.clear();
         stationsByName.clear();
         services.clear();
-        routes.clear();
         platforms.clear();
         routeStations.clear();
         agencies.clear();
+        routes.clear();
         areas.clear();
     }
 
