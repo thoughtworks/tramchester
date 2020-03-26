@@ -68,6 +68,13 @@ jobs:
       TERM: dumb
       AWS_REGION: eu-west-1
     steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-gradle-deps-{{ checksum "build.gradle" }}
+      - restore_cache:
+          keys:
+            - v2-npm-deps-{{ checksum "package-lock.json" }}
       - run:
           name: deployDev
           command: gradle deploy updateLB tidy --no-daemon
