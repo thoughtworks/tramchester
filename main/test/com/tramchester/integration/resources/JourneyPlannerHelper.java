@@ -19,8 +19,6 @@ import static org.junit.Assert.assertTrue;
 
 public abstract class JourneyPlannerHelper {
 
-    JourneyPlannerResource planner;
-
     static void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
         for(JourneyDTO journey: journeys) {
             TramTime previousArrive = null;

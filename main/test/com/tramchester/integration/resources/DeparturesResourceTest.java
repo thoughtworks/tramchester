@@ -1,21 +1,18 @@
 package com.tramchester.integration.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
-import com.tramchester.testSupport.LiveDataMessagesCategory;
-import com.tramchester.testSupport.LiveDataTestCategory;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.LiveDataMessagesCategory;
+import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,19 +33,12 @@ public class DeparturesResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    ObjectMapper mapper = new ObjectMapper();
-
     private List<String> nearby = Arrays.asList(Stations.PiccadillyGardens.getName(),
             Stations.StPetersSquare.getName(),
             Stations.Piccadilly.getName(),
             Stations.MarketStreet.getName(),
             Stations.ExchangeSquare.getName(),
             "Shudehill");
-
-    @Before
-    public void beforeEachTestRuns() {
-        mapper.registerModule(new JodaModule());
-    }
 
     @Test
     @Category(LiveDataTestCategory.class)

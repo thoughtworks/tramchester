@@ -208,7 +208,7 @@ public class AppUserJourneyTest {
         Stage stage = stages.get(0);
 
         validateAStage(stage, firstResult.getDepartTime(), "Board", altrincham, 1,
-                altyToBuryClass, altyToBuryLineName, Stations.Bury.getName(), 9);
+                altyToPiccClass, altyToPicLineName, Stations.Piccadilly.getName(), 9);
     }
 
     @Test
@@ -330,10 +330,10 @@ public class AppUserJourneyTest {
         Stage secondStage = stages.get(1);
 
         validateAStage(firstStage, firstResult.getDepartTime(), "Board", altrincham, 1,
-                altyToBuryClass, altyToBuryLineName,
-                Stations.Bury.getName(), 7);
+                altyToPiccClass, altyToPicLineName,
+                Stations.Piccadilly.getName(), 7);
         // Too timetable dependent?
-        validateAStage(secondStage, LocalTime.parse("10:36"), "Change", Stations.TraffordBar.getName(),
+        validateAStage(secondStage, LocalTime.parse("10:43"), "Change", Stations.TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
                 Stations.ManAirport.getName(), 17);
 

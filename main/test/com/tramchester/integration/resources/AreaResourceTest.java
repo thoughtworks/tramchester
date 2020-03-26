@@ -1,13 +1,10 @@
 package com.tramchester.integration.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -24,13 +21,6 @@ public class AreaResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    ObjectMapper mapper = new ObjectMapper();
-
-    @Before
-    public void beforeEachTestRuns() {
-        mapper.registerModule(new JodaModule());
-    }
-
     @Test
     public void shouldGetAllAreas() {
         List<AreaDTO> results = getAll();
@@ -38,6 +28,7 @@ public class AreaResourceTest {
         assertTrue(results.size()>0);
         AreaDTO area = new AreaDTO("Manchester Airport");
         assertTrue(results.contains(area));
+        results.clear();
     }
 
     private List<AreaDTO> getAll() {

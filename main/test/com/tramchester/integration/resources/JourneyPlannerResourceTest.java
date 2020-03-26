@@ -1,13 +1,12 @@
 package com.tramchester.integration.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.testSupport.LiveDataTestCategory;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Location;
+import com.tramchester.domain.MyLocationFactory;
+import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -18,7 +17,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 
@@ -55,8 +56,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Before
     public void beforeEachTestRuns() {
         when = TestConfig.nextTuesday(0);
-        // todo NO longer needed?
-        mapper.registerModule(new JodaModule());
     }
 
     @Test

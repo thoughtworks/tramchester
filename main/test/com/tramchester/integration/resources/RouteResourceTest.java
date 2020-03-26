@@ -27,14 +27,8 @@ public class RouteResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    private ObjectMapper mapper = new ObjectMapper();
     private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
             "shortName", new LinkedList<>(), "displayClass");
-
-    @Before
-    public void beforeEachTestRuns() {
-        mapper.registerModule(new JodaModule());
-    }
 
     @Test
     public void shouldGetAllRoutes() {

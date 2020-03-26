@@ -44,11 +44,6 @@ public class StationResourceTest {
 
     ObjectMapper mapper = new ObjectMapper();
 
-    @Before
-    public void beforeEachTestRuns() {
-        mapper.registerModule(new JodaModule());
-    }
-
     @Test
     public void shouldGetSingleStationWithPlatforms() {
         String id = Stations.StPetersSquare.getId();

@@ -149,12 +149,12 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
         });
     }
 
-    private void populateRoutes(Stream<RouteData> routes) {
-        routes.forEach((routeData) -> {
+    private void populateRoutes(Stream<RouteData> routeDataStream) {
+        routeDataStream.forEach(routeData -> {
             String agency = routeData.getAgency();
             Route route = new Route(routeData.getId(), routeData.getShortName(), routeData.getLongName(), agency,
                     getMode(routeData.getRouteType()));
-            this.routes.put(route.getId(), route);
+            routes.put(route.getId(), route);
             if (!agencies.containsKey(agency)) {
                 agencies.put(agency, new Agency(agency));
             }

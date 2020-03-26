@@ -1,8 +1,6 @@
 package com.tramchester.integration.resources;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.domain.MyLocationFactory;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -40,14 +38,12 @@ public class JourneyPlannerBusTest {
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class,
             new IntegrationBusTestConfig());
 
-    private ObjectMapper mapper = new ObjectMapper();
     private LocalDate nextTuesday;
 
     @Before
     public void beforeEachTestRuns() {
         nextTuesday = TestConfig.nextTuesday(0);
         // todo NO longer needed?
-        mapper.registerModule(new JodaModule());
     }
 
     @Category({BusTest.class})

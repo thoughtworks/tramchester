@@ -1,20 +1,18 @@
 package com.tramchester.integration.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.MyLocationFactory;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
 
 import javax.ws.rs.core.Response;
@@ -37,13 +35,11 @@ public class JourneyPlannerLocationResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, config);
 
-    private ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
 
     @Before
     public void beforeEachTestRuns() {
         when = TestConfig.nextTuesday(0);
-        mapper.registerModule(new JodaModule());
     }
 
     @Test
