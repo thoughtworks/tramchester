@@ -183,6 +183,8 @@ public class Dependencies {
         GraphDatabaseService graphDatabaseService = createGraphDatabaseService(graphFile);
         picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseService);
 
+        picoContainer.start();
+
         if (rebuildGraph) {
             logger.info("Rebuild of graph DB for " + graphName);
             TransportGraphBuilder graphBuilder = picoContainer.getComponent(TransportGraphBuilder.class);
@@ -229,7 +231,7 @@ public class Dependencies {
             }
             tx.success();
         }
-        nodeIdLabelMap.freeze();
+        //nodeIdLabelMap.freeze();
     }
 
     public <T> T get(Class<T> klass) {
@@ -247,8 +249,11 @@ public class Dependencies {
         logger.info("Begin cache stats");
         List<ReportsCacheStats> components = picoContainer.getComponents(ReportsCacheStats.class);
         components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
+        picoContainer.stop();
+        picoContainer.dispose();
         logger.info("End cache stats");
         logger.info("Dependencies closed");
+        System.gc(); // for tests which accumulate/free a lot of memory
     }
 
     private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {

@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramServiceDate;
+import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +20,8 @@ import static com.tramchester.dataimport.data.RouteData.BUS_TYPE;
 import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
 import static java.lang.String.format;
 
-public class TransportDataFromFiles implements TransportDataSource {
+public class TransportDataFromFiles implements TransportDataSource, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
-
 
     private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
@@ -67,6 +67,21 @@ public class TransportDataFromFiles implements TransportDataSource {
         );
 
         logger.info("Data load is complete");
+    }
+
+    @Override
+    public void dispose() {
+        logger.info("dispose");
+        // testing overhead control
+        trips.clear();
+        stationsById.clear();
+        stationsByName.clear();
+        services.clear();
+        routes.clear();
+        platforms.clear();
+        routeStations.clear();
+        agencies.clear();
+        areas.clear();
     }
 
     private void populateCalendars(Stream<CalendarData> calendars) {

@@ -1,10 +1,12 @@
 package com.tramchester.graph;
 
+import org.picocontainer.Disposable;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class NodeIdLabelMap {
+public class NodeIdLabelMap implements Disposable {
     // map from the NodeId to the Label
     private Map<TransportGraphBuilder.Labels, Set<Long>> map;
     private ConcurrentMap<Long, Boolean> queryNodes;
@@ -17,6 +19,13 @@ public class NodeIdLabelMap {
             }
         }
         queryNodes = new ConcurrentHashMap<>();
+    }
+
+
+    @Override
+    public void dispose() {
+        queryNodes.clear();
+        map.clear();
     }
 
     private int getCapacity(TransportGraphBuilder.Labels label) {
@@ -51,7 +60,8 @@ public class NodeIdLabelMap {
         queryNodes.remove(id);
     }
 
-    public void freeze() {
-        map = Collections.unmodifiableMap(map);
-    }
+//    public void freeze() {
+//        map = Collections.unmodifiableMap(map);
+//    }
+
 }

@@ -236,12 +236,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    public void reproducdeIssueWithEndToEndTest() {
-        validateAtLeastOneJourney(Stations.ManAirport, Stations.EastDidsbury, TramTime.of(10,15),
-                LocalDate.of(2020,3,24));
-    }
-
-    @Test
     @Ignore
     public void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
         Set<Pair<String, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);

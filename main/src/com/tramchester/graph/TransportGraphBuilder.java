@@ -457,7 +457,7 @@ public class TransportGraphBuilder {
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
         String routeIdClean = route.getId().replaceAll(" ", "");
         String beginSvcNodeId = startLocation.getId()+"_"+endStop.getStation().getId()+"_"+
-                service.getServiceId()+"_"+routeIdClean;
+                service.getServiceId(); //+"_"+routeIdClean;
 
         Node beginServiceNode = nodeIdQuery.getServiceNode(beginSvcNodeId);
         String tripId = trip.getTripId();

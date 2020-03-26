@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.picocontainer.Disposable;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 
-public class CachedNodeOperations implements ReportsCacheStats {
+public class CachedNodeOperations implements ReportsCacheStats, Disposable {
 
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, String> tripRelationshipCache;
@@ -39,6 +40,15 @@ public class CachedNodeOperations implements ReportsCacheStats {
         hourNodeCache = createCache(38000);
         tripRelationshipCache = createCache(32500);
         times = createCache(40000);
+    }
+
+    @Override
+    public void dispose() {
+        relationshipCostCache.invalidateAll();
+        svcIdCache.invalidateAll();
+        hourNodeCache.invalidateAll();
+        tripRelationshipCache.invalidateAll();
+        times.invalidateAll();
     }
 
     @NonNull
