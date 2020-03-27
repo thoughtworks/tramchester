@@ -12,9 +12,8 @@ public class StationDepartureInfo implements HasPlatformMessage {
 
     private static final String NO_MESSAGE = "<no message>";
 
-    // TODO Should Add Both
     public enum Direction {
-        Incoming, Outgoing, Unknown
+        Incoming, Outgoing, Both, Unknown
     }
 
     private final String lineName;
@@ -52,6 +51,10 @@ public class StationDepartureInfo implements HasPlatformMessage {
 
     public String getLineName() {
         return lineName;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public String getStationPlatform() {

@@ -104,6 +104,7 @@ public class LiveDataParserTest extends EasyMockSupport {
         assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +
                 "ahead with additional time for travel.", departureInfoA.getMessage());
+        assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoA.getDirection());
 
         List<DueTram> dueTrams = departureInfoA.getDueTrams();
         assertEquals(3, dueTrams.size());
@@ -122,6 +123,7 @@ public class LiveDataParserTest extends EasyMockSupport {
         assertEquals("Airport", departureInfoB.getLineName());
         ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 06, 29, 13, 55), TramchesterConfig.TimeZone);
         assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
+        assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoB.getDirection());
     }
 
     @Test
@@ -138,16 +140,29 @@ public class LiveDataParserTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeDueTramsWithDestinationSetToNotInService() throws ParseException {
-
         String notInService = exampleData.replaceFirst("Deansgate Castlefield", "Not in Service");
+
         replayAll();
         List<StationDepartureInfo> info = parser.parse(notInService);
         verifyAll();
-        assertEquals(2, info.size());
 
+        assertEquals(2, info.size());
         StationDepartureInfo departureInfoB = info.get(1);
         assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
         assertEquals(1, departureInfoB.getDueTrams().size());
+    }
+
+    @Test
+    public void shouldParseDataWithDirectionIncomingOutgoing() throws ParseException {
+        String bothDirections = exampleData.replaceAll("Incoming", "Incoming/Outgoing");
+
+        replayAll();
+        List<StationDepartureInfo> info = parser.parse(bothDirections);
+        verifyAll();
+        assertEquals(2, info.size());
+        assertEquals(StationDepartureInfo.Direction.Both, info.get(0).getDirection());
+        assertEquals(StationDepartureInfo.Direction.Both, info.get(1).getDirection());
+
     }
 
     @Test

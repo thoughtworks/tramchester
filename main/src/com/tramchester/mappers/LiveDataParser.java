@@ -19,12 +19,15 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static com.tramchester.domain.liveUpdates.StationDepartureInfo.Direction.Both;
 import static com.tramchester.domain.liveUpdates.StationDepartureInfo.Direction.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
+
+    private static final String DIRECTION_BOTH = "Incoming/Outgoing";
     private static final String TERMINATES_HERE = "Terminates Here";
     private TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
     private final StationRepository stationRepository;
@@ -84,6 +87,9 @@ public class LiveDataParser {
     }
 
     private StationDepartureInfo.Direction getDirection(String rawDirection) {
+        if (DIRECTION_BOTH.equals(rawDirection)) {
+            return Both;
+        }
         try {
             return StationDepartureInfo.Direction.valueOf(rawDirection);
         }
