@@ -44,11 +44,17 @@ public class Page {
     }
 
     public String getExpectedBuildNumberFromEnv() {
-        String build = System.getenv("CIRCLE_BUILD_NUM");
-        if (build==null) {
-            build = "0";
+        // prefer release number if set
+        String releaseNumber = System.getenv("RELEASE_NUMBER");
+        if (releaseNumber!=null) {
+            return releaseNumber;
         }
-        return build;
+        String build = System.getenv("CIRCLE_BUILD_NUM");
+        if (build!=null) {
+            return build;
+        }
+        // 0 for dev machines
+        return "0";
     }
 
 }
