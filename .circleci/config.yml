@@ -100,11 +100,13 @@ jobs:
             sudo update-locale en_GB.UTF-8
       - run:
           name: acceptance
-          command: |
-            export LANG="en_GB.UTF-8"
-            gradle appium --no-daemon
           environment:
             SERVER_URL: https://alpha.tramchester.com
+          command: |
+            source workspace/release_num.txt
+            echo release number is $RELEASE_NUMBER
+            export LANG="en_GB.UTF-8"
+            gradle appium --no-daemon
       - run:
           name: deployUAT
           environment:
