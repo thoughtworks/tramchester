@@ -24,15 +24,15 @@ public class LiveDataMessagesHealthCheck extends HealthCheck {
     }
 
     // normally only between 2 and 4 missing
-    public static final int MISSING_MSGS_LIMIT = 4;
+    private static final int MISSING_MSGS_LIMIT = 4;
 
     // during night hours gradually goes to zero than back to full about 6.05am
 
     @Override
     public Result check() {
         logger.info("Checking live data health");
-        int entries = repository.countEntries();
-        int messages = repository.countMessages();
+        int entries = repository.upToDateEntries();
+        int messages = repository.entriesWithMessages();
 
         int offset = entries - messages;
         boolean lateNight = currentTimeProvider.getNow().between(startOfNight, endOfNight);

@@ -24,14 +24,14 @@ public class LiveDataHealthCheck extends HealthCheck {
     @Override
     public Result check() {
         logger.info("Checking live data health");
-        int total = repository.countEntries();
+        int total = repository.upToDateEntries();
 
         if (total==0) {
             logger.error(noEntriesPresent);
             return Result.unhealthy(noEntriesPresent);
         }
 
-        long stale = repository.staleDataCount();
+        long stale = repository.missingDataCount();
         if (stale!=0L) {
             String message = format("%s of %s entries are stale", stale, total);
             logger.error(message);
@@ -40,7 +40,7 @@ public class LiveDataHealthCheck extends HealthCheck {
 
         TramTime queryTime = providesNow.getNow();
 
-        long notExpired = repository.upToDateEntries(queryTime);
+        long notExpired = repository.upToDateEntries();
         if (notExpired!=total) {
             String message = format("%s of %s entries are expired at %s", total-notExpired, total, queryTime);
             logger.error(message);

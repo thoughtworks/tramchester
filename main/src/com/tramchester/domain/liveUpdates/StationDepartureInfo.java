@@ -10,19 +10,21 @@ import java.util.stream.Collectors;
 
 public class StationDepartureInfo implements HasPlatformMessage {
 
-    // TOOD Should Add Both
+    private static final String NO_MESSAGE = "<no message>";
+
+    // TODO Should Add Both
     public enum Direction {
         Incoming, Outgoing, Unknown
     }
 
-    private String lineName;
-    private String stationPlatform;
-    private String message;
-    private List<DueTram> dueTrams;
-    private LocalDateTime lastUpdate;
-    private String displayId;
-    private Station station;
-    private Direction direction;
+    private final String lineName;
+    private final String stationPlatform;
+    private final String message;
+    private final List<DueTram> dueTrams;
+    private final LocalDateTime lastUpdate;
+    private final String displayId;
+    private final Station station;
+    private final Direction direction;
 
     public StationDepartureInfo(String displayId, String lineName, Direction direction, String stationPlatform,
                                 Station station, String message, LocalDateTime lastUpdate) {
@@ -31,9 +33,21 @@ public class StationDepartureInfo implements HasPlatformMessage {
         this.direction = direction;
         this.stationPlatform = stationPlatform;
         this.station = station;
-        this.message = message;
+        if (invalidMessage(message)) {
+            this.message= "";
+        } else {
+            this.message = message;
+        }
         this.lastUpdate = lastUpdate;
         dueTrams = new LinkedList<>();
+    }
+
+    private boolean invalidMessage(String message) {
+        return NO_MESSAGE.equals(message) || scrollingDisplay(message);
+    }
+
+    private boolean scrollingDisplay(String message) {
+        return message.startsWith("^F0Next");
     }
 
     public String getLineName() {
@@ -70,10 +84,6 @@ public class StationDepartureInfo implements HasPlatformMessage {
 
     public String getDisplayId() {
         return displayId;
-    }
-
-    public void clearMessage() {
-        message="";
     }
 
     public String getLocation() {

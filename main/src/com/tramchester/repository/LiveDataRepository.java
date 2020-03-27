@@ -1,113 +1,144 @@
 package com.tramchester.repository;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
+import org.apache.commons.lang3.tuple.Pair;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class LiveDataRepository implements LiveDataSource {
+public class LiveDataRepository implements LiveDataSource, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
-    private static final String NO_MESSAGE = "<no message>";
+    private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
     // platformId -> StationDepartureInfo
-    private Map<String, StationDepartureInfo> stationInformation;
-
-    private LiveDataFetcher fetcher;
-    private LiveDataParser parser;
+    private final Cache<String, StationDepartureInfo> departureInfoCache;
+    private final Set<String> uniquePlatformsSeen;
     private LocalDateTime lastRefresh;
-    private int messageCount;
-
     private List<LiveDataObserver> observers;
 
-    // TODO inject provider of current time
-    public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser) {
+    private final LiveDataFetcher fetcher;
+    private final LiveDataParser parser;
+    private final ProvidesNow providesNow;
+
+    public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser, ProvidesNow providesNow) {
         this.fetcher = fetcher;
         this.parser = parser;
-        stationInformation = new HashMap<>();
-        lastRefresh = LocalDateTime.now();
+        this.providesNow = providesNow;
+
+        departureInfoCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
+                expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
+        uniquePlatformsSeen = new HashSet<>();
         observers = new LinkedList<>();
-        messageCount = 0;
     }
 
     public void refreshRespository()  {
-        Map<String, StationDepartureInfo> newMap = Collections.emptyMap();
 
         logger.info("Refresh repository");
         String payload  = fetcher.fetch();
+        List<StationDepartureInfo> receivedInfos = Collections.emptyList();
         if (payload.length()>0) {
-            messageCount = 0;
             try {
-                List<StationDepartureInfo> infos = parser.parse(payload);
-                newMap = consumeDepartInfo(infos);
+                receivedInfos = parser.parse(payload);
             } catch (ParseException exception) {
                 logger.error("Unable to parse received JSON: " + payload, exception);
+                return;
             }
         }
-        if (newMap.isEmpty()) {
-            logger.error(format("Unable to refresh live data from payload: '%s'", payload));
+
+        int received = receivedInfos.size();
+        logger.info(format("Received %s updates", received));
+        int updatesConsumed = consumeDepartInfo(receivedInfos);
+        departureInfoCache.cleanUp();
+
+        long currentSize = departureInfoCache.estimatedSize();
+        if (currentSize != updatesConsumed) {
+            logger.warn(format("Unable to fully refresh (current: %s consumed: %s) live data", currentSize, updatesConsumed));
         } else {
-            logger.info("Refreshed live data, count is: " + newMap.size());
-            stationInformation = newMap;
-            lastRefresh = LocalDateTime.now();
-            invokeObservers();
+            logger.info("Refreshed live data, count is: " + departureInfoCache.estimatedSize());
         }
+        lastRefresh = providesNow.getDateTime();
+        invokeObservers();
     }
 
-    private HashMap<String, StationDepartureInfo> consumeDepartInfo(List<StationDepartureInfo> infos) {
-        HashMap<String,StationDepartureInfo> newMap = new HashMap<>();
+    private int consumeDepartInfo(List<StationDepartureInfo> receivedUpdate) {
+        Set<String> platformsSeen = new HashSet<>();
+        TramTime now = providesNow.getNow();
+        LocalDate date = providesNow.getDate();
+        int stale = 0;
 
-        infos.forEach(newDepartureInfo -> {
-            String platformId = newDepartureInfo.getStationPlatform();
-            if (!newMap.containsKey(platformId)) {
-                String message = newDepartureInfo.getMessage();
-                if (message.equals(NO_MESSAGE)) {
-                    newDepartureInfo.clearMessage();
-                } else {
-                    messageCount = messageCount + 1;
-                }
-                if (scrollingDisplay(message)) {
-                    newDepartureInfo.clearMessage();
-                }
-                newMap.put(platformId, newDepartureInfo);
+        for (StationDepartureInfo newDepartureInfo : receivedUpdate) {
+            uniquePlatformsSeen.add(newDepartureInfo.getStationPlatform());
+            if (isTimely(newDepartureInfo, date, now)) {
+                updateCacheFor(newDepartureInfo, platformsSeen);
             } else {
-                StationDepartureInfo existingDepartureInfo = newMap.get(platformId);
-                newDepartureInfo.getDueTrams().forEach(dueTram -> {
-                    if (!existingDepartureInfo.hasDueTram(dueTram)) {
-                        // WARNING because: right now this hardly seems to happen, need some examples to figure
-                        // out the right approach, in part because the live api is not really documented
-                        logger.warn(format("Additional due tram '%s' seen for platform id '%s'", dueTram, platformId));
-                        existingDepartureInfo.addDueTram(dueTram);
-                    }
-                });
+                stale = stale + 1;
+                logger.warn("Received stale departure info " + newDepartureInfo);
             }
-        });
-        return newMap;
+        }
+        return platformsSeen.size();
     }
 
-    private boolean scrollingDisplay(String message) {
-        return message.startsWith("^F0Next");
+    private boolean isTimely(StationDepartureInfo newDepartureInfo, LocalDate date, TramTime now) {
+        LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
+        if (!updateDate.equals(date)) {
+            logger.warn("Received invalid update, date was " + updateDate);
+            return false;
+        }
+        TramTime updateTime = TramTime.of(newDepartureInfo.getLastUpdate());
+        if (TramTime.diffenceAsMinutes(now, updateTime) > TIME_LIMIT) {
+            logger.warn(format("Received invalid update. Local Now: %s Update: %s ", providesNow.getNow(), updateDate));
+            return false;
+        }
+        return true;
+    }
+
+    private void updateCacheFor(StationDepartureInfo newDepartureInfo, Set<String> platformsSeen) {
+        String platformId = newDepartureInfo.getStationPlatform();
+        if (!platformsSeen.contains(platformId)) {
+            platformsSeen.add(platformId);
+            departureInfoCache.put(platformId, newDepartureInfo);
+            return;
+        }
+
+        // many platforms have more than one display, no need to warn about it
+        @Nullable StationDepartureInfo existingEntry = departureInfoCache.getIfPresent(platformId);
+        if (existingEntry!=null) {
+            newDepartureInfo.getDueTrams().forEach(dueTram -> {
+                if (!existingEntry.hasDueTram(dueTram)) {
+                    logger.info(format("Additional due tram '%s' seen for platform id '%s'", dueTram, platformId));
+                    existingEntry.addDueTram(dueTram);
+                }
+            });
+        }
     }
 
     private void invokeObservers() {
         try {
-            observers.forEach(observer -> observer.seenUpdate(stationInformation.values()));
+            observers.forEach(observer -> observer.seenUpdate(departureInfoCache.asMap().values()));
         }
         catch (RuntimeException runtimeException) {
             logger.error("Error invoking observer", runtimeException);
@@ -116,6 +147,10 @@ public class LiveDataRepository implements LiveDataSource {
 
     @Override
     public Optional<StationDepartureInfo> departuresFor(HasId platform, TramServiceDate tramServiceDate, TramTime queryTime) {
+        if (lastRefresh==null) {
+            logger.warn("No refresh has happened");
+            return Optional.empty();
+        }
         if (!tramServiceDate.getDate().equals(lastRefresh.toLocalDate())) {
             logger.warn("No data for date, not querying for departure info " + tramServiceDate);
             return Optional.empty();
@@ -154,50 +189,44 @@ public class LiveDataRepository implements LiveDataSource {
         return queryTime.between(TramTime.of(updateTime), limit);
     }
 
-    public long upToDateEntries(TramTime queryTime) {
-        Collection<StationDepartureInfo> infos = stationInformation.values();
-
-        return infos.stream().
-                filter(info -> withinTime(queryTime, info.getLastUpdate().toLocalTime())).
-                count();
+    public int upToDateEntries() {
+        departureInfoCache.cleanUp();
+        return (int) departureInfoCache.estimatedSize();
     }
 
-    public int countEntries() {
-        return stationInformation.size();
+    public int entriesWithMessages() {
+        return (int) departureInfoCache.asMap().values().stream().filter(info -> !info.getMessage().isEmpty()).count();
     }
 
-    public int countMessages() {
-        return messageCount;
-    }
+    public long missingDataCount() {
+        long upToDateEntries = upToDateEntries();
+        long totalSeen = uniquePlatformsSeen.size();
 
-    public long staleDataCount() {
-        Collection<StationDepartureInfo> infos = stationInformation.values();
-        int total = infos.size();
-
-        LocalDateTime cutoff = lastRefresh.minusMinutes(TIME_LIMIT);
-        long withinCutof = infos.stream().filter(info -> info.getLastUpdate().isAfter(cutoff)).count();
-        if (withinCutof<total) {
-            logger.error(format("%s out of %s records are within of cuttoff time %s", withinCutof, total, cutoff));
+        if (upToDateEntries<totalSeen) {
+            logger.error(format("%s out of %s records are within of cuttoff time %s minutes", upToDateEntries, totalSeen, TIME_LIMIT));
         }
-        return total-withinCutof;
+        return totalSeen-upToDateEntries;
     }
 
     private Optional<StationDepartureInfo> departuresFor(HasId platform) {
         String platformId = platform.getId();
 
-        if (!stationInformation.containsKey(platformId)) {
-            logger.warn("Could find departure info for " + platform);
+        @Nullable StationDepartureInfo ifPresent = departureInfoCache.getIfPresent(platformId);
+
+        if (ifPresent==null) {
+            logger.warn("Could not find departure info for " + platform);
             return Optional.empty();
         }
-        return Optional.of(stationInformation.get(platformId));
+        return Optional.of(ifPresent);
     }
 
     public void observeUpdates(LiveDataObserver observer) {
         observers.add(observer);
     }
 
-    public Collection<StationDepartureInfo> allDepartures() {
-        return stationInformation.values();
+    @Override
+    public List<Pair<String, CacheStats>> stats() {
+        return Arrays.asList(Pair.of("LiveDataRepository:departureInfoCache", departureInfoCache.stats()));
     }
 
 }

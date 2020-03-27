@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static org.junit.Assert.assertEquals;
@@ -37,12 +38,17 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
             public LocalDate getDate() {
                 return null;
             }
+
+            @Override
+            public LocalDateTime getDateTime() {
+                return null;
+            }
         });
     }
 
     @Test
     public void shouldReportUnhealthyIfNoData() {
-        EasyMock.expect(repository.countEntries()).andReturn(0);
+        EasyMock.expect(repository.upToDateEntries()).andReturn(0);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
@@ -54,9 +60,9 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
-        EasyMock.expect(repository.countEntries()).andReturn(40);
-        EasyMock.expect(repository.staleDataCount()).andReturn(0L);
-        EasyMock.expect(repository.upToDateEntries(now)).andReturn(40L);
+        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
+        EasyMock.expect(repository.missingDataCount()).andReturn(0L);
+        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
@@ -67,8 +73,8 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportUnhealthIfStaleDate() {
-        EasyMock.expect(repository.countEntries()).andReturn(40);
-        EasyMock.expect(repository.staleDataCount()).andReturn(2L);
+        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
+        EasyMock.expect(repository.missingDataCount()).andReturn(2L);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
@@ -80,9 +86,9 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportUnhealthIfStaleTime() {
-        EasyMock.expect(repository.countEntries()).andReturn(40);
-        EasyMock.expect(repository.upToDateEntries(now)).andReturn(20L);
-        EasyMock.expect(repository.staleDataCount()).andReturn(0L);
+        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
+        EasyMock.expect(repository.upToDateEntries()).andReturn(20);
+        EasyMock.expect(repository.missingDataCount()).andReturn(0L);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();

@@ -2,6 +2,7 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
@@ -29,12 +30,14 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     private LiveDataFetcher fetcher;
     private LiveDataParser mapper;
     private LiveDataRepository repository;
+    private ProvidesNow providesNow;
 
     @Before
     public void beforeEachTestRuns() {
         fetcher = createMock(LiveDataHTTPFetcher.class);
         mapper = createMock(LiveDataParser.class);
-        repository = new LiveDataRepository(fetcher, mapper);
+        providesNow = createMock(ProvidesNow.class);
+        repository = new LiveDataRepository(fetcher, mapper, providesNow);
     }
 
     @Test
@@ -44,6 +47,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
                 "some message", Stations.Altrincham);
+
+        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
+        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -67,8 +74,12 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         LocalDateTime lastUpdate = LocalDateTime.now();
 
-        addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
-        addStationInfo(info, lastUpdate, "303", "platformIdB", "some message", Stations.Altrincham);
+        addStationInfo(info, lastUpdate.plusMinutes(14), "yyy", "platformIdA", "some message", Stations.Altrincham);
+        addStationInfo(info, lastUpdate.plusMinutes(21), "303", "platformIdB", "some message", Stations.Altrincham);
+
+        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
+        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -77,13 +88,9 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(2,repository.countEntries());
-        assertEquals(2,repository.countMessages());
-
-        assertEquals(0, repository.staleDataCount());
-        assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime())));
-        assertEquals(2, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(14))));
-        assertEquals(0, repository.upToDateEntries(TramTime.of(lastUpdate.toLocalTime().plusMinutes(21))));
+        assertEquals(1,repository.upToDateEntries());
+        assertEquals(1,repository.entriesWithMessages());
+        assertEquals(1, repository.missingDataCount());
     }
 
     @Test
@@ -91,18 +98,22 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         LocalDateTime lastUpdate = LocalDateTime.now(); // up to date
+
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
         addStationInfo(info, lastUpdate, "303", "platformIdB", "<no message>", Stations.Altrincham);
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
+        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
+        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
+        EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
 
         replayAll();
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(2,repository.countEntries());
-        assertEquals(1,repository.countMessages());
+        assertEquals(2,repository.upToDateEntries());
+        assertEquals(1,repository.entriesWithMessages());
 
     }
 
@@ -121,8 +132,11 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
 
         addStationInfo(info, staleDataAndTime, "yyy", platformId1, "some message", altrincham);
         addStationInfo(info, staleDataAndTime, "303", platformId2, "some message", altrincham);
-        addStationInfo(info, current, "303", "platformIdF", "some message", altrincham);
+        addStationInfo(info, current, "304", "platformIdF", "some message", altrincham);
 
+        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(current));
+        EasyMock.expect(providesNow.getDate()).andStubReturn(current.toLocalDate());
+        EasyMock.expect(providesNow.getDateTime()).andStubReturn(current);
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
@@ -130,10 +144,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         repository.refreshRespository();
         verifyAll();
 
-        assertEquals(3, repository.countEntries());
-        assertEquals(3, repository.countMessages());
-        assertEquals(2, repository.staleDataCount());
-        assertEquals(1, repository.upToDateEntries(TramTime.of(current)));
+        assertEquals(1, repository.upToDateEntries());
+        assertEquals(1, repository.entriesWithMessages());
+        assertEquals(2, repository.missingDataCount());
+        //assertEquals(1, repository.upToDateEntries()); // TramTime.of(current)
 
         List<DueTram> dueTrams = repository.dueTramsFor(altrincham, TramServiceDate.of(current), TramTime.of(current));
         assertEquals(0, dueTrams.size());

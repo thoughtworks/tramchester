@@ -22,4 +22,9 @@ public class ProvidesLocalNow implements ProvidesNow {
         return getLocalNow().toLocalDate();
     }
 
+    @Override
+    public LocalDateTime getDateTime() {
+        return getLocalNow();
+    }
+
 }
