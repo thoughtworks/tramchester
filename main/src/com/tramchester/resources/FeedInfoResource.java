@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Api
 @Path("/feedinfo")
 @Produces(MediaType.APPLICATION_JSON)
-public class FeedInfoResource {
+public class FeedInfoResource implements APIResource {
 
     private FeedInfo feedInfo;
 

@@ -169,6 +169,10 @@ public class Dependencies {
         return component;
     }
 
+    public List<APIResource> getResources() {
+        return picoContainer.getComponents(APIResource.class);
+    }
+
     public void close() {
         logger.info("Dependencies close");
 
@@ -192,5 +196,9 @@ public class Dependencies {
 
     public TramchesterConfig getConfig() {
         return get(TramchesterConfig.class);
+    }
+
+    public List<TramchesterHealthCheck> getHealthChecks() {
+        return picoContainer.getComponents(TramchesterHealthCheck.class);
     }
 }

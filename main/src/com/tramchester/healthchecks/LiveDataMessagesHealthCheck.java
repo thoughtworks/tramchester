@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import static java.lang.String.copyValueOf;
 import static java.lang.String.format;
 
-public class LiveDataMessagesHealthCheck extends HealthCheck {
+public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataMessagesHealthCheck.class);
 
     private LiveDataRepository repository;
@@ -48,5 +48,10 @@ public class LiveDataMessagesHealthCheck extends HealthCheck {
         String msg = format("Live data messages healthy with %s entries", messages);
         logger.info(msg);
         return Result.healthy(msg);
+    }
+
+    @Override
+    public String getName() {
+        return "liveDataMessages";
     }
 }

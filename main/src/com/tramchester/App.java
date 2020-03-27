@@ -5,6 +5,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.healthchecks.*;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.VersionRepository;
@@ -116,20 +117,14 @@ public class App extends Application<AppConfiguration>  {
             applicationContext.addFilter(new FilterHolder(redirectHttpFilter),
                     "/*", EnumSet.of(DispatcherType.REQUEST));
         }
+
         // / -> /app redirect
         RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
         applicationContext.addFilter(new FilterHolder(redirectToAppFilter),
                 "/", EnumSet.of(DispatcherType.REQUEST));
 
-        environment.jersey().register(dependencies.get(StationResource.class));
-        environment.jersey().register(dependencies.get(VersionResource.class));
-        environment.jersey().register(dependencies.get(JourneyPlannerResource.class));
-        environment.jersey().register(dependencies.get(FeedInfoResource.class));
-        environment.jersey().register(dependencies.get(RouteResource.class));
-        environment.jersey().register(dependencies.get(AreaResource.class));
-        environment.jersey().register(dependencies.get(DeparturesResource.class));
-        environment.jersey().register(dependencies.get(TramPositionsResource.class));
-
+        // api end points
+        dependencies.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
         filtersForStaticContent(environment);
 
         // initial load of live data
@@ -142,6 +137,7 @@ public class App extends Application<AppConfiguration>  {
                 (Gauge<Integer>) liveDataRepository::upToDateEntries);
         metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
                 (Gauge<Integer>) liveDataRepository::entriesWithMessages);
+        //metricRegistry.register(CachedNodeOperations.class, "cache", "number", dependencies.get(CachedNodeOperations.class).stats().)
 
         // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
@@ -164,13 +160,10 @@ public class App extends Application<AppConfiguration>  {
 
         // health check registration
         environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
-        environment.healthChecks().register("graphDB", dependencies.get(GraphHealthCheck.class));
-        environment.healthChecks().register("dataExpiry", dependencies.get(DataExpiryHealthCheck.class));
-        environment.healthChecks().register("liveData", dependencies.get(LiveDataHealthCheck.class));
-        environment.healthChecks().register("newData", dependencies.get(NewDataAvailableHealthCheck.class));
-        environment.healthChecks().register("liveDataMessages", dependencies.get(LiveDataMessagesHealthCheck.class));
+        dependencies.getHealthChecks().forEach(tramchesterHealthCheck ->
+                environment.healthChecks().register(tramchesterHealthCheck.getName(), tramchesterHealthCheck));
 
-        // serve healthcheck (additionally) on seperate URL as we don't want to expose whole of Admin pages
+        // serve health checks (additionally) on separate URL as we don't want to expose whole of Admin pages
         environment.servlets().addServlet(
                 "HealthCheckServlet",
                 new HealthCheckServlet(environment.healthChecks())

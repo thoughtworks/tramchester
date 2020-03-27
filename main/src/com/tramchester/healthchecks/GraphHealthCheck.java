@@ -5,7 +5,7 @@ import com.tramchester.graph.GraphDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphHealthCheck extends HealthCheck {
+public class GraphHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(GraphHealthCheck.class);
     private final String unavailable = "Graph DB unavailable";
 
@@ -24,5 +24,10 @@ public class GraphHealthCheck extends HealthCheck {
         }
         logger.error(unavailable);
         return Result.unhealthy(unavailable);
+    }
+
+    @Override
+    public String getName() {
+        return "graphDB";
     }
 }

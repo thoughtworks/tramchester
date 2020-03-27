@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
-public class LiveDataHealthCheck extends HealthCheck {
+public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHealthCheck.class);
 
     private LiveDataRepository repository;
@@ -50,5 +50,10 @@ public class LiveDataHealthCheck extends HealthCheck {
         String msg = format("Live data healthy with %s entires", total);
         logger.info(msg);
         return Result.healthy(msg);
+    }
+
+    @Override
+    public String getName() {
+        return "liveData";
     }
 }

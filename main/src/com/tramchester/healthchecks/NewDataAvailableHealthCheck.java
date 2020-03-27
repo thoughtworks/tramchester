@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
-public class NewDataAvailableHealthCheck extends HealthCheck {
+public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
     private final TramchesterConfig config;
@@ -49,4 +49,8 @@ public class NewDataAvailableHealthCheck extends HealthCheck {
         }
     }
 
+    @Override
+    public String getName() {
+        return "newData";
+    }
 }

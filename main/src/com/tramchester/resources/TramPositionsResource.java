@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Api
 @Path("/positions")
 @Produces(MediaType.APPLICATION_JSON)
-public class TramPositionsResource {
+public class TramPositionsResource implements APIResource {
 
     private final TramPositionInference positionInference;
     private final DeparturesMapper depatureMapper;

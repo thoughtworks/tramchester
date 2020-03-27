@@ -18,7 +18,7 @@ import static java.lang.String.format;
 @Api
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
-public class VersionResource {
+public class VersionResource implements APIResource {
     private final VersionRepository versionRepository;
 
     public VersionResource(VersionRepository versionRepository) {

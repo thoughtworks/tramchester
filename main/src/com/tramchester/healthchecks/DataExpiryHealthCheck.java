@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 import static java.lang.String.format;
 
-public class DataExpiryHealthCheck extends HealthCheck {
+public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(DataExpiryHealthCheck.class);
 
     private ProvidesFeedInfo providesFeedInfo;
@@ -49,5 +49,10 @@ public class DataExpiryHealthCheck extends HealthCheck {
         String message = "Data is not due to expire until " + validUntil.toString();
         logger.info(message);
         return Result.healthy(message);
+    }
+
+    @Override
+    public String getName() {
+        return "dataExpiry";
     }
 }

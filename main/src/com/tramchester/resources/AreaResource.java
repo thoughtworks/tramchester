@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @Api
 @Path("/areas")
 @Produces(MediaType.APPLICATION_JSON)
-public class AreaResource {
+public class AreaResource implements APIResource  {
 
     private AreasRepository repository;
 
