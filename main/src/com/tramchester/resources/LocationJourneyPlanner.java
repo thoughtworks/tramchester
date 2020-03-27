@@ -32,10 +32,11 @@ public class LocationJourneyPlanner {
     private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;
     private final NodeIdQuery stationIndexs;
+    private final GraphDatabase graphDatabase;
 
-    public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config,
-                                  RouteCalculator routeCalculator, RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
-                                  CachedNodeOperations nodeOperations, NodeIdQuery nodeIdQuery) {
+    public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config, RouteCalculator routeCalculator,
+                                  RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
+                                  CachedNodeOperations nodeOperations, NodeIdQuery nodeIdQuery, GraphDatabase graphDatabase) {
         this.spatialService = spatialService;
         this.config = config;
         this.routeCalculator = routeCalculator;
@@ -43,6 +44,7 @@ public class LocationJourneyPlanner {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.stationIndexs = nodeIdQuery;
+        this.graphDatabase = graphDatabase;
     }
 
     public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, TramTime queryTime,
@@ -124,10 +126,9 @@ public class LocationJourneyPlanner {
     }
 
     private Node createWalkingNode(LatLong origin) {
-        Node startOfWalkNode = nodeOperations.createQueryNode(stationIndexs);
+        Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabase);
         startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
         startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
-        //startOfWalkNode.setProperty(GraphStaticKeys.Station.NAME, queryNodeName);
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

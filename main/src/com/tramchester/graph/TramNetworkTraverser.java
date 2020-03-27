@@ -22,7 +22,7 @@ import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
-    private final GraphDatabaseService graphDatabaseService;
+    private final GraphDatabase graphDatabaseService;
     private final ServiceHeuristics serviceHeuristics;
     private final CachedNodeOperations nodeOperations;
     private final TramTime queryTime;
@@ -31,7 +31,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
 
-    public TramNetworkTraverser(GraphDatabaseService graphDatabaseService, ServiceHeuristics serviceHeuristics,
+    public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 ServiceReasons reasons, CachedNodeOperations nodeOperations, Node destinationNode,
                                 List<String> endStationIds, TramchesterConfig config) {
         this.graphDatabaseService = graphDatabaseService;

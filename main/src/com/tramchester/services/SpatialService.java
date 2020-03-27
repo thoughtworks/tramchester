@@ -5,11 +5,11 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +24,14 @@ import static java.lang.String.format;
 public class SpatialService {
     private static final Logger logger = LoggerFactory.getLogger(SpatialService.class);
 
-    private final GraphDatabaseService graphDatabaseService;
+    private final GraphDatabase graphDatabase;
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
     private final GraphQuery graphQuery;
 
-    public SpatialService(GraphDatabaseService graphDatabaseService, StationRepository stationRepository,
+    public SpatialService(GraphDatabase graphDatabaseService, StationRepository stationRepository,
                           TramchesterConfig config, GraphQuery graphQuery) {
-        this.graphDatabaseService = graphDatabaseService;
+        this.graphDatabase = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.config = config;
         this.graphQuery = graphQuery;
@@ -47,7 +47,7 @@ public class SpatialService {
     }
 
     public List<StationDTO> reorderNearestStations(LatLong latLong, List<Station> sortedStations) {
-        Transaction tx = graphDatabaseService.beginTx();
+        Transaction tx = graphDatabase.beginTx();
         List<Station> seen = new LinkedList<>();
         try {
             List<String> nearestStations = getNearestStationsToNoTransaction(latLong, config.getNumOfNearestStops(),
@@ -78,7 +78,7 @@ public class SpatialService {
     }
 
     public List<String> getNearestStationsTo(LatLong latLong, int numberOfNearest, double rangeInKM) {
-        Transaction tx = graphDatabaseService.beginTx();
+        Transaction tx = graphDatabase.beginTx();
         List<String> result;
         try {
             result = getNearestStationsToNoTransaction(latLong, numberOfNearest, rangeInKM);
@@ -93,9 +93,7 @@ public class SpatialService {
 
     // TODO Range depends on location, i.e. in city center limit the range, further out have a larger range?
     private List<String> getNearestStationsToNoTransaction(LatLong latLong, int count, double rangeInKM) {
-        List<GeoPipeFlow> results = graphQuery.getSpatialLayer().findClosestPointsTo(LatLong.getCoordinate(latLong),
-               rangeInKM);
-
+        List<GeoPipeFlow> results = graphDatabase.findClosestPointsTo(latLong, rangeInKM);
         return results.stream().limit(count).
                 map(item -> (String)item.getRecord().getGeomNode().getProperty(GraphStaticKeys.ID)).
                 collect(Collectors.toList());

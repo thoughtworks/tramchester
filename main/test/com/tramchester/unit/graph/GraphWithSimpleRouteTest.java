@@ -2,28 +2,27 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.repository.TransportDataSource;
 import com.tramchester.resources.LocationJourneyPlanner;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class GraphWithSimpleRouteTest {
 
@@ -32,8 +31,9 @@ public class GraphWithSimpleRouteTest {
     private static TransportDataForTest transportData;
     private static RouteCalculator calculator;
     private static Dependencies dependencies;
-    private static GraphDatabaseService database;
+    private static GraphDatabase database;
     private static LocationJourneyPlanner locationJourneyPlanner;
+    private static IntegrationTramTestConfig config;
 
     private TramServiceDate queryDate;
     private TramTime queryTime;
@@ -42,14 +42,14 @@ public class GraphWithSimpleRouteTest {
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
         transportData = new TransportDataForTest();
-
         dependencies = new Dependencies();
-        IntegrationTramTestConfig config = new IntegrationTramTestConfig(TMP_DB);
-        FileUtils.deleteDirectory( new File(TMP_DB));
+
+        config = new IntegrationTramTestConfig(TMP_DB);
+        FileUtils.deleteDirectory(config.getDBPath().toFile());
 
         dependencies.initialise(config, transportData);
 
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
         calculator = dependencies.get(RouteCalculator.class);
         locationJourneyPlanner = dependencies.get(LocationJourneyPlanner.class);
     }
@@ -57,7 +57,7 @@ public class GraphWithSimpleRouteTest {
     @AfterClass
     public static void onceAfterAllTestsRun() throws IOException {
         dependencies.close();
-        FileUtils.deleteDirectory( new File(TMP_DB));
+        FileUtils.deleteDirectory(config.getDBPath().toFile());
     }
 
     @Before
@@ -187,8 +187,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void createDiagramOfTestNetwork() throws IOException {
-        GraphDatabaseService graphDBService = dependencies.get(GraphDatabaseService.class);
-        DiagramCreator creator = new DiagramCreator(graphDBService, Integer.MAX_VALUE);
+        DiagramCreator creator = new DiagramCreator(database, Integer.MAX_VALUE);
         creator.create("test_network.dot", TransportDataForTest.FIRST_STATION);
     }
 

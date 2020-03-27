@@ -1,18 +1,21 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
+import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -32,7 +35,7 @@ public class LocationJourneyPlannerTest {
 
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;
-    private static GraphDatabaseService database;
+    private static GraphDatabase database;
 
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
     private Transaction tx;
@@ -43,7 +46,7 @@ public class LocationJourneyPlannerTest {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
     }
 
     @AfterClass

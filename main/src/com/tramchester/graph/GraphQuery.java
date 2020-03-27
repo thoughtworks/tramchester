@@ -1,25 +1,25 @@
 package com.tramchester.graph;
 
-import org.neo4j.gis.spatial.SimplePointLayer;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GraphQuery {
 
     // TODO REFACTOR Methods only used for tests into own class
     private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
-    private SpatialDatabaseService spatialDatabaseService;
-    private GraphDatabaseService graphDatabaseService;
+    private GraphDatabase graphDatabase;
 
-    public GraphQuery(GraphDatabaseService graphDatabaseService, SpatialDatabaseService spatialDatabaseService) {
-        this.graphDatabaseService = graphDatabaseService;
-        this.spatialDatabaseService = spatialDatabaseService;
+    public GraphQuery(GraphDatabase graphDatabase) {
+        this.graphDatabase = graphDatabase;
+        //this.spatialDatabaseService = spatialDatabaseService;
     }
 
     public Node getTramStationNode(String stationId) {
@@ -56,12 +56,7 @@ public class GraphQuery {
     }
 
     private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {
-        return graphDatabaseService.findNode(label, GraphStaticKeys.ID, id);
-    }
-
-    public SimplePointLayer getSpatialLayer() {
-        return (SimplePointLayer) spatialDatabaseService.getOrCreateLayer("stations",
-                SimplePointEncoder.class, SimplePointLayer.class);
+        return graphDatabase.findNode(label, GraphStaticKeys.ID, id);
     }
 
     public List<Relationship> getRouteStationRelationships(String routeStationId, Direction direction) {

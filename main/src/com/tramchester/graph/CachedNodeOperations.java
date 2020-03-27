@@ -134,9 +134,6 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
     public void deleteFromCache(Relationship relationship) {
         long relationshipId = relationship.getId();
         relationshipCostCache.invalidate(relationshipId);
-//        if (relationshipCostCache.containsKey(relationshipId)) {
-//            relationshipCostCache.remove(relationshipId);
-//        }
     }
 
     public boolean isService(long nodeId) {
@@ -167,8 +164,8 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
     }
 
     // for creating query nodes, to support MyLocation joruneys
-    public Node createQueryNode(NodeIdQuery nodeIdQuery) {
-        Node result = nodeIdQuery.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
+    public Node createQueryNode(GraphDatabase graphDatabase) {
+        Node result = graphDatabase.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
         nodeIdLabelMap.putQueryNode(result.getId());
         return result;
     }

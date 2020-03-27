@@ -3,13 +3,17 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.MyLocationFactory;
+import com.tramchester.domain.Station;
+import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneysMapper;
@@ -17,7 +21,6 @@ import com.tramchester.repository.TransportData;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +30,9 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -46,13 +51,13 @@ public class JourneyPlannerResource extends UsesRecentCookie {
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final JourneysMapper journeysMapper;
     private final ProvidesNotes providesNotes;
-    private final GraphDatabaseService graphDatabaseService;
+    private final GraphDatabase graphDatabaseService;
     private final TransportData transportData;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
                                   LocationJourneyPlanner locToLocPlanner, UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, RouteCalculatorArriveBy routeCalculatorArriveBy,
-                                  ProvidesNotes providesNotes, GraphDatabaseService graphDatabaseService, TransportData transportData) {
+                                  ProvidesNotes providesNotes, GraphDatabase graphDatabaseService, TransportData transportData) {
         super(updateRecentJourneys, objectMapper);
         this.routeCalculator = routeCalculator;
         this.journeysMapper = journeysMapper;

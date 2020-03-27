@@ -22,12 +22,12 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 public class RouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(RouteReachable.class);
 
-    private final GraphDatabaseService graphDatabaseService;
+    private final GraphDatabase graphDatabaseService;
     private final NodeIdQuery stationIndexQuery;
     private final InterchangeRepository interchangeRepository;
     private final boolean warnForMissing;
 
-    public RouteReachable(GraphDatabaseService graphDatabaseService, NodeIdQuery stationIndexQuery,
+    public RouteReachable(GraphDatabase graphDatabaseService, NodeIdQuery stationIndexQuery,
                           InterchangeRepository interchangeRepository, GraphFilter filter) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationIndexQuery = stationIndexQuery;

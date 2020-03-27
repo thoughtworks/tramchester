@@ -1,15 +1,15 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
+import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.TransportData;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
@@ -36,11 +36,11 @@ public class RouteCalculator implements TramRouteCalculator {
     private final TramReachabilityRepository tramReachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
     private final NodeIdQuery nodeIdQuery;
-    private final GraphDatabaseService graphDatabaseService;
+    private final GraphDatabase graphDatabaseService;
 
     public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
-                           CreateQueryTimes createQueryTimes, NodeIdQuery nodeIdQuery, GraphDatabaseService graphDatabaseService) {
+                           CreateQueryTimes createQueryTimes, NodeIdQuery nodeIdQuery, GraphDatabase graphDatabaseService) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;

@@ -27,7 +27,7 @@ public class VersionResource {
 
     @GET
     @ApiOperation(value = "Return version of server code", response = Version.class)
-    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
+    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Version version() {
         return versionRepository.getVersion();
     }

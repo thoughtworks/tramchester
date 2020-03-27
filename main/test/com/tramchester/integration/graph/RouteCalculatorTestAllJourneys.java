@@ -1,22 +1,20 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.Route;
-import com.tramchester.testSupport.RouteCodesForTesting;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.NotInTransactionException;
 import org.neo4j.graphdb.Transaction;
 
@@ -30,7 +28,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
 public class RouteCalculatorTestAllJourneys {
@@ -38,7 +37,7 @@ public class RouteCalculatorTestAllJourneys {
     // TODO this needs to be > longest running test which is far from ideal
     private static final int TXN_TIMEOUT_SECS = 4 * 60;
     private static Dependencies dependencies;
-    private static GraphDatabaseService database;
+    private static GraphDatabase database;
 
     private static boolean circleCi = TestConfig.isCircleci();
 
@@ -52,7 +51,7 @@ public class RouteCalculatorTestAllJourneys {
         dependencies = new Dependencies();
         TramchesterConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
     }
 
     @AfterClass

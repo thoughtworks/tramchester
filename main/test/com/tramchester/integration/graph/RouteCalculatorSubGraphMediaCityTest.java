@@ -2,19 +2,19 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
-import com.tramchester.testSupport.TestConfig;
-import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.ActiveGraphFilter;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -27,11 +27,10 @@ import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorSubGraphMediaCityTest {
     private static Dependencies dependencies;
-    private static GraphDatabaseService database;
+    private static GraphDatabase database;
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
-    private GraphDatabaseService graphService;
 
     private static List<Station> stations = Arrays.asList(
             Stations.ExchangeSquare,
@@ -57,13 +56,12 @@ public class RouteCalculatorSubGraphMediaCityTest {
         graphFilter.addRoute(RouteCodesForTesting.ROCH_TO_DIDS);
         graphFilter.addRoute(RouteCodesForTesting.ECCLES_TO_ASH);
         graphFilter.addRoute(RouteCodesForTesting.DIDS_TO_ROCH);
-
         stations.forEach(graphFilter::addStation);
 
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
 
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
     }
 
     @AfterClass
@@ -73,7 +71,6 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
     @Before
     public void beforeEachTestRuns() {
-        graphService = dependencies.get(GraphDatabaseService.class);
         calculator = dependencies.get(RouteCalculator.class);
         tx = database.beginTx();
     }
@@ -131,7 +128,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @Ignore
     @Test
     public void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(graphService, 5);
+        DiagramCreator creator = new DiagramCreator(database, 5);
         List<String> toDraw = new ArrayList<>();
         toDraw.add(Stations.MediaCityUK.getId());
 

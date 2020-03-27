@@ -6,8 +6,6 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.gis.spatial.SimplePointLayer;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +27,12 @@ public final class NodeIdQuery implements ReportsCacheStats {
     private final CacheOfNodes tramStationNodeCache;
     private final CacheOfNodes busStationNodeCache;
 
-    private SimplePointLayer spatialLayer;
-
-    private final GraphDatabaseService graphDatabaseService;
     private final GraphQuery graphQuery;
     private final boolean buses;
     // TODO remove
     private final boolean warnIfMissing = false;
 
-    public NodeIdQuery(GraphDatabaseService graphDatabaseService, GraphQuery graphQuery, TramchesterConfig config) {
-        this.graphDatabaseService = graphDatabaseService;
+    public NodeIdQuery(GraphQuery graphQuery, TramchesterConfig config) {
         this.graphQuery = graphQuery;
         this.buses = config.getBus();
 
@@ -57,6 +51,11 @@ public final class NodeIdQuery implements ReportsCacheStats {
             busStationNodeCache = null;
         }
     }
+
+
+//    public Node createNode(TransportGraphBuilder.Labels labels) {
+//        return graphDatabaseService.createNode(labels);
+//    }
 
     private CacheOfNodes createCache(long maximumSize, String routeStationNodeCache, FindNode getRouteStationNode) {
         CacheOfNodes cache = new CacheOfNodes(routeStationNodeCache, getRouteStationNode, maximumSize);
@@ -123,22 +122,10 @@ public final class NodeIdQuery implements ReportsCacheStats {
         return null;
     }
 
-
     public Node getAreaNode(String areaName) {
         // TODO Cache
         Node node = graphQuery.getAreaNode(areaName);
         return node;
-    }
-
-    protected SimplePointLayer getSpatialLayer() {
-        if (spatialLayer == null) {
-            spatialLayer = graphQuery.getSpatialLayer();
-        }
-        return spatialLayer;
-    }
-
-    public Node createNode(TransportGraphBuilder.Labels labels) {
-        return graphDatabaseService.createNode(labels);
     }
 
     @Override

@@ -4,6 +4,8 @@ import com.tramchester.testSupport.TestConfig;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -12,19 +14,26 @@ import java.util.Set;
 
 public class IntegrationTramTestConfig extends TestConfig {
 
-    private final Path dbName;
+    private final Path dbPath;
+    private final boolean exists;
 
     public IntegrationTramTestConfig() {
        this("int_test_tramchester.db");
     }
 
     public IntegrationTramTestConfig(String dbName) {
-        this.dbName = Path.of("databases", "integrationTramTest", dbName);
+        this.dbPath = Path.of("databases", "integrationTramTest", dbName);
+        exists = Files.exists(dbPath);
     }
 
     @Override
     final public String getGraphName() {
-        return dbName.toAbsolutePath().toString();
+        return dbPath.toAbsolutePath().toString();
+    }
+
+    @Override
+    public boolean getRebuildGraph() {
+        return !exists;
     }
 
     @Override
@@ -59,5 +68,8 @@ public class IntegrationTramTestConfig extends TestConfig {
         return factory;
     }
 
+    public Path getDBPath() {
+        return dbPath;
+    }
 }
 

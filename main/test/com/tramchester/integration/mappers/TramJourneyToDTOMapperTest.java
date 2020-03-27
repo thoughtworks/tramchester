@@ -2,6 +2,7 @@ package com.tramchester.integration.mappers;
 
 
 import com.tramchester.Dependencies;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
@@ -15,7 +16,6 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TramJourneyToDTOMapperTest {
-    private static GraphDatabaseService database;
+    private static GraphDatabase database;
     private static TransportDataFromFiles transportData;
     private final LocalDate when = TestConfig.nextTuesday(0);
     private LocalTime sevenAM;
@@ -48,7 +48,7 @@ public class TramJourneyToDTOMapperTest {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         transportData = dependencies.get(TransportDataFromFiles.class);
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
     }
 
     @AfterClass

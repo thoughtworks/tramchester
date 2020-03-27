@@ -2,31 +2,19 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.BusStations.*;
 import static junit.framework.TestCase.*;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
 
 public class TramRouteReachableTest {
     private static TramchesterConfig config;
@@ -55,7 +43,7 @@ public class TramRouteReachableTest {
 
         stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(RouteReachable.class);
-        GraphDatabaseService database = dependencies.get(GraphDatabaseService.class);
+        GraphDatabase database = dependencies.get(GraphDatabase.class);
         tx = database.beginTx();
     }
 

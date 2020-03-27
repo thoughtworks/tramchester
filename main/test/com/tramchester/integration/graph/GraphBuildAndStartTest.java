@@ -1,21 +1,16 @@
 package com.tramchester.integration.graph;
 
-import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.NodeIdLabelMap;
-import com.tramchester.graph.NodeIdQuery;
-import com.tramchester.graph.TransportGraphBuilder;
+import com.tramchester.graph.*;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,24 +35,22 @@ public class GraphBuildAndStartTest {
         DataCleanser dataCleaner = new DataCleanser(new TransportDataReaderFactory(config), new TransportDataWriterFactory(config), config);
         dataCleaner.run();
 
-        TransportDataImporter dataImporter = new TransportDataImporter(new TransportDataReaderFactory(config));
-
-        GraphDatabaseService graphDbService = Dependencies.createGraphDatabaseService(graphFile);
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
-        SpatialDatabaseService spacialDatabaseService = new SpatialDatabaseService(graphDbService);
-        GraphQuery graphQuery = new GraphQuery(graphDbService, spacialDatabaseService);
-        NodeIdQuery nodeIdQuery = new NodeIdQuery(graphDbService, graphQuery, config);
+        TransportDataImporter dataImporter = new TransportDataImporter(new TransportDataReaderFactory(config));
         TransportDataSource transportData = dataImporter.load();
-
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
-        TransportGraphBuilder transportGraphBuilder = new TransportGraphBuilder(graphDbService, transportData,
-                nodeIdLabelMap, nodeIdQuery, interchangeRepository);
 
-        assertTrue("built graph ok", transportGraphBuilder.buildGraph());
-        assertTrue(graphDbService.isAvailable(2000));
+        GraphDatabase graphDatabase = new GraphDatabase(config);
+        GraphQuery graphQuery = new GraphQuery(graphDatabase);
+        NodeIdQuery nodeIdQuery = new NodeIdQuery(graphQuery, config);
 
-        graphDbService.shutdown();
+        TransportGraphBuilder transportGraphBuilder = new TransportGraphBuilder(graphDatabase, new IncludeAllFilter(), transportData,
+                nodeIdLabelMap, nodeIdQuery, interchangeRepository, config);
 
+        graphDatabase.start();
+        assertTrue(graphDatabase.isAvailable(2000));
+        transportGraphBuilder.start();
+        graphDatabase.stop();
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

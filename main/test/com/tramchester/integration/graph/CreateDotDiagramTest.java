@@ -4,10 +4,13 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Location;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
-import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,11 +18,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.Assume.assumeFalse;
 
 public class CreateDotDiagramTest {
     private static Dependencies dependencies;
-    private GraphDatabaseService graphService;
+    private GraphDatabase database;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
@@ -30,7 +32,7 @@ public class CreateDotDiagramTest {
 
     @Before
     public void beforeEachOfTheTestsRun() {
-        graphService = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
     }
 
     @AfterClass
@@ -51,15 +53,15 @@ public class CreateDotDiagramTest {
         create(Arrays.asList(Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare), 4);
     }
 
-    public void create(List<Location> startPoints, int depthLimit) throws IOException {
+    private void create(List<Location> startPoints, int depthLimit) throws IOException {
         String filename = startPoints.get(0).getName();
-        DiagramCreator creator = new DiagramCreator(graphService, depthLimit);
+        DiagramCreator creator = new DiagramCreator(database, depthLimit);
         List<String> ids = startPoints.stream().map(point -> point.getId()).collect(Collectors.toList());
         creator.create(format("around_%s_trams.dot", filename), ids);
     }
 
-    public void create(Location startPoint, int depthLimit) throws IOException {
-        DiagramCreator creator = new DiagramCreator(graphService, depthLimit);
+    private void create(Location startPoint, int depthLimit) throws IOException {
+        DiagramCreator creator = new DiagramCreator(database, depthLimit);
         creator.create(format("%s_trams.dot", startPoint.getName()), startPoint.getId());
     }
 

@@ -1,19 +1,19 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.testSupport.TestConfig;
-import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.Location;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.ActiveGraphFilter;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -22,11 +22,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class RouteCalculatorSubGraphMonsallTest {
     private static Dependencies dependencies;
-    private static GraphDatabaseService database;
+    private static GraphDatabase database;
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
@@ -40,7 +41,7 @@ public class RouteCalculatorSubGraphMonsallTest {
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
 
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
     }
 
     @AfterClass

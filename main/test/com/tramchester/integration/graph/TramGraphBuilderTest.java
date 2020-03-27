@@ -3,16 +3,16 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
@@ -40,7 +40,7 @@ public class TramGraphBuilderTest {
     public void beforeEachTestRuns() {
         graphQuery = dependencies.get(GraphQuery.class);
         transportData = dependencies.get(TransportDataFromFiles.class);
-        GraphDatabaseService service = dependencies.get(GraphDatabaseService.class);
+        GraphDatabase service = dependencies.get(GraphDatabase.class);
         transaction = service.beginTx();
     }
 

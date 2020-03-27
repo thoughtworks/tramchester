@@ -1,12 +1,17 @@
 package com.tramchester.graph;
 
+import org.neo4j.graphdb.Transaction;
 import org.picocontainer.Disposable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class NodeIdLabelMap implements Disposable {
+    private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
+
     // map from the NodeId to the Label
     private Map<TransportGraphBuilder.Labels, Set<Long>> map;
     private ConcurrentMap<Long, Boolean> queryNodes;
@@ -21,6 +26,17 @@ public class NodeIdLabelMap implements Disposable {
         queryNodes = new ConcurrentHashMap<>();
     }
 
+    // called when loaded from disc, instead of rebuild
+    public void populateNodeLabelMap(GraphDatabase graphDatabase) {
+        logger.info("Rebuilding node->label index");
+        TransportGraphBuilder.Labels[] labels = TransportGraphBuilder.Labels.values();
+        try (Transaction tx = graphDatabase.beginTx()) {
+            for (TransportGraphBuilder.Labels label : labels) {
+                graphDatabase.findNodes(label).stream().forEach(node -> put(node.getId(), label));
+            }
+            tx.success();
+        }
+    }
 
     @Override
     public void dispose() {

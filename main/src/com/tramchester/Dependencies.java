@@ -7,7 +7,9 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
-import com.tramchester.domain.*;
+import com.tramchester.domain.ClosedStations;
+import com.tramchester.domain.MyLocationFactory;
+import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
@@ -22,21 +24,14 @@ import com.tramchester.mappers.*;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.Caching;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -80,7 +75,7 @@ public class Dependencies {
     }
 
     // init dependencies but possibly with alternative source of transport data
-    public void initialise(TramchesterConfig configuration, TransportDataSource transportData) throws IOException {
+    public void initialise(TramchesterConfig configuration, TransportDataSource transportData) {
         logger.info("Creating dependencies");
 
         // caching is on by default
@@ -147,8 +142,10 @@ public class Dependencies {
         picoContainer.addComponent(NewDataAvailableHealthCheck.class);
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
         picoContainer.addComponent(InterchangeRepository.class);
+        picoContainer.addComponent(GraphDatabase.class);
 
-        createGraph(configuration);
+        logger.info("Start components");
+        picoContainer.start();
 
         TramReachabilityRepository tramReachabilityRepository = get(TramReachabilityRepository.class);
         tramReachabilityRepository.buildRepository();
@@ -163,77 +160,6 @@ public class Dependencies {
         logger.info("Data cleansing finished");
     }
 
-    private void createGraph(TramchesterConfig configuration) throws IOException {
-        String graphName = configuration.getGraphName();
-        logger.info("Create or load graph " + graphName);
-        File graphFile = new File(graphName);
-
-        boolean rebuildGraph = configuration.getRebuildGraph();
-
-        if (rebuildGraph) {
-            logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
-            try {
-                FileUtils.deleteDirectory(graphFile);
-            } catch (IOException ioException) {
-                logger.error("Error deleting the graph!", ioException);
-                throw ioException;
-            }
-        }
-
-        GraphDatabaseService graphDatabaseService = createGraphDatabaseService(graphFile);
-        picoContainer.addComponent(GraphDatabaseService.class, graphDatabaseService);
-
-        picoContainer.start();
-
-        if (rebuildGraph) {
-            logger.info("Rebuild of graph DB for " + graphName);
-            TransportGraphBuilder graphBuilder = picoContainer.getComponent(TransportGraphBuilder.class);
-            GraphFilter graphFilter = picoContainer.getComponent(GraphFilter.class);
-            if (graphFilter.isFiltered()) {
-                graphBuilder.buildGraphwithFilter(graphFilter);
-            } else {
-                graphBuilder.buildGraph();
-            }
-            logger.info("Graph rebuild is finished for " + graphName);
-        } else {
-            logger.info("Load existing graph");
-            populateNodeLabelMap(graphDatabaseService);
-        }
-
-//        if (configuration.getCreateLocality()) {
-//            picoContainer.getComponent(StationLocalityService.class).populateLocality();
-//        }
-        logger.info("graph db ready for " + graphFile.getAbsolutePath());
-
-    }
-
-    public static GraphDatabaseService createGraphDatabaseService(File graphFile) {
-        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
-
-        GraphDatabaseBuilder builder = graphDatabaseFactory.
-                newEmbeddedDatabaseBuilder(graphFile).
-                loadPropertiesFromFile("config/neo4j.conf");
-
-        GraphDatabaseService graphDatabaseService = builder.newGraphDatabase();
-        if (!graphDatabaseService.isAvailable(1000)) {
-            logger.error("DB Service is not available");
-        }
-        return graphDatabaseService;
-    }
-
-    private void populateNodeLabelMap(GraphDatabaseService graphDatabaseService) {
-        logger.info("Rebuilding node->label index");
-        NodeIdLabelMap nodeIdLabelMap = get(NodeIdLabelMap.class);
-        TransportGraphBuilder.Labels[] labels = TransportGraphBuilder.Labels.values();
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            for (TransportGraphBuilder.Labels label : labels) {
-                graphDatabaseService.findNodes(label).stream().forEach(node -> nodeIdLabelMap.put(node.getId(), label));
-            }
-            tx.success();
-        }
-        //nodeIdLabelMap.freeze();
-    }
-
     public <T> T get(Class<T> klass) {
 
         T component = picoContainer.getComponent(klass);
@@ -245,38 +171,23 @@ public class Dependencies {
 
     public void close() {
         logger.info("Dependencies close");
-        shutdownGraphDB();
+
         logger.info("Begin cache stats");
         List<ReportsCacheStats> components = picoContainer.getComponents(ReportsCacheStats.class);
         components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
-        picoContainer.stop();
-        picoContainer.dispose();
         logger.info("End cache stats");
+
+        logger.info("Components stop");
+        picoContainer.stop();
+        logger.info("Components dispose");
+        picoContainer.dispose();
+
         logger.info("Dependencies closed");
         System.gc(); // for tests which accumulate/free a lot of memory
     }
 
     private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {
         stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
-    }
-
-    private void shutdownGraphDB() {
-        try {
-            GraphDatabaseService graphService = picoContainer.getComponent(GraphDatabaseService.class);
-                if (graphService==null) {
-                        logger.error("Unable to obtain GraphDatabaseService for shutdown");
-                } else {
-                    if (graphService.isAvailable(1000)) {
-                        logger.info("Shutting down graphDB");
-                        graphService.shutdown();
-                    } else {
-                        logger.warn("Graph reported unavailable, attempt shutdown anyway");
-                        graphService.shutdown();
-                    }
-                }
-        } catch (Exception exceptionInClose) {
-            logger.error("Exception during close down", exceptionInClose);
-        }
     }
 
     public TramchesterConfig getConfig() {

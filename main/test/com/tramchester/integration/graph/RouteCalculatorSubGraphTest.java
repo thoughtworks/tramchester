@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
@@ -13,7 +14,6 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import org.junit.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -29,11 +29,10 @@ import static org.junit.Assert.assertTrue;
 
 public class RouteCalculatorSubGraphTest {
     private static Dependencies dependencies;
-    private static GraphDatabaseService database;
+    private static GraphDatabase database;
 
     private RouteCalculator calculator;
     private LocalDate nextTuesday = TestConfig.nextTuesday(0);
-    private GraphDatabaseService graphService;
     private static List<Station> stations = Arrays.asList(Stations.Cornbrook,
             Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
     private Transaction tx;
@@ -48,7 +47,7 @@ public class RouteCalculatorSubGraphTest {
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());
 
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
     }
 
     @AfterClass
@@ -58,7 +57,6 @@ public class RouteCalculatorSubGraphTest {
 
     @Before
     public void beforeEachTestRuns() {
-        graphService = dependencies.get(GraphDatabaseService.class);
         calculator = dependencies.get(RouteCalculator.class);
         tx = database.beginTx();
     }
@@ -126,7 +124,7 @@ public class RouteCalculatorSubGraphTest {
     @Test
     @Ignore
     public void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(graphService, 7);
+        DiagramCreator creator = new DiagramCreator(database, 7);
         creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));
     }
 

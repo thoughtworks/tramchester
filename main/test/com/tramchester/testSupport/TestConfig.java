@@ -1,24 +1,18 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.Dependencies;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.integration.IntegrationBusTestConfig;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.domain.time.TramServiceDate;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -41,13 +35,9 @@ public abstract class TestConfig extends AppConfiguration {
     //////
     private List<String> closedStations = asList("St Peters Square");
 
-    private boolean graphExists() {
-        return new File(getGraphName()).exists();
-    }
-
     @Override
     public boolean getRebuildGraph() {
-        return !graphExists();
+        return false;
     }
 
     @Override

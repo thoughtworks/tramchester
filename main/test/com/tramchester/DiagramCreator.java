@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -16,10 +17,10 @@ import static java.lang.String.format;
 // TODO Rewrite to use query instead
 public class DiagramCreator {
 
-    private final GraphDatabaseService graphDatabaseService;
+    private final GraphDatabase graphDatabaseService;
     private final int depthLimit;
 
-    public DiagramCreator(GraphDatabaseService graphDatabaseService, int depthLimit) {
+    public DiagramCreator(GraphDatabase graphDatabaseService, int depthLimit) {
         this.graphDatabaseService = graphDatabaseService;
         this.depthLimit = depthLimit;
     }

@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -12,7 +13,6 @@ import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class BusRouteReachableTest {
 
     private RouteReachable reachable;
     private StationRepository stationRepository;
-    private GraphDatabaseService database;
+    private GraphDatabase database;
     private Transaction tx;
     private TransportData transportData;
 
@@ -50,7 +50,7 @@ public class BusRouteReachableTest {
     public void beforeEachTestRuns() {
         stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(RouteReachable.class);
-        database = dependencies.get(GraphDatabaseService.class);
+        database = dependencies.get(GraphDatabase.class);
         transportData = dependencies.get(TransportData.class);
         tx = database.beginTx();
     }
