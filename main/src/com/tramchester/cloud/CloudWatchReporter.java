@@ -17,8 +17,8 @@ public class CloudWatchReporter extends ScheduledReporter {
 
     private static final String PREFIX = "com.tramchester.";
 
-    protected CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
-                                 TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
+    private CloudWatchReporter(MetricRegistry registry, String name, MetricFilter filter, TimeUnit rateUnit,
+                               TimeUnit durationUnit, ConfigFromInstanceUserData providesConfig, SendMetricsToCloudWatch client) {
         super(registry, name, filter, rateUnit, durationUnit);
         this.providesConfig = providesConfig;
         this.client = client;
@@ -26,10 +26,51 @@ public class CloudWatchReporter extends ScheduledReporter {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters,
+    public void report(SortedMap<String, Gauge> unTypedGauges, SortedMap<String, Counter> counters,
                        SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,
                        SortedMap<String, Timer> timers) {
 
+        SortedMap<String, Gauge<Number>> gauges = new TreeMap<>();
+
+        unTypedGauges.entrySet().stream().
+                filter(entry -> entry.getValue().getValue() instanceof Number).
+                forEach(entry -> gauges.put(entry.getKey(), (Gauge<Number>)entry.getValue()));
+
+        SortedMap<String, Timer> timersToSend = getTimersToSend(timers);
+        SortedMap<String, Meter> metersToSend = getMetersToSend(meters);
+        SortedMap<String, Gauge<Number>> gaugesToSend = getGuagesToSend(gauges);
+
+        String msg = String.format("Send %s timers %s gauges %s meters to cloudwatch metrics",
+                timersToSend.size(), gaugesToSend.size(), metersToSend.size());
+        if (timersToSend.isEmpty() || meters.isEmpty() || gauges.isEmpty()) {
+            logger.warn(msg);
+        } else {
+            logger.info(msg);
+        }
+        client.putMetricData(formNamespace(PREFIX, providesConfig), timersToSend, gaugesToSend, metersToSend);
+    }
+
+    private <T extends Number> SortedMap<String, Gauge<T>> getGuagesToSend(SortedMap<String, Gauge<T>> gauges) {
+        SortedMap<String, Gauge<T>> gaugeTreeMap = new TreeMap<>();
+        gauges.forEach((name, gauge) -> {
+            if (isScoped(name)) {
+                gaugeTreeMap.put(createName(name), gauge);
+            }
+        });
+        return gaugeTreeMap;
+    }
+
+    private SortedMap<String, Meter> getMetersToSend(SortedMap<String, Meter> meters) {
+        SortedMap<String, Meter> metersToSend = new TreeMap<>();
+        meters.forEach((name,meter) -> {
+            if (name.startsWith(PREFIX_LOG_NAMESPACE)) {
+                    metersToSend.put(createLogMetricName(name), meter);
+            }
+        });
+        return metersToSend;
+    }
+
+    private SortedMap<String, Timer> getTimersToSend(SortedMap<String, Timer> timers) {
         SortedMap<String, Timer> timersToSend = new TreeMap<>();
         timers.forEach((name, timer) -> {
             logger.debug("Add timer " + name + " to cloud watch metric");
@@ -37,22 +78,7 @@ public class CloudWatchReporter extends ScheduledReporter {
                 timersToSend.put(createName(name),timer);
             }
         });
-        SortedMap<String, Gauge<Integer>> gaugesToSend = new TreeMap<>();
-        gauges.forEach((name, gauge) -> {
-            if (isScoped(name)) {
-                // assumes all gauges in scope are integer
-                gaugesToSend.put(createName(name),gauge);
-            }
-        });
-        SortedMap<String, Meter> metersToSend = new TreeMap<>();
-        meters.forEach((name,meter) -> {
-            if (name.startsWith(PREFIX_LOG_NAMESPACE)) {
-                    metersToSend.put(createLogMetricName(name), meter);
-            }
-        });
-        logger.info(String.format("Send %s timers %s gauges %s meters to cloudwatch metrics",
-                timersToSend.size(),gaugesToSend.size(),metersToSend.size()));
-        client.putMetricData(formNamespace(PREFIX, providesConfig), timersToSend, gaugesToSend, metersToSend);
+        return timersToSend;
     }
 
     private String createLogMetricName(String name) {

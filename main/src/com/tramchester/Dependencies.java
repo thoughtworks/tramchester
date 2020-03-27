@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.codahale.metrics.MetricSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.cloud.*;
@@ -177,7 +178,7 @@ public class Dependencies {
         logger.info("Dependencies close");
 
         logger.info("Begin cache stats");
-        List<ReportsCacheStats> components = picoContainer.getComponents(ReportsCacheStats.class);
+        List<ReportsCacheStats> components = getReportCacheStats();
         components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
         logger.info("End cache stats");
 
@@ -190,6 +191,10 @@ public class Dependencies {
         System.gc(); // for tests which accumulate/free a lot of memory
     }
 
+    private List<ReportsCacheStats> getReportCacheStats() {
+        return picoContainer.getComponents(ReportsCacheStats.class);
+    }
+
     private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {
         stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
     }
@@ -200,5 +205,9 @@ public class Dependencies {
 
     public List<TramchesterHealthCheck> getHealthChecks() {
         return picoContainer.getComponents(TramchesterHealthCheck.class);
+    }
+
+    public List<ReportsCacheStats> getHasCacheStat() {
+        return picoContainer.getComponents(ReportsCacheStats.class);
     }
 }

@@ -22,10 +22,19 @@ public class UploadsLiveData implements LiveDataObserver {
 
     private final ObjectMapper objectMapper;
     private final ClientForS3 s3;
+    private final String environment;
 
     public UploadsLiveData(ClientForS3 s3) {
         this.s3 = s3;
         objectMapper = new ObjectMapper();
+        String maybeEnv = System.getenv("PLACE");
+
+        if (maybeEnv==null) {
+            logger.warn("PLACE is not set");
+            environment = "test";
+        } else {
+            environment = maybeEnv;
+        }
     }
 
     public boolean seenUpdate(Collection<StationDepartureInfo> stationDepartureInfos) {
@@ -39,13 +48,6 @@ public class UploadsLiveData implements LiveDataObserver {
         LocalDateTime timeStamp = extractMostRecent(dtoToUpload);
 
         try {
-
-            String environment = System.getenv("PLACE");
-
-            if (environment==null) {
-                logger.warn("PLACE is not set");
-                environment = "test";
-            }
 
             String date = timeStamp.toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE);
             String time = timeStamp.toLocalTime().format(DateTimeFormatter.ISO_TIME);

@@ -80,7 +80,6 @@ public class ClientForS3 {
             logger.warn(format("Cannot check if key '%s' exists in bucket '%s' reason '%s'",
                     key, bucket, exception.getMessage()));
         }
-        logger.warn(format("Could not find %s in bucket %s", key, bucket));
         return false;
     }
 

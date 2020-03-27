@@ -137,7 +137,8 @@ public class App extends Application<AppConfiguration>  {
                 (Gauge<Integer>) liveDataRepository::upToDateEntries);
         metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
                 (Gauge<Integer>) liveDataRepository::entriesWithMessages);
-        //metricRegistry.register(CachedNodeOperations.class, "cache", "number", dependencies.get(CachedNodeOperations.class).stats().)
+
+        CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
 
         // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,

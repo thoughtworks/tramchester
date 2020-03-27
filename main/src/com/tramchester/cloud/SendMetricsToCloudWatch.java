@@ -71,14 +71,13 @@ public class SendMetricsToCloudWatch {
         return result;
     }
 
-    private MetricDatum createGaugeDatum(Date timestamp, String name, Gauge<Integer> gauge) {
+    private <T extends Number> MetricDatum createGaugeDatum(Date timestamp, String name, Gauge<T> gauge) {
         return new MetricDatum()
                 .withMetricName(name)
                 .withTimestamp(timestamp)
                 .withValue(zeroFilter(gauge.getValue()))
                 .withUnit(StandardUnit.Count)
                 .withDimensions(countersDimenion);
-
     }
 
     private List<MetricDatum> createMeterDatum(Date timestamp, String name, Meter meter) {
@@ -101,15 +100,16 @@ public class SendMetricsToCloudWatch {
         return result;
     }
 
-    public static Double zeroFilter(double value) {
-        if (value<=LOWER_LIMIT) {
+    public static <T extends Number> Double zeroFilter(T value) {
+        double doubleValue = value.doubleValue();
+        if (doubleValue <=LOWER_LIMIT) {
             return 0D;
         }
-        return value;
+        return doubleValue;
     }
 
-    public void putMetricData(String nameSpace, SortedMap<String, Timer> timers,
-                              SortedMap<String, Gauge<Integer>> gauges, SortedMap<String, Meter> metersToSend) {
+    public <T extends Number> void putMetricData(String nameSpace, SortedMap<String, Timer> timers,
+                              SortedMap<String, Gauge<T>> intGauges, SortedMap<String, Meter> metersToSend) {
         if (client==null) {
             logger.warn("No cloud watch client available, will not send metrics");
             return;
@@ -118,7 +118,7 @@ public class SendMetricsToCloudWatch {
 
         List<MetricDatum> metricDatum = new LinkedList<>();
         timers.forEach((name,timer) -> metricDatum.addAll(createTimerDatum(timestamp, name, timer)));
-        gauges.forEach((name,gauge)-> metricDatum.add(createGaugeDatum(timestamp, name, gauge)));
+        intGauges.forEach((name,gauge)-> metricDatum.add(createGaugeDatum(timestamp, name, gauge)));
         metersToSend.forEach((name, meter) -> metricDatum.addAll(createMeterDatum(timestamp, name, meter)));
 
         int batchSize = 20;
@@ -142,7 +142,7 @@ public class SendMetricsToCloudWatch {
 
     private List<MetricDatum> formBatch(List<MetricDatum> source, int batchSize) {
         List<MetricDatum> result = new ArrayList<>();
-        int top = (batchSize>source.size()) ? source.size() : batchSize;
+        int top = Math.min(batchSize, source.size());
         for (int i = 0; i < top; i++) {
             result.add(source.remove(0));
         }
