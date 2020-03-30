@@ -56,7 +56,6 @@ public class RecentJourneys {
             }
         }
         return false;
-        //return timestamps.contains(new Timestamped(id, DateTime.now()));
     }
 
     public static RecentJourneys empty() {

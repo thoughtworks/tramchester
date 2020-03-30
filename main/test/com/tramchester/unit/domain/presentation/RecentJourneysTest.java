@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ public class RecentJourneysTest {
     @Test
     public void shouldGetAndSetValues() {
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped timestamped = new Timestamped("id", LocalDateTime.now());
+        Timestamped timestamped = new Timestamped("id", TestConfig.LocalNow());
         HashSet<Timestamped> set = Sets.newHashSet(timestamped);
         recentJourneys.setRecentIds(set);
 
@@ -39,7 +40,7 @@ public class RecentJourneysTest {
     @Test
     public void shouldRoundTripCookieString() throws IOException {
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped timestamped = new Timestamped("id", LocalDateTime.now());
+        Timestamped timestamped = new Timestamped("id", TestConfig.LocalNow());
         HashSet<Timestamped> set = Sets.newHashSet(timestamped);
         recentJourneys.setRecentIds(set);
 

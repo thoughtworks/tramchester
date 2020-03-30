@@ -6,6 +6,7 @@ import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +25,13 @@ public class DataCleanser {
     private final TransportDataWriterFactory transportDataWriterFactory;
     private ErrorCount count;
     private final TramchesterConfig config;
+    private final ProvidesNow providesNow;
 
     public DataCleanser(TransportDataReaderFactory readerFactory, TransportDataWriterFactory writerFactort,
-                        TramchesterConfig config) {
+                        ProvidesNow providesNow, TramchesterConfig config) {
         this.dataReaderFactory = readerFactory;
         this.transportDataWriterFactory = writerFactort;
+        this.providesNow = providesNow;
         this.config = config;
     }
 
@@ -47,7 +50,7 @@ public class DataCleanser {
 
         cleanseCalendar(new CalendarDataMapper(servicesAndTrips.getServiceIds()));
 
-        cleanFeedInfo(new FeedInfoDataMapper());
+        cleanFeedInfo(new FeedInfoDataMapper(providesNow));
 
         if (!count.noErrors()) {
             logger.warn("Unable to cleanse all data" + count);

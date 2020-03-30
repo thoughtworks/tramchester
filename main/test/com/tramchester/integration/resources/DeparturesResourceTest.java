@@ -59,7 +59,7 @@ public class DeparturesResourceTest {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimeNow() {
-        LocalTime queryTime = LocalTime.now();
+        LocalTime queryTime = TestConfig.LocalNow().toLocalTime();
         Station station = Stations.MarketStreet;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
@@ -70,7 +70,7 @@ public class DeparturesResourceTest {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimePast() {
-        LocalTime queryTime = LocalTime.now().minusMinutes(120);
+        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().minusMinutes(120);
         Station station = Stations.MarketStreet;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
@@ -80,7 +80,7 @@ public class DeparturesResourceTest {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimeFuture() {
-        LocalTime queryTime = LocalTime.now().plusMinutes(120);
+        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().plusMinutes(120);
         Station station = Stations.MarketStreet;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
@@ -103,7 +103,7 @@ public class DeparturesResourceTest {
     public void shouldGetNearbyDeparturesQuerytimeNow() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
-        LocalTime queryTime = LocalTime.now();
+        LocalTime queryTime = TestConfig.LocalNow().toLocalTime();
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
         assertFalse(departures.isEmpty());
     }
@@ -113,7 +113,7 @@ public class DeparturesResourceTest {
     public void shouldGetNearbyDeparturesQuerytimeFuture() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
-        LocalTime queryTime = LocalTime.now().plusMinutes(120);
+        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().plusMinutes(120);
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
         assertTrue(departures.isEmpty());
     }
@@ -123,7 +123,7 @@ public class DeparturesResourceTest {
     public void shouldGetNearbyDeparturesQuerytimePast() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
-        LocalTime queryTime = LocalTime.now().minusMinutes(120);
+        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().minusMinutes(120);
 
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
 
@@ -157,7 +157,7 @@ public class DeparturesResourceTest {
         DepartureDTO departureDTO = departures.first();
         TramTime when = departureDTO.getWhen();
 
-        TramTime nowWithin5mins = TramTime.of(LocalTime.now().minusMinutes(5));
+        TramTime nowWithin5mins = TramTime.of(TestConfig.LocalNow().toLocalTime().minusMinutes(5));
         assertTrue(when.asLocalTime().isAfter(nowWithin5mins.asLocalTime()) );
 
         String nextDepart = departureDTO.getFrom();
@@ -169,13 +169,12 @@ public class DeparturesResourceTest {
         Assert.assertFalse(notes.isEmpty());
         // ignore closure message which is always present, also if today is weekend exclude that
         int ignore = 1;
-        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
+        DayOfWeek dayOfWeek = TestConfig.LocalNow().toLocalDate().getDayOfWeek();
         if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
             ignore++;
         }
         Assert.assertTrue((notes.size())-ignore>0);
     }
-
 
     @Test
     @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})

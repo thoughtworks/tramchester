@@ -1,11 +1,13 @@
 package com.tramchester.unit.domain;
 
 import com.google.common.collect.Sets;
-import com.tramchester.testSupport.TestConfig;
-import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
@@ -19,13 +21,14 @@ public class UpdateRecentJourneysTest {
 
     private String altyId = Stations.Altrincham.getId();
     private UpdateRecentJourneys updater = new UpdateRecentJourneys(TestConfig.GET());
+    private ProvidesNow providesNow = new ProvidesLocalNow();
 
     @Test
     public void shouldUpdateRecentFrom() {
         RecentJourneys recentJourneys = new RecentJourneys();
         recentJourneys.setTimestamps(ts("id1","id2"));
 
-        RecentJourneys updated = updater.createNewJourneys(recentJourneys, altyId);
+        RecentJourneys updated = updater.createNewJourneys(recentJourneys, providesNow, altyId);
 
         Set<Timestamped> from = updated.getRecentIds();
         assertEquals(3, from.size());
@@ -37,7 +40,7 @@ public class UpdateRecentJourneysTest {
         RecentJourneys recentJourneys = new RecentJourneys();
         recentJourneys.setTimestamps(ts("id1","id2","id3"));
 
-        RecentJourneys updated = updater.createNewJourneys(recentJourneys, "id2");
+        RecentJourneys updated = updater.createNewJourneys(recentJourneys, providesNow,"id2");
         Set<Timestamped> from = updated.getRecentIds();
         assertEquals(3, from.size());
         assertTrue(from.containsAll(ts("id1","id2","id3")));
@@ -47,7 +50,7 @@ public class UpdateRecentJourneysTest {
     public void shouldRemoveOldestWhenLimitReached() throws InterruptedException {
         RecentJourneys recentJourneys = new RecentJourneys();
         recentJourneys.setTimestamps(Sets.newHashSet());
-        RecentJourneys updated = updater.createNewJourneys(recentJourneys, "id4");
+        RecentJourneys updated = updater.createNewJourneys(recentJourneys, providesNow,"id4");
         Thread.sleep(2);
         updated = updateWithPause(updated, "id3");
         updated = updateWithPause(updated, "id2");
@@ -64,7 +67,7 @@ public class UpdateRecentJourneysTest {
     }
 
     private RecentJourneys updateWithPause(RecentJourneys updated, String id1) throws InterruptedException {
-        updated = updater.createNewJourneys(updated, id1);
+        updated = updater.createNewJourneys(updated, providesNow, id1);
         Thread.sleep(2);
         return updated;
     }
@@ -73,7 +76,7 @@ public class UpdateRecentJourneysTest {
         Set<Timestamped> set = new HashSet<>();
         int count = 0;
         for (String id : ids) {
-            set.add(new Timestamped(id, LocalDateTime.now().plusSeconds(count++)));
+            set.add(new Timestamped(id, providesNow.getDateTime().plusSeconds(count++)));
         }
         return set;
     }

@@ -2,6 +2,7 @@ package com.tramchester.unit.healthchecks;
 
 
 import com.codahale.metrics.health.HealthCheck;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
@@ -20,13 +21,20 @@ public class DataExpiryHealthCheckTest extends EasyMockSupport {
 
     private ProvidesFeedInfo providesFeedInfo;
     private DataExpiryHealthCheck healthCheck;
+    private LocalDate localDate;
+    private ProvidesLocalNow providesLocalNow;
 
     @Before
     public void beforeEachTestRuns() {
         providesFeedInfo = createMock(ProvidesFeedInfo.class);
-        FeedInfo feedInfo = createFeedInfo(LocalDate.now().minusDays(30), LocalDate.now().plusDays(3));
+        providesLocalNow = createMock(ProvidesLocalNow.class);
+
+        localDate = TestConfig.LocalNow().toLocalDate();
+        FeedInfo feedInfo = createFeedInfo(localDate.minusDays(30), localDate.plusDays(3));
         EasyMock.expect(providesFeedInfo.getFeedInfo()).andReturn(feedInfo);
-        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, TestConfig.GET());
+        EasyMock.expect(providesLocalNow.getDate()).andStubReturn(localDate);
+
+        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, providesLocalNow, TestConfig.GET());
     }
 
     @Test
@@ -41,7 +49,7 @@ public class DataExpiryHealthCheckTest extends EasyMockSupport {
     @Test
     public void shouldTriggerIfWithinThreshholdButNotExpiredYet() {
         replayAll();
-        HealthCheck.Result result = healthCheck.checkForDate(LocalDate.now().plusDays(1));
+        HealthCheck.Result result = healthCheck.checkForDate(localDate.plusDays(1));
         verifyAll();
 
         assertFalse(result.isHealthy());
@@ -50,7 +58,7 @@ public class DataExpiryHealthCheckTest extends EasyMockSupport {
     @Test
     public void shouldNotTriggerIfNotWithinThreshhold() {
         replayAll();
-        HealthCheck.Result result = healthCheck.checkForDate(LocalDate.now().minusDays(1));
+        HealthCheck.Result result = healthCheck.checkForDate(localDate.minusDays(1));
         verifyAll();
 
         assertTrue(result.isHealthy());
@@ -59,7 +67,7 @@ public class DataExpiryHealthCheckTest extends EasyMockSupport {
     @Test
     public void shouldTriggerIfPastThreshhold() {
         replayAll();
-        HealthCheck.Result result = healthCheck.checkForDate(LocalDate.now().plusDays(4));
+        HealthCheck.Result result = healthCheck.checkForDate(localDate.plusDays(4));
         verifyAll();
 
         assertFalse(result.isHealthy());

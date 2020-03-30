@@ -13,6 +13,7 @@ import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.testSupport.TestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.json.simple.parser.ParseException;
@@ -31,6 +32,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     private LiveDataParser mapper;
     private LiveDataRepository repository;
     private ProvidesNow providesNow;
+    private LocalDateTime lastUpdate;
 
     @Before
     public void beforeEachTestRuns() {
@@ -38,13 +40,14 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         mapper = createMock(LiveDataParser.class);
         providesNow = createMock(ProvidesNow.class);
         repository = new LiveDataRepository(fetcher, mapper, providesNow);
+
+        lastUpdate = TestConfig.LocalNow();
     }
 
     @Test
     public void shouldGetDepartureInformationForSingleStation() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        LocalDateTime lastUpdate = LocalDateTime.now();
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
                 "some message", Stations.Altrincham);
 
@@ -72,8 +75,6 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        LocalDateTime lastUpdate = LocalDateTime.now();
-
         addStationInfo(info, lastUpdate.plusMinutes(14), "yyy", "platformIdA", "some message", Stations.Altrincham);
         addStationInfo(info, lastUpdate.plusMinutes(21), "303", "platformIdB", "some message", Stations.Altrincham);
 
@@ -96,8 +97,6 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     @Test
     public void shouldUpdateMessageCountWhenRefreshingDataOK() throws ParseException {
         List<StationDepartureInfo> info = new LinkedList<>();
-
-        LocalDateTime lastUpdate = LocalDateTime.now(); // up to date
 
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
         addStationInfo(info, lastUpdate, "303", "platformIdB", "<no message>", Stations.Altrincham);
@@ -127,7 +126,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         altrincham.addPlatform(new Platform(platformId1, "Altrincham Platform 1"));
         altrincham.addPlatform(new Platform(platformId2, "Altrincham Platform 2"));
 
-        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime current = TestConfig.LocalNow();
         LocalDateTime staleDataAndTime = current.minusDays(5).minusMinutes(60); // stale
 
         addStationInfo(info, staleDataAndTime, "yyy", platformId1, "some message", altrincham);

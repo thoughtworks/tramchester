@@ -120,7 +120,7 @@ public class AppUserJourneyTest {
 
         validateCurrentTimeIsSelected(appPage);
 
-        assertEquals(LocalDate.now(), appPage.getDate());
+        assertEquals(TestConfig.LocalNow().toLocalDate(), appPage.getDate());
 
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         assertJourney(appPage, altrincham, bury, "10:15", nextTuesday, false);
@@ -135,12 +135,12 @@ public class AppUserJourneyTest {
         validateCurrentTimeIsSelected(appPage);
 
         appPage.selectToday();
-        assertEquals(LocalDate.now(), appPage.getDate());
+        assertEquals(TestConfig.LocalNow().toLocalDate(), appPage.getDate());
     }
 
     private void validateCurrentTimeIsSelected(AppPage appPage) {
         LocalTime timeOnPage = timeSelectedOnPage(appPage);
-        LocalTime now = LocalTime.now();
+        LocalTime now = TestConfig.LocalNow().toLocalTime();
         int diff = Math.abs(now.toSecondOfDay() - timeOnPage.toSecondOfDay());
         assertTrue(diff<=110); // allow for page render and webdriver overheads
     }

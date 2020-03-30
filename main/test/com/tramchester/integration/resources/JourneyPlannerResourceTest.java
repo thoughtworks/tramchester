@@ -52,10 +52,12 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     private ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
+    private LocalDateTime now;
 
     @Before
     public void beforeEachTestRuns() {
         when = TestConfig.nextTuesday(0);
+        now = TestConfig.LocalNow();
     }
 
     @Test
@@ -115,7 +117,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         TramTime timeForQuery = TramTime.of(currentLocalTime);
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, timeForQuery,
-                new TramServiceDate(LocalDate.now()), false);
+                new TramServiceDate(now.toLocalDate()), false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -135,7 +137,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldReproLateNightIssueShudehillToAltrincham() {
         TramTime timeForQuery = TramTime.of(23,11);
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, timeForQuery,
-                new TramServiceDate(LocalDate.now()), false);
+                new TramServiceDate(now.toLocalDate()), false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -262,8 +264,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldSetCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
-        String time = LocalTime.now().format(TestConfig.timeFormatter);
-        String date = LocalDate.now().format(dateFormatDashes);
+        String time = now.toLocalTime().format(TestConfig.timeFormatter);
+        String date = now.toLocalDate().format(dateFormatDashes);
         Response result = getResponseForJourney(testRule, start, end, time, date, null, false);
 
         assertEquals(200, result.getStatus());
@@ -271,20 +273,20 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         RecentJourneys recentJourneys = getRecentJourneysFromCookie(result);
 
         assertEquals(2,recentJourneys.getRecentIds().size());
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, LocalDateTime.now())));
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, LocalDateTime.now())));
+        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, now)));
+        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, now)));
     }
 
     @Test
     public void shouldUdateCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
-        String time = LocalTime.now().format(TestConfig.timeFormatter);
-        String date = LocalDate.now().format(dateFormatDashes);
+        String time = now.toLocalTime().format(TestConfig.timeFormatter);
+        String date = now.toLocalDate().format(dateFormatDashes);
 
         // cookie with ashton
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped ashton = new Timestamped(Stations.Ashton.getId(), LocalDateTime.now());
+        Timestamped ashton = new Timestamped(Stations.Ashton.getId(), now);
         recentJourneys.setRecentIds(Sets.newHashSet(ashton));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
@@ -300,9 +302,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         // ashton, bury and man airport now in cookie
         Set<Timestamped> recents = result.getRecentIds();
         assertEquals(3, recents.size());
-        assertTrue(recents.contains(new Timestamped(start, LocalDateTime.now())));
+        assertTrue(recents.contains(new Timestamped(start, now)));
         assertTrue(recents.contains(ashton));
-        assertTrue(recents.contains(new Timestamped(end, LocalDateTime.now())));
+        assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     @Test
@@ -310,8 +312,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         String start = MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
         String end = Stations.ManAirport.getId();
-        String time = LocalTime.now().format(TestConfig.timeFormatter);
-        String date = LocalDate.now().format(dateFormatDashes);
+        String time = now.toLocalTime().format(TestConfig.timeFormatter);
+        String date = now.toLocalDate().format(dateFormatDashes);
         Response response = getResponseForJourney(testRule, start, end, time, date, latlong, false);
 
         assertEquals(200, response.getStatus());
@@ -319,7 +321,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Set<Timestamped> recents = result.getRecentIds();
         assertEquals(1, recents.size());
         // checks ID only
-        assertTrue(recents.contains(new Timestamped(end, LocalDateTime.now())));
+        assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {

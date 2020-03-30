@@ -1,9 +1,10 @@
 package com.tramchester.unit.dataimport.parsers;
 
 
-import com.tramchester.dataimport.parsers.DataRecord;
 import com.tramchester.dataimport.parsers.FeedInfoDataMapper;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,7 +17,8 @@ public class FeedInfoDataParserTest {
 
     @Test
     public void shouldParserFeedInfo() throws IOException {
-        FeedInfoDataMapper feedInfoDataParser = new FeedInfoDataMapper();
+        ProvidesNow providesNow = new ProvidesLocalNow();
+        FeedInfoDataMapper feedInfoDataParser = new FeedInfoDataMapper(providesNow);
 
         FeedInfo info = feedInfoDataParser.parseEntry(ParserBuilder.getRecordFor(feedInfo));
         assertThat(info.getPublisherName()).isEqualTo("feed_publisher_name");

@@ -52,7 +52,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            ObjectMapper mapper,
                            ProvidesNotes providesNotes,
                            MyLocationFactory locationFactory, StationDTOFactory stationDTOFactory, ProvidesNow providesNow) {
-        super(updateRecentJourneys, mapper);
+        super(updateRecentJourneys, providesNow, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;

@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,16 +18,15 @@ public class UpdateRecentJourneys {
     private int limit;
 
     public UpdateRecentJourneys(TramchesterConfig config) {
+        this.limit = config.getRecentStopsToShow();
         if (limit<=0) {
             logger.warn("Limit on recent journeys set to " + limit);
         }
-        this.limit = config.getRecentStopsToShow();
     }
 
-    public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, String stationId) {
-        Timestamped timestamped = new Timestamped(stationId, LocalDateTime.now());
-        Set<Timestamped> from = new HashSet<>();
-        from.addAll(recentJourneys.getRecentIds());
+    public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, ProvidesNow providesNow, String stationId) {
+        Timestamped timestamped = new Timestamped(stationId, providesNow.getDateTime());
+        Set<Timestamped> from = new HashSet<>(recentJourneys.getRecentIds());
         if (from.contains(timestamped)) {
             from.remove(timestamped);
         } else if (from.size()>=limit) {

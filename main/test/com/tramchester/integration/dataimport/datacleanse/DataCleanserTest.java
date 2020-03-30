@@ -3,6 +3,8 @@ package com.tramchester.integration.dataimport.datacleanse;
 import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -54,7 +56,8 @@ public class DataCleanserTest {
 
         TransportDataReaderFactory readerFactory = new TransportDataReaderFactory(config);
         TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(config);
-        DataCleanser dataCleanser = new DataCleanser(readerFactory, writerFactory, config);
+        ProvidesNow providesNow = new ProvidesLocalNow();
+        DataCleanser dataCleanser = new DataCleanser(readerFactory, writerFactory, providesNow, config);
 
         URLDownloader downloader = new URLDownloader();
         FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, config);

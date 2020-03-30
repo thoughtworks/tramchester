@@ -167,7 +167,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     public static LocalDate nextTuesday(int offsetDays) {
         DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;
-        LocalDate date = LocalDate.now().plusDays(offsetDays);
+        LocalDate date = LocalNow().toLocalDate().plusDays(offsetDays);
         return getNextDate(dayOfWeek, date);
     }
 
@@ -186,10 +186,10 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     public static LocalDate nextSaturday() {
-        return getNextDate(DayOfWeek.SATURDAY, LocalDate.now());
+        return getNextDate(DayOfWeek.SATURDAY, LocalNow().toLocalDate());
     }
     public static LocalDate nextSunday() {
-        return getNextDate(DayOfWeek.SUNDAY, LocalDate.now());
+        return getNextDate(DayOfWeek.SUNDAY, LocalNow().toLocalDate());
     }
     public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);

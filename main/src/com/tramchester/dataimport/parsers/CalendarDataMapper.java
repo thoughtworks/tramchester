@@ -27,14 +27,14 @@ public class CalendarDataMapper implements CSVEntryMapper<CalendarData> {
         boolean friday = data.get(5).equals("1");
         boolean saturday = data.get(6).equals("1");
         boolean sunday = data.get(7).equals("1");
-        LocalDate start = LocalDate.now();
+        LocalDate start = LocalDate.MIN;
         if (isNumeric(data.get(8))) {
             int year = Integer.parseInt(data.get(8).substring(0, 4));
             int monthOfYear = Integer.parseInt(data.get(8).substring(4, 6));
             int dayOfMonth = Integer.parseInt(data.get(8).substring(6, 8));
             start = LocalDate.of(year, monthOfYear, dayOfMonth);
         }
-        LocalDate end = LocalDate.now();
+        LocalDate end = LocalDate.MAX;
         if (isNumeric(data.get(9))) {
             int year = Integer.parseInt(data.get(9).substring(0, 4));
             int monthOfYear = Integer.parseInt(data.get(9).substring(4, 6));

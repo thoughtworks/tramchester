@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +18,15 @@ public class ServiceReasons {
     private static final Logger logger = LoggerFactory.getLogger(ServiceReasons.class);
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
+    private final ProvidesLocalNow providesLocalNow;
     private final List<ServiceReason> reasons;
     // stats
     private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private boolean success;
 
-    public ServiceReasons() {
+    public ServiceReasons(ProvidesLocalNow providesLocalNow) {
+        this.providesLocalNow = providesLocalNow;
         reasons = new ArrayList<>();
         statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
@@ -72,7 +75,8 @@ public class ServiceReasons {
     }
 
     private void createGraphFile(TramTime queryTime) {
-        String fileName = format("%s%s_at_%s.dot", queryTime.getHourOfDay(), queryTime.getMinuteOfHour(), LocalTime.now().toString());
+        String fileName = format("%s%s_at_%s.dot", queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
+                providesLocalNow.getDateTime().toLocalDate().toString());
         fileName = fileName.replaceAll(":","");
 
         if (reasons.isEmpty()) {

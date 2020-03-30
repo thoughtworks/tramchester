@@ -32,12 +32,14 @@ public class ProvidesNotesTest extends EasyMockSupport {
     private ProvidesNotes provider;
     private Set<Journey> journeys;
     private LiveDataRepository liveDataRepository;
+    private LocalDateTime lastUpdate;
 
     @Before
     public void beforeEachTestRuns() {
         liveDataRepository = createStrictMock(LiveDataRepository.class);
         provider = new ProvidesNotes(TestConfig.GET(), liveDataRepository);
         journeys = new HashSet<>();
+        lastUpdate = TestConfig.LocalNow();
     }
 
     @Test
@@ -95,9 +97,8 @@ public class ProvidesNotesTest extends EasyMockSupport {
     public void shouldNotAddMessageIfNotMessageForJourney() {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
-        LocalDateTime lastUpdate = LocalDateTime.now();
         TramTime queryTime = TramTime.of(8,11);
-        LocalDate date = LocalDate.now();
+        LocalDate date = TestConfig.LocalNow().toLocalDate();
         if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
             date = date.plusDays(3);
         }
@@ -125,7 +126,6 @@ public class ProvidesNotesTest extends EasyMockSupport {
     public void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
-        LocalDateTime lastUpdate = LocalDateTime.now();
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
@@ -152,7 +152,6 @@ public class ProvidesNotesTest extends EasyMockSupport {
     public void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
-        LocalDateTime lastUpdate = LocalDateTime.now();
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
@@ -186,8 +185,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
                 Stations.Ashton, 7, TramTime.of(8,11), false );
         TransportStage stageE = createStageWithBoardingPlatform("platformId5");
 
-        LocalDateTime lastUpdate = LocalDateTime.now();
-        TramServiceDate serviceDate = new TramServiceDate(LocalDate.now());
+        TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
         StationDepartureInfo infoA = createDepartureInfo(lastUpdate, Stations.Pomona, "Some long message");
@@ -229,15 +227,14 @@ public class ProvidesNotesTest extends EasyMockSupport {
 
         List<Station> stations = Arrays.asList(Stations.Pomona, Stations.VeloPark, Stations.Cornbrook);
 
-        LocalDateTime time = LocalDateTime.now();
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016, 10, 25));
-        TramTime queryTime = TramTime.of(time);
+        TramTime queryTime = TramTime.of(lastUpdate);
         EasyMock.expect(liveDataRepository.departuresFor(Stations.Pomona, queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(time, Stations.Pomona, "second message")));
+                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, Stations.Pomona, "second message")));
         EasyMock.expect(liveDataRepository.departuresFor(Stations.VeloPark, queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(time, Stations.VeloPark, "first message")));
+                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, Stations.VeloPark, "first message")));
         EasyMock.expect(liveDataRepository.departuresFor(Stations.Cornbrook, queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(time, Stations.Cornbrook, "second message")));
+                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, Stations.Cornbrook, "second message")));
 
         replayAll();
 

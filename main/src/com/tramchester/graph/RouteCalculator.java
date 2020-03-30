@@ -5,6 +5,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.CreateQueryTimes;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningServices;
@@ -37,10 +38,12 @@ public class RouteCalculator implements TramRouteCalculator {
     private final CreateQueryTimes createQueryTimes;
     private final NodeIdQuery nodeIdQuery;
     private final GraphDatabase graphDatabaseService;
+    private final ProvidesLocalNow providesLocalNow;
 
     public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
-                           CreateQueryTimes createQueryTimes, NodeIdQuery nodeIdQuery, GraphDatabase graphDatabaseService) {
+                           CreateQueryTimes createQueryTimes, NodeIdQuery nodeIdQuery, GraphDatabase graphDatabaseService,
+                           ProvidesLocalNow providesLocalNow) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
@@ -49,6 +52,7 @@ public class RouteCalculator implements TramRouteCalculator {
         this.createQueryTimes = createQueryTimes;
         this.nodeIdQuery = nodeIdQuery;
         this.graphDatabaseService = graphDatabaseService;
+        this.providesLocalNow = providesLocalNow;
     }
 
     @Override
@@ -91,7 +95,7 @@ public class RouteCalculator implements TramRouteCalculator {
     private Stream<Journey> getJourneyStream(Node startNode, Node endNode, TramTime queryTime,
                                              List<Station> destinations, TramServiceDate queryDate, boolean walkAtStart) {
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
-        ServiceReasons serviceReasons = new ServiceReasons();
+        ServiceReasons serviceReasons = new ServiceReasons(providesLocalNow);
 
         List<TramTime> queryTimes = createQueryTimes.generate(queryTime, walkAtStart);
 

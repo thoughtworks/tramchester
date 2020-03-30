@@ -1,7 +1,7 @@
 package com.tramchester.healthchecks;
 
-import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.repository.ProvidesFeedInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,18 +13,19 @@ import static java.lang.String.format;
 public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(DataExpiryHealthCheck.class);
 
-    private ProvidesFeedInfo providesFeedInfo;
-    private TramchesterConfig config;
+    private final ProvidesFeedInfo providesFeedInfo;
+    private final TramchesterConfig config;
+    private final ProvidesLocalNow providesLocalNow;
 
-    public DataExpiryHealthCheck(ProvidesFeedInfo providesFeedInfo, TramchesterConfig config) {
+    public DataExpiryHealthCheck(ProvidesFeedInfo providesFeedInfo, ProvidesLocalNow providesLocalNow, TramchesterConfig config) {
         this.providesFeedInfo = providesFeedInfo;
+        this.providesLocalNow = providesLocalNow;
         this.config = config;
     }
 
     @Override
     public Result check() {
-        LocalDate currentDate = LocalDate.now();
-        return checkForDate(currentDate);
+        return checkForDate(providesLocalNow.getDate());
     }
 
     public Result checkForDate(LocalDate currentDate) {

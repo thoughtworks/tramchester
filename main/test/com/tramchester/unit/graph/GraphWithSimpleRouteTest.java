@@ -172,7 +172,6 @@ public class GraphWithSimpleRouteTest {
        assertTrue(journeys.size()>=1);
        checkForPlatforms(journeys);
         journeys.forEach(journey->assertEquals(2, journey.getStages().size()));
-
     }
 
     @Test
@@ -182,7 +181,6 @@ public class GraphWithSimpleRouteTest {
         assertTrue(journeys.size()>=1);
         checkForPlatforms(journeys);
         journeys.forEach(journey->assertEquals(2, journey.getStages().size()));
-
     }
 
     @Test

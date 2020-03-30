@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -37,7 +38,8 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
     public void onceBeforeEachTestRuns() {
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
-        reasons = new ServiceReasons();
+        ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
+        reasons = new ServiceReasons(providesLocalNow);
         config = TestConfig.GET();
 
         serviceHeuristics = createMock(ServiceHeuristics.class);

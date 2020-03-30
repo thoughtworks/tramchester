@@ -7,6 +7,7 @@ import com.tramchester.dataimport.FileModTime;
 import com.tramchester.dataimport.URLDownloader;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -27,6 +28,7 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     private Path expectedPath;
     private NewDataAvailableHealthCheck healthCheck;
     private String expectedURL;
+    private LocalDateTime time;
 
     @Before
     public void beforeEachTestRuns() {
@@ -36,11 +38,13 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         expectedURL = config.getTramDataCheckUrl();
 
         healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime);
+
+        time = TestConfig.LocalNow();
+
     }
 
     @Test
     public void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
-        LocalDateTime time = LocalDateTime.now();
 
         EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.minusDays(1));
         EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
@@ -53,7 +57,6 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
     @Test
     public void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
-        LocalDateTime time = LocalDateTime.now();
 
         EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.plusDays(1));
         EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);

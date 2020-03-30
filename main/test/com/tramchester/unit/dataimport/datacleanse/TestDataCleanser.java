@@ -1,5 +1,7 @@
 package com.tramchester.unit.dataimport.datacleanse;
 
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
@@ -36,16 +38,18 @@ public class TestDataCleanser extends EasyMockSupport {
     private TransportDataWriterFactory writerFactory;
     private TramchesterConfig config;
     private TransportDataReaderFactory readerFactory;
+    private ProvidesNow providesNow;
 
     @Before
     public void beforeEachTestRuns() {
         config = TestConfig.GET();
+        providesNow = new ProvidesLocalNow();
 
         reader = createMock(TransportDataReader.class);
         writer = createMock(TransportDataWriter.class);
         writerFactory = createMock(TransportDataWriterFactory.class);
         readerFactory = createMock(TransportDataReaderFactory.class);
-        cleanser = new DataCleanser(readerFactory, writerFactory, config);
+        cleanser = new DataCleanser(readerFactory, writerFactory, providesNow, config);
     }
 
     @Test
@@ -228,7 +232,7 @@ public class TestDataCleanser extends EasyMockSupport {
         Stream<FeedInfo> feedInfoStream = Stream.of(lineA);
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        FeedInfoDataMapper feedInfoDataMapper = new FeedInfoDataMapper();
+        FeedInfoDataMapper feedInfoDataMapper = new FeedInfoDataMapper(providesNow);
         EasyMock.expect(reader.getFeedInfo(feedInfoDataMapper)).andReturn(feedInfoStream);
         validateWriter("feed_info",  "pubA,urlA,tzA,landA,20161129,20161130,versionA");
 

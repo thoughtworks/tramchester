@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -57,8 +58,9 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
                                   LocationJourneyPlanner locToLocPlanner, UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, RouteCalculatorArriveBy routeCalculatorArriveBy,
-                                  ProvidesNotes providesNotes, GraphDatabase graphDatabaseService, TransportData transportData) {
-        super(updateRecentJourneys, objectMapper);
+                                  ProvidesNotes providesNotes, GraphDatabase graphDatabaseService, TransportData transportData,
+                                  ProvidesNow providesNow) {
+        super(updateRecentJourneys, providesNow, objectMapper);
         this.routeCalculator = routeCalculator;
         this.journeysMapper = journeysMapper;
         this.config = config;

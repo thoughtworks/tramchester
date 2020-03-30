@@ -167,7 +167,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void testJourneyFromAltyToAirport() {
-        TramServiceDate today = new TramServiceDate(LocalDate.now());
+        TramServiceDate today = new TramServiceDate(TestConfig.LocalNow().toLocalDate());
 
         Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport,
                 TramTime.of(11, 43), today);

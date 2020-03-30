@@ -6,6 +6,8 @@ import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.Stop;
 import com.tramchester.domain.input.Trip;
@@ -45,7 +47,8 @@ public class TramTransportDataImporterTest {
     @Test
     public void shouldLoadTransportData() {
         TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
-        TransportDataImporter transportDataImporter = new TransportDataImporter(factory);
+        ProvidesNow providesNow = new ProvidesLocalNow();
+        TransportDataImporter transportDataImporter = new TransportDataImporter(factory, providesNow);
 
         TransportData transportData = transportDataImporter.load();
 

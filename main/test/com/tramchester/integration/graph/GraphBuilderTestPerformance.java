@@ -30,14 +30,13 @@ public class GraphBuilderTestPerformance {
     }
 
     @Test
-
     public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
 
-        LocalTime start = LocalTime.now();
+        long start = System.currentTimeMillis();
         dependencies.initialise(new PerformanceTestConfig());
-        LocalTime finished = LocalTime.now();
+        long duration = System.currentTimeMillis() - start;
 
-        System.out.println("Initialisation took: " + finished.minusNanos(start.getNano()).getNano());
+        System.out.println("Initialisation took: " + duration + "ms");
     }
 
     private static class PerformanceTestConfig extends TestConfig {

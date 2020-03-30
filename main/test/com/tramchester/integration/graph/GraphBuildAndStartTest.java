@@ -4,13 +4,14 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.*;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,11 +33,13 @@ public class GraphBuildAndStartTest {
         FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloader(), config);
         Unzipper unzipper = new Unzipper();
         fetcher.fetchData(unzipper);
-        DataCleanser dataCleaner = new DataCleanser(new TransportDataReaderFactory(config), new TransportDataWriterFactory(config), config);
+        ProvidesNow providesNow = new ProvidesLocalNow();
+        DataCleanser dataCleaner = new DataCleanser(new TransportDataReaderFactory(config), new TransportDataWriterFactory(config),
+                providesNow, config);
         dataCleaner.run();
 
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
-        TransportDataImporter dataImporter = new TransportDataImporter(new TransportDataReaderFactory(config));
+        TransportDataImporter dataImporter = new TransportDataImporter(new TransportDataReaderFactory(config), providesNow);
         TransportDataSource transportData = dataImporter.load();
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 

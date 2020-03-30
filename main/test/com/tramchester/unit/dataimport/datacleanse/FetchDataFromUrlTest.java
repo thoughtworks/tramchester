@@ -97,7 +97,7 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
     @Test
     public void shouldNotFetchIfModTimeIsNotNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
-        LocalDateTime time = LocalDateTime.now();
+        LocalDateTime time = TestConfig.LocalNow();
         EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(time.minusDays(1));
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 

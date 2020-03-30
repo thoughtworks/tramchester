@@ -44,10 +44,12 @@ public class Dependencies {
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
 
     public Dependencies() {
+        picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(GraphFilter.class, new IncludeAllFilter());
     }
 
     public Dependencies(GraphFilter graphFilter) {
+        picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(GraphFilter.class, graphFilter);
     }
 
@@ -55,7 +57,7 @@ public class Dependencies {
         // caching is on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
 
-        // only needed if loading data?
+        // only needed if loading data
         picoContainer.addComponent(TransportDataReaderFactory.class);
         picoContainer.addComponent(TransportDataWriterFactory.class);
         picoContainer.addComponent(DataCleanser.class);
@@ -136,7 +138,6 @@ public class Dependencies {
         picoContainer.addComponent(StationDTOFactory.class);
         picoContainer.addComponent(HeadsignMapper.class);
         picoContainer.addComponent(TramPositionInference.class);
-        picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);

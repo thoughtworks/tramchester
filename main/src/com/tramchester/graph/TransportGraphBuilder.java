@@ -111,7 +111,7 @@ public class TransportGraphBuilder implements Startable {
 
     private void buildGraphwithFilter(GraphFilter filter, GraphDatabase graphDatabase) {
         logger.info("Building graph from " + transportData.getFeedInfo());
-        LocalTime start = LocalTime.now();
+        long start = System.currentTimeMillis();
 
         graphDatabase.createIndexs();
 
@@ -134,8 +134,8 @@ public class TransportGraphBuilder implements Startable {
             }
 
             tx.success();
-            Duration duration = Duration.between(start, LocalTime.now());
-            logger.info("Graph rebuild finished, took " + duration.getSeconds());
+            long duration = System.currentTimeMillis()-start;
+            logger.info("Graph rebuild finished, took " + duration + "ms");
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
@@ -156,7 +156,7 @@ public class TransportGraphBuilder implements Startable {
     private boolean buildGraph(GraphDatabase graphDatabase) {
         logger.info("Building graph from " + transportData.getFeedInfo());
         logMemory("Before graph build");
-        LocalTime start = LocalTime.now();
+        long start = System.currentTimeMillis();
 
         graphDatabase.createIndexs();
 
@@ -185,8 +185,8 @@ public class TransportGraphBuilder implements Startable {
 
             tx.success();
 
-            Duration duration = Duration.between(start, LocalTime.now());
-            logger.info("Graph rebuild finished, took " + duration.getSeconds());
+            long duration = System.currentTimeMillis()-start;
+            logger.info("Graph rebuild finished, took " + duration);
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);

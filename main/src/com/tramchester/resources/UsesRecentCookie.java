@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.MyLocationFactory;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +21,15 @@ public class UsesRecentCookie {
     private static final Logger logger = LoggerFactory.getLogger(UsesRecentCookie.class);
 
     public static final String TRAMCHESTER_RECENT = "tramchesterRecent";
-    public static final int VERSION = 1;
+    private static final int VERSION = 1;
 
     private UpdateRecentJourneys updateRecentJourneys;
     protected final ObjectMapper mapper;
+    private ProvidesNow providesNow;
 
-    public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper) {
+    public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ProvidesNow providesNow, ObjectMapper mapper) {
         this.updateRecentJourneys = updateRecentJourneys;
+        this.providesNow = providesNow;
         this.mapper = mapper;
     }
 
@@ -49,9 +52,9 @@ public class UsesRecentCookie {
         RecentJourneys recentJourneys = recentFromCookie(cookie);
         if (!isFromMyLocation(fromId)) {
             // don't add MyLocation to recents list
-            recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, fromId);
+            recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, fromId);
         }
-        recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, endId);
+        recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, endId);
 
         int maxAgeSecs = 60 * 60 * 24 * 100;
         return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper,recentJourneys)

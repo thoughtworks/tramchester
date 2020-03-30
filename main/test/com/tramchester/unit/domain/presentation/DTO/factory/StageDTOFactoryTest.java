@@ -29,11 +29,13 @@ public class StageDTOFactoryTest extends EasyMockSupport {
 
     private StageDTOFactory factory;
     private LiveDataRepository liveDataRepository;
+    private TramServiceDate tramServiceDate;
 
     @Before
     public void beforeEachTestRun() {
         liveDataRepository = createMock(LiveDataRepository.class);
         factory = new StageDTOFactory(liveDataRepository);
+        tramServiceDate = new TramServiceDate(TestConfig.LocalNow().toLocalDate());
     }
 
     @Test
@@ -41,7 +43,6 @@ public class StageDTOFactoryTest extends EasyMockSupport {
         WalkingStage stage = new WalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15,
                 TramTime.of(8,11), false);
 
-        TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.now());
         StageDTO build = factory.build(stage, TravelAction.WalkTo, TramTime.of(8,0), tramServiceDate);
         replayAll();
         checkValues(stage, build, false, TravelAction.WalkTo);
@@ -59,8 +60,6 @@ public class StageDTOFactoryTest extends EasyMockSupport {
 
         Platform platform = new Platform("platFormId", "platformName");
         vehicleStage.setPlatform(platform);
-
-        TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.now());
 
         Optional<StationDepartureInfo> maybeDepartInfo = Optional.empty(); // no live data
         EasyMock.expect(liveDataRepository.departuresFor(platform, tramServiceDate,  TramTime.of(8, 23))).
@@ -86,10 +85,9 @@ public class StageDTOFactoryTest extends EasyMockSupport {
         vehicleStage.setPlatform(platform);
 
         LocalTime localTime = LocalTime.of(8, 23);
-        TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.now());
         TramTime queryTime = TramTime.of(localTime);
 
-        LocalDateTime lastupdate = LocalDateTime.of(LocalDate.now(), localTime);
+        LocalDateTime lastupdate = LocalDateTime.of(tramServiceDate.getDate(), localTime);
         StationDepartureInfo departInfo = new StationDepartureInfo("displayId", "lineName",
                 StationDepartureInfo.Direction.Incoming, "platform", Stations.MarketStreet,
                 "message", lastupdate);
