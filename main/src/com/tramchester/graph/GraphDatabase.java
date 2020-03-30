@@ -30,7 +30,6 @@ public class GraphDatabase implements Startable {
 
     private final TramchesterConfig configuration;
     private GraphDatabaseService theDB;
-    private SpatialDatabaseService spatialDatabaseService;
     private SimplePointLayer spatialLayer;
 
     public GraphDatabase(TramchesterConfig configuration) {
@@ -57,13 +56,13 @@ public class GraphDatabase implements Startable {
         }
 
         theDB = createGraphDatabaseService(graphFile);
-        spatialDatabaseService = new SpatialDatabaseService(theDB);
+        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(theDB);
         spatialLayer = (SimplePointLayer) spatialDatabaseService.getOrCreateLayer("stations",
                 SimplePointEncoder.class, SimplePointLayer.class);
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
     }
 
-    private static GraphDatabaseService createGraphDatabaseService(File graphFile) {
+    private GraphDatabaseService createGraphDatabaseService(File graphFile) {
         GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
 
         GraphDatabaseBuilder builder = graphDatabaseFactory.
@@ -131,8 +130,8 @@ public class GraphDatabase implements Startable {
         return theDB.createNode(label);
     }
 
-    public Node findNode(TransportGraphBuilder.Labels labels, String id, String timeNodeId) {
-        return theDB.findNode(labels, id, timeNodeId);
+    public Node findNode(TransportGraphBuilder.Labels labels, String idField, String idValue) {
+        return theDB.findNode(labels, idField, idValue);
     }
 
     public boolean isAvailable(int timeoutMilli) {

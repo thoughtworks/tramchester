@@ -35,6 +35,8 @@ public class AppUserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
     private static DriverFactory driverFactory;
 
+    // NOTE: Needs correct locale settings, see .circleci/config.yml setupLocale target
+
     @ClassRule
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
 

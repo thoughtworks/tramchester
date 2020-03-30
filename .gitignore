@@ -17,6 +17,7 @@ bin
 dist
 .gradle/
 build/
+target/
 data/bus
 data/tram
 data/all
@@ -41,3 +42,8 @@ testData/output/
 *.dot
 *.gradle~
 *.png
+.cdk.staging
+cdk.out
+store_lock
+logs/
+databases/
