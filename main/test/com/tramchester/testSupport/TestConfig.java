@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -27,6 +28,10 @@ public abstract class TestConfig extends AppConfiguration {
                 return null;
             }
         };
+    }
+
+    public static LocalDateTime LocalNow() {
+        return LocalDateTime.now(TestConfig.TimeZone);
     }
 
     @Override
