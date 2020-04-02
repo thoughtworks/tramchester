@@ -11,7 +11,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import './../css/tramchester.css'
 
 function getCurrentTime() {
-    return moment().format("HH:mm");
+    return moment().local().format("HH:mm");
 }
 
 function getCurrentDate() {
