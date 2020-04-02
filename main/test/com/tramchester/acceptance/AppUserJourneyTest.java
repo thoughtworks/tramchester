@@ -142,7 +142,7 @@ public class AppUserJourneyTest {
         LocalTime timeOnPage = timeSelectedOnPage(appPage);
         LocalTime now = TestConfig.LocalNow().toLocalTime();
         int diff = Math.abs(now.toSecondOfDay() - timeOnPage.toSecondOfDay());
-        assertTrue(diff<=110); // allow for page render and webdriver overheads
+        assertTrue(String.format("now:%s timeOnPage: %s diff: ",now, timeOnPage, diff),diff<=110); // allow for page render and webdriver overheads
     }
 
     private LocalTime timeSelectedOnPage(AppPage appPage) {
