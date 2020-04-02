@@ -13,7 +13,7 @@ public class Trip {
     private final String headSign;
     private final Service service;
     private final Route route;
-    private final Stops stops;
+    private final StopCalls stops;
     private TramTime earliestDepart = null;
     private TramTime latestDepart = null;
     private int lastIndex;
@@ -23,7 +23,7 @@ public class Trip {
         this.headSign = headSign.intern();
         this.service = service;
         this.route = route;
-        stops = new Stops();
+        stops = new StopCalls();
         lastIndex = 0;
     }
 
@@ -46,11 +46,11 @@ public class Trip {
         return tripId;
     }
 
-    public Stops getStops() {
+    public StopCalls getStops() {
         return stops;
     }
 
-    public void addStop(Stop stop) {
+    public void addStop(StopCall stop) {
         stops.add(stop);
         TramTime departureTime = stop.getDepartureTime();
         int stopIndex = stop.getGetSequenceNumber();
@@ -86,7 +86,7 @@ public class Trip {
         return stops.callsAt(stationId);
     }
 
-    public List<Stop> getStopsFor(String stationId) {
+    public List<StopCall> getStopsFor(String stationId) {
         return stops.getStopsFor(stationId);
     }
 

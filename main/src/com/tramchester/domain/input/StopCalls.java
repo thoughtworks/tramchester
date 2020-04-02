@@ -9,16 +9,14 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
+public class StopCalls implements Iterable<StopCall> {
+    private static final Logger logger = LoggerFactory.getLogger(StopCalls.class);
 
-public class Stops  implements Iterable<Stop> {
-    private static final Logger logger = LoggerFactory.getLogger(Stops.class);
-
-    private final ArrayList<Stop> stops;
+    private final ArrayList<StopCall> stops;
     // stationId -> [index into stops array]
     private final Map<String, List<Integer>> stations;
 
-    public Stops() {
+    public StopCalls() {
         stops = new ArrayList<>();
         stations = new HashMap<>();
     }
@@ -27,14 +25,14 @@ public class Stops  implements Iterable<Stop> {
         return stations.containsKey(stationId);
     }
 
-    public List<Stop> getStopsFor(String stationId) {
+    public List<StopCall> getStopsFor(String stationId) {
         List<Integer> indexs = stations.get(stationId);
-        List<Stop> result = new LinkedList<>();
+        List<StopCall> result = new LinkedList<>();
         indexs.forEach(index -> result.add(stops.get(index)));
         return result;
     }
 
-    public void add(Stop stop) {
+    public void add(StopCall stop) {
         Location station = stop.getStation();
         if (station==null) {
             logger.error("Stop is missing station");
@@ -77,7 +75,7 @@ public class Stops  implements Iterable<Stop> {
         return pairs;
     }
 
-    private boolean checkTiming(Stop firstStop, Stop secondStop, TimeWindow timeWindow) {
+    private boolean checkTiming(StopCall firstStop, StopCall secondStop, TimeWindow timeWindow) {
         TramTime firstStopDepartureTime = firstStop.getDepartureTime();
         TramTime secondStopArriveTime = secondStop.getArrivalTime();
         return TramTime.checkTimingOfStops(timeWindow, firstStopDepartureTime, secondStopArriveTime);
@@ -89,7 +87,7 @@ public class Stops  implements Iterable<Stop> {
         return stops.size();
     }
 
-    public Stop get(int index) {
+    public StopCall get(int index) {
         return stops.get(index);
     }
 
@@ -98,11 +96,11 @@ public class Stops  implements Iterable<Stop> {
     }
 
     @Override
-    public Iterator<Stop> iterator() {
+    public Iterator<StopCall> iterator() {
         return stops.iterator();
     }
 
-    public Stream<Stop> stream() {
+    public Stream<StopCall> stream() {
         return stops.stream();
     }
 

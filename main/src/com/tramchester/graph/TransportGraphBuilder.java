@@ -3,21 +3,19 @@ package com.tramchester.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.input.Stop;
-import com.tramchester.domain.input.Stops;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
-import org.neo4j.gis.spatial.SimplePointLayer;
 import org.neo4j.graphdb.*;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -215,23 +213,23 @@ public class TransportGraphBuilder implements Startable {
 
 
     private void AddRouteServiceTrip(GraphDatabase graphBasebase, Route route, Service service, Trip trip, GraphFilter filter) {
-        Stops stops = filter.filterStops(trip.getStops());
+        StopCalls stops = filter.filterStops(trip.getStops());
         int lastStopNum = stops.size(); // sequence runs from 1
 
         AddRouteServiceTripStops(graphBasebase, route, service, trip, stops, lastStopNum);
     }
 
     private void AddRouteServiceTrip(GraphDatabase graphBasebase, Route route, Service service, Trip trip) {
-        Stops stops = trip.getStops();
+        StopCalls stops = trip.getStops();
         int lastStopNum = stops.size(); // sequence runs from 1
 
         AddRouteServiceTripStops(graphBasebase, route, service, trip, stops, lastStopNum);
     }
 
-    private void AddRouteServiceTripStops(GraphDatabase graphDatabase, Route route, Service service, Trip trip, Stops stops, int lastStopNum) {
+    private void AddRouteServiceTripStops(GraphDatabase graphDatabase, Route route, Service service, Trip trip, StopCalls stops, int lastStopNum) {
         for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
-            Stop currentStop = stops.get(stopIndex);
-            Stop nextStop = stops.get(stopIndex + 1);
+            StopCall currentStop = stops.get(stopIndex);
+            StopCall nextStop = stops.get(stopIndex + 1);
 
             boolean firstStop = (currentStop.getGetSequenceNumber() == 1); //stop seq num, not index
             boolean lastStop = nextStop.getGetSequenceNumber() == lastStopNum;
@@ -297,21 +295,19 @@ public class TransportGraphBuilder implements Startable {
         return node;
     }
 
+    private Node getOrCreatePlatform(GraphDatabase graphDatabase, StopCall stop) {
+        String platformId = stop.getPlatformId();
 
-
-    private Node getOrCreatePlatform(GraphDatabase graphDatabase, Stop stop) {
-        String stopId = stop.getId();
-
-        Node platformNode = nodeIdQuery.getPlatformNode(stopId);
+        Node platformNode = nodeIdQuery.getPlatformNode(platformId);
         if (platformNode==null) {
             platformNode = createGraphNode(graphDatabase, Labels.PLATFORM);
-            platformNode.setProperty(GraphStaticKeys.ID, stopId);
+            platformNode.setProperty(GraphStaticKeys.ID, platformId);
             setLatLongFor(platformNode, stop.getStation().getLatLong());
         }
         return platformNode;
     }
 
-    private Node getOrCreateCallingPointAndStation(GraphDatabase graphDatabase, Stop stop, Route route, Service service,
+    private Node getOrCreateCallingPointAndStation(GraphDatabase graphDatabase, StopCall stop, Route route, Service service,
                                                    boolean firstStop, boolean lastStop) {
         Station station = stop.getStation();
         String stationId = station.getId();
@@ -338,7 +334,7 @@ public class TransportGraphBuilder implements Startable {
         if (station.isTram()) {
             // add a platform node between station and calling points
             platformNode = getOrCreatePlatform(graphDatabase, stop);
-            stationOrPlatformID = stop.getId();
+            stationOrPlatformID = stop.getPlatformId();
             // station -> platform AND platform -> station
             if (!hasPlatform(stationId, stationOrPlatformID)) {
                 // station -> platform
@@ -378,7 +374,7 @@ public class TransportGraphBuilder implements Startable {
         // no boarding at the last stop of a trip
         if (!lastStop) {
             if (!hasBoarding(stationOrPlatformID, routeStationId, boardType)) {
-                stationOrPlatformID = stop.getId();
+                stationOrPlatformID = stop.getPlatformId();
                 Relationship boardRelationship = createRelationships(platformNode, routeStationNode, boardType);
                 boardRelationship.setProperty(COST, boardCost);
                 boardRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
@@ -454,7 +450,7 @@ public class TransportGraphBuilder implements Startable {
         return routeStation;
     }
 
-    private void createRelationships(GraphDatabase graphDatabase, Node routeStationStart, Node routeStationEnd, Stop beginStop, Stop endStop,
+    private void createRelationships(GraphDatabase graphDatabase, Node routeStationStart, Node routeStationEnd, StopCall beginStop, StopCall endStop,
                                      Route route, Service service, Trip trip) {
         Location startLocation = beginStop.getStation();
         LatLong destinationLatLong = endStop.getStation().getLatLong();

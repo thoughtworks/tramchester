@@ -2,7 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.input.Stops;
+import com.tramchester.domain.input.StopCalls;
 
 public class IncludeAllFilter implements GraphFilter {
     @Override
@@ -21,7 +21,7 @@ public class IncludeAllFilter implements GraphFilter {
     }
 
     @Override
-    public Stops filterStops(Stops stops) {
+    public StopCalls filterStops(StopCalls stops) {
         return stops;
     }
 }

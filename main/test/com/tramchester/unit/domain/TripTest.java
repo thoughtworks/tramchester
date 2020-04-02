@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.domain.Platform.from;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
 
@@ -47,9 +48,9 @@ public class TripTest {
     @Test
     public void shouldModelCircularTripsCorrectly() {
 
-        Stop firstStop = new Stop("statA1", stationA, (byte) 1, TramTime.of(10, 00), TramTime.of(10, 01));
-        Stop secondStop = new Stop("statB1", stationB, (byte) 2, TramTime.of(10, 05), TramTime.of(10, 06));
-        Stop thirdStop = new Stop("statA1", stationA, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        StopCall firstStop = new StopCall(from("statA1"), stationA, (byte) 1, TramTime.of(10, 00), TramTime.of(10, 01));
+        StopCall secondStop = new StopCall(from("statB1"), stationB, (byte) 2, TramTime.of(10, 05), TramTime.of(10, 06));
+        StopCall thirdStop = new StopCall(from("statA1"), stationA, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -68,10 +69,10 @@ public class TripTest {
     @Test
     public void shouldFindEarliestDepartCorrectlyCrossingMidnight() {
 
-        Stop firstStop = new Stop("stop1", stationA, (byte) 2, TramTime.of(23, 45), TramTime.of(23, 46));
-        Stop secondStop = new Stop("stop2", stationB, (byte) 3, TramTime.of(23, 59), TramTime.of(0, 1));
-        Stop thirdStop = new Stop("stop3", stationC, (byte) 4, TramTime.of(0,10), TramTime.of(00, 11));
-        Stop fourthStop = new Stop("stop4", stationC, (byte) 1, TramTime.of(6,30), TramTime.of(6, 30));
+        StopCall firstStop = new StopCall(from("stop1"), stationA, (byte) 2, TramTime.of(23, 45), TramTime.of(23, 46));
+        StopCall secondStop = new StopCall(from("stop2"), stationB, (byte) 3, TramTime.of(23, 59), TramTime.of(0, 1));
+        StopCall thirdStop = new StopCall(from("stop3"), stationC, (byte) 4, TramTime.of(0,10), TramTime.of(00, 11));
+        StopCall fourthStop = new StopCall(from("stop4"), stationC, (byte) 1, TramTime.of(6,30), TramTime.of(6, 30));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -84,8 +85,8 @@ public class TripTest {
     @Test
     public void shouldFindEarliestDepartCorrectly() {
 
-        Stop thirdStop = new Stop("stop3", stationC, (byte) 3, TramTime.of(0,10), TramTime.of(00, 11));
-        Stop fourthStop = new Stop("stop4", stationC, (byte) 1, TramTime.of(6,30), TramTime.of(6, 31));
+        StopCall thirdStop = new StopCall(from("stop3"), stationC, (byte) 3, TramTime.of(0,10), TramTime.of(00, 11));
+        StopCall fourthStop = new StopCall(from("stop4"), stationC, (byte) 1, TramTime.of(6,30), TramTime.of(6, 31));
 
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
@@ -95,8 +96,8 @@ public class TripTest {
 
     @Test
     public void shouldFindLatestDepartCorrectly() {
-        trip.addStop(new Stop("stopId3", Stations.Deansgate, (byte) 3, TramTime.of(10,25), TramTime.of(10,26)));
-        trip.addStop(new Stop("stopId4", Stations.Deansgate, (byte) 4, TramTime.of(0,1), TramTime.of(0,1)));
+        trip.addStop(new StopCall(from("stopId3"), Stations.Deansgate, (byte) 3, TramTime.of(10,25), TramTime.of(10,26)));
+        trip.addStop(new StopCall(from("stopId4"), Stations.Deansgate, (byte) 4, TramTime.of(0,1), TramTime.of(0,1)));
 
         assertEquals(TramTime.of(0,1), trip.latestDepartTime());
 

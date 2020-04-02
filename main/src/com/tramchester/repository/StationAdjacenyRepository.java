@@ -2,8 +2,8 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.input.Stop;
-import com.tramchester.domain.input.Stops;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,10 +27,10 @@ public class StationAdjacenyRepository {
     private void buildAdjacencyMatrix() {
         Collection<Trip> trips = transportDataSource.getTrips();
         trips.forEach(trip -> {
-            Stops stops = trip.getStops();
+            StopCalls stops = trip.getStops();
             for (int i = 0; i < stops.size() - 1; i++) {
-                Stop currentStop = stops.get(i);
-                Stop nextStop = stops.get(i + 1);
+                StopCall currentStop = stops.get(i);
+                StopCall nextStop = stops.get(i + 1);
                 Pair<Station, Station> pair = formId(currentStop.getStation(), nextStop.getStation());
                 if (!matrix.containsKey(pair)) {
                     int cost = TramTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());

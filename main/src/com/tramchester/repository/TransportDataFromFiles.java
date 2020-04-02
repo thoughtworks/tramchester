@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
@@ -107,8 +107,8 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
         stopTimes.forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
 
-            String stopId = stopTimeData.getStopId();
-            String stationId = Station.formId(stopId);
+            String platformId = stopTimeData.getStopId();
+            String stationId = Station.formId(platformId);
             if (stationsById.containsKey(stationId)) {
                 Route route = trip.getRoute();
                 Station station = stationsById.get(stationId);
@@ -117,16 +117,19 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
                 if (!routeStations.containsKey(routeStation.getId())) {
                     routeStations.put(routeStation.getId(), routeStation);
                 }
-                if (platforms.containsKey(stopId)) {
-                    Platform platform = platforms.get(stopId);
+                if (platforms.containsKey(platformId)) {
+                    Platform platform = platforms.get(platformId);
                     platform.addRoute(route);
+                } else {
+                    logger.error("Missing platform " +platformId);
                 }
+                Platform platform = platforms.get(platformId);
 
                 byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
-                Stop stop = new Stop(stopId, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
+                StopCall stop = new StopCall(platform, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 trip.addStop(stop);
             } else {
-                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));
+                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, platformId));
             }
         });
     }

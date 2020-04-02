@@ -1,7 +1,6 @@
 package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.input.Stops;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;

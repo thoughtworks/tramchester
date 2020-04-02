@@ -4,7 +4,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.Dependencies;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.time.DaysOfWeek;
@@ -199,9 +199,9 @@ public class TransportDataFromFilesTest {
 
                     assertFalse(String.format("%s %s %s", date, tramTime, station.getName()), runningAtTime.isEmpty());
 
-                    Set<Stop> calling = new HashSet<>();
+                    Set<StopCall> calling = new HashSet<>();
                     callingTripsOnDate.forEach(trip -> {
-                        Set<Stop> onTime = trip.getStops().stream().
+                        Set<StopCall> onTime = trip.getStops().stream().
                                 filter(stop -> stop.getStation().equals(station)).
                                 filter(stop -> tramTime.between(stop.getArrivalTime().minusMinutes(maxwait), stop.getArrivalTime())).
                                 collect(Collectors.toSet());
@@ -309,7 +309,7 @@ public class TransportDataFromFilesTest {
         Trip trip = altyTrips.stream().findFirst().get();
 
         int count = 0;
-        for (Stop stop : trip.getStops()) {
+        for (StopCall stop : trip.getStops()) {
             count++;
             if (stop.getStation().getId().equals(Stations.Deansgate.getId())) {
                 break;
@@ -437,7 +437,7 @@ public class TransportDataFromFilesTest {
         assertTrue(filteredTrips.size()>0);
 
         // find the stops, invariant is now that each trip ought to contain a velopark stop
-        List<Stop> stoppingAtVelopark = filteredTrips.stream()
+        List<StopCall> stoppingAtVelopark = filteredTrips.stream()
                 .filter(trip -> mondayAshToManServices.contains(trip.getService().getServiceId()))
                 .map(trip -> trip.getStopsFor(Stations.VeloPark.getId()))
                 .flatMap(Collection::stream)

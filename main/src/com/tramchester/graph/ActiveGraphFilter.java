@@ -3,7 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.input.Stops;
+import com.tramchester.domain.input.StopCalls;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -49,11 +49,11 @@ public class ActiveGraphFilter implements GraphFilter {
         return serviceCodes.contains(service.getServiceId());
     }
 
-    public Stops filterStops(Stops stops) {
+    public StopCalls filterStops(StopCalls stops) {
         if (stations.size()==0) {
             return stops;
         }
-        Stops filteredStops = new Stops();
+        StopCalls filteredStops = new StopCalls();
         stops.forEach(stop -> {
             if (stations.contains(stop.getStation().getId())) {
                 filteredStops.add(stop);

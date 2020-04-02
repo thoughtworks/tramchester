@@ -9,7 +9,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.repository.TransportData;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class TramTransportDataImporterTest {
         assertThat(trip.getTripId()).isEqualTo("Trip000001");
         assertThat(trip.getStops()).hasSize(9);
 
-        Stop stop = trip.getStops().get(0);
+        StopCall stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
         assertThat(stop.getArrivalTime()).isEqualTo(TramTime.of(06,41));
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);

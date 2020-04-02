@@ -2,8 +2,8 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.Stop;
-import com.tramchester.domain.input.Stops;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
@@ -13,9 +13,10 @@ import org.junit.Test;
 import java.time.LocalTime;
 import java.util.List;
 
+import static com.tramchester.domain.Platform.from;
 import static org.junit.Assert.*;
 
-public class StopsTest {
+public class StopCallsTest {
     private TramTime am10;
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";
@@ -24,10 +25,10 @@ public class StopsTest {
     private Station stationB;
     private Station stationC;
     private Station stationD;
-    private Stop stopA;
-    private Stop stopB;
-    private Stop stopC;
-    private Stop busStopD;
+    private StopCall stopA;
+    private StopCall stopB;
+    private StopCall stopC;
+    private StopCall busStopD;
 
     @Before
     public void beforeEachTestRuns() {
@@ -36,20 +37,20 @@ public class StopsTest {
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        stopA = new Stop("statA1", stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
-        stopB = new Stop("statB1", stationB, (byte) 2, TramTime.of(10, 2), TramTime.of(10, 3));
-        stopC = new Stop("statC1", stationC, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
-        busStopD = new Stop("statD1", stationD, (byte) 4, TramTime.of(10,10), TramTime.of(10,11));
+        stopA = new StopCall(from("statA1"), stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
+        stopB = new StopCall(from("statB1"), stationB, (byte) 2, TramTime.of(10, 2), TramTime.of(10, 3));
+        stopC = new StopCall(from("statC1"), stationC, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        busStopD = new StopCall(from("statD1"), stationD, (byte) 4, TramTime.of(10,10), TramTime.of(10,11));
         am10 = TramTime.of(10,0);
     }
 
     @Test
     public void shouldFindStopsByTimeCrossingMidnight() {
-        Stop stopF = new Stop("stop1", stationA, (byte) 1, TramTime.of(LocalTime.of(23, 45)),
+        StopCall stopF = new StopCall(from("stop1"), stationA, (byte) 1, TramTime.of(LocalTime.of(23, 45)),
                 TramTime.of(LocalTime.of(23, 46)));
-        Stop stopG = new Stop("stop2", stationB, (byte) 2, TramTime.of(LocalTime.of(0, 5)),
+        StopCall stopG = new StopCall(from("stop2"), stationB, (byte) 2, TramTime.of(LocalTime.of(0, 5)),
                 TramTime.of(LocalTime.of(0, 6)));
-        Stops stops = new Stops();
+        StopCalls stops = new StopCalls();
 
         stops.add(stopF);
         stops.add(stopG);
@@ -62,7 +63,7 @@ public class StopsTest {
 
     @Test
     public void shouldAddStops() {
-        Stops stops = new Stops();
+        StopCalls stops = new StopCalls();
 
         stops.add(stopA);
         stops.add(stopB);
@@ -72,7 +73,7 @@ public class StopsTest {
         assertTrue(stops.visitsStation(stationIdB));
         assertTrue(stops.visitsStation(stationIdC));
 
-        List<Stop> result = stops.getStopsFor(stationIdA);
+        List<StopCall> result = stops.getStopsFor(stationIdA);
         assertEquals(1,result.size());
         assertTrue(result.contains(stopA));
         result = stops.getStopsFor(stationIdB);
@@ -95,7 +96,7 @@ public class StopsTest {
     @Test
     public void shouldCopeWithSameDepartArriveTimeForAdjacentStops() {
         // this can happen for buses
-        Stops stops = new Stops();
+        StopCalls stops = new StopCalls();
 
         stops.add(stopA);
         stops.add(stopB);
@@ -106,18 +107,18 @@ public class StopsTest {
 
     @Test
     public void shouldModelMultipleVisitsToSameStation() {
-        Stops stops = new Stops();
+        StopCalls stops = new StopCalls();
 
         stops.add(stopA);
         stops.add(stopB);
         stops.add(stopC);
 
-        Stop stopD = new Stop("stopA1", stationA, (byte) 4, TramTime.of(10, 20),
+        StopCall stopD = new StopCall(from("stopA1"), stationA, (byte) 4, TramTime.of(10, 20),
                 TramTime.of(10, 21));
         stops.add(stopD);
 
         assertTrue(stops.visitsStation(stationIdA));
-        List<Stop> result = stops.getStopsFor(stationIdA);
+        List<StopCall> result = stops.getStopsFor(stationIdA);
         assertEquals(2,result.size());
 
         assertTrue(stops.travelsBetween(stationIdA, stationIdB, new TimeWindow(am10, 30)));

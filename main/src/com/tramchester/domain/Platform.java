@@ -64,4 +64,9 @@ public class Platform implements HasId {
     public Set<Route> getRoutes() {
         return servesRoutes;
     }
+
+    // for testing
+    public static Platform from(String id) {
+        return new Platform(id, "name:"+ id);
+    }
 }

@@ -4,7 +4,7 @@ import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.input.Stop;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.testSupport.Stations;
 import org.junit.Test;
@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.util.HashMap;
 
+import static com.tramchester.domain.Platform.from;
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -46,11 +47,11 @@ public class ServiceTest {
 
         Service service = new Service("SVC002", "");
         Trip trip = new Trip("001", "Deansgate", service, TestConfig.getTestRoute());
-        trip.addStop(new Stop("stopId1", Stations.Deansgate, (byte) 3, TramTime.of(9,5), TramTime.of(9,6)));
-        trip.addStop(new Stop("stopId2", Stations.Deansgate, (byte) 2, TramTime.of(8,15), TramTime.of(8,16)));
-        trip.addStop(new Stop("stopId3", Stations.Deansgate, (byte) 4, TramTime.of(10,25), TramTime.of(10,26)));
-        trip.addStop(new Stop("stopId4", Stations.Deansgate, (byte) 5, TramTime.of(0,1), TramTime.of(0,1)));
-        trip.addStop(new Stop("stopId5", Stations.Deansgate, (byte) 1, TramTime.of(6,30), TramTime.of(6,30)));
+        trip.addStop(new StopCall(from("stopId1"), Stations.Deansgate, (byte) 3, TramTime.of(9,5), TramTime.of(9,6)));
+        trip.addStop(new StopCall(from("stopId2"), Stations.Deansgate, (byte) 2, TramTime.of(8,15), TramTime.of(8,16)));
+        trip.addStop(new StopCall(from("stopId3"), Stations.Deansgate, (byte) 4, TramTime.of(10,25), TramTime.of(10,26)));
+        trip.addStop(new StopCall(from("stopId4"), Stations.Deansgate, (byte) 5, TramTime.of(0,1), TramTime.of(0,1)));
+        trip.addStop(new StopCall(from("stopId5"), Stations.Deansgate, (byte) 1, TramTime.of(6,30), TramTime.of(6,30)));
 
         service.addTrip(trip);
 

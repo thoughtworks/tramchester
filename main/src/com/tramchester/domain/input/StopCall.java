@@ -1,17 +1,18 @@
 package com.tramchester.domain.input;
 
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
 
-public class Stop {
+public class StopCall {
     private final Station station;
+    private final Platform callingPlatform;
     private final TramTime arrivalTime;
     private final TramTime departureTime;
-    private final String stopId;
     private final byte sequenceNumber;
 
-    public Stop(String stopId, Station station, byte sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
-        this.stopId = stopId.intern();
+    public StopCall(Platform callingPlatform, Station station, byte sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
+        this.callingPlatform = callingPlatform;
         this.sequenceNumber = sequenceNumber;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
@@ -30,8 +31,8 @@ public class Stop {
         return station;
     }
 
-    public String getId() {
-        return stopId;
+    public String getPlatformId() {
+        return callingPlatform.getId();
     }
 
     public int getGetSequenceNumber() {
@@ -44,7 +45,7 @@ public class Stop {
                 "station=" + station +
                 ", arrivalTime=" + arrivalTime +
                 ", departureTime=" + departureTime +
-                ", stopId='" + stopId + '\'' +
+                ", callingPlatform='" + callingPlatform + '\'' +
                 '}';
     }
 
