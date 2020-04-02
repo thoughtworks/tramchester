@@ -16,7 +16,7 @@ public class Trip {
     private final StopCalls stops;
     private TramTime earliestDepart = null;
     private TramTime latestDepart = null;
-    private int lastIndex;
+    private byte lastIndex;
 
     public Trip(String tripId, String headSign, Service service, Route route) {
         this.tripId = tripId.intern();
@@ -53,7 +53,7 @@ public class Trip {
     public void addStop(StopCall stop) {
         stops.add(stop);
         TramTime departureTime = stop.getDepartureTime();
-        int stopIndex = stop.getGetSequenceNumber();
+        byte stopIndex = stop.getGetSequenceNumber();
         if (stopIndex ==1) {
             earliestDepart = departureTime;
         }

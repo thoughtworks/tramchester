@@ -59,7 +59,7 @@ public class TripTest {
         assertEquals(TramTime.of(10,01), trip.earliestDepartTime());
 
         // sequence respected
-        List<Integer> seqNums = new LinkedList<>();
+        List<Byte> seqNums = new LinkedList<>();
         trip.getStops().forEach(stop -> { seqNums.add(stop.getGetSequenceNumber()); });
         assertEquals(1, seqNums.get(0).intValue());
         assertEquals(2, seqNums.get(1).intValue());

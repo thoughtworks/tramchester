@@ -35,7 +35,7 @@ public class StopCall {
         return callingPlatform.getId();
     }
 
-    public int getGetSequenceNumber() {
+    public byte getGetSequenceNumber() {
         return sequenceNumber;
     }
 
