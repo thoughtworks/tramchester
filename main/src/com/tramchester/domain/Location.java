@@ -4,7 +4,7 @@ import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
 
-public interface Location {
+public interface Location extends HasId {
     String getId();
 
     String getName();

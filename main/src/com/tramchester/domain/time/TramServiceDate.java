@@ -23,13 +23,6 @@ public class TramServiceDate {
         this.date = date;
     }
 
-    public TramServiceDate(String date) {
-        int year = Integer.parseInt(date.substring(0, 4));
-        int monthOfYear = Integer.parseInt(date.substring(4, 6));
-        int dayOfMonth = Integer.parseInt(date.substring(6, 8));
-        this.date = LocalDate.of(year, monthOfYear, dayOfMonth);
-    }
-
     public LocalDate getDate() {
         return date;
     }

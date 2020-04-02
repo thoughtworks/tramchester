@@ -42,10 +42,10 @@ public class StopCall {
     @Override
     public String toString() {
         return "Stop{" +
-                "station=" + station +
+                "station=" + station.getId() +
                 ", arrivalTime=" + arrivalTime +
                 ", departureTime=" + departureTime +
-                ", callingPlatform='" + callingPlatform + '\'' +
+                ", callingPlatform='" + callingPlatform.getId() + '\'' +
                 '}';
     }
 

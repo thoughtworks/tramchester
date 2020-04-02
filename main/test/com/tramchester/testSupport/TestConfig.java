@@ -1,13 +1,13 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
@@ -164,6 +164,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
+    private static Agency MET = new Agency("MET");
 
     public static LocalDate nextTuesday(int offsetDays) {
         DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;
@@ -201,7 +202,15 @@ public abstract class TestConfig extends AppConfiguration {
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
 
     public static Route getTestRoute() {
-        return new Route("RouteId", "routeCode", "routeName", "MET", TransportMode.Tram);
+        return getTestRoute("RouteId");
+    }
+
+    public static Route getTestRoute(String routeId) {
+        return new Route(routeId, "routeCode", "routeName", TestConfig.MetAgency(), TransportMode.Tram);
+    }
+
+    public static Agency MetAgency() {
+        return MET;
     }
 
 }

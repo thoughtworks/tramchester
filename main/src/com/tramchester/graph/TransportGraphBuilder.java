@@ -116,7 +116,7 @@ public class TransportGraphBuilder implements Startable {
         try (Transaction tx = graphDatabase.beginTx()) {
             logger.info("Rebuilding the graph...");
             for (Agency agency : transportData.getAgencies()) {
-                logger.info("Add routes for agency " + agency.getName());
+                logger.info("Add routes for agency " + agency.getId());
                 for (Route route : agency.getRoutes()) {
                     logger.info("Add nodes for route " + route.getId());
                     if (filter.shouldInclude(route)) {
@@ -162,7 +162,7 @@ public class TransportGraphBuilder implements Startable {
         try {
             logger.info("Rebuilding the graph...");
             for(Agency agency : transportData.getAgencies()) {
-                logger.info("Add routes for agency " + agency.getName());
+                logger.info("Add routes for agency " + agency.getId());
 
                 for (Route route : agency.getRoutes()) {
                     logger.info("Add nodes for route " + route.getId());
@@ -214,24 +214,24 @@ public class TransportGraphBuilder implements Startable {
 
     private void AddRouteServiceTrip(GraphDatabase graphBasebase, Route route, Service service, Trip trip, GraphFilter filter) {
         StopCalls stops = filter.filterStops(trip.getStops());
-        int lastStopNum = stops.size(); // sequence runs from 1
+        byte lastStopNum = (byte) stops.size(); // sequence runs from 1
 
         AddRouteServiceTripStops(graphBasebase, route, service, trip, stops, lastStopNum);
     }
 
     private void AddRouteServiceTrip(GraphDatabase graphBasebase, Route route, Service service, Trip trip) {
         StopCalls stops = trip.getStops();
-        int lastStopNum = stops.size(); // sequence runs from 1
+        byte lastStopNum = (byte) stops.size(); // sequence runs from 1
 
         AddRouteServiceTripStops(graphBasebase, route, service, trip, stops, lastStopNum);
     }
 
-    private void AddRouteServiceTripStops(GraphDatabase graphDatabase, Route route, Service service, Trip trip, StopCalls stops, int lastStopNum) {
+    private void AddRouteServiceTripStops(GraphDatabase graphDatabase, Route route, Service service, Trip trip, StopCalls stops, byte lastStopNum) {
         for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
             StopCall currentStop = stops.get(stopIndex);
             StopCall nextStop = stops.get(stopIndex + 1);
 
-            boolean firstStop = (currentStop.getGetSequenceNumber() == 1); //stop seq num, not index
+            boolean firstStop = (currentStop.getGetSequenceNumber() == (byte)1); //stop seq num, not index
             boolean lastStop = nextStop.getGetSequenceNumber() == lastStopNum;
 
             Node fromRouteStation = getOrCreateCallingPointAndStation(graphDatabase, currentStop, route, service, firstStop, false);
@@ -442,7 +442,7 @@ public class TransportGraphBuilder implements Startable {
         Node routeStation = createGraphNode(graphDatabase, Labels.ROUTE_STATION);
 
         logger.debug(format("Creating route station %s route %s service %s nodeId %s", station.getId(),route.getId(),
-                service.getServiceId(), routeStation.getId()));
+                service.getId(), routeStation.getId()));
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(STATION_ID, station.getId());
         routeStation.setProperty(ROUTE_ID, route.getId());
@@ -460,22 +460,22 @@ public class TransportGraphBuilder implements Startable {
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
         //String routeIdClean = route.getId().replaceAll(" ", "");
         String beginSvcNodeId = startLocation.getId()+"_"+endStop.getStation().getId()+"_"+
-                service.getServiceId(); //+"_"+routeIdClean;
+                service.getId(); //+"_"+routeIdClean;
 
         Node beginServiceNode = nodeIdQuery.getServiceNode(beginSvcNodeId);
-        String tripId = trip.getTripId();
+        String tripId = trip.getId();
 
         if (beginServiceNode==null) {
             beginServiceNode = createGraphNode(graphDatabase, Labels.SERVICE);
             beginServiceNode.setProperty(GraphStaticKeys.ID, beginSvcNodeId);
-            beginServiceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+            beginServiceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
             beginServiceNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
             setLatLongFor(beginServiceNode, destinationLatLong);
 
             // start route station -> svc node
             Relationship svcRelationship = createRelationships(routeStationStart, beginServiceNode, TransportRelationshipTypes.TO_SERVICE);
-            svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+            svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
             svcRelationship.setProperty(COST, 0);
             svcRelationship.setProperty(GraphStaticKeys.TRIPS, tripId);
             svcRelationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
@@ -550,7 +550,7 @@ public class TransportGraphBuilder implements Startable {
 
     private void addCommonProperties(Relationship relationship, Route route, Service service, int cost) {
         relationship.setProperty(COST, cost);
-        relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getServiceId());
+        relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
     }
 

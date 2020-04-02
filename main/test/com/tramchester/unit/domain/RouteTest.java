@@ -1,8 +1,10 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.Test;
 
 import java.util.Set;
@@ -15,20 +17,20 @@ public class RouteTest {
 
     @Test
     public void shouldHaveTramRoute() {
-        Route route = new Route("id","code","name","MET", TransportMode.Tram);
+        Route route = new Route("id","code","name",TestConfig.MetAgency(), TransportMode.Tram);
         assertTrue(route.isTram());
 
-        route = new Route("id","code","name","GMS", TransportMode.Bus);
+        route = new Route("id","code","name", new Agency("GMS"), TransportMode.Bus);
         assertFalse(route.isTram());
     }
 
     @Test
     public void shouldAddService() {
-        Route  route = new Route("id","code","name","MET", TransportMode.Tram);
+        Route  route = new Route("id","code","name", TestConfig.MetAgency(), TransportMode.Tram);
 
-        route.addService(new Service("serviceId", "routeId"));
-        route.addService(new Service("serviceId", "routeId"));
-        route.addService(new Service("serviceId2", "routeId"));
+        route.addService(new Service("serviceId", TestConfig.getTestRoute()));
+        route.addService(new Service("serviceId", TestConfig.getTestRoute()));
+        route.addService(new Service("serviceId2", TestConfig.getTestRoute()));
 
         Set<Service> services = route.getServices();
 
@@ -37,7 +39,7 @@ public class RouteTest {
 
     @Test
     public void shouldAddHeadsign() {
-        Route  route = new Route("id","code","name","MET", TransportMode.Tram);
+        Route  route = new Route("id","code","name",TestConfig.MetAgency(), TransportMode.Tram);
 
         route.addHeadsign("hs1");
         route.addHeadsign("hs2");

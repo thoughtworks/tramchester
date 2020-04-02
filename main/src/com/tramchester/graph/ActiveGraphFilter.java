@@ -46,7 +46,7 @@ public class ActiveGraphFilter implements GraphFilter {
         if (serviceCodes.size()==0) {
             return true;
         }
-        return serviceCodes.contains(service.getServiceId());
+        return serviceCodes.contains(service.getId());
     }
 
     public StopCalls filterStops(StopCalls stops) {

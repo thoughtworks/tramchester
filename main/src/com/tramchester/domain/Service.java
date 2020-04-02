@@ -13,10 +13,10 @@ import java.util.Set;
 
 import static com.tramchester.domain.time.DaysOfWeek.*;
 
-public class Service {
+public class Service implements HasId {
 
-    private final String routeId;
     private final String serviceId;
+    private final Route route;
     private final Set<Trip> trips;
 
     private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
@@ -26,15 +26,15 @@ public class Service {
     private TramTime earliestDepart;
     private TramTime latestDepart;
 
-    public Service(String serviceId, String routeId) {
+    public Service(String serviceId, Route route) {
         this.serviceId = serviceId.intern();
-        this.routeId = routeId.intern();
+        this.route = route;
         this.trips = new LinkedHashSet<>();
         earliestDepart = null;
         latestDepart = null;
     }
 
-    public String getServiceId() {
+    public String getId() {
         return serviceId;
     }
 
@@ -63,17 +63,21 @@ public class Service {
     @Override
     public String toString() {
         return "Service{" +
-                "routeId='" + routeId + '\'' +
+                "routeId='" + route.getId() + '\'' +
                 ", serviceId='" + serviceId + '\'' +
-                ", trips=" + trips +
+                ", trips=" + HasId.asIds(trips) +
                 ", days=" + days +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 '}';
     }
 
+    public Route getRoute() {
+        return route;
+    }
+
     public String getRouteId() {
-        return routeId;
+        return route.getId();
     }
 
     public void setServiceDateRange(LocalDate startDate, LocalDate endDate) {

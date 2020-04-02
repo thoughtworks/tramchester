@@ -59,11 +59,11 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
 
         // update svcs where calendar data is missing
         services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
-            logger.warn(format("Service %s is missing calendar information", svc.getServiceId()));
+            logger.warn(format("Service %s is missing calendar information", svc.getId()));
             svc.setDays(false, false, false, false, false, false, false);
         });
         services.values().stream().filter(svc -> !svc.getDays().values().contains(true)).forEach(
-                svc -> logger.warn(format("Service %s does not run on any days of the week", svc.getServiceId()))
+                svc -> logger.warn(format("Service %s does not run on any days of the week", svc.getId()))
         );
 
         logger.info("Data load is complete");
@@ -140,7 +140,7 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
             String routeId = tripData.getRouteId();
             Route route = routes.get(routeId);
 
-            Service service = getOrInsertService(serviceId, routeId);
+            Service service = getOrInsertService(serviceId, route);
             Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), service, route );
             if (route != null) {
                 service.addTrip(trip);
@@ -153,15 +153,18 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
     }
 
     private void populateRoutes(Stream<RouteData> routeDataStream) {
+
         routeDataStream.forEach(routeData -> {
-            String agency = routeData.getAgency();
+            String agencyId = routeData.getAgency();
+            if (!agencies.containsKey(agencyId)) {
+                agencies.put(agencyId, new Agency(agencyId));
+            }
+            Agency agency = agencies.get(agencyId);
             Route route = new Route(routeData.getId(), routeData.getShortName(), routeData.getLongName(), agency,
                     getMode(routeData.getRouteType()));
             routes.put(route.getId(), route);
-            if (!agencies.containsKey(agency)) {
-                agencies.put(agency, new Agency(agency));
-            }
-            agencies.get(agency).addRoute(route);
+
+            agencies.get(agencyId).addRoute(route);
         });
     }
 
@@ -224,12 +227,12 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
         return matched;
     }
 
-    private Service getOrInsertService(String serviceId, String routeId) {
+    private Service getOrInsertService(String serviceId, Route route) {
         if (!services.keySet().contains(serviceId)) {
-            services.put(serviceId, new Service(serviceId, routeId));
+            services.put(serviceId, new Service(serviceId, route));
         }
         Service matched = services.get(serviceId);
-        if (matched.getRouteId()!=routeId || matched.getServiceId()!=serviceId) {
+        if (matched.getRoute()!=route || matched.getId()!=serviceId) {
             logger.error("Mismatch on service id: " + serviceId);
         }
         return matched;

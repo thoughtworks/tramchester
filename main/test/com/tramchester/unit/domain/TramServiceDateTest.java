@@ -21,16 +21,7 @@ public class TramServiceDateTest {
         assertThat(tramServiceDate.getDate()).isEqualTo(date);
         assertThat(tramServiceDate.getStringDate()).isEqualTo("20141025");
     }
-
-    @Test
-    public void shouldInitiateWithStringDate() throws Exception {
-        LocalDate date = LocalDate.of(2014, 10, 25);
-        TramServiceDate tramServiceDate = new TramServiceDate("20141025");
-
-        assertThat(tramServiceDate.getDate()).isEqualTo(date);
-        assertThat(tramServiceDate.getStringDate()).isEqualTo("20141025");
-    }
-
+    
     @Test
     public void shouldGetDayOfWeek() throws TramchesterException {
         TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.of(2016, 6, 13));

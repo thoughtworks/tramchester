@@ -19,7 +19,7 @@ public class RunningServices {
         earliestTimeMap = new HashMap<>();
 
         services.forEach(svc -> {
-            String serviceId = svc.getServiceId();
+            String serviceId = svc.getId();
             serviceIds.add(serviceId);
             latestTimeMap.put(serviceId, svc.latestDepartTime());
             earliestTimeMap.put(serviceId, svc.earliestDepartTime());

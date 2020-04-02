@@ -59,17 +59,17 @@ public class TramTransportDataImporterTest {
         assertThat(route.getServices()).hasSize(1); // 20 trips all for same svc
 
         Service service = route.getServices().stream().findFirst().get();
-        assertThat(service.getServiceId()).isEqualTo("Serv000001");
+        assertThat(service.getId()).isEqualTo("Serv000001");
         assertThat(service.getTrips()).hasSize(20);
 
         Trip trip = service.getTrips().stream().findFirst().get();
-        assertThat(trip.getTripId()).isEqualTo("Trip000001");
+        assertThat(trip.getId()).isEqualTo("Trip000001");
         assertThat(trip.getStops()).hasSize(9);
 
         StopCall stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
         assertThat(stop.getArrivalTime()).isEqualTo(TramTime.of(06,41));
-        assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
+        assertThat(Byte.toUnsignedInt(stop.getGetSequenceNumber())).isEqualTo(1);
 
         FeedInfo feedInfo = transportData.getFeedInfo();
         assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");

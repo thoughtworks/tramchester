@@ -15,7 +15,7 @@ public class Station implements Location {
     private boolean tram;
     private List<Platform> platforms;
     private Set<Route> servesRoutes;
-    private Set<String> servesAgencies;
+    private Set<Agency> servesAgencies;
 
     public Station () {
         // deserialisation
@@ -133,7 +133,7 @@ public class Station implements Location {
         return servesRoutes;
     }
 
-    public Set<String> getAgencies() {
+    public Set<Agency> getAgencies() {
         return servesAgencies;
     }
 }

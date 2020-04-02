@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TransportDataSource;
+import com.tramchester.testSupport.TestConfig;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -52,17 +53,18 @@ public class TransportDataForTest implements TransportDataSource {
         trips = new HashMap<>();
         routeStations = new HashMap<>();
 
-        Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", "MET", TransportMode.Tram);
-        Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", "MET", TransportMode.Tram);
-        Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", "MET", TransportMode.Tram);
+        Agency agency = TestConfig.MetAgency();
+        Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", agency, TransportMode.Tram);
+        Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", agency, TransportMode.Tram);
+        Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", agency, TransportMode.Tram);
 
         routes.put(routeA.getId(), routeA);
         routes.put(routeB.getId(), routeB);
         routes.put(routeC.getId(), routeC);
 
-        Service serviceA = new Service(serviceAId, routeA.getId());
-        serviceB = new Service(serviceBId, routeB.getId());
-        Service serviceC = new Service(serviceCId, routeC.getId());
+        Service serviceA = new Service(serviceAId, routeA);
+        serviceB = new Service(serviceBId, routeB);
+        Service serviceC = new Service(serviceCId, routeC);
 
         routeA.addService(serviceA);
         routeB.addService(serviceB);
@@ -146,7 +148,7 @@ public class TransportDataForTest implements TransportDataSource {
     }
 
     private void addTrip(Trip trip) {
-        trips.put(trip.getTripId(),trip);
+        trips.put(trip.getId(),trip);
     }
 
     private void createInterchangeToStation4Trip(Route route, Service service, Station interchangeStation, Station station,

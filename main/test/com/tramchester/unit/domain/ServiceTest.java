@@ -23,7 +23,7 @@ public class ServiceTest {
     @Test
     public void shouldSetStartDateAndEndDate() {
 
-        Service service = new Service("", "");
+        Service service = new Service("", TestConfig.getTestRoute());
 
         LocalDate startDate = LocalDate.of(2014, 10, 5);
         LocalDate endDate = LocalDate.of(2014, 12, 25);
@@ -45,7 +45,7 @@ public class ServiceTest {
     @Test
     public void shouldAddTripsToService() {
 
-        Service service = new Service("SVC002", "");
+        Service service = new Service("SVC002", TestConfig.getTestRoute());
         Trip trip = new Trip("001", "Deansgate", service, TestConfig.getTestRoute());
         trip.addStop(new StopCall(from("stopId1"), Stations.Deansgate, (byte) 3, TramTime.of(9,5), TramTime.of(9,6)));
         trip.addStop(new StopCall(from("stopId2"), Stations.Deansgate, (byte) 2, TramTime.of(8,15), TramTime.of(8,16)));
@@ -64,7 +64,7 @@ public class ServiceTest {
 
     @Test
     public void shouldSetWeekendDaysOnService() {
-        Service service = new Service("", "");
+        Service service = new Service("", TestConfig.getTestRoute());
 
         service.setDays(false, false, false, false, false, true, true);
 
@@ -80,16 +80,16 @@ public class ServiceTest {
 
     @Test
     public void shouldSetRouteIdAndServiceId() {
-        Service service = new Service("SRV001", "ROUTE66");
+        Service service = new Service("SRV001", TestConfig.getTestRoute("ROUTE66"));
 
         assertThat(service.getRouteId()).isEqualTo("ROUTE66");
-        assertThat(service.getServiceId()).isEqualTo("SRV001");
+        assertThat(service.getId()).isEqualTo("SRV001");
     }
 
 
     @Test
     public void shouldCheckIfServiceIsNotRunning() {
-        Service service = new Service("", "");
+        Service service = new Service("", TestConfig.getTestRoute());
 
         service.setDays(false, false, false, false, false, false, false);
 
@@ -98,7 +98,7 @@ public class ServiceTest {
 
     @Test
     public void shouldCheckIfServiceIsRunning() {
-        Service service = new Service("", "");
+        Service service = new Service("", TestConfig.getTestRoute());
 
         service.setDays(false, false, true, false, false, false, false);
 

@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public class RouteStation {
+public class RouteStation implements HasId {
     // A station that serves a specific route
 
     private final Station station;
@@ -23,7 +23,7 @@ public class RouteStation {
         return formId(station, route);
     }
 
-    public String getAgency() {
+    public Agency getAgency() {
         return route.getAgency();
     }
 

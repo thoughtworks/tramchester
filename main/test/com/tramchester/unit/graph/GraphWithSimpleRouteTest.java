@@ -16,6 +16,7 @@ import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,7 +63,7 @@ public class GraphWithSimpleRouteTest {
 
     @Before
     public void beforeEachTestRuns() {
-        queryDate = new TramServiceDate("20140630");
+        queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
         tx = database.beginTx();
     }

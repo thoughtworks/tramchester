@@ -1,5 +1,6 @@
 package com.tramchester.domain.input;
 
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TimeWindow;
@@ -7,7 +8,7 @@ import com.tramchester.domain.time.TramTime;
 
 import java.util.List;
 
-public class Trip {
+public class Trip implements HasId {
 
     private final String tripId;
     private final String headSign;
@@ -42,7 +43,7 @@ public class Trip {
         return tripId != null ? tripId.hashCode() : 0;
     }
 
-    public String getTripId() {
+    public String getId() {
         return tripId;
     }
 
@@ -70,7 +71,7 @@ public class Trip {
     @Override
     public String toString() {
         return "Trip{" +
-                "serviceId='" + service.getServiceId() + '\'' +
+                "serviceId='" + service.getId() + '\'' +
                 ", route='" + route + '\'' +
                 ", tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +

@@ -8,16 +8,17 @@ public class Route implements HasId {
     private final String id;
     private final String code;
     private final String name;
-    private final String agency;
+    private final Agency agency;
     private final TransportMode transportMode;
     private final Set<Service> services;
     private final Set<String> headsigns;
 
-    public Route(String id, String code, String name, String agency, TransportMode transportMode) {
+    public Route(String id, String code, String name, Agency agency, TransportMode transportMode) {
         this.id = id.intern();
         this.code = code.intern();
         this.name = name.intern();
-        this.agency = agency.intern();
+
+        this.agency = agency;
         this.transportMode = transportMode;
         services = new HashSet<>();
         headsigns = new HashSet<>();
@@ -39,7 +40,7 @@ public class Route implements HasId {
         services.add(service);
     }
 
-    public String getAgency() {
+    public Agency getAgency() {
         return agency;
     }
 
