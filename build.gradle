@@ -193,7 +193,7 @@ task unit(type: Test, dependsOn: compileJava) {
 
 task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
-    maxHeapSize = "2500m"
+    maxHeapSize = "1500m"
     useJUnit {
         excludeCategories "com.tramchester.testSupport.LiveDataMessagesCategory" // hopefully temporary exclusion
     }
