@@ -1,14 +1,14 @@
 package com.tramchester.unit.environment;
 
+import com.tramchester.testSupport.TestEnv;
 import org.junit.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import static java.lang.String.format;
 import static junit.framework.TestCase.assertTrue;
 
+// want to find out as soon as possible, not wait for integration tests
 public class AcceptanceTestEnvironmentVarsPreCheck {
 
     @Test
@@ -27,11 +27,9 @@ public class AcceptanceTestEnvironmentVarsPreCheck {
     }
 
     private void assertPathValid(String envVarName) {
-        String rawFilename = System.getenv(envVarName);
-        if (rawFilename!=null) {
-            Path path = Paths.get(rawFilename);
-            assertTrue(format("Checkfailed for %s value '%s' path '%s'", envVarName, rawFilename, path),
-                    Files.exists(path));
+        Path path = TestEnv.getPathFromEnv(envVarName);
+        if (path != null) {
+            assertTrue("Check failed for "+ envVarName, Files.exists(path));
         }
     }
 

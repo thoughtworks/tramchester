@@ -23,23 +23,24 @@ public class DriverFactory {
     }
 
     private ProvidesDriver create(boolean enableGeo, String browserName) {
-        if (browserName.equals("firefox")) {
-            return new ProvidesFirefoxDriver(enableGeo);
-        } else if (browserName.equals("chrome")) {
-            return new ProvidesChromeDriver(enableGeo);
-        } else if (browserName.equals("androidChrome")) {
-            return new ProvidesChromeOnAndroid(enableGeo);
-        } else {
-            throw new RuntimeException("Unknown browser "+browserName);
+        switch (browserName) {
+            case "firefox":
+                return new ProvidesFirefoxDriver(enableGeo);
+            case "chrome":
+                return new ProvidesChromeDriver(enableGeo);
+            case "androidChrome":
+                return new ProvidesChromeOnAndroid(enableGeo);
+            default:
+                throw new RuntimeException("Unknown browser " + browserName);
         }
     }
 
     public void close() {
-        drivers.values().forEach(driver -> driver.close());
+        drivers.values().forEach(ProvidesDriver::close);
     }
 
     public void quit() {
-        drivers.values().forEach(driver -> driver.quit());
+        drivers.values().forEach(ProvidesDriver::quit);
         drivers.clear();
     }
 }
