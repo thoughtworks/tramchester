@@ -120,10 +120,7 @@ public class AppUserJourneyTest {
     public void shouldHaveInitialValuesAndSetInputsSetCorrectly() {
         AppPage appPage = prepare();
 
-        if (!TestEnv.isCircleci()) {
-            // Locale issues, test harness and browser picking up different local times
-            validateCurrentTimeIsSelected(appPage);
-        }
+        validateCurrentTimeIsSelected(appPage);
 
         assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
 
@@ -137,10 +134,7 @@ public class AppUserJourneyTest {
         assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1), true);
 
         appPage.selectNow();
-        if (!TestEnv.isCircleci()) {
-            // Locale issues, test harness and browser picking up different local times
-            validateCurrentTimeIsSelected(appPage);
-        }
+        validateCurrentTimeIsSelected(appPage);
 
         appPage.selectToday();
         assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
