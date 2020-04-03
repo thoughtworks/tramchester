@@ -4,7 +4,7 @@ import com.tramchester.config.DownloadConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloader;
 import com.tramchester.dataimport.Unzipper;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.assertj.core.util.Files;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -72,7 +72,7 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
     @Test
     public void shouldFetchIfModTimeIsNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
-        LocalDateTime time = TestConfig.LocalNow();
+        LocalDateTime time = TestEnv.LocalNow();
         EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(time.plusMinutes(30));
         downloader.downloadTo(zipFilename, expectedDownloadURL);
         EasyMock.expectLastCall();
@@ -97,7 +97,7 @@ public class FetchDataFromUrlTest extends EasyMockSupport {
     @Test
     public void shouldNotFetchIfModTimeIsNotNewer() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
-        LocalDateTime time = TestConfig.LocalNow();
+        LocalDateTime time = TestEnv.LocalNow();
         EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(time.minusDays(1));
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 

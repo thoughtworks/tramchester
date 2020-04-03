@@ -1,12 +1,12 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.JourneyState;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.states.NotStartedState;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class JourneyStateTest {
     public void onceBeforeEachTestRuns() {
         List<String> destinationStationIds = Arrays.asList("destinationStationId");
         traversalState = new NotStartedState(new CachedNodeOperations(new NodeIdLabelMap()),
-                42, destinationStationIds, TestConfig.GET());
+                42, destinationStationIds, TestEnv.GET());
         queryTime = TramTime.of(9, 15);
     }
 

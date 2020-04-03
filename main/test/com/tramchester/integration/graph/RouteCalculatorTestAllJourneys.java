@@ -12,7 +12,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.*;
 import org.neo4j.graphdb.NotInTransactionException;
@@ -39,10 +39,10 @@ public class RouteCalculatorTestAllJourneys {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private static boolean circleCi = TestConfig.isCircleci();
+    private static boolean circleCi = TestEnv.isCircleci();
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
     private Map<Long, Transaction> threadToTxnMap;
 

@@ -1,7 +1,6 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.acceptance.infra.AcceptanceTestRun;
 import com.tramchester.acceptance.infra.DriverFactory;
 import com.tramchester.acceptance.infra.ProvidesDriver;
@@ -9,6 +8,7 @@ import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
@@ -50,7 +50,7 @@ public class AppUserJourneyLoactionsTest {
     private ProvidesDriver providesDriver;
 
     private static List<String> getBrowserList() {
-        if (!TestConfig.isCircleci()) {
+        if (!TestEnv.isCircleci()) {
             return Arrays.asList("chrome", "firefox");
         }
         // TODO - confirm this is still an issue
@@ -77,12 +77,12 @@ public class AppUserJourneyLoactionsTest {
         url = testRule.getUrl()+"/app/index.html";
 
         providesDriver = driverFactory.get(true, browserName);
-        providesDriver.setStubbedLocation(TestConfig.nearAltrincham);
+        providesDriver.setStubbedLocation(TestEnv.nearAltrincham);
         providesDriver.init();
         providesDriver.clearCookies();
 
         // TODO offset for when tfgm data is expiring
-        nextTuesday = TestConfig.nextTuesday(0);
+        nextTuesday = TestEnv.nextTuesday(0);
     }
 
     @After

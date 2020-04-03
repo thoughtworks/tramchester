@@ -3,7 +3,6 @@ package com.tramchester.integration.mappers;
 
 import com.tramchester.Dependencies;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -15,6 +14,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
 public class TramJourneyToDTOMapperTest {
     private static GraphDatabase database;
     private static TransportDataFromFiles transportData;
-    private final LocalDate when = TestConfig.nextTuesday(0);
+    private final LocalDate when = TestEnv.nextTuesday(0);
     private LocalTime sevenAM;
     private LocalTime eightAM;
 
@@ -76,7 +76,7 @@ public class TramJourneyToDTOMapperTest {
     public void shouldEnsureTripsAreOrderByEarliestFirst() {
         TramTime time = TramTime.of(15,30);
 
-        TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, TestConfig.getTestRoute(),
+        TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, TestEnv.getTestRoute(),
                 time, 42, 16);
         stages.add(vicToRoch);
 
@@ -91,7 +91,7 @@ public class TramJourneyToDTOMapperTest {
     public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() {
         TramTime pm1044  = TramTime.of(22,44);
 
-        VehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, TestConfig.getTestRoute(),
+        VehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, TestEnv.getTestRoute(),
                 pm1044, 42, 14);
 
         stages.add(rawStage);
@@ -106,7 +106,7 @@ public class TramJourneyToDTOMapperTest {
     @Test
     public void shouldMapSimpleJourney() {
 
-        VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, TestConfig.getTestRoute(),
+        VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, TestEnv.getTestRoute(),
                 TramTime.of(7,0), 42, 8);
 
         stages.add(altToCorn);
@@ -151,7 +151,7 @@ public class TramJourneyToDTOMapperTest {
     }
 
     private Route createRoute(String name) {
-        return new Route("routeId", "shortName", name, TestConfig.MetAgency(), TransportMode.Tram);
+        return new Route("routeId", "shortName", name, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
     @Test

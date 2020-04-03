@@ -18,10 +18,6 @@ public class Timestamped  {
         return when;
     }
 
-//    public void setWhen(LocalDateTime when) {
-//        this.when = when;
-//    }
-
     public String getId() {
         return id;
     }

@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.dataimport.URLDownloader;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class URLDownloaderTest {
         URLDownloader urlDownloader = new URLDownloader();
 
         LocalDateTime modTime = urlDownloader.getModTime(url);
-        assertTrue(modTime.isBefore(TestConfig.LocalNow()));
+        assertTrue(modTime.isBefore(TestEnv.LocalNow()));
         assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
 
         urlDownloader.downloadTo(temporaryFile, url);

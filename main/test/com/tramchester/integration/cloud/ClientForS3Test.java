@@ -5,8 +5,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.waiters.Waiter;
 import com.amazonaws.waiters.WaiterParameters;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.cloud.ClientForS3;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class ClientForS3Test {
     @Before
     public void beforeEachTestRuns() {
         s3 = AmazonS3ClientBuilder.defaultClient();
-        clientForS3 = new ClientForS3(TestConfig.GET());
+        clientForS3 = new ClientForS3(TestEnv.GET());
         tidyBucket();
     }
 

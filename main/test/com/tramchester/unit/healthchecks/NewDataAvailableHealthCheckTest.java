@@ -7,7 +7,7 @@ import com.tramchester.dataimport.FileModTime;
 import com.tramchester.dataimport.URLDownloader;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime);
 
-        time = TestConfig.LocalNow();
+        time = TestEnv.LocalNow();
 
     }
 

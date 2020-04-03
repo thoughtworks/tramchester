@@ -4,7 +4,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -17,7 +17,7 @@ public class DepartureDTOTest {
 
     @Test
     public void shouldCreateFromDueTramAndLocation() {
-        LocalTime updateTime = TestConfig.LocalNow().toLocalTime();
+        LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
 
         String location = "aPlace";
         DueTram dueTram = new DueTram(Stations.Bury, "status", 42, "carriages", updateTime);
@@ -32,7 +32,7 @@ public class DepartureDTOTest {
 
     @Test
     public void shouldCompareBasedOnWhenTramDue() {
-        LocalTime updateTime = TestConfig.LocalNow().toLocalTime();
+        LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
 
         DepartureDTO departureDTOA = new DepartureDTO("station", new DueTram(Stations.Deansgate, "status", 5, "carriages", updateTime));
         DepartureDTO departureDTOB = new DepartureDTO("station", new DueTram(Stations.Bury, "status", 3, "carriages", updateTime));

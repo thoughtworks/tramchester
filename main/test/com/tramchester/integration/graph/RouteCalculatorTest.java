@@ -10,7 +10,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.*;
 import org.neo4j.graphdb.NotInTransactionException;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.Stations.HeatonPark;
-import static com.tramchester.testSupport.TestConfig.avoidChristmasDate;
+import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static org.junit.Assert.*;
 
 public class RouteCalculatorTest {
@@ -37,7 +37,7 @@ public class RouteCalculatorTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
     private Map<Long, Transaction> threadToTxnMap;
 
@@ -167,7 +167,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void testJourneyFromAltyToAirport() {
-        TramServiceDate today = new TramServiceDate(TestConfig.LocalNow().toLocalDate());
+        TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
 
         Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport,
                 TramTime.of(11, 43), today);
@@ -298,7 +298,7 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
-        LocalDate nextTuesday = TestConfig.nextTuesday(0);
+        LocalDate nextTuesday = TestEnv.nextTuesday(0);
         // catches issue with services, only some of which go to media city, while others direct to broadway
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(8,0), nextTuesday);
         validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(8,0), nextTuesday);
@@ -334,23 +334,23 @@ public class RouteCalculatorTest {
 
     @Test
     public void reproduceIssueWithTramsSundayStPetersToDeansgate() {
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, TramTime.of(9,0), TestConfig.nextSunday());
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
     public void reproduceIssueWithTramsSundayAshtonToEccles() {
-        validateAtLeastOneJourney(Stations.Ashton, Stations.Eccles, TramTime.of(9,0), TestConfig.nextSunday());
+        validateAtLeastOneJourney(Stations.Ashton, Stations.Eccles, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
     public void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), TestConfig.nextSunday());
-        validateAtLeastOneJourney(Stations.Eccles, Stations.Cornbrook, TramTime.of(9,0), TestConfig.nextSunday());
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), TestEnv.nextSunday());
+        validateAtLeastOneJourney(Stations.Eccles, Stations.Cornbrook, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
     public void shouldReproduceIssueCornbrookToAshtonSatursdays() {
-        LocalDate date = TestConfig.nextSaturday();
+        LocalDate date = TestEnv.nextSaturday();
         checkRouteNextNDays(Stations.Cornbrook, Stations.Ashton, date, TramTime.of(9,0), 7);
     }
 

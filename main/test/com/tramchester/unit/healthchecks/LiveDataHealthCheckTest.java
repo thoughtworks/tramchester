@@ -5,7 +5,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,7 +26,7 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Before
     public void beforeEachTestRuns() {
-        now = TramTime.of(TestConfig.LocalNow());
+        now = TramTime.of(TestEnv.LocalNow());
         repository = createMock(LiveDataRepository.class);
         healthCheck = new LiveDataHealthCheck(repository, new ProvidesNow() {
             @Override

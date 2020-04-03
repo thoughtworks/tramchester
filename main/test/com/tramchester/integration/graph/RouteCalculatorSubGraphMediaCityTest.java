@@ -13,7 +13,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -30,7 +30,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
 
     private static List<Station> stations = Arrays.asList(
             Stations.ExchangeSquare,
@@ -82,9 +82,9 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     public void shouldHaveMediaCityToExchangeSquare() {
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, TramTime.of(9,0), TestConfig.nextSaturday());
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestConfig.nextSaturday());
-        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestConfig.nextSunday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
@@ -115,7 +115,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     public void reproduceMediaCityIssueSaturdays() {
-        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, TramTime.of(9,0), TestConfig.nextSaturday());
+        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, TramTime.of(9,0), TestEnv.nextSaturday());
     }
 
     @Test

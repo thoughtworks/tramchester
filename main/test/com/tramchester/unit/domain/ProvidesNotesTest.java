@@ -1,7 +1,6 @@
 package com.tramchester.unit.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -10,6 +9,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -37,9 +37,9 @@ public class ProvidesNotesTest extends EasyMockSupport {
     @Before
     public void beforeEachTestRuns() {
         liveDataRepository = createStrictMock(LiveDataRepository.class);
-        provider = new ProvidesNotes(TestConfig.GET(), liveDataRepository);
+        provider = new ProvidesNotes(TestEnv.GET(), liveDataRepository);
         journeys = new HashSet<>();
-        lastUpdate = TestConfig.LocalNow();
+        lastUpdate = TestEnv.LocalNow();
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
         TramTime queryTime = TramTime.of(8,11);
-        LocalDate date = TestConfig.LocalNow().toLocalDate();
+        LocalDate date = TestEnv.LocalNow().toLocalDate();
         if ((date.getDayOfWeek()==SATURDAY) || (date.getDayOfWeek()==SUNDAY)) {
             date = date.plusDays(3);
         }
@@ -181,7 +181,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageA = createStageWithBoardingPlatform("platformId1");
         TransportStage stageB = createStageWithBoardingPlatform("platformId2");
         TransportStage stageC = createStageWithBoardingPlatform("platformId3");
-        TransportStage stageD = new WalkingStage(MyLocation.create(new ObjectMapper(), TestConfig.nearAltrincham),
+        TransportStage stageD = new WalkingStage(MyLocation.create(new ObjectMapper(), TestEnv.nearAltrincham),
                 Stations.Ashton, 7, TramTime.of(8,11), false );
         TransportStage stageE = createStageWithBoardingPlatform("platformId5");
 
@@ -254,9 +254,9 @@ public class ProvidesNotesTest extends EasyMockSupport {
 
     private TransportStage createStageWithBoardingPlatform(String platformId) {
         TramTime departTime = TramTime.of(11,22);
-        Service service = new Service("serviceId", TestConfig.getTestRoute());
-        Trip trip = new Trip("tripId", "headSign", service, TestConfig.getTestRoute());
-        VehicleStage vehicleStage = new VehicleStage(Stations.Ashton, TestConfig.getTestRoute(), TransportMode.Tram, "displayClass",
+        Service service = new Service("serviceId", TestEnv.getTestRoute());
+        Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
+        VehicleStage vehicleStage = new VehicleStage(Stations.Ashton, TestEnv.getTestRoute(), TransportMode.Tram, "displayClass",
                 trip, departTime, Stations.PiccadillyGardens, 12);
         Platform platform = new Platform(platformId, "platformName");
         vehicleStage.setPlatform(platform);

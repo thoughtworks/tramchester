@@ -19,7 +19,7 @@ import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 
@@ -33,7 +33,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.tramchester.testSupport.TestConfig.dateFormatDashes;
+import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Fail.fail;
@@ -56,8 +56,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Before
     public void beforeEachTestRuns() {
-        when = TestConfig.nextTuesday(0);
-        now = TestConfig.LocalNow();
+        when = TestEnv.nextTuesday(0);
+        now = TestEnv.LocalNow();
     }
 
     @Test
@@ -264,7 +264,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldSetCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
-        String time = now.toLocalTime().format(TestConfig.timeFormatter);
+        String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
         Response result = getResponseForJourney(testRule, start, end, time, date, null, false);
 
@@ -281,7 +281,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldUdateCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
-        String time = now.toLocalTime().format(TestConfig.timeFormatter);
+        String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
 
         // cookie with ashton
@@ -312,7 +312,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         String start = MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
         String end = Stations.ManAirport.getId();
-        String time = now.toLocalTime().format(TestConfig.timeFormatter);
+        String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
         Response response = getResponseForJourney(testRule, start, end, time, date, latlong, false);
 
@@ -341,7 +341,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                                                                          TramTime queryTime,
                                                                          TramServiceDate queryDate, boolean arriveBy) {
         String date = queryDate.getDate().format(dateFormatDashes);
-        String time = queryTime.asLocalTime().format(TestConfig.timeFormatter);
+        String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
         Response response = getResponseForJourney(rule, start.getId(), end.getId(), time, date,
                 null, arriveBy);
         assertEquals(200, response.getStatus());

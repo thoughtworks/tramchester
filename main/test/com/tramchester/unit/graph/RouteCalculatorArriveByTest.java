@@ -1,6 +1,5 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
@@ -10,6 +9,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.graph.RouteCalculatorArriveBy;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class RouteCalculatorArriveByTest extends EasyMockSupport {
     @Test
     public void shouldArriveByTramNoWalk() {
         TramTime arriveBy = TramTime.of(14,35);
-        LocalDate localDate = TestConfig.nextTuesday(0);
+        LocalDate localDate = TestEnv.nextTuesday(0);
 
         String startId = Stations.Bury.getId();
         Station destinationId = Stations.Cornbrook;

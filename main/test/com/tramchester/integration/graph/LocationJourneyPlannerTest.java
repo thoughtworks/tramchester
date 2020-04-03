@@ -14,7 +14,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestConfig.nearAltrincham;
-import static com.tramchester.testSupport.TestConfig.nearPiccGardens;
+import static com.tramchester.testSupport.TestEnv.nearAltrincham;
+import static com.tramchester.testSupport.TestEnv.nearPiccGardens;
 import static org.junit.Assert.*;
 
 public class LocationJourneyPlannerTest {
@@ -37,7 +37,7 @@ public class LocationJourneyPlannerTest {
     private static TramchesterConfig testConfig;
     private static GraphDatabase database;
 
-    private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
     private LocationJourneyPlanner planner;
 
@@ -158,7 +158,7 @@ public class LocationJourneyPlannerTest {
     @Test
     public void shouldFindJourneyWithWalkingAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);
-        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Shudehill.getId(), TestConfig.nearShudehill,
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Shudehill.getId(), TestEnv.nearShudehill,
                 queryTime, false);
         assertFalse(results.isEmpty());
     }
@@ -167,7 +167,7 @@ public class LocationJourneyPlannerTest {
     @Test
     public void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
-        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Altrincham.getId(), TestConfig.nearShudehill,
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Altrincham.getId(), TestEnv.nearShudehill,
                 queryTime, false);
 
         assertFalse(results.isEmpty());

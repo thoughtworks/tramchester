@@ -1,12 +1,12 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,9 +26,9 @@ public class TripTest {
 
     @Before
     public void beforeEachTestRuns() {
-        Service service = new Service("svcId", TestConfig.getTestRoute());
+        Service service = new Service("svcId", TestEnv.getTestRoute());
 
-        trip = new Trip("tripId","headSign", service, TestConfig.getTestRoute());
+        trip = new Trip("tripId","headSign", service, TestEnv.getTestRoute());
         stationA = new Station("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), false);
         stationB = new Station("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
         stationC = new Station("statC","areaA", "stopNameB", new LatLong(2.0, -2.0), false);
@@ -36,9 +36,9 @@ public class TripTest {
 
     @Test
     public void shouldKnowIfTramTrip() {
-        Service service = new Service("svcId", TestConfig.getTestRoute());
+        Service service = new Service("svcId", TestEnv.getTestRoute());
 
-        Trip tripA = new Trip("tripId", "headSign", service, TestConfig.getTestRoute());
+        Trip tripA = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
         assertTrue(tripA.getTram());
         Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", new Agency("BUS"), TransportMode.Bus);
         Trip tripB = new Trip("tripId", "headSign", service, busRoute);

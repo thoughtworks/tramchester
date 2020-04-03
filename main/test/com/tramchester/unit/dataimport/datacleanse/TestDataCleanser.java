@@ -2,7 +2,6 @@ package com.tramchester.unit.dataimport.datacleanse;
 
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
@@ -14,6 +13,7 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 
@@ -42,7 +42,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
     @Before
     public void beforeEachTestRuns() {
-        config = TestConfig.GET();
+        config = TestEnv.GET();
         providesNow = new ProvidesLocalNow();
 
         reader = createMock(TransportDataReader.class);

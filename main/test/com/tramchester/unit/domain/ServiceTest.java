@@ -1,12 +1,12 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -23,7 +23,7 @@ public class ServiceTest {
     @Test
     public void shouldSetStartDateAndEndDate() {
 
-        Service service = new Service("", TestConfig.getTestRoute());
+        Service service = new Service("", TestEnv.getTestRoute());
 
         LocalDate startDate = LocalDate.of(2014, 10, 5);
         LocalDate endDate = LocalDate.of(2014, 12, 25);
@@ -45,8 +45,8 @@ public class ServiceTest {
     @Test
     public void shouldAddTripsToService() {
 
-        Service service = new Service("SVC002", TestConfig.getTestRoute());
-        Trip trip = new Trip("001", "Deansgate", service, TestConfig.getTestRoute());
+        Service service = new Service("SVC002", TestEnv.getTestRoute());
+        Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
         trip.addStop(new StopCall(from("stopId1"), Stations.Deansgate, (byte) 3, TramTime.of(9,5), TramTime.of(9,6)));
         trip.addStop(new StopCall(from("stopId2"), Stations.Deansgate, (byte) 2, TramTime.of(8,15), TramTime.of(8,16)));
         trip.addStop(new StopCall(from("stopId3"), Stations.Deansgate, (byte) 4, TramTime.of(10,25), TramTime.of(10,26)));
@@ -64,7 +64,7 @@ public class ServiceTest {
 
     @Test
     public void shouldSetWeekendDaysOnService() {
-        Service service = new Service("", TestConfig.getTestRoute());
+        Service service = new Service("", TestEnv.getTestRoute());
 
         service.setDays(false, false, false, false, false, true, true);
 
@@ -80,7 +80,7 @@ public class ServiceTest {
 
     @Test
     public void shouldSetRouteIdAndServiceId() {
-        Service service = new Service("SRV001", TestConfig.getTestRoute("ROUTE66"));
+        Service service = new Service("SRV001", TestEnv.getTestRoute("ROUTE66"));
 
         assertThat(service.getRouteId()).isEqualTo("ROUTE66");
         assertThat(service.getId()).isEqualTo("SRV001");
@@ -89,7 +89,7 @@ public class ServiceTest {
 
     @Test
     public void shouldCheckIfServiceIsNotRunning() {
-        Service service = new Service("", TestConfig.getTestRoute());
+        Service service = new Service("", TestEnv.getTestRoute());
 
         service.setDays(false, false, false, false, false, false, false);
 
@@ -98,7 +98,7 @@ public class ServiceTest {
 
     @Test
     public void shouldCheckIfServiceIsRunning() {
-        Service service = new Service("", TestConfig.getTestRoute());
+        Service service = new Service("", TestEnv.getTestRoute());
 
         service.setDays(false, false, true, false, false, false, false);
 

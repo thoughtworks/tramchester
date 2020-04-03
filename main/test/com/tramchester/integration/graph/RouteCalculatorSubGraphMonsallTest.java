@@ -12,7 +12,7 @@ import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -30,7 +30,7 @@ public class RouteCalculatorSubGraphMonsallTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
 
     @BeforeClass

@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.Test;
 
 import java.time.DayOfWeek;
@@ -13,7 +13,7 @@ public class GenerateExampleDatesTest {
 
     @Test
     public void shouldGenerateCorrectDaysForTests() {
-        LocalDate generated = TestConfig.nextTuesday(0);
+        LocalDate generated = TestEnv.nextTuesday(0);
 
         assertEquals(DayOfWeek.TUESDAY, generated.getDayOfWeek());
     }

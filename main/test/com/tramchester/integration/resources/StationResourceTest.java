@@ -15,10 +15,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.LiveDataMessagesCategory;
-import com.tramchester.testSupport.LiveDataTestCategory;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.*;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -27,7 +24,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -136,7 +132,7 @@ public class StationResourceTest {
         assertFalse(notes.isEmpty());
         // ignore closure message which is always present, also if today is weekend exclude that
         int ignore = 1;
-        DayOfWeek dayOfWeek = TestConfig.LocalNow().toLocalDate().getDayOfWeek();
+        DayOfWeek dayOfWeek = TestEnv.LocalNow().toLocalDate().getDayOfWeek();
         if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
             ignore++;
         }
@@ -194,7 +190,7 @@ public class StationResourceTest {
     public void shouldReturnRecentStationsGroupIfCookieSet() throws JsonProcessingException, UnsupportedEncodingException {
         Location alty = Stations.Altrincham;
         RecentJourneys recentJourneys = new RecentJourneys();
-        recentJourneys.setTimestamps(Sets.newHashSet(new Timestamped(alty.getId(), TestConfig.LocalNow())));
+        recentJourneys.setTimestamps(Sets.newHashSet(new Timestamped(alty.getId(), TestEnv.LocalNow())));
 
         String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
         Optional<Cookie> cookie = Optional.of(new Cookie("tramchesterRecent", recentAsString));

@@ -9,7 +9,7 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportDataFromFiles;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -94,7 +94,7 @@ public class LiveDataHTTPFetcherTest {
         // assertTrue(aDisplay.getDueTrams().size()>0);
         assertTrue(aDisplay.getLineName().length()>0);
         LocalDateTime when = aDisplay.getLastUpdate();
-        assertEquals(TestConfig.LocalNow().getDayOfMonth(),when.getDayOfMonth());
+        assertEquals(TestEnv.LocalNow().getDayOfMonth(),when.getDayOfMonth());
     }
 
     @Test

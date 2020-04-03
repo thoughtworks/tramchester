@@ -13,7 +13,7 @@ import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.json.simple.parser.ParseException;
@@ -41,7 +41,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         providesNow = createMock(ProvidesNow.class);
         repository = new LiveDataRepository(fetcher, mapper, providesNow);
 
-        lastUpdate = TestConfig.LocalNow();
+        lastUpdate = TestEnv.LocalNow();
     }
 
     @Test
@@ -126,7 +126,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         altrincham.addPlatform(new Platform(platformId1, "Altrincham Platform 1"));
         altrincham.addPlatform(new Platform(platformId2, "Altrincham Platform 2"));
 
-        LocalDateTime current = TestConfig.LocalNow();
+        LocalDateTime current = TestEnv.LocalNow();
         LocalDateTime staleDataAndTime = current.minusDays(5).minusMinutes(60); // stale
 
         addStationInfo(info, staleDataAndTime, "yyy", platformId1, "some message", altrincham);

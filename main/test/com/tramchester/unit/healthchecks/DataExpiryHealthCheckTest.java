@@ -3,10 +3,10 @@ package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
 import com.tramchester.repository.ProvidesFeedInfo;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
@@ -29,12 +29,12 @@ public class DataExpiryHealthCheckTest extends EasyMockSupport {
         providesFeedInfo = createMock(ProvidesFeedInfo.class);
         providesLocalNow = createMock(ProvidesLocalNow.class);
 
-        localDate = TestConfig.LocalNow().toLocalDate();
+        localDate = TestEnv.LocalNow().toLocalDate();
         FeedInfo feedInfo = createFeedInfo(localDate.minusDays(30), localDate.plusDays(3));
         EasyMock.expect(providesFeedInfo.getFeedInfo()).andReturn(feedInfo);
         EasyMock.expect(providesLocalNow.getDate()).andStubReturn(localDate);
 
-        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, providesLocalNow, TestConfig.GET());
+        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, providesLocalNow, TestEnv.GET());
     }
 
     @Test

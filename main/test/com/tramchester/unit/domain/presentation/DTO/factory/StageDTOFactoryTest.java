@@ -1,6 +1,5 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -13,12 +12,12 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -35,7 +34,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     public void beforeEachTestRun() {
         liveDataRepository = createMock(LiveDataRepository.class);
         factory = new StageDTOFactory(liveDataRepository);
-        tramServiceDate = new TramServiceDate(TestConfig.LocalNow().toLocalDate());
+        tramServiceDate = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
     }
 
     @Test
@@ -51,7 +50,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
 
     @Test
     public void shouldCreateStageDTOCorrectlyForTransportStage() {
-        Route testRoute = TestConfig.getTestRoute();
+        Route testRoute = TestEnv.getTestRoute();
         Service service = new Service("svcId", testRoute);
 
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
@@ -76,7 +75,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
 
     @Test
     public void shouldCreateStageDTOCorrectlyForTransportStageHasLiveData() {
-        Route testRoute = TestConfig.getTestRoute();
+        Route testRoute = TestEnv.getTestRoute();
         Service service = new Service("svcId", testRoute);
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
         VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, testRoute,

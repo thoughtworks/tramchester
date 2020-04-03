@@ -11,7 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TransportDataSource;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -53,7 +53,7 @@ public class TransportDataForTest implements TransportDataSource {
         trips = new HashMap<>();
         routeStations = new HashMap<>();
 
-        Agency agency = TestConfig.MetAgency();
+        Agency agency = TestEnv.MetAgency();
         Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", agency, TransportMode.Tram);
         Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", agency, TransportMode.Tram);
         Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", agency, TransportMode.Tram);

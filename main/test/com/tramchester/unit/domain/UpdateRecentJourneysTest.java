@@ -7,10 +7,9 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class UpdateRecentJourneysTest {
 
     private String altyId = Stations.Altrincham.getId();
-    private UpdateRecentJourneys updater = new UpdateRecentJourneys(TestConfig.GET());
+    private UpdateRecentJourneys updater = new UpdateRecentJourneys(TestEnv.GET());
     private ProvidesNow providesNow = new ProvidesLocalNow();
 
     @Test

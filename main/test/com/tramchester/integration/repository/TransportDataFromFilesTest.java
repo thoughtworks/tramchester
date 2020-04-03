@@ -2,7 +2,6 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -15,6 +14,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 
 import java.time.LocalDate;
@@ -60,7 +60,7 @@ public class TransportDataFromFilesTest {
     public void shouldGetRoute() {
         Route result = transportData.getRoute(RouteCodesForTesting.ASH_TO_ECCLES);
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
-        assertEquals(TestConfig.MetAgency(),result.getAgency());
+        assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertEquals("MET:   3:I:",result.getId());
         assertTrue(result.isTram());
 
@@ -72,14 +72,14 @@ public class TransportDataFromFilesTest {
     @Test
     public void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
-        long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestConfig.MetAgency())).count();
+        long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
 
         assertEquals(14, tramRoutes);
     }
 
     @Test
     public void shouldGetServicesByDate() {
-        LocalDate nextSaturday = TestConfig.nextSaturday();
+        LocalDate nextSaturday = TestEnv.nextSaturday();
         TramServiceDate date = new TramServiceDate(nextSaturday);
         Set<Service> results = transportData.getServicesOnDate(date);
 
@@ -153,7 +153,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldHaveSundayServicesFromCornbrook() {
-        LocalDate nextSunday = TestConfig.nextSunday();
+        LocalDate nextSunday = TestEnv.nextSunday();
 
         Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
 
@@ -177,7 +177,7 @@ public class TransportDataFromFilesTest {
         int maxwait = 25;
 
         for (int day = 0; day < 7; day++) {
-            LocalDate date = TestConfig.nextTuesday(day);
+            LocalDate date = TestEnv.nextTuesday(day);
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);
 
@@ -375,7 +375,7 @@ public class TransportDataFromFilesTest {
         Set<Service> services = toMediaCity.stream().
                 map(svc->transportData.getServiceById(svc)).collect(Collectors.toSet());
 
-        LocalDate nextTuesday = TestConfig.nextTuesday(0);
+        LocalDate nextTuesday = TestEnv.nextTuesday(0);
 
         Set<Service> onDay = services.stream().
                 filter(service -> service.operatesOn(nextTuesday)).

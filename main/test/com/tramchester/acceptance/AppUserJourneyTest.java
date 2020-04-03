@@ -1,7 +1,6 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.acceptance.infra.AcceptanceTestRun;
 import com.tramchester.acceptance.infra.DriverFactory;
 import com.tramchester.acceptance.infra.ProvidesDriver;
@@ -10,6 +9,7 @@ import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.integration.resources.FeedInfoResourceTest;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.testSupport.TestConfig.dateFormatDashes;
+import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -50,13 +50,15 @@ public class AppUserJourneyTest {
     private LocalDate nextTuesday;
     private String url;
     private ProvidesDriver providesDriver;
+
+    // useful consts, keep around as can swap when timetable changes
     private static final String altyToBuryClass = "RouteClass1";
     public static final String altyToPiccClass = "RouteClass2";
     private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private static List<String> getBrowserList() {
-        if (!TestConfig.isCircleci()) {
+        if (!TestEnv.isCircleci()) {
             return Arrays.asList("chrome", "firefox");
         }
 
@@ -88,7 +90,7 @@ public class AppUserJourneyTest {
         providesDriver.clearCookies();
 
         // TODO offset for when tfgm data is expiring
-        nextTuesday = TestConfig.nextTuesday(0);
+        nextTuesday = TestEnv.nextTuesday(0);
     }
 
     @After
@@ -120,7 +122,7 @@ public class AppUserJourneyTest {
 
         validateCurrentTimeIsSelected(appPage);
 
-        assertEquals(TestConfig.LocalNow().toLocalDate(), appPage.getDate());
+        assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
 
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         assertJourney(appPage, altrincham, bury, "10:15", nextTuesday, false);
@@ -135,14 +137,15 @@ public class AppUserJourneyTest {
         validateCurrentTimeIsSelected(appPage);
 
         appPage.selectToday();
-        assertEquals(TestConfig.LocalNow().toLocalDate(), appPage.getDate());
+        assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
     }
 
     private void validateCurrentTimeIsSelected(AppPage appPage) {
         LocalTime timeOnPage = timeSelectedOnPage(appPage);
-        LocalTime now = TestConfig.LocalNow().toLocalTime();
+        LocalTime now = TestEnv.LocalNow().toLocalTime();
         int diff = Math.abs(now.toSecondOfDay() - timeOnPage.toSecondOfDay());
-        assertTrue(String.format("now:%s timeOnPage: %s diff: %s",now, timeOnPage, diff),diff<=110); // allow for page render and webdriver overheads
+        // allow for page render and webdriver overheads
+        assertTrue(String.format("now:%s timeOnPage: %s diff: %s", now, timeOnPage, diff), diff <= 110);
     }
 
     private LocalTime timeSelectedOnPage(AppPage appPage) {
@@ -350,7 +353,7 @@ public class AppUserJourneyTest {
         String weekendMsg = "At the weekend your journey may be affected by improvement works.Please check TFGM for details.";
 
         AppPage appPage = prepare();
-        LocalDate aSaturday = TestConfig.nextSaturday();
+        LocalDate aSaturday = TestEnv.nextSaturday();
 
         desiredJourney(appPage, altrincham, bury, aSaturday, time, false);
         appPage.planAJourney();

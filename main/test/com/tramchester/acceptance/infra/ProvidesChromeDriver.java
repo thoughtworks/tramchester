@@ -1,6 +1,5 @@
 package com.tramchester.acceptance.infra;
 
-import com.google.common.collect.ImmutableMap;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.presentation.LatLong;
@@ -29,14 +28,12 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
 
         String chromedriverPath = System.getenv("CHROMEDRIVER_PATH");
         if (chromedriverPath!=null) {
-            System.setProperty(CHROME_DRIVER_EXE_PROPERTY,chromedriverPath);
+            System.setProperty(CHROME_DRIVER_EXE_PROPERTY, chromedriverPath);
         }
         System.setProperty(CHROME_DRIVER_VERBOSE_LOG_PROPERTY,"false");
 
         capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
-
-        //capabilities.setCapability("appium:chromeOptions", ImmutableMap.of("w3c", false));
 
         setGeoLocation(enableGeo, chromeOptions);
         if (enableGeo) {

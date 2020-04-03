@@ -12,7 +12,7 @@ import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.Timeout;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.tramchester.testSupport.BusStations.*;
-import static com.tramchester.testSupport.TestConfig.dateFormatDashes;
+import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -42,7 +42,7 @@ public class JourneyPlannerBusTest {
 
     @Before
     public void beforeEachTestRuns() {
-        nextTuesday = TestConfig.nextTuesday(0);
+        nextTuesday = TestEnv.nextTuesday(0);
         // todo NO longer needed?
     }
 
@@ -83,7 +83,7 @@ public class JourneyPlannerBusTest {
     @Test
     public void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, STOCKPORT_BUSSTATION, queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, STOCKPORT_BUSSTATION, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -94,7 +94,7 @@ public class JourneyPlannerBusTest {
     @Test
     public void shouldPlanSimpleBusJourneyFromLocationDirect() {
         TramTime queryTime = TramTime.of(8,15);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, ALTRINCHAM_INTERCHANGE, queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, ALTRINCHAM_INTERCHANGE, queryTime,
                 new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -105,7 +105,7 @@ public class JourneyPlannerBusTest {
     @Test
     public void shouldPlanSimpleTramJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestConfig.nearAltrincham, Stations.StPetersSquare.getId(), queryTime,
+        JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, Stations.StPetersSquare.getId(), queryTime,
                 new TramServiceDate(nextTuesday), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -146,7 +146,7 @@ public class JourneyPlannerBusTest {
     private JourneyPlanRepresentation getJourneyPlan(String startId, String endId, TramTime queryTime,
                                                        TramServiceDate queryDate, boolean arriveBy) {
         String date = queryDate.getDate().format(dateFormatDashes);
-        String time = queryTime.asLocalTime().format(TestConfig.timeFormatter);
+        String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId, endId, time, date,
                 null, arriveBy);
         assertEquals(200, response.getStatus());
@@ -156,7 +156,7 @@ public class JourneyPlannerBusTest {
     private JourneyPlanRepresentation getJourneyPlan(LatLong startLocation, String endId, TramTime queryTime,
                                                      TramServiceDate queryDate, boolean arriveBy) {
         String date = queryDate.getDate().format(dateFormatDashes);
-        String time = queryTime.asLocalTime().format(TestConfig.timeFormatter);
+        String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID,
                 endId, time, date, startLocation, arriveBy);

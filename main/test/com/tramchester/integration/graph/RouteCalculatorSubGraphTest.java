@@ -3,7 +3,6 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.domain.Location;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
@@ -13,6 +12,7 @@ import com.tramchester.graph.ActiveGraphFilter;
 import com.tramchester.graph.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -32,7 +32,7 @@ public class RouteCalculatorSubGraphTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestConfig.nextTuesday(0);
+    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private static List<Station> stations = Arrays.asList(Stations.Cornbrook,
             Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
     private Transaction tx;

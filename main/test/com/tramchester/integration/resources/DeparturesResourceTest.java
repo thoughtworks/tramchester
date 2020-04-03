@@ -8,10 +8,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.LiveDataMessagesCategory;
-import com.tramchester.testSupport.LiveDataTestCategory;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.*;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -19,7 +16,6 @@ import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Response;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +55,7 @@ public class DeparturesResourceTest {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimeNow() {
-        LocalTime queryTime = TestConfig.LocalNow().toLocalTime();
+        LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
         Station station = Stations.MarketStreet;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
@@ -70,7 +66,7 @@ public class DeparturesResourceTest {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimePast() {
-        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().minusMinutes(120);
+        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
         Station station = Stations.MarketStreet;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
@@ -80,7 +76,7 @@ public class DeparturesResourceTest {
     @Test
     @Category(LiveDataTestCategory.class)
     public void shouldGetDueTramsForStationWithQuerytimeFuture() {
-        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().plusMinutes(120);
+        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
         Station station = Stations.MarketStreet;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
@@ -89,7 +85,7 @@ public class DeparturesResourceTest {
     }
 
     private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, Station station) {
-        String time = queryTime.format(TestConfig.timeFormatter);
+        String time = queryTime.format(TestEnv.timeFormatter);
         Response response = IntegrationClient.getResponse(
                 testRule, String.format("departures/station/%s?querytime=%s", station.getId(), time), Optional.empty(), 200);
         assertEquals(200, response.getStatus());
@@ -103,7 +99,7 @@ public class DeparturesResourceTest {
     public void shouldGetNearbyDeparturesQuerytimeNow() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
-        LocalTime queryTime = TestConfig.LocalNow().toLocalTime();
+        LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
         assertFalse(departures.isEmpty());
     }
@@ -113,7 +109,7 @@ public class DeparturesResourceTest {
     public void shouldGetNearbyDeparturesQuerytimeFuture() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
-        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().plusMinutes(120);
+        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
         assertTrue(departures.isEmpty());
     }
@@ -123,7 +119,7 @@ public class DeparturesResourceTest {
     public void shouldGetNearbyDeparturesQuerytimePast() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
-        LocalTime queryTime = TestConfig.LocalNow().toLocalTime().minusMinutes(120);
+        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
 
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
 
@@ -131,7 +127,7 @@ public class DeparturesResourceTest {
     }
 
     private SortedSet<DepartureDTO> getDeparturesForLatlongTime(double lat, double lon, LocalTime queryTime) {
-        String time = queryTime.format(TestConfig.timeFormatter);
+        String time = queryTime.format(TestEnv.timeFormatter);
         Response response = IntegrationClient.getResponse(testRule, String.format("departures/%s/%s?querytime=%s", lat, lon, time),
                 Optional.empty(), 200);
         assertEquals(200, response.getStatus());
@@ -157,7 +153,7 @@ public class DeparturesResourceTest {
         DepartureDTO departureDTO = departures.first();
         TramTime when = departureDTO.getWhen();
 
-        TramTime nowWithin5mins = TramTime.of(TestConfig.LocalNow().toLocalTime().minusMinutes(5));
+        TramTime nowWithin5mins = TramTime.of(TestEnv.LocalNow().toLocalTime().minusMinutes(5));
         assertTrue(when.asLocalTime().isAfter(nowWithin5mins.asLocalTime()) );
 
         String nextDepart = departureDTO.getFrom();
@@ -169,7 +165,7 @@ public class DeparturesResourceTest {
         Assert.assertFalse(notes.isEmpty());
         // ignore closure message which is always present, also if today is weekend exclude that
         int ignore = 1;
-        DayOfWeek dayOfWeek = TestConfig.LocalNow().toLocalDate().getDayOfWeek();
+        DayOfWeek dayOfWeek = TestEnv.LocalNow().toLocalDate().getDayOfWeek();
         if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
             ignore++;
         }
