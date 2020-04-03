@@ -3,11 +3,13 @@ package com.tramchester.acceptance.infra;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.testSupport.TestEnv;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -26,9 +28,9 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public ProvidesChromeDriver(boolean enableGeo) {
         this.enableGeo = enableGeo;
 
-        String chromedriverPath = System.getenv("CHROMEDRIVER_PATH");
+        Path chromedriverPath = TestEnv.getPathFromEnv("CHROMEDRIVER_PATH");
         if (chromedriverPath!=null) {
-            System.setProperty(CHROME_DRIVER_EXE_PROPERTY, chromedriverPath);
+            System.setProperty(CHROME_DRIVER_EXE_PROPERTY, chromedriverPath.toString());
         }
         System.setProperty(CHROME_DRIVER_VERBOSE_LOG_PROPERTY,"false");
 

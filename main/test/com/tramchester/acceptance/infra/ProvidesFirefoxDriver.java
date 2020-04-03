@@ -3,6 +3,7 @@ package com.tramchester.acceptance.infra;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchSessionException;
@@ -11,7 +12,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -21,7 +21,6 @@ import java.nio.file.Paths;
 
 
 public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ProvidesFirefoxDriver.class);
 
     private final boolean enableGeo;
     private Path locationStubJSON = Paths.get("geofile.json");
@@ -39,20 +38,13 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     public void init() {
         if (driver==null) {
             providesDateInput = new ProvidesFirefoxDateInput();
-            String firefoxPath = System.getenv("FIREFOX_PATH");
+            Path firefoxPath = TestEnv.getPathFromEnv("FIREFOX_PATH");
             if (firefoxPath != null) {
-                logger.info("FIREFOX_PATH is set to " + firefoxPath);
-                System.setProperty("webdriver.firefox.bin", firefoxPath);
-            } else {
-                logger.warn("FIREFOX_PATH not set");
+                System.setProperty(FirefoxDriver.SystemProperty.BROWSER_BINARY, firefoxPath.toString());
             }
-            String geckoDriver = System.getenv("GECKODRIVER_PATH");
-            if (geckoDriver != null) {
-                logger.info("GECKODRIVER_PATH is set to " + geckoDriver);
-                System.setProperty("webdriver.gecko.driver", geckoDriver);
-            }
-            else {
-                logger.warn("GECKODRIVER_PATH not set");
+            Path geckoDriverPath = TestEnv.getPathFromEnv("GECKODRIVER_PATH");
+            if (geckoDriverPath != null) {
+                System.setProperty("webdriver.gecko.driver", geckoDriverPath.toString());
             }
 
             if (!enableGeo) {

@@ -6,7 +6,9 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
+import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
@@ -14,7 +16,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static java.lang.String.format;
+
 public class TestEnv {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
+
     public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
@@ -65,10 +71,6 @@ public class TestEnv {
         return getNextDate(DayOfWeek.SUNDAY, LocalNow().toLocalDate());
     }
 
-    public static boolean isCircleci() {
-        return System.getenv("CIRCLECI") != null;
-    }
-
     public static Route getTestRoute() {
         return getTestRoute("RouteId");
     }
@@ -79,5 +81,30 @@ public class TestEnv {
 
     public static Agency MetAgency() {
         return MET;
+    }
+
+    // useful for diagnosing issues in windows env with spaces in paths etc.......
+    public static Path getPathFromEnv(String envVarName) {
+        String value = System.getenv(envVarName);
+        if (value==null) {
+            logger.warn(format("Environmental Variable %s not set", envVarName));
+            return null;
+        }
+        Path path = Paths.get(value).toAbsolutePath();
+        if (Files.exists(path)) {
+            logger.info(format("Env var %s set to '%s' resulting in path '%s'", envVarName, value, path.toString()));
+        }
+        else {
+            logger.error(format("Env var %s set to '%s' resulting in MISSING path '%s'", envVarName, value, path.toString()));
+        }
+        if (Files.isDirectory(path)) {
+            logger.error(format("Env var %s set to '%s' resulting in DIRECTORY path '%s'", envVarName, value, path.toString()));
+            return null;
+        }
+        return path;
+    }
+
+    public static boolean isCircleci() {
+        return System.getenv("CIRCLECI") != null;
     }
 }
