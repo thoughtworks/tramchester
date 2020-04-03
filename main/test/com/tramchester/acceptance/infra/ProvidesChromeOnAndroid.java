@@ -72,11 +72,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     }
 
     @Override
-    public void updateStubbedLocation(LatLong newLatLong) throws IOException {
-        throw new InvalidArgumentException("Not implemented yet");
-    }
-
-    @Override
     public AppPage getAppPage() {
         return new AppPage(driver, providesDateInput);
     }

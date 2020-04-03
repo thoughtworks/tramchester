@@ -96,8 +96,4 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         return enableGeo;
     }
 
-    @Override
-    public void updateStubbedLocation(LatLong newLatLong) {
-        chromeDriver.setLocation(new Location(location.getLat(), location.getLon(), 0));
-    }
 }

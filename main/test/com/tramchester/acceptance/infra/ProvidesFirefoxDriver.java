@@ -146,9 +146,4 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         return enableGeo;
     }
 
-    @Override
-    public void updateStubbedLocation(LatLong newLatLong) throws IOException {
-        createGeoFile(newLatLong);
-    }
-
 }

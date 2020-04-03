@@ -6,14 +6,19 @@ import org.junit.rules.TestName;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import static java.lang.String.format;
 
 public abstract class ProvidesDriver {
+    private static final Logger logger = LoggerFactory.getLogger(ProvidesDriver.class);
+
     public abstract void init();
     public abstract AppPage getAppPage();
     public abstract Cookie getCookieNamed(String name);
@@ -28,12 +33,16 @@ public abstract class ProvidesDriver {
         try {
             TakesScreenshot takesScreenshot = driver;
             byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
-            File target = new File(format("build/reports/tests/%s.png", safeFilename(testName)));
+            String filename = format("build/reports/tests/%s.png", safeFilename(testName));
+            File target = Paths.get(filename).toAbsolutePath().toFile();
             FileOutputStream output = new FileOutputStream(target);
             output.write(bytes);
             output.close();
-        } catch (IOException e) {
-            // unable to take screenshot
+        } catch (IOException ioException) {
+            logger.warn("Can't takle screenshoot", ioException);
+        }
+        catch (org.openqa.selenium.TimeoutException timeout) {
+            logger.warn("Can't takle screenshoot", timeout);
         }
     }
 
@@ -69,5 +78,4 @@ public abstract class ProvidesDriver {
         getDriver().manage().deleteAllCookies();
     }
 
-    public abstract void updateStubbedLocation(LatLong newLatLong) throws IOException;
 }
