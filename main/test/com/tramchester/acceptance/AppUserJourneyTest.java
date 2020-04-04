@@ -338,7 +338,7 @@ public class AppUserJourneyTest {
                 altyToPiccClass, altyToPicLineName,
                 Stations.Piccadilly.getName(), 7);
         // Too timetable dependent?
-        validateAStage(secondStage, LocalTime.parse("10:43"), "Change", Stations.TraffordBar.getName(),
+        validateAStage(secondStage, LocalTime.parse("10:32"), "Change", Stations.TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
                 Stations.ManAirport.getName(), 17);
 
@@ -463,14 +463,14 @@ public class AppUserJourneyTest {
     }
 
     public static void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
-                                      String lineClass, String lineName, String headsign, int stops) {
-        assertEquals(departTime, stage.getDepartTime());
-        assertEquals(action, stage.getAction());
-        assertEquals(actionStation, stage.getActionStation());
-        assertEquals(platform, stage.getPlatform());
-        assertEquals(lineName, stage.getLine(lineClass));
-        assertEquals(headsign, stage.getHeadsign());
-        assertEquals(stops, stage.getPassedStops());
+                                      String lineClass, String lineName, String headsign, int passedStops) {
+        assertEquals("departTime", departTime, stage.getDepartTime());
+        assertEquals("action", action, stage.getAction());
+        assertEquals("actionStation", actionStation, stage.getActionStation());
+        assertEquals("platform", platform, stage.getPlatform());
+        assertEquals("lineName", lineName, stage.getLine(lineClass));
+        assertEquals("headsign", headsign, stage.getHeadsign());
+        assertEquals("passedStops", passedStops, stage.getPassedStops());
     }
 
 }

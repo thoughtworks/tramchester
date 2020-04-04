@@ -65,7 +65,7 @@ public class TransportDataFromFilesTest {
         assertTrue(result.isTram());
 
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals(5, headsigns.size());
+        assertEquals("expected headsigns", 2, headsigns.size());
         assertTrue(headsigns.contains("Eccles"));
     }
 
@@ -257,7 +257,7 @@ public class TransportDataFromFilesTest {
                 collect(Collectors.toList());
 
         // not date specific
-        assertEquals(6, atRequiredTimed.size());
+        assertEquals(4, atRequiredTimed.size());
     }
 
     @Test

@@ -145,7 +145,8 @@ public class AppUserJourneyLoactionsTest {
         appPage.planAJourney();
 
         List<SummaryResult> results = appPage.getResults();
-        assertTrue(results.size()>=3);
+        // TODO lockdown timetable: 3 -> 2
+        assertTrue("at least some results", results.size()>=2);
 
         for (SummaryResult result : results) {
             LocalTime departTime = result.getDepartTime();
@@ -165,11 +166,14 @@ public class AppUserJourneyLoactionsTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
-        validateWalkingStage(firstStage, LocalTime.of(10,19), "Walk to",
+
+        // TODO lockdown 10:19 -> 10:25
+        validateWalkingStage(firstStage, LocalTime.of(10,25), "Walk to",
                 Stations.Altrincham.getName(), -1, "RouteWalking", "Walk", 0);
 
         Stage secondStage = stages.get(1);
-        LocalTime departTime = LocalTime.of(10,25);
+        // TODO lockdown 10:25 -> 10:31
+        LocalTime departTime = LocalTime.of(10,31);
         validateAStage(secondStage, departTime, "Board", Stations.Altrincham.getName(), 1,
                 AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }

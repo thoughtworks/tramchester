@@ -56,12 +56,18 @@ public class JourneyPlannerLocationResourceTest {
         assertEquals(2, stages.size());
         StageDTO walkingStage = stages.get(0);
         TramTime departureTime = walkingStage.getFirstDepartureTime();
-        // two walks result in same arrival time
-        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
-        assertTrue(departureTime.toString(), possibleTimes.contains(departureTime));
 
-        //assertEquals(firstJourney.toString(), TramTime.of(20,19), firstJourney.getFirstDepartureTime());
-        assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
+        // two walks result in same arrival time
+        //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
+
+        // new lockdown timetable
+        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 25), TramTime.of(20, 12));
+
+        assertTrue("Expected time "+departureTime.toString(), possibleTimes.contains(departureTime));
+
+        // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
+        // new lockdown timetable
+        assertEquals(firstJourney.toString(), TramTime.of(20,54), firstJourney.getExpectedArrivalTime());
     }
 
     @Test

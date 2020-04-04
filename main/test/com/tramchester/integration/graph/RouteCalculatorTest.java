@@ -324,7 +324,8 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
-        assertEquals(0, checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles));
+        List<TramTime> missingTimes = checkRangeOfTimes(Stations.Cornbrook, Stations.Eccles);
+        assertTrue(missingTimes.toString(), missingTimes.isEmpty());
     }
 
     @Test
@@ -431,11 +432,11 @@ public class RouteCalculatorTest {
         }
     }
 
-    private int checkRangeOfTimes(Location start, Station dest) {
+    private List<TramTime> checkRangeOfTimes(Location start, Station dest) {
 
-        // TODO TEMPORARY 23 Changed to 22
+        // TODO TEMPORARY 23 Changed to 21
         List<TramTime> missing = new LinkedList<>();
-        int latestHour = 22;
+        int latestHour = 21;
         for (int hour = 6; hour < latestHour; hour++) {
             for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
@@ -448,7 +449,7 @@ public class RouteCalculatorTest {
             }
 
         }
-        return missing.size();
+        return missing;
     }
 
     private Map<Pair<String, Station>, JourneyOrNot> validateAllHaveAtLeastOneJourney(
