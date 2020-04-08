@@ -1,10 +1,11 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphStaticKeys.ID;
-import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
 
 public class ServiceHeuristics {
     private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);

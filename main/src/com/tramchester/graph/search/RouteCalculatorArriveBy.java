@@ -1,10 +1,11 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.RouteReachable;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

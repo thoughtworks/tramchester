@@ -3,7 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.graph.JourneyState;
+import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.testSupport.TestEnv;

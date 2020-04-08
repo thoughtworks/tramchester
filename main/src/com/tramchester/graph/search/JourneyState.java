@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;

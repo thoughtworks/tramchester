@@ -9,7 +9,7 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.ActiveGraphFilter;
-import com.tramchester.graph.RouteCalculator;
+import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;

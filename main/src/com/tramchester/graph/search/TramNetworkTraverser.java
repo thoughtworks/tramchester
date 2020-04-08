@@ -1,7 +1,8 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.*;
 import com.tramchester.graph.states.ImmuatableTraversalState;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.graph.states.TraversalState;

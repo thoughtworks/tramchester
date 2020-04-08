@@ -2,7 +2,7 @@ package com.tramchester.graph.states;
 
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.graph.JourneyState;
+import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;

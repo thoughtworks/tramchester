@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 
 import com.tramchester.domain.Station;
@@ -7,6 +7,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;

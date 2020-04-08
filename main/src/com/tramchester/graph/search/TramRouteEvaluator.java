@@ -1,6 +1,7 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.*;
 import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;

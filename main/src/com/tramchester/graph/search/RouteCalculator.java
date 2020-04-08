@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
@@ -8,6 +8,7 @@ import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.*;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.TransportData;
