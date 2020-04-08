@@ -50,7 +50,7 @@ public class LocationJourneyPlanner {
         this.graphDatabase = graphDatabase;
     }
 
-    public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, JourneyRequest journeyRequest, boolean arriveBy) {
+    public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", latLong, destination, journeyRequest));
         List<StationWalk> walksToStart = getStationWalks(latLong,  config.getNearestStopRangeKM());
 
@@ -61,7 +61,7 @@ public class LocationJourneyPlanner {
                 TransportRelationshipTypes.WALKS_TO)));
 
         Stream<Journey> journeys;
-        if (arriveBy) {
+        if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(startOfWalkNode, destination, journeyRequest);
         } else {
             journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, destination, journeyRequest);
@@ -73,7 +73,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, JourneyRequest journeyRequest, boolean arriveBy) {
+    public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", startId, destination, journeyRequest));
         List<StationWalk> walksToDest = getStationWalks(destination,  config.getNearestStopRangeKM());
 
@@ -91,7 +91,7 @@ public class LocationJourneyPlanner {
         addedRelationships.add(relationshipTo);
 
         Stream<Journey> journeys;
-        if (arriveBy) {
+        if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(startId, endWalk, destinationStations, journeyRequest);
         } else {
             journeys = routeCalculator.calculateRouteWalkAtEnd(startId, endWalk, destinationStations, journeyRequest);

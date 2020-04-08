@@ -8,12 +8,16 @@ import java.util.Objects;
 public class JourneyRequest {
     private final TramServiceDate date;
     private final TramTime time;
-
-    // TODO add Arrive By
+    private final boolean arriveBy;
 
     public JourneyRequest(TramServiceDate date, TramTime time) {
+        this(date, time, false);
+    }
+
+    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy) {
         this.date = date;
         this.time = time;
+        this.arriveBy = arriveBy;
     }
 
     public TramServiceDate getDate() {
@@ -24,11 +28,16 @@ public class JourneyRequest {
         return time;
     }
 
+    public boolean getArriveBy() {
+        return arriveBy;
+    }
+
     @Override
     public String toString() {
         return "JourneyRequest{" +
                 "date=" + date +
                 ", time=" + time +
+                ", arriveBy=" + arriveBy +
                 '}';
     }
 
@@ -37,13 +46,13 @@ public class JourneyRequest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JourneyRequest that = (JourneyRequest) o;
-        return date.equals(that.date) &&
+        return arriveBy == that.arriveBy &&
+                date.equals(that.date) &&
                 time.equals(that.time);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, time);
+        return Objects.hash(date, time, arriveBy);
     }
-
 }

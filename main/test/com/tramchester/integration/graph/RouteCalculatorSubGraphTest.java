@@ -134,10 +134,6 @@ public class RouteCalculatorSubGraphTest {
             super("subgraph_tramchester.db");
         }
 
-//        @Override
-//        public String getGraphName() {
-//            return "int_test_sub_tramchester.db";
-//        }
 
         @Override
         public boolean getRebuildGraph() {

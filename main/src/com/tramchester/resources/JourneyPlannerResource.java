@@ -95,18 +95,18 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                 TramTime queryTime = maybeDepartureTime.get();
 
                 boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
-                JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime);
+                JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, arriveBy);
 
                 JourneyPlanRepresentation planRepresentation;
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
                     if (isWalking(startId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, journeyRequest, arriveBy);
+                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, journeyRequest);
                     } else if (isWalking(endId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, journeyRequest, arriveBy);
+                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, journeyRequest);
                     } else {
-                        planRepresentation = createJourneyPlan(startId, endId, journeyRequest, arriveBy);
+                        planRepresentation = createJourneyPlan(startId, endId, journeyRequest);
                     }
                 }
 
@@ -135,7 +135,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return new LatLong(latitude,longitude);
     }
 
-    private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, JourneyRequest journeyRequest, boolean arriveBy) {
+    private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, JourneyRequest journeyRequest) {
         if (!transportData.hasStationId(endId)) {
             String msg = "Unable to find end station from id " + endId;
             logger.warn(msg);
@@ -145,13 +145,13 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Station finalStation = transportData.getStation(endId);
         logger.info(format("Plan journey from %s to %s on %s", latLong, finalStation, journeyRequest));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, finalStation, journeyRequest, arriveBy);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, finalStation, journeyRequest);
         JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
         journeys.close();
         return plan;
     }
 
-    private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, JourneyRequest journeyRequest, boolean arriveBy) {
+    private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, JourneyRequest journeyRequest) {
         if (!transportData.hasStationId(startId)) {
             String msg = "Unable to find start station from id " + startId;
             logger.warn(msg);
@@ -162,13 +162,13 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         logger.info(format("Plan journey from %s to %s on %s", startStation, latLong, journeyRequest));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, journeyRequest, arriveBy);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, journeyRequest);
         JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
         journeys.close();
         return plan;
     }
 
-    private JourneyPlanRepresentation createJourneyPlan(String startId, String endId, JourneyRequest journeyRequest, boolean arriveBy) {
+    private JourneyPlanRepresentation createJourneyPlan(String startId, String endId, JourneyRequest journeyRequest) {
         if (!transportData.hasStationId(startId)) {
             String msg = "Unable to find start station from id " + startId;
             logger.warn(msg);
@@ -184,11 +184,10 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Station startStation = transportData.getStation(startId);
         Station endStation = transportData.getStation(endId);
 
-        logger.info(format("Plan journey from %s to %s on %s (arrive by = %s)", startStation, endStation,
-                journeyRequest, arriveBy));
+        logger.info(format("Plan journey from %s to %s on %s", startStation, endStation, journeyRequest));
 
         Stream<Journey> journeys;
-        if (arriveBy) {
+        if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRoute(startId, endStation, journeyRequest);
         } else {
             journeys = routeCalculator.calculateRoute(startId, endStation, journeyRequest);

@@ -91,7 +91,7 @@ public class GraphWithSimpleRouteTest {
         LatLong origin = new LatLong(180.001, 270.001);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecondStation(),
-                new JourneyRequest(queryDate, TramTime.of(7,55)), false).collect(Collectors.toSet());
+                new JourneyRequest(queryDate, TramTime.of(7,55))).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -106,7 +106,7 @@ public class GraphWithSimpleRouteTest {
         LatLong origin = new LatLong(180.001, 270.001);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(TransportDataForTest.SECOND_STATION, origin,
-                new JourneyRequest(queryDate, TramTime.of(7,55)), false).collect(Collectors.toSet());
+                new JourneyRequest(queryDate, TramTime.of(7,55))).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
