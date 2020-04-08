@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
@@ -118,14 +119,17 @@ public class RouteCalculatorTestAllJourneys {
     private Map<Pair<String, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
 
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime);
+
         final ConcurrentMap<Pair<String, Station>, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
         combinations.forEach(pair -> results.put(pair, Optional.empty()));
 
         combinations.parallelStream().
                 map(this::checkForTx).
-                map(journey -> Pair.of(journey,
-                        calculator.calculateRoute(journey.getLeft(), journey.getRight(), queryTime,
-                                new TramServiceDate(queryDate)).findAny())).
+                map(journey -> {
+                    return Pair.of(journey,
+                            calculator.calculateRoute(journey.getLeft(), journey.getRight(), journeyRequest).findAny());
+                }).
                 forEach(stationsJourneyPair -> results.put(stationsJourneyPair.getLeft(), stationsJourneyPair.getRight()));
 
         assertEquals("Not enough results", combinations.size(), results.size());
@@ -137,8 +141,7 @@ public class RouteCalculatorTestAllJourneys {
                 map(Map.Entry::getKey).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toList());
-        List<Journey> retry = failed.stream().map(pair -> calculator.calculateRoute(pair.getLeft(), pair.getRight(), queryTime,
-                new TramServiceDate(queryDate))).
+        List<Journey> retry = failed.stream().map(pair -> calculator.calculateRoute(pair.getLeft(), pair.getRight(), journeyRequest)).
                 map(Stream::findAny).
                 filter(Optional::isPresent).
                 map(Optional::get).

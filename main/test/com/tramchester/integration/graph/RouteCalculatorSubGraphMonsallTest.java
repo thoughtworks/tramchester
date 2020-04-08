@@ -8,6 +8,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.ActiveGraphFilter;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
@@ -106,8 +107,8 @@ public class RouteCalculatorSubGraphMonsallTest {
     }
 
     private void validateNumberOfStages(String startId, Station destination, TramTime time, LocalDate date, int numStages) {
-        Set<Journey> journeys = calculator.calculateRoute(startId, destination, time,
-                new TramServiceDate(date)).
+        Set<Journey> journeys = calculator.calculateRoute(startId, destination, new JourneyRequest(new TramServiceDate(date), time
+        )).
                 collect(Collectors.toSet());
 
         assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destination, time.toString(), date),

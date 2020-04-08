@@ -9,6 +9,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.ActiveGraphFilter;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RouteCodesForTesting;
@@ -96,8 +97,8 @@ public class RouteCalculatorSubGraphMediaCityTest {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
-                        Set<Journey> journeys = calculator.calculateRoute(start.getId(), destination, TramTime.of(9,0),
-                                new TramServiceDate(day)).collect(Collectors.toSet());
+                        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0));
+                        Set<Journey> journeys = calculator.calculateRoute(start.getId(), destination, journeyRequest).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
                         }
@@ -121,7 +122,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @Test
     public void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK,
-                TramTime.of(12, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(12, 0))).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 

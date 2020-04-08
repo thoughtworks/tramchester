@@ -9,6 +9,7 @@ import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.ActiveGraphFilter;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
@@ -103,21 +104,21 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void shouldHaveSimpleOneStopJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona,
-                TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());;
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0))).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate,
-                TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0))).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook,
-                TramTime.of(8, 0), new TramServiceDate(nextTuesday)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0))).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 

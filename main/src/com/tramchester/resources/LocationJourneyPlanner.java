@@ -6,6 +6,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.repository.StationRepository;
@@ -49,9 +50,8 @@ public class LocationJourneyPlanner {
         this.graphDatabase = graphDatabase;
     }
 
-    public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, TramTime queryTime,
-                                                    TramServiceDate queryDate, boolean arriveBy) {
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s", latLong, destination, queryDate, queryTime));
+    public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, JourneyRequest journeyRequest, boolean arriveBy) {
+        logger.info(format("Finding shortest path for %s --> %s on %s", latLong, destination, journeyRequest));
         List<StationWalk> walksToStart = getStationWalks(latLong,  config.getNearestStopRangeKM());
 
         Node startOfWalkNode = createWalkingNode(latLong);
@@ -62,11 +62,9 @@ public class LocationJourneyPlanner {
 
         Stream<Journey> journeys;
         if (arriveBy) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(startOfWalkNode, destination,
-                    queryTime, queryDate);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(startOfWalkNode, destination, journeyRequest);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, destination,
-                    queryTime, queryDate);
+            journeys = routeCalculator.calculateRouteWalkAtStart(startOfWalkNode, destination, journeyRequest);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -75,9 +73,8 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, TramTime queryTime,
-                                                    TramServiceDate queryDate, boolean arriveBy) {
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s", startId, destination, queryDate, queryTime));
+    public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, JourneyRequest journeyRequest, boolean arriveBy) {
+        logger.info(format("Finding shortest path for %s --> %s on %s", startId, destination, journeyRequest));
         List<StationWalk> walksToDest = getStationWalks(destination,  config.getNearestStopRangeKM());
 
         List<Relationship> addedRelationships = new LinkedList<>();
@@ -95,11 +92,9 @@ public class LocationJourneyPlanner {
 
         Stream<Journey> journeys;
         if (arriveBy) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(startId, endWalk, destinationStations,
-                    queryTime, queryDate);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(startId, endWalk, destinationStations, journeyRequest);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(startId, endWalk, destinationStations,
-                    queryTime, queryDate);
+            journeys = routeCalculator.calculateRouteWalkAtEnd(startId, endWalk, destinationStations, journeyRequest);
         }
 
         //noinspection ResultOfMethodCallIgnored

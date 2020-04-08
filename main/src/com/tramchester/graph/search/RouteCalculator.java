@@ -57,17 +57,16 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(String startStationId, Station destination, TramTime queryTime,
-                                          TramServiceDate queryDate) {
-        logger.info(format("Finding shortest path for %s --> %s on %s at %s", startStationId, destination,
-                queryDate, queryTime));
+    public Stream<Journey> calculateRoute(String startStationId, Station destination, JourneyRequest journeyRequest) {
+        logger.info(format("Finding shortest path for %s --> %s on %s", startStationId, destination,
+                journeyRequest));
 
         Node startNode = getStationNodeSafe(startStationId);
         Node endNode = getStationNodeSafe(destination.getId());
 
         List<Station> destinations = Collections.singletonList(destination);
 
-        return getJourneyStream(startNode, endNode, queryTime, destinations, queryDate, false);
+        return getJourneyStream(startNode, endNode, journeyRequest, destinations, false);
     }
 
     private Node getStationNodeSafe(String startStationId) {
@@ -79,26 +78,26 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<Station> desinationStations,
-                                                   TramTime queryTime, TramServiceDate queryDate)
+                                                   JourneyRequest journeyRequest)
     {
         Node startNode = getStationNodeSafe(startId);
-        return getJourneyStream(startNode, endOfWalk, queryTime, desinationStations, queryDate, false);
+        return getJourneyStream(startNode, endOfWalk, journeyRequest, desinationStations, false);
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, Station destination,
-                                                     TramTime queryTime, TramServiceDate queryDate) {
+                                                     JourneyRequest journeyRequest) {
         Node endNode = getStationNodeSafe(destination.getId());
         List<Station> destinationIds = Collections.singletonList(destination);
-        return getJourneyStream(startOfWalkNode, endNode, queryTime, destinationIds, queryDate, true);
+        return getJourneyStream(startOfWalkNode, endNode, journeyRequest, destinationIds, true);
     }
 
-    private Stream<Journey> getJourneyStream(Node startNode, Node endNode, TramTime queryTime,
-                                             List<Station> destinations, TramServiceDate queryDate, boolean walkAtStart) {
-        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(queryDate));
+    private Stream<Journey> getJourneyStream(Node startNode, Node endNode, JourneyRequest journeyRequest,
+                                             List<Station> destinations, boolean walkAtStart) {
+        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
         ServiceReasons serviceReasons = new ServiceReasons(providesLocalNow);
 
-        List<TramTime> queryTimes = createQueryTimes.generate(queryTime, walkAtStart);
+        List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
 
         int maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
 

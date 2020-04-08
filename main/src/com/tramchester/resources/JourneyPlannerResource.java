@@ -15,6 +15,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneysMapper;
@@ -94,17 +95,18 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                 TramTime queryTime = maybeDepartureTime.get();
 
                 boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
+                JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime);
 
                 JourneyPlanRepresentation planRepresentation;
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
                     if (isWalking(startId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, queryDate, queryTime, arriveBy);
+                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, journeyRequest, arriveBy);
                     } else if (isWalking(endId)) {
                         LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, queryDate, queryTime, arriveBy);
+                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, journeyRequest, arriveBy);
                     } else {
-                        planRepresentation = createJourneyPlan(startId, endId, queryDate, queryTime, arriveBy);
+                        planRepresentation = createJourneyPlan(startId, endId, journeyRequest, arriveBy);
                     }
                 }
 
@@ -133,8 +135,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return new LatLong(latitude,longitude);
     }
 
-    private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, TramServiceDate queryDate,
-                                                                      TramTime queryTime, boolean arriveBy) {
+    private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, JourneyRequest journeyRequest, boolean arriveBy) {
         if (!transportData.hasStationId(endId)) {
             String msg = "Unable to find end station from id " + endId;
             logger.warn(msg);
@@ -142,17 +143,15 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
 
         Station finalStation = transportData.getStation(endId);
-        logger.info(format("Plan journey from %s to %s on %s %s at %s", latLong, finalStation, queryDate.getDay(),
-                queryDate, queryTime));
+        logger.info(format("Plan journey from %s to %s on %s", latLong, finalStation, journeyRequest));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, finalStation, queryTime, queryDate, arriveBy);
-        JourneyPlanRepresentation plan = createPlan(queryDate, journeys);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, finalStation, journeyRequest, arriveBy);
+        JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
         journeys.close();
         return plan;
     }
 
-    private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, TramServiceDate queryDate,
-                                                                    TramTime queryTime, boolean arriveBy) {
+    private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, JourneyRequest journeyRequest, boolean arriveBy) {
         if (!transportData.hasStationId(startId)) {
             String msg = "Unable to find start station from id " + startId;
             logger.warn(msg);
@@ -161,17 +160,15 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         Station startStation = transportData.getStation(startId);
 
-        logger.info(format("Plan journey from %s to %s on %s %s at %s", startStation, latLong, queryDate.getDay(),
-                queryDate, queryTime));
+        logger.info(format("Plan journey from %s to %s on %s", startStation, latLong, journeyRequest));
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, queryTime, queryDate, arriveBy);
-        JourneyPlanRepresentation plan = createPlan(queryDate, journeys);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, journeyRequest, arriveBy);
+        JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
         journeys.close();
         return plan;
     }
 
-    private JourneyPlanRepresentation createJourneyPlan(String startId, String endId, TramServiceDate queryDate,
-                                                        TramTime queryTime, boolean arriveBy) {
+    private JourneyPlanRepresentation createJourneyPlan(String startId, String endId, JourneyRequest journeyRequest, boolean arriveBy) {
         if (!transportData.hasStationId(startId)) {
             String msg = "Unable to find start station from id " + startId;
             logger.warn(msg);
@@ -187,17 +184,17 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Station startStation = transportData.getStation(startId);
         Station endStation = transportData.getStation(endId);
 
-        logger.info(format("Plan journey from %s to %s on %s %s at %s (arrive by = %s)", startStation,
-                endStation, queryDate.getDay(), queryDate,queryTime, arriveBy));
+        logger.info(format("Plan journey from %s to %s on %s (arrive by = %s)", startStation, endStation,
+                journeyRequest, arriveBy));
 
         Stream<Journey> journeys;
         if (arriveBy) {
-            journeys = routeCalculatorArriveBy.calculateRoute(startId, endStation, queryTime, queryDate);
+            journeys = routeCalculatorArriveBy.calculateRoute(startId, endStation, journeyRequest);
         } else {
-            journeys = routeCalculator.calculateRoute(startId, endStation, queryTime, queryDate);
+            journeys = routeCalculator.calculateRoute(startId, endStation, journeyRequest);
         }
         // ASSUME: Limit here rely's on search giving lowest cost routes first
-        JourneyPlanRepresentation journeyPlanRepresentation = createPlan(queryDate, journeys.limit(config.getMaxNumResults()));
+        JourneyPlanRepresentation journeyPlanRepresentation = createPlan(journeyRequest.getDate(), journeys.limit(config.getMaxNumResults()));
         journeys.close();
         return journeyPlanRepresentation;
     }

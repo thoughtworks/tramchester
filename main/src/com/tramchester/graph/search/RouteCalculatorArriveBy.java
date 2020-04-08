@@ -29,34 +29,33 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(String startStationId, Station destination, TramTime queryTime,
-                                          TramServiceDate queryDate) {
+    public Stream<Journey> calculateRoute(String startStationId, Station destination, JourneyRequest journeyRequest) {
         int costToDest = routeReachable.getApproxCostBetween(startStationId, destination.getId());
-        TramTime departureTime = calcDepartTime(queryTime, costToDest);
-        logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
-        return routeCalculator.calculateRoute(startStationId, destination, departureTime, queryDate);
+        JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
+        logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
+        return routeCalculator.calculateRoute(startStationId, destination, departureTime);
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<Station> destStations,
-                                                   TramTime queryTime, TramServiceDate queryDate) {
+                                                   JourneyRequest journeyRequest) {
         int costToDest = routeReachable.getApproxCostBetween(startId, endOfWalk);
-        TramTime departureTime = calcDepartTime(queryTime, costToDest);
-        logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
-        return routeCalculator.calculateRouteWalkAtEnd(startId, endOfWalk, destStations, departureTime, queryDate);
+        JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
+        logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
+        return routeCalculator.calculateRouteWalkAtEnd(startId, endOfWalk, destStations, departureTime);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Node origin, Station destination, TramTime queryTime,
-                                                     TramServiceDate queryDate) {
+    public Stream<Journey> calculateRouteWalkAtStart(Node origin, Station destination, JourneyRequest journeyRequest) {
         int costToDest = routeReachable.getApproxCostBetween(origin, destination.getId());
-        TramTime departureTime = calcDepartTime(queryTime, costToDest);
-        logger.info(format("Plan journey, arrive by %s so depart by %s", queryTime, departureTime));
-        return routeCalculator.calculateRouteWalkAtStart(origin, destination, departureTime, queryDate);
+        JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
+        logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
+        return routeCalculator.calculateRouteWalkAtStart(origin, destination, departureTime);
     }
 
-    private TramTime calcDepartTime(TramTime queryTime, int costToDest) {
-        int buffer = config.getMaxWait() / 2;
-        return queryTime.minusMinutes(costToDest).minusMinutes(buffer);
+    private JourneyRequest calcDepartTime(JourneyRequest journeyRequest, int costToDest) {
+        int buffer = config.getMaxWait() / 2; // TODO CONFIG
+        TramTime queryTime = journeyRequest.getTime();
+        return new JourneyRequest(journeyRequest.getDate(), queryTime.minusMinutes(costToDest).minusMinutes(buffer));
     }
 }
