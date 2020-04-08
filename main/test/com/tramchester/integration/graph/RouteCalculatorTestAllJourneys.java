@@ -119,7 +119,7 @@ public class RouteCalculatorTestAllJourneys {
     private Map<Pair<String, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false);
 
         final ConcurrentMap<Pair<String, Station>, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
         combinations.forEach(pair -> results.put(pair, Optional.empty()));

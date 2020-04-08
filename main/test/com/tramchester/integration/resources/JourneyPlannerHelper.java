@@ -8,7 +8,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.resources.JourneyPlannerResource;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -36,10 +35,9 @@ public abstract class JourneyPlannerHelper {
         }
     }
 
-    JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, TramTime queryTime,
-                                                        LocalDate date) throws TramchesterException {
+    JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, LocalDate date, TramTime queryTime) throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(date);
-        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryTime, queryDate, false);
+        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryDate, queryTime, false);
         Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, queryTime, queryDate);
@@ -50,11 +48,11 @@ public abstract class JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, LocalDate queryDate) throws TramchesterException {
-        return getJourneyPlan(start, end, queryTime, new TramServiceDate(queryDate), false);
+        return getJourneyPlan(start, end, new TramServiceDate(queryDate), queryTime, false);
     }
 
-    abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime,
-                                                      TramServiceDate queryDate, boolean arriveBy) throws TramchesterException;
+    abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, TramTime queryTime,
+                                                      boolean arriveBy) throws TramchesterException;
 
 
 }

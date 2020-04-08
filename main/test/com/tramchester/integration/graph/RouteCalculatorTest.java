@@ -105,7 +105,7 @@ public class RouteCalculatorTest {
     public void shouldHaveReasonableJourneyAltyToDeansgate() {
         TramServiceDate today = new TramServiceDate(nextTuesday);
         Stream<Journey> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Deansgate,
-                new JourneyRequest(today, TramTime.of(10, 15)));
+                new JourneyRequest(today, TramTime.of(10, 15), false));
         results.forEach(journey -> {
             assertEquals(1, journey.getStages().size()); // should be one stage only
             journey.getStages().stream().
@@ -167,11 +167,23 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldLimitNumberChangesResultsInNoJourneys() {
+        TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
+
+        Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport,
+                new JourneyRequest(today, TramTime.of(11, 43), false, 0));
+        Set<Journey> results = stream.collect(Collectors.toSet());
+        stream.close();
+
+        assertEquals(0, results.size());
+    }
+
+    @Test
     public void testJourneyFromAltyToAirport() {
         TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
 
         Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport,
-                new JourneyRequest(today, TramTime.of(11, 43)));
+                new JourneyRequest(today, TramTime.of(11, 43), false));
         Set<Journey> results = stream.collect(Collectors.toSet());
         stream.close();
 
@@ -283,8 +295,8 @@ public class RouteCalculatorTest {
 
         Set<List<TransportStage>> stages = new HashSet<>();
 
-        Stream<Journey> stream = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham, new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(11,45)
-        ));
+        Stream<Journey> stream = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham, new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(11,45),
+                false));
         Set<Journey> journeys = stream.collect(Collectors.toSet());
         stream.close();
 
@@ -397,8 +409,8 @@ public class RouteCalculatorTest {
     public static void validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, Station destination,
                                                  TramTime time, LocalDate date) {
         TramServiceDate queryDate = new TramServiceDate(date);
-        Stream<Journey> journeyStream = theCalculator.calculateRoute(startId, destination, new JourneyRequest(new TramServiceDate(date), time
-        ));
+        Stream<Journey> journeyStream = theCalculator.calculateRoute(startId, destination, new JourneyRequest(new TramServiceDate(date), time,
+                false));
         Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
         journeyStream.close();
 
@@ -442,7 +454,7 @@ public class RouteCalculatorTest {
             for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
                 Stream<Journey> journeys = calculator.calculateRoute(start.getId(), dest,
-                        new JourneyRequest(new TramServiceDate(nextTuesday), time));
+                        new JourneyRequest(new TramServiceDate(nextTuesday), time, false));
                 if (journeys.limit(1).findFirst().isEmpty()) {
                     missing.add(time);
                 }
@@ -462,7 +474,7 @@ public class RouteCalculatorTest {
                         map(this::checkForTx).
                         map(requested -> {
                             Optional<Journey> optionalJourney = calculator.calculateRoute(requested.getLeft(), requested.getRight(),
-                                    new JourneyRequest(new TramServiceDate(queryDate), queryTime)).limit(1).findAny();
+                                    new JourneyRequest(new TramServiceDate(queryDate), queryTime, false)).limit(1).findAny();
                             JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                             return Pair.of(requested, journeyOrNot); } ).
                         collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
@@ -494,7 +506,7 @@ public class RouteCalculatorTest {
     }
 
     private Set<Journey> calculateRoutes(Location start, Station destination, TramTime queryTime, TramServiceDate today) {
-        Stream<Journey> journeyStream = calculator.calculateRoute(start.getId(), destination, new JourneyRequest(today, queryTime));
+        Stream<Journey> journeyStream = calculator.calculateRoute(start.getId(), destination, new JourneyRequest(today, queryTime, false));
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
         return journeySet;

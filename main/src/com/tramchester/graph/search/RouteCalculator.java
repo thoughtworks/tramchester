@@ -104,7 +104,7 @@ public class RouteCalculator implements TramRouteCalculator {
 
         return queryTimes.stream().
                 map(time -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
-                        time, runningServicesIds, destinations, serviceReasons, maxPathLength)).
+                        journeyRequest, runningServicesIds, destinations, serviceReasons, maxPathLength)).
                 map(serviceHeuristics -> findShortestPath(startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
                 flatMap(Function.identity()).
                 map(path -> {

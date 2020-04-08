@@ -16,6 +16,7 @@ public class JourneyState implements ImmutableJourneyState {
     private int journeyOffset;
     private TramTime boardingTime;
     private TraversalState traversalState;
+    private int numberOfBoardings;
 
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
@@ -24,6 +25,7 @@ public class JourneyState implements ImmutableJourneyState {
         onTram = false;
         onBus = false;
         this.traversalState = traversalState;
+        numberOfBoardings = 0;
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
@@ -39,6 +41,7 @@ public class JourneyState implements ImmutableJourneyState {
         if (onTram || onBus) {
             this.boardingTime = previousState.boardingTime;
         }
+        this.numberOfBoardings = previousState.numberOfBoardings;
     }
 
     public static InitialBranchState<JourneyState> initialState(TramTime queryTime,
@@ -109,13 +112,23 @@ public class JourneyState implements ImmutableJourneyState {
         return onTram;
     }
 
+    @Override
+    public int getNumberChanges() {
+        if (numberOfBoardings==0) {
+            return 0;
+        }
+        return numberOfBoardings-1;
+    }
+
     public void boardTram() throws TramchesterException {
         guardAlreadyOnboard();
+        numberOfBoardings = numberOfBoardings + 1;
         onTram = true;
     }
 
     public void boardBus() throws TramchesterException {
         guardAlreadyOnboard();
+        numberOfBoardings = numberOfBoardings + 1;
         onBus = true;
     }
 

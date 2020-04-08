@@ -3,7 +3,6 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Station;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import org.neo4j.graphdb.Node;
@@ -57,6 +56,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
         int buffer = config.getMaxWait() / 2; // TODO CONFIG
         TramTime queryTime = journeyRequest.getTime();
         TramTime computedDepartTime = queryTime.minusMinutes(costToDest).minusMinutes(buffer);
-        return new JourneyRequest(journeyRequest.getDate(), computedDepartTime, true);
+        return new JourneyRequest(journeyRequest.getDate(), computedDepartTime, true,
+                journeyRequest.getMaxChanges());
     }
 }

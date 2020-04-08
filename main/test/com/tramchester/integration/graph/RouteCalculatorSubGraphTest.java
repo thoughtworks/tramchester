@@ -104,21 +104,21 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void shouldHaveSimpleOneStopJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0))).collect(Collectors.toSet());;
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0))).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0))).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 

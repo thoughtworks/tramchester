@@ -32,7 +32,8 @@ public abstract class ServiceReason {
         PathTooLong,
         OnTram,
         OnBus,
-        RouteAlreadySeen
+        RouteAlreadySeen,
+        TooManyChanges
     }
 
     private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;
@@ -205,6 +206,26 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static class TooManyChanges extends ServiceReason {
+
+        public TooManyChanges(Path path) {
+            super(ReasonCode.TooManyChanges, path);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof TooManyChanges;
+        }
+
+
+        @Override
+        public String textForGraph() {
+            return ReasonCode.TooManyChanges.name();
+        }
+    }
+
+    //////////////
+
     private static class DoesNotOperateOnTime extends ServiceReason
     {
         private TramTime elapsedTime;
@@ -264,6 +285,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, Path path) {
         return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed, path) ;
+    }
+
+    public static ServiceReason TooManyChanges(Path path) {
+        return new TooManyChanges(path);
     }
 
     public static ServiceReason TookTooLong(TramTime currentElapsed, Path path) {

@@ -51,7 +51,7 @@ public class JourneyPlannerBusTest {
     public void shouldPlanSimpleTramJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan =  JourneyPlannerResourceTest.getJourneyPlanRepresentation(testRule,
-                Stations.Deansgate, Stations.Altrincham, queryTime, new TramServiceDate(nextTuesday), false);
+                Stations.Deansgate, Stations.Altrincham, new TramServiceDate(nextTuesday), queryTime, false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         assertFalse(found.isEmpty());

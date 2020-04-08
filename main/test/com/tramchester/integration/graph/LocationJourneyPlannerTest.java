@@ -70,7 +70,7 @@ public class LocationJourneyPlannerTest {
     public void shouldHaveDirectWalkNearPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
-        Set<Journey> unsortedResults = getJourneySet(new JourneyRequest(queryDate,TramTime.of(9, 0)) ,
+        Set<Journey> unsortedResults = getJourneySet(new JourneyRequest(queryDate,TramTime.of(9, 0), false) ,
                 nearPiccGardens, Stations.PiccadillyGardens);
 
         assertFalse(unsortedResults.isEmpty());
@@ -94,7 +94,7 @@ public class LocationJourneyPlannerTest {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.PiccadillyGardens.getId(),
-                nearPiccGardens, new JourneyRequest(queryDate, TramTime.of(9, 0)));
+                nearPiccGardens, new JourneyRequest(queryDate, TramTime.of(9, 0), false));
         Set<Journey> unsortedResults = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
 
@@ -129,7 +129,7 @@ public class LocationJourneyPlannerTest {
     @Test
     public void shouldFindJourneyWithWalkingEarlyMorning() {
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate,
-                TramTime.of(8,00), false);
+                TramTime.of(8,00), false, 2);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
@@ -140,7 +140,7 @@ public class LocationJourneyPlannerTest {
     public void shouldFindJourneyWithWalkingEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 00);
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate,
-                queryTime, true);
+                queryTime, true, 2);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertTrue(journey.getQueryTime().isBefore(queryTime)));
@@ -190,7 +190,7 @@ public class LocationJourneyPlannerTest {
     @Test
     public void shouldFindJourneyWithWalkingEndOfDay() {
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate,
-                TramTime.of(23,00), false);
+                TramTime.of(23,00), false, 2);
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
@@ -198,7 +198,7 @@ public class LocationJourneyPlannerTest {
     @Test
     public void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
         Set<Journey> results = getJourneysForWalkThenTram(nearPiccGardens, Stations.PiccadillyGardens,
-                TramTime.of(9,00), false); //, new StationWalk(Stations.PiccadillyGardens, 3));
+                TramTime.of(9,00), false, 2); //, new StationWalk(Stations.PiccadillyGardens, 3));
         assertFalse(results.isEmpty());
         results.forEach(journey-> {
             assertEquals(1,journey.getStages().size());
@@ -210,17 +210,17 @@ public class LocationJourneyPlannerTest {
         });
     }
 
-    private Set<Journey> getJourneysForWalkThenTram(LatLong latLong, Station destination, TramTime queryTime, boolean arriveBy) {
+    private Set<Journey> getJourneysForWalkThenTram(LatLong latLong, Station destination, TramTime queryTime, boolean arriveBy, int maxChanges) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        return getJourneySet(new JourneyRequest(date, queryTime, arriveBy), latLong, destination);
+        return getJourneySet(new JourneyRequest(date, queryTime, arriveBy, maxChanges), latLong, destination);
     }
 
     private List<Journey> getSortedJourneysForTramThenWalk(String startId, LatLong latLong, TramTime queryTime, boolean arriveBy) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(startId, latLong,
-                new JourneyRequest(date, queryTime, arriveBy)).sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));
+                new JourneyRequest(date, queryTime, arriveBy, Integer.MAX_VALUE)).sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));
         List<Journey> journeyList = journeyStream.collect(Collectors.toList());
         journeyStream.close();
         return journeyList;

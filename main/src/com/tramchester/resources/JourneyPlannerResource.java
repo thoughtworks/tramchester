@@ -125,7 +125,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return Response.serverError().build();
     }
 
-    private boolean isWalking(@QueryParam("start") String startId) {
+    private boolean isWalking(String startId) {
         return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
     }
 

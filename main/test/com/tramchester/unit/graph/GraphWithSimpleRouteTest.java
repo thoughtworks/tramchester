@@ -67,7 +67,7 @@ public class GraphWithSimpleRouteTest {
     public void beforeEachTestRuns() {
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
-        journeyRequest = new JourneyRequest(queryDate, queryTime);
+        journeyRequest = new JourneyRequest(queryDate, queryTime, false);
         tx = database.beginTx();
     }
 
@@ -91,7 +91,7 @@ public class GraphWithSimpleRouteTest {
         LatLong origin = new LatLong(180.001, 270.001);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecondStation(),
-                new JourneyRequest(queryDate, TramTime.of(7,55))).collect(Collectors.toSet());
+                new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -106,7 +106,7 @@ public class GraphWithSimpleRouteTest {
         LatLong origin = new LatLong(180.001, 270.001);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(TransportDataForTest.SECOND_STATION, origin,
-                new JourneyRequest(queryDate, TramTime.of(7,55))).collect(Collectors.toSet());
+                new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -134,8 +134,8 @@ public class GraphWithSimpleRouteTest {
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() {
         Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
-                transportData.getInterchange(),  new JourneyRequest(queryDate, TramTime.of(9, 0)
-                )).collect(Collectors.toSet());
+                transportData.getInterchange(),  new JourneyRequest(queryDate, TramTime.of(9, 0),
+                        false)).collect(Collectors.toSet());
         assertEquals(0, journeys.size());
     }
 
@@ -163,7 +163,7 @@ public class GraphWithSimpleRouteTest {
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         assertFalse(journeys.size()>=1);
         journeys = calculator.calculateRoute(TransportDataForTest.INTERCHANGE,
-                transportData.getFifthStation(),  new JourneyRequest(queryDate, TramTime.of(8, 10))).collect(Collectors.toSet());
+                transportData.getFifthStation(),  new JourneyRequest(queryDate, TramTime.of(8, 10), false)).collect(Collectors.toSet());
         assertTrue(journeys.size()>=1);
         journeys.forEach(journey->assertEquals(1, journey.getStages().size()));
 

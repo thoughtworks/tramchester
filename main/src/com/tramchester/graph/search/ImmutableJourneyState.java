@@ -7,4 +7,5 @@ public interface ImmutableJourneyState {
     TraversalState getTraversalState();
     TramTime getJourneyClock();
     boolean onTram();
+    int getNumberChanges();
 }

@@ -97,7 +97,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
-                        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0));
+                        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0), false);
                         Set<Journey> journeys = calculator.calculateRoute(start.getId(), destination, journeyRequest).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
@@ -122,7 +122,7 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @Test
     public void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.Pomona.getId(), Stations.MediaCityUK,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(12, 0))).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(12, 0), false)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 

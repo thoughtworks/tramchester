@@ -122,6 +122,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
+        if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), path).isValid()) {
+            return Evaluation.EXCLUDE_AND_PRUNE;
+        }
+
         // is even reachable from here?
         if (nodeOperations.isRouteStation(endNodeId)) {
             // Note: journeyState.onTram() not true for all tram journeys as we might just be boarding....

@@ -25,7 +25,6 @@ public class ServiceHeuristics {
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
     private final RunningServices runningServices;
-    private final List<Station> endStations;
     private final List<Station> endTramStations;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
@@ -38,9 +37,10 @@ public class ServiceHeuristics {
     private final int maxJourneyDuration;
 
     private final int maxWaitMinutes;
+    private final int changesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, CachedNodeOperations nodeOperations, TramReachabilityRepository tramReachabilityRepository,
-                             TramchesterConfig config, TramTime queryTime, RunningServices runningServices,
+                             TramchesterConfig config, JourneyRequest journeyRequest, RunningServices runningServices,
                              List<Station> endStations, ServiceReasons reasons, int maxPathLength) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
@@ -48,9 +48,9 @@ public class ServiceHeuristics {
 
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
-        this.queryTime = queryTime;
+        this.queryTime = journeyRequest.getTime();
+        this.changesLimit = journeyRequest.getMaxChanges();
         this.runningServices = runningServices;
-        this.endStations = endStations;
         this.reasons = reasons;
 
         endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toList());
@@ -87,6 +87,15 @@ public class ServiceHeuristics {
         }
 
         return valid(path);
+    }
+
+    public ServiceReason checkNumberChanges(int currentNumChanges, Path path) {
+       reasons.incrementTotalChecked();
+
+       if (currentNumChanges>changesLimit) {
+         return reasons.recordReason(ServiceReason.TooManyChanges(path));
+       }
+       return valid(path);
     }
 
     public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed) {
@@ -187,4 +196,5 @@ public class ServiceHeuristics {
     public int getMaxPathLength() {
         return maxPathLength;
     }
+
 }

@@ -75,8 +75,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, queryTime,
-                new TramServiceDate(when), true);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
+                true);
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
@@ -90,8 +90,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, queryTime,
-                new TramServiceDate(when), arriveBy);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
+                arriveBy);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size() > 0);
@@ -117,8 +117,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         LocalTime currentLocalTime = ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalTime();
         TramTime timeForQuery = TramTime.of(currentLocalTime);
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, timeForQuery,
-                new TramServiceDate(now.toLocalDate()), false);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(now.toLocalDate()), timeForQuery,
+                false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -137,8 +137,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void shouldReproLateNightIssueShudehillToAltrincham() {
         TramTime timeForQuery = TramTime.of(23,11);
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, timeForQuery,
-                new TramServiceDate(now.toLocalDate()), false);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, new TramServiceDate(now.toLocalDate()), timeForQuery,
+                false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -150,7 +150,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void reproducdeIssueManAirToEccles28March2020() {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.ManAirport, Stations.Eccles,
-                TramTime.of(10,1), new TramServiceDate(LocalDate.of(2020,3,28)), false);
+                new TramServiceDate(LocalDate.of(2020,3,28)), TramTime.of(10,1), false);
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
         journeys.forEach(journeyDTO -> assertTrue(journeyDTO.toString(),journeyDTO.getStages().size()<=2));
@@ -159,8 +159,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void shouldPlanSimpleJourneyFromAltyToAshton() {
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, TramTime.of(17,45),
-                new TramServiceDate(when), false);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when), TramTime.of(17,45),
+                false);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -231,32 +231,32 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, TramTime.of(23,34), when);
+        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, when, TramTime.of(23,34));
     }
 
     @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, TramTime.of(23,41), when);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, when, TramTime.of(23,41));
     }
 
     @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, TramTime.of(22,56), when);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, when, TramTime.of(22,56));
     }
 
     @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, TramTime.of(22,45), when);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, when, TramTime.of(22,45));
     }
 
     @Ignore("Temporary: trams finish at 2300")
     @Test
     public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,
-                Stations.ManAirport, TramTime.of(23,5), when);
+                Stations.ManAirport, when, TramTime.of(23,5));
 
         Assert.assertTrue(results.getJourneys().size()>0);
     }
@@ -333,14 +333,14 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         return RecentJourneys.decodeCookie(mapper,value);
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime,
-                                                       TramServiceDate queryDate, boolean arriveBy) {
-        return getJourneyPlanRepresentation(testRule, start, end, queryTime, queryDate, arriveBy);
+    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, TramTime queryTime,
+                                                       boolean arriveBy) {
+        return getJourneyPlanRepresentation(testRule, start, end, queryDate, queryTime, arriveBy);
     }
 
     public static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationTestRun rule, Location start, Location end,
-                                                                         TramTime queryTime,
-                                                                         TramServiceDate queryDate, boolean arriveBy) {
+                                                                         TramServiceDate queryDate, TramTime queryTime,
+                                                                         boolean arriveBy) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
         Response response = getResponseForJourney(rule, start.getId(), end.getId(), time, date,
