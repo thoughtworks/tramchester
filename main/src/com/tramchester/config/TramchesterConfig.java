@@ -93,4 +93,7 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // only allow changing vehicles at interchanges
     public abstract boolean getChangeAtInterchangeOnly();
 
+    // limit on missing messages before triggering healthcheck
+    public abstract int getMaxNumberMissingLiveMessages();
+
 }

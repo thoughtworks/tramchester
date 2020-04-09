@@ -38,9 +38,7 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         expectedURL = config.getTramDataCheckUrl();
 
         healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime);
-
         time = TestEnv.LocalNow();
-
     }
 
     @Test

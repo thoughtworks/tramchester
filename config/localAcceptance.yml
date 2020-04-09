@@ -36,6 +36,7 @@ numOfNearestStopsForWalking:  3
 walkingMPH: 3
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
+maxNumberMissingLiveMessages: 5
 changeAtInterchangeOnly: true
 
 createLocality: false

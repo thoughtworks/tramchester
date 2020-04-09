@@ -126,6 +126,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("bus")
     private boolean bus;
 
+    @JsonProperty("maxNumberMissingLiveMessages")
+    private int maxNumberMissingLiveMessages;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -279,4 +282,10 @@ public class AppConfiguration extends TramchesterConfig {
     public boolean getBus() {
         return bus;
     }
+
+    @Override
+    public int getMaxNumberMissingLiveMessages() {
+        return maxNumberMissingLiveMessages;
+    }
+
 }

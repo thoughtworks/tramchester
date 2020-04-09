@@ -1,14 +1,19 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataMessagesHealthCheck;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.testSupport.TestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 
@@ -22,7 +27,8 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     public void beforeEachTestRuns() {
         repository = createMock(LiveDataRepository.class);
         providesNow = createMock(ProvidesNow.class);
-        healthCheck = new LiveDataMessagesHealthCheck(repository, providesNow);
+        TramchesterConfig config = new IntegrationTramTestConfig();
+        healthCheck = new LiveDataMessagesHealthCheck(config, repository, providesNow);
     }
 
     @Test
@@ -55,7 +61,7 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     @Test
     public void shouldReportUnhealthyIfHaveDataAndOverThreshold() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.entriesWithMessages()).andReturn(35);
+        EasyMock.expect(repository.entriesWithMessages()).andReturn(34);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
 
         replayAll();

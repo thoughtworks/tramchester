@@ -137,6 +137,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public int getMaxNumberMissingLiveMessages() {
+        return 5;
+    }
+
+    @Override
     public boolean getBus() {
         return false;
     }
