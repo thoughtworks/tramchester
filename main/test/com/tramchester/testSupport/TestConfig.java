@@ -1,6 +1,8 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
+import io.dropwizard.server.DefaultServerFactory;
+import io.dropwizard.server.ServerFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
@@ -26,7 +28,6 @@ public abstract class TestConfig extends AppConfiguration {
 
     //////
     private List<String> closedStations = asList("St Peters Square");
-
 
     @Override
     public String getInstanceDataUrl() {
@@ -139,5 +140,15 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean getBus() {
         return false;
     }
+
+    @Override
+    public ServerFactory getServerFactory() {
+        DefaultServerFactory factory = new DefaultServerFactory();
+        factory.setApplicationContextPath("/");
+        factory.setAdminContextPath("/admin");
+        factory.setJerseyRootPath("/api/*");
+        return factory;
+    }
+
 
 }

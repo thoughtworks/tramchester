@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TimeWindow;
@@ -16,7 +17,7 @@ import java.util.List;
 import static com.tramchester.domain.Platform.from;
 import static org.junit.Assert.*;
 
-public class StopCallsTest {
+public class TramStopCallsTest {
     private TramTime am10;
     private final String stationIdA = "statA";
     private final String stationIdB = "statB";
@@ -25,10 +26,10 @@ public class StopCallsTest {
     private Station stationB;
     private Station stationC;
     private Station stationD;
-    private StopCall stopA;
-    private StopCall stopB;
-    private StopCall stopC;
-    private StopCall busStopD;
+    private TramStopCall stopA;
+    private TramStopCall stopB;
+    private TramStopCall stopC;
+    private TramStopCall busStopD;
 
     @Before
     public void beforeEachTestRuns() {
@@ -37,18 +38,18 @@ public class StopCallsTest {
         stationC = new Station(stationIdC, "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        stopA = new StopCall(from("statA1"), stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
-        stopB = new StopCall(from("statB1"), stationB, (byte) 2, TramTime.of(10, 2), TramTime.of(10, 3));
-        stopC = new StopCall(from("statC1"), stationC, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
-        busStopD = new StopCall(from("statD1"), stationD, (byte) 4, TramTime.of(10,10), TramTime.of(10,11));
+        stopA = new TramStopCall(from("statA1"), stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
+        stopB = new TramStopCall(from("statB1"), stationB, (byte) 2, TramTime.of(10, 2), TramTime.of(10, 3));
+        stopC = new TramStopCall(from("statC1"), stationC, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        busStopD = new TramStopCall(from("statD1"), stationD, (byte) 4, TramTime.of(10,10), TramTime.of(10,11));
         am10 = TramTime.of(10,0);
     }
 
     @Test
     public void shouldFindStopsByTimeCrossingMidnight() {
-        StopCall stopF = new StopCall(from("stop1"), stationA, (byte) 1, TramTime.of(LocalTime.of(23, 45)),
+        TramStopCall stopF = new TramStopCall(from("stop1"), stationA, (byte) 1, TramTime.of(LocalTime.of(23, 45)),
                 TramTime.of(LocalTime.of(23, 46)));
-        StopCall stopG = new StopCall(from("stop2"), stationB, (byte) 2, TramTime.of(LocalTime.of(0, 5)),
+        TramStopCall stopG = new TramStopCall(from("stop2"), stationB, (byte) 2, TramTime.of(LocalTime.of(0, 5)),
                 TramTime.of(LocalTime.of(0, 6)));
         StopCalls stops = new StopCalls();
 
@@ -113,7 +114,7 @@ public class StopCallsTest {
         stops.add(stopB);
         stops.add(stopC);
 
-        StopCall stopD = new StopCall(from("stopA1"), stationA, (byte) 4, TramTime.of(10, 20),
+        TramStopCall stopD = new TramStopCall(from("stopA1"), stationA, (byte) 4, TramTime.of(10, 20),
                 TramTime.of(10, 21));
         stops.add(stopD);
 

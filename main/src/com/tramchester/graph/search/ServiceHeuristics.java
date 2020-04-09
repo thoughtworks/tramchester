@@ -40,16 +40,16 @@ public class ServiceHeuristics {
     private final int changesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, CachedNodeOperations nodeOperations, TramReachabilityRepository tramReachabilityRepository,
-                             TramchesterConfig config, JourneyRequest journeyRequest, RunningServices runningServices,
-                             List<Station> endStations, ServiceReasons reasons, int maxPathLength) {
+                             TramchesterConfig config, TramTime queryTime, RunningServices runningServices,
+                             List<Station> endStations, ServiceReasons reasons, int maxPathLength, int maxChanges) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.tramReachabilityRepository = tramReachabilityRepository;
 
         this.maxWaitMinutes = config.getMaxWait();
         this.maxJourneyDuration = config.getMaxJourneyDuration();
-        this.queryTime = journeyRequest.getTime();
-        this.changesLimit = journeyRequest.getMaxChanges();
+        this.queryTime = queryTime;
+        this.changesLimit = maxChanges;
         this.runningServices = runningServices;
         this.reasons = reasons;
 

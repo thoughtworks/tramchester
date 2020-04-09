@@ -27,7 +27,7 @@ dataPath: data/tram
 removeRouteNameSuffix: true
 maxWait: 25
 maxNumberResults: 5
-maxJourneyDuration:  170
+maxJourneyDuration:  112
 numberQueries: 3
 queryInterval: 12
 nearestStopRangeKM: 2

@@ -1,22 +1,19 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.time.TramTime;
 
-public class StopCall {
-    private final Station station;
-    private final Platform callingPlatform;
-    private final TramTime arrivalTime;
-    private final TramTime departureTime;
+public abstract class StopCall {
+    protected final Station station;
+    protected final TramTime arrivalTime;
+    protected final TramTime departureTime;
     private final byte sequenceNumber;
 
-    public StopCall(Platform callingPlatform, Station station, byte sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
-        this.callingPlatform = callingPlatform;
-        this.sequenceNumber = sequenceNumber;
+    public StopCall(Station station, TramTime arrivalTime, TramTime departureTime, byte sequenceNumber) {
+        this.station = station;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
-        this.station = station;
+        this.sequenceNumber = sequenceNumber;
     }
 
     public TramTime getArrivalTime() {
@@ -31,22 +28,10 @@ public class StopCall {
         return station;
     }
 
-    public String getPlatformId() {
-        return callingPlatform.getId();
-    }
-
     public byte getGetSequenceNumber() {
         return sequenceNumber;
     }
 
-    @Override
-    public String toString() {
-        return "Stop{" +
-                "station=" + station.getId() +
-                ", arrivalTime=" + arrivalTime +
-                ", departureTime=" + departureTime +
-                ", callingPlatform='" + callingPlatform.getId() + '\'' +
-                '}';
-    }
+    public abstract String getPlatformId();
 
 }

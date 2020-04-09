@@ -1,9 +1,10 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.presentation.FeedInfoDTO;
 import com.tramchester.repository.ProvidesFeedInfo;
-import com.tramchester.repository.TransportDataFromFiles;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,20 +21,20 @@ import java.util.concurrent.TimeUnit;
 @Produces(MediaType.APPLICATION_JSON)
 public class FeedInfoResource implements APIResource {
 
-    private FeedInfo feedInfo;
+    private FeedInfoDTO feedInfo;
 
-    public FeedInfoResource(ProvidesFeedInfo dataFromFiles) {
-        feedInfo = dataFromFiles.getFeedInfo();
+    public FeedInfoResource(TramchesterConfig config, ProvidesFeedInfo dataFromFiles) {
+        FeedInfo original = dataFromFiles.getFeedInfo();
+        feedInfo = new FeedInfoDTO(original, config);
     }
 
     @GET
     @Timed
     @ApiOperation(value = "Information about version of the data",
-            notes = "Extracted from the feed_info.txt file provided by tfgm",
+            notes = "Partially Extracted from the feed_info.txt file provided by tfgm",
             response = FeedInfo.class)
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
-
         return Response.ok(feedInfo).build();
     }
 }

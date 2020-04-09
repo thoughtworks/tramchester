@@ -2,7 +2,9 @@ package com.tramchester.repository;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.BusStopCall;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
@@ -117,16 +119,24 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
                 if (!routeStations.containsKey(routeStation.getId())) {
                     routeStations.put(routeStation.getId(), routeStation);
                 }
-                if (platforms.containsKey(platformId)) {
-                    Platform platform = platforms.get(platformId);
-                    platform.addRoute(route);
-                } else {
-                    logger.error("Missing platform " +platformId);
-                }
-                Platform platform = platforms.get(platformId);
-
                 byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
-                StopCall stop = new StopCall(platform, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
+
+                StopCall stop;
+                if (route.isTram()) {
+                    if (platforms.containsKey(platformId)) {
+                        Platform platform = platforms.get(platformId);
+                        platform.addRoute(route);
+                    } else {
+                        logger.error("Missing platform " +platformId);
+                    }
+                    Platform platform = platforms.get(platformId);
+                    stop = new TramStopCall(platform, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
+                } else
+                {
+                    stop = new BusStopCall(station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
+                }
+
+
                 trip.addStop(stop);
             } else {
                 logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, platformId));

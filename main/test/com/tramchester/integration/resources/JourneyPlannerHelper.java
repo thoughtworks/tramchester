@@ -37,7 +37,7 @@ public abstract class JourneyPlannerHelper {
 
     JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, LocalDate date, TramTime queryTime) throws TramchesterException {
         TramServiceDate queryDate = new TramServiceDate(date);
-        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryDate, queryTime, false);
+        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryDate, queryTime, false, 3);
         Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, queryTime, queryDate);
@@ -48,11 +48,11 @@ public abstract class JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, LocalDate queryDate) throws TramchesterException {
-        return getJourneyPlan(start, end, new TramServiceDate(queryDate), queryTime, false);
+        return getJourneyPlan(start, end, new TramServiceDate(queryDate), queryTime, false, 3);
     }
 
     abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, TramTime queryTime,
-                                                      boolean arriveBy) throws TramchesterException;
+                                                      boolean arriveBy, int maxChanges) throws TramchesterException;
 
 
 }

@@ -52,11 +52,11 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
         return routeCalculator.calculateRouteWalkAtStart(origin, destination, departureTime);
     }
 
-    private JourneyRequest calcDepartTime(JourneyRequest journeyRequest, int costToDest) {
+    private JourneyRequest calcDepartTime(JourneyRequest originalRequest, int costToDest) {
         int buffer = config.getMaxWait() / 2; // TODO CONFIG
-        TramTime queryTime = journeyRequest.getTime();
+        TramTime queryTime = originalRequest.getTime();
         TramTime computedDepartTime = queryTime.minusMinutes(costToDest).minusMinutes(buffer);
-        return new JourneyRequest(journeyRequest.getDate(), computedDepartTime, true,
-                journeyRequest.getMaxChanges());
+        return new JourneyRequest(originalRequest.getDate(), computedDepartTime, true,
+                originalRequest.getMaxChanges());
     }
 }

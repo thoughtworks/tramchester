@@ -98,6 +98,7 @@ var app = new Vue({
                 arriveBy: false,
                 time: getCurrentTime(),
                 date: getCurrentDate(),
+                maxChanges: 10,
                 journeys: [],
                 notes: [],
                 buildNumber: '',
@@ -183,7 +184,7 @@ var app = new Vue({
             },
             queryServer() {
                 var urlParams = { start: this.startStop, end: this.endStop, departureTime: this.time,
-                    departureDate: this.date, arriveby: this.arriveBy};
+                    departureDate: this.date, arriveby: this.arriveBy, maxChanges: this.maxChanges};
                 if (this.startStop=='MyLocationPlaceholderId' || this.endStop=='MyLocationPlaceholderId') {
                     const place = app.location;
                     urlParams.lat = place.coords.latitude;
@@ -213,10 +214,7 @@ var app = new Vue({
                 row._showDetails = !row._showDetails;
             },
             stageRowClass(value, key, item) {
-//                if (value && key === 'routeName') {
-                    return item.displayClass;
-//                }
-//                return null;
+                return item.displayClass;
             },
             stationFormatter(value, key, row) {
                 var url = 'https://www.google.com/maps/search/?api=1&query='

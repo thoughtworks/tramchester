@@ -27,6 +27,7 @@ public class StopCalls implements Iterable<StopCall> {
 
     public List<StopCall> getStopsFor(String stationId) {
         List<Integer> indexs = stations.get(stationId);
+
         List<StopCall> result = new LinkedList<>();
         indexs.forEach(index -> result.add(stops.get(index)));
         return result;

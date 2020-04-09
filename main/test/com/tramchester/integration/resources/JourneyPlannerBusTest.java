@@ -51,7 +51,7 @@ public class JourneyPlannerBusTest {
     public void shouldPlanSimpleTramJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan =  JourneyPlannerResourceTest.getJourneyPlanRepresentation(testRule,
-                Stations.Deansgate, Stations.Altrincham, new TramServiceDate(nextTuesday), queryTime, false);
+                Stations.Deansgate, Stations.Altrincham, new TramServiceDate(nextTuesday), queryTime, false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         assertFalse(found.isEmpty());
@@ -148,7 +148,7 @@ public class JourneyPlannerBusTest {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId, endId, time, date,
-                null, arriveBy);
+                null, arriveBy, 3);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
@@ -159,7 +159,7 @@ public class JourneyPlannerBusTest {
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID,
-                endId, time, date, startLocation, arriveBy);
+                endId, time, date, startLocation, arriveBy, 3);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }

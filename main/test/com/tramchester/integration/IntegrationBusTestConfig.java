@@ -1,8 +1,6 @@
 package com.tramchester.integration;
 
 import com.tramchester.testSupport.TestConfig;
-import io.dropwizard.server.DefaultServerFactory;
-import io.dropwizard.server.ServerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,14 +11,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class IntegrationBusTestConfig extends TestConfig {
-    private final Path dbName;
+    private final Path dbPath;
+    private final boolean exists;
 
     public IntegrationBusTestConfig() {
         this("bus_tramchester.db");
     }
 
-    public IntegrationBusTestConfig(String dbName) {
-        this.dbName = Path.of("databases", "integrationBusTest", dbName);
+    private IntegrationBusTestConfig(String dbName) {
+        this.dbPath = Path.of("databases", "integrationBusTest", dbName);
+        exists = Files.exists(dbPath);
     }
 
     @Override
@@ -30,9 +30,9 @@ public class IntegrationBusTestConfig extends TestConfig {
 
     @Override
     public Set<String> getAgencies() {
-            return new HashSet<>(Arrays.asList("MET","GMS"));
+            //return new HashSet<>(Arrays.asList("MET","GMS"));
         // Empty set means all
-//        return Collections.emptySet();
+        return Collections.emptySet();
     }
 
     @Override
@@ -47,12 +47,12 @@ public class IntegrationBusTestConfig extends TestConfig {
 
     @Override
     public boolean getRebuildGraph() {
-        return !Files.exists(dbName);
+        return !exists;
     }
 
     @Override
     public String getGraphName() {
-        return dbName.toAbsolutePath().toString();
+        return dbPath.toAbsolutePath().toString();
     }
 
     @Override
@@ -63,12 +63,4 @@ public class IntegrationBusTestConfig extends TestConfig {
         return 6;
     }
 
-    @Override
-    public ServerFactory getServerFactory() {
-        DefaultServerFactory factory = new DefaultServerFactory();
-        factory.setApplicationContextPath("/");
-        factory.setAdminContextPath("/admin");
-        factory.setJerseyRootPath("/api/*");
-        return factory;
-    }
 }

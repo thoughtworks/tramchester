@@ -2,7 +2,7 @@ package com.tramchester.integration.resources;
 
 
 import com.tramchester.App;
-import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.presentation.FeedInfoDTO;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class FeedInfoResourceTest {
     public static LocalDate validFrom = LocalDate.of(2020, 4, 3); // year, month, day
@@ -29,7 +30,7 @@ public class FeedInfoResourceTest {
 
         Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
 
-        FeedInfo result = responce.readEntity(FeedInfo.class);
+        FeedInfoDTO result = responce.readEntity(FeedInfoDTO.class);
 
         assertEquals("Transport for Greater Manchester", result.getPublisherName());
         assertEquals("http://www.tfgm.com", result.getPublisherUrl());
@@ -38,6 +39,7 @@ public class FeedInfoResourceTest {
         assertEquals(validFrom.format(DateTimeFormatter.ofPattern("YYYYMMdd")), result.getVersion());
         assertEquals(validFrom, result.validFrom());
         assertEquals(validUntil, result.validUntil());
+        assertFalse(result.getBus());
     }
 
 }

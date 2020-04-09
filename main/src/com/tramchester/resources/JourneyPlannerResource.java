@@ -78,24 +78,28 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
     public Response quickestRoute(@QueryParam("start") String startId,
                                   @QueryParam("end") String endId,
-                                  @QueryParam("departureTime") String departureTimeText,
-                                  @QueryParam("departureDate") String departureDate,
+                                  @QueryParam("departureTime") String departureTimeRaw,
+                                  @QueryParam("departureDate") String departureDateRaw,
                                   @QueryParam("lat") @DefaultValue("0") String lat,
                                   @QueryParam("lon") @DefaultValue("0") String lon,
                                   @QueryParam("arriveby") @DefaultValue("false") String arriveByRaw,
+                                  @QueryParam("maxChanges") @DefaultValue("9999") String maxChangesRaw,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie){
-        logger.info(format("Plan journey from %s to %s at %s on %s", startId, endId,departureTimeText, departureDate));
+        logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
+                startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));
 
-        LocalDate date = LocalDate.parse(departureDate); // TODO need formatter?
+        LocalDate date = LocalDate.parse(departureDateRaw); // TODO need formatter?
         TramServiceDate queryDate = new TramServiceDate(date);
 
+        int maxChanges = Integer.parseInt(maxChangesRaw);
+
         try {
-            Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeText);
+            Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
             if (maybeDepartureTime.isPresent()) {
                 TramTime queryTime = maybeDepartureTime.get();
 
                 boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
-                JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, arriveBy);
+                JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges);
 
                 JourneyPlanRepresentation planRepresentation;
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
@@ -111,7 +115,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                 }
 
                 if (planRepresentation.getJourneys().size()==0) {
-                    logger.warn(format("No journeys found from %s to %s at %s on %s", startId, endId,departureTimeText, departureDate));
+                    logger.warn(format("No journeys found from %s to %s at %s on %s", startId, endId,departureTimeRaw, departureDateRaw));
                 }
 
                 Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);

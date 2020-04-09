@@ -72,26 +72,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         checkAltyToCornbrook(arriveByTime, true);
     }
 
-    @Test
-    public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
-        TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
-                true);
-
-        List<JourneyDTO> found = new ArrayList<>();
-        plan.getJourneys().forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
-            // less frequent services during lockdown mean threshhold here increased to 6
-            if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<=6) {
-                found.add(journeyDTO);
-            }
-        });
-        assertFalse("no journeys found", found.isEmpty());
-    }
-
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
-                arriveBy);
+                arriveBy, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size() > 0);
@@ -110,6 +93,31 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
+    public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
+        TramTime queryTime = TramTime.of(11,45);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
+                true, 3);
+
+        List<JourneyDTO> found = new ArrayList<>();
+        plan.getJourneys().forEach(journeyDTO -> {
+            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
+            // less frequent services during lockdown mean threshhold here increased to 6
+            if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<=6) {
+                found.add(journeyDTO);
+            }
+        });
+        assertFalse("no journeys found", found.isEmpty());
+    }
+
+    @Test
+    public void shouldGetNoResultsToAirportWhenLimitOnChanges() {
+        TramTime queryTime = TramTime.of(11,45);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.ManAirport, new TramServiceDate(when), queryTime,
+                true, 0);
+        assertTrue(plan.getJourneys().isEmpty());
+    }
+
+    @Test
     @Category(LiveDataTestCategory.class)
     public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() {
 
@@ -118,7 +126,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         TramTime timeForQuery = TramTime.of(currentLocalTime);
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(now.toLocalDate()), timeForQuery,
-                false);
+                false, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -138,7 +146,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldReproLateNightIssueShudehillToAltrincham() {
         TramTime timeForQuery = TramTime.of(23,11);
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, new TramServiceDate(now.toLocalDate()), timeForQuery,
-                false);
+                false, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -150,7 +158,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     public void reproducdeIssueManAirToEccles28March2020() {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.ManAirport, Stations.Eccles,
-                new TramServiceDate(LocalDate.of(2020,3,28)), TramTime.of(10,1), false);
+                new TramServiceDate(LocalDate.of(2020,3,28)), TramTime.of(10,1), false, 3);
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
         journeys.forEach(journeyDTO -> assertTrue(journeyDTO.toString(),journeyDTO.getStages().size()<=2));
@@ -160,7 +168,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     public void shouldPlanSimpleJourneyFromAltyToAshton() {
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when), TramTime.of(17,45),
-                false);
+                false, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         assertTrue(journeys.size()>0);
@@ -267,7 +275,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
-        Response result = getResponseForJourney(testRule, start, end, time, date, null, false);
+        Response result = getResponseForJourney(testRule, start, end, time, date, null, false, 3);
 
         assertEquals(200, result.getStatus());
 
@@ -315,7 +323,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
-        Response response = getResponseForJourney(testRule, start, end, time, date, latlong, false);
+        Response response = getResponseForJourney(testRule, start, end, time, date, latlong, false, 3);
 
         assertEquals(200, response.getStatus());
         RecentJourneys result = getRecentJourneysFromCookie(response);
@@ -334,25 +342,25 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, TramTime queryTime,
-                                                       boolean arriveBy) {
-        return getJourneyPlanRepresentation(testRule, start, end, queryDate, queryTime, arriveBy);
+                                                       boolean arriveBy, int maxChanges) {
+        return getJourneyPlanRepresentation(testRule, start, end, queryDate, queryTime, arriveBy, maxChanges);
     }
 
     public static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationTestRun rule, Location start, Location end,
                                                                          TramServiceDate queryDate, TramTime queryTime,
-                                                                         boolean arriveBy) {
+                                                                         boolean arriveBy, int maxChanges) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
         Response response = getResponseForJourney(rule, start.getId(), end.getId(), time, date,
-                null, arriveBy);
+                null, arriveBy, maxChanges);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
     public static Response getResponseForJourney(IntegrationTestRun rule, String start, String end, String time,
-                                                 String date, LatLong latlong, boolean arriveBy) {
-        String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s",
-                start, end, time, date, arriveBy);
+                                                 String date, LatLong latlong, boolean arriveBy, int maxChanges) {
+        String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
+                start, end, time, date, arriveBy, maxChanges);
 
         if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(start) || MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(end)) {
             if (latlong==null) {

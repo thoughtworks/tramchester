@@ -1,8 +1,9 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Station;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import org.apache.commons.lang3.tuple.Pair;

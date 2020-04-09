@@ -1,24 +1,15 @@
 package com.tramchester.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
-
 import java.time.LocalDate;
 
 public class FeedInfo {
-    private String version;
-    private LocalDate validFrom;
-    private LocalDate validUntil;
-    private String publisherName;
-    private String publisherUrl;
-    private String timezone;
-    private String lang;
-
-    public FeedInfo() {
-        // for JSON deserialisation
-    }
+    private final String version;
+    private final LocalDate validFrom;
+    private final LocalDate validUntil;
+    private final String publisherName;
+    private final String publisherUrl;
+    private final String timezone;
+    private final String lang;
 
     public FeedInfo(String publisherName, String publisherUrl, String timezone, String lang, LocalDate validFrom,
                     LocalDate validUntil, String version) {
@@ -35,14 +26,10 @@ public class FeedInfo {
         return version;
     }
 
-    @JsonSerialize(using = LocalDateJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
     public LocalDate validFrom() {
         return validFrom;
     }
 
-    @JsonSerialize(using = LocalDateJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
     public LocalDate validUntil() {
         return validUntil;
     }

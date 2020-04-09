@@ -1,10 +1,7 @@
 package com.tramchester.integration;
 
 import com.tramchester.testSupport.TestConfig;
-import io.dropwizard.server.DefaultServerFactory;
-import io.dropwizard.server.ServerFactory;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,15 +54,6 @@ public class IntegrationTramTestConfig extends TestConfig {
     @Override
     public int getQueryInterval() {
         return 6;
-    }
-
-    @Override
-    public ServerFactory getServerFactory() {
-        DefaultServerFactory factory = new DefaultServerFactory();
-        factory.setApplicationContextPath("/");
-        factory.setAdminContextPath("/admin");
-        factory.setJerseyRootPath("/api/*");
-        return factory;
     }
 
     public Path getDBPath() {

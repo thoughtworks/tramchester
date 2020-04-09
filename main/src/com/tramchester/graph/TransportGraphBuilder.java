@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
@@ -330,11 +331,18 @@ public class TransportGraphBuilder implements Startable {
         Node stationNode = getOrCreateStation(graphDatabase, station);
 
         Node platformNode = stationNode;
-        String stationOrPlatformID = stationId;
+
+        String stationOrPlatformID;
+        if (station.isTram()) {
+            stationOrPlatformID = stop.getPlatformId();
+        } else {
+            stationOrPlatformID = stationId;
+        }
+
         if (station.isTram()) {
             // add a platform node between station and calling points
             platformNode = getOrCreatePlatform(graphDatabase, stop);
-            stationOrPlatformID = stop.getPlatformId();
+
             // station -> platform AND platform -> station
             if (!hasPlatform(stationId, stationOrPlatformID)) {
                 // station -> platform
@@ -374,7 +382,6 @@ public class TransportGraphBuilder implements Startable {
         // no boarding at the last stop of a trip
         if (!lastStop) {
             if (!hasBoarding(stationOrPlatformID, routeStationId, boardType)) {
-                stationOrPlatformID = stop.getPlatformId();
                 Relationship boardRelationship = createRelationships(platformNode, routeStationNode, boardType);
                 boardRelationship.setProperty(COST, boardCost);
                 boardRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
@@ -450,8 +457,8 @@ public class TransportGraphBuilder implements Startable {
         return routeStation;
     }
 
-    private void createRelationships(GraphDatabase graphDatabase, Node routeStationStart, Node routeStationEnd, StopCall beginStop, StopCall endStop,
-                                     Route route, Service service, Trip trip) {
+    private void createRelationships(GraphDatabase graphDatabase, Node routeStationStart, Node routeStationEnd,
+                                     StopCall beginStop, StopCall endStop, Route route, Service service, Trip trip) {
         Location startLocation = beginStop.getStation();
         LatLong destinationLatLong = endStop.getStation().getLatLong();
 

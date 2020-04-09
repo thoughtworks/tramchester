@@ -219,7 +219,7 @@ public class JourneyPlannerLocationResourceTest {
     private JourneyPlanRepresentation getPlanFor(Location start, Location end, LocalTime time) {
         String date = when.format(TestEnv.dateFormatDashes);
         String timeString = time.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, start.getId(), end.getId(), timeString, date, null, false);
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, start.getId(), end.getId(), timeString, date, null, false, 3);
         Assert.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
@@ -230,7 +230,7 @@ public class JourneyPlannerLocationResourceTest {
         String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule,
-                MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, destination, time, date, location, arriveBy);
+                MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, destination, time, date, location, arriveBy, 3);
         Assert.assertEquals(200, response.getStatus());
 
         return validateJourneyPresent(response);
@@ -241,7 +241,7 @@ public class JourneyPlannerLocationResourceTest {
         String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId,
-                MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, time, date, location, arriveBy);
+                MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, time, date, location, arriveBy, 3);
         Assert.assertEquals(200, response.getStatus());
 
         return validateJourneyPresent(response);
