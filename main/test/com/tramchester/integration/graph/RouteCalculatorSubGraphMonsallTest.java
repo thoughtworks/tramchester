@@ -11,7 +11,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.RouteCodesForTesting;
+import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
@@ -37,7 +37,7 @@ public class RouteCalculatorSubGraphMonsallTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(RouteCodesForTesting.DIDS_TO_ROCH);
+        graphFilter.addRoute(RoutesForTesting.DIDS_TO_ROCH);
 
         dependencies = new Dependencies(graphFilter);
         dependencies.initialise(new SubgraphConfig());

@@ -403,14 +403,14 @@ public class RouteCalculatorTest {
     }
 
     private void validateAtLeastOneJourney(String startId, Station dest, TramTime time, LocalDate date) {
-        validateAtLeastOneJourney(calculator, startId, dest, time, date);
+        validateAtLeastOneJourney(calculator, startId, dest, time, date, 5);
     }
 
     public static void validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, Station destination,
-                                                 TramTime time, LocalDate date) {
+                                                 TramTime time, LocalDate date, int maxChanges) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Stream<Journey> journeyStream = theCalculator.calculateRoute(startId, destination, new JourneyRequest(new TramServiceDate(date), time,
-                false));
+                false, maxChanges));
         Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
         journeyStream.close();
 

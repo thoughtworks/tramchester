@@ -7,13 +7,13 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.RouteCodesForTesting;
 import com.tramchester.testSupport.Stations;
 import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 
+import static com.tramchester.testSupport.RoutesForTesting.*;
 import static junit.framework.TestCase.*;
 
 public class TramRouteReachableTest {
@@ -54,19 +54,23 @@ public class TramRouteReachableTest {
 
     @Test
     public void shouldHaveCorrectReachabilityOrInterchanges() {
-        String altyToPicc = "MET:   2:I:";
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(), altyToPicc));
-        String piccToAlty = "MET:   2:O:";
-        assertFalse(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(), piccToAlty));
+        assertTrue(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(),
+                ALTY_TO_PICC));
+        assertFalse(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(),
+                PICC_TO_ALTY));
 
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), manAirportToVictoria));
-        assertFalse(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(), victoriaToManAirport));
+        assertTrue(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(),
+                AIR_TO_VIC));
+        assertFalse(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(),
+                VIC_TO_AIR));
     }
 
     @Test
     public void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.RochdaleRail.getId(), Stations.Monsall.getId(), RouteCodesForTesting.ROCH_TO_DIDS));
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.Monsall.getId(), Stations.RochdaleRail.getId(), RouteCodesForTesting.DIDS_TO_ROCH));
+        assertTrue(reachable.getRouteReachableWithInterchange(Stations.RochdaleRail.getId(), Stations.Monsall.getId(),
+                ROCH_TO_DIDS));
+        assertTrue(reachable.getRouteReachableWithInterchange(Stations.Monsall.getId(), Stations.RochdaleRail.getId(),
+                DIDS_TO_ROCH));
     }
 
     @Test

@@ -30,7 +30,7 @@ public class ServiceHeuristics {
     private final ServiceReasons reasons;
     private final TramReachabilityRepository tramReachabilityRepository;
     private final int maxPathLength;
-    private final List<Route> busRoutesSeen;
+//    private final List<Route> busRoutesSeen;
 
     private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;
@@ -39,9 +39,10 @@ public class ServiceHeuristics {
     private final int maxWaitMinutes;
     private final int changesLimit;
 
-    public ServiceHeuristics(StationRepository stationRepository, CachedNodeOperations nodeOperations, TramReachabilityRepository tramReachabilityRepository,
-                             TramchesterConfig config, TramTime queryTime, RunningServices runningServices,
-                             List<Station> endStations, ServiceReasons reasons, int maxPathLength, int maxChanges) {
+    public ServiceHeuristics(StationRepository stationRepository, CachedNodeOperations nodeOperations,
+                             TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config,
+                             TramTime queryTime, RunningServices runningServices, List<Station> endStations,
+                             ServiceReasons reasons, int maxPathLength, int maxChanges) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.tramReachabilityRepository = tramReachabilityRepository;
@@ -56,7 +57,7 @@ public class ServiceHeuristics {
         endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toList());
         this.maxPathLength = maxPathLength;
 
-        busRoutesSeen = new ArrayList<>();
+//        busRoutesSeen = new ArrayList<>();
     }
     
     public ServiceReason checkServiceDate(Node node, Path path) {
@@ -147,6 +148,10 @@ public class ServiceHeuristics {
         String routeStationId = endNode.getProperty(ID).toString();
         RouteStation routeStation = stationRepository.getRouteStation(routeStationId);
 
+        if (routeStation==null) {
+            throw new RuntimeException("Missing routestation " + routeStationId);
+        }
+
         if (routeStation.isTram()) {
             for(Station endStation : endTramStations) {
                 if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
@@ -157,11 +162,11 @@ public class ServiceHeuristics {
         }
 
         // On bus
-        Route route = routeStation.getRoute();
-        if (busRoutesSeen.contains(route)) {
-            return reasons.recordReason(ServiceReason.RouteAlreadySeen(path));
-        }
-        busRoutesSeen.add(route);
+//        Route route = routeStation.getRoute();
+//        if (busRoutesSeen.contains(route)) {
+//            return reasons.recordReason(ServiceReason.RouteAlreadySeen(path));
+//        }
+//        busRoutesSeen.add(route);
 
         // TODO can't exclude unless we know for sure not reachable, so include all for buses
         return valid(path);

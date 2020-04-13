@@ -8,7 +8,7 @@ import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.RouteCodesForTesting;
+import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.TestEnv;
@@ -53,10 +53,9 @@ public class TransportDataForTest implements TransportDataSource {
         trips = new HashMap<>();
         routeStations = new HashMap<>();
 
-        Agency agency = TestEnv.MetAgency();
-        Route routeA = new Route(RouteCodesForTesting.ALTY_TO_BURY, "routeACode", "routeA", agency, TransportMode.Tram);
-        Route routeB = new Route(RouteCodesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", agency, TransportMode.Tram);
-        Route routeC = new Route(RouteCodesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", agency, TransportMode.Tram);
+        Route routeA = RoutesForTesting.ALTY_TO_BURY; //new Route(RoutesForTesting.ALTY_TO_BURY, "routeACode", "routeA", agency, TransportMode.Tram);
+        Route routeB = RoutesForTesting.ROCH_TO_DIDS; //new Route(RoutesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", agency, TransportMode.Tram);
+        Route routeC = RoutesForTesting.DIDS_TO_ROCH; //new Route(RoutesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", agency, TransportMode.Tram);
 
         routes.put(routeA.getId(), routeA);
         routes.put(routeB.getId(), routeB);

@@ -156,15 +156,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
-    public void reproducdeIssueManAirToEccles28March2020() {
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.ManAirport, Stations.Eccles,
-                new TramServiceDate(LocalDate.of(2020,3,28)), TramTime.of(10,1), false, 3);
-        SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size()>0);
-        journeys.forEach(journeyDTO -> assertTrue(journeyDTO.toString(),journeyDTO.getStages().size()<=2));
-    }
-
-    @Test
     public void shouldPlanSimpleJourneyFromAltyToAshton() {
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when), TramTime.of(17,45),

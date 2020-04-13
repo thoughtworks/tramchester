@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.RouteStation;
 import com.tramchester.domain.Station;
 import com.tramchester.graph.RouteReachable;
@@ -50,7 +51,7 @@ public class TramReachabilityRepository {
                     result = true;
                 } else {
                     result = routeReachable.getRouteReachableWithInterchange(startStationId,
-                            destinationStationId, routeStation.getRouteId());
+                            destinationStationId, routeStation.getRoute());
                 }
                 flags[tramStationIndexing.indexOf(destinationStationId)] = result;
             });
@@ -59,8 +60,8 @@ public class TramReachabilityRepository {
         logger.info(format("Added %s entries", size));
     }
 
-    public boolean stationReachable(String routeStationId, Station destinationStation) {
-        RouteStation routeStation =  transportData.getRouteStation(routeStationId);
+    public boolean stationReachable(Station startStation, Route route, Station destinationStation) {
+        RouteStation routeStation =  transportData.getRouteStation(RouteStation.formId(startStation, route));
         return stationReachable(routeStation, destinationStation);
     }
 

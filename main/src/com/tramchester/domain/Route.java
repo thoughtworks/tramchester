@@ -6,16 +6,16 @@ import java.util.Set;
 public class Route implements HasId {
 
     private final String id;
-    private final String code;
+    private final String shortName;
     private final String name;
     private final Agency agency;
     private final TransportMode transportMode;
     private final Set<Service> services;
     private final Set<String> headsigns;
 
-    public Route(String id, String code, String name, Agency agency, TransportMode transportMode) {
+    public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode) {
         this.id = id.intern();
-        this.code = code.intern();
+        this.shortName = shortName.intern();
         this.name = name.intern();
 
         this.agency = agency;
@@ -72,7 +72,7 @@ public class Route implements HasId {
     }
 
     public String getShortName() {
-        return code;
+        return shortName;
     }
 
     public TransportMode getMode() {
@@ -83,7 +83,7 @@ public class Route implements HasId {
     public String toString() {
         return "Route{" +
                 "id='" + id + '\'' +
-                ", code='" + code + '\'' +
+                ", code='" + shortName + '\'' +
                 ", name='" + name + '\'' +
                 ", agency='" + agency + '\'' +
                 ", transportMode=" + transportMode +

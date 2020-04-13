@@ -9,8 +9,8 @@ import java.util.List;
 
 public class Stations {
     public static int NumberOf = 99;
-    // TEST DATA For stations
 
+    // TEST DATA For stations
     private static LatLong position = new LatLong(1,1);
 
     public static Station Altrincham = createStation("9400ZZMAALT", "Altrincham area", "Altrincham");

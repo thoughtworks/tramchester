@@ -36,8 +36,8 @@ public class RouteReachable {
     }
 
     // supports building tram station reachability matrix
-    public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, String routeId) {
-        Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId(endStationId, routeId, interchangeRepository);
+    public boolean getRouteReachableWithInterchange(String startStationId, String endStationId, Route route) {
+        Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId(endStationId, route.getId(), interchangeRepository);
         return hasAnyPaths(startStationId, evaluator);
     }
 

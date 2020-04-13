@@ -5,10 +5,12 @@ public class RouteStation implements HasId {
 
     private final Station station;
     private final Route route;
+    private final String id;
 
     public RouteStation(Station station, Route route) {
         this.station = station;
         this.route = route;
+        id = formId(station, route);
     }
 
     public String getStationId() {
@@ -20,7 +22,7 @@ public class RouteStation implements HasId {
     }
 
     public String getId() {
-        return formId(station, route);
+        return id;
     }
 
     public Agency getAgency() {
@@ -34,8 +36,8 @@ public class RouteStation implements HasId {
     @Override
     public String toString() {
         return "RouteStation{" +
-                "station=" + station +
-                ", route=" + route +
+                "stationId=" + station.getId() +
+                ", routeId=" + route.getId() +
                 '}';
     }
 
@@ -44,7 +46,7 @@ public class RouteStation implements HasId {
     }
 
     public static String formId(Location station, Route route) {
-        return station.getId() + route.getId();
+        return station.getId() + route.getId().replaceAll(" ","");
     }
 
 }

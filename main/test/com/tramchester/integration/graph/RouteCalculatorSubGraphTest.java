@@ -142,6 +142,6 @@ public class RouteCalculatorSubGraphTest {
     }
 
     private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest, time, date);
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest, time, date, 5);
     }
 }

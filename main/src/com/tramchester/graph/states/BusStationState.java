@@ -24,7 +24,7 @@ public class BusStationState extends TraversalState {
     public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         long nodeId = node.getId();
         if (nodeId == destinationNodeId) {
-            // TODO Cost of platform depart?
+            // TODO Cost of bus depart?
             return new DestinationState(this, cost);
         }
 
@@ -32,7 +32,6 @@ public class BusStationState extends TraversalState {
             return new WalkingState(this, node.getRelationships(OUTGOING), cost);
         }
         if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
-            // TODO Check if we are getting back on a route we've already been on??
             try {
                 journeyState.boardBus();
             } catch (TramchesterException e) {

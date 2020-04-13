@@ -12,7 +12,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.RouteCodesForTesting;
+import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
@@ -53,10 +53,10 @@ public class RouteCalculatorSubGraphMediaCityTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(RouteCodesForTesting.ASH_TO_ECCLES);
-        graphFilter.addRoute(RouteCodesForTesting.ROCH_TO_DIDS);
-        graphFilter.addRoute(RouteCodesForTesting.ECCLES_TO_ASH);
-        graphFilter.addRoute(RouteCodesForTesting.DIDS_TO_ROCH);
+        graphFilter.addRoute(RoutesForTesting.ASH_TO_ECCLES);
+        graphFilter.addRoute(RoutesForTesting.ROCH_TO_DIDS);
+        graphFilter.addRoute(RoutesForTesting.ECCLES_TO_ASH);
+        graphFilter.addRoute(RoutesForTesting.DIDS_TO_ROCH);
         stations.forEach(graphFilter::addStation);
 
         dependencies = new Dependencies(graphFilter);
@@ -148,6 +148,6 @@ public class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest, time, date);
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest, time, date, 5);
     }
 }

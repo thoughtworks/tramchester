@@ -192,7 +192,8 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertTrue(results.size()>=3);
+        // TODO Lockdown 3->2
+        assertTrue("at least 2 results", results.size()>=2);
 
         LocalTime previous = planTime;
         for (SummaryResult result : results) {

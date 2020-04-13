@@ -2,20 +2,14 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.integration.IntegrationBusTestConfig;
-import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.BusTest;
-import com.tramchester.testSupport.RouteCodesForTesting;
-import com.tramchester.testSupport.TestConfig;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -68,7 +62,7 @@ public class BusInterchangeRepositoryTest {
 
         assertFalse(interchanges.isEmpty());
         Set<String> interchangeIds = interchanges.stream().map(Station::getId).collect(Collectors.toSet());
-        assertTrue(interchangeIds.contains(BusStations.ALTRINCHAM_INTERCHANGE));
+        assertTrue(interchangeIds.contains(BusStations.AltrinchamInterchange.getId()));
     }
 
 }
