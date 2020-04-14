@@ -20,6 +20,7 @@ import org.junit.experimental.categories.Category;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -79,21 +80,17 @@ public class LiveDataHTTPFetcherTest {
 
         assertTrue(departureInfos.size()>0);
 
-        String target = Stations.PiccadillyGardens.getId() + "1";
+        Optional<StationDepartureInfo> hasMsgs = departureInfos.stream().
+                filter(info -> !info.getMessage().isEmpty()).findAny();
 
-        Stream<StationDepartureInfo> filtered = departureInfos.stream().filter(item -> item.getStationPlatform().equals(target));
+        assertTrue("display with msgs", hasMsgs.isPresent());
 
-        List<StationDepartureInfo> displayInfo = filtered.collect(Collectors.toList());
+        StationDepartureInfo display = hasMsgs.get();
 
-        assertTrue(displayInfo.size()>0);
-
-        StationDepartureInfo aDisplay = displayInfo.get(0);
-
-        assertTrue(aDisplay.getMessage().length()>0);
         // this assert will fail if run at certain times of day....
         // assertTrue(aDisplay.getDueTrams().size()>0);
-        assertTrue(aDisplay.getLineName().length()>0);
-        LocalDateTime when = aDisplay.getLastUpdate();
+        assertTrue(display.getLineName().length()>0);
+        LocalDateTime when = display.getLastUpdate();
         assertEquals(TestEnv.LocalNow().getDayOfMonth(),when.getDayOfMonth());
     }
 
