@@ -33,13 +33,9 @@ project.ext {
 
 repositories {
     maven {
-        url "http://download.osgeo.org/webdav/geotools/"
+        url "https://repo.osgeo.org/repository/release/"
     }
     mavenCentral()
-    maven {
-        url "http://maven.geo-solutions.it"
-    }
-
     maven {
         url "https://raw.github.com/neo4j-contrib/m2/master/releases"
     }
