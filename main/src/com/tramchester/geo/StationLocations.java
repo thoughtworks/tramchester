@@ -45,6 +45,7 @@ public class StationLocations {
         try {
             GridPosition gridPosition = getGridPosition(position);
             positions.put(station, gridPosition);
+            logger.info("Added station " + station.getId() + " at grid " + gridPosition);
         } catch (TransformException e) {
             logger.error("Unable to store station as cannot convert location", e);
         }
@@ -59,14 +60,15 @@ public class StationLocations {
 
         try {
             @NotNull StationLocations.GridPosition gridPosition = getGridPosition(latLong);
-            logger.info(format("Find stations within %s meters of grid %s", rangeInMeters, gridPosition));
-            return positions.entrySet().stream().
+            List<Station> stationList = positions.entrySet().stream().
                     filter(entry -> entry.getValue().withinDistEasting(gridPosition, rangeInMeters)).
                     filter(entry -> entry.getValue().withinDistNorthing(gridPosition, rangeInMeters)).
                     filter(entry -> entry.getValue().withinDist(gridPosition, rangeInMeters)).
-                    sorted((a,b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
+                    sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
                     limit(maxToFind).
                     map(Map.Entry::getKey).collect(Collectors.toList());
+            logger.info(format("Found %s stations within %s meters of grid %s", stationList.size(), rangeInMeters, gridPosition));
+            return stationList;
         } catch (TransformException e) {
             logger.error("Unable to convert latlong to grid position", e);
             return Collections.emptyList();

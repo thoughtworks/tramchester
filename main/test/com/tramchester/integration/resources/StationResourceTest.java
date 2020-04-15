@@ -36,7 +36,7 @@ public class StationResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void shouldGetSingleStationWithPlatforms() {
@@ -82,6 +82,8 @@ public class StationResourceTest {
         Map<ProximityGroup, Long> stationGroups = stations.stream()
                 .collect(Collectors.groupingBy(StationDTO::getProximityGroup, Collectors.counting()));
 
+        Long one = 1L;
+        assertEquals(one, stationGroups.get(ProximityGroup.MY_LOCATION));
         assertTrue(stationGroups.get(ProximityGroup.NEAREST_STOPS) > 0);
         int ALL_STOPS_START = 7; // 6 + 1
         assertEquals(ProximityGroup.ALL, stations.get(ALL_STOPS_START).getProximityGroup());

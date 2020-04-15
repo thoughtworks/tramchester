@@ -148,9 +148,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         List<String> notes = providesNotes.createNotesForStations(stations, queryDate, providesNow.getNow());
 
         List<StationDTO> stationsDTO = new ArrayList<>();
-        stations.forEach(station -> {
-            stationsDTO.add(stationDTOFactory.build(station, queryDate, providesNow.getNow()));
-        });
+        stations.forEach(station -> stationsDTO.add(stationDTOFactory.build(station, queryDate, providesNow.getNow())));
 
         return Response.ok(new StationListDTO(stationsDTO, notes, ProximityGroup.ALL_GROUPS)).build();
     }
@@ -161,7 +159,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @ApiOperation(value = "Get geographically close stations", response = StationListDTO.class)
     @CacheControl(noCache = true)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
-                               @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) throws JsonProcessingException {
+                               @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info(format("Get station at %s,%s with recentcookie '%s'", lat, lon, tranchesterRecent));
 
         LatLong latLong = new LatLong(lat,lon);
@@ -179,7 +177,6 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                 logger.warn("Unrecognised recent station id: " + recentId);
             }
         });
-
 
         MyLocation myLocation = locationFactory.create(latLong);
         orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
