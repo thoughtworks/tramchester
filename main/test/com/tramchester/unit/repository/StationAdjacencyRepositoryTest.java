@@ -1,5 +1,6 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.StationAdjacenyRepository;
 import com.tramchester.unit.graph.TransportDataForTest;
 import org.junit.Before;
@@ -14,7 +15,8 @@ public class StationAdjacencyRepositoryTest {
 
     @Before
     public void onceBeforeEachTestRuns() {
-        transportDataSource = new TransportDataForTest();
+        StationLocations stationLocations = new StationLocations();
+        transportDataSource = new TransportDataForTest(stationLocations);
         repository = new StationAdjacenyRepository(transportDataSource);
     }
 

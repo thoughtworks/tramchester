@@ -10,8 +10,8 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportData;
 import org.junit.Test;
 
@@ -49,7 +49,9 @@ public class TramTransportDataImporterTest {
     public void shouldLoadTransportData() {
         TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
         ProvidesNow providesNow = new ProvidesLocalNow();
-        TransportDataImporter transportDataImporter = new TransportDataImporter(factory, providesNow);
+        StationLocations stationLocations = new StationLocations();
+
+        TransportDataImporter transportDataImporter = new TransportDataImporter(factory, providesNow, stationLocations);
 
         TransportData transportData = transportDataImporter.load();
 

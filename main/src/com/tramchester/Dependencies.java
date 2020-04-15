@@ -16,6 +16,7 @@ import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.graph.search.MapPathToStages;
 import com.tramchester.graph.search.RouteCalculator;
@@ -29,7 +30,6 @@ import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.services.SpatialService;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.Caching;
@@ -47,20 +47,20 @@ public class Dependencies {
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
 
     public Dependencies() {
-        picoContainer.addComponent(ProvidesLocalNow.class);
-        picoContainer.addComponent(GraphFilter.class, new IncludeAllFilter());
+        this(new IncludeAllFilter());
     }
 
     public Dependencies(GraphFilter graphFilter) {
         picoContainer.addComponent(ProvidesLocalNow.class);
+        picoContainer.addComponent(StationLocations.class);
         picoContainer.addComponent(GraphFilter.class, graphFilter);
     }
 
+    // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
     public void initialise(TramchesterConfig configuration) throws IOException {
         // caching is on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
 
-        // only needed if loading data
         picoContainer.addComponent(TransportDataReaderFactory.class);
         picoContainer.addComponent(TransportDataWriterFactory.class);
         picoContainer.addComponent(DataCleanser.class);
@@ -118,7 +118,6 @@ public class Dependencies {
         picoContainer.addComponent(MapPathToStages.class);
         picoContainer.addComponent(LocationJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
-        picoContainer.addComponent(SpatialDatabaseService.class);
         picoContainer.addComponent(FeedInfoResource.class);
         picoContainer.addComponent(RoutesRepository.class);
         picoContainer.addComponent(RouteResource.class);

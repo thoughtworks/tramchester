@@ -1,19 +1,17 @@
 package com.tramchester.integration.livedata;
 
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.Dependencies;
-import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 
@@ -24,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertEquals;
@@ -75,7 +72,7 @@ public class LiveDataHTTPFetcherTest {
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldFetchValidDataFromTFGMAPI() throws ParseException {
+    public void shouldFetchValidDataFromTFGMAPI() {
         List<StationDepartureInfo> departureInfos = parser.parse(payload);
 
         assertTrue(departureInfos.size()>0);
@@ -96,7 +93,7 @@ public class LiveDataHTTPFetcherTest {
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldHaveCrosscheckOnLiveDateDestinations() throws ParseException {
+    public void shouldHaveCrosscheckOnLiveDateDestinations() {
         List<StationDepartureInfo> departureInfos = parser.parse(payload);
 
         assertTrue(departureInfos.size()>0);
@@ -116,16 +113,17 @@ public class LiveDataHTTPFetcherTest {
     @Test
     @Category(LiveDataTestCategory.class)
     @Ignore("Part of spike on character set encoding issue for live api")
-    public void checkCharacterEncodingOnResponse() throws ParseException {
+    public void checkCharacterEncodingOnResponse()  {
         String rawJSON = fetcher.fetch();
 
-        JSONParser jsonParser = new JSONParser();
-        JSONObject parsed = (JSONObject)jsonParser.parse(rawJSON);
-        JSONArray infoList = (JSONArray) parsed.get("value");
+        //JSONParser jsonParser = new JSONParser();
+        JsonObject parsed = Jsoner.deserialize(rawJSON, new JsonObject());   //(JSONObject)jsonParser.parse(rawJSON);
+        assertTrue(parsed.containsKey("value"));
+        JsonArray infoList = (JsonArray) parsed.get("value");
 
         List<String> destinations = new ArrayList<>();
         for (Object item : infoList) {
-            JSONObject jsonObject = (JSONObject) item;
+            JsonObject jsonObject = (JsonObject) item;
             for (int i = 0; i < 4; i++) {
                 String place = jsonObject.get(format("Dest%d", i)).toString();
                 if (!place.isEmpty()) {

@@ -1,12 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.presentation.LatLong;
 import org.apache.commons.io.FileUtils;
-import org.neo4j.gis.spatial.SimplePointLayer;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.gis.spatial.encoders.SimplePointEncoder;
-import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
@@ -22,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class GraphDatabase implements Startable {
@@ -30,7 +24,7 @@ public class GraphDatabase implements Startable {
 
     private final TramchesterConfig configuration;
     private GraphDatabaseService theDB;
-    private SimplePointLayer spatialLayer;
+    //private SimplePointLayer spatialLayer;
 
     public GraphDatabase(TramchesterConfig configuration) {
         this.configuration = configuration;
@@ -56,9 +50,7 @@ public class GraphDatabase implements Startable {
         }
 
         theDB = createGraphDatabaseService(graphFile);
-        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(theDB);
-        spatialLayer = (SimplePointLayer) spatialDatabaseService.getOrCreateLayer("stations",
-                SimplePointEncoder.class, SimplePointLayer.class);
+
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
     }
 
@@ -140,14 +132,6 @@ public class GraphDatabase implements Startable {
 
     public ResourceIterator<Node> findNodes(TransportGraphBuilder.Labels label) {
         return theDB.findNodes(label);
-    }
-
-    public List<GeoPipeFlow> findClosestPointsTo(LatLong latLong, double rangeInKM) {
-        return spatialLayer.findClosestPointsTo(LatLong.getCoordinate(latLong), rangeInKM);
-    }
-
-    public void addToSpatialLayer(Node node) {
-        spatialLayer.add(node);
     }
 
     public TraversalDescription traversalDescription() {

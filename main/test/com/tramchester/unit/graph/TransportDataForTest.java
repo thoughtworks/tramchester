@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TransportDataSource;
@@ -31,21 +32,22 @@ public class TransportDataForTest implements TransportDataSource {
     public static final String SECOND_STATION = METROLINK_PREFIX+"_ST_SECOND";
     public static final String LAST_STATION = METROLINK_PREFIX+"_ST_LAST";
     public static final String INTERCHANGE = Stations.Cornbrook.getId();
-    public static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
-    public static final String STATION_FIVE = METROLINK_PREFIX+"_ST_FIVE";
+    private static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
+    private static final String STATION_FIVE = METROLINK_PREFIX+"_ST_FIVE";
 
-    private Map<String, Station> stationIdMap = new HashMap<>();
-    private Map<String, Station> stationNameMap = new HashMap<>();
+    private final Map<String, Station> stationIdMap = new HashMap<>();
+    private final Map<String, Station> stationNameMap = new HashMap<>();
 
-    private Map<String,Platform> platforms;
-    private Map<String, Route> routes;
-    private Map<String, RouteStation> routeStations;
-    private Set<Service> services;
-    private Map<String, Trip> trips;
+    private final Map<String,Platform> platforms;
+    private final Map<String, Route> routes;
+    private final Map<String, RouteStation> routeStations;
+    private final Set<Service> services;
+    private final Map<String, Trip> trips;
 
-    public TransportDataForTest() {
-        double latitude = 180.00;
-        double longitude = 270.0;
+    private final StationLocations stationLocations;
+
+    public TransportDataForTest(StationLocations stationLocations) {
+        this.stationLocations = stationLocations;
 
         routes = new HashMap<>();
         services = new HashSet<>();
@@ -53,9 +55,9 @@ public class TransportDataForTest implements TransportDataSource {
         trips = new HashMap<>();
         routeStations = new HashMap<>();
 
-        Route routeA = RoutesForTesting.ALTY_TO_BURY; //new Route(RoutesForTesting.ALTY_TO_BURY, "routeACode", "routeA", agency, TransportMode.Tram);
-        Route routeB = RoutesForTesting.ROCH_TO_DIDS; //new Route(RoutesForTesting.ROCH_TO_DIDS, "routeBCode", "routeB", agency, TransportMode.Tram);
-        Route routeC = RoutesForTesting.DIDS_TO_ROCH; //new Route(RoutesForTesting.DIDS_TO_ROCH, "routeCCode", "routeC", agency, TransportMode.Tram);
+        Route routeA = RoutesForTesting.ALTY_TO_BURY;
+        Route routeB = RoutesForTesting.ROCH_TO_DIDS;
+        Route routeC = RoutesForTesting.DIDS_TO_ROCH;
 
         routes.put(routeA.getId(), routeA);
         routes.put(routeB.getId(), routeB);
@@ -86,26 +88,26 @@ public class TransportDataForTest implements TransportDataSource {
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         Trip tripA = new Trip("tripAId", "headSign", serviceA, routeA);
 
-        LatLong latLong = new LatLong(latitude, longitude);
-        Station first = new Station(FIRST_STATION, "area1", "startStation", latLong, true);
+        //LatLong latLong = new LatLong(latitude, longitude);
+        Station first = new Station(FIRST_STATION, "area1", "startStation", TestEnv.nearAltrincham, true);
         addStation(first);
         addRouteStation(first, routeA);
         TramStopCall stopA = createStop(first, TramTime.of(8, 0), TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
-        Station second = new Station(SECOND_STATION, "area2", "secondStation", latLong, true);
+        Station second = new Station(SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens, true);
         TramStopCall stopB = createStop(second, TramTime.of(8, 11), TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
         addStation(second);
         addRouteStation(second, routeA);
 
-        Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", latLong, true);
+        Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill, true);
         TramStopCall stopC = createStop(interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
         addStation(interchangeStation);
         addRouteStation(interchangeStation, routeA);
 
-        Station last = new Station(LAST_STATION, "area4", "endStation", latLong, true);
+        Station last = new Station(LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens, true);
         addStation(last);
         addRouteStation(last, routeA);
         TramStopCall stopD = createStop(last, TramTime.of(8, 40), TramTime.of(8, 40), 4);
@@ -113,10 +115,10 @@ public class TransportDataForTest implements TransportDataSource {
         // service
         serviceA.addTrip(tripA);
 
-        Station stationFour = new Station(STATION_FOUR, "area4", "Station4", new LatLong(170.00, 160.00), true);
+        Station stationFour = new Station(STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens, true);
         addStation(stationFour);
 
-        Station stationFive = new Station(STATION_FIVE, "area5", "Station5", new LatLong(170.00, 160.00), true);
+        Station stationFive = new Station(STATION_FIVE, "area5", "Station5", TestEnv.nearPiccGardens, true);
         addStation(stationFive);
 
         //
@@ -166,6 +168,7 @@ public class TransportDataForTest implements TransportDataSource {
     private void addStation(Station station) {
         stationIdMap.put(station.getId(), station);
         stationNameMap.put(station.getName().toLowerCase(), station);
+        stationLocations.addStation(station);
     }
 
     private TramStopCall createStop(Station startStation, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {

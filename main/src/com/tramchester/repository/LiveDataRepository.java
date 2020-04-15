@@ -15,7 +15,6 @@ import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +60,7 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats {
         String payload  = fetcher.fetch();
         List<StationDepartureInfo> receivedInfos = Collections.emptyList();
         if (payload.length()>0) {
-            try {
-                receivedInfos = parser.parse(payload);
-            } catch (ParseException exception) {
-                logger.error("Unable to parse received JSON: " + payload, exception);
-                return;
-            }
+            receivedInfos = parser.parse(payload);
         }
 
         int received = receivedInfos.size();

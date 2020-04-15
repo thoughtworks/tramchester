@@ -143,22 +143,23 @@ public class LocationJourneyPlanner {
 
     private List<StationWalk> getStationWalks(LatLong latLong, double rangeInKM) {
         int num = config.getNumOfNearestStopsForWalking();
-        List<String> nearbyStationIds = spatialService.getNearestStationsTo(latLong, num, rangeInKM);
+        List<Station> nearbyStationIds = spatialService.getNearestStationsTo(latLong, num, rangeInKM);
         List<StationWalk> stationWalks = nearestStations(latLong, nearbyStationIds);
         logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));
         return stationWalks;
     }
 
-    private List<StationWalk> nearestStations(LatLong latLong, List<String> startIds) {
-        List<Station> stations = startIds.stream().
-                filter(stationRepository::hasStationId).
-                map(stationRepository::getStation).
-                collect(Collectors.toList());
+    private List<StationWalk> nearestStations(LatLong latLong, List<Station> startStations) {
+//        List<Station> stations = startStations.stream().
+//                filter(stationRepository::hasStationId).
+//                map(stationRepository::getStation).
+//                collect(Collectors.toList());
 
-        return stations.stream().map(station ->
+        return startStations.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
     }
 
+    // TODO Use Grid Position instead of LatLong??
     private int findCostInMinutes(LatLong latLong, Location station) {
 
         double distanceInMiles = distFrom(latLong, station.getLatLong());

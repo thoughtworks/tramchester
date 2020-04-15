@@ -273,7 +273,7 @@ public class TransportGraphBuilder implements Startable {
             LatLong latLong = station.getLatLong();
             setLatLongFor(stationNode, latLong);
 
-            graphBasebase.addToSpatialLayer(stationNode);
+            //graphBasebase.addToSpatialLayer(stationNode);
         }
 
 //        Node areaNode = getAreaNode(station.getArea());

@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.geotools.geometry.GeneralDirectPosition;
+import org.opengis.geometry.DirectPosition;
 
 import java.util.Objects;
 
@@ -57,10 +58,6 @@ public class LatLong {
                 "lon=" + lon +
                 ", lat=" + lat +
                 '}';
-    }
-
-    public static Coordinate getCoordinate(LatLong latLong) {
-        return new Coordinate(latLong.getLon(), latLong.getLat());
     }
 
 }

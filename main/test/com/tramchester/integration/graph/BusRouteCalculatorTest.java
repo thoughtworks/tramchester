@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.RouteCalculator;
@@ -12,10 +13,11 @@ import org.junit.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.testSupport.BusStations.AltrinchamInterchange;
-import static com.tramchester.testSupport.BusStations.StockportBusStation;
+import static com.tramchester.testSupport.BusStations.*;
+import static org.junit.Assert.assertFalse;
 
 @Ignore("experimental")
 public class BusRouteCalculatorTest {
@@ -57,6 +59,15 @@ public class BusRouteCalculatorTest {
     public void shouldHaveAltyToStockJourney() {
         RouteCalculatorTest.validateAtLeastOneJourney(calculator, AltrinchamInterchange.getId(), StockportBusStation,
                 TramTime.of(8, 0), nextTuesday, 5);
+    }
+
+    @Test
+    public void shouldHaveShudehillToStockJourney() {
+        int maxChanges = 1;
+        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, ShudehillInterchange.getId(), StockportBusStation,
+                TramTime.of(8, 0), nextTuesday, maxChanges);
+        Journey journey = journeys.toArray(new Journey[1])[0];
+        assertFalse(journey.getStages().size()>(maxChanges+1));
     }
 
     @Test

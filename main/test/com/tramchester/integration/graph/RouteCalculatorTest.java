@@ -406,8 +406,8 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(calculator, startId, dest, time, date, 5);
     }
 
-    public static void validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, Station destination,
-                                                 TramTime time, LocalDate date, int maxChanges) {
+    public static Set<Journey> validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, Station destination,
+                                                         TramTime time, LocalDate date, int maxChanges) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Stream<Journey> journeyStream = theCalculator.calculateRoute(startId, destination, new JourneyRequest(new TramServiceDate(date), time,
                 false, maxChanges));
@@ -418,6 +418,7 @@ public class RouteCalculatorTest {
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
         journeys.forEach(journey -> assertFalse(message + " missing stages for journey" + journey, journey.getStages().isEmpty()));
         journeys.forEach(RouteCalculatorTest::checkStages);
+        return journeys;
     }
 
     // TODO to station, station

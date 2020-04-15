@@ -16,7 +16,6 @@ import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +44,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetDepartureInformationForSingleStation() throws ParseException {
+    public void shouldGetDepartureInformationForSingleStation() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         StationDepartureInfo departureInfo = addStationInfo(info, lastUpdate, "displayId", "platformId",
@@ -72,7 +71,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateStatusWhenRefreshingDataOK() throws ParseException {
+    public void shouldUpdateStatusWhenRefreshingDataOK() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         addStationInfo(info, lastUpdate.plusMinutes(14), "yyy", "platformIdA", "some message", Stations.Altrincham);
@@ -95,7 +94,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateMessageCountWhenRefreshingDataOK() throws ParseException {
+    public void shouldUpdateMessageCountWhenRefreshingDataOK() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         addStationInfo(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
@@ -117,7 +116,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateStatusWhenRefreshingStaleData() throws ParseException {
+    public void shouldUpdateStatusWhenRefreshingStaleData() {
         List<StationDepartureInfo> info = new LinkedList<>();
         Station altrincham = Stations.Altrincham;
         String platformId1 = Stations.Altrincham.getId() + "1";

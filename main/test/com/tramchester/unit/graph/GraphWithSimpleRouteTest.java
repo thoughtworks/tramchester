@@ -7,11 +7,13 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.neo4j.graphdb.Transaction;
@@ -44,8 +46,10 @@ public class GraphWithSimpleRouteTest {
 
     @BeforeClass
     public static void onceBeforeAllTestRuns() throws IOException {
-        transportData = new TransportDataForTest();
         dependencies = new Dependencies();
+
+        StationLocations stationLocations = dependencies.get(StationLocations.class);
+        transportData = new TransportDataForTest(stationLocations);
 
         config = new IntegrationTramTestConfig(TMP_DB);
         FileUtils.deleteDirectory(config.getDBPath().toFile());
@@ -88,7 +92,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldHaveJourneyWithLocationBasedStart() {
-        LatLong origin = new LatLong(180.001, 270.001);
+        LatLong origin = TestEnv.nearAltrincham;
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecondStation(),
                 new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());
@@ -96,14 +100,14 @@ public class GraphWithSimpleRouteTest {
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
             List<TransportStage> stages = journey.getStages();
-            assertEquals(1, stages.size());
+            assertEquals(2, stages.size());
             assertTrue(stages.get(0).getMode().isWalk());
         });
     }
 
     @Test
     public void shouldHaveJourneyWithLocationBasedEnd() {
-        LatLong origin = new LatLong(180.001, 270.001);
+        LatLong origin = TestEnv.nearShudehill;
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(TransportDataForTest.SECOND_STATION, origin,
                 new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());

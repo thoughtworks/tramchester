@@ -3,20 +3,19 @@ package com.tramchester.unit.mappers;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 
 public class LiveDataParserTest extends EasyMockSupport {
@@ -55,7 +54,7 @@ public class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldMapTimesCorrectlyDuringEarlyHours() throws ParseException {
+    public void shouldMapTimesCorrectlyDuringEarlyHours() {
         String header = "{\n \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n";
         String footer = "]\n }\n";
 
@@ -89,7 +88,7 @@ public class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldMapLiveDataToStationInfo() throws ParseException {
+    public void shouldMapLiveDataToStationInfo() {
 
         replayAll();
         List<StationDepartureInfo> info = parser.parse(exampleData);
@@ -98,6 +97,7 @@ public class LiveDataParserTest extends EasyMockSupport {
         assertEquals(2, info.size());
 
         StationDepartureInfo departureInfoA = info.get(0);
+        assertEquals("1", departureInfoA.getDisplayId());
         assertEquals("Eccles", departureInfoA.getLineName());
         assertEquals("9400ZZMAMCU2", departureInfoA.getStationPlatform());
         assertEquals("MediaCityUK", departureInfoA.getLocation());
@@ -120,6 +120,8 @@ public class LiveDataParserTest extends EasyMockSupport {
 
         // WORKAROUND - Live data erronously gives timestamps as 'UTC'/'Z' even though they switch to DST/BST
         StationDepartureInfo departureInfoB = info.get(1);
+        assertEquals("234", departureInfoB.getDisplayId());
+
         assertEquals("Airport", departureInfoB.getLineName());
         ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 06, 29, 13, 55), TramchesterConfig.TimeZone);
         assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
@@ -127,7 +129,7 @@ public class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExcludeSeeTramFrontDestination() throws ParseException {
+    public void shouldExcludeSeeTramFrontDestination()  {
         replayAll();
         List<StationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
@@ -139,7 +141,7 @@ public class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldExcludeDueTramsWithDestinationSetToNotInService() throws ParseException {
+    public void shouldExcludeDueTramsWithDestinationSetToNotInService() {
         String notInService = exampleData.replaceFirst("Deansgate Castlefield", "Not in Service");
 
         replayAll();
@@ -153,7 +155,7 @@ public class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldParseDataWithDirectionIncomingOutgoing() throws ParseException {
+    public void shouldParseDataWithDirectionIncomingOutgoing() {
         String bothDirections = exampleData.replaceAll("Incoming", "Incoming/Outgoing");
 
         replayAll();
@@ -166,7 +168,7 @@ public class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldParseDestinationsThatIncludeVIAPostfixForDestination() throws ParseException {
+    public void shouldParseDestinationsThatIncludeVIAPostfixForDestination() {
         String exampleData = "{\n" +
                 "  \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n" +
                 "    {\n" +

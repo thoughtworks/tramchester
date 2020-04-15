@@ -4,6 +4,7 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +17,12 @@ public class TransportDataImporter {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataImporter.class);
     private final TransportDataReader transportDataReader;
     private final ProvidesNow providesNow;
+    private final StationLocations stationLocations;
 
-    public TransportDataImporter(TransportDataReaderFactory factory, ProvidesNow providesNow) {
+    public TransportDataImporter(TransportDataReaderFactory factory, ProvidesNow providesNow, StationLocations stationLocations) {
         this.transportDataReader = factory.getForLoader();
         this.providesNow = providesNow;
+        this.stationLocations = stationLocations;
     }
 
     public TransportDataFromFiles load() {
@@ -33,7 +36,7 @@ public class TransportDataImporter {
         Stream<FeedInfo> feedInfoData = transportDataReader.getFeedInfo(new FeedInfoDataMapper(providesNow));
 
         logger.info("Finished reading csv files.");
-        return new TransportDataFromFiles(stopData, routeData, tripData, stopTimeData, calendarData, feedInfoData);
+        return new TransportDataFromFiles(stationLocations, stopData, routeData, tripData, stopTimeData, calendarData, feedInfoData);
     }
 
 }

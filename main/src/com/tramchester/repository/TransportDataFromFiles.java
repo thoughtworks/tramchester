@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.geo.StationLocations;
 import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,21 +26,23 @@ import static java.lang.String.format;
 public class TransportDataFromFiles implements TransportDataSource, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
-    private HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
-    private HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
-    private HashMap<String, Station> stationsByName = new HashMap<>();  // station id -> station
-    private HashMap<String, Service> services = new HashMap<>();  // service id -> service
-    private HashMap<String, Route> routes = new HashMap<>();      // route id -> route
-    private HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
-    private HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
-    private HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
+    private final HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
+    private final HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
+    private final HashMap<String, Station> stationsByName = new HashMap<>();  // station id -> station
+    private final HashMap<String, Service> services = new HashMap<>();  // service id -> service
+    private final HashMap<String, Route> routes = new HashMap<>();      // route id -> route
+    private final HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
+    private final HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
+    private final HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
+    private final StationLocations stationLocations;
 
     private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
 
-    public TransportDataFromFiles(Stream<StopData> stops, Stream<RouteData> rawRoutes, Stream<TripData> rawTrips,
+    public TransportDataFromFiles(StationLocations stationLocations, Stream<StopData> stops, Stream<RouteData> rawRoutes, Stream<TripData> rawTrips,
                                   Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
                                   Stream<FeedInfo> feedInfo)  {
+        this.stationLocations = stationLocations;
         logger.info("Loading transport data from files");
         Optional<FeedInfo> maybeFeedInfo = feedInfo.limit(1).findFirst();
         if (maybeFeedInfo.isPresent()) {
@@ -198,6 +201,7 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
                 station = new Station(stationId, stop.getArea(), stop.getName(), stop.getLatLong(), stop.isTram());
                 stationsById.put(stationId, station);
                 stationsByName.put(stop.getName().toLowerCase(), station);
+                stationLocations.addStation(station);
             } else {
                 station = stationsById.get(stationId);
             }

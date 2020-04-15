@@ -1,17 +1,17 @@
 package com.tramchester.mappers;
 
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.repository.StationRepository;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -40,26 +40,31 @@ public class LiveDataParser {
         this.stationRepository = stationRepository;
     }
 
-    public List<StationDepartureInfo> parse(String rawJson) throws ParseException {
+    public List<StationDepartureInfo> parse(String rawJson) {
         List<StationDepartureInfo> result = new LinkedList<>();
 
-        JSONParser jsonParser = new JSONParser();
-        JSONObject parsed = (JSONObject)jsonParser.parse(rawJson);
-        JSONArray infoList = (JSONArray) parsed.get("value");
+        //JsonParser jsonParser = new JSONParser();
+        JsonObject parsed = Jsoner.deserialize(rawJson, new JsonObject()); //(JsonObject)jsonParser.parse(rawJson);
+        if (parsed.containsKey("value")) {
+            JsonArray infoList = (JsonArray ) parsed.get("value");
 
-        if (infoList!=null) {
-            for (Object anInfoList : infoList) {
-                Optional<StationDepartureInfo> item = parseItem((JSONObject) anInfoList);
-                item.ifPresent(result::add);
+            if (infoList!=null) {
+                for (Object anInfoList : infoList) {
+                    Optional<StationDepartureInfo> item = parseItem((JsonObject) anInfoList);
+                    item.ifPresent(result::add);
+                }
             }
+        } else {
+            logger.error("Unable to deserialise received json: "+rawJson);
         }
+
         return result;
     }
 
-    private Optional<StationDepartureInfo> parseItem(JSONObject jsonObject) {
+    private Optional<StationDepartureInfo> parseItem(JsonObject jsonObject) {
         logger.debug(format("Parsing JSON '%s'", jsonObject));
 
-        Long displayId = (Long) jsonObject.get("Id");
+        BigDecimal displayId = (BigDecimal) jsonObject.get("Id");
         String lineName = (String) jsonObject.get("Line");
         String atcoCode = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
@@ -114,7 +119,7 @@ public class LiveDataParser {
         return localDateTime;
     }
 
-    private void parseDueTrams(JSONObject jsonObject, StationDepartureInfo departureInfo) {
+    private void parseDueTrams(JsonObject jsonObject, StationDepartureInfo departureInfo) {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
             final int index = i;
             String destinationName = getNumberedField(jsonObject, "Dest", index);
@@ -185,7 +190,7 @@ public class LiveDataParser {
         return destinationName;
     }
 
-    private String getNumberedField(JSONObject jsonObject, String name, final int i) {
+    private String getNumberedField(JsonObject jsonObject, String name, final int i) {
         String destKey = format("%s%d", name, i);
         return (String) jsonObject.get(destKey);
     }
