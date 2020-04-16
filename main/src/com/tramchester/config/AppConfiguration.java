@@ -50,6 +50,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("postcodeDataPath")
     private Path postcodeDataPath;
 
+    @JsonProperty("postcodeZip")
+    private Path postcodeZip;
+
     @JsonProperty("timeWindow")
     private int timeWindow;
 
@@ -294,6 +297,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Path getPostcodeDataPath() {
         return postcodeDataPath;
+    }
+
+    @Override
+    public Path getPostcodeZip() {
+        return postcodeZip;
     }
 
 }

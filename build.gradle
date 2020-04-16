@@ -136,6 +136,9 @@ clean {
         include '*.txt'
     }
     delete 'data/bus/gtdf-out'
+    delete fileTree('data/codepo_gb') {
+        include '**'
+    }
     cleanGraph
 }
 

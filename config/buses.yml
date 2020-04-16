@@ -31,6 +31,7 @@ liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 20
 dataPath: data/bus
 postcodeDataPath: data/codepo_gb/Data/CSV
+postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
 maxWait: 25
 numberQueries: 3

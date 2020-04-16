@@ -23,16 +23,24 @@ public class PostcodeDataImporter {
     private static final String CSV = ".csv";
 
     private final Path directory;
+    private final TramchesterConfig config;
     private final StationLocations stationLocations;
+    private final Unzipper unzipper;
     private final long margin; // meters
 
-    public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations) {
+    public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper) {
         this.directory = config.getPostcodeDataPath();
         margin = Math.round(config.getNearestStopRangeKM() * 1000D);
+        this.config = config;
         this.stationLocations = stationLocations;
+        this.unzipper = unzipper;
     }
 
     public Set<PostcodeData> loadLocalPostcodes() {
+        Path postcodeZip = config.getPostcodeZip();
+        String unzipTarget = config.getPostcodeZip().toAbsolutePath().toString().replace(".zip","");
+        unzipper.unpack(postcodeZip, Path.of(unzipTarget));
+
         logger.info("Load postcode files files from " + directory.toAbsolutePath());
         if (!Files.isDirectory(directory)) {
             logger.error("Cannot load postcode data, location is not a directory " + directory);

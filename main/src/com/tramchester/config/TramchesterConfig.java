@@ -97,5 +97,9 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // limit on missing messages before triggering healthcheck
     public abstract int getMaxNumberMissingLiveMessages();
 
+    // unpacked location of postcode data
     public abstract Path getPostcodeDataPath();
+
+    // location of zip file containing postcode
+    public abstract Path getPostcodeZip();
 }

@@ -38,6 +38,7 @@ node_modules/
 test_network.dot
 testData/gtdf-out/
 testData/output/
+data/codepo_gb/
 .envrc
 *.dot
 *.gradle~
