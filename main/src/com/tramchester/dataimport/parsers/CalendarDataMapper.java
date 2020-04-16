@@ -49,7 +49,7 @@ public class CalendarDataMapper implements CSVEntryMapper<CalendarData> {
     }
 
     @Override
-    public boolean filter(CSVRecord data) {
+    public boolean shouldInclude(CSVRecord data) {
         if (includeAll) {
             return true;
         }

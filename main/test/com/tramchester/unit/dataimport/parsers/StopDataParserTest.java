@@ -2,13 +2,10 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.dataimport.parsers.StopDataMapper;
-import org.apache.commons.csv.CSVRecord;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashSet;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +24,8 @@ public class StopDataParserTest {
     public void shouldFilterCorrectly() throws IOException {
         StopDataMapper stopDataParser = new StopDataMapper(Collections.singleton("9400ZZMAWYT2"));
 
-        assertTrue(stopDataParser.filter(ParserBuilder.getRecordFor(stopA)));
-        assertFalse(stopDataParser.filter(ParserBuilder.getRecordFor(stopB)));
+        assertTrue(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(stopA)));
+        assertFalse(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(stopB)));
     }
 
     @Test

@@ -32,7 +32,7 @@ public class TripDataMapper implements CSVEntryMapper<TripData> {
     }
 
     @Override
-    public boolean filter(CSVRecord data) {
+    public boolean shouldInclude(CSVRecord data) {
         if (includeAll) {
             return true;
         }

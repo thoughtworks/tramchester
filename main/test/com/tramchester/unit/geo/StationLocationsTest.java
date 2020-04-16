@@ -35,15 +35,15 @@ public class StationLocationsTest {
         long expectedEasting = 433931;
         long expectedNorthing = 338207;
 
-        assertEquals(expectedEasting, result.getEasting());
-        assertEquals(expectedNorthing, result.getNorthing());
+        assertEquals(expectedEasting, result.getEastings());
+        assertEquals(expectedNorthing, result.getNorthings());
     }
 
     @Test
     public void shouldHaveGridPositionBehaviours() {
         StationLocations.GridPosition gridPositionA = new StationLocations.GridPosition(3,4);
-        assertEquals(3, gridPositionA.getEasting());
-        assertEquals(4, gridPositionA.getNorthing());
+        assertEquals(3, gridPositionA.getEastings());
+        assertEquals(4, gridPositionA.getNorthings());
 
         StationLocations.GridPosition origin = new StationLocations.GridPosition(0,0);
         assertEquals(5, origin.distanceTo(gridPositionA));
@@ -133,6 +133,26 @@ public class StationLocationsTest {
         List<Station> further = stationLocations.nearestStations(TestEnv.nearPiccGardens, 3, 20);
         assertEquals(1, further.size());
         assertEquals(testStation, further.get(0));
+    }
 
+    @Test
+    public void shouldCaptureBoundingAreaForStations() {
+        Station testStationA = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
+        Station testStationB = new Station("id456", "area", "name", TestEnv.nearShudehill, true);
+        Station testStationC = new Station("id789", "area", "nameB", TestEnv.nearPiccGardens, true);
+
+        stationLocations.addStation(testStationA);
+        stationLocations.addStation(testStationB);
+        stationLocations.addStation(testStationC);
+
+        StationLocations.GridPosition posA = stationLocations.getStationGridPosition(testStationA);
+        StationLocations.GridPosition posB = stationLocations.getStationGridPosition(testStationB);
+
+        // bottom left
+        assertEquals(posA.getEastings(), stationLocations.getEastingsMin());
+        assertEquals(posA.getNorthings(), stationLocations.getNorthingsMin());
+        // top right
+        assertEquals(posB.getEastings(), stationLocations.getEastingsMax());
+        assertEquals(posB.getNorthings(), stationLocations.getNorthingsMax());
     }
 }

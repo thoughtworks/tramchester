@@ -21,8 +21,8 @@ public class RouteDataParserTest {
     public void shouldFilter() throws IOException {
         RouteDataMapper mapper = new RouteDataMapper(Collections.singleton("MET"));
 
-        assertTrue(mapper.filter(ParserBuilder.getRecordFor(routeA)));
-        assertFalse(mapper.filter(ParserBuilder.getRecordFor(routeB)));
+        assertTrue(mapper.shouldInclude(ParserBuilder.getRecordFor(routeA)));
+        assertFalse(mapper.shouldInclude(ParserBuilder.getRecordFor(routeB)));
     }
 
     @Test

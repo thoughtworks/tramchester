@@ -147,6 +147,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public Path getPostcodeDataPath() {
+        return Path.of("data", "codepo_gb", "Data", "CSV");
+    }
+
+    @Override
     public ServerFactory getServerFactory() {
         DefaultServerFactory factory = new DefaultServerFactory();
         factory.setApplicationContextPath("/");

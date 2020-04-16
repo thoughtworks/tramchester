@@ -28,8 +28,8 @@ public class StopTimeDataParserTest {
         String stopA = "Trip000001,06:41:00,06:42:00,9400ZZMAABM1,0001,0,1\n";
         String stopB = "Trip000002,06:41:00,06:42:00,9400ZZMAABM1,0001,0,1\n";
 
-        assertTrue(filteringMapper.filter(ParserBuilder.getRecordFor(stopA)));
-        assertFalse(filteringMapper.filter(ParserBuilder.getRecordFor(stopB)));
+        assertTrue(filteringMapper.shouldInclude(ParserBuilder.getRecordFor(stopA)));
+        assertFalse(filteringMapper.shouldInclude(ParserBuilder.getRecordFor(stopB)));
     }
 
     @Test

@@ -24,9 +24,15 @@ public class StationLocations {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
     private CoordinateOperation latLongToGrid;
 
+    private long minEastings;
+    private long maxEasting;
+    private long minNorthings;
+    private long maxNorthings;
+
     private final HashMap<Station, GridPosition> positions;
 
     public StationLocations() {
+
         CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
 
         positions = new HashMap<>();
@@ -38,6 +44,10 @@ public class StationLocations {
         } catch (FactoryException e) {
             logger.error("Unable to init geotools factory or transform", e);
         }
+        minEastings = Long.MAX_VALUE;
+        maxEasting = Long.MIN_VALUE;
+        minNorthings = Long.MAX_VALUE;
+        maxNorthings = Long.MIN_VALUE;
     }
 
     public void addStation(Station station) {
@@ -45,9 +55,25 @@ public class StationLocations {
         try {
             GridPosition gridPosition = getGridPosition(position);
             positions.put(station, gridPosition);
+            updateArea(gridPosition);
             logger.info("Added station " + station.getId() + " at grid " + gridPosition);
         } catch (TransformException e) {
             logger.error("Unable to store station as cannot convert location", e);
+        }
+    }
+
+    private void updateArea(GridPosition gridPosition) {
+        if (gridPosition.eastings<minEastings) {
+            minEastings = gridPosition.eastings;
+        }
+        if (gridPosition.eastings>maxEasting) {
+            maxEasting = gridPosition.eastings;
+        }
+        if (gridPosition.northings<minNorthings) {
+            minNorthings = gridPosition.northings;
+        }
+        if (gridPosition.northings>maxNorthings) {
+            maxNorthings = gridPosition.northings;
         }
     }
 
@@ -91,23 +117,39 @@ public class StationLocations {
         return new GridPosition(easting, northing);
     }
 
+    public long getEastingsMax() {
+        return maxEasting;
+    }
+
+    public long getEastingsMin() {
+        return minEastings;
+    }
+
+    public long getNorthingsMax() {
+        return maxNorthings;
+    }
+
+    public long getNorthingsMin() {
+        return minNorthings;
+    }
+
     public static class GridPosition  {
 
-        private final long easting;
-        private final long northing;
+        private final long eastings;
+        private final long northings;
 
-        public GridPosition(long easting, long northing) {
+        public GridPosition(long eastings, long northings) {
 
-            this.easting = easting;
-            this.northing = northing;
+            this.eastings = eastings;
+            this.northings = northings;
         }
 
-        public long getEasting() {
-            return easting;
+        public long getEastings() {
+            return eastings;
         }
 
-        public long getNorthing() {
-            return northing;
+        public long getNorthings() {
+            return northings;
         }
 
         public boolean withinDistEasting(GridPosition gridPosition, long rangeInMeters) {
@@ -119,11 +161,11 @@ public class StationLocations {
         }
 
         private long getDistNorthing(GridPosition gridPosition) {
-            return Math.abs(gridPosition.northing - this.northing);
+            return Math.abs(gridPosition.northings - this.northings);
         }
 
         private long getDistEasting(GridPosition gridPosition) {
-            return Math.abs(gridPosition.easting - this.easting);
+            return Math.abs(gridPosition.eastings - this.eastings);
         }
 
         private long getSumSquaresDistance(GridPosition gridPosition) {
@@ -146,8 +188,8 @@ public class StationLocations {
         @Override
         public String toString() {
             return "GridPosition{" +
-                    "easting=" + easting +
-                    ", northing=" + northing +
+                    "easting=" + eastings +
+                    ", northing=" + northings +
                     '}';
         }
     }

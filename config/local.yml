@@ -31,6 +31,7 @@ liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 20
 dataPath: data/tram
+postcodeDataPath: data/codepo_gb/Data/CSV
 removeRouteNameSuffix: true
 maxWait: 25
 numberQueries: 3

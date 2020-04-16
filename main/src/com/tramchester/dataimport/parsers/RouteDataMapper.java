@@ -41,7 +41,7 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
     }
 
     @Override
-    public boolean filter(CSVRecord data) {
+    public boolean shouldInclude(CSVRecord data) {
         if (includeAll) {
             return true;
         }

@@ -20,8 +20,8 @@ public class TripDataParserTest {
     public void shouldFilter() throws IOException {
         TripDataMapper tripParserTest = new TripDataMapper(Collections.singleton("MET:MET1:I:"));
 
-        assertTrue(tripParserTest.filter(ParserBuilder.getRecordFor(tripA)));
-        assertFalse(tripParserTest.filter(ParserBuilder.getRecordFor(tripB)));
+        assertTrue(tripParserTest.shouldInclude(ParserBuilder.getRecordFor(tripA)));
+        assertFalse(tripParserTest.shouldInclude(ParserBuilder.getRecordFor(tripB)));
     }
 
     @Test

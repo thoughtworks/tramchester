@@ -23,7 +23,6 @@ public class DataCleanser {
 
     private final TransportDataReaderFactory dataReaderFactory;
     private final TransportDataWriterFactory transportDataWriterFactory;
-    private ErrorCount count;
     private final TramchesterConfig config;
     private final ProvidesNow providesNow;
 
@@ -36,7 +35,7 @@ public class DataCleanser {
     }
 
     public ErrorCount run() throws IOException {
-        this.count = new ErrorCount();
+        ErrorCount count = new ErrorCount();
 
         Set<String> agencies = config.getAgencies();
 

@@ -16,7 +16,7 @@ public class TransportDataReaderFactory {
     public TransportDataReader getForCleanser() {
         if (readerForCleanser==null) {
             Path path = config.getDataPath().resolve(config.getUnzipPath());
-            DataLoaderFactory factory = new DataLoaderFactory(path);
+            DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
             readerForCleanser = new TransportDataReader(factory, true);
         }
         return readerForCleanser;
@@ -24,7 +24,7 @@ public class TransportDataReaderFactory {
 
     public TransportDataReader getForLoader() {
         if (readerForLoader==null) {
-            DataLoaderFactory factory = new DataLoaderFactory(config.getDataPath());
+            DataLoaderFactory factory = new DataLoaderFactory(config.getDataPath(), ".txt");
             readerForLoader = new TransportDataReader(factory,  false);
         }
         return readerForLoader;

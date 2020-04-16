@@ -3,8 +3,8 @@ package com.tramchester.dataimport.datacleanse;
 import java.util.Set;
 
 public class ServicesAndTrips {
-    private Set<String> serviceIds;
-    private Set<String> tripIds;
+    private final Set<String> serviceIds;
+    private final Set<String> tripIds;
 
     public ServicesAndTrips(Set<String> serviceIds, Set<String> tripIds) {
 

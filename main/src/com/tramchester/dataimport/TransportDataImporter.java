@@ -19,7 +19,8 @@ public class TransportDataImporter {
     private final ProvidesNow providesNow;
     private final StationLocations stationLocations;
 
-    public TransportDataImporter(TransportDataReaderFactory factory, ProvidesNow providesNow, StationLocations stationLocations) {
+    public TransportDataImporter(TransportDataReaderFactory factory, ProvidesNow providesNow,
+                                 StationLocations stationLocations) {
         this.transportDataReader = factory.getForLoader();
         this.providesNow = providesNow;
         this.stationLocations = stationLocations;
@@ -36,7 +37,8 @@ public class TransportDataImporter {
         Stream<FeedInfo> feedInfoData = transportDataReader.getFeedInfo(new FeedInfoDataMapper(providesNow));
 
         logger.info("Finished reading csv files.");
-        return new TransportDataFromFiles(stationLocations, stopData, routeData, tripData, stopTimeData, calendarData, feedInfoData);
+        return new TransportDataFromFiles(stationLocations, stopData, routeData, tripData, stopTimeData, calendarData,
+                feedInfoData);
     }
 
 }

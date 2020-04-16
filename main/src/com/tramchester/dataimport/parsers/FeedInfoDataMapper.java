@@ -34,7 +34,7 @@ public class FeedInfoDataMapper implements CSVEntryMapper<FeedInfo> {
     }
 
     @Override
-    public boolean filter(CSVRecord data) {
+    public boolean shouldInclude(CSVRecord data) {
         return true;
     }
 

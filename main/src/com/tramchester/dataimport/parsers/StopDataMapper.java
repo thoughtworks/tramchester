@@ -65,7 +65,7 @@ public class StopDataMapper implements CSVEntryMapper<StopData> {
     }
 
     @Override
-    public boolean filter(CSVRecord data) {
+    public boolean shouldInclude(CSVRecord data) {
         if (includeAll) {
             return true;
         }
