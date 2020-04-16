@@ -20,5 +20,16 @@ Data
 
 "Contains public sector information licensed under the Open Government Licence v2.0 byData GM."
 
+"Contains Transport for Greater Manchester data."
+
+"ORDNANCE SURVEY DATA LICENCE
+ 
+ Contains Ordnance Survey data © Crown copyright and database right 2020.
+ 
+ Contains Royal Mail data © Royal Mail copyright and database right 2020.
+ Contains National Statistics data © Crown copyright and database right 2020.
+ 
+ February 2020"
+
 
 
