@@ -139,7 +139,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return new LatLong(latitude,longitude);
     }
 
-    private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId, JourneyRequest journeyRequest) {
+    private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId,
+                                                                      JourneyRequest journeyRequest) {
         if (!transportData.hasStationId(endId)) {
             String msg = "Unable to find end station from id " + endId;
             logger.warn(msg);

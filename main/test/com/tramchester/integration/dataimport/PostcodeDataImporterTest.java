@@ -69,5 +69,7 @@ public class PostcodeDataImporterTest {
         int northingsMin = results.stream().map(PostcodeData::getNorthings).min(Integer::compareTo).get();
         assertTrue(northingsMax < stationLocations.getNorthingsMax()+margin);
         assertTrue(northingsMin > stationLocations.getNorthingsMin()-margin);
+
+        results.clear();
     }
 }

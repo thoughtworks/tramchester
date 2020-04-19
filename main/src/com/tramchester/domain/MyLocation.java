@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MyLocation implements Location {
 
-    private String area;
+    private final String area;
     private final LatLong latLong;
 
     public static MyLocation create(ObjectMapper mapper, LatLong latLong) {

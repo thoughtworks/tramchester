@@ -128,6 +128,9 @@ public class DataCleanser {
 
         stops.forEach(stop -> {
             String tramPrefix = stop.isTram() ? StopDataMapper.tramStation : "";
+            if (unexpectedIdFormat(stop)) {
+                logger.warn("Assumption all stations start with digit broken by " + stop.getId());
+            }
             writer.writeLine(String.format("%s,%s,\"%s,%s%s\",%s,%s",
                     stop.getId(),
                     stop.getCode(),
@@ -140,6 +143,10 @@ public class DataCleanser {
         writer.close();
         stops.close();
         logger.info("**** End cleansing stops.\n\n");
+    }
+
+    private boolean unexpectedIdFormat(StopData stop) {
+        return !Character.isDigit(stop.getId().charAt(0));
     }
 
     private String workAroundName(String name) {
