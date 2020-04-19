@@ -3,7 +3,7 @@ package com.tramchester.integration.livedata;
 import com.tramchester.Dependencies;
 import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.LiveDataTestCategory;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;

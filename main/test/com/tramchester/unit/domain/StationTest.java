@@ -1,8 +1,8 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.domain.Location;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.Stations;

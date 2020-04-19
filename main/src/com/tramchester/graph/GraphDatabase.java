@@ -24,7 +24,6 @@ public class GraphDatabase implements Startable {
 
     private final TramchesterConfig configuration;
     private GraphDatabaseService theDB;
-    //private SimplePointLayer spatialLayer;
 
     public GraphDatabase(TramchesterConfig configuration) {
         this.configuration = configuration;

@@ -1,6 +1,6 @@
 package com.tramchester.integration.resources;
 
-import com.tramchester.domain.Location;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.TransportMode;

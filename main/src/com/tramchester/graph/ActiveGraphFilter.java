@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.Location;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCalls;

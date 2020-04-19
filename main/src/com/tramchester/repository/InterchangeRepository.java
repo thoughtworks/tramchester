@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

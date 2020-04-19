@@ -1,8 +1,8 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteStation;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.repository.InterchangeRepository;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;

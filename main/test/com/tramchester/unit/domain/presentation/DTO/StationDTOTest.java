@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;

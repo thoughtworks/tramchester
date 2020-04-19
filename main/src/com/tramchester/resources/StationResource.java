@@ -1,9 +1,11 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;

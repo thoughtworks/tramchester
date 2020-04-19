@@ -1,6 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.tramchester.domain.Location;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.LinkedList;

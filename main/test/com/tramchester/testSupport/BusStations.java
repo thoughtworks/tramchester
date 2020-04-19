@@ -1,6 +1,6 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 
 public class BusStations {

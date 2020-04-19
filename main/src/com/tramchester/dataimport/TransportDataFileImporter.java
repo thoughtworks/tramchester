@@ -5,7 +5,9 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,20 +15,21 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class TransportDataImporter {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataImporter.class);
+public class TransportDataFileImporter {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataFileImporter.class);
+
     private final TransportDataReader transportDataReader;
     private final ProvidesNow providesNow;
     private final StationLocations stationLocations;
 
-    public TransportDataImporter(TransportDataReaderFactory factory, ProvidesNow providesNow,
-                                 StationLocations stationLocations) {
+    public TransportDataFileImporter(TransportDataReaderFactory factory, ProvidesNow providesNow,
+                                     StationLocations stationLocations) {
         this.transportDataReader = factory.getForLoader();
         this.providesNow = providesNow;
         this.stationLocations = stationLocations;
     }
 
-    public TransportDataFromFiles load() {
+    public TransportDataFromFiles createSource() {
         Set<String> includeAll = Collections.emptySet();
 
         Stream<StopData> stopData = transportDataReader.getStops(new StopDataMapper(includeAll));
@@ -39,7 +42,7 @@ public class TransportDataImporter {
         logger.info("Finished reading csv files.");
         return new TransportDataFromFiles(stationLocations, stopData, routeData, tripData, stopTimeData, calendarData,
                 feedInfoData);
-    }
 
+    }
 }
 

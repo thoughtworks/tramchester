@@ -1,7 +1,6 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.RouteStation;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;

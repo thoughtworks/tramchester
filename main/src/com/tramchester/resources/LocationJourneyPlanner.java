@@ -2,9 +2,10 @@ package com.tramchester.resources;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
@@ -150,11 +151,6 @@ public class LocationJourneyPlanner {
     }
 
     private List<StationWalk> nearestStations(LatLong latLong, List<Station> startStations) {
-//        List<Station> stations = startStations.stream().
-//                filter(stationRepository::hasStationId).
-//                map(stationRepository::getStation).
-//                collect(Collectors.toList());
-
         return startStations.stream().map(station ->
                 new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
     }

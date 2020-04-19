@@ -1,11 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.Station;
-import com.tramchester.domain.StationWalk;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.places.Station;
 import org.neo4j.graphdb.Node;
 
 import java.util.List;

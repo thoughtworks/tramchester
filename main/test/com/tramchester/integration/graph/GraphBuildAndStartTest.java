@@ -6,6 +6,7 @@ import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -40,9 +41,10 @@ public class GraphBuildAndStartTest {
         dataCleaner.run();
 
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
-        StationLocations stationLocations = new StationLocations();
-        TransportDataImporter dataImporter = new TransportDataImporter(new TransportDataReaderFactory(config), providesNow, stationLocations);
-        TransportDataSource transportData = dataImporter.load();
+        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
+        StationLocations stationLocations = new StationLocations(coordinateTransforms);
+        TransportDataFileImporter dataImporter = new TransportDataFileImporter(new TransportDataReaderFactory(config), providesNow, stationLocations);
+        TransportDataSource transportData = dataImporter.createSource();
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 
         GraphDatabase graphDatabase = new GraphDatabase(config);

@@ -1,7 +1,7 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
 public class TramStopCall extends StopCall {

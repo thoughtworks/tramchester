@@ -1,9 +1,8 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.search.*;
@@ -14,13 +13,11 @@ import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;

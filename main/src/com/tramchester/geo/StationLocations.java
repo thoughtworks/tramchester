@@ -1,28 +1,23 @@
 package com.tramchester.geo;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
 import org.jetbrains.annotations.NotNull;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class StationLocations {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
-    private CoordinateOperation latLongToGrid;
+    private final CoordinateTransforms coordinateTransforms;
 
     private long minEastings;
     private long maxEasting;
@@ -31,19 +26,10 @@ public class StationLocations {
 
     private final HashMap<Station, GridPosition> positions;
 
-    public StationLocations() {
-
-        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
-
+    public StationLocations(CoordinateTransforms coordinateTransforms) {
+        this.coordinateTransforms = coordinateTransforms;
         positions = new HashMap<>();
-        try {
-            CoordinateReferenceSystem nationalGridRefSys = authorityFactory.createCoordinateReferenceSystem("27700");
-            CoordinateReferenceSystem latLongRef = authorityFactory.createCoordinateReferenceSystem("4326");
-            latLongToGrid = new DefaultCoordinateOperationFactory().createOperation(latLongRef, nationalGridRefSys);
-            //gridToLatLong = new DefaultCoordinateOperationFactory().createOperation(nationalGridRefSys, latLongRef);
-        } catch (FactoryException e) {
-            logger.error("Unable to init geotools factory or transform", e);
-        }
+
         minEastings = Long.MAX_VALUE;
         maxEasting = Long.MIN_VALUE;
         minNorthings = Long.MAX_VALUE;
@@ -53,7 +39,7 @@ public class StationLocations {
     public void addStation(Station station) {
         LatLong position = station.getLatLong();
         try {
-            GridPosition gridPosition = getGridPosition(position);
+            GridPosition gridPosition = coordinateTransforms.getGridPosition(position);
             positions.put(station, gridPosition);
             updateArea(gridPosition);
             logger.info("Added station " + station.getId() + " at grid " + gridPosition);
@@ -85,7 +71,7 @@ public class StationLocations {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
 
         try {
-            @NotNull StationLocations.GridPosition gridPosition = getGridPosition(latLong);
+            @NotNull StationLocations.GridPosition gridPosition = coordinateTransforms.getGridPosition(latLong);
             List<Station> stationList = positions.entrySet().stream().
                     filter(entry -> entry.getValue().withinDistEasting(gridPosition, rangeInMeters)).
                     filter(entry -> entry.getValue().withinDistNorthing(gridPosition, rangeInMeters)).
@@ -105,16 +91,6 @@ public class StationLocations {
         long firstDist = origin.distanceTo(first);
         long secondDist = origin.distanceTo(second);
         return Long.compare(firstDist, secondDist);
-    }
-
-    @NotNull
-    private StationLocations.GridPosition getGridPosition(LatLong position) throws TransformException {
-        DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
-
-        DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
-        long easting = Math.round(directPositionGrid.getOrdinate(0));
-        long northing = Math.round(directPositionGrid.getOrdinate(1));
-        return new GridPosition(easting, northing);
     }
 
     public long getEastingsMax() {

@@ -2,11 +2,12 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramTime;

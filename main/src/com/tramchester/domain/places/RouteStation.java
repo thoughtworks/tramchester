@@ -1,4 +1,10 @@
-package com.tramchester.domain;
+package com.tramchester.domain.places;
+
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 
 public class RouteStation implements HasId {
     // A station that serves a specific route

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.domain.Location;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.presentation.DTO.DTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;

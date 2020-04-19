@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;

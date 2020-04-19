@@ -1,6 +1,6 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
 public abstract class StopCall {

@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 

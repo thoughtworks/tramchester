@@ -1,7 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;

@@ -1,7 +1,8 @@
-package com.tramchester.domain;
+package com.tramchester.domain.places;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;

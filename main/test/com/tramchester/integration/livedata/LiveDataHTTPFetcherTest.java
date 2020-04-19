@@ -4,7 +4,7 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.Dependencies;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataHTTPFetcher;

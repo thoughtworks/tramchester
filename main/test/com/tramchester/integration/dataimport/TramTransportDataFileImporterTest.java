@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DownloadConfig;
-import com.tramchester.dataimport.TransportDataImporter;
+import com.tramchester.dataimport.TransportDataFileImporter;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.Route;
@@ -11,8 +11,10 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportData;
+import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -21,7 +23,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TramTransportDataImporterTest {
+public class TramTransportDataFileImporterTest {
 
     private DownloadConfig config = new DownloadConfig() {
         @Override
@@ -49,11 +51,14 @@ public class TramTransportDataImporterTest {
     public void shouldLoadTransportData() {
         TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
         ProvidesNow providesNow = new ProvidesLocalNow();
-        StationLocations stationLocations = new StationLocations();
+        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
+        StationLocations stationLocations = new StationLocations(coordinateTransforms);
 
-        TransportDataImporter transportDataImporter = new TransportDataImporter(factory, providesNow, stationLocations);
+        TransportDataFileImporter transportDataImporter = new TransportDataFileImporter(factory, providesNow,
+                stationLocations);
 
-        TransportData transportData = transportDataImporter.load();
+        TransportDataFromFiles transportData = transportDataImporter.createSource();
+        transportData.start();
 
         assertThat(transportData.getRoutes()).hasSize(2);
 

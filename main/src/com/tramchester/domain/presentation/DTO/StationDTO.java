@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.tramchester.domain.Location;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.ProximityGroup;
 
 import java.util.List;

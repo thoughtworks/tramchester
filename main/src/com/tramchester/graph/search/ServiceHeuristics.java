@@ -1,9 +1,8 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteStation;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.repository.StationRepository;
@@ -14,7 +13,6 @@ import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

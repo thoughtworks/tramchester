@@ -1,6 +1,6 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.Location;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;

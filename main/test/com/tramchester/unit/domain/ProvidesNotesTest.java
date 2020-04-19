@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;

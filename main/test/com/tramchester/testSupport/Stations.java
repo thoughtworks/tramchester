@@ -1,8 +1,7 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import org.apache.commons.collections4.ListUtils;
 
 import java.util.Arrays;
 import java.util.List;

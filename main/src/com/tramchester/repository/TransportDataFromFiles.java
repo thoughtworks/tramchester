@@ -6,12 +6,13 @@ import com.tramchester.domain.input.BusStopCall;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.StationLocations;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +24,10 @@ import static com.tramchester.dataimport.data.RouteData.BUS_TYPE;
 import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
 import static java.lang.String.format;
 
-public class TransportDataFromFiles implements TransportDataSource, Disposable {
+public class TransportDataFromFiles implements TransportDataSource {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
+    private final TransportDataStreams transportDataStreams;
     private final HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private final HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
     private final HashMap<String, Station> stationsByName = new HashMap<>();  // station id -> station
@@ -36,26 +38,33 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
     private final HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
     private final StationLocations stationLocations;
 
-    private LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
+    private final LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
 
-    public TransportDataFromFiles(StationLocations stationLocations, Stream<StopData> stops, Stream<RouteData> rawRoutes, Stream<TripData> rawTrips,
-                                  Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
+    public TransportDataFromFiles(StationLocations stationLocations, Stream<StopData> stops, Stream<RouteData> rawRoutes,
+                                  Stream<TripData> rawTrips, Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
                                   Stream<FeedInfo> feedInfo)  {
+        this.transportDataStreams = new TransportDataStreams(stops, rawRoutes, rawTrips, stopTimes, calendars, feedInfo);
         this.stationLocations = stationLocations;
+        logger.info("Data load is complete");
+    }
+
+    @Override
+    public void start() {
         logger.info("Loading transport data from files");
-        Optional<FeedInfo> maybeFeedInfo = feedInfo.limit(1).findFirst();
+
+        Optional<FeedInfo> maybeFeedInfo = transportDataStreams.feedInfo.limit(1).findFirst();
         if (maybeFeedInfo.isPresent()) {
             this.feedInfo = maybeFeedInfo.get();
         } else {
             logger.warn("Did not find feedinfo");
         }
 
-        populateStationsAndAreas(stops);
-        populateRoutes(rawRoutes);
-        populateTrips(rawTrips);
-        populateStopTimes(stopTimes);
-        populateCalendars(calendars);
+        populateStationsAndAreas(transportDataStreams.stops);
+        populateRoutes(transportDataStreams.routes);
+        populateTrips(transportDataStreams.trips);
+        populateStopTimes(transportDataStreams.stopTimes);
+        populateCalendars(transportDataStreams.calendars);
 
         logger.info(format("%s stations", stationsById.size()));
         logger.info(format("%s routes", this.routes.size()));
@@ -70,8 +79,13 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
         services.values().stream().filter(svc -> !svc.getDays().values().contains(true)).forEach(
                 svc -> logger.warn(format("Service %s does not run on any days of the week", svc.getId()))
         );
+        transportDataStreams.closeAll();
+        logger.info("Finished loading transport data");
+    }
 
-        logger.info("Data load is complete");
+    @Override
+    public void stop() {
+
     }
 
     @Override
@@ -370,5 +384,35 @@ public class TransportDataFromFiles implements TransportDataSource, Disposable {
         List<AreaDTO> list = new LinkedList<>(areas);
         return  list;
     }
+
+    public class TransportDataStreams {
+        final Stream<StopData> stops;
+        final Stream<RouteData> routes;
+        final Stream<TripData> trips;
+        final Stream<StopTimeData> stopTimes;
+        final Stream<CalendarData> calendars;
+        final Stream<FeedInfo> feedInfo;
+
+        public TransportDataStreams(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
+                                    Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
+                                    Stream<FeedInfo> feedInfo) {
+            this.stops = stops;
+            this.routes = routes;
+            this.trips = trips;
+            this.stopTimes = stopTimes;
+            this.calendars = calendars;
+            this.feedInfo = feedInfo;
+        }
+
+        public void closeAll() {
+            stops.close();
+            routes.close();
+            trips.close();
+            stopTimes.close();
+            calendars.close();
+            feedInfo.close();
+        }
+    }
+
 
 }

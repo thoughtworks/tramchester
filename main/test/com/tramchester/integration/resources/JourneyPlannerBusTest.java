@@ -2,7 +2,7 @@ package com.tramchester.integration.resources;
 
 
 import com.tramchester.App;
-import com.tramchester.domain.MyLocationFactory;
+import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;

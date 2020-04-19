@@ -1,10 +1,10 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.StopCalls;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;

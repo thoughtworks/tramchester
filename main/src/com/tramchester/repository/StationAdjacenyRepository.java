@@ -1,19 +1,23 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import org.apache.commons.lang3.tuple.Pair;
+import org.picocontainer.Disposable;
+import org.picocontainer.Startable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class StationAdjacenyRepository {
+public class StationAdjacenyRepository implements Startable, Disposable {
+    private static final Logger logger = LoggerFactory.getLogger(StationAdjacenyRepository.class);
 
     private final Map<Pair<Station,Station>, Integer> matrix;
     private final TransportDataSource transportDataSource;
@@ -21,11 +25,11 @@ public class StationAdjacenyRepository {
     public StationAdjacenyRepository(TransportDataSource transportDataSource) {
         this.transportDataSource = transportDataSource;
         matrix = new HashMap<>();
-
-        buildAdjacencyMatrix();
     }
 
-    private void buildAdjacencyMatrix() {
+    @Override
+    public void start() {
+        logger.info("Build adjacency matrix");
         Collection<Trip> trips = transportDataSource.getTrips();
         trips.forEach(trip -> {
             StopCalls stops = trip.getStops();
@@ -39,6 +43,17 @@ public class StationAdjacenyRepository {
                 }
             }
         });
+        logger.info("Finished building adjacency matrix");
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public void dispose() {
+        matrix.clear();
     }
 
     private Pair<Station,Station> formId(Station first, Station second) {
@@ -56,4 +71,5 @@ public class StationAdjacenyRepository {
     public Set<Pair<Station, Station>> getStationParis() {
         return matrix.keySet();
     }
+
 }

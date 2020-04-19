@@ -1,8 +1,8 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RouteStation;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.RouteReachable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

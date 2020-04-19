@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;

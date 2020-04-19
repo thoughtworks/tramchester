@@ -3,7 +3,7 @@ package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.MyLocationFactory;
+import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;

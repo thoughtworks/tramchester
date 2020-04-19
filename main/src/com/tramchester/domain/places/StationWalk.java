@@ -1,5 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.domain.places;
 
+
+import com.tramchester.domain.places.Station;
 
 public class StationWalk {
     private Station station;

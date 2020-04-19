@@ -1,11 +1,9 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.Location;
-import org.apache.commons.collections4.ListUtils;
+import com.tramchester.domain.places.Location;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class TramInterchanges {

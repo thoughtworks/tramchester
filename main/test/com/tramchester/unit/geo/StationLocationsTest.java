@@ -1,7 +1,8 @@
 package com.tramchester.unit.geo;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.Before;
@@ -17,26 +18,8 @@ public class StationLocationsTest {
 
     @Before
     public void onceBeforeEachTest() {
-        stationLocations = new StationLocations();
-    }
-
-    @Test
-    public void shouldConvertToGridCorrectly() {
-        double lat = 52.940190;
-        double lon = -1.4965572;
-
-        LatLong latLong = new LatLong(lat, lon);
-        Station testStation = new Station("id123", "area", "name", latLong, true);
-
-        stationLocations.addStation(testStation);
-
-        StationLocations.GridPosition result = stationLocations.getStationGridPosition(testStation);
-
-        long expectedEasting = 433931;
-        long expectedNorthing = 338207;
-
-        assertEquals(expectedEasting, result.getEastings());
-        assertEquals(expectedNorthing, result.getNorthings());
+        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
+        stationLocations = new StationLocations(coordinateTransforms);
     }
 
     @Test

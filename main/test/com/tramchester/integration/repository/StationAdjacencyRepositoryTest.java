@@ -1,7 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.StationAdjacenyRepository;
@@ -22,7 +22,6 @@ import static org.junit.Assert.assertFalse;
 
 public class StationAdjacencyRepositoryTest {
     private static Dependencies dependencies;
-    private static IntegrationTramTestConfig testConfig;
 
     private StationAdjacenyRepository repository;
     private TransportDataSource transportDataSource;
@@ -30,8 +29,7 @@ public class StationAdjacencyRepositoryTest {
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
-        testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
+        dependencies.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterClass
@@ -39,11 +37,10 @@ public class StationAdjacencyRepositoryTest {
         dependencies.close();
     }
 
-
     @Before
     public void onceBeforeEachTestRuns() {
         transportDataSource = dependencies.get(TransportDataSource.class);
-        repository = new StationAdjacenyRepository(transportDataSource);
+        repository = dependencies.get(StationAdjacenyRepository.class);
     }
 
     @Test

@@ -8,7 +8,7 @@ import com.tramchester.dataimport.*;
 import com.tramchester.dataimport.datacleanse.DataCleanser;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.MyLocationFactory;
+import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
@@ -16,6 +16,7 @@ import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.graph.search.MapPathToStages;
@@ -52,9 +53,11 @@ public class Dependencies {
 
     public Dependencies(GraphFilter graphFilter) {
         picoContainer.addComponent(ProvidesLocalNow.class);
+        picoContainer.addComponent(CoordinateTransforms.class);
         picoContainer.addComponent(StationLocations.class);
         picoContainer.addComponent(PostcodeDataImporter.class);
         picoContainer.addComponent(GraphFilter.class, graphFilter);
+        picoContainer.addComponent(Unzipper.class);
     }
 
     // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
@@ -67,16 +70,15 @@ public class Dependencies {
         picoContainer.addComponent(DataCleanser.class);
         picoContainer.addComponent(URLDownloader.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
-        picoContainer.addComponent(Unzipper.class);
-        picoContainer.addComponent(TransportDataImporter.class);
+        picoContainer.addComponent(TransportDataFileImporter.class);
 
         FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
         Unzipper unzipper = get(Unzipper.class);
         fetcher.fetchData(unzipper);
         cleanseData();
 
-        TransportDataImporter transportDataImporter = get(TransportDataImporter.class);
-        TransportDataSource transportData = transportDataImporter.load();
+        TransportDataFileImporter transportDataImporter = get(TransportDataFileImporter.class);
+        TransportDataSource transportData = transportDataImporter.createSource();
 
         initialise(configuration, transportData);
     }
@@ -91,6 +93,7 @@ public class Dependencies {
         }
         picoContainer.addComponent(TransportDataSource.class, transportData);
 
+        picoContainer.addComponent(PostcodeRepository.class);
         picoContainer.addComponent(FileModTime.class);
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);

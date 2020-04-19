@@ -1,6 +1,6 @@
 package com.tramchester.livedata;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 
 import java.util.Set;

@@ -4,8 +4,9 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
@@ -19,26 +20,26 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.Station.METROLINK_PREFIX;
+import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
 import static java.lang.String.format;
 
 public class TransportDataForTest implements TransportDataSource {
-    private final Service serviceB;
+    private Service serviceB;
     private String serviceAId = "serviceAId";
     private String serviceBId = "serviceBId";
     private String serviceCId = "serviceCId";
 
-    public static final String FIRST_STATION = METROLINK_PREFIX+"_ST_FIRST";
-    public static final String SECOND_STATION = METROLINK_PREFIX+"_ST_SECOND";
-    public static final String LAST_STATION = METROLINK_PREFIX+"_ST_LAST";
+    public static final String FIRST_STATION = METROLINK_PREFIX + "_ST_FIRST";
+    public static final String SECOND_STATION = METROLINK_PREFIX + "_ST_SECOND";
+    public static final String LAST_STATION = METROLINK_PREFIX + "_ST_LAST";
     public static final String INTERCHANGE = Stations.Cornbrook.getId();
-    private static final String STATION_FOUR = METROLINK_PREFIX+"_ST_FOUR";
-    private static final String STATION_FIVE = METROLINK_PREFIX+"_ST_FIVE";
+    private static final String STATION_FOUR = METROLINK_PREFIX + "_ST_FOUR";
+    private static final String STATION_FIVE = METROLINK_PREFIX + "_ST_FIVE";
 
     private final Map<String, Station> stationIdMap = new HashMap<>();
     private final Map<String, Station> stationNameMap = new HashMap<>();
 
-    private final Map<String,Platform> platforms;
+    private final Map<String, Platform> platforms;
     private final Map<String, Route> routes;
     private final Map<String, RouteStation> routeStations;
     private final Set<Service> services;
@@ -54,7 +55,28 @@ public class TransportDataForTest implements TransportDataSource {
         platforms = new HashMap<>();
         trips = new HashMap<>();
         routeStations = new HashMap<>();
+    }
 
+    @Override
+    public void dispose() {
+        routes.clear();
+        services.clear();
+        platforms.clear();
+        trips.clear();
+        routeStations.clear();
+    }
+
+    @Override
+    public void start() {
+        populateTestData();
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    private void populateTestData() {
         Route routeA = RoutesForTesting.ALTY_TO_BURY;
         Route routeB = RoutesForTesting.ROCH_TO_DIDS;
         Route routeC = RoutesForTesting.DIDS_TO_ROCH;
@@ -149,7 +171,7 @@ public class TransportDataForTest implements TransportDataSource {
     }
 
     private void addTrip(Trip trip) {
-        trips.put(trip.getId(),trip);
+        trips.put(trip.getId(), trip);
     }
 
     private void createInterchangeToStation4Trip(Route route, Service service, Station interchangeStation, Station station,
@@ -217,7 +239,7 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public Set<RouteStation> getRouteStations() {
-       return new HashSet<>(routeStations.values());
+        return new HashSet<>(routeStations.values());
     }
 
     @Override
@@ -227,8 +249,8 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public FeedInfo getFeedInfo() {
-        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", LocalDate.of(2016,5,25),
-                LocalDate.of(2016,6,30), "version");
+        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", LocalDate.of(2016, 5, 25),
+                LocalDate.of(2016, 6, 30), "version");
     }
 
     @Override
@@ -293,4 +315,5 @@ public class TransportDataForTest implements TransportDataSource {
     public Station getFourthStation() {
         return stationIdMap.get(STATION_FOUR);
     }
+
 }

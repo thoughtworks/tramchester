@@ -5,6 +5,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TimeWindow;

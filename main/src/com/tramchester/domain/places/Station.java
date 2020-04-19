@@ -1,5 +1,9 @@
-package com.tramchester.domain;
+package com.tramchester.domain.places;
 
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.*;

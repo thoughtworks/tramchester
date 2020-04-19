@@ -2,6 +2,7 @@ package com.tramchester.integration.mappers;
 
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.places.Location;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;

@@ -1,6 +1,6 @@
 package com.tramchester.domain.liveUpdates;
 
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;

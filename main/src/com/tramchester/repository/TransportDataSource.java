@@ -1,4 +1,7 @@
 package com.tramchester.repository;
 
-public interface TransportDataSource extends TransportData, AreasRepository, PlatformRepository, HasTrips {
+import org.picocontainer.Disposable;
+import org.picocontainer.Startable;
+
+public interface TransportDataSource extends TransportData, AreasRepository, PlatformRepository, HasTrips, Startable, Disposable {
 }

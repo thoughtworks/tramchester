@@ -3,7 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.Station;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.presentation.LatLong;
