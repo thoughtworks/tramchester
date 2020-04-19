@@ -30,22 +30,20 @@ public class LocationJourneyPlanner {
     private static final double EARTH_RADIUS = 3958.75;
 
     private final SpatialService spatialService;
-    private TramchesterConfig config;
+    private final TramchesterConfig config;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
-    private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;
     private final NodeIdQuery stationIndexs;
     private final GraphDatabase graphDatabase;
 
     public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config, RouteCalculator routeCalculator,
-                                  RouteCalculatorArriveBy routeCalculatorArriveBy, StationRepository stationRepository,
-                                  CachedNodeOperations nodeOperations, NodeIdQuery nodeIdQuery, GraphDatabase graphDatabase) {
+                                  RouteCalculatorArriveBy routeCalculatorArriveBy, CachedNodeOperations nodeOperations,
+                                  NodeIdQuery nodeIdQuery, GraphDatabase graphDatabase) {
         this.spatialService = spatialService;
         this.config = config;
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
-        this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.stationIndexs = nodeIdQuery;
         this.graphDatabase = graphDatabase;

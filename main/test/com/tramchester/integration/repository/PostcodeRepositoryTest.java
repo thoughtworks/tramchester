@@ -37,7 +37,6 @@ public class PostcodeRepositoryTest {
 
     @Test
     public void shouldLoadPostcodes() {
-        // TODO WIP
         PostcodeLocation result = repository.getPostcode("M139WL");
         double lat = 53.4620378;
         double lon = -2.2280871;

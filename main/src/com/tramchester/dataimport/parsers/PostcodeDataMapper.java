@@ -17,6 +17,7 @@ public class PostcodeDataMapper implements CSVEntryMapper<PostcodeData> {
         int eastings = Integer.parseInt(rawEastings);
         int northings = Integer.parseInt(rawNorthing);
 
+        // inconsistent use of whitespace in source files, so remove
         return new PostcodeData(rawPostcode.replace(" ",""), eastings, northings);
     }
 

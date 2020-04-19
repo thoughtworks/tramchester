@@ -121,6 +121,7 @@ public class Dependencies {
         picoContainer.addComponent(SignalToCloudformationReady.class);
         picoContainer.addComponent(MapPathToStages.class);
         picoContainer.addComponent(LocationJourneyPlanner.class);
+        picoContainer.addComponent(PostcodeJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
         picoContainer.addComponent(FeedInfoResource.class);
         picoContainer.addComponent(RoutesRepository.class);

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 public class GraphBuildAndStartTest {
 
-    // spin up graph, primarily here to diagnose out of memory issues, isloate just the graph build
+    // spin up graph, primarily here to diagnose out of memory issues, isolate just the graph build
 
     @Test
     public void shouldBuildGraphAndStart() throws IOException {
@@ -54,10 +54,12 @@ public class GraphBuildAndStartTest {
         TransportGraphBuilder transportGraphBuilder = new TransportGraphBuilder(graphDatabase, new IncludeAllFilter(), transportData,
                 nodeIdLabelMap, nodeIdQuery, interchangeRepository, config);
 
+        transportData.start();
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(2000));
         transportGraphBuilder.start();
         graphDatabase.stop();
+        transportData.dispose();
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

@@ -1,11 +1,11 @@
 package com.tramchester.domain.places;
 
 
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.HasId;
 
 public class StationWalk {
-    private Station station;
-    private int cost;
+    private final Station station;
+    private final int cost;
 
     public StationWalk(Station station, int cost) {
         this.cost = cost;
@@ -19,7 +19,7 @@ public class StationWalk {
     @Override
     public String toString() {
         return "StationWalk{" +
-                "station=" + station +
+                "station=" + HasId.asId(station) +
                 ", cost=" + cost +
                 '}';
     }
