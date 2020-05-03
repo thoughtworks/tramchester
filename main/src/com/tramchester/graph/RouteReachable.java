@@ -118,7 +118,7 @@ public class RouteReachable {
         return getApproxCostBetween(startNode, endNode);
     }
 
-    private int getApproxCostBetween(Node startNode, Node endNode) {
+    public int getApproxCostBetween(Node startNode, Node endNode) {
         // follow the ON_ROUTE relationships to quickly find a route without any timing information or check
         PathExpander<Object> forTypesAndDirections = fullExpanderForRoutes();
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(forTypesAndDirections, COST);

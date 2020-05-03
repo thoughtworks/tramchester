@@ -37,7 +37,7 @@ public class MapPathToStages {
     private final RouteCodeToClassMapper routeIdToClass;
     private final TransportData transportData;
     private final MyLocationFactory myLocationFactory;
-    private PlatformRepository platformRepository;
+    private final PlatformRepository platformRepository;
 
     public MapPathToStages(RouteCodeToClassMapper routeIdToClass, TransportData transportData,
                            MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
@@ -106,6 +106,7 @@ public class MapPathToStages {
                     throw new RuntimeException(format("Unexpected relationship %s in path %s", type, path));
             }
         }
+        logger.info(format("Mapped path length %s to transport %s stages", path.length(), results.size()));
         return results;
     }
 

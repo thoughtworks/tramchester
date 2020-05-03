@@ -24,4 +24,8 @@ public class PostcodeJourneyPlanner {
         LatLong latLong = postcodeLocation.getLatLong();
         return planner.quickestRouteForLocation(destination.getId(), latLong, journeyRequest);
     }
+
+    public Stream<Journey> quickestRouteForLocation(PostcodeLocation start, PostcodeLocation end, JourneyRequest journeyRequest) {
+        return planner.quickestRouteForLocation(start.getLatLong(), end.getLatLong(), journeyRequest);
+    }
 }

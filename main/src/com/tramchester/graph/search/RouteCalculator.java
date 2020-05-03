@@ -93,6 +93,11 @@ public class RouteCalculator implements TramRouteCalculator {
         return getJourneyStream(startOfWalkNode, endNode, journeyRequest, destinationIds, true);
     }
 
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Node startNode, Node endNode,
+                                                           List<Station> destinationStations, JourneyRequest journeyRequest) {
+        return getJourneyStream(startNode, endNode, journeyRequest, destinationStations, true);
+    }
+
     private Stream<Journey> getJourneyStream(Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              List<Station> destinations, boolean walkAtStart) {
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));

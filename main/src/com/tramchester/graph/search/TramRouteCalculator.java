@@ -13,4 +13,7 @@ public interface TramRouteCalculator {
     Stream<Journey> calculateRouteWalkAtEnd(String startId, Node destination, List<Station> destStations, JourneyRequest journeyRequest);
 
     Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, Station destination, JourneyRequest journeyRequest);
+
+    Stream<Journey> calculateRouteWalkAtStartAndEnd(Node startNode, Node endNode, List<Station> destinationStations,
+                                                    JourneyRequest journeyRequest);
 }

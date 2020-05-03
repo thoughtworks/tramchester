@@ -51,10 +51,12 @@ public class LocationJourneyPlanner {
 
     public Stream<Journey> quickestRouteForLocation(LatLong latLong, Station destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", latLong, destination, journeyRequest));
+
+        List<Relationship> addedRelationships = new LinkedList<>();
+
         List<StationWalk> walksToStart = getStationWalks(latLong,  config.getNearestStopRangeKM());
 
         Node startOfWalkNode = createWalkingNode(latLong);
-        List<Relationship> addedRelationships = new LinkedList<>();
 
         walksToStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(startOfWalkNode, stationWalk,
                 TransportRelationshipTypes.WALKS_TO)));
@@ -74,10 +76,11 @@ public class LocationJourneyPlanner {
 
     public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", startId, destination, journeyRequest));
-        List<StationWalk> walksToDest = getStationWalks(destination,  config.getNearestStopRangeKM());
 
-        List<Relationship> addedRelationships = new LinkedList<>();
         List<Station> destinationStations = new ArrayList<>();
+        List<Relationship> addedRelationships = new LinkedList<>();
+
+        List<StationWalk> walksToDest = getStationWalks(destination,  config.getNearestStopRangeKM());
         Node midWalkNode = createWalkingNode(destination);
 
         walksToDest.forEach(stationWalk -> {
@@ -100,6 +103,47 @@ public class LocationJourneyPlanner {
         journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, midWalkNode, endWalk));
 
         return journeys;
+    }
+
+
+    public Stream<Journey> quickestRouteForLocation(LatLong startLatLong, LatLong destLatLong, JourneyRequest journeyRequest) {
+        logger.info(format("Finding shortest path for %s --> %s on %s", startLatLong, destLatLong, journeyRequest));
+
+        List<Relationship> addedRelationships = new LinkedList<>();
+
+        // Add Walk at the Start
+        List<StationWalk> walksAtStart = getStationWalks(startLatLong,  config.getNearestStopRangeKM());
+        Node startNode = createWalkingNode(startLatLong);
+        walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(startNode, stationWalk,
+                TransportRelationshipTypes.WALKS_TO)));
+
+        // Add Walks at the end
+        List<Station> destinationStations = new ArrayList<>();
+        List<StationWalk> walksToDest = getStationWalks(destLatLong,  config.getNearestStopRangeKM());
+        Node midWalkNode = createWalkingNode(destLatLong);
+        walksToDest.forEach(stationWalk -> {
+            destinationStations.add(stationWalk.getStation());
+            addedRelationships.add(createWalkRelationship(midWalkNode, stationWalk, TransportRelationshipTypes.WALKS_FROM));
+        });
+        Node endWalk = createWalkingNode(destLatLong);
+        Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
+        relationshipTo.setProperty(COST,0);
+        addedRelationships.add(relationshipTo);
+
+        /// CALC
+        Stream<Journey> journeys;
+        if (journeyRequest.getArriveBy()) {
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(startNode,  endWalk, destinationStations,
+                    journeyRequest);
+        } else {
+            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(startNode, endWalk, destinationStations, journeyRequest);
+        }
+
+        //noinspection ResultOfMethodCallIgnored
+        journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, startNode, midWalkNode, endWalk));
+
+        return journeys;
+
     }
 
     private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
@@ -130,13 +174,13 @@ public class LocationJourneyPlanner {
     }
 
     private void removeWalkNodeAndRelationships(List<Relationship> relationshipsToDelete, Node... nodesToDelete) {
-        logger.info("Removed added walks and start of walk node");
+        logger.info("Removed added walks and walk node(s)");
         relationshipsToDelete.forEach(relationship -> {
             nodeOperations.deleteFromCache(relationship);
             relationship.delete();
         });
-        for (int i = 0; i <nodesToDelete.length; i++) {
-            nodeOperations.deleteNode(nodesToDelete[i]);
+        for (Node node : nodesToDelete) {
+            nodeOperations.deleteNode(node);
         }
     }
 
@@ -175,4 +219,5 @@ public class LocationJourneyPlanner {
         double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return EARTH_RADIUS * fractionOfRadius;
     }
+
 }
