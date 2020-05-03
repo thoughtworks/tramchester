@@ -1,7 +1,7 @@
 package com.tramchester.resources;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -10,14 +10,15 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.services.SpatialService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,8 +75,8 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Stream<Journey> quickestRouteForLocation(String startId, LatLong destination, JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s on %s", startId, destination, journeyRequest));
+    public Stream<Journey> quickestRouteForLocation(Station start, LatLong destination, JourneyRequest journeyRequest) {
+        logger.info(format("Finding shortest path for %s --> %s on %s", start, destination, journeyRequest));
 
         List<Station> destinationStations = new ArrayList<>();
         List<Relationship> addedRelationships = new LinkedList<>();
@@ -94,9 +95,9 @@ public class LocationJourneyPlanner {
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(startId, endWalk, destinationStations, journeyRequest);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(start, endWalk, destinationStations, journeyRequest);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(startId, endWalk, destinationStations, journeyRequest);
+            journeys = routeCalculator.calculateRouteWalkAtEnd(start, endWalk, destinationStations, journeyRequest);
         }
 
         //noinspection ResultOfMethodCallIgnored

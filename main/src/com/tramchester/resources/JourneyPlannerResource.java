@@ -3,13 +3,8 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.MyLocationFactory;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.UpdateRecentJourneys;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -20,6 +15,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneysMapper;
 import com.tramchester.repository.TransportData;
+import com.tramchester.router.ProcessPlanRequest;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,11 +28,8 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -44,32 +37,19 @@ import static java.lang.String.format;
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
 public class JourneyPlannerResource extends UsesRecentCookie implements APIResource {
-
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
 
-    private final TramchesterConfig config;
-    private final LocationJourneyPlanner locToLocPlanner;
-    private final RouteCalculator routeCalculator;
-    private final RouteCalculatorArriveBy routeCalculatorArriveBy;
-    private final JourneysMapper journeysMapper;
-    private final ProvidesNotes providesNotes;
+    private final ProcessPlanRequest processPlanRequest;
     private final GraphDatabase graphDatabaseService;
-    private final TransportData transportData;
 
     public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
                                   LocationJourneyPlanner locToLocPlanner, UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, RouteCalculatorArriveBy routeCalculatorArriveBy,
                                   ProvidesNotes providesNotes, GraphDatabase graphDatabaseService, TransportData transportData,
-                                  ProvidesNow providesNow) {
+                                  ProvidesNow providesNow, ProcessPlanRequest processPlanRequest) {
         super(updateRecentJourneys, providesNow, objectMapper);
-        this.routeCalculator = routeCalculator;
-        this.journeysMapper = journeysMapper;
-        this.config = config;
-        this.locToLocPlanner = locToLocPlanner;
-        this.routeCalculatorArriveBy = routeCalculatorArriveBy;
-        this.providesNotes = providesNotes;
+        this.processPlanRequest = processPlanRequest;
         this.graphDatabaseService = graphDatabaseService;
-        this.transportData = transportData;
     }
 
     @GET
@@ -103,15 +83,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
                 JourneyPlanRepresentation planRepresentation;
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
-                    if (isWalking(startId)) {
-                        LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanStartsWithWalk(latLong, endId, journeyRequest);
-                    } else if (isWalking(endId)) {
-                        LatLong latLong = decodeLatLong(lat, lon);
-                        planRepresentation = createJourneyPlanEndsWithWalk(startId, latLong, journeyRequest);
-                    } else {
-                        planRepresentation = createJourneyPlan(startId, endId, journeyRequest);
-                    }
+                    planRepresentation =  processPlanRequest.directRequest(startId, endId, journeyRequest, lat, lon);
                 }
 
                 if (planRepresentation.getJourneys().size()==0) {
@@ -129,84 +101,6 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return Response.serverError().build();
     }
 
-    private boolean isWalking(String startId) {
-        return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
-    }
 
-    private LatLong decodeLatLong(String lat, String lon) {
-        double latitude = Double.parseDouble(lat);
-        double longitude = Double.parseDouble(lon);
-        return new LatLong(latitude,longitude);
-    }
-
-    private JourneyPlanRepresentation createJourneyPlanStartsWithWalk(LatLong latLong, String endId,
-                                                                      JourneyRequest journeyRequest) {
-        if (!transportData.hasStationId(endId)) {
-            String msg = "Unable to find end station from id " + endId;
-            logger.warn(msg);
-            throw new RuntimeException(msg);
-        }
-
-        Station finalStation = transportData.getStation(endId);
-        logger.info(format("Plan journey from %s to %s on %s", latLong, finalStation, journeyRequest));
-
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, finalStation, journeyRequest);
-        JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
-        journeys.close();
-        return plan;
-    }
-
-    private JourneyPlanRepresentation createJourneyPlanEndsWithWalk(String startId, LatLong latLong, JourneyRequest journeyRequest) {
-        if (!transportData.hasStationId(startId)) {
-            String msg = "Unable to find start station from id " + startId;
-            logger.warn(msg);
-            throw new RuntimeException(msg);
-        }
-
-        Station startStation = transportData.getStation(startId);
-
-        logger.info(format("Plan journey from %s to %s on %s", startStation, latLong, journeyRequest));
-
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(startId, latLong, journeyRequest);
-        JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
-        journeys.close();
-        return plan;
-    }
-
-    private JourneyPlanRepresentation createJourneyPlan(String startId, String endId, JourneyRequest journeyRequest) {
-        if (!transportData.hasStationId(startId)) {
-            String msg = "Unable to find start station from id " + startId;
-            logger.warn(msg);
-            throw new RuntimeException(msg);
-        }
-
-        if (!transportData.hasStationId(endId)) {
-            String msg = "Unable to find end station from id " + endId;
-            logger.warn(msg);
-            throw new RuntimeException(msg);
-        }
-
-        Station startStation = transportData.getStation(startId);
-        Station endStation = transportData.getStation(endId);
-
-        logger.info(format("Plan journey from %s to %s on %s", startStation, endStation, journeyRequest));
-
-        Stream<Journey> journeys;
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRoute(startId, endStation, journeyRequest);
-        } else {
-            journeys = routeCalculator.calculateRoute(startId, endStation, journeyRequest);
-        }
-        // ASSUME: Limit here rely's on search giving lowest cost routes first
-        JourneyPlanRepresentation journeyPlanRepresentation = createPlan(journeyRequest.getDate(), journeys.limit(config.getMaxNumResults()));
-        journeys.close();
-        return journeyPlanRepresentation;
-    }
-
-    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeys) {
-        SortedSet<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate, config.getMaxNumResults());
-        List<String> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
-        return new JourneyPlanRepresentation(journeyDTOs, notes);
-    }
 
 }

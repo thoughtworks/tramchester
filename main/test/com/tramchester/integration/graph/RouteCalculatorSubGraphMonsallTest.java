@@ -101,17 +101,12 @@ public class RouteCalculatorSubGraphMonsallTest {
         }
     }
 
-    private void validateNumberOfStages(Location start, Station dest, TramTime time, LocalDate date, int numStages) {
-        String startId = start.getId();
-        validateNumberOfStages(startId, dest, time, date, numStages);
-    }
-
-    private void validateNumberOfStages(String startId, Station destination, TramTime time, LocalDate date, int numStages) {
-        Set<Journey> journeys = calculator.calculateRoute(startId, destination, new JourneyRequest(new TramServiceDate(date), time,
+    private void validateNumberOfStages(Station start, Station destination, TramTime time, LocalDate date, int numStages) {
+        Set<Journey> journeys = calculator.calculateRoute(start, destination, new JourneyRequest(new TramServiceDate(date), time,
                 false)).
                 collect(Collectors.toSet());
 
-        assertFalse(format("No Journeys from %s to %s found at %s on %s", startId, destination, time.toString(), date),
+        assertFalse(format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date),
                 journeys.isEmpty());
         journeys.forEach(journey -> assertEquals(numStages, journey.getStages().size()));
     }

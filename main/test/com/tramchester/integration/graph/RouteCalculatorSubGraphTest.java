@@ -89,7 +89,7 @@ public class RouteCalculatorSubGraphTest {
     @Test
     public void shouldHaveJourneysBetweenAllStations() {
         TramTime time = TramTime.of(9, 0);
-        for (Location start: stations) {
+        for (Station start: stations) {
             for (Station destination: stations) {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < 7; i++) {
@@ -103,21 +103,21 @@ public class RouteCalculatorSubGraphTest {
 
     @Test
     public void shouldHaveSimpleOneStopJourney() {
-        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook.getId(), Stations.Pomona,
+        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook, Stations.Pomona,
                 new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());;
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Deansgate,
+        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare, Stations.Deansgate,
                 new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
 
     @Test
     public void shouldHaveSimpleJourney() {
-        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare.getId(), Stations.Cornbrook,
+        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare, Stations.Cornbrook,
                 new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());
         assertTrue(results.size()>0);
     }
@@ -141,7 +141,7 @@ public class RouteCalculatorSubGraphTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start.getId(), dest, time, date, 5);
+    private void validateAtLeastOneJourney(Station start, Station dest, TramTime time, LocalDate date) {
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start, dest, time, date, 5);
     }
 }

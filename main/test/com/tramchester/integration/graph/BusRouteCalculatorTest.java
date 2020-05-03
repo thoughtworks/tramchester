@@ -57,14 +57,14 @@ public class BusRouteCalculatorTest {
 
     @Test
     public void shouldHaveAltyToStockJourney() {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, AltrinchamInterchange.getId(), StockportBusStation,
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, AltrinchamInterchange, StockportBusStation,
                 TramTime.of(8, 0), nextTuesday, 5);
     }
 
     @Test
     public void shouldHaveShudehillToStockJourney() {
         int maxChanges = 1;
-        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, ShudehillInterchange.getId(), StockportBusStation,
+        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, ShudehillInterchange, StockportBusStation,
                 TramTime.of(8, 0), nextTuesday, maxChanges);
         Journey journey = journeys.toArray(new Journey[1])[0];
         assertFalse(journey.getStages().size()>(maxChanges+1));
@@ -72,7 +72,7 @@ public class BusRouteCalculatorTest {
 
     @Test
     public void shouldHaveSimpleTramJourney() {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, Stations.Altrincham.getId(), Stations.Cornbrook,
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, Stations.Altrincham, Stations.Cornbrook,
                 TramTime.of(8, 0), nextTuesday, 5);
     }
 }

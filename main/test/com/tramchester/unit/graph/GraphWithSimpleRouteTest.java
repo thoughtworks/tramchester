@@ -83,7 +83,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestSimpleJourneyIsPossible() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getFirst(),
                 transportData.getSecondStation(), journeyRequest).
                 collect(Collectors.toSet());
         assertEquals(1, journeys.size());
@@ -109,7 +109,7 @@ public class GraphWithSimpleRouteTest {
     public void shouldHaveJourneyWithLocationBasedEnd() {
         LatLong origin = TestEnv.nearShudehill;
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(TransportDataForTest.SECOND_STATION, origin,
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getSecond(), origin,
                 new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());
 
         assertEquals(1, journeys.size());
@@ -122,7 +122,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestSimpleJourneyIsPossibleToInterchange() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getFirst(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE,
@@ -137,7 +137,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestSimpleJourneyIsNotPossible() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getFirst(),
                 transportData.getInterchange(),  new JourneyRequest(queryDate, TramTime.of(9, 0),
                         false)).collect(Collectors.toSet());
         assertEquals(0, journeys.size());
@@ -145,7 +145,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitIsPossible() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getFirst(),
                 transportData.getLast(), journeyRequest).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION,
@@ -156,17 +156,17 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestNoJourneySecondToStart() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.SECOND_STATION,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getSecondStation(),
                 transportData.getFirst(), journeyRequest).collect(Collectors.toSet());
         assertEquals(0,journeys.size());
     }
 
     @Test
     public void shouldTestJourneyInterchangeToFive() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.INTERCHANGE,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         assertFalse(journeys.size()>=1);
-        journeys = calculator.calculateRoute(TransportDataForTest.INTERCHANGE,
+        journeys = calculator.calculateRoute(transportData.getInterchange(),
                 transportData.getFifthStation(),  new JourneyRequest(queryDate, TramTime.of(8, 10), false)).collect(Collectors.toSet());
         assertTrue(journeys.size()>=1);
         journeys.forEach(journey->assertEquals(1, journey.getStages().size()));
@@ -175,7 +175,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getFirst(),
                 transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
        assertTrue(journeys.size()>=1);
        checkForPlatforms(journeys);
@@ -184,7 +184,7 @@ public class GraphWithSimpleRouteTest {
 
     @Test
     public void shouldTestJourneyAnotherWaitLimitViaInterchangeIsPossible() {
-        Set<Journey> journeys = calculator.calculateRoute(TransportDataForTest.FIRST_STATION,
+        Set<Journey> journeys = calculator.calculateRoute(transportData.getFirst(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         assertTrue(journeys.size()>=1);
         checkForPlatforms(journeys);

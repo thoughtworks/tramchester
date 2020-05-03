@@ -54,4 +54,8 @@ public class PostcodeRepository implements Disposable, Startable {
     public void stop() {
 
     }
+
+    public boolean hasPostcode(String postcode) {
+        return postcodes.containsKey(postcode);
+    }
 }

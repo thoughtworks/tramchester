@@ -29,6 +29,7 @@ import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.mappers.*;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
+import com.tramchester.router.ProcessPlanRequest;
 import com.tramchester.services.SpatialService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.picocontainer.DefaultPicoContainer;
@@ -108,6 +109,7 @@ public class Dependencies {
 
         picoContainer.addComponent(RouteCalculator.class);
         picoContainer.addComponent(RouteCalculatorArriveBy.class);
+        picoContainer.addComponent(ProcessPlanRequest.class);
         picoContainer.addComponent(NodeIdQuery.class);
         picoContainer.addComponent(ProvidesNotes.class);
         picoContainer.addComponent(JourneysMapper.class);
@@ -121,7 +123,6 @@ public class Dependencies {
         picoContainer.addComponent(SignalToCloudformationReady.class);
         picoContainer.addComponent(MapPathToStages.class);
         picoContainer.addComponent(LocationJourneyPlanner.class);
-        picoContainer.addComponent(PostcodeJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
         picoContainer.addComponent(FeedInfoResource.class);
         picoContainer.addComponent(RoutesRepository.class);

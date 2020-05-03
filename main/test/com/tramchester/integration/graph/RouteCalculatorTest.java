@@ -99,14 +99,14 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindInterchangesToEndOfLines() {
-        Set<Pair<String, Station>> combinations = createJourneyPairs(Stations.Interchanges,Stations.EndOfTheLine );
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges,Stations.EndOfTheLine );
         checkRouteNextNDays(combinations, nextTuesday, TramTime.of(8,0), 7);
     }
 
     @Test
     public void shouldHaveReasonableJourneyAltyToDeansgate() {
         TramServiceDate today = new TramServiceDate(nextTuesday);
-        Stream<Journey> results = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.Deansgate,
+        Stream<Journey> results = calculator.calculateRoute(Stations.Altrincham, Stations.Deansgate,
                 new JourneyRequest(today, TramTime.of(10, 15), false));
         results.forEach(journey -> {
             assertEquals(1, journey.getStages().size()); // should be one stage only
@@ -128,7 +128,7 @@ public class RouteCalculatorTest {
     public void shouldUseAllRoutesCorrectlWhenMultipleRoutesServDestination() {
         TramServiceDate today = new TramServiceDate(nextTuesday);
 
-        Location start = Stations.Altrincham;
+        Station start = Stations.Altrincham;
 
         TramTime queryTime = TramTime.of(10, 21);
         Set<Journey> servedByBothRoutes = calculateRoutes(start, Stations.Deansgate, queryTime, today);
@@ -172,7 +172,7 @@ public class RouteCalculatorTest {
     public void shouldLimitNumberChangesResultsInNoJourneys() {
         TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
 
-        Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport,
+        Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham, Stations.ManAirport,
                 new JourneyRequest(today, TramTime.of(11, 43), false, 0));
         Set<Journey> results = stream.collect(Collectors.toSet());
         stream.close();
@@ -184,7 +184,7 @@ public class RouteCalculatorTest {
     public void testJourneyFromAltyToAirport() {
         TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
 
-        Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham.getId(), Stations.ManAirport,
+        Stream<Journey> stream = calculator.calculateRoute(Stations.Altrincham, Stations.ManAirport,
                 new JourneyRequest(today, TramTime.of(11, 43), false));
         Set<Journey> results = stream.collect(Collectors.toSet());
         stream.close();
@@ -227,12 +227,12 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldHaveHeatonParkToBurtonRoad() {
-        validateAtLeastOneJourney(HeatonPark.getId(), Stations.BurtonRoad, TramTime.of(7, 30),  nextTuesday);
+        validateAtLeastOneJourney(HeatonPark, Stations.BurtonRoad, TramTime.of(7, 30),  nextTuesday);
     }
 
     @Test
     public void shouldReproIssueRochInterchangeToBury() {
-        validateAtLeastOneJourney(Stations.Rochdale.getId(), Stations.Bury, TramTime.of(9, 0), nextTuesday );
+        validateAtLeastOneJourney(Stations.Rochdale, Stations.Bury, TramTime.of(9, 0), nextTuesday );
     }
 
     @Test
@@ -246,18 +246,18 @@ public class RouteCalculatorTest {
     @Test
     public void shouldFindEndOfLinesToEndOfLines() {
         // todo: changed from 9 to 10.15 as airport to eccles fails for 10.15am
-        Set<Pair<String, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
         checkRouteNextNDays(combinations, nextTuesday, TramTime.of(10,15), 7);
     }
 
     @Test
     @Ignore
     public void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
-        Set<Pair<String, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
 
         List<Journey> allResults = new ArrayList<>();
 
-        Map<Pair<String, Station>, JourneyOrNot> results = validateAllHaveAtLeastOneJourney(nextTuesday,
+        Map<Pair<Station, Station>, JourneyOrNot> results = validateAllHaveAtLeastOneJourney(nextTuesday,
                 combinations, TramTime.of(9,0));
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
@@ -282,13 +282,13 @@ public class RouteCalculatorTest {
 
     @Test
     public void shouldFindInterchangesToInterchanges() {
-        Set<Pair<String, Station>> combinations = createJourneyPairs(Stations.Interchanges, Stations.Interchanges);
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges, Stations.Interchanges);
         checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
     }
 
     @Test
     public void shouldFindEndOfLinesToInterchanges() {
-        Set<Pair<String, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.Interchanges);
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.Interchanges);
         checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
     }
 
@@ -297,8 +297,8 @@ public class RouteCalculatorTest {
 
         Set<List<TransportStage>> stages = new HashSet<>();
 
-        Stream<Journey> stream = calculator.calculateRoute(Stations.Bury.getId(), Stations.Altrincham, new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(11,45),
-                false));
+        Stream<Journey> stream = calculator.calculateRoute(Stations.Bury, Stations.Altrincham,
+                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(11,45), false));
         Set<Journey> journeys = stream.collect(Collectors.toSet());
         stream.close();
 
@@ -383,7 +383,7 @@ public class RouteCalculatorTest {
         validateAtLeastOneJourney(Stations.Rochdale, Stations.Eccles, TramTime.of(9,0), nextTuesday);
     }
 
-    private void checkRouteNextNDays(Location start, Station dest, LocalDate date, TramTime time, int numDays) {
+    private void checkRouteNextNDays(Station start, Station dest, LocalDate date, TramTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
                 LocalDate testDate = avoidChristmasDate(date.plusDays(day));
@@ -392,7 +392,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    private void checkRouteNextNDays(Set<Pair<String,Station>> combinations, LocalDate date, TramTime time, int numDays) {
+    private void checkRouteNextNDays(Set<Pair<Station,Station>> combinations, LocalDate date, TramTime time, int numDays) {
 
         for(int day = 0; day< numDays; day++) {
             LocalDate testDate = avoidChristmasDate(date.plusDays(day));
@@ -400,23 +400,23 @@ public class RouteCalculatorTest {
         }
     }
 
-    private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
-        validateAtLeastOneJourney(start.getId(), dest, time, date);
+//    private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
+//        validateAtLeastOneJourney(start, dest, time, date);
+//    }
+
+    private void validateAtLeastOneJourney(Station station, Station dest, TramTime time, LocalDate date) {
+        validateAtLeastOneJourney(calculator, station, dest, time, date, 5);
     }
 
-    private void validateAtLeastOneJourney(String startId, Station dest, TramTime time, LocalDate date) {
-        validateAtLeastOneJourney(calculator, startId, dest, time, date, 5);
-    }
-
-    public static Set<Journey> validateAtLeastOneJourney(RouteCalculator theCalculator, String startId, Station destination,
+    public static Set<Journey> validateAtLeastOneJourney(RouteCalculator theCalculator, Station start, Station destination,
                                                          TramTime time, LocalDate date, int maxChanges) {
         TramServiceDate queryDate = new TramServiceDate(date);
-        Stream<Journey> journeyStream = theCalculator.calculateRoute(startId, destination, new JourneyRequest(new TramServiceDate(date), time,
+        Stream<Journey> journeyStream = theCalculator.calculateRoute(start, destination, new JourneyRequest(new TramServiceDate(date), time,
                 false, maxChanges));
         Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
         journeyStream.close();
 
-        String message = "from " + startId + " to " + destination + " at " + time + " on " + queryDate;
+        String message = "from " + start + " to " + destination + " at " + time + " on " + queryDate;
         assertTrue("Unable to find journey " + message, journeys.size() > 0);
         journeys.forEach(journey -> assertFalse(message + " missing stages for journey" + journey, journey.getStages().isEmpty()));
         journeys.forEach(RouteCalculatorTest::checkStages);
@@ -424,12 +424,12 @@ public class RouteCalculatorTest {
     }
 
     // TODO to station, station
-    private Set<Pair<String, Station>> createJourneyPairs(List<Station> starts, List<Station> ends) {
-        Set<Pair<String, Station>> combinations = new HashSet<>();
+    private Set<Pair<Station, Station>> createJourneyPairs(List<Station> starts, List<Station> ends) {
+        Set<Pair<Station, Station>> combinations = new HashSet<>();
         for (Station start : starts) {
             for (Station dest : ends) {
                 if (!dest.equals(start)) {
-                    combinations.add(Pair.of(start.getId(), dest));
+                    combinations.add(Pair.of(start, dest));
                 }
             }
         }
@@ -448,7 +448,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    private List<TramTime> checkRangeOfTimes(Location start, Station dest) {
+    private List<TramTime> checkRangeOfTimes(Station start, Station dest) {
 
         // TODO TEMPORARY 23 Changed to 21
         List<TramTime> missing = new LinkedList<>();
@@ -456,7 +456,7 @@ public class RouteCalculatorTest {
         for (int hour = 6; hour < latestHour; hour++) {
             for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
-                Stream<Journey> journeys = calculator.calculateRoute(start.getId(), dest,
+                Stream<Journey> journeys = calculator.calculateRoute(start, dest,
                         new JourneyRequest(new TramServiceDate(nextTuesday), time, false));
                 if (journeys.limit(1).findFirst().isEmpty()) {
                     missing.add(time);
@@ -468,11 +468,11 @@ public class RouteCalculatorTest {
         return missing;
     }
 
-    private Map<Pair<String, Station>, JourneyOrNot> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
+    private Map<Pair<Station, Station>, JourneyOrNot> validateAllHaveAtLeastOneJourney(
+            LocalDate queryDate, Set<Pair<Station, Station>> combinations, TramTime queryTime) {
 
         // check each pair, collect results into (station,station)->result
-        Map<Pair<String, Station>, JourneyOrNot> results =
+        Map<Pair<Station, Station>, JourneyOrNot> results =
                 combinations.parallelStream().
                         map(this::checkForTx).
                         map(requested -> {
@@ -508,20 +508,21 @@ public class RouteCalculatorTest {
         return journey;
     }
 
-    private Set<Journey> calculateRoutes(Location start, Station destination, TramTime queryTime, TramServiceDate today) {
-        Stream<Journey> journeyStream = calculator.calculateRoute(start.getId(), destination, new JourneyRequest(today, queryTime, false));
+    private Set<Journey> calculateRoutes(Station start, Station destination, TramTime queryTime, TramServiceDate today) {
+        Stream<Journey> journeyStream = calculator.calculateRoute(start, destination, new JourneyRequest(today, queryTime, false));
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
         return journeySet;
     }
 
     private static class JourneyOrNot {
-        private final Pair<String, Station> requested;
+        private final Pair<Station, Station> requested;
         private final LocalDate queryDate;
         private final TramTime queryTime;
         private final Journey journey;
 
-        public JourneyOrNot(Pair<String, Station> requested, LocalDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
+        public JourneyOrNot(Pair<Station, Station> requested, LocalDate queryDate, TramTime queryTime,
+                            Optional<Journey> optionalJourney) {
             this.requested = requested;
             this.queryDate = queryDate;
             this.queryTime = queryTime;

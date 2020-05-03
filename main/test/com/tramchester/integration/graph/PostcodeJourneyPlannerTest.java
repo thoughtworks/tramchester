@@ -12,7 +12,8 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.PostcodeRepository;
-import com.tramchester.resources.PostcodeJourneyPlanner;
+import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
@@ -43,7 +44,7 @@ public class PostcodeJourneyPlannerTest {
 
     private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
-    private PostcodeJourneyPlanner planner;
+    private LocationJourneyPlanner planner;
     private PostcodeRepository repository;
     private JourneyRequest request;
     private PostcodeLocation centralLocation;
@@ -73,12 +74,11 @@ public class PostcodeJourneyPlannerTest {
     @Before
     public void beforeEachTestRuns() {
         tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        planner = dependencies.get(PostcodeJourneyPlanner.class);
+        planner = dependencies.get(LocationJourneyPlanner.class);
         repository = dependencies.get(PostcodeRepository.class);
         planningTime = TramTime.of(11, 42);
         request = new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, arriveBy);
-        centralLocation = repository.getPostcode("M139WL");
-
+        centralLocation = repository.getPostcode(Postcodes.NearPiccadily);
     }
 
     @After
@@ -88,7 +88,8 @@ public class PostcodeJourneyPlannerTest {
 
     @Test
     public void shouldHaveJourneyFromCentralPostcodeToBury() {
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation, Stations.Bury, request);
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation.getLatLong(),
+                Stations.Bury, request);
 
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
@@ -100,7 +101,8 @@ public class PostcodeJourneyPlannerTest {
 
     @Test
     public void shouldHaveJourneyFromBuryToCentralPostcode() {
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.Bury, centralLocation, request);
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.Bury,
+                centralLocation.getLatLong(), request);
 
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
@@ -113,8 +115,9 @@ public class PostcodeJourneyPlannerTest {
 
     @Test
     public void shouldHavePostcodeToPostcodeJourney() {
-        PostcodeLocation buryPostcode = repository.getPostcode("BL90AY");
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation, buryPostcode, request);
+        PostcodeLocation buryPostcode = repository.getPostcode(Postcodes.CentralBury);
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation.getLatLong(),
+                buryPostcode.getLatLong(), request);
 
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();

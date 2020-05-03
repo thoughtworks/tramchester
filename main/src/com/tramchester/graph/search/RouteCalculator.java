@@ -58,11 +58,11 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(String startStationId, Station destination, JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s on %s", startStationId, destination,
+    public Stream<Journey> calculateRoute(Station startStation, Station destination, JourneyRequest journeyRequest) {
+        logger.info(format("Finding shortest path for %s --> %s on %s", startStation, destination,
                 journeyRequest));
 
-        Node startNode = getStationNodeSafe(startStationId);
+        Node startNode = getStationNodeSafe(startStation.getId());
         Node endNode = getStationNodeSafe(destination.getId());
 
         List<Station> destinations = Collections.singletonList(destination);
@@ -78,10 +78,10 @@ public class RouteCalculator implements TramRouteCalculator {
         return stationNode;
     }
 
-    public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<Station> desinationStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Station start, Node endOfWalk, List<Station> desinationStations,
                                                    JourneyRequest journeyRequest)
     {
-        Node startNode = getStationNodeSafe(startId);
+        Node startNode = getStationNodeSafe(start.getId());
         return getJourneyStream(startNode, endOfWalk, journeyRequest, desinationStations, false);
     }
 

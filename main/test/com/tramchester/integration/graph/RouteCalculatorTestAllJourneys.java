@@ -84,16 +84,15 @@ public class RouteCalculatorTestAllJourneys {
         Set<Station> allStations = data.getStations();
 
         // pairs of stations to check
-        Set<Pair<String, Station>> combinations = allStations.stream().map(start -> allStations.stream().
+        Set<Pair<Station, Station>> combinations = allStations.stream().flatMap(start -> allStations.stream().
                 map(dest -> Pair.of(start, dest))).
-                flatMap(Function.identity()).
                 filter(pair -> !pair.getRight().getId().equals(pair.getLeft().getId())).
                 filter(pair -> !matches(pair, Stations.Interchanges)).
                 filter(pair -> !matches(pair, Stations.EndOfTheLine)).
-                map(pair -> Pair.of(pair.getLeft().getId(), pair.getRight())).
+                map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toSet());
 
-        Map<Pair<String, Station>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
+        Map<Pair<Station, Station>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
                 combinations, TramTime.of(8, 5));
 
         // now find longest journey
@@ -111,17 +110,16 @@ public class RouteCalculatorTestAllJourneys {
         assertEquals(39, maxNumberStops.get().intValue());
     }
 
-
     private boolean matches(Pair<Station, Station> locationPair, List<Station> locations) {
         return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
     }
 
-    private Map<Pair<String, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<Pair<String, Station>> combinations, TramTime queryTime) {
+    private Map<Pair<Station, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
+            LocalDate queryDate, Set<Pair<Station, Station>> combinations, TramTime queryTime) {
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false);
 
-        final ConcurrentMap<Pair<String, Station>, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
+        final ConcurrentMap<Pair<Station, Station>, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
         combinations.forEach(pair -> results.put(pair, Optional.empty()));
 
         combinations.parallelStream().
@@ -135,7 +133,7 @@ public class RouteCalculatorTestAllJourneys {
         assertEquals("Not enough results", combinations.size(), results.size());
 
         // check all results present, collect failures into a list
-        List<Pair<String, Station>> failed = results.
+        List<Pair<Station, Station>> failed = results.
                 entrySet().stream().
                 filter(journey -> journey.getValue().isEmpty()).
                 map(Map.Entry::getKey).
@@ -152,7 +150,7 @@ public class RouteCalculatorTestAllJourneys {
         return results;
     }
 
-    private String displayFailed(List<Pair<String, Station>> pairs) {
+    private String displayFailed(List<Pair<Station, Station>> pairs) {
         StringBuilder stringBuilder = new StringBuilder();
         pairs.forEach(pair -> {
             Station dest = pair.getRight();

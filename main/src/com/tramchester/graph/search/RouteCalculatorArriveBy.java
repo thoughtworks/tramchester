@@ -28,20 +28,20 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(String startStationId, Station destination, JourneyRequest journeyRequest) {
-        int costToDest = routeReachable.getApproxCostBetween(startStationId, destination.getId());
+    public Stream<Journey> calculateRoute(Station startStation, Station destination, JourneyRequest journeyRequest) {
+        int costToDest = routeReachable.getApproxCostBetween(startStation.getId(), destination.getId());
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRoute(startStationId, destination, departureTime);
+        return routeCalculator.calculateRoute(startStation, destination, departureTime);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(String startId, Node endOfWalk, List<Station> destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Station start, Node endOfWalk, List<Station> destStations,
                                                    JourneyRequest journeyRequest) {
-        int costToDest = routeReachable.getApproxCostBetween(startId, endOfWalk);
+        int costToDest = routeReachable.getApproxCostBetween(start.getId(), endOfWalk);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtEnd(startId, endOfWalk, destStations, departureTime);
+        return routeCalculator.calculateRouteWalkAtEnd(start, endOfWalk, destStations, departureTime);
     }
 
     @Override
