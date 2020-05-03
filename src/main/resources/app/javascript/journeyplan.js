@@ -98,7 +98,7 @@ var app = new Vue({
                 arriveBy: false,
                 time: getCurrentTime(),
                 date: getCurrentDate(),
-                maxChanges: 10,
+                maxChanges: 8,
                 journeys: [],
                 notes: [],
                 buildNumber: '',

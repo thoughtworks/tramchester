@@ -67,7 +67,7 @@
             <b-row class="mb-2" v-if="feedinfo.bus">
                 <b-col cols="3" class="pl-0">
                     <b-form-group label="max changes" label-form="maxChanges">
-                        <b-form-input type="number" id="maxChanges" size="sm" v-model="maxChanges"></b-form-input>
+                        <b-form-input min="0" max="8" type="number" id="maxChanges" size="sm" v-model="maxChanges"></b-form-input>
                     </b-form-group>
                 </b-col>
             </b-row>
