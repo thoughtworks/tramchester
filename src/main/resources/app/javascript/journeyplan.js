@@ -6,9 +6,12 @@ var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
 
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './../css/tramchester.css'
+
+import Notes from "./components/Notes.js";
+import Journeys from './components/Journeys';
 
 function getCurrentTime() {
     return moment().local().format("HH:mm");
@@ -77,63 +80,53 @@ function getStationsFromServer(app) {
              app.networkError = false;
              app.proximityGroups = response.data.proximityGroups;
              app.stops = response.data.stations;
-             app.ready=true;
+             app.ready = true;
          })
          .catch(function (error) {
              app.networkError = true;
-             app.ready=true;
+             app.ready = true;
              console.log(error);
          });
  }
 
+ var data = {
+    ready: false,                   // ready to respond
+    stops: [],                      // all stops
+    proximityGroups: [],
+    startStop: null,
+    endStop: null,
+    arriveBy: false,
+    time: getCurrentTime(),
+    date: getCurrentDate(),
+    maxChanges: 8,
+    journeys: [],
+    notes: [],
+    buildNumber: '',
+    feedinfo: [],
+    localDueTrams: [],
+    noResults: false,           // no routes found
+    noLiveResults: false,       // no live data found
+    searchInProgress: false,    // searching for routes
+    liveInProgress: false,      // looking for live data
+    networkError: false,        // network error on either query
+    hasGeo: false,
+    location: null,
+    currentPage: 1,             // current page for due trams
+    departureFields: [
+        {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
+        {key:'when', label:'Time', tdClass:'departureDueTime', sortable:true},
+        {key:'carriages', label:'', tdClass:'departureCarriages'},
+        {key:'status', label:'Status', tdClass:'departureStatus'},
+        {key:'destination', label:'Towards', tdClass:'departureTowards',  sortable:true}
+    ]
+}
+
 var app = new Vue({
         el: '#journeyplan',
-        data () {
-            return {
-                ready: false,                   // ready to respond
-                stops: [],                      // all stops
-                proximityGroups: [],
-                startStop: null,
-                endStop: null,
-                arriveBy: false,
-                time: getCurrentTime(),
-                date: getCurrentDate(),
-                maxChanges: 8,
-                journeys: [],
-                notes: [],
-                buildNumber: '',
-                feedinfo: [],
-                localDueTrams: [],
-                noResults: false,           // no routes found
-                noLiveResults: false,       // no live data found
-                searchInProgress: false,    // searching for routes
-                liveInProgress: false,      // looking for live data
-                networkError: false,        // network error on either query
-                hasGeo: false,
-                location: null,
-                currentPage: 1,             // current page for due trams
-                journeyFields: [
-                    {key:'_showDetails',label:'', formatter: this.rowExpandedFormatter},
-                    {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
-                    {key:'begin.name',label:'From', sortable:true, tdClass:'station'},
-                    {key:'expectedArrivalTime',label:'Arrive', sortable:false, tdClass:'arriveTime'},
-                    {key:'changeStations', label:'Change', tdClass:'changes', formatter: this.changesFormatter}
-                    ],
-                stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
-                    {key:'action',label:'Action',tdClass:'action' },
-                    {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: this.stationFormatter},
-                    {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
-                    {key:'headSign', label:'Towards', tdClass: this.stageHeadsignClass },
-                    {key:'mode', label:'Line', formatter: this.lineFormatter, tdClass: this.stageRowClass },
-                    {key:'passedStops', label:'Stops', tdClass:'passedStops'}],
-                departureFields: [
-                    {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
-                    {key:'when', label:'Time', tdClass:'departureDueTime', sortable:true},
-                    {key:'carriages', label:'', tdClass:'departureCarriages'},
-                    {key:'status', label:'Status', tdClass:'departureStatus'},
-                    {key:'destination', label:'Towards', tdClass:'departureTowards',  sortable:true}
-                ]
-            }
+        data:  data,
+        components: {
+            'notes' : Notes,
+            'journeys' : Journeys
         },
         methods: {
             clearResults() {
@@ -210,51 +203,12 @@ var app = new Vue({
             getStations() {
                 getStationsFromServer(this);
             },
-            expandStages(row,index) {
-                row._showDetails = !row._showDetails;
-            },
-            stageRowClass(value, key, item) {
-                return item.displayClass;
-            },
-            stationFormatter(value, key, row) {
-                var url = 'https://www.google.com/maps/search/?api=1&query='
-                    + row.actionStation.latLong.lat + ',' + row.actionStation.latLong.lon;
-                return `<a href='${url}' target="_blank">${row.actionStation.name}</a>`
-            },
-            changesFormatter(value, key, row) {
-                if (value.length==0) {
-                    return "Direct";
-                }
-                var result = "";
-                value.forEach(change => {
-                    if (result.length>0) result = result.concat(", ");
-                    result = result.concat(change)});
-                return result;
-            },
-            lineFormatter(value, key, row) {
-                if (value==='Bus') {
-                    return row.routeShortName;
-                } else {
-                    return row.routeName;
-                }
-            },
-            rowExpandedFormatter(value, key, row) {
-                if (row._showDetails!=null && row._showDetails) {
-                    return "&#8897;";
-                } else {
-                    return "&#8811;";
-                }
-            },
-            stageHeadsignClass(value, key, item) {
-                if (value === 'WalkingHeadSign') {
-                    return 'HideWalkingHeadSign';
-                }
-                return "headsign";
-            },
+            // expandStages(row,index) {
+            //     row._showDetails = !row._showDetails;
+            // },
             setCookie() {
                 var cookie = { 'visited' : true };
-                var expiry = moment().add(100, 'days').toDate();
-                this.$cookies.set("tramchesterVisited",cookie,"128d");
+                this.$cookies.set("tramchesterVisited", cookie, "128d");
             },
             timeToNow() {
                 app.time = getCurrentTime();
@@ -278,15 +232,13 @@ var app = new Vue({
                     if (stop.proximityGroup.order===group.order && stop.id!==app.startStop) result.push(stop); } )
                 return result;
             }
-        }
-        ,
+        },
         mounted () {
             var cookie = this.$cookies.get("tramchesterVisited");
             if (cookie==null) {
                 this.$refs.cookieModal.show();
             }
-            axios
-                .get('/api/feedinfo')
+            axios.get('/api/feedinfo')
                 .then(function (response) {
                     app.networkError = false;
                     app.feedinfo = response.data;})
@@ -294,8 +246,7 @@ var app = new Vue({
                     this.networkError = true;
                     console.log(error);
                 });
-            axios
-                .get('/api/version')
+            axios.get('/api/version')
                 .then(function (response) {
                     app.networkError = false;
                     app.buildNumber = response.data.buildNumber;})

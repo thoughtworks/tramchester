@@ -36,7 +36,7 @@ public class StationResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void shouldGetSingleStationWithPlatforms() {
@@ -210,12 +210,14 @@ public class StationResourceTest {
         assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private StationListDTO getNearest(double lat, double lon, Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie, 200);
         assertEquals(200,result.getStatus());
         return result.readEntity(StationListDTO.class);
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private StationListDTO getAll(Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, "stations", cookie, 200);
         assertEquals(200,result.getStatus());

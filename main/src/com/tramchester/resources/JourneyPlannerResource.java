@@ -42,10 +42,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     private final ProcessPlanRequest processPlanRequest;
     private final GraphDatabase graphDatabaseService;
 
-    public JourneyPlannerResource(RouteCalculator routeCalculator, JourneysMapper journeysMapper, TramchesterConfig config,
-                                  LocationJourneyPlanner locToLocPlanner, UpdateRecentJourneys updateRecentJourneys,
-                                  ObjectMapper objectMapper, RouteCalculatorArriveBy routeCalculatorArriveBy,
-                                  ProvidesNotes providesNotes, GraphDatabase graphDatabaseService, TransportData transportData,
+    public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
+                                  ObjectMapper objectMapper, GraphDatabase graphDatabaseService,
                                   ProvidesNow providesNow, ProcessPlanRequest processPlanRequest) {
         super(updateRecentJourneys, providesNow, objectMapper);
         this.processPlanRequest = processPlanRequest;
@@ -68,7 +66,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));
 
-        LocalDate date = LocalDate.parse(departureDateRaw); // TODO need formatter?
+        LocalDate date = LocalDate.parse(departureDateRaw);
         TramServiceDate queryDate = new TramServiceDate(date);
 
         int maxChanges = Integer.parseInt(maxChangesRaw);
