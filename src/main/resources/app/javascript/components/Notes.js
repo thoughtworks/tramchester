@@ -1,21 +1,21 @@
 
 export default { 
-    props: ['journeysresponse']
+    props: ['journeysresponse','livedataresponse']
     ,
     computed: { 
         notes: function() {
-            if (this.journeysresponse==null) {
-                return [];
+            if (this.journeysresponse!=null) {
+                if (this.journeysresponse.notes.length>0) {
+                    return this.journeysresponse.notes;
+                }
             }
-            return this.journeysresponse.notes;
+
+            if (this.livedataresponse!=null) {
+                return this.livedataresponse.notes;
+            }
+            return [];
+            
         }
-        // ,
-        // hasnotes: function() {
-        //     if (this.journeysresponse==null) {
-        //         return false;
-        //     }
-        //     return this.journeysresponse.notes.length>0;
-        // }
     },
     template: `
     <div id="notesComponent" v-if="notes.length>0">

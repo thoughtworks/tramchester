@@ -63,7 +63,6 @@ function queryLiveData(url) {
  axios.get( url, { timeout: 11000 }).
             then(function (response) {
                 app.liveDepartureResponse = response.data;
-                app.notes = response.data.notes;
                 app.networkError = false;
                 app.liveInProgress = false;
             }).
@@ -102,7 +101,6 @@ function getStationsFromServer(app) {
     maxChanges: 8,                  // todo from server side
     journeyResponse: null,
     liveDepartureResponse: null,
-    notes: [],
     feedinfo: [],
     searchInProgress: false,    // searching for routes
     liveInProgress: false,      // looking for live data
@@ -121,18 +119,11 @@ var app = new Vue({
             'live-departures' : LiveDepartures
         },
         methods: {
-            clearResults() {
-                // TODO Are these needed??
-                while(app.notes.length>0) {
-                    app.notes.pop();
-                }
-            },
             plan(event){
                 if (event!=null) {
                     event.preventDefault(); // stop page reload on form submission
                 }
                 app.searchInProgress = true;
-                app.clearResults();
                 app.ready = false;
                 this.$nextTick(function () {
                     app.queryServer();
@@ -163,7 +154,6 @@ var app = new Vue({
                     then(function (response) {
                         app.networkError = false;
                         app.journeyResponse = response.data;
-                        app.notes = response.data.notes;
                         app.getStations();
                         app.searchInProgress = false;
                         }).
