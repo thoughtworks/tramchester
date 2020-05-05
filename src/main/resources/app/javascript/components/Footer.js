@@ -11,11 +11,10 @@ export default {
         var that = this
         axios.get('/api/version')
         .then(function (response) {
-            //app.networkError = false;
             that.buildnumber = response.data.buildNumber;})
         .catch(function (error) {
-            //app.networkError = true;
-            console.log(error);
+            this.$emit('network-error')
+            console.log(error)
         });
     },
     template: `

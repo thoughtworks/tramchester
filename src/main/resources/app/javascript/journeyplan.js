@@ -100,6 +100,7 @@ function getStationsFromServer(app) {
     time: getCurrentTime(),
     date: getCurrentDate(),
     maxChanges: 8,
+    journeyResponse: null,
     journeys: [],
     notes: [],
     feedinfo: [],
@@ -131,9 +132,10 @@ var app = new Vue({
         },
         methods: {
             clearResults() {
-                while(app.journeys.length>0) {
-                    app.journeys.pop();
-                }
+                // TODO Are these needed??
+                // while(app.journeys.length>0) {
+                //     app.journeys.pop();
+                // }
                 while(app.notes.length>0) {
                     app.notes.pop();
                 }
@@ -166,6 +168,9 @@ var app = new Vue({
                 app.time = lastDepartTime;
                 app.plan(null);
             },
+            networkErrorOccured() {
+                app.networkError = true;
+            },
             queryNearbyTrams() {
                 app.liveInProgress = true;
                 while(app.localDueTrams.length>0) {
@@ -187,6 +192,7 @@ var app = new Vue({
                 axios.get('/api/journey', { params: urlParams, timeout: 11000}).
                     then(function (response) {
                         app.networkError = false;
+                        app.journeyResponse = response.data;
                         app.journeys = app.journeys.concat(response.data.journeys);
                         app.noResults = app.journeys.length==0;
                         app.notes = response.data.notes;

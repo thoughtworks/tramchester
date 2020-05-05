@@ -63,21 +63,35 @@ export default {
                 {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
             }
       },
-    props: ['journeys'],
+    props: ['journeysresponse'],
+    computed: { 
+        journeys: function() {
+            if (this.journeysresponse==null) {
+                return [];
+            }
+            return this.journeysresponse.journeys;
+        },
+        noJourneys: function() {
+            if (this.journeysresponse==null) {
+                return false;
+            }
+            return this.journeysresponse.journeys.length==0;
+        }
+    },
     methods: {
         expandStages(row,index) {
             row._showDetails = !row._showDetails;
         }
     },
     template: `
-    <div id="journeysComponent" v-if="journeys.length>0">
-        <b-table id="results"
-            selectable
-            sort-icon-left
-            :items="journeys" small responsive="sm"
-            :fields="journeyFields"
-            select-mode='single' caption-top
-                @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
+    <div id="journeysComponent">
+        <b-table id="results"  v-if="journeys.length>0"
+                selectable
+                sort-icon-left
+                :items="journeys" small responsive="sm"
+                :fields="journeyFields"
+                select-mode='single' caption-top
+                    @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
             <template v-slot:table-caption>
                 <div class="suggestedRoutes">Suggested Routes</div>
             </template>
@@ -93,11 +107,16 @@ export default {
                 </b-table>
             </template>
         </b-table>
-        <div class="container" id="earlierLater">
+        <div class="container" id="earlierLater" v-if="journeys.length>0">
             <div class="row justify-content-between">
                 <b-button id="earlierButton" variant="outline-primary" v-on:click="$emit('earlier-tram')">« Earlier</b-button>
                 <b-button id="laterButton" variant="outline-primary" v-on:click="$emit('later-tram')">Later »</b-button>
             </div>
+        </div>
+        <div id="noResults" selectable v-if="noJourneys" class="w-75 tramchesterApp">
+            <b-card bg-variant="warning">
+                No suggested routes were found for this date and time
+            </b-card>
         </div>
     </div>
     `

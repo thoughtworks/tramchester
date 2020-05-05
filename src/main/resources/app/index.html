@@ -117,15 +117,10 @@
             ></b-pagination>
         </div>
 
-        <journeys v-bind:journeys="journeys" v-on:earlier-tram="earlier()" v-on:later-tram="later()"></journeys>
+        <journeys v-bind:journeysresponse="journeyResponse" v-on:earlier-tram="earlier()" v-on:later-tram="later()"></journeys>
 
     </div>
 
-    <div id="noResults" selectable v-if="noResults" class="w-75 tramchesterApp">
-        <b-card bg-variant="warning">
-            No suggested routes were found for this date and time
-        </b-card>
-    </div>
 
     <div id="noLiveResults" selectable v-if="noLiveResults" class="w-75 tramchesterApp">
         <b-card bg-variant="light">
@@ -133,7 +128,7 @@
         </b-card>
     </div>
 
-    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos"></app-footer>
+    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()"></app-footer>
 
     <b-modal ok-only id="modal-disclaimer" title="Disclaimer">
         <div>
