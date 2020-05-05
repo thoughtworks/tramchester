@@ -101,11 +101,9 @@ function getStationsFromServer(app) {
     date: getCurrentDate(),
     maxChanges: 8,
     journeyResponse: null,
-    journeys: [],
     notes: [],
     feedinfo: [],
     localDueTrams: [],
-    noResults: false,           // no routes found
     noLiveResults: false,       // no live data found
     searchInProgress: false,    // searching for routes
     liveInProgress: false,      // looking for live data
@@ -133,9 +131,6 @@ var app = new Vue({
         methods: {
             clearResults() {
                 // TODO Are these needed??
-                // while(app.journeys.length>0) {
-                //     app.journeys.pop();
-                // }
                 while(app.notes.length>0) {
                     app.notes.pop();
                 }
@@ -155,17 +150,8 @@ var app = new Vue({
                     app.queryServer();
                 });
             },
-            earlier() {
-                // TODO get max wait time from the server?
-                var newTime = moment(app.time,"HH:mm").subtract(12, 'minutes');
-                app.time = newTime.format("HH:mm");
-                app.plan(null);
-            },
-            later() {
-                const indexOfLast = app.journeys.length - 1;
-                const lastJourney = app.journeys[indexOfLast];
-                const lastDepartTime = lastJourney.firstDepartureTime;
-                app.time = lastDepartTime;
+            changeTime(newTime) {
+                app.time = newTime;
                 app.plan(null);
             },
             networkErrorOccured() {
@@ -193,8 +179,6 @@ var app = new Vue({
                     then(function (response) {
                         app.networkError = false;
                         app.journeyResponse = response.data;
-                        app.journeys = app.journeys.concat(response.data.journeys);
-                        app.noResults = app.journeys.length==0;
                         app.notes = response.data.notes;
                         app.getStations();
                         app.searchInProgress = false;
@@ -210,9 +194,6 @@ var app = new Vue({
             getStations() {
                 getStationsFromServer(this);
             },
-            // expandStages(row,index) {
-            //     row._showDetails = !row._showDetails;
-            // },
             setCookie() {
                 var cookie = { 'visited' : true };
                 this.$cookies.set("tramchesterVisited", cookie, "128d");

@@ -117,16 +117,16 @@
             ></b-pagination>
         </div>
 
-        <journeys v-bind:journeysresponse="journeyResponse" v-on:earlier-tram="earlier()" v-on:later-tram="later()"></journeys>
+        <div id="noLiveResults" selectable v-if="noLiveResults" class="w-75 tramchesterApp">
+            <b-card bg-variant="light">
+                No real time departure information found
+            </b-card>
+        </div>
+
+        <journeys v-bind:journeysresponse="journeyResponse" v-on:earlier-tram="changeTime" v-on:later-tram="changeTime"></journeys>
 
     </div>
 
-
-    <div id="noLiveResults" selectable v-if="noLiveResults" class="w-75 tramchesterApp">
-        <b-card bg-variant="light">
-            No real time departure information found
-        </b-card>
-    </div>
 
     <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()"></app-footer>
 

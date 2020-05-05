@@ -1,4 +1,6 @@
 
+var moment = require('moment');
+
 function rowExpandedFormatter(value, key, row) {
     if (row._showDetails!=null && row._showDetails) {
         return "&#8897;";
@@ -63,7 +65,7 @@ export default {
                 {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
             }
       },
-    props: ['journeysresponse'],
+    props: ['journeysresponse', 'querytime'],
     computed: { 
         journeys: function() {
             if (this.journeysresponse==null) {
@@ -81,6 +83,21 @@ export default {
     methods: {
         expandStages(row,index) {
             row._showDetails = !row._showDetails;
+        },
+        earlier() {
+            const firstJourney = this.journeysresponse.journeys[0];
+            const currentEarliest = firstJourney.firstDepartureTime;
+            var newTime = moment(currentEarliest,"HH:mm").subtract(24, 'minutes');
+            const newDepartTime = newTime.format("HH:mm");
+            this.$emit('earlier-tram', newDepartTime);
+        },
+        later() {
+            const indexOfLast = this.journeysresponse.journeys.length - 1;
+            const lastJourney = this.journeysresponse.journeys[indexOfLast];
+            const currentLatest = lastJourney.firstDepartureTime;
+            var newTime = moment(currentLatest,"HH:mm").add(1, 'minutes');
+            const newDepartTime = newTime.format("HH:mm");
+            this.$emit('later-tram', newDepartTime);
         }
     },
     template: `
@@ -109,8 +126,8 @@ export default {
         </b-table>
         <div class="container" id="earlierLater" v-if="journeys.length>0">
             <div class="row justify-content-between">
-                <b-button id="earlierButton" variant="outline-primary" v-on:click="$emit('earlier-tram')">« Earlier</b-button>
-                <b-button id="laterButton" variant="outline-primary" v-on:click="$emit('later-tram')">Later »</b-button>
+                <b-button id="earlierButton" variant="outline-primary" v-on:click="earlier()">« Earlier</b-button>
+                <b-button id="laterButton" variant="outline-primary" v-on:click="later()">Later »</b-button>
             </div>
         </div>
         <div id="noResults" selectable v-if="noJourneys" class="w-75 tramchesterApp">
