@@ -13,6 +13,7 @@ import './../css/tramchester.css'
 import Notes from "./components/Notes";
 import Journeys from './components/Journeys';
 import Footer from './components/Footer';
+import LiveDepartures from './components/LiveDepatures'
 
 function getCurrentTime() {
     return moment().local().format("HH:mm");
@@ -61,9 +62,8 @@ function displayLiveData(app) {
 function queryLiveData(url) {
  axios.get( url, { timeout: 11000 }).
             then(function (response) {
-                app.localDueTrams = response.data.departures;
+                app.liveDepartureResponse = response.data;
                 app.notes = response.data.notes;
-                app.noLiveResults = (app.localDueTrams.length==0);
                 app.networkError = false;
                 app.liveInProgress = false;
             }).
@@ -101,23 +101,14 @@ function getStationsFromServer(app) {
     date: getCurrentDate(),
     maxChanges: 8,
     journeyResponse: null,
+    liveDepartureResponse: null,
     notes: [],
     feedinfo: [],
-    localDueTrams: [],
-    noLiveResults: false,       // no live data found
     searchInProgress: false,    // searching for routes
     liveInProgress: false,      // looking for live data
     networkError: false,        // network error on either query
     hasGeo: false,
-    location: null,
-    currentPage: 1,             // current page for due trams
-    departureFields: [
-        {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
-        {key:'when', label:'Time', tdClass:'departureDueTime', sortable:true},
-        {key:'carriages', label:'', tdClass:'departureCarriages'},
-        {key:'status', label:'Status', tdClass:'departureStatus'},
-        {key:'destination', label:'Towards', tdClass:'departureTowards',  sortable:true}
-    ]
+    location: null
 }
 
 var app = new Vue({
@@ -126,16 +117,14 @@ var app = new Vue({
         components: {
             'notes' : Notes,
             'journeys' : Journeys,
-            'app-footer' : Footer
+            'app-footer' : Footer,
+            'live-departures' : LiveDepartures
         },
         methods: {
             clearResults() {
                 // TODO Are these needed??
                 while(app.notes.length>0) {
                     app.notes.pop();
-                }
-                while(app.localDueTrams.length>0) {
-                    app.localDueTrams.pop();
                 }
                 app.currentPage = 1;
             },
@@ -159,10 +148,6 @@ var app = new Vue({
             },
             queryNearbyTrams() {
                 app.liveInProgress = true;
-                while(app.localDueTrams.length>0) {
-                    app.localDueTrams.pop();
-                }
-                app.currentPage = 1;
                 this.$nextTick(function () {
                     queryLiveData(livedataUrlFromLocation(this)+'?notes=1');
                 });

@@ -98,30 +98,7 @@
 
         <notes v-bind:notes="notes"></notes>
 
-        <div id="departuesView">
-            <b-table id="departures"
-                     v-if="localDueTrams.length>0"
-                     :current-page="currentPage" sort-icon-left
-                     :items="localDueTrams" small responsive="sm"
-                     :fields="departureFields" per-page="4"
-                     tbody-tr-class='departuresSummary' caption-top>
-                <template v-slot:table-caption>
-                    <div class="liveDepartures">Live Departures</div>
-                </template>
-            </b-table>
-            <b-pagination v-if="localDueTrams.length>0 && localDueTrams.length>4"
-                          v-model="currentPage"
-                          :total-rows="localDueTrams.length"
-                          per-page="4" align="center"
-                          aria-controls="departures"
-            ></b-pagination>
-        </div>
-
-        <div id="noLiveResults" selectable v-if="noLiveResults" class="w-75 tramchesterApp">
-            <b-card bg-variant="light">
-                No real time departure information found
-            </b-card>
-        </div>
+        <live-departures v-bind:livedataresponse="liveDepartureResponse"></live-departures>
 
         <journeys v-bind:journeysresponse="journeyResponse" v-on:earlier-tram="changeTime" v-on:later-tram="changeTime"></journeys>
 

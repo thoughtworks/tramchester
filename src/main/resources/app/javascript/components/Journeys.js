@@ -65,7 +65,7 @@ export default {
                 {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
             }
       },
-    props: ['journeysresponse', 'querytime'],
+    props: ['journeysresponse'],
     computed: { 
         journeys: function() {
             if (this.journeysresponse==null) {
