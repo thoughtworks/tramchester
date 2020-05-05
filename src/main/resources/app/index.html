@@ -133,49 +133,7 @@
         </b-card>
     </div>
 
-    <div id="footer" class="tramchesterFooter mb-1 ml-1 mr-1">
-        <b-card bg-variant="light">
-            <b-container>
-            <b-row>
-                <div>
-                    Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
-                    <a href="https://twitter.com/intent/user?screen_name=Tramchester" target="_blank">Follow
-                        @Tramchester</a>
-                </div>
-            </b-row>
-            <b-row>
-                <div id="disclaimer">&copy; 2016-2020 ThoughtWorks Ltd.
-                    <b-button id="disclaimerButton"
-                              class="align-baseline text-decoration-none tramchesterFooter" variant="link"
-                              v-b-modal.modal-disclaimer>Disclaimer
-                    </b-button>
-                </div>
-            </b-row>
-           <b-row>
-               <div id="license">
-                   Contains Transport for Greater Manchester data.
-                   Contains public sector information licensed under the Open Government Licence v2.0 by
-                   <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
-               </div>
-           </b-row>
-            <b-row align-h="start">
-                <b-col cols="3">Build
-                    <div id="buildNumber">{{buildNumber}}</div>
-                </b-col>
-                <b-col cols="3">From:
-                    <div id="validFrom">{{feedinfo.validFrom}}</div>
-                </b-col>
-                <b-col cols="3">Until:
-                    <div id="validUntil">{{feedinfo.validUntil}}</div>
-                </b-col>
-                <b-col cols="3">Geo:
-                    <div id="havePos">{{havePos}}</div>
-                </b-col>
-            </b-row>
-            </b-container>
-        </b-card>
-
-    </div>
+    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos"></app-footer>
 
     <b-modal ok-only id="modal-disclaimer" title="Disclaimer">
         <div>

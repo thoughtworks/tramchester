@@ -10,8 +10,9 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './../css/tramchester.css'
 
-import Notes from "./components/Notes.js";
+import Notes from "./components/Notes";
 import Journeys from './components/Journeys';
+import Footer from './components/Footer';
 
 function getCurrentTime() {
     return moment().local().format("HH:mm");
@@ -101,7 +102,6 @@ function getStationsFromServer(app) {
     maxChanges: 8,
     journeys: [],
     notes: [],
-    buildNumber: '',
     feedinfo: [],
     localDueTrams: [],
     noResults: false,           // no routes found
@@ -126,7 +126,8 @@ var app = new Vue({
         data:  data,
         components: {
             'notes' : Notes,
-            'journeys' : Journeys
+            'journeys' : Journeys,
+            'app-footer' : Footer
         },
         methods: {
             clearResults() {
@@ -244,14 +245,6 @@ var app = new Vue({
                     app.feedinfo = response.data;})
                 .catch(function (error) {
                     this.networkError = true;
-                    console.log(error);
-                });
-            axios.get('/api/version')
-                .then(function (response) {
-                    app.networkError = false;
-                    app.buildNumber = response.data.buildNumber;})
-                .catch(function (error) {
-                    app.networkError = true;
                     console.log(error);
                 });
             if (this.hasGeo) {
