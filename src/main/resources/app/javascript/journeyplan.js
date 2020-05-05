@@ -99,7 +99,7 @@ function getStationsFromServer(app) {
     arriveBy: false,
     time: getCurrentTime(),
     date: getCurrentDate(),
-    maxChanges: 8,
+    maxChanges: 8,                  // todo from server side
     journeyResponse: null,
     liveDepartureResponse: null,
     notes: [],
@@ -126,7 +126,6 @@ var app = new Vue({
                 while(app.notes.length>0) {
                     app.notes.pop();
                 }
-                app.currentPage = 1;
             },
             plan(event){
                 if (event!=null) {
