@@ -31,18 +31,14 @@ public abstract class ProvidesDriver {
             return;
         }
         try {
-            TakesScreenshot takesScreenshot = driver;
-            byte[] bytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
+            byte[] bytes = driver.getScreenshotAs(OutputType.BYTES);
             String filename = format("build/reports/tests/%s.png", safeFilename(testName));
             File target = Paths.get(filename).toAbsolutePath().toFile();
             FileOutputStream output = new FileOutputStream(target);
             output.write(bytes);
             output.close();
-        } catch (IOException ioException) {
+        } catch (IOException | TimeoutException ioException) {
             logger.warn("Can't takle screenshoot", ioException);
-        }
-        catch (org.openqa.selenium.TimeoutException timeout) {
-            logger.warn("Can't takle screenshoot", timeout);
         }
     }
 

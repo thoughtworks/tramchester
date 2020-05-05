@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
@@ -82,7 +83,7 @@ public class DeparturesResource implements APIResource  {
         });
 
         // notes
-        List<String> notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
+        List<Note> notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
 
         return Response.ok(new DepartureListDTO(departs, notes)).build();
     }
@@ -129,7 +130,7 @@ public class DeparturesResource implements APIResource  {
         SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
 
         //notes
-        List<String> notes = Collections.emptyList();
+        List<Note> notes = Collections.emptyList();
         if (includeNotes) {
             notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
         }

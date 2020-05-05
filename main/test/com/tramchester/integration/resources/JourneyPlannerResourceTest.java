@@ -10,6 +10,7 @@ import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.TramServiceDate;
@@ -205,10 +206,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11,43), nextSunday);
 
-        List<String> notes = results.getNotes();
+        List<Note> notes = results.getNotes();
         assertEquals(2, notes.size()); // include station closure message
-        String prefix = "At the weekend your journey may be affected by improvement works."+ProvidesNotes.website;
-        assertThat(notes, hasItem(prefix));
+        Note weekendNote = new Note(Note.NoteType.Weekend,"At the weekend your journey may be affected by improvement works."+ProvidesNotes.website);
+        assertThat(notes, hasItem(weekendNote));
 
         int offsetToSaturday = SATURDAY-when.getDayOfWeek().getValue();
         LocalDate nextSaturday = when.plusDays(offsetToSaturday);
@@ -218,13 +219,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         notes = results.getNotes();
         assertEquals(2,notes.size());
-        assertThat(notes, hasItem(prefix));
+        assertThat(notes, hasItem(weekendNote));
 
         JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11,43), nextSunday.plusDays(1));
         notes = notWeekendResult.getNotes();
         assertEquals(1,notes.size());
-        assertThat(notes, not(hasItem(prefix)));
+        assertThat(notes, not(hasItem(weekendNote)));
     }
 
     @Ignore("Temporary: trams finish at 2300")

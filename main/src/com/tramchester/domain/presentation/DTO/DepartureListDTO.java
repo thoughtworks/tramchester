@@ -1,18 +1,20 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.presentation.Note;
+
 import java.util.List;
 import java.util.SortedSet;
 
 public class DepartureListDTO {
 
     private SortedSet<DepartureDTO> departures;
-    private List<String> notes;
+    private List<Note> notes;
 
     public DepartureListDTO() {
         // for deserialisation
     }
 
-    public DepartureListDTO(SortedSet<DepartureDTO> departures, List<String> notes) {
+    public DepartureListDTO(SortedSet<DepartureDTO> departures, List<Note> notes) {
         this.departures = departures;
         this.notes = notes;
     }
@@ -21,7 +23,7 @@ public class DepartureListDTO {
         return departures;
     }
 
-    public List<String> getNotes() {
+    public List<Note> getNotes() {
         return notes;
     }
 }

@@ -76,6 +76,7 @@ public class AppUserJourneyTest {
     @Parameterized.Parameter
     public String browserName;
 
+
     @BeforeClass
     public static void beforeAnyTestsRun() {
         driverFactory = new DriverFactory();
@@ -360,19 +361,22 @@ public class AppUserJourneyTest {
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
+        assertTrue(appPage.hasWeekendMessage());
         assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
 
         desiredJourney(appPage, altrincham, bury, nextTuesday, time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
-        if (appPage.notesPresent()) {
-            assertThat(appPage.getAllNotes(), not(hasItem(weekendMsg)));
-        }
+        assertTrue(appPage.noWeekendMessage());
+//        if (appPage.notesPresent()) {
+//            assertThat(appPage.getAllNotes(), not(hasItem(weekendMsg)));
+//        }
 
         desiredJourney(appPage, altrincham, bury, aSaturday.plusDays(1), time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
+        assertTrue(appPage.hasWeekendMessage());
         assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
     }
 

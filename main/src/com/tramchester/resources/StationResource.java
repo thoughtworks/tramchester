@@ -6,12 +6,9 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.ProvidesNotes;
-import com.tramchester.domain.presentation.ProximityGroup;
-import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.StationRepository;
@@ -147,7 +144,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         List<Station> stations = spatialService.getNearestStations(latLong);
 
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
-        List<String> notes = providesNotes.createNotesForStations(stations, queryDate, providesNow.getNow());
+        List<Note> notes = providesNotes.createNotesForStations(stations, queryDate, providesNow.getNow());
 
         List<StationDTO> stationsDTO = new ArrayList<>();
         stations.forEach(station -> stationsDTO.add(stationDTOFactory.build(station, queryDate, providesNow.getNow())));

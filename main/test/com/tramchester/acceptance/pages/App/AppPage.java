@@ -257,6 +257,15 @@ public class AppPage extends Page {
         return waitForCondition(ExpectedConditions.presenceOfElementLocated(By.id("NotesList")));
     }
 
+    public boolean hasWeekendMessage() {
+        return waitForCondition(ExpectedConditions.presenceOfElementLocated(By.id("Weekend")));
+    }
+
+    public boolean noWeekendMessage() {
+        return waitForCondition(ExpectedConditions.not(
+                ExpectedConditions.presenceOfElementLocated(By.id("Weekend"))));
+    }
+
     public String getBuild() {
         return waitForAndGet(By.id("buildNumber"));
     }
@@ -383,7 +392,7 @@ public class AppPage extends Page {
     }
 
     public boolean hasLocation() {
-        return "true".equals(findElementById("havePos").getText());
+        return "true".equals(waitForAndGet(By.id("havepos")));
     }
 
     public boolean waitForReady() {

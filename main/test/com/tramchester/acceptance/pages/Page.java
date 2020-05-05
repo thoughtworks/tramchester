@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class Page {
     protected WebDriver driver;
-    private long timeOut = 4;
+    private final long timeOut = 4;
 
     public Page(WebDriver driver) {
         this.driver = driver;

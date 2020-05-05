@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.search.JourneyRequest;
@@ -167,7 +168,7 @@ public class ProcessPlanRequest {
 
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeys) {
         SortedSet<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate, config.getMaxNumResults());
-        List<String> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
+        List<Note> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
         return new JourneyPlanRepresentation(journeyDTOs, notes);
     }
 

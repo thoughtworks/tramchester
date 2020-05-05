@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.tramchester.domain.presentation.Note.NoteType.Live;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -47,52 +48,53 @@ public class ProvidesNotesTest extends EasyMockSupport {
     @Test
     public void shouldAddNotesForClosedStations() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
-        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
+        List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
-        assertThat(result, hasItem("St Peters Square is currently closed. "+ProvidesNotes.website));
+        assertThat(result, hasItem(new Note(Note.NoteType.ClosedStation,"St Peters Square is currently closed. "+ProvidesNotes.website)));
     }
 
     @Test
     public void shouldAddNotesForSaturdayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
-        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
+        List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
-        assertThat(result, hasItem(ProvidesNotes.weekend));
+        assertThat(result, hasItem(new Note(Note.NoteType.Weekend, ProvidesNotes.weekend)));
     }
 
     @Test
     public void shouldAddNotesForSundayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,30));
-        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
+        List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
-        assertThat(result, hasItem(ProvidesNotes.weekend));
+        assertThat(result, hasItem(new Note(Note.NoteType.Weekend, ProvidesNotes.weekend)));
     }
 
     @Test
     public void shouldNotShowNotesOnOtherDay() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
-        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
+        List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
-        assertThat(result, not(hasItem(ProvidesNotes.weekend)));
+        assertThat(result, not(hasItem(new Note(Note.NoteType.Weekend, ProvidesNotes.weekend))));
     }
 
     @Test
     public void shouldHaveNoteForChristmasServices() {
         int year = 2018;
         LocalDate date = LocalDate.of(year, 12, 23);
+        Note christmasNote = new Note(Note.NoteType.Christmas, ProvidesNotes.christmas);
 
-        List<String> result = provider.createNotesForJourneys(Collections.emptySet(), new TramServiceDate(date));
-        assertThat(result, not(hasItem(ProvidesNotes.christmas)));
+        List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), new TramServiceDate(date));
+        assertThat(result, not(hasItem(christmasNote)));
 
         for(int offset=1; offset<11; offset++) {
             TramServiceDate queryDate = new TramServiceDate(date.plusDays(offset));
             result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
-            assertThat(queryDate.toString(), result, hasItem(ProvidesNotes.christmas));
+            assertThat(queryDate.toString(), result, hasItem(christmasNote));
         }
 
         date = LocalDate.of(year+1, 1, 3);
         result = provider.createNotesForJourneys(Collections.emptySet(), new TramServiceDate(date));
-        assertThat(result, not(hasItem(ProvidesNotes.christmas)));
+        assertThat(result, not(hasItem(christmasNote)));
     }
 
     @Test
@@ -113,7 +115,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(journeys, serviceDate);
+        List<Note> notes = provider.createNotesForJourneys(journeys, serviceDate);
         verifyAll();
 
         // 1 is for the closure
@@ -137,7 +139,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(journeys, serviceDate);
+        List<Note> notes = provider.createNotesForJourneys(journeys, serviceDate);
         verifyAll();
 
         int expected = 1; // 1 is for the closure
@@ -165,7 +167,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(journeys, queryDate);
+        List<Note> notes = provider.createNotesForJourneys(journeys, queryDate);
         verifyAll();
 
         int expected = 1; // 1 is for the closure
@@ -205,7 +207,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         journeys.add(new Journey(stages, queryTime));
 
         replayAll();
-        List<String> notes = provider.createNotesForJourneys(journeys, serviceDate);
+        List<Note> notes = provider.createNotesForJourneys(journeys, serviceDate);
         verifyAll();
 
         int expected = 3; // +1 for station closure
@@ -220,8 +222,8 @@ public class ProvidesNotesTest extends EasyMockSupport {
         }
 
         assertEquals(expected, notes.size());
-        assertTrue(notes.toString(), notes.contains("'Some long message' - Metrolink"));
-        assertTrue(notes.toString(), notes.contains("'Some Location Long message' - Altrincham, Metrolink"));
+        assertTrue(notes.toString(), notes.contains(new Note(Live,"'Some long message' - Metrolink")));
+        assertTrue(notes.toString(), notes.contains(new Note(Live,"'Some Location Long message' - Altrincham, Metrolink")));
     }
 
     @Test
@@ -240,12 +242,12 @@ public class ProvidesNotesTest extends EasyMockSupport {
 
         replayAll();
 
-        List<String> notes = provider.createNotesForStations(stations, queryDate, queryTime);
+        List<Note> notes = provider.createNotesForStations(stations, queryDate, queryTime);
         verifyAll();
 
         assertEquals(3, notes.size());
-        assertThat(notes.toString(), notes.contains("'first message' - Velopark, Metrolink"));
-        assertThat(notes.toString(), notes.contains("'second message' - Metrolink"));
+        assertThat(notes.toString(), notes.contains(new Note(Live,"'first message' - Velopark, Metrolink")));
+        assertThat(notes.toString(), notes.contains(new Note(Live,"'second message' - Metrolink")));
 
     }
 

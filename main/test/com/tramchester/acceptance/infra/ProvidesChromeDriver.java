@@ -21,9 +21,9 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     private final DesiredCapabilities capabilities;
     private final ChromeOptions chromeOptions;
     private final boolean enableGeo;
+
+    private final ProvidesDateInput providesDateInput;
     private LatLong location;
-    private ProvidesDateInput providesDateInput;
-    private ChromeDriver chromeDriver;
 
     public ProvidesChromeDriver(boolean enableGeo) {
         this.enableGeo = enableGeo;
@@ -64,7 +64,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
 
             chromeOptions.merge(capabilities);
 
-            chromeDriver = new ChromeDriver(chromeOptions);
+            ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
             chromeDriver.setLogLevel(Level.SEVERE);
 
             driver = chromeDriver;

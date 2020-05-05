@@ -4,6 +4,7 @@ import com.tramchester.App;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
@@ -161,7 +162,7 @@ public class DeparturesResourceTest {
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
 
-        List<String> notes = departureList.getNotes();
+        List<Note> notes = departureList.getNotes();
         Assert.assertFalse(notes.isEmpty());
         // ignore closure message which is always present, also if today is weekend exclude that
         int ignore = 1;

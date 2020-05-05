@@ -25,7 +25,7 @@ export default {
             <b-card-text>
                 <ul id="NotesList" class="JourneyNotes list-group list-group-flush">
                     <li v-for="note in notes" id="NoteItem">
-                        <span v-html="note"></span>
+                        <span :id="note.noteType" v-html="note.text"></span>
                     </li>
                 </ul>
             </b-card-text>

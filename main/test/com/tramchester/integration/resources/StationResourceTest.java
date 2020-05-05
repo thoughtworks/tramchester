@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.DTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationClient;
@@ -130,7 +131,7 @@ public class StationResourceTest {
             });
         });
 
-        List<String> notes = stationList.getNotes();
+        List<Note> notes = stationList.getNotes();
         assertFalse(notes.isEmpty());
         // ignore closure message which is always present, also if today is weekend exclude that
         int ignore = 1;
