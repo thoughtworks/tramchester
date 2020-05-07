@@ -22,14 +22,18 @@ public class AppPage extends Page {
     private static final String MODAL_COOKIE_CONSENT = "modal-cookieConsent";
     private static final String MODAL_DISCLAIMER = "modal-disclaimer";
     private static final String PLAN = "plan";
+
+    private static final String START_GROUP = "startGroup";
+    private static final String DESTINATION_GROUP = "destinationGroup";
+
     private final ProvidesDateInput providesDateInput;
-    private long timeoutInSeconds = 15;
+    private final long timeoutInSeconds = 15;
 
     private static final String DATE_OUTPUT = "hiddendate";
-    private String FROM_STOP = "fromStop";
-    private String TO_STOP = "toStop";
-    private String TIME = "time";
-    private String RESULTS = "results";
+    private final String FROM_STOP = "startStop";
+    private final String TO_STOP = "destinationStop";
+    private final String TIME = "time";
+    private final String RESULTS = "results";
 
     public AppPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
@@ -43,7 +47,7 @@ public class AppPage extends Page {
     public boolean waitForToStops() {
         WebDriverWait wait = createWait();
         wait.until(webDriver -> ExpectedConditions.presenceOfElementLocated(By.id(FROM_STOP)));
-        WebElement fromStopElement = findElementById(FROM_STOP);
+        WebElement fromStopElement = waitForElement(FROM_STOP, 8);// findElementById(FROM_STOP);
         wait.until(webDriver -> ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.ManAirport.getName()));
         return fromStopElement.isEnabled() && fromStopElement.isDisplayed();
     }
@@ -162,9 +166,6 @@ public class AppPage extends Page {
 
     public LocalDate getDate() {
         String rawDate = getDateElementOutput().getAttribute("value");
-//        WebElement parent = getDateElement().findElement(By.xpath(".."));
-//        WebElement hiddenInput = parent.findElement(By.name("dateinput"));
-//        String rawDate = hiddenInput.getAttribute("value");
         return LocalDate.parse(rawDate);
     }
 
@@ -194,7 +195,7 @@ public class AppPage extends Page {
 
     public List<String> getRecentFromStops() {
         try {
-            return getStopsByGroupName("fromGroupRecent");
+            return getStopsByGroupName(START_GROUP + "Recent");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -203,7 +204,7 @@ public class AppPage extends Page {
 
     public List<String> getRecentToStops() {
         try {
-            return getStopsByGroupName("toGroupRecent");
+            return getStopsByGroupName(DESTINATION_GROUP + "Recent");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -211,24 +212,24 @@ public class AppPage extends Page {
     }
 
     public List<String> getAllStopsFromStops() {
-        return getStopsByGroupName("fromGroupAll Stops");
+        return getStopsByGroupName(START_GROUP + "All Stops");
     }
 
     public List<String> getAllStopsToStops() {
-        return getStopsByGroupName("toGroupAll Stops");
+        return getStopsByGroupName(DESTINATION_GROUP + "All Stops");
     }
 
     public List<String> getNearestFromStops() {
-        return getStopsByGroupName("fromGroupNearest Stops");
+        return getStopsByGroupName(START_GROUP + "Nearest Stops");
     }
 
     public List<String> getNearbyToStops() {
-        return getStopsByGroupName("toGroupNearby");
+        return getStopsByGroupName(DESTINATION_GROUP + "Nearby");
     }
 
     public List<String> getNearbyFromStops() {
         try {
-            return getStopsByGroupName("fromGroupNearby");
+            return getStopsByGroupName(START_GROUP + "Nearby");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -243,8 +244,7 @@ public class AppPage extends Page {
 
     private List<String> getStopNames(WebElement groupElement) {
         List<WebElement> stopElements = groupElement.findElements(By.className("stop"));
-        List<String> results = stopElements.stream().map(WebElement::getText).map(String::trim).collect(Collectors.toList());
-        return results;
+        return stopElements.stream().map(WebElement::getText).map(String::trim).collect(Collectors.toList());
     }
 
     public boolean noResults() {
@@ -398,8 +398,7 @@ public class AppPage extends Page {
     }
 
     private List<String> getStopsByGroupName(String groupName) {
-        By fromGroup = By.id(groupName);
-        WebElement groupElement = waitForClickableLocator(fromGroup);
+        WebElement groupElement = waitForClickableLocator(By.id(groupName));
         return getStopNames(groupElement);
     }
 

@@ -13,6 +13,7 @@ import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.neo4j.unsafe.impl.batchimport.stats.Stat;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -129,6 +130,10 @@ public class AppUserJourneyLoactionsTest {
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         appPage.planAJourney();
         appPage.waitForReady();
+
+        // set start/dest to some other stations
+        appPage.setStart(Stations.Piccadilly.getName());
+        appPage.setDest(Stations.ManAirport.getName());
 
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));

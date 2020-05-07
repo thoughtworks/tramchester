@@ -13,7 +13,7 @@ import static java.lang.String.format;
 
 public class PathToGraphViz {
 
-    private static String prefixToRemove = Station.METROLINK_PREFIX + "MA";
+    private static final String prefixToRemove = Station.METROLINK_PREFIX + "MA";
 
     public static Set<RenderLater> map(Path path, ServiceReason serviceReason, boolean valid) {
         Set<RenderLater> nodes = new HashSet<>();

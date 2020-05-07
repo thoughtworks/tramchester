@@ -159,16 +159,19 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
+        // so above station in recents
+        appPage.setStart(Stations.ExchangeSquare.getName()); // so alty is available in the recents list
+        appPage.setDest(Stations.PiccadillyGardens.getName()); // so alty is available in the recents list
+
         // check 'from' recents are set
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations
-        assertEquals(Stations.NumberOf, remainingFromStops.size()+fromRecent.size());
+        assertEquals(Stations.NumberOf-1, remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
 
         // check 'to' recents are set
-        appPage.setStart(Stations.ExchangeSquare.getName()); // so alty is available in the recents list
         List<String> toRecent = appPage.getRecentToStops();
         assertThat(toRecent, hasItems(altrincham,bury));
         List<String> remainingToStops = appPage.getAllStopsToStops();
@@ -176,7 +179,7 @@ public class AppUserJourneyTest {
         assertEquals(Stations.NumberOf-1, remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, Stations.ExchangeSquare.getName(), bury, "10:15", nextTuesday, false);
+        assertJourney(appPage, Stations.ExchangeSquare.getName(), Stations.PiccadillyGardens.getName(), "10:15", nextTuesday, false);
     }
 
     @Test

@@ -22,10 +22,10 @@ public class Page {
         return waitForElement(By.id(elementId), timeoutInSeconds);
     }
 
-    public WebElement waitForElement(By id, long timeoutInSeconds) {
+    protected WebElement waitForElement(By select, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        wait.until(webDriver ->  driver.findElement(id));
-        return driver.findElement(id);
+        wait.until(webDriver ->  driver.findElement(select));
+        return driver.findElement(select);
     }
 
     protected WebElement findElementById(String id) {

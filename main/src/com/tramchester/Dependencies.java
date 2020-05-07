@@ -154,6 +154,9 @@ public class Dependencies {
         picoContainer.addComponent(InterchangeRepository.class);
         picoContainer.addComponent(GraphDatabase.class);
 
+        if (logger.isDebugEnabled()) {
+            logger.warn("Debug logging is enabled, server performance will be impacted");
+        }
         logger.info("Start components");
         picoContainer.start();
 
@@ -165,7 +168,7 @@ public class Dependencies {
         ErrorCount count = get(DataCleanser.class).run();
 
         if (!count.noErrors()) {
-            logger.warn("Errors encounted during parsing data " + count);
+            logger.warn("Errors found during parsing data " + count);
         }
         logger.info("Data cleansing finished");
     }

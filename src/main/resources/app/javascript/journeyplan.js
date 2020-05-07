@@ -14,6 +14,7 @@ import Notes from "./components/Notes";
 import Journeys from './components/Journeys';
 import Footer from './components/Footer';
 import LiveDepartures from './components/LiveDepatures'
+import LocationSelection from './components/LocationSelection';
 
 const dateFormat = "YYYY-MM-DD";
 //const dateFormat = "DD-MM-YYYY";
@@ -119,7 +120,8 @@ var app = new Vue({
             'notes' : Notes,
             'journeys' : Journeys,
             'app-footer' : Footer,
-            'live-departures' : LiveDepartures
+            'live-departures' : LiveDepartures,
+            'location-selection': LocationSelection
         },
         methods: {
             plan(event){
@@ -185,17 +187,6 @@ var app = new Vue({
                 let temp = app.endStop;
                 app.endStop = app.startStop;
                 app.startStop = temp;
-            },
-            filterStops(group) {
-                var result = [];
-                app.stops.forEach(function(stop) { if (stop.proximityGroup.order===group.order) result.push(stop); } )
-                return result;
-            },
-            filterEndStops(group) {
-                var result = [];
-                app.stops.forEach(function(stop) {
-                    if (stop.proximityGroup.order===group.order && stop.id!==app.startStop) result.push(stop); } )
-                return result;
             }
         },
         mounted () {

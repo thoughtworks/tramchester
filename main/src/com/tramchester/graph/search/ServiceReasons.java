@@ -81,13 +81,14 @@ public class ServiceReasons {
         if (reasons.isEmpty()) {
             logger.warn(format("Not creating dot file %s, reasons empty", fileName));
             return;
+        } else {
+            logger.warn("Creating diagnostic dot file: " + fileName);
         }
 
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("digraph G {\n");
             Set<String> paths = new HashSet<>();
-//            reasons.stream().filter(reason->!reason.isValid()).forEach(reason -> reason.recordPath(paths));
             reasons.stream().forEach(reason -> reason.recordPath(paths));
 
             paths.forEach(builder::append);

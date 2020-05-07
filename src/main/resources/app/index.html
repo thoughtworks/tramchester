@@ -11,14 +11,8 @@
             <b-row align-h="start">
                 <b-col cols="11" class="pl-0">
                     <div id="selectStart">
-                        <b-form-select id="fromStop" v-model="startStop" class="mb-2" required>
-                            <option :value="null" disabled>Please select start</option>
-                            <optgroup v-for="group in proximityGroups" :label="group.name" :name="group.name"
-                                      :id="'fromGroup' + group.name">
-                                <option class="stop" v-for="stop in filterStops(group)" :value="stop.id">{{stop.name}}
-                                </option>
-                            </optgroup>
-                        </b-form-select>
+                        <location-selection v-bind:name="'start'" v-model="startStop" v-bind:proximitygroups="proximityGroups" 
+                            v-bind:stops="stops" v-bind:other="endStop"></location-selection>
                     </div>
                 </b-col>
                 <b-col cols="1"></b-col>
@@ -26,15 +20,8 @@
             <b-row>
                 <b-col cols="11" class="pl-0">
                     <div id="selectEnd">
-                        <b-form-select id="toStop" v-model="endStop" class="mb-2" required>
-                            <option :value="null" disabled>Please select destination</option>
-                            <optgroup v-for="group in endProximityGroups" :label="group.name" :name="group.name"
-                                      :id="'toGroup' + group.name">
-                                <option class="stop" v-for="stop in filterEndStops(group)" :value="stop.id">
-                                    {{stop.name}}
-                                </option>
-                            </optgroup>
-                        </b-form-select>
+                        <location-selection v-bind:name="'destination'" v-model="endStop" v-bind:proximitygroups="endProximityGroups" 
+                            v-bind:stops="stops" v-bind:other="startStop"></location-selection>
                     </div>
                 </b-col>
                 <b-col cols="1" class="pl-0">

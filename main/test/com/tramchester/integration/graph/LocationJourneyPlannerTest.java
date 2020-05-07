@@ -35,17 +35,16 @@ public class LocationJourneyPlannerTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static Dependencies dependencies;
-    private static TramchesterConfig testConfig;
     private static GraphDatabase database;
 
-    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
     private LocationJourneyPlanner planner;
 
     @BeforeClass
     public static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        testConfig = new IntegrationTramTestConfig();
+        TramchesterConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
@@ -111,7 +110,8 @@ public class LocationJourneyPlannerTest {
     public void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Deansgate, nearAltrincham,
                 TramTime.of(8,00), false);
-        List<Journey> twoStageJourneys = results.stream().filter(journey -> journey.getStages().size() == 2).collect(Collectors.toList());
+        List<Journey> twoStageJourneys = results.stream().
+                filter(journey -> journey.getStages().size() == 2).collect(Collectors.toList());
 
         assertFalse(twoStageJourneys.isEmpty());
         Journey firstJourney = twoStageJourneys.get(0);

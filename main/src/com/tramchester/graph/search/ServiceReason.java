@@ -16,6 +16,8 @@ public abstract class ServiceReason {
     private static final Logger logger = LoggerFactory.getLogger(ServiceReason.class);
 
     public static final IsValid isValid = new IsValid();
+
+    // seems to periodically erronously return true .....
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
     public enum ReasonCode {
@@ -66,6 +68,9 @@ public abstract class ServiceReason {
     }
 
     public void recordPath(Set<String> builder) {
+        if (debugEnabled) {
+            logger.warn("Debug enabled here, performance impact");
+        }
         pathToRenderAsString.forEach(renderLater -> builder.add(renderLater.render()));
     }
 
