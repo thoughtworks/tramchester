@@ -3,6 +3,7 @@ package com.tramchester.acceptance.pages.App;
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -24,7 +25,7 @@ public class AppPage extends Page {
     private final ProvidesDateInput providesDateInput;
     private long timeoutInSeconds = 15;
 
-    private static final String DATE = "date";
+    private static final String DATE_OUTPUT = "hiddendate";
     private String FROM_STOP = "fromStop";
     private String TO_STOP = "toStop";
     private String TIME = "time";
@@ -88,19 +89,31 @@ public class AppPage extends Page {
         selector.selectByVisibleText(start);
     }
 
-    public void setDate(LocalDate localDate) {
+    public void setSpecificDate(LocalDate targetDate) {
+        LocalDate currentDate = TestEnv.LocalNow().toLocalDate();
 
-        WebElement element = getDateElement();
-
-        String input = providesDateInput.createDateInput(localDate);
-
+        WebElement dateElement = findElementById("date");
         Actions actions = new Actions(driver);
-        actions.moveToElement(element).click().perform();
-        actions.sendKeys(element, Keys.ARROW_LEFT).perform();
-        actions.sendKeys(element, input).perform();
+        actions.moveToElement(dateElement).click().perform();
 
-        // space to close picker
-        actions.sendKeys(element, Keys.SPACE).perform();
+        WebElement dialog = waitForElement(By.xpath("//div[@aria-roledescription='TravelDateCalendar']"),
+                timeoutInSeconds);
+        dialog.sendKeys(Keys.HOME); // today
+
+        // forwards or back as needed, very clunky....
+        if (targetDate.isAfter(currentDate)) {
+            long diffInDays = (targetDate.toEpochDay() - currentDate.toEpochDay());
+            for (int i = 0; i < diffInDays; i++) {
+                dialog.sendKeys(Keys.RIGHT);
+            }
+        } else {
+            long diffInDays = (currentDate.toEpochDay() - targetDate.toEpochDay());
+            for (int i = 0; i < diffInDays; i++) {
+                dialog.sendKeys(Keys.LEFT);
+            }
+        }
+
+        dialog.sendKeys(Keys.ENTER);
     }
 
     public void setTime(LocalTime time) {
@@ -128,9 +141,9 @@ public class AppPage extends Page {
         return new WebDriverWait(driver, timeoutInSeconds);
     }
 
-    private WebElement getDateElement() {
-        waitForElement(DATE, timeoutInSeconds);
-        return findElementById(DATE);
+    private WebElement getDateElementOutput() {
+        waitForElement(DATE_OUTPUT, timeoutInSeconds);
+        return findElementById(DATE_OUTPUT);
     }
 
     public String getFromStop() {
@@ -148,7 +161,10 @@ public class AppPage extends Page {
     }
 
     public LocalDate getDate() {
-        String rawDate = getDateElement().getAttribute("value");
+        String rawDate = getDateElementOutput().getAttribute("value");
+//        WebElement parent = getDateElement().findElement(By.xpath(".."));
+//        WebElement hiddenInput = parent.findElement(By.name("dateinput"));
+//        String rawDate = hiddenInput.getAttribute("value");
         return LocalDate.parse(rawDate);
     }
 
@@ -162,10 +178,6 @@ public class AppPage extends Page {
             return false;
         }
     }
-
-//    private void waitForClickable(By locator) {
-//        waitForClickableLocator(locator);
-//    }
 
     public List<SummaryResult> getResults() {
         List<SummaryResult> results = new ArrayList<>();

@@ -129,10 +129,6 @@ public class AppUserJourneyTest {
         assertJourney(appPage, altrincham, bury, "10:15", nextTuesday, false);
         desiredJourney(appPage, altrincham, bury, nextTuesday.plusMonths(1), LocalTime.parse("03:15"), false);
         assertJourney(appPage, altrincham, bury, "03:15", nextTuesday.plusMonths(1), false);
-        desiredJourney(appPage, altrincham, bury, nextTuesday.plusYears(1), LocalTime.parse("20:15"), false);
-        assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1), false);
-        desiredJourney(appPage, altrincham, bury, nextTuesday.plusYears(1), LocalTime.parse("20:15"), true);
-        assertJourney(appPage, altrincham, bury, "20:15", nextTuesday.plusYears(1), true);
 
         appPage.selectNow();
         validateCurrentTimeIsSelected(appPage);
@@ -390,10 +386,10 @@ public class AppUserJourneyTest {
         assertEquals("2."+build, result);
 
         String dataBegin = appPage.getValidFrom();
-        assertEquals(FeedInfoResourceTest.validFrom.format(dateFormatDashes), dataBegin);
+        assertEquals("valid from", FeedInfoResourceTest.validFrom.format(dateFormatDashes), dataBegin);
 
         String dataEnd = appPage.getValidUntil();
-        assertEquals(FeedInfoResourceTest.validUntil.format(dateFormatDashes), dataEnd);
+        assertEquals("valid until", FeedInfoResourceTest.validUntil.format(dateFormatDashes), dataEnd);
 
     }
 
@@ -454,7 +450,7 @@ public class AppUserJourneyTest {
     public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time, boolean arriveBy) {
         appPage.setStart(start);
         appPage.setDest(dest);
-        appPage.setDate(date);
+        appPage.setSpecificDate(date);
         appPage.setTime(time);
         appPage.setArriveBy(arriveBy);
     }

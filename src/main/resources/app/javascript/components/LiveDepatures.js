@@ -37,7 +37,7 @@ export default {
             :fields="departureFields" per-page="4"
             tbody-tr-class='departuresSummary' caption-top>
             <template v-slot:table-caption>
-                <div class="liveDepartures">Live Departures</div>
+                <div class="liveDepartures">Current Live Departures</div>
             </template>
         </b-table>
         <b-pagination v-if="localDueTrams.length>0 && localDueTrams.length>4"

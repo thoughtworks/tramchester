@@ -48,3 +48,4 @@ cdk.out
 store_lock
 logs/
 databases/
+**/.vscode/*

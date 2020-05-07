@@ -15,12 +15,15 @@ import Journeys from './components/Journeys';
 import Footer from './components/Footer';
 import LiveDepartures from './components/LiveDepatures'
 
+const dateFormat = "YYYY-MM-DD";
+//const dateFormat = "DD-MM-YYYY";
+
 function getCurrentTime() {
     return moment().local().format("HH:mm");
 }
 
 function getCurrentDate() {
-    return moment().format("YYYY-MM-DD")
+    return moment().format(dateFormat)
 }
 
 function stationsUrl(app) {
@@ -49,7 +52,7 @@ function livedataUrl(app) {
 }
 
 function displayLiveData(app) {
-    var queryDate = moment(app.date, "YYYY-MM-DD");
+    var queryDate = moment(app.date, dateFormat);
     var today = moment();
     // check live data for today only - todo, into the API
     if (today.month()==queryDate.month()

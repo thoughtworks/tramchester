@@ -19,8 +19,11 @@ public class Page {
     }
 
     protected WebElement waitForElement(String elementId, long timeoutInSeconds) {
+        return waitForElement(By.id(elementId), timeoutInSeconds);
+    }
+
+    public WebElement waitForElement(By id, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        By id = By.id(elementId);
         wait.until(webDriver ->  driver.findElement(id));
         return driver.findElement(id);
     }
