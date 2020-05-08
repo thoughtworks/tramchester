@@ -29,8 +29,8 @@ import static java.lang.String.format;
 public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    private static int BUSES_MAX_PATH_LENGTH = 1000;
-    private static int TRAMS_MAX_PATH_LENGTH = 400;
+    private static final int BUSES_MAX_PATH_LENGTH = 1000;
+    private static final int TRAMS_MAX_PATH_LENGTH = 400;
 
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;

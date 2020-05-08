@@ -14,7 +14,6 @@ import static java.lang.String.format;
 public class InterchangeRepository {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
-    private static final int NUMBER_AGENCIES = 5;
     private final TransportDataSource dataSource;
     private final TramchesterConfig config;
 
@@ -26,15 +25,15 @@ public class InterchangeRepository {
         this.config = config;
         if (config.getBus()) {
             // potentially expensive
-            busInterchanges = createBusInterchangeList(NUMBER_AGENCIES);
+            busInterchanges = createBusInterchangeList();
             logger.info(format("Added %s bus interchanges", busInterchanges.size()));
         } else {
             busInterchanges = Collections.emptyMap();
         }
     }
 
-    private Map<String, Station> createBusInterchangeList(int numberAgencies) {
-        logger.info("Finding bus interchanges bused on agency overlap of " + numberAgencies);
+    private Map<String, Station> createBusInterchangeList() {
+        logger.info("Finding bus interchanges based on names");
 
         Set<Station> allStations = dataSource.getStations();
 

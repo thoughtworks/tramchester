@@ -99,6 +99,4 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return Response.serverError().build();
     }
 
-
-
 }

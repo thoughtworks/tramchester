@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
@@ -26,8 +28,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceReasons reasons;
     private int success;
     private int currentLowestCost;
-
     private final Map<Long, TramTime> previousSuccessfulVisit;
+    private final Set<Long> seenIds;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId,
                               ServiceReasons reasons) {
@@ -36,8 +38,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.destinationNodeId = destinationNodeId;
         this.reasons = reasons;
         success = 0;
-        previousSuccessfulVisit = new HashMap<>();
         currentLowestCost = Integer.MAX_VALUE;
+        previousSuccessfulVisit = new HashMap<>();
+        seenIds = new HashSet<>();
     }
 
     public void dispose() {
@@ -114,6 +117,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         reasons.record(journeyState);
+
+        if (seenIds.contains(endNodeId)) {
+            reasons.recordReason(ServiceReason.SeenBefore(path));
+            return Evaluation.EXCLUDE_AND_PRUNE;
+        }
+        seenIds.add(endNodeId);
 
         // no journey longer than N nodes
         if (path.length()>serviceHeuristics.getMaxPathLength()) {

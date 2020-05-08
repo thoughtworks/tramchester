@@ -20,7 +20,10 @@ import org.junit.rules.Timeout;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.BusStations.*;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
@@ -28,7 +31,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-@Ignore("Experimental")
+//@Ignore("Experimental")
 public class JourneyPlannerBusTest {
 
     @Rule
@@ -62,7 +65,7 @@ public class JourneyPlannerBusTest {
     public void shouldPlanSimpleBusJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(AltrinchamInterchange.getId(), StockportBusStation.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false);
+                new TramServiceDate(nextTuesday), false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         assertFalse(found.isEmpty());
@@ -73,10 +76,30 @@ public class JourneyPlannerBusTest {
     public void shouldPlanLongBusJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(ShudehillInterchange.getId(), StockportBusStation.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false);
+                new TramServiceDate(nextTuesday), false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         assertFalse(found.isEmpty());
+    }
+
+    @Category({BusTest.class})
+    @Test
+    public void shouldPlanBusJourneyNoLoops() {
+        TramTime queryTime = TramTime.of(8,56);
+        JourneyPlanRepresentation plan = getJourneyPlan(AltrinchamInterchange.getId(), ManchesterAirportStation.getId(), queryTime,
+                new TramServiceDate(nextTuesday), false, 2);
+
+        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
+        assertFalse(found.isEmpty());
+
+        found.forEach(result -> {
+            Set<String> stageIds= new HashSet<>();
+            result.getStages().forEach(stage -> {
+                String id = stage.getActionStation().getId();
+                assertFalse("duplicate stations id found during " +result, stageIds.contains(id));
+                stageIds.add(id);
+            });
+        });
     }
 
     @Category({BusTest.class})
@@ -117,7 +140,7 @@ public class JourneyPlannerBusTest {
     public void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan(StockportBusStation.getId(), AltrinchamInterchange.getId(), queryTime,
-                new TramServiceDate(nextTuesday), true); // true => arrive by
+                new TramServiceDate(nextTuesday), true, 3); // true => arrive by
         
         // TODO 20 mins gap? Estimation is too optimistic for Buses?
         List<JourneyDTO> found = new ArrayList<>();
@@ -144,11 +167,11 @@ public class JourneyPlannerBusTest {
     }
 
     private JourneyPlanRepresentation getJourneyPlan(String startId, String endId, TramTime queryTime,
-                                                       TramServiceDate queryDate, boolean arriveBy) {
+                                                     TramServiceDate queryDate, boolean arriveBy, int maxChanges) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId, endId, time, date,
-                null, arriveBy, 3);
+                null, arriveBy, maxChanges);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }

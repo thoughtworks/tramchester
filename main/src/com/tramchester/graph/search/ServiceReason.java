@@ -35,7 +35,8 @@ public abstract class ServiceReason {
         OnTram,
         OnBus,
         RouteAlreadySeen,
-        TooManyChanges
+        TooManyChanges,
+        SeenBefore
     }
 
     private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;
@@ -125,6 +126,23 @@ public abstract class ServiceReason {
 
         public Unreachable(ReasonCode code, Path path) {
                 super(code , path);
+            this.code = code;
+        }
+
+        @Override
+        public String textForGraph() {
+            return code.name();
+        }
+    }
+
+    //////////////
+
+    private static class SeenBefore extends ServiceReason {
+
+        private final ReasonCode code;
+
+        public SeenBefore(ReasonCode code, Path path) {
+            super(code , path);
             this.code = code;
         }
 
@@ -318,6 +336,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason PathToLong(Path path) {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
+    }
+
+    public static ServiceReason SeenBefore(Path path) {
+        return new SeenBefore(ReasonCode.SeenBefore, path);
     }
 
 }
