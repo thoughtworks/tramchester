@@ -7,7 +7,7 @@ export default {
             this.stops.forEach(function(stop) { 
                 if (stop.proximityGroup.order===group.order  && stop.id!==avoidId) result.push(stop); 
             } )
-            return result;
+            return result.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase());
         },
         updateValue(value) {
             this.$emit('input', value);
