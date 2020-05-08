@@ -23,9 +23,9 @@ public class UsesRecentCookie {
     public static final String TRAMCHESTER_RECENT = "tramchesterRecent";
     private static final int VERSION = 1;
 
-    private UpdateRecentJourneys updateRecentJourneys;
+    private final UpdateRecentJourneys updateRecentJourneys;
     protected final ObjectMapper mapper;
-    private ProvidesNow providesNow;
+    private final ProvidesNow providesNow;
 
     public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ProvidesNow providesNow, ObjectMapper mapper) {
         this.updateRecentJourneys = updateRecentJourneys;
@@ -47,7 +47,7 @@ public class UsesRecentCookie {
         }
     }
 
-    protected NewCookie createRecentCookie(Cookie cookie, String fromId, String endId) throws UnsupportedEncodingException, JsonProcessingException {
+    protected NewCookie createRecentCookie(Cookie cookie, String fromId, String endId) throws JsonProcessingException {
         logger.info(format("Updating recent stations cookie with %s and %s ",fromId, endId));
         RecentJourneys recentJourneys = recentFromCookie(cookie);
         if (!isFromMyLocation(fromId)) {
@@ -62,7 +62,7 @@ public class UsesRecentCookie {
                 "tramchester recent journeys", maxAgeSecs, false);
     }
 
-    protected boolean isFromMyLocation(String startId) {
+    private boolean isFromMyLocation(String startId) {
         return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
     }
 }

@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class RecentJourneys {
@@ -20,18 +22,16 @@ public class RecentJourneys {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj==null) return false;
-
-        RecentJourneys other = (RecentJourneys) obj;
-        if (other==null) return false;
-
-        return this.timestamps.equals(other.timestamps);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecentJourneys that = (RecentJourneys) o;
+        return timestamps.equals(that.timestamps);
     }
 
     @Override
     public int hashCode() {
-        return timestamps != null ? timestamps.hashCode() : 0;
+        return Objects.hash(timestamps);
     }
 
     @JsonIgnore
@@ -63,13 +63,13 @@ public class RecentJourneys {
     }
 
     public static RecentJourneys decodeCookie(ObjectMapper objectMapper, String cookieString) throws IOException {
-        String decoded = URLDecoder.decode(cookieString,"UTF-8");
+        String decoded = URLDecoder.decode(cookieString, StandardCharsets.UTF_8);
         return objectMapper.readValue(decoded, RecentJourneys.class);
     }
 
-    public static String encodeCookie(ObjectMapper objectMapper, RecentJourneys recentJourneys) throws JsonProcessingException, UnsupportedEncodingException {
+    public static String encodeCookie(ObjectMapper objectMapper, RecentJourneys recentJourneys) throws JsonProcessingException {
         String json = objectMapper.writeValueAsString(recentJourneys);
-        return URLEncoder.encode(json, "UTF-8");
+        return URLEncoder.encode(json, StandardCharsets.UTF_8);
     }
 
 }

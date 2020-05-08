@@ -7,8 +7,10 @@ import com.tramchester.App;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.DTO;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationClient;
@@ -16,12 +18,12 @@ import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import org.jetbrains.annotations.NotNull;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,7 +59,7 @@ public class StationResourceTest {
 
     @Test
     public void shouldGetNearestStations() {
-        StationListDTO stationListDTO = getNearest(53.4804263d, -2.2392436d, Optional.empty());
+        StationListDTO stationListDTO = getNearest(TestEnv.nearPiccGardens, Optional.empty());
         List<StationDTO> stations = stationListDTO.getStations();
 
         Map<ProximityGroup, Long> stationGroups = stations.stream()
@@ -89,13 +91,15 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldGetSpecialStationWithMyLocation() {
-        List<StationDTO> stations = getNearest(53.4804263d, -2.2392436d, Optional.empty()).getStations();
+    public void shouldGetMyLocationPlaceholderStation() {
+        List<StationDTO> stations = getNearest(TestEnv.nearPiccGardens, Optional.empty()).getStations();
 
         StationDTO station = stations.get(0);
         assertEquals(ProximityGroup.MY_LOCATION, station.getProximityGroup());
         assertEquals("MyLocationPlaceholderId", station.getId());
-        assertEquals("{\"lat\":53.4804263,\"lon\":-2.2392436}", station.getArea());
+        String expectedArea = String.format("{\"lat\":%s,\"lon\":%s}",
+                TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon());
+        assertEquals(expectedArea, station.getArea());
         assertEquals("My Location", station.getName());
         // the nearest stops show come next
         assertEquals(ProximityGroup.NEAREST_STOPS, stations.get(1).getProximityGroup());
@@ -103,8 +107,8 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldNotGetSpecialStationWhenGettingAllStations() {
-        getNearest(53.4804263d, -2.2392436d, Optional.empty());
+    public void shouldNotGetMyLocationPlaceholderStationWhenGettingAllStations() {
+        getNearest(TestEnv.nearPiccGardens, Optional.empty());
         Collection<StationDTO> stations = getAll(Optional.empty()).getStations();
 
         stations.forEach(station -> assertNotEquals("My Location", station.getName()));
@@ -136,38 +140,126 @@ public class StationResourceTest {
     }
 
     @Test
-    public void shouldReturnRecentStationsGroupIfCookieSet() throws JsonProcessingException, UnsupportedEncodingException {
+    public void shouldReturnRecentAllStationsGroupIfCookieSet() throws JsonProcessingException {
         Location alty = Stations.Altrincham;
-        RecentJourneys recentJourneys = new RecentJourneys();
-        recentJourneys.setTimestamps(Sets.newHashSet(new Timestamped(alty.getId(), TestEnv.LocalNow())));
+        Cookie cookie = createRecentsCookieFor(alty);
 
-        String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
-        Optional<Cookie> cookie = Optional.of(new Cookie("tramchesterRecent", recentAsString));
-
-        List<StationDTO> stations = getAll(cookie).getStations();
-
-        stations.removeIf(station -> !station.getId().equals(alty.getId()));
-        assertEquals(1, stations.size());
-        assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
-
-        stations = getNearest(53.4804263d, -2.2392436d, cookie).getStations();
-
+        // All
+        List<StationDTO> stations = getAll(Optional.of(cookie)).getStations();
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         assertEquals(1, stations.size());
         assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
     }
 
+    @Test
+    public void shouldReturnRecentAllAndNearbyStationsGroupIfCookieSet() throws JsonProcessingException {
+        Location alty = Stations.Altrincham;
+        @NotNull Cookie cookie = createRecentsCookieFor(alty);
+
+        // All with nearest
+        List<StationDTO> stations = getNearest(TestEnv.nearPiccGardens, Optional.of(cookie)).getStations();
+        stations.removeIf(station -> !station.getId().equals(alty.getId()));
+        assertEquals(1, stations.size());
+        assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
+    }
+
+    @Test
+    public void shouldReturnChangesToRecent() throws JsonProcessingException {
+        Cookie cookieA = createRecentsCookieFor(Stations.Altrincham);
+
+        Response result = IntegrationClient.getResponse(testRule, "stations/update", Optional.of(cookieA), 200);
+        StationListDTO list = result.readEntity(StationListDTO.class);
+
+        assertEquals(1, list.getProximityGroups().size());
+        assertEquals(1, list.getStations().size());
+        assertEquals(Stations.Altrincham.getId(), list.getStations().get(0).getId());
+
+        Cookie cookieB = createRecentsCookieFor(Stations.Altrincham, Stations.Deansgate);
+
+        Response updatedResult = IntegrationClient.getResponse(testRule, "stations/update", Optional.of(cookieB), 200);
+        StationListDTO updatedList = updatedResult.readEntity(StationListDTO.class);
+
+        assertEquals(1, updatedList.getProximityGroups().size());
+        assertEquals(2, updatedList.getStations().size());
+        assertEquals(Stations.Deansgate.getId(), updatedList.getStations().get(0).getId());
+        assertEquals(Stations.Altrincham.getId(), updatedList.getStations().get(1).getId());
+    }
+
+    @Test
+    public void shouldReturnChangesToRecentAndNearest() throws JsonProcessingException {
+
+        Response result = IntegrationClient.getResponse(testRule, String.format("stations/update/%s/%s",
+                TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon()),
+                Optional.of(createRecentsCookieFor(Stations.Bury)), 200);
+
+        StationListDTO list = result.readEntity(StationListDTO.class);
+        assertEquals(2, list.getProximityGroups().size());
+
+        List<StationDTO> recents = list.getStations().stream().
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.RECENT)).collect(Collectors.toList());
+        assertEquals(1, recents.size());
+        assertEquals(Stations.Bury.getId(), recents.get(0).getId());
+
+        List<StationDTO> nearby = list.getStations().stream().
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
+        assertEquals(6, nearby.size());
+
+        // add one of the nearby to the recents list
+        result = IntegrationClient.getResponse(testRule, String.format("stations/update/%s/%s",
+                TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon()),
+                Optional.of(createRecentsCookieFor(Stations.PiccadillyGardens)), 200);
+        list = result.readEntity(StationListDTO.class);
+
+        recents = list.getStations().stream().
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.RECENT)).collect(Collectors.toList());
+        assertEquals(1, recents.size());
+        assertEquals(Stations.PiccadillyGardens.getId(), recents.get(0).getId());
+        nearby = list.getStations().stream().
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
+        assertEquals(5, nearby.size());
+
+        // switch locations, expect different nearby stations
+        result = IntegrationClient.getResponse(testRule, String.format("stations/update/%s/%s",
+                TestEnv.nearAltrincham.getLat(), TestEnv.nearAltrincham.getLon()),
+                Optional.of(createRecentsCookieFor(Stations.PiccadillyGardens)), 200);
+        list = result.readEntity(StationListDTO.class);
+        List<StationDTO> updatedNearby = list.getStations().stream().
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
+        assertEquals(2, updatedNearby.size());
+
+        Set<String> firstNearbyIds = nearby.stream().map(LocationDTO::getId).collect(Collectors.toSet());
+        Set<String> updatedNearbyIds = updatedNearby.stream().map(LocationDTO::getId).collect(Collectors.toSet());
+
+        firstNearbyIds.retainAll(updatedNearbyIds);
+        assertTrue(firstNearbyIds.isEmpty());
+
+    }
+
+    @NotNull
+    private Cookie createRecentsCookieFor(Location... locations) throws JsonProcessingException {
+        RecentJourneys recentJourneys = new RecentJourneys();
+
+        Set<Timestamped> recents = new HashSet<>();
+        for (Location location : locations) {
+            Timestamped timestamped = new Timestamped(location.getId(), TestEnv.LocalNow());
+            recents.add(timestamped);
+        }
+        recentJourneys.setTimestamps(recents);
+
+        String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
+        return new Cookie("tramchesterRecent", recentAsString);
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private StationListDTO getNearest(double lat, double lon, Optional<Cookie> cookie) {
-        Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s", lat, lon), cookie, 200);
-        assertEquals(200,result.getStatus());
+    private StationListDTO getNearest(LatLong location, Optional<Cookie> cookie) {
+        Response result = IntegrationClient.getResponse(testRule, String.format("stations/%s/%s",
+                location.getLat(), location.getLon()), cookie, 200);
         return result.readEntity(StationListDTO.class);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private StationListDTO getAll(Optional<Cookie> cookie) {
         Response result = IntegrationClient.getResponse(testRule, "stations", cookie, 200);
-        assertEquals(200,result.getStatus());
         return result.readEntity(StationListDTO.class);
     }
 

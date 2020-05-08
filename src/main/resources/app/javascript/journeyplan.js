@@ -27,8 +27,8 @@ function getCurrentDate() {
     return moment().format(dateFormat)
 }
 
-function stationsUrl(app) {
-    var base = '/api/stations';
+function stationsUrl(base, app) {
+    //var base = '/api/stations';
     if (!app.hasGeo) {
         return base;
     }
@@ -79,7 +79,7 @@ function queryLiveData(url) {
 
 function getStationsFromServer(app) {
      axios
-         .get(stationsUrl(app))
+         .get(stationsUrl('/api/stations', app))
          .then(function (response) {
              app.networkError = false;
              app.proximityGroups = response.data.proximityGroups;
@@ -91,6 +91,50 @@ function getStationsFromServer(app) {
              app.ready = true;
              console.log(error);
          });
+ }
+
+ function updateStationsFromServer(app) {
+    axios
+    .get(stationsUrl('/api/stations/update', app))
+        .then(function (response) {
+            app.networkError = false;
+            refreshStops(app, response.data);
+            app.ready = true;
+        })
+        .catch(function (error) {
+            app.networkError = true;
+            app.ready = true;
+            console.log(error);
+        });
+ }
+
+ function refreshStops(app, updates) {
+    var updatedStops = updates.stations;
+    var updatedProxGroups = updates.proximityGroups;
+
+    var updatedProxGroupNames = [];
+    for(var i = 0; i< updatedProxGroups.length; i++) {
+        updatedProxGroupNames.push(updatedProxGroups[i].name)
+    }
+
+    var updatedStopIds = [];
+    for(var i = 0; i< updatedStops.length; i++) {
+        updatedStopIds.push(updatedStops[i].id)
+    }
+
+    for(var i = 0; i< app.stops.length; i++) {
+        var currentStop = app.stops[i]
+        var currentProxGroup = currentStop.proximityGroup.name;
+        if (updatedProxGroupNames.includes(currentProxGroup)) {
+            app.stops[i].proximityGroup = { order:4, name:"All Stops" }
+        }
+
+        if (updatedStopIds.includes(currentStop.id)) {
+            var indexIntoUpdated = updatedStopIds.indexOf(currentStop.id);
+            app.stops[i].proximityGroup = updatedStops[indexIntoUpdated].proximityGroup;
+        }
+    }
+ 
  }
 
  var data = {
@@ -159,7 +203,7 @@ var app = new Vue({
                     then(function (response) {
                         app.networkError = false;
                         app.journeyResponse = response.data;
-                        app.getStations();
+                        app.updateStations();
                         app.searchInProgress = false;
                         }).
                     catch(function (error) {
@@ -170,8 +214,8 @@ var app = new Vue({
                     });
                 displayLiveData(this);
             },
-            getStations() {
-                getStationsFromServer(this);
+            updateStations() {
+                updateStationsFromServer(this);
             },
             setCookie() {
                 var cookie = { 'visited' : true };
