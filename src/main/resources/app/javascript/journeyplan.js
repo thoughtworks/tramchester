@@ -266,6 +266,9 @@ var app = new Vue({
         computed: {
             havePos: function () {
                 return this.hasGeo && (this.location!=null);
+            },
+            busEnabled: function () {
+                return this.feedinfo.bus;
             }
         }
     })

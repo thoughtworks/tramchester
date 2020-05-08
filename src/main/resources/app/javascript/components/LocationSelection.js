@@ -1,5 +1,16 @@
+
+import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
+
 export default {
-    props: ['value','proximitygroups','stops','other','name'], 
+    components: {
+        VueBootstrapTypeahead
+    },
+    props: ['value','proximitygroups','stops','other','name','bus'], 
+    data: function () {
+        return {
+            current: this.value
+        }
+    },
     methods: {
         filterStops(group) {
             var result = [];
@@ -14,16 +25,28 @@ export default {
         }
     },
     template: `
-    <b-form-select v-bind:id="name+'Stop'"
-            :value="value"
-            v-on:input="updateValue($event)"
-            class="mb-2" required>
-        <option :value="null" disabled>Please select {{name}}</option>
-        <optgroup v-for="group in proximitygroups" :label="group.name" :name="group.name"
-            :id="name+'Group'+group.name">
-                <option class="stop" v-for="stop in filterStops(group)" :value="stop.id">{{stop.name}}
-            </option>
-        </optgroup>
-    </b-form-select>
+    <div>
+        <b-form-select v-bind:id="name+'Stop'"
+                :value="value"
+                v-on:input="updateValue($event)"
+                class="mb-2" required
+                v-if="!bus">
+            <option :value="null" disabled>Please select {{name}}</option>
+            <optgroup v-for="group in proximitygroups" :label="group.name" :name="group.name"
+                :id="name+'Group'+group.name">
+                    <option class="stop" v-for="stop in filterStops(group)" :value="stop.id">{{stop.name}}
+                </option>
+            </optgroup>
+        </b-form-select>
+        <vue-bootstrap-typeahead
+            class="mb-4"
+            :data="stops"
+            v-model="current"
+            :serializer="item => item.name"
+            @hit="updateValue($event.id)"
+            placeholder="Select a location"
+            v-if="bus"
+        />
+    </div>
     `
 }

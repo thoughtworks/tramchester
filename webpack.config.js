@@ -1,4 +1,6 @@
 var path = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+
 module.exports = {
   mode: 'development',
   entry: {
@@ -18,9 +20,16 @@ module.exports = {
   module:{
     rules:[
       {
-        test:/\.css$/,
-        use:['style-loader','css-loader']
+            test:/\.css$/,
+            use:['style-loader','css-loader']
+      },
+      {
+          test: /\.vue$/,
+          loader: 'vue-loader'
       }
     ]
-  }
+  },
+  plugins: [
+      new VueLoaderPlugin()
+    ]
 };
