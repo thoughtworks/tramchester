@@ -2,14 +2,17 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.*;
+import com.tramchester.domain.ClosedStations;
+import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.*;
-import com.tramchester.domain.presentation.DTO.*;
-import com.tramchester.domain.presentation.DTO.factory.StationDTOFactory;
-import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationListDTO;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -24,7 +27,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -40,25 +46,18 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final SpatialService spatialService;
     private final ClosedStations closedStations;
     private final StationRepository stationRepository;
-    private final ProvidesNotes providesNotes;
     private final MyLocationFactory locationFactory;
-    private final StationDTOFactory stationDTOFactory;
-    private final ProvidesNow providesNow;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
-                           ProvidesNotes providesNotes,
-                           MyLocationFactory locationFactory, StationDTOFactory stationDTOFactory, ProvidesNow providesNow) {
+                           MyLocationFactory locationFactory, ProvidesNow providesNow) {
         super(updateRecentJourneys, providesNow, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
-        this.providesNotes = providesNotes;
         this.locationFactory = locationFactory;
-        this.stationDTOFactory = stationDTOFactory;
-        this.providesNow = providesNow;
         allStationsSorted = new ArrayList<>();
     }
 
@@ -113,43 +112,6 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-    }
-
-    @GET
-    @Timed
-    @Path("/live/{id}")
-    @ApiOperation(value = "Get station by id enriched with live data", response = StationDTO.class)
-    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response getLive(@PathParam("id") String id) {
-        logger.info("Get station " + id);
-        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
-
-        if (stationRepository.hasStationId(id)) {
-            LocationDTO locationDTO = stationDTOFactory.build(stationRepository.getStation(id), queryDate, providesNow.getNow());
-            return Response.ok(locationDTO).build();
-        }
-        else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-    }
-
-    @GET
-    @Timed
-    @Path("/live/{lat}/{lon}")
-    @ApiOperation(value = "Get geographically close stations enriched with live data", response = StationListDTO.class)
-    @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response getNearestLive(@PathParam("lat") double lat, @PathParam("lon") double lon) {
-
-        LatLong latLong = new LatLong(lat,lon);
-        List<Station> stations = spatialService.getNearestStations(latLong);
-
-        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
-        List<Note> notes = providesNotes.createNotesForStations(stations, queryDate, providesNow.getNow());
-
-        List<StationDTO> stationsDTO = new ArrayList<>();
-        stations.forEach(station -> stationsDTO.add(stationDTOFactory.build(station, queryDate, providesNow.getNow())));
-
-        return Response.ok(new StationListDTO(stationsDTO, notes, ProximityGroup.ALL_GROUPS)).build();
     }
 
     @GET

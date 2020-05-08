@@ -4,33 +4,31 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.DTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
-import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
-import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StationResourceTest {
 
@@ -55,24 +53,6 @@ public class StationResourceTest {
         assertEquals(id+"2", platforms.get(1).getId());
         assertEquals(id+"3", platforms.get(2).getId());
         assertEquals(id+"4", platforms.get(3).getId());
-    }
-
-    @Test
-    @Category(LiveDataTestCategory.class)
-    public void shouldGetSingleStationWithLiveData() {
-        String id = Stations.StPetersSquare.getId();
-        String endPoint = "stations/live/" + id;
-        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
-        assertEquals(200,response.getStatus());
-        StationDTO result = response.readEntity(StationDTO.class);
-
-        assertEquals(id, result.getId());
-
-        List<DTO> platforms = result.getPlatforms();
-        assertEquals(4, platforms.size());
-        StationDepartureInfoDTO info = platforms.get(0).getStationDepartureInfo();
-        assertNotNull(info);
-        assertEquals("St Peter's Square", info.getLocation());
     }
 
     @Test
@@ -106,40 +86,6 @@ public class StationResourceTest {
         assertTrue(names.contains(ProximityGroup.NEAREST_STOPS.getName()));
         assertTrue(names.contains(ProximityGroup.RECENT.getName()));
         assertTrue(names.contains(ProximityGroup.MY_LOCATION.getName()));
-    }
-
-    @Test
-    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldGetNearestStationsWithLiveData() {
-        double lat = 53.4804263d;
-        double lon = -2.2392436d;
-
-        Response response = IntegrationClient.getResponse(testRule, String.format("stations/live/%s/%s", lat, lon),
-                Optional.empty(), 200);
-        assertEquals(200,response.getStatus());
-
-        StationListDTO stationList =  response.readEntity(StationListDTO.class);
-        List<StationDTO> stations = stationList.getStations();
-
-        assertEquals(6, stations.size());
-
-        stations.forEach(stationDTO -> {
-            assertTrue(stationDTO.getName(), stationDTO.hasPlatforms());
-            stationDTO.getPlatforms().forEach(platformDTO -> {
-                StationDepartureInfoDTO info = platformDTO.getStationDepartureInfo();
-                assertNotNull(stationDTO.getName(), info);
-            });
-        });
-
-        List<Note> notes = stationList.getNotes();
-        assertFalse(notes.isEmpty());
-        // ignore closure message which is always present, also if today is weekend exclude that
-        int ignore = 1;
-        DayOfWeek dayOfWeek = TestEnv.LocalNow().toLocalDate().getDayOfWeek();
-        if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
-            ignore++;
-        }
-        assertTrue((notes.size())-ignore>0);
     }
 
     @Test
