@@ -264,10 +264,6 @@ var app = new Vue({
             }
         },
         computed: {
-            endProximityGroups: function () {
-                // nearby not available for destinations yet...
-                return this.proximityGroups; //.filter(group => group.name!=='Nearby');
-            },
             havePos: function () {
                 return this.hasGeo && (this.location!=null);
             }
