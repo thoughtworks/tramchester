@@ -22,6 +22,13 @@ export default {
         },
         updateValue(value) {
             this.$emit('input', value);
+        },
+        formName(item) {
+            if (item.tram) {
+                return item.name + ' (tram)'
+            } else {
+                return item.name
+            }
         }
     },
     template: `
@@ -42,7 +49,8 @@ export default {
             class="mb-4"
             :data="stops"
             v-model="current"
-            :serializer="item => item.name"
+            maxMatches=20
+            :serializer="item => formName(item)"
             @hit="updateValue($event.id)"
             placeholder="Select a location"
             v-if="bus"
