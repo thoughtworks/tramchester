@@ -47,7 +47,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     public Stream<Path> findPaths(Node startNode) {
 
-        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons);
+        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations,
+                destinationNodeId, reasons, config);
         final NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 

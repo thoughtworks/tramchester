@@ -10,6 +10,7 @@ import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -52,10 +53,15 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(node.getId()).andStubReturn(42L);
     }
 
+    @NotNull
+    private TramRouteEvaluator getEvaluator(long destinationNodeId) {
+        return new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons, config);
+    }
+
     @Test
     public void shouldMatchDestination() {
         long destinationNodeId = 42;
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, destinationNodeId, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
 
         BranchState<JourneyState> state = new TestBranchState();
 
@@ -71,7 +77,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldPruneIfTooLong() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(200);
 
         BranchState<JourneyState> state = new TestBranchState();
@@ -89,7 +95,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeIfServiceNotRunningToday() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
 
@@ -113,7 +119,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeIfUnreachableNode() throws TramchesterException {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
@@ -138,7 +144,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldIncludeIfNotOnTramNode() throws TramchesterException {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
@@ -171,7 +177,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldIncludeIfWalking() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
@@ -198,7 +204,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeIfTakingTooLong() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
@@ -225,7 +231,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeIfOverLimitOnChanges() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
 
         EasyMock.expect(path.length()).andReturn(50);
@@ -245,7 +251,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeIfServiceNotRunning() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
@@ -275,7 +281,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeIfServiceNotCorrectHour() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
@@ -307,7 +313,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldExcludeIfServiceNotCorrectMinute() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
@@ -339,7 +345,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     public void shouldIncludeIfMatchesNoRules() {
-        TramRouteEvaluator evaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations, 88L, reasons);
+        TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));

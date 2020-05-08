@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.states.TraversalState;
@@ -29,18 +30,20 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private int success;
     private int currentLowestCost;
     private final Map<Long, TramTime> previousSuccessfulVisit;
-    private final Set<Long> seenIds;
+    private final Set<Long> busStationNodes;
+    private final boolean bus;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId,
-                              ServiceReasons reasons) {
+                              ServiceReasons reasons, TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
         this.nodeOperations = nodeOperations;
         this.destinationNodeId = destinationNodeId;
         this.reasons = reasons;
+        bus = config.getBus();
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
         previousSuccessfulVisit = new HashMap<>();
-        seenIds = new HashSet<>();
+        busStationNodes = new HashSet<>();
     }
 
     public void dispose() {
@@ -118,11 +121,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         reasons.record(journeyState);
 
-        if (seenIds.contains(endNodeId)) {
-            reasons.recordReason(ServiceReason.SeenBefore(path));
-            return Evaluation.EXCLUDE_AND_PRUNE;
+        if (bus) {
+            if (nodeOperations.isBusStation(endNodeId)) {
+                if (busStationNodes.contains(endNodeId)) {
+                    reasons.recordReason(ServiceReason.SeenBefore(path));
+                    return Evaluation.EXCLUDE_AND_PRUNE;
+                }
+                busStationNodes.add(endNodeId);
+            }
         }
-        seenIds.add(endNodeId);
 
         // no journey longer than N nodes
         if (path.length()>serviceHeuristics.getMaxPathLength()) {

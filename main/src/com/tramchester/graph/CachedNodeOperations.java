@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.TransportGraphBuilder.Labels.BUS_STATION;
 import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
 
 public class CachedNodeOperations implements ReportsCacheStats, Disposable {
@@ -151,6 +152,8 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
     public boolean isRouteStation(long nodeId) {
         return nodeIdLabelMap.has(ROUTE_STATION, nodeId);
     }
+
+    public boolean isBusStation(long nodeId) { return nodeIdLabelMap.has(BUS_STATION, nodeId); }
 
     public int getHour(Node node) {
         long id = node.getId();

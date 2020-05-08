@@ -13,8 +13,8 @@ public class NodeIdLabelMap implements Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 
     // map from the NodeId to the Label
-    private Map<TransportGraphBuilder.Labels, Set<Long>> map;
-    private ConcurrentMap<Long, Boolean> queryNodes;
+    private final Map<TransportGraphBuilder.Labels, Set<Long>> map;
+    private final ConcurrentMap<Long, Boolean> queryNodes;
 
     public NodeIdLabelMap() {
         map = new EnumMap<>(TransportGraphBuilder.Labels.class);
@@ -75,9 +75,5 @@ public class NodeIdLabelMap implements Disposable {
     public void removeQueryNode(long id) {
         queryNodes.remove(id);
     }
-
-//    public void freeze() {
-//        map = Collections.unmodifiableMap(map);
-//    }
 
 }
