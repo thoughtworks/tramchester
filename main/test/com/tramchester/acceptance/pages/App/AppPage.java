@@ -2,6 +2,7 @@ package com.tramchester.acceptance.pages.App;
 
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
+import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.openqa.selenium.*;
@@ -45,10 +46,15 @@ public class AppPage extends Page {
     }
 
     public boolean waitForToStops() {
+        Station station = Stations.ManAirport;
+        return waitForToStopsContains(station);
+    }
+
+    public boolean waitForToStopsContains(Station station) {
         WebDriverWait wait = createWait();
         wait.until(webDriver -> ExpectedConditions.presenceOfElementLocated(By.id(FROM_STOP)));
         WebElement fromStopElement = waitForElement(FROM_STOP, 8);// findElementById(FROM_STOP);
-        wait.until(webDriver -> ExpectedConditions.textToBePresentInElement(fromStopElement, Stations.ManAirport.getName()));
+        wait.until(webDriver -> ExpectedConditions.textToBePresentInElement(fromStopElement, station.getName()));
         return fromStopElement.isEnabled() && fromStopElement.isDisplayed();
     }
 

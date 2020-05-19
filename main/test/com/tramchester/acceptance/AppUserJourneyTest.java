@@ -221,8 +221,10 @@ public class AppUserJourneyTest {
     public void shouldHideStationInToListWhenSelectedInFromList() {
         AppPage appPage = prepare();
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
-        List<String> toStops = appPage.getToStops();
-        assertFalse(toStops.contains(altrincham));
+
+        appPage.waitForToStopsContains(Stations.Bury);
+        List<String> destStops = appPage.getToStops();
+        assertFalse("should not contain alty", destStops.contains(altrincham));
     }
 
     @Test
@@ -313,7 +315,8 @@ public class AppUserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<SummaryResult> results = appPage.getResults();
-        assertTrue(results.size()>=3);
+        // TODO pre-lockdown timetable was 3
+        assertTrue("at least 2 journeys, was "+results.size(),results.size()>=2);
         LocalTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
         for (SummaryResult result : results) {
             LocalTime arriveTime = result.getArriveTime();
