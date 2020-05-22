@@ -61,13 +61,13 @@ public class JourneyPlannerLocationResourceTest {
         //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
         // new lockdown timetable
-        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 25), TramTime.of(20, 12));
+        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
         assertTrue("Expected time "+departureTime.toString(), possibleTimes.contains(departureTime));
 
         // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
         // new lockdown timetable
-        assertEquals(firstJourney.toString(), TramTime.of(20,54), firstJourney.getExpectedArrivalTime());
+        assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
     }
 
     @Test

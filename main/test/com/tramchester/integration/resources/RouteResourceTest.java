@@ -1,7 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
@@ -10,7 +8,6 @@ import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -27,7 +24,7 @@ public class RouteResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    private RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
+    private final RouteDTO ashtonEcclesRoute = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
             "shortName", new LinkedList<>(), "displayClass");
 
     @Test
@@ -35,7 +32,8 @@ public class RouteResourceTest {
         Response result = IntegrationClient.getResponse(testRule, "routes", Optional.empty(), 200);
         List<RouteDTO> routes = result.readEntity(new GenericType<>() {});
 
-        assertEquals(14, routes.size());
+        // TODO Lockdown 14->12
+        assertEquals(12, routes.size());
 
         routes.forEach(route -> assertFalse("Route no stations "+route.getRouteName(),route.getStations().isEmpty()));
 

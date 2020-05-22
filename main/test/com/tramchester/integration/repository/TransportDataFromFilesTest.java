@@ -75,7 +75,8 @@ public class TransportDataFromFilesTest {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
 
-        assertEquals(14, tramRoutes);
+        // TODO lockdown 14->12
+        assertEquals(12, tramRoutes);
     }
 
     @Test
@@ -243,8 +244,9 @@ public class TransportDataFromFilesTest {
                 filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(), Stations.Ashton.getId(), timeWindow)).
                 collect(Collectors.toList());
 
+        // TODO Lockdown 2->4
         // not date specific
-        assertEquals(2, atRequiredTimed.size());
+        assertEquals(4, atRequiredTimed.size());
     }
 
     @Test

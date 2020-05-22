@@ -6,6 +6,7 @@ import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.TramReachabilityRepository;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 
@@ -37,15 +38,15 @@ public class TramReachabilityRepositoryTest {
     public void shouldCreateReachabilityMatrix() {
 
         // wrong direction
-        assertFalse(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.BURY_TO_ALTY, Stations.TraffordBar));
+        assertFalse(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.PICC_TO_ALTY, Stations.TraffordBar));
         // right direction
-        assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_BURY, Stations.TraffordBar));
+        assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC, Stations.TraffordBar));
         // wrong direction
-        assertFalse(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.BURY_TO_ALTY, Stations.ManAirport));
+        assertFalse(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.PICC_TO_ALTY, Stations.ManAirport));
         // right direction with interchange
-        assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_BURY, Stations.ManAirport));
+        assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC, Stations.ManAirport));
         // self reachable
-        assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_BURY, Stations.NavigationRoad));
+        assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC, Stations.NavigationRoad));
 
         // right direction
         assertTrue(repository.stationReachable(Stations.RochdaleRail, RoutesForTesting.ROCH_TO_DIDS, Stations.Monsall));
@@ -55,7 +56,9 @@ public class TramReachabilityRepositoryTest {
         assertTrue(repository.stationReachable(Stations.Monsall, RoutesForTesting.ROCH_TO_DIDS, Stations.RochdaleRail));
     }
 
+    // TODO Lockdown
     @Test
+    @Ignore("Not during lockdown")
     public void shouldRepoIssueAltyToDeangates() {
         assertTrue(repository.stationReachable(Stations.Altrincham, RoutesForTesting.ALTY_TO_BURY, Stations.Deansgate));
         assertTrue(repository.stationReachable(Stations.Altrincham, RoutesForTesting.ALTY_TO_PICC, Stations.Deansgate));

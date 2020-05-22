@@ -21,8 +21,6 @@ public class TramRouteReachableTest {
     private static Dependencies dependencies;
 
     private RouteReachable reachable;
-    private String manAirportToVictoria = "MET:   6:O:";
-    private String victoriaToManAirport = "MET:   6:I:";
     private StationRepository stationRepository;
     private Transaction tx;
 
@@ -75,14 +73,19 @@ public class TramRouteReachableTest {
 
     @Test
     public void shouldHaveAdjacentRoutesCorrectly() {
-        assertEquals(2,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
-        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad.getId()).size());
+
+        // TODO Lockdown 2->1 for next two tests, only one route to alty now
+        assertEquals(1,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
+        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad.getId()).size());
 
         // 5 not the 7 on the map, only 6 routes modelled in timetable data, 1 of which does not go between these 2
-        assertEquals(5, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare.getId()).size());
+        // TODO Lockdown 5->4
+        assertEquals(4, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare.getId()).size());
 
         assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.PiccadillyGardens.getId()).size());
-        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet.getId()).size());
+
+        // TODO Lockdown 2->1
+        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet.getId()).size());
 
         assertEquals(0, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.Cornbrook.getId()).size());
     }
@@ -90,8 +93,8 @@ public class TramRouteReachableTest {
     @Test
     public void shouldComputeSimpleCostBetweenStations() {
 
-        assertEquals(60, reachable.getApproxCostBetween(Stations.Bury.getId(), Stations.Altrincham.getId()));
-        assertEquals(59, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.Bury.getId()));
+        assertEquals(62, reachable.getApproxCostBetween(Stations.Bury.getId(), Stations.Altrincham.getId()));
+        assertEquals(62, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.Bury.getId()));
 
         assertEquals(5, reachable.getApproxCostBetween(Stations.NavigationRoad.getId(), Stations.Altrincham.getId()));
         assertEquals(6, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.NavigationRoad.getId()));

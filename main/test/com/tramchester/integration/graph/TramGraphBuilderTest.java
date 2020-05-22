@@ -89,7 +89,7 @@ public class TramGraphBuilderTest {
     public void shouldHaveCorrectRelationshipsAtCornbrook() {
 
         List<Relationship> outbounds = getOutboundRouteStationRelationships(RouteStation.formId(Stations.Cornbrook,
-                RoutesForTesting.ALTY_TO_BURY));
+                RoutesForTesting.ALTY_TO_PICC));
 
         assertTrue("have at least one outbound", outbounds.size()>1);
 
@@ -115,11 +115,12 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldCheckOutboundSvcRelationships() {
 
-        checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_BURY);
-        checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.BURY_TO_ALTY);
-
-        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.BURY_TO_ALTY);
-        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.ALTY_TO_BURY);
+        // TODO Lockdown - Route 1 is gone for now
+//        checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_BURY);
+//        checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.BURY_TO_ALTY);
+//
+//        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.BURY_TO_ALTY);
+//        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.ALTY_TO_BURY);
 
         checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.ASH_TO_ECCLES);
         checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.ECCLES_TO_ASH);
