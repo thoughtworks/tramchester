@@ -102,8 +102,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
             assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
-            // less frequent services during lockdown mean threshhold here increased to 6
-            if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<=6) {
+            // TODO lockdown less frequent services during lockdown mean threshhold here increased to 12
+            if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<=12) {
                 found.add(journeyDTO);
             }
         });
