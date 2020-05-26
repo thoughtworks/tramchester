@@ -26,6 +26,7 @@ import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.mappers.*;
+import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.router.ProcessPlanRequest;
@@ -124,7 +125,7 @@ public class Dependencies {
         picoContainer.addComponent(LocationJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
         picoContainer.addComponent(FeedInfoResource.class);
-        picoContainer.addComponent(RoutesRepository.class);
+        picoContainer.addComponent(RoutesMapper.class);
         picoContainer.addComponent(RouteResource.class);
         picoContainer.addComponent(AreaResource.class);
         picoContainer.addComponent(LiveDataHTTPFetcher.class);

@@ -3,7 +3,6 @@ package com.tramchester.domain.input;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.List;
@@ -32,10 +31,8 @@ public class Trip implements HasId {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Trip trip = (Trip) o;
-
-        return !(tripId != null ? !tripId.equals(trip.tripId) : trip.tripId != null);
+        return tripId.equals(trip.tripId);
     }
 
     @Override
@@ -54,18 +51,15 @@ public class Trip implements HasId {
     public void addStop(StopCall stop) {
         stops.add(stop);
         TramTime departureTime = stop.getDepartureTime();
+        // use stop index as avoids issues with crossing day boundaries
         byte stopIndex = stop.getGetSequenceNumber();
-        if (stopIndex ==1) {
+        if (stopIndex == 1) {
             earliestDepart = departureTime;
         }
         if (stopIndex > lastIndex) {
             lastIndex = stopIndex;
             latestDepart = departureTime;
         }
-    }
-
-    public boolean travelsBetween(String firstStationId, String lastStationId, TimeWindow window) {
-        return stops.travelsBetween(firstStationId, lastStationId, window);
     }
 
     @Override

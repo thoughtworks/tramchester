@@ -38,8 +38,17 @@ function addStations() {
     });
 }
 
+function addRoutes() {
+    mapApp.routes.forEach(route => {
+        var steps = [];
+        route.stations.forEach(station => {
+            steps.push([station.latLong.lat, station.latLong.lon]);
+        })
+        L.polyline(steps, {color: 'red'}).addTo(mapApp.map);
+    })
+}
 
-function findMapBounds() {
+function findAndSetMapBounds() {
     let minLat = 1000;
     let maxLat = -1000;
     let minLon = 1000;
@@ -73,49 +82,53 @@ var mapApp = new Vue({
             map: null,
             positionsList: null,
             uniqueStations: [],
-            networkError: false
+            networkError: false,
+            routes: []
         }
     },
     methods: {
-        filterPositions() {
+        createStationList() {
             // unique list of stations
             var ids = [];
-            mapApp.positionsList.forEach(item => {
-                if (ids.indexOf(item.first.id)<0) {
-                    ids.push(item.first.id);
-                    mapApp.uniqueStations.push(item.first);
-                }
-                if (ids.indexOf(item.second.id)<0) {
-                    ids.push(item.second.id);
-                    mapApp.uniqueStations.push(item.second);
-                }
+            mapApp.routes.forEach(route => {
+                route.stations.forEach(station => {
+                    if (ids.indexOf(station.id)<0) {
+                        ids.push(station.id);
+                        mapApp.uniqueStations.push(station);
+                    }
+                });
             });
-
-            // work out bounding box size
-            // TODO Get from server side
-            findMapBounds();
         },
         draw() {
-
+            findAndSetMapBounds();
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
-            addStations(this);
+            addStations();
+            addRoutes();
         }
     },
     mounted () {
-        axios
-            .get('/api/positions?unfiltered=true')
-            .then(function (response) {
-                mapApp.networkError = false;
-                mapApp.positionsList = response.data.positionsList;
-                mapApp.filterPositions();
+        axios.get("/api/routes").then(function (response) {
+                mapApp.routes = response.data;
+                mapApp.createStationList();
                 mapApp.draw();
-            })
-            .catch(function (error) {
+            }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
             });
+        // axios
+        //     .get('/api/positions?unfiltered=true')
+        //     .then(function (response) {
+        //         mapApp.networkError = false;
+        //         mapApp.positionsList = response.data.positionsList;
+        //         mapApp.filterPositions();
+        //         mapApp.draw();
+        //     })
+        //     .catch(function (error) {
+        //         mapApp.networkError = true;
+        //         console.log(error);
+        //     });
 
         this.map = L.map('leafletMap');
 

@@ -1,10 +1,11 @@
-package com.tramchester.repository;
+package com.tramchester.mappers;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +13,13 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-// TODO THIS IS A MAPPER
-public class RoutesRepository {
-    private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
+public class RoutesMapper {
+    private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
     private final TransportData transportData;
     private final RouteCodeToClassMapper mapper;
 
-    public RoutesRepository(TransportData transportData, RouteCodeToClassMapper mapper) {
+    public RoutesMapper(TransportData transportData, RouteCodeToClassMapper mapper) {
         this.transportData = transportData;
         this.mapper = mapper;
     }
@@ -33,6 +33,8 @@ public class RoutesRepository {
     }
 
     private void populateDTOFor(Route route, List<RouteDTO> gather) {
+
+        // TODO CANNOT DO THIS, disrupts order of stations
         Set<StationDTO> stations = new HashSet<>();
         String routeName = route.getName();
         logger.debug("Finding stations for route "  + routeName);

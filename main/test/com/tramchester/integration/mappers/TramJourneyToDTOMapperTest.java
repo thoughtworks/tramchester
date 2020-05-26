@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -249,7 +250,7 @@ public class TramJourneyToDTOMapperTest {
     private VehicleStage getRawVehicleStage(Location start, Location finish, Route route, TramTime startTime,
                                             int cost, int passedStops) {
 
-        Trip validTrip = transportData.getTripsFor(start.getId()).iterator().next();
+        Trip validTrip = getTripsFor(transportData.getTrips(), start.getId()).iterator().next();
 
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, "cssClass", validTrip,
                 startTime.plusMinutes(1), finish, passedStops);

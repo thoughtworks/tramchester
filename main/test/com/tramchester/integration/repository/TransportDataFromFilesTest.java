@@ -2,19 +2,21 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.*;
+import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.time.DaysOfWeek;
-import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 
@@ -23,10 +25,10 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.Assert.*;
 
 public class TransportDataFromFilesTest {
-    private static final TimeWindow MINUTES_FROM_MIDNIGHT_8AM = new TimeWindow(TramTime.of(8,0), 45);
     private static final List<String> ashtonRoutes = Collections.singletonList(RoutesForTesting.ASH_TO_ECCLES.getId());
 
     private static Dependencies dependencies;
@@ -107,42 +109,6 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldGetServiceForLineAndStop() {
-
-        // select servcies for one route
-        List<Service> filtered = allServices.stream().
-                filter(svc -> ashtonRoutes.contains(svc.getRouteId())).
-                collect(Collectors.toList());
-        assertFalse(filtered.isEmpty());
-
-        List<Trip> trips = filtered.stream()
-                .map(Service::getTrips)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        // find trips calling at Velo
-        trips.removeIf(trip -> !trip.travelsBetween(Stations.Ashton.getId(), Stations.VeloPark.getId(), MINUTES_FROM_MIDNIGHT_8AM));
-        assertFalse(trips.isEmpty());
-
-        List<String> callingServices = trips.stream()
-                .map(trip -> trip.getService().getId())
-                .collect(Collectors.toList());
-
-        // find one service id from trips
-        String callingService = callingServices.get(0);
-
-        // check can now getPlatformById service
-        Service velopark8AMSvc = transportData.getServiceById(callingService);
-
-        assertTrue(ashtonRoutes.contains(velopark8AMSvc.getRouteId()));
-
-        // now check can getPlatformById trips using times instead
-//        Optional<ServiceTime> tripsByTime = transportData.getFirstServiceTime(velopark8AMSvc.getServiceId(),
-//                Stations.Ashton, Stations.VeloPark, MINUTES_FROM_MIDNIGHT_8AM);
-//        assertTrue(tripsByTime.isPresent());
-    }
-
-    @Test
     public void shouldGetAreas() {
         List<AreaDTO> results = transportData.getAreas();
         assertTrue(results.size() > 0 );
@@ -194,7 +160,7 @@ public class TransportDataFromFilesTest {
                 Set<String> callingServicesIds = callingTripsOnDate.stream().map(trip -> trip.getService().getId()).collect(Collectors.toSet());
 
                 for (int hour = earlistHour; hour < latestHour; hour++) {
-                    TramTime tramTime = TramTime.of(hour,00);
+                    TramTime tramTime = TramTime.of(hour,0);
                     Set<Service> runningAtTime = servicesOnDate.stream().
                             filter(svc -> callingServicesIds.contains(svc.getId())).
                             filter(svc -> tramTime.between(svc.earliestDepartTime(), svc.latestDepartTime())).collect(Collectors.toSet());
@@ -214,39 +180,6 @@ public class TransportDataFromFilesTest {
 
             });
         }
-    }
-
-    @Test
-    public void shouldHaveWeekendServicesDeansgateToAshton() {
-        Set<Trip> deansgateTrips = transportData.getTripsFor(Stations.Deansgate.getId());
-
-        TimeWindow timeWindow = new TimeWindow(TramTime.of(9,0),30);
-        List<String> servicesIds = deansgateTrips.stream().
-                filter(trip -> trip.callsAt(Stations.Ashton.getId())).
-                filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(),Stations.Ashton.getId(),timeWindow)).
-                map(trip->trip.getService().getId()).collect(Collectors.toList());
-        assertTrue(servicesIds.size()>0);
-
-        List<Service> sundays = transportData.getServices().stream().
-                filter(svc -> servicesIds.contains(svc.getId())).
-                filter(svc -> svc.getDays().get(DaysOfWeek.Sunday)).collect(Collectors.toList());
-        assertTrue(sundays.size()>0);
-
-        List<Service> saturdays = transportData.getServices().stream().
-                filter(svc -> servicesIds.contains(svc.getId())).
-                filter(svc -> svc.getDays().get(DaysOfWeek.Saturday)).collect(Collectors.toList());
-        assertTrue(saturdays.size()>0);
-
-
-        List<Trip> sundayTrips = sundays.stream().map(Service::getTrips).flatMap(Collection::stream).collect(Collectors.toList());
-
-        List<Trip> atRequiredTimed = sundayTrips.stream().
-                filter(trip -> trip.travelsBetween(Stations.Deansgate.getId(), Stations.Ashton.getId(), timeWindow)).
-                collect(Collectors.toList());
-
-        // TODO Lockdown 2->4
-        // not date specific
-        assertEquals(4, atRequiredTimed.size());
     }
 
     @Test
@@ -289,25 +222,6 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldFindTripsForTramStation() {
-        Set<Trip> altyTrips = transportData.getTripsFor(Stations.Altrincham.getId());
-        altyTrips.removeIf(trip -> !trip.travelsBetween(Stations.Altrincham.getId(), Stations.Deansgate.getId(),
-                MINUTES_FROM_MIDNIGHT_8AM));
-
-        assertFalse(altyTrips.isEmpty());
-        Trip trip = altyTrips.stream().findFirst().get();
-
-        int count = 0;
-        for (StopCall stop : trip.getStops()) {
-            count++;
-            if (stop.getStation().getId().equals(Stations.Deansgate.getId())) {
-                break;
-            }
-        }
-        assertEquals(11, count);
-    }
-
-    @Test
     public void shouldTestValidityOfCalendarImport() {
         List<Service> mondayServices = new LinkedList<>();
 
@@ -329,14 +243,14 @@ public class TransportDataFromFilesTest {
 
         allRoutes.forEach(route -> svcSizes.add(route.getServices().size()));
 
-        int allSvcs = svcSizes.stream().reduce(0, (total,current) -> total+current);
+        int allSvcs = svcSizes.stream().reduce(0, Integer::sum);
 
         assertEquals(allSvcs, allServices.size());
 
         Set<Station> allsStations = transportData.getStations();
 
         Set<Trip> allTrips = new HashSet<>();
-        allsStations.forEach(station -> allTrips.addAll(transportData.getTripsFor(station.getId())));
+        allsStations.forEach(station -> allTrips.addAll(getTripsFor(transportData.getTrips(), station.getId())));
 
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
@@ -353,7 +267,7 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
-        Set<Trip> allTrips = transportData.getTripsFor(Stations.Cornbrook.getId());
+        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Stations.Cornbrook.getId());
 
         Set<String> toMediaCity = allTrips.stream().
                 filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).
@@ -378,42 +292,11 @@ public class TransportDataFromFilesTest {
         assertFalse(onTime.isEmpty()); // at least one service (likely is just one)
     }
 
-    @Test
-    public void shouldReproIssueStPetersToPomona() {
-        TramTime problemTime = TramTime.of(19, 51);
-        Set<Trip> allTrips = transportData.getTripsFor(Stations.StPetersSquare.getId());
-
-        TimeWindow timeWindow = new TimeWindow(problemTime, 25);
-
-        Set<Trip> trips = allTrips.stream().
-                filter(trip -> trip.callsAt(Stations.Pomona.getId())).
-                filter(trip -> trip.getRoute().getId().equals(RoutesForTesting.ASH_TO_ECCLES.getId())).
-                filter(trip -> trip.earliestDepartTime().isBefore(problemTime) || trip.earliestDepartTime().equals(problemTime)).
-                filter(trip -> trip.latestDepartTime().isAfter(problemTime) || trip.latestDepartTime().equals(problemTime)).
-                filter(trip -> trip.travelsBetween(Stations.StPetersSquare.getId(),Stations.Pomona.getId(), timeWindow)).
-                collect(Collectors.toSet());
-
-
-        Set<Service> svcs = trips.stream().map(trip -> trip.getService().getId()).
-                map(svcId -> transportData.getServiceById(svcId)).
-                collect(Collectors.toSet());
-
-        List<String> runTuesday = svcs.stream().
-                filter(service -> service.getDays().get(DaysOfWeek.Tuesday)).
-                map(service -> service.getId()).
-                collect(Collectors.toList());
-
-        List<Trip> runningTrips = trips.stream().filter(trip -> runTuesday.contains(trip.getService().getId())).collect(Collectors.toList());
-
-        assertTrue(runTuesday.size()>0);
-
-    }
-
     // TODO Lockdown
     @Ignore("Lockdown, no trams at this time currently")
     @Test
     public void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
-        Set<Trip> origTrips = transportData.getTripsFor(Stations.VeloPark.getId());
+        Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark.getId());
 
         Set<String> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.getDays().get(DaysOfWeek.Monday))

@@ -130,7 +130,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 false, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size()>0);
+        assertTrue("No journeys found, no trams running now??", journeys.size()>0);
         JourneyDTO journey = journeys.first();
         StageDTO firstStage = journey.getStages().get(0);
         DTO platform = firstStage.getPlatform();

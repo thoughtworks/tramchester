@@ -22,6 +22,7 @@ import org.neo4j.graphdb.Transaction;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -72,7 +73,7 @@ public class TramGraphBuilderTest {
                 collect(Collectors.toSet());
 
         // check number of outbound services matches services in transport data files
-        Set<String> fileSvcIds = transportData.getTripsFor(mediaCityUKId).stream().
+        Set<String> fileSvcIds = getTripsFor(transportData.getTrips(), mediaCityUKId).stream().
                 filter(trip -> trip.getService().isRunning())
                 .map(trip -> trip.getService().getId()).
                 collect(Collectors.toSet());

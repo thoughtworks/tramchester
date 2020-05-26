@@ -2,7 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.repository.RoutesRepository;
+import com.tramchester.mappers.RoutesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
 public class RouteResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
 
-    private final RoutesRepository repository;
+    private final RoutesMapper repository;
 
-    public RouteResource(RoutesRepository repository) {
+    public RouteResource(RoutesMapper repository) {
         this.repository = repository;
     }
 
@@ -37,8 +37,7 @@ public class RouteResource implements APIResource {
         logger.info("getAll routes");
         List<RouteDTO> routes = repository.getAllRoutes();
 
-        Response response = Response.ok(routes).build();
-        return response;
+        return Response.ok(routes).build();
     }
 
 }

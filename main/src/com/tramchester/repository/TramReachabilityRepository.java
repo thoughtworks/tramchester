@@ -4,6 +4,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.RouteReachable;
+import com.tramchester.mappers.RoutesMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 public class TramReachabilityRepository {
-    private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
     private final RouteReachable routeReachable;
     private final TransportData transportData;

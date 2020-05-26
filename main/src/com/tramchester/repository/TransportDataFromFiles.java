@@ -366,16 +366,6 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     }
 
-    public Set<Trip> getTripsFor(String stationId) {
-        Set<Trip> callingTrips = new HashSet<>();
-        trips.values().forEach(trip -> {
-            if (trip.callsAt(stationId)) {
-                callingTrips.add(trip);
-            }
-        });
-        return callingTrips;
-    }
-
     @Override
     public List<AreaDTO> getAreas() {
         return new LinkedList<>(areas);
