@@ -124,10 +124,8 @@ public class RouteCalculatorTestAllJourneys {
 
         combinations.parallelStream().
                 map(this::checkForTx).
-                map(journey -> {
-                    return Pair.of(journey,
-                            calculator.calculateRoute(journey.getLeft(), journey.getRight(), journeyRequest).findAny());
-                }).
+                map(journey -> Pair.of(journey,
+                        calculator.calculateRoute(journey.getLeft(), journey.getRight(), journeyRequest).findAny())).
                 forEach(stationsJourneyPair -> results.put(stationsJourneyPair.getLeft(), stationsJourneyPair.getRight()));
 
         assertEquals("Not enough results", combinations.size(), results.size());

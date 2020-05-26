@@ -1,8 +1,5 @@
 package com.tramchester.domain.presentation;
 
-import org.geotools.geometry.GeneralDirectPosition;
-import org.opengis.geometry.DirectPosition;
-
 import java.util.Objects;
 
 public class LatLong {

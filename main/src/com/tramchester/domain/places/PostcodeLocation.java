@@ -4,6 +4,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PostcodeLocation implements Location {
 
@@ -48,5 +49,18 @@ public class PostcodeLocation implements Location {
     @Override
     public List<Platform> getPlatforms() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostcodeLocation that = (PostcodeLocation) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

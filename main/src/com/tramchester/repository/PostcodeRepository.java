@@ -10,6 +10,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -27,10 +29,6 @@ public class PostcodeRepository implements Disposable, Startable {
         postcodes = new HashMap<>();
     }
 
-    @Override
-    public void dispose() {
-        postcodes.clear();
-    }
 
     public PostcodeLocation getPostcode(String postcodeId) {
         return postcodes.get(postcodeId);
@@ -51,11 +49,24 @@ public class PostcodeRepository implements Disposable, Startable {
     }
 
     @Override
-    public void stop() {
+    public void dispose() {
+        postcodes.clear();
+    }
 
+    @Override
+    public void stop() {
+        // no op
     }
 
     public boolean hasPostcode(String postcode) {
         return postcodes.containsKey(postcode);
+    }
+
+    public Collection<PostcodeLocation> getPostcodes() {
+        return Collections.unmodifiableCollection(postcodes.values());
+    }
+
+    public int getNumberOf() {
+        return postcodes.size();
     }
 }

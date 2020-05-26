@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PostcodeDataImporter {
+    // NOTE:
+    // Filters loaded postcodes with the bounds given by current set of StationLocations
+
     // Useful geographic tram map at https://tfgm.com/public-transport/tram/geographical/network-map
 
     private static final Logger logger = LoggerFactory.getLogger(PostcodeDataImporter.class);
@@ -70,6 +73,8 @@ public class PostcodeDataImporter {
 
         if (loaded.isEmpty()) {
             logger.error("Failed to load any postcode data from files in directory " + directory.toAbsolutePath());
+        } else {
+            logger.info("Loaded " + loaded.size() + " postcodes");
         }
         csvFiles.clear();
 
@@ -81,7 +86,8 @@ public class PostcodeDataImporter {
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
         Stream<PostcodeData> stream = loader.loadAll(false);
-        Set<PostcodeData> postcodeData = filterData(stream);
+        Stream<PostcodeData> boundedBoxData = filterDataByBoundedBox(stream);
+        Set<PostcodeData> postcodeData = boundedBoxData.filter(this::findNearbyStation).collect(Collectors.toSet());
 
         if (postcodeData.size()>0) {
             logger.info("Loaded " + postcodeData.size() + " records from " + file.toAbsolutePath());
@@ -90,13 +96,18 @@ public class PostcodeDataImporter {
         stream.close();
     }
 
-    private Set<PostcodeData> filterData(Stream<PostcodeData> stream) {
+    private boolean findNearbyStation(PostcodeData postcodeData) {
+        Double range = config.getNearestStopRangeKM();
+        StationLocations.GridPosition gridPosition = new StationLocations.GridPosition(postcodeData.getEastings(), postcodeData.getNorthings());
+        return !stationLocations.nearestStations(gridPosition,1, range).isEmpty();
+    }
+
+    private Stream<PostcodeData> filterDataByBoundedBox(Stream<PostcodeData> stream) {
         return stream.
                 filter(postcode -> postcode.getEastings() >= (stationLocations.getEastingsMin()-margin)).
                 filter(postcode -> postcode.getEastings() <= (stationLocations.getEastingsMax()+margin)).
                 filter(postcode -> postcode.getNorthings() >= (stationLocations.getNorthingsMin()-margin)).
-                filter(postcode -> postcode.getNorthings() <= (stationLocations.getNorthingsMax()+margin)).
-                collect(Collectors.toSet());
+                filter(postcode -> postcode.getNorthings() <= (stationLocations.getNorthingsMax()+margin));
     }
 
 }

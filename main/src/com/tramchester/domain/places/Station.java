@@ -17,8 +17,8 @@ public class Station implements Location {
     private String name;
     private LatLong latLong;
     private boolean tram;
-    private List<Platform> platforms;
-    private Set<Route> servesRoutes;
+    private final List<Platform> platforms;
+    private final Set<Route> servesRoutes;
     private Set<Agency> servesAgencies;
 
     public Station () {

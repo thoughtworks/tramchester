@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -30,6 +31,7 @@ public class StationLocations {
         this.coordinateTransforms = coordinateTransforms;
         positions = new HashMap<>();
 
+        // bounding box for all stations
         minEastings = Long.MAX_VALUE;
         maxEasting = Long.MIN_VALUE;
         minNorthings = Long.MAX_VALUE;
@@ -41,14 +43,14 @@ public class StationLocations {
         try {
             GridPosition gridPosition = coordinateTransforms.getGridPosition(position);
             positions.put(station, gridPosition);
-            updateArea(gridPosition);
+            updateBoundingBox(gridPosition);
             logger.info("Added station " + station.getId() + " at grid " + gridPosition);
         } catch (TransformException e) {
             logger.error("Unable to store station as cannot convert location", e);
         }
     }
 
-    private void updateArea(GridPosition gridPosition) {
+    private void updateBoundingBox(GridPosition gridPosition) {
         if (gridPosition.eastings<minEastings) {
             minEastings = gridPosition.eastings;
         }
@@ -68,23 +70,39 @@ public class StationLocations {
     }
 
     public List<Station> nearestStations(LatLong latLong, int maxToFind, double rangeInKM) {
-        long rangeInMeters = Math.round(rangeInKM * 1000D);
-
         try {
             @NotNull StationLocations.GridPosition gridPosition = coordinateTransforms.getGridPosition(latLong);
-            List<Station> stationList = positions.entrySet().stream().
-                    filter(entry -> entry.getValue().withinDistEasting(gridPosition, rangeInMeters)).
-                    filter(entry -> entry.getValue().withinDistNorthing(gridPosition, rangeInMeters)).
-                    filter(entry -> entry.getValue().withinDist(gridPosition, rangeInMeters)).
-                    sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
-                    limit(maxToFind).
-                    map(Map.Entry::getKey).collect(Collectors.toList());
-            logger.info(format("Found %s stations within %s meters of grid %s", stationList.size(), rangeInMeters, gridPosition));
-            return stationList;
+            return nearestStations(gridPosition, maxToFind, rangeInKM);
         } catch (TransformException e) {
             logger.error("Unable to convert latlong to grid position", e);
             return Collections.emptyList();
         }
+    }
+
+    @NotNull
+    public List<Station> nearestStations(@NotNull GridPosition gridPosition, int maxToFind, double rangeInKM) {
+        long rangeInMeters = Math.round(rangeInKM * 1000D);
+
+        Stream<Map.Entry<Station, GridPosition>> unsorted = positions.entrySet().stream().
+                // crude filter initially
+                filter(entry -> entry.getValue().withinDistEasting(gridPosition, rangeInMeters)).
+                filter(entry -> entry.getValue().withinDistNorthing(gridPosition, rangeInMeters)).
+                // now filter on actual distance
+                filter(entry -> entry.getValue().withinDist(gridPosition, rangeInMeters));
+
+        @NotNull List<Station> stationList;
+        if (maxToFind>1) {
+            // only sort if more than one, as sorting expensive
+            stationList = unsorted.sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
+                    limit(maxToFind).
+                    map(Map.Entry::getKey).collect(Collectors.toList());
+            logger.info(format("Found %s stations within %s meters of grid %s", stationList.size(), rangeInMeters, gridPosition));
+        } else {
+            stationList = unsorted.limit(maxToFind).map(Map.Entry::getKey).
+                    collect(Collectors.toList());
+        }
+
+        return stationList;
     }
 
     private int compareDistances(GridPosition origin, GridPosition first, GridPosition second) {

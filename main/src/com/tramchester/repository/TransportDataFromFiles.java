@@ -76,7 +76,7 @@ public class TransportDataFromFiles implements TransportDataSource {
             logger.warn(format("Service %s is missing calendar information", svc.getId()));
             svc.setDays(false, false, false, false, false, false, false);
         });
-        services.values().stream().filter(svc -> !svc.getDays().values().contains(true)).forEach(
+        services.values().stream().filter(svc -> !svc.getDays().containsValue(true)).forEach(
                 svc -> logger.warn(format("Service %s does not run on any days of the week", svc.getId()))
         );
         transportDataStreams.closeAll();
@@ -233,9 +233,7 @@ public class TransportDataFromFiles implements TransportDataSource {
                 }
             }
             AreaDTO areaDTO = new AreaDTO(stop.getArea());
-            if (!areas.contains(areaDTO)) {
-                areas.add(areaDTO);
-            }
+            areas.add(areaDTO); // a set, so no dups
         });
     }
 
@@ -244,7 +242,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     private Trip getOrCreateTrip(String tripId, String tripHeadsign, Service service, Route route) {
-        if (!trips.keySet().contains(tripId)) {
+        if (!trips.containsKey(tripId)) {
             trips.put(tripId, new Trip(tripId, tripHeadsign, service, route));
         }
 
@@ -256,7 +254,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     private Service getOrInsertService(String serviceId, Route route) {
-        if (!services.keySet().contains(serviceId)) {
+        if (!services.containsKey(serviceId)) {
             services.put(serviceId, new Service(serviceId, route));
         }
         Service matched = services.get(serviceId);
@@ -285,8 +283,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     public Set<Station> getStations() {
-        Set<Station> stationList = new HashSet<>();
-        stationList.addAll(stationsById.values());
+        Set<Station> stationList = new HashSet<>(stationsById.values());
         return stationList;
     }
 
@@ -381,11 +378,10 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     @Override
     public List<AreaDTO> getAreas() {
-        List<AreaDTO> list = new LinkedList<>(areas);
-        return  list;
+        return new LinkedList<>(areas);
     }
 
-    public class TransportDataStreams {
+    public static class TransportDataStreams {
         final Stream<StopData> stops;
         final Stream<RouteData> routes;
         final Stream<TripData> trips;

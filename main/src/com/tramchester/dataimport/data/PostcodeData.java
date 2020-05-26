@@ -8,7 +8,6 @@ public class PostcodeData {
     private final int northings;
 
     public PostcodeData(String postcode, int eastings, int northings) {
-
         this.postcode = postcode;
         this.eastings = eastings;
         this.northings = northings;

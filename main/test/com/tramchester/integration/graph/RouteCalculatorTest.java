@@ -2,8 +2,9 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.VehicleStage;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -40,7 +41,7 @@ public class RouteCalculatorTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
     private Map<Long, Transaction> threadToTxnMap;
 
@@ -400,10 +401,6 @@ public class RouteCalculatorTest {
         }
     }
 
-//    private void validateAtLeastOneJourney(Location start, Station dest, TramTime time, LocalDate date) {
-//        validateAtLeastOneJourney(start, dest, time, date);
-//    }
-
     private void validateAtLeastOneJourney(Station station, Station dest, TramTime time, LocalDate date) {
         validateAtLeastOneJourney(calculator, station, dest, time, date, 5);
     }
@@ -423,7 +420,6 @@ public class RouteCalculatorTest {
         return journeys;
     }
 
-    // TODO to station, station
     private Set<Pair<Station, Station>> createJourneyPairs(List<Station> starts, List<Station> ends) {
         Set<Pair<Station, Station>> combinations = new HashSet<>();
         for (Station start : starts) {
@@ -450,7 +446,7 @@ public class RouteCalculatorTest {
 
     private List<TramTime> checkRangeOfTimes(Station start, Station dest) {
 
-        // TODO TEMPORARY 23 Changed to 21
+        // TODO Lockdown TEMPORARY 23 Changed to 21
         List<TramTime> missing = new LinkedList<>();
         int latestHour = 21;
         for (int hour = 6; hour < latestHour; hour++) {
