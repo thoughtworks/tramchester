@@ -114,8 +114,11 @@ tasks.withType(JavaCompile) {
 
 task stage(dependsOn: ['clean', 'installApp'])
 
-task cleanGraph {
-    delete 'databases/integrationBusTest' , 'databases/integrationTramTest', 'buses.db', 'tramchester.db', 'databases/tramchesterAcceptance.db'
+task cleanGraph() {
+    doLast {
+        delete 'databases/integrationBusTest' , 'databases/integrationTramTest', 'buses.db',
+                'tramchester.db', 'databases/tramchesterAcceptance.db'
+    }
 }
 
 clean {
@@ -138,7 +141,7 @@ clean {
     delete fileTree('data/codepo_gb') {
         include '**'
     }
-    cleanGraph
+    //cleanGraph
 }
 
 run {
