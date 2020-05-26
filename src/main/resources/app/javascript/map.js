@@ -6,9 +6,11 @@ Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
 
 var d3 = require("d3");
+var L = require('leaflet');
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 
 var width = 800;
@@ -90,6 +92,7 @@ var mapApp = new Vue({
     el: '#tramMap',
     data() {
         return {
+            map: null,
             positionsList: null,
             buses: false,
             uniqueStations: [],
@@ -148,6 +151,16 @@ var mapApp = new Vue({
             mapApp.scaleLat = (height-margin) / (maxLat-minLat);
         },
         draw() {
+            mapApp.map.setView([51.505, -0.09], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mapApp.map);
+
+            L.marker([51.5, -0.09]).addTo( mapApp.map)
+                .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+                .openPopup();
+
             // lines between tram stations
             var lineGenerator = d3.line().curve(d3.curveCardinal);
             mapApp.svg.selectAll("line")
@@ -261,5 +274,9 @@ var mapApp = new Vue({
                 console.log(error);
             });
         initD3(this);
+
+        L.Icon.Default.imagePath = 'leaflet/dist/images/';
+        this.map = L.map('leafletMap');
+
     }
 });

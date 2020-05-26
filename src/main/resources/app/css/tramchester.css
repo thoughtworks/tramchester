@@ -83,3 +83,7 @@
     stroke: #0069b3;
     color: white;
 }
+
+#leafletMap {
+  height: 300px;
+}

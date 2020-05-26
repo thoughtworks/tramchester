@@ -3,36 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Experimental Tram Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
+
 <div id="tramMap"><h1>TramMap</h1>
-    <div id="stationPopOvers">
-        <b-popover v-for="target in uniqueStations" :target="target.id" triggers="hover" placement="top">
-            {{target.name}}
-        </b-popover>
-    </div>
-    <div id="linePopOvers">
-        <b-popover v-for="target in tramLinks" :target="target.first.id+target.second.id" triggers="hover" placement="top">
-            <template v-slot:title>Trams between {{target.first.name}} and {{target.second.name}}</template>
-            <div v-for="tram in target.trams">
-                <div>To: {{tram.destination}} due at {{target.second.name}} at {{tram.when}}</div>
-            </div>
-        </b-popover>
-    </div>
-    <div id="tramsPopOvers">
-        <b-popover v-for="target in tramLinks" :target="'between'+target.first.id+target.second.id" triggers="hover" placement="top">
-            <template v-slot:title>Trams between {{target.first.name}} and {{target.second.name}}</template>
-            <div v-for="tram in target.trams">
-                <div>To: {{tram.destination}} due at {{target.second.name}} at {{tram.when}}</div>
-            </div>
-        </b-popover>
-    </div>
-    <div id = "map">
-    </div>
+    <div id="leafletMap"></div>
+
+    <!--    <div id="stationPopOvers">-->
+<!--        <b-popover v-for="target in uniqueStations" :target="target.id" triggers="hover" placement="top">-->
+<!--            {{target.name}}-->
+<!--        </b-popover>-->
+<!--    </div>-->
+<!--    <div id="linePopOvers">-->
+<!--        <b-popover v-for="target in tramLinks" :target="target.first.id+target.second.id" triggers="hover" placement="top">-->
+<!--            <template v-slot:title>Trams between {{target.first.name}} and {{target.second.name}}</template>-->
+<!--            <div v-for="tram in target.trams">-->
+<!--                <div>To: {{tram.destination}} due at {{target.second.name}} at {{tram.when}}</div>-->
+<!--            </div>-->
+<!--        </b-popover>-->
+<!--    </div>-->
+<!--    <div id="tramsPopOvers">-->
+<!--        <b-popover v-for="target in tramLinks" :target="'between'+target.first.id+target.second.id" triggers="hover" placement="top">-->
+<!--            <template v-slot:title>Trams between {{target.first.name}} and {{target.second.name}}</template>-->
+<!--            <div v-for="tram in target.trams">-->
+<!--                <div>To: {{tram.destination}} due at {{target.second.name}} at {{tram.when}}</div>-->
+<!--            </div>-->
+<!--        </b-popover>-->
+<!--    </div>-->
+<!--    <div id = "map">-->
+<!--    </div>-->
 </div>
 
 <script src="/app/dist/map.js"></script>
+
 
 </body>
 </html>
