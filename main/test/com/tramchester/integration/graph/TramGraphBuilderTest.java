@@ -61,7 +61,6 @@ public class TramGraphBuilderTest {
     @Test
     public void shouldHaveCorrectOutboundsAtMediaCity() {
 
-        String mediaCityUKId = Stations.MediaCityUK.getId();
         List<Relationship> outbounds = getOutboundRouteStationRelationships(
                 RouteStation.formId(Stations.MediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
         outbounds.addAll(getOutboundRouteStationRelationships(RouteStation.formId(Stations.MediaCityUK,
@@ -73,7 +72,7 @@ public class TramGraphBuilderTest {
                 collect(Collectors.toSet());
 
         // check number of outbound services matches services in transport data files
-        Set<String> fileSvcIds = getTripsFor(transportData.getTrips(), mediaCityUKId).stream().
+        Set<String> fileSvcIds = getTripsFor(transportData.getTrips(), Stations.MediaCityUK).stream().
                 filter(trip -> trip.getService().isRunning())
                 .map(trip -> trip.getService().getId()).
                 collect(Collectors.toSet());
@@ -155,7 +154,7 @@ public class TramGraphBuilderTest {
                 filter(Service::isRunning).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
-                filter(trip -> trip.callsAt(station.getId())).
+                filter(trip -> trip.getStops().callsAt(station)).
                 collect(Collectors.toSet());
 
         Set<String> fileSvcIdFromTrips = fileCallingTrips.stream().
@@ -167,7 +166,6 @@ public class TramGraphBuilderTest {
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
 
     }
-
 
     private void checkInboundConsistency(Station station, Route route) {
         List<Relationship> inbounds = graphQuery.getRouteStationRelationships(RouteStation.formId(station, route), Direction.INCOMING);
@@ -190,7 +188,7 @@ public class TramGraphBuilderTest {
                 filter(svc -> svc.getRouteId().equals(route.getId())).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
-                filter(trip -> trip.callsAt(station.getId())). // calls at , but not starts at because no inbound for these
+                filter(trip -> trip.getStops().callsAt(station)). // calls at , but not starts at because no inbound for these
                 filter(trip -> !trip.getStops().get(0).getStation().getId().equals(station.getId())).
                 collect(Collectors.toSet());
 

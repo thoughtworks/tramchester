@@ -1,6 +1,8 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,38 +14,18 @@ public class StopCalls implements Iterable<StopCall> {
 
     private final ArrayList<StopCall> stops;
 
-    // stationId -> [index into stops array]
-    private final Map<String, List<Integer>> stations;
-
     public StopCalls() {
         stops = new ArrayList<>();
-        stations = new HashMap<>();
-    }
-
-    public List<StopCall> getStopsFor(String stationId) {
-        List<Integer> indexs = stations.get(stationId);
-
-        List<StopCall> result = new LinkedList<>();
-        indexs.forEach(index -> result.add(stops.get(index)));
-        return result;
     }
 
     public void add(StopCall stop) {
-        Location station = stop.getStation();
+        Station station = stop.getStation();
         if (station==null) {
             logger.error("Stop is missing station");
         } else {
             stops.add(stop);
-            int index = stops.indexOf(stop);
-            addStation(station.getId(), index);
         }
-    }
-
-    private void addStation(String stationId, int index) {
-        if (!stations.containsKey(stationId)) {
-            stations.put(stationId,new LinkedList<>());
-        }
-        stations.get(stationId).add(index);
+        stops.sort(Comparator.comparingInt(StopCall::getGetSequenceNumber));
     }
 
     public int size() {
@@ -54,12 +36,12 @@ public class StopCalls implements Iterable<StopCall> {
         return stops.get(index);
     }
 
-    public boolean callsAt(String stationId) {
-        return stations.containsKey(stationId);
+    public boolean callsAt(Location location) {
+        return stops.stream().anyMatch(stopCall -> stopCall.getStation().getId().equals(location.getId()));
     }
 
     @Override
-    public Iterator<StopCall> iterator() {
+    public @NotNull Iterator<StopCall> iterator() {
         return stops.iterator();
     }
 
@@ -71,7 +53,6 @@ public class StopCalls implements Iterable<StopCall> {
     public String toString() {
         return "Stops{" +
                 "stops=" + stops +
-                ", stations=" + stations +
                 '}';
     }
 }

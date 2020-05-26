@@ -128,7 +128,7 @@ public class TransportDataFromFilesTest {
         Set<String> sundayServiceIds = sundayServices.stream().map(Service::getId).collect(Collectors.toSet());
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
-                filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).collect(Collectors.toSet());
+                filter(trip -> trip.getStops().callsAt(Stations.Cornbrook)).collect(Collectors.toSet());
 
         Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.contains(trip.getService().getId())).collect(Collectors.toSet());
 
@@ -152,7 +152,7 @@ public class TransportDataFromFilesTest {
             Set<String> servicesOnDateIds = servicesOnDate.stream().map(Service::getId).collect(Collectors.toSet());
             transportData.getStations().stream().forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
-                        filter(trip -> trip.callsAt(station.getId())).
+                        filter(trip -> trip.getStops().callsAt(station)).
                         filter(trip -> servicesOnDateIds.contains(trip.getService().getId())).
                         collect(Collectors.toSet());
                 assertFalse(String.format("%s %s", date, station), callingTripsOnDate.isEmpty());
@@ -250,7 +250,7 @@ public class TransportDataFromFilesTest {
         Set<Station> allsStations = transportData.getStations();
 
         Set<Trip> allTrips = new HashSet<>();
-        allsStations.forEach(station -> allTrips.addAll(getTripsFor(transportData.getTrips(), station.getId())));
+        allsStations.forEach(station -> allTrips.addAll(getTripsFor(transportData.getTrips(), station)));
 
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
@@ -267,11 +267,11 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
-        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Stations.Cornbrook.getId());
+        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Stations.Cornbrook);
 
         Set<String> toMediaCity = allTrips.stream().
-                filter(trip -> trip.callsAt(Stations.Cornbrook.getId())).
-                filter(trip -> trip.callsAt(Stations.MediaCityUK.getId())).
+                filter(trip -> trip.getStops().callsAt(Stations.Cornbrook)).
+                filter(trip -> trip.getStops().callsAt(Stations.MediaCityUK)).
                 filter(trip -> trip.getRoute().getId().equals(RoutesForTesting.ASH_TO_ECCLES.getId())).
                 map(trip -> trip.getService().getId()).collect(Collectors.toSet());
 
@@ -296,7 +296,7 @@ public class TransportDataFromFilesTest {
     @Ignore("Lockdown, no trams at this time currently")
     @Test
     public void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
-        Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark.getId());
+        Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark);
 
         Set<String> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.getDays().get(DaysOfWeek.Monday))
@@ -313,7 +313,7 @@ public class TransportDataFromFilesTest {
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<StopCall> stoppingAtVelopark = filteredTrips.stream()
                 .filter(trip -> mondayAshToManServices.contains(trip.getService().getId()))
-                .map(trip -> trip.getStopsFor(Stations.VeloPark.getId()))
+                .map(trip -> getStopsFor(trip, Stations.VeloPark.getId()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
@@ -328,6 +328,10 @@ public class TransportDataFromFilesTest {
 
         assertTrue(stoppingAtVelopark.size()>=1); // at least 1
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
+    }
+
+    public List<StopCall> getStopsFor(Trip trip, String stationId) {
+        return trip.getStops().stream().filter(stopCall -> stopCall.getStation().getId().equals(stationId)).collect(Collectors.toList());
     }
 
 }

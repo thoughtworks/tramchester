@@ -37,7 +37,8 @@ public class RouteMapperTest {
         RoutesMapper mapper = dependencies.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
-        RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName", new LinkedList<>(), "displayClass");
+        RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName",
+                new LinkedList<>(), "displayClass");
 
         int index = dtos.indexOf(query);
 

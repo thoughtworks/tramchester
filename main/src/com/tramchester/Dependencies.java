@@ -152,6 +152,7 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
         picoContainer.addComponent(InterchangeRepository.class);
         picoContainer.addComponent(GraphDatabase.class);
+        picoContainer.addComponent(RouteCallingStations.class);
 
         if (logger.isDebugEnabled()) {
             logger.warn("Debug logging is enabled, server performance will be impacted");

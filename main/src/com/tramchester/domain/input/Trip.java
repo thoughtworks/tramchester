@@ -5,8 +5,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramTime;
 
-import java.util.List;
-
 public class Trip implements HasId {
 
     private final String tripId;
@@ -75,14 +73,6 @@ public class Trip implements HasId {
 
     public Service getService() {
         return service;
-    }
-
-    public boolean callsAt(String stationId) {
-        return stops.callsAt(stationId);
-    }
-
-    public List<StopCall> getStopsFor(String stationId) {
-        return stops.getStopsFor(stationId);
     }
 
     public String getHeadsign() {

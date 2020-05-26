@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class RunningServices {
     private final Set<String> serviceIds;
-    private Map<String, TramTime> latestTimeMap;
-    private Map<String, TramTime> earliestTimeMap;
+    private final Map<String, TramTime> latestTimeMap;
+    private final Map<String, TramTime> earliestTimeMap;
 
     public RunningServices(Set<Service> services) {
         serviceIds = new HashSet<>();
@@ -28,10 +28,6 @@ public class RunningServices {
 
     public boolean isRunning(String serviceId) {
         return serviceIds.contains(serviceId);
-    }
-
-    public void addForTestingOnly(String svcId) {
-        serviceIds.add(svcId);
     }
 
     public TramTime getServiceLatest(String svcId) {

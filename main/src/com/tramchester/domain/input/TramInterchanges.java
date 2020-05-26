@@ -29,7 +29,7 @@ public class TramInterchanges {
         }
     }
 
-    private static Set<String> ids;
+    private static final Set<String> ids;
 
     static {
         ids = new HashSet<>();

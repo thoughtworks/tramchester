@@ -250,7 +250,7 @@ public class TramJourneyToDTOMapperTest {
     private VehicleStage getRawVehicleStage(Location start, Location finish, Route route, TramTime startTime,
                                             int cost, int passedStops) {
 
-        Trip validTrip = getTripsFor(transportData.getTrips(), start.getId()).iterator().next();
+        Trip validTrip = getTripsFor(transportData.getTrips(), start).iterator().next();
 
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, "cssClass", validTrip,
                 startTime.plusMinutes(1), finish, passedStops);

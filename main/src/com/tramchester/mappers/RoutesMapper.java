@@ -1,26 +1,28 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;
+import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class RoutesMapper {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
     private final TransportData transportData;
+    private final RouteCallingStations routeCallingStations;
     private final RouteCodeToClassMapper mapper;
 
-    public RoutesMapper(TransportData transportData, RouteCodeToClassMapper mapper) {
+    public RoutesMapper(TransportData transportData, RouteCallingStations routeCallingStations, RouteCodeToClassMapper mapper) {
         this.transportData = transportData;
+        this.routeCallingStations = routeCallingStations;
         this.mapper = mapper;
     }
 
@@ -33,21 +35,10 @@ public class RoutesMapper {
     }
 
     private void populateDTOFor(Route route, List<RouteDTO> gather) {
-
-        // TODO CANNOT DO THIS, disrupts order of stations
-        Set<StationDTO> stations = new HashSet<>();
-        String routeName = route.getName();
-        logger.debug("Finding stations for route "  + routeName);
-
-        Stream<Trip> trips = transportData.getTripsByRoute(route);
-
-        trips.forEach(trip -> {
-            trip.getStops().stream().forEach(stop -> {
-                stations.add(new StationDTO(stop.getStation(), ProximityGroup.ALL));
-            });
-        });
-
-        gather.add(new RouteDTO(routeName, route.getShortName(), new LinkedList<>(stations), mapper.map(route.getId())));
+        List<Station> calledAtStations = routeCallingStations.getStationsFor(route);
+        List<StationDTO> stationDTOs = new ArrayList<>(calledAtStations.size());
+        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationDTO(calledAtStation, ProximityGroup.ALL)));
+        gather.add(new RouteDTO(route.getName(), route.getShortName(), stationDTOs, mapper.map(route.getId())));
     }
 
 }

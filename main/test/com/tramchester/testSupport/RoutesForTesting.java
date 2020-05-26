@@ -24,6 +24,10 @@ public class RoutesForTesting {
     public static final Route ASH_TO_ECCLES = createTramRoute("3", "I", "Ashton-under-Lyne - Manchester - Eccles");
     public static final Route ECCLES_TO_ASH = createTramRoute("3", "O", "Eccles - Manchester - Ashton-under-Lyne");
 
+    // TODO Lockdown this route might be temp?
+    public static final Route BURY_TO_PICC = createTramRoute("4", "I", "Alty to Bury");
+    public static final Route PICC_TO_BURY = createTramRoute("4", "O", "Bury to Alty");
+
     public static final Route ROCH_TO_DIDS = createTramRoute("5", "O", "Rochdale - Manchester - E Didsbury");
     public static final Route DIDS_TO_ROCH = createTramRoute("5", "I", "E Didsbury - Manchester - Rochdale");
 
