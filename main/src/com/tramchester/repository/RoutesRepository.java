@@ -17,7 +17,7 @@ public class RoutesRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesRepository.class);
 
     private final TransportData transportData;
-    private RouteCodeToClassMapper mapper;
+    private final RouteCodeToClassMapper mapper;
 
     public RoutesRepository(TransportData transportData, RouteCodeToClassMapper mapper) {
         this.transportData = transportData;

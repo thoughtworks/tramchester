@@ -29,7 +29,10 @@ module.exports = {
       },
       {
           test:/\.png$/,
-          loader: 'file-loader'
+          loader: 'file-loader',
+          options: {
+                    name: 'images/[name].[ext]',
+                  }
       }
     ]
   },

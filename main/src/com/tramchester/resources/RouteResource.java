@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class RouteResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
 
-    private RoutesRepository repository;
+    private final RoutesRepository repository;
 
     public RouteResource(RoutesRepository repository) {
         this.repository = repository;
