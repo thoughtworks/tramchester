@@ -42,16 +42,33 @@ function addStations() {
 
 function addTrams() {
     var tramIcon =  L.divIcon({className: 'tram-div-icon'});
+   
     mapApp.positionsList.forEach(position => {
         var latA = position.first.latLong.lat;
         var lonA = position.first.latLong.lon;
         var latB = position.second.latLong.lat;
         var lonB = position.second.latLong.lon;
         
-        var lat = (latA+latB)/2;
-        var lon = (lonA+lonB)/2;
-        new L.marker(L.latLng(lat,lon), { title: 'tram', icon: tramIcon }).addTo(mapApp.map);
+        var deltaLat = (latB-latA)/position.cost;
+        var deltaLon = (lonB-lonA)/position.cost;
+
+        position.trams.forEach(tram => {
+            var dist = (position.cost-tram.wait);
+            var lat = latA + ( dist * deltaLat );
+            var lon = lonA + ( dist * deltaLon );
+            var marker = new L.marker(L.latLng(lat,lon), { title: getTramTitle(tram, position) , icon: tramIcon }); //.addTo(mapApp.map);
+            mapApp.tramLayerGroup.addLayer(marker);
+        })
+        mapApp.tramLayerGroup.addTo(mapApp.map);
     });
+}
+
+function getTramTitle(tram, position) {
+    if (tram.status==='Arrived') {
+        return tram.destination + ' tram at ' + position.second.name;
+    } else {
+        return tram.destination + ' tram ' + tram.status + ' at ' + position.second.name + ' in ' + tram.wait;
+    }
 }
 
 function addRoutes() {
@@ -99,7 +116,8 @@ var mapApp = new Vue({
             positionsList: null,
             uniqueStations: [],
             networkError: false,
-            routes: []
+            routes: [],
+            tramLayerGroup: null
         }
     },
     methods: {
@@ -117,6 +135,7 @@ var mapApp = new Vue({
         },
         draw() {
             findAndSetMapBounds();
+            mapApp.tramLayerGroup = L.layerGroup();
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
