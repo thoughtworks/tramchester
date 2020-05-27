@@ -44,7 +44,7 @@ function addRoutes() {
         route.stations.forEach(station => {
             steps.push([station.latLong.lat, station.latLong.lon]);
         })
-        L.polyline(steps, {color: 'red'}).addTo(mapApp.map);
+        L.polyline(steps, {className: route.displayClass}).addTo(mapApp.map);
     })
 }
 
