@@ -40,9 +40,22 @@ function addStations() {
     });
 }
 
+function refreshTrams() {
+    axios.get('/api/positions')
+        .then(function (response) {
+            mapApp.networkError = false;
+            mapApp.positionsList = response.data.positionsList;
+            addTrams();
+        }).catch(function (error) {
+            mapApp.networkError = true;
+            console.log(error);
+        });
+}
+
 function addTrams() {
     var tramIcon =  L.divIcon({className: 'tram-div-icon'});
    
+    mapApp.tramLayerGroup.clearLayers();
     mapApp.positionsList.forEach(position => {
         var latA = position.first.latLong.lat;
         var lonA = position.first.latLong.lon;
@@ -141,6 +154,10 @@ var mapApp = new Vue({
             }).addTo(mapApp.map);
             addStations();
             addRoutes();
+            refreshTrams();
+            setInterval(function() {
+                refreshTrams();
+            }, 10 * 1000);
         }
     },
     mounted () {
@@ -153,18 +170,11 @@ var mapApp = new Vue({
                 mapApp.networkError = true;
                 console.log(error);
             });
-        axios.get('/api/positions')
-            .then(function (response) {
-                mapApp.networkError = false;
-                mapApp.positionsList = response.data.positionsList;
-                addTrams();
-            }).catch(function (error) {
-                mapApp.networkError = true;
-                console.log(error);
-            });
+
 
         this.map = L.map('leafletMap');
 
     }
 });
+
 
