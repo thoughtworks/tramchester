@@ -1,6 +1,7 @@
 
 const axios = require('axios');
 var _ = require('lodash');
+
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
@@ -31,10 +32,25 @@ function textFor(trams) {
 }
 
 function addStations() {
-    mapApp.uniqueStations.forEach(position => {
-        var lat = position.latLong.lat;
-        var lon = position.latLong.lon;
-        var marker = new L.marker(L.latLng(lat,lon), { title: position.name }).addTo(mapApp.map);
+    var stationIcon = L.divIcon({className: 'station-div-icon'});
+    mapApp.uniqueStations.forEach(station => {
+        var lat = station.latLong.lat;
+        var lon = station.latLong.lon;
+        new L.marker(L.latLng(lat,lon), { title: station.name, icon: stationIcon }).addTo(mapApp.map);
+    });
+}
+
+function addTrams() {
+    var tramIcon =  L.divIcon({className: 'tram-div-icon'});
+    mapApp.positionsList.forEach(position => {
+        var latA = position.first.latLong.lat;
+        var lonA = position.first.latLong.lon;
+        var latB = position.second.latLong.lat;
+        var lonB = position.second.latLong.lon;
+        
+        var lat = (latA+latB)/2;
+        var lon = (lonA+lonB)/2;
+        new L.marker(L.latLng(lat,lon), { title: 'tram', icon: tramIcon }).addTo(mapApp.map);
     });
 }
 
@@ -109,7 +125,8 @@ var mapApp = new Vue({
         }
     },
     mounted () {
-        axios.get("/api/routes").then(function (response) {
+        axios.get("/api/routes")
+            .then(function (response) {
                 mapApp.routes = response.data;
                 mapApp.createStationList();
                 mapApp.draw();
@@ -117,18 +134,15 @@ var mapApp = new Vue({
                 mapApp.networkError = true;
                 console.log(error);
             });
-        // axios
-        //     .get('/api/positions?unfiltered=true')
-        //     .then(function (response) {
-        //         mapApp.networkError = false;
-        //         mapApp.positionsList = response.data.positionsList;
-        //         mapApp.filterPositions();
-        //         mapApp.draw();
-        //     })
-        //     .catch(function (error) {
-        //         mapApp.networkError = true;
-        //         console.log(error);
-        //     });
+        axios.get('/api/positions')
+            .then(function (response) {
+                mapApp.networkError = false;
+                mapApp.positionsList = response.data.positionsList;
+                addTrams();
+            }).catch(function (error) {
+                mapApp.networkError = true;
+                console.log(error);
+            });
 
         this.map = L.map('leafletMap');
 
