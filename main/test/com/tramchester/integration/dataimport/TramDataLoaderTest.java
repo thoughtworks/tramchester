@@ -7,7 +7,6 @@ import com.tramchester.domain.time.TramTime;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -16,14 +15,14 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TramDataLoaderTest {
-    private boolean skipHeader = false;
+    private final boolean skipHeader = false;
 
     // the test data files currently manually maintained, copy over from data/tram as needed
 
     @Test
     public void shouldLoadRouteData() {
-        HashSet<String> agencies = new HashSet<>(Arrays.asList("MET"));
-        DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), new RouteDataMapper(agencies));
+        HashSet<String> agencies = new HashSet<>(Collections.singletonList("MET"));
+        DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), new RouteDataMapper(agencies, true));
         List<RouteData> routeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);

@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
-import com.tramchester.dataimport.datacleanse.DataCleanser;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +15,15 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
     private static final Logger logger = LoggerFactory.getLogger(RouteDataMapper.class);
 
     private final Set<String> agencies;
-    private boolean includeAll;
+    private final boolean includeAll;
 
-    public RouteDataMapper(Set<String> agencies) {
+    public RouteDataMapper(Set<String> agencies, boolean cleaning) {
         this.agencies = agencies;
-        if (agencies.size()==0) {
+        if (agencies.size()==0 && !cleaning) {
             logger.warn("Loading all agencies and routes");
             includeAll = true;
+        } else {
+            includeAll = false;
         }
     }
 

@@ -73,10 +73,6 @@ public class RouteCalculatorTest {
         threadToTxnMap.clear();
     }
 
-    @Test
-    public void shouldHaveSimpleJourney() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.Cornbrook, TramTime.of(8, 0), nextTuesday);
-    }
 
     @Test
     public void shouldReproIssueWithChangesVeloToTraffordBar() {
@@ -105,10 +101,16 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    public void shouldHaveSimpleJourney() {
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.Deansgate, TramTime.of(10, 15), nextTuesday);
+    }
+
+    @Test
     public void shouldHaveReasonableJourneyAltyToDeansgate() {
-        TramServiceDate today = new TramServiceDate(nextTuesday);
-        Stream<Journey> results = calculator.calculateRoute(Stations.Altrincham, Stations.Deansgate,
-                new JourneyRequest(today, TramTime.of(10, 15), false));
+        TramServiceDate tramServiceDate = new TramServiceDate(nextTuesday);
+        Set<Journey> results = calculator.calculateRoute(Stations.Altrincham, Stations.Deansgate,
+                new JourneyRequest(tramServiceDate, TramTime.of(10, 15), false)).collect(Collectors.toSet());
+        assertFalse(results.isEmpty());
         results.forEach(journey -> {
             assertEquals(1, journey.getStages().size()); // should be one stage only
             journey.getStages().stream().
@@ -190,7 +192,7 @@ public class RouteCalculatorTest {
         Set<Journey> results = stream.collect(Collectors.toSet());
         stream.close();
 
-        assertTrue(results.size()>0);    // results is iterator
+        assertTrue("no results", results.size()>0);    // results is iterator
         for (Journey result : results) {
             List<TransportStage> stages = result.getStages();
             assertEquals(2,stages.size());

@@ -1,10 +1,10 @@
 package com.tramchester.dataimport.data;
 
 public class TripData {
-    private String routeId;
-    private String serviceId;
-    private String tripId;
-    private String tripHeadsign;
+    private final String routeId;
+    private final String serviceId;
+    private final String tripId;
+    private final String tripHeadsign;
 
     public TripData(String routeId, String serviceId, String tripId, String tripHeadsign) {
         this.routeId = routeId.intern();

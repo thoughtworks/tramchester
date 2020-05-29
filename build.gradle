@@ -116,12 +116,15 @@ task stage(dependsOn: ['clean', 'installApp'])
 
 task cleanGraph() {
     doLast {
-        delete 'databases/integrationBusTest' , 'databases/integrationTramTest', 'buses.db',
-                'tramchester.db', 'databases/tramchesterAcceptance.db'
+        delete 'databases/integrationBusTest' ,
+                'databases/integrationTramTest',
+                'databases/tramchesterAcceptance.db',
+                'tramchester.db', 'buses.db'
     }
 }
 
 clean {
+    dependsOn 'cleanGraph'
     delete 'src/main/resources/app/dist/'
     delete 'data/tram/data.zip', 'data/bus/data.zip'
     delete fileTree('data/tram') {
@@ -141,7 +144,7 @@ clean {
     delete fileTree('data/codepo_gb') {
         include '**'
     }
-    //cleanGraph
+
 }
 
 run {

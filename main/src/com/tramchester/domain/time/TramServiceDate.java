@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import static java.lang.String.format;
 
 public class TramServiceDate {
-    private LocalDate date;
+    private final LocalDate date;
 
     public static TramServiceDate of(LocalDate date) {
         return new TramServiceDate(date);
@@ -37,6 +37,10 @@ public class TramServiceDate {
                 "date=" + date +
                 ", day=" + date.getDayOfWeek().name() +
                 '}';
+    }
+
+    public String toDateString() {
+        return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
     public DaysOfWeek getDay() {

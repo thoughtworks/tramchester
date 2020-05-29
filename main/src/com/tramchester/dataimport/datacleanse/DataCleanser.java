@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 
@@ -39,7 +40,7 @@ public class DataCleanser {
 
         Set<String> agencies = config.getAgencies();
 
-        Set<String> routeCodes = cleanseRoutes(new RouteDataMapper(agencies));
+        Set<String> routeCodes = cleanseRoutes(new RouteDataMapper(agencies, true));
 
         ServicesAndTrips servicesAndTrips = cleanseTrips(new TripDataMapper(routeCodes));
 
@@ -59,11 +60,12 @@ public class DataCleanser {
 
     public void cleanseCalendar(CalendarDataMapper calendarDataMapper) throws IOException {
         logger.info("**** Start cleansing calendar.");
+        AtomicInteger count = new AtomicInteger();
 
         Stream<CalendarData> calendar = dataReaderFactory.getForCleanser().getCalendar(calendarDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("calendar");
-        calendar.forEach(calendarData -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+        calendar.forEach(calendarData -> {writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                         calendarData.getServiceId(),
                         runsOnDay(calendarData.isMonday()),
                         runsOnDay(calendarData.isTuesday()),
@@ -73,28 +75,32 @@ public class DataCleanser {
                         runsOnDay(calendarData.isSaturday()),
                         runsOnDay(calendarData.isSunday()),
                         calendarData.getStartDate().format(DATE_FORMAT),
-                        calendarData.getEndDate().format(DATE_FORMAT))));
+                        calendarData.getEndDate().format(DATE_FORMAT)));
+                        count.set(count.get() + 1);
+        });
 
         writer.close();
         calendar.close();
-        logger.info("**** End cleansing calendar.\n\n");
+        logger.info("**** End cleansing calendar. Loaded "+count.get()+"\n");
     }
 
     public Set<String> cleanseStoptimes(StopTimeDataMapper stopTimeDataMapper) throws IOException {
         logger.info("**** Start cleansing stop times.");
-        Set<String> stopIds = new HashSet<>();
+        AtomicInteger count = new AtomicInteger();
+        Set<String> uniqueStopIds = new HashSet<>();
 
         Stream<StopTimeData> stopTimes = dataReaderFactory.getForCleanser().getStopTimes(stopTimeDataMapper);
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stop_times");
 
         stopTimes.forEach(stopTime -> {
             writer.writeLine(stopTime.asOutputLine());
-            stopIds.add(stopTime.getStopId());
+            uniqueStopIds.add(stopTime.getStopId());
+            count.set(count.get() + 1);
         });
         writer.close();
         stopTimes.close();
-        logger.info("**** End cleansing stop times.\n");
-        return stopIds;
+        logger.info("**** End cleansing stop times. Loaded stoptimes: "+count.get()+" unique stop ids:"+uniqueStopIds.size()+"\n");
+        return uniqueStopIds;
     }
 
     public ServicesAndTrips cleanseTrips(TripDataMapper tripDataMapper) throws IOException {
@@ -116,12 +122,14 @@ public class DataCleanser {
         });
         writer.close();
         trips.close();
-        logger.info("**** End cleansing trips.\n\n");
+        logger.info("**** End cleansing trips. Loaded trips: " + tripIds.size() +
+                " unique services: "+uniqueSvcIds.size()+"\n");
         return new ServicesAndTrips(uniqueSvcIds, tripIds);
     }
 
     public void cleanseStops(StopDataMapper stopDataMapper) throws IOException {
         logger.info("**** Start cleansing stops.");
+        AtomicInteger count = new AtomicInteger();
         Stream<StopData> stops = dataReaderFactory.getForCleanser().getStops(stopDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stops");
@@ -138,11 +146,12 @@ public class DataCleanser {
                     workAroundName(stop.getName()), tramPrefix,
                     stop.getLatitude(),
                     stop.getLongitude()));
+            count.set(count.get() + 1);
         });
 
         writer.close();
         stops.close();
-        logger.info("**** End cleansing stops.\n\n");
+        logger.info("**** End cleansing stops. Loaded "+count.get() +" \n");
     }
 
     private boolean unexpectedIdFormat(StopData stop) {
@@ -166,7 +175,7 @@ public class DataCleanser {
 
         writer.close();
         routes.close();
-        logger.info("**** End cleansing routes.\n\n");
+        logger.info("**** End cleansing routes. Loaded " + routeCodes.size()+"\n");
         return routeCodes;
     }
 

@@ -5,9 +5,7 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
-import com.tramchester.repository.TransportDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ public class TransportDataFileImporter {
         Set<String> includeAll = Collections.emptySet();
 
         Stream<StopData> stopData = transportDataReader.getStops(new StopDataMapper(includeAll));
-        Stream<RouteData> routeData = transportDataReader.getRoutes(new RouteDataMapper(includeAll));
+        Stream<RouteData> routeData = transportDataReader.getRoutes(new RouteDataMapper(includeAll, false));
         Stream<TripData> tripData = transportDataReader.getTrips(new TripDataMapper(includeAll));
         Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes(new StopTimeDataMapper(includeAll));
         Stream<CalendarData> calendarData = transportDataReader.getCalendar(new CalendarDataMapper(includeAll));

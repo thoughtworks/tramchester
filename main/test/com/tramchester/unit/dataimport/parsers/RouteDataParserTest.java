@@ -12,14 +12,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 
 public class RouteDataParserTest {
-    private String routeA = "MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
-    private String routeB = "MET:MET4:O:,XXX,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
+    private final String routeA = "MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
+    private final String routeB = "MET:MET4:O:,XXX,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
 
-    private String problemBusRoute = "JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3";
+    private final String problemBusRoute = "JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3";
 
     @Test
     public void shouldFilter() throws IOException {
-        RouteDataMapper mapper = new RouteDataMapper(Collections.singleton("MET"));
+        RouteDataMapper mapper = new RouteDataMapper(Collections.singleton("MET"), true);
 
         assertTrue(mapper.shouldInclude(ParserBuilder.getRecordFor(routeA)));
         assertFalse(mapper.shouldInclude(ParserBuilder.getRecordFor(routeB)));
@@ -27,7 +27,7 @@ public class RouteDataParserTest {
 
     @Test
     public void shouldParseRoute() throws IOException {
-        RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet());
+        RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet(), true);
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(routeA));
 
@@ -39,7 +39,7 @@ public class RouteDataParserTest {
 
     @Test
     public void shouldParseBusRoute() throws IOException {
-        RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet());
+        RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet(), true);
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(problemBusRoute));
 

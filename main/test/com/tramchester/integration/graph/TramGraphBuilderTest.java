@@ -161,6 +161,7 @@ public class TramGraphBuilderTest {
                 map(trip -> trip.getService().getId()).
                 collect(Collectors.toSet());
 
+        // NOTE: Check clean target that and graph has been rebuilt if see failure here
         // each svc should be one outbound, no dups, so use list not set of ids
         assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));

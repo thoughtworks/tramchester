@@ -36,13 +36,12 @@ public class TestDataCleanser extends EasyMockSupport {
     private TransportDataWriter writer;
     private DataCleanser cleanser;
     private TransportDataWriterFactory writerFactory;
-    private TramchesterConfig config;
     private TransportDataReaderFactory readerFactory;
     private ProvidesNow providesNow;
 
     @Before
     public void beforeEachTestRuns() {
-        config = TestEnv.GET();
+        TramchesterConfig config = TestEnv.GET();
         providesNow = new ProvidesLocalNow();
 
         reader = createMock(TransportDataReader.class);
@@ -60,7 +59,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet());
+        RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet(), true);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
         validateWriter("routes", "\"R1\",\"MET\",\"CODE1\",\"AtoB name with issue\",\"0\"");
 
@@ -80,7 +79,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet());
+        RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet(), true);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
         validateWriter("routes", "\"R2\",\"GMS\",\"X58\",\"Altrincham - Strockport\",\"3\"");
 
@@ -101,7 +100,7 @@ public class TestDataCleanser extends EasyMockSupport {
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
-        RouteDataMapper routeDataMapper = new RouteDataMapper(agencyCodes);
+        RouteDataMapper routeDataMapper = new RouteDataMapper(agencyCodes, true);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
         validateWriter("routes", "\"R1\",\"XYX\",\"CODE1\",\"AtoB\",\"3\"", "\"R2\",\"ANY\",\"CODE2\",\"CtoD\",\"0\"");
 

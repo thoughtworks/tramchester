@@ -19,7 +19,7 @@ public class Service implements HasId {
     private final Route route;
     private final Set<Trip> trips;
 
-    private HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
+    private final HashMap<DaysOfWeek, Boolean> days = new HashMap<>();
     private TramServiceDate startDate;
     private TramServiceDate endDate;
 

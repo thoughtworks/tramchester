@@ -22,7 +22,10 @@ public class TripDataMapper implements CSVEntryMapper<TripData> {
 
         String tripHeadsign = data.get(3);
         if (tripHeadsign.contains(",")) {
-            tripHeadsign = data.get(3).split(",")[1].replace("(Manchester Metrolink)", "").replace("\"", "").trim();
+            tripHeadsign = data.get(3).
+                    split(",")[1].
+                    replace("(Manchester Metrolink)", "").
+                    replace("\"", "").trim();
         }
         return new TripData(routeId, serviceId, tripId, tripHeadsign);
     }
