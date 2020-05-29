@@ -54,6 +54,7 @@ public class App extends Application<AppConfiguration>  {
 
     public static void main(String[] args) throws Exception {
         logEnvironmentalVars();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> logger.warn("Shutting down")));
         new App().run(args);
     }
 

@@ -177,6 +177,8 @@ task blockhost(dependsOn: cfnassist) {
 task buses(type:JavaExec) {
     main = mainClassName
     classpath = sourceSets.main.runtimeClasspath
+    //maxHeapSize = "8000m"
+    jvmArgs = [ '-XX:+HeapDumpOnOutOfMemoryError' ]
     args 'server', 'config/buses.yml'
 }
 

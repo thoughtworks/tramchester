@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -123,11 +124,13 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     private void populateStopTimes(Stream<StopTimeData> stopTimes) {
+        logger.info("Loading stop times");
+        AtomicInteger count = new AtomicInteger();
         stopTimes.forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
-
             String platformId = stopTimeData.getStopId();
             String stationId = Station.formId(platformId);
+
             if (stationsById.containsKey(stationId)) {
                 Route route = trip.getRoute();
                 Station station = stationsById.get(stationId);
@@ -152,47 +155,54 @@ public class TransportDataFromFiles implements TransportDataSource {
                 {
                     stop = new BusStopCall(station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 }
-
+                count.getAndIncrement();
 
                 trip.addStop(stop);
             } else {
                 logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, platformId));
             }
         });
+        logger.info("Loaded " + count.get() + " stop times");
     }
 
     private void populateTrips(Stream<TripData> trips) {
+        logger.info("Loading trips");
+        AtomicInteger count = new AtomicInteger();
+
         trips.forEach((tripData) -> {
             String serviceId = tripData.getServiceId();
             String routeId = tripData.getRouteId();
             Route route = routes.get(routeId);
 
-            Service service = getOrInsertService(serviceId, route);
-            Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), service, route );
             if (route != null) {
+                Service service = getOrInsertService(serviceId, route);
+                Trip trip = getOrCreateTrip(tripData.getTripId(), tripData.getTripHeadsign(), service, route );
+                count.getAndIncrement();
                 service.addTrip(trip);
                 route.addService(service);
                 route.addHeadsign(trip.getHeadsign());
             } else {
-                logger.warn(format("Unable to find RouteId '%s' for trip '%s", routeId, trip));
+                logger.warn(format("Unable to find RouteId '%s' for trip id '%s", routeId, tripData.getTripId()));
             }
         });
+        logger.info("Loaded " + count.get());
     }
 
     private void populateRoutes(Stream<RouteData> routeDataStream) {
-
+        logger.info("Loading routes and agencies");
         routeDataStream.forEach(routeData -> {
             String agencyId = routeData.getAgency();
             if (!agencies.containsKey(agencyId)) {
+                logger.info("Adding agency " + agencyId);
                 agencies.put(agencyId, new Agency(agencyId));
             }
             Agency agency = agencies.get(agencyId);
-            Route route = new Route(routeData.getId(), routeData.getShortName(), routeData.getLongName(), agency,
+            Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeData.getLongName(), agency,
                     getMode(routeData.getRouteType()));
             routes.put(route.getId(), route);
-
             agencies.get(agencyId).addRoute(route);
         });
+        logger.info("Loaded " + agencies.size() + " agencies " + routes.size() + " routes");
     }
 
     private TransportMode getMode(String routeType) {
@@ -206,6 +216,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     private void populateStationsAndAreas(Stream<StopData> stops) {
+        logger.info("Loading stops");
         stops.forEach((stop) -> {
             String stopId = stop.getId();
             Station station;
@@ -235,6 +246,8 @@ public class TransportDataFromFiles implements TransportDataSource {
             AreaDTO areaDTO = new AreaDTO(stop.getArea());
             areas.add(areaDTO); // a set, so no dups
         });
+        logger.info("Loaded " + stationsById.size() + " stations " + platforms.size() + " tram platforms " +
+                areas.size() + " areas");
     }
 
     private Platform formPlatform(StopData stop) {
@@ -242,15 +255,17 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     private Trip getOrCreateTrip(String tripId, String tripHeadsign, Service service, Route route) {
-        if (!trips.containsKey(tripId)) {
-            trips.put(tripId, new Trip(tripId, tripHeadsign, service, route));
+        if (trips.containsKey(tripId)) {
+            Trip matched = trips.get(tripId);
+            if ((!matched.getRoute().equals(route)) || !matched.getService().equals(service) || !matched.getHeadsign().equals(tripHeadsign)) {
+                logger.error("Mismatch for trip id: " + tripId + " (mis)matched was " + matched);
+            }
+            return matched;
         }
 
-        Trip matched = trips.get(tripId);
-        if ((!matched.getRoute().equals(route)) || !matched.getService().equals(service) || matched.getHeadsign()!=tripHeadsign) {
-            logger.error("Mismatch on trip id: " + tripId);
-        }
-        return matched;
+        Trip trip = new Trip(tripId, tripHeadsign, service, route);
+        trips.put(tripId, trip);
+        return trip;
     }
 
     private Service getOrInsertService(String serviceId, Route route) {

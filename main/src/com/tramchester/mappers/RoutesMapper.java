@@ -38,7 +38,7 @@ public class RoutesMapper {
         List<Station> calledAtStations = routeCallingStations.getStationsFor(route);
         List<StationDTO> stationDTOs = new ArrayList<>(calledAtStations.size());
         calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationDTO(calledAtStation, ProximityGroup.ALL)));
-        gather.add(new RouteDTO(route.getName(), route.getShortName(), stationDTOs, mapper.map(route.getId())));
+        gather.add(new RouteDTO(route.getName(), route.getShortName(), stationDTOs, mapper.map(route)));
     }
 
 }

@@ -44,7 +44,7 @@ public class StationLocations {
             GridPosition gridPosition = coordinateTransforms.getGridPosition(position);
             positions.put(station, gridPosition);
             updateBoundingBox(gridPosition);
-            logger.info("Added station " + station.getId() + " at grid " + gridPosition);
+            logger.debug("Added station " + station.getId() + " at grid " + gridPosition);
         } catch (TransformException e) {
             logger.error("Unable to store station as cannot convert location", e);
         }

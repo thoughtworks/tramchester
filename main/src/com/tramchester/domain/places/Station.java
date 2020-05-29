@@ -19,15 +19,20 @@ public class Station implements Location {
     private boolean tram;
     private final List<Platform> platforms;
     private final Set<Route> servesRoutes;
-    private Set<Agency> servesAgencies;
+    private final Set<Agency> servesAgencies;
 
     public Station () {
         // deserialisation
         platforms = new LinkedList<>();
         servesRoutes = new HashSet<>();
+        servesAgencies = new HashSet<>();
     }
 
     public Station(String id, String area, String stationName, LatLong latLong, boolean tram) {
+        platforms = new LinkedList<>();
+        servesRoutes = new HashSet<>();
+        servesAgencies = new HashSet<>();
+
         this.id = id.intern();
         if (tram) {
             this.name = stationName.intern();
@@ -39,9 +44,7 @@ public class Station implements Location {
         this.latLong = latLong;
         this.tram = tram;
         this.area = area;
-        platforms = new LinkedList<>();
-        servesRoutes = new HashSet<>();
-        servesAgencies = new HashSet<>();
+
     }
 
     @Override

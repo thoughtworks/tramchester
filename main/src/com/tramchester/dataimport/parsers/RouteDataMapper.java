@@ -19,8 +19,10 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
 
     public RouteDataMapper(Set<String> agencies, boolean cleaning) {
         this.agencies = agencies;
-        if (agencies.size()==0 && !cleaning) {
-            logger.warn("Loading all agencies and routes");
+        if (agencies.size()==0) {
+            if (!cleaning) {
+                logger.warn("Loading all agencies and routes");
+            }
             includeAll = true;
         } else {
             includeAll = false;
@@ -35,7 +37,9 @@ public class RouteDataMapper implements CSVEntryMapper<RouteData> {
         String routeType = data.get(4);
 
         if (! ( BUS_TYPE.equals(routeType) || TRAM_TYPE.equals(routeType))) {
-            throw new RuntimeException(format("Unexepcted tram type %s from %s ", routeType, data));
+            String msg = format("Unexected tram type %s from %s ", routeType, data);
+            logger.error(msg);
+            throw new RuntimeException(msg);
         }
 
         return new RouteData(id, agency, shortName, longName, routeType);

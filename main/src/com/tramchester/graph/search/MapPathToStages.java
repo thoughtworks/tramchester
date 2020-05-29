@@ -200,7 +200,7 @@ public class MapPathToStages {
 
             int passedStops = stopsSeen - 1;
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
-                    route.getMode(), routeIdToClass.map(route.getId()), trip, boardingTime,
+                    route.getMode(), routeIdToClass.map(route), trip, boardingTime,
                     departStation, passedStops);
 
             if (stopsSeen == 0) {

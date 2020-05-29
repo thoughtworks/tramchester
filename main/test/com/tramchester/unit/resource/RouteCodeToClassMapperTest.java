@@ -2,6 +2,7 @@ package com.tramchester.unit.resource;
 
 
 import com.tramchester.resources.RouteCodeToClassMapper;
+import com.tramchester.testSupport.RoutesForTesting;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,32 +10,24 @@ import static org.junit.Assert.assertEquals;
 public class RouteCodeToClassMapperTest {
 
     @Test
-    public void testShouldMapToCorrectClassOldRouteStyle() {
-        RouteCodeToClassMapper mapper = new RouteCodeToClassMapper();
-
-        assertEquals("RouteClassD", mapper.map("MET:MET1:I"));
-        assertEquals("RouteClassA", mapper.map("MET:MET2:I"));
-        assertEquals("RouteClassG", mapper.map("MET:MET3:I"));
-        assertEquals("RouteClassE", mapper.map("MET:MET4:I"));
-        assertEquals("RouteClassC", mapper.map("MET:MET5:I"));
-        assertEquals("RouteClassF", mapper.map("MET:MET6:I"));
-        assertEquals("RouteClassH", mapper.map("MET:MET7:I"));
-
-    }
-
-    @Test
     public void testShouldMapToCorrectClassNewRouteStyle() {
         RouteCodeToClassMapper mapper = new RouteCodeToClassMapper();
 
-        assertEquals("RouteClassA", mapper.map("MET:   A:I"));
-        assertEquals("RouteClassB", mapper.map("MET:   B:I"));
-        assertEquals("RouteClassC", mapper.map("MET:   C:I"));
-        assertEquals("RouteClassD", mapper.map("MET:   D:I"));
-        assertEquals("RouteClassE", mapper.map("MET:   E:I"));
-        assertEquals("RouteClassF", mapper.map("MET:   F:I"));
-        assertEquals("RouteClassG", mapper.map("MET:   G:I"));
-        assertEquals("RouteClassH", mapper.map("MET:   H:I"));
-        assertEquals("RouteClassI", mapper.map("MET:   I:I"));
-        assertEquals("RouteClassJ", mapper.map("MET:   J:I"));
+        assertEquals("RouteClass1", mapper.map(RoutesForTesting.ALTY_TO_BURY));
+        assertEquals("RouteClass1", mapper.map(RoutesForTesting.BURY_TO_ALTY));
+        assertEquals("RouteClass2", mapper.map(RoutesForTesting.ALTY_TO_PICC));
+        assertEquals("RouteClass2", mapper.map(RoutesForTesting.PICC_TO_ALTY));
+        assertEquals("RouteClass3", mapper.map(RoutesForTesting.ASH_TO_ECCLES));
+        assertEquals("RouteClass3", mapper.map(RoutesForTesting.ECCLES_TO_ASH));
+        assertEquals("RouteClass4", mapper.map(RoutesForTesting.BURY_TO_PICC));
+        assertEquals("RouteClass4", mapper.map(RoutesForTesting.BURY_TO_PICC));
+        assertEquals("RouteClass5", mapper.map(RoutesForTesting.DIDS_TO_ROCH));
+        assertEquals("RouteClass5", mapper.map(RoutesForTesting.ROCH_TO_DIDS));
+        assertEquals("RouteClass6", mapper.map(RoutesForTesting.AIR_TO_VIC));
+        assertEquals("RouteClass6", mapper.map(RoutesForTesting.VIC_TO_AIR));
+        assertEquals("RouteClass7", mapper.map(RoutesForTesting.CORN_TO_INTU));
+        assertEquals("RouteClass7", mapper.map(RoutesForTesting.INTU_TO_CORN));
+
+        assertEquals("RouteClassBus", mapper.map(RoutesForTesting.ALTY_TO_STOCKPORT));
     }
 }

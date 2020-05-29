@@ -91,20 +91,28 @@
     color: white;
 }
 
+/* Buses */
+.RouteClassBus  {
+    background-color: darkred;
+    stroke: darkred;
+    color: white;
+    stroke-width: 1;
+}
+
 #leafletMap {
   height: 800px;
   width: 800px;
 }
 
-.station-div-icon {
-    background:black;
-    border: 3px solid rgba(255,255,255,0.5);
+.station-icon {
     border-radius:50%;
+    /* background:red; */
+    border: 1px solid lightcoral;
 }
 
-.tram-div-icon {
-    background:red;
-    border: 3px solid rgba(255,255,255,0.5);
+.tram-icon {
     border-radius:50%;
+    background: yellow;
+    border: 1px inset inherit;
 }
 
