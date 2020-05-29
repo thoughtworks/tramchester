@@ -6,7 +6,6 @@ var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
 
-var d3 = require("d3");
 var L = require('leaflet');
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -17,6 +16,8 @@ import './../css/tramchester.css'
 L.Icon.Default.imagePath = '/app/dist/images/';
 require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
+
+import Footer from './components/Footer';
 
 var width = 800;
 var height = 800;
@@ -62,13 +63,13 @@ function addTrams() {
         var latB = position.second.latLong.lat;
         var lonB = position.second.latLong.lon;
         
-        var deltaLat = (latB-latA)/position.cost;
-        var deltaLon = (lonB-lonA)/position.cost;
+        var vectorLat = (latB-latA)/position.cost;
+        var vectorLon = (lonB-lonA)/position.cost;
 
         position.trams.forEach(tram => {
             var dist = (position.cost-tram.wait);
-            var lat = latA + ( dist * deltaLat );
-            var lon = lonA + ( dist * deltaLon );
+            var lat = latA + ( dist * vectorLat );
+            var lon = lonA + ( dist * vectorLon );
             var marker = new L.marker(L.latLng(lat,lon), { title: getTramTitle(tram, position) , icon: tramIcon }); //.addTo(mapApp.map);
             mapApp.tramLayerGroup.addLayer(marker);
         })
@@ -123,6 +124,9 @@ function findAndSetMapBounds() {
 
 var mapApp = new Vue({
     el: '#tramMap',
+    components: {
+        'app-footer' : Footer
+    },
     data() {
         return {
             map: null,
@@ -130,10 +134,14 @@ var mapApp = new Vue({
             uniqueStations: [],
             networkError: false,
             routes: [],
-            tramLayerGroup: null
+            tramLayerGroup: null,
+            feedinfo: []
         }
     },
     methods: {
+        networkErrorOccured() {
+            app.networkError = true;
+        },
         createStationList() {
             // unique list of stations
             var ids = [];
@@ -161,6 +169,14 @@ var mapApp = new Vue({
         }
     },
     mounted () {
+        axios.get('/api/feedinfo')
+        .then(function (response) {
+            mapApp.networkError = false;
+            mapApp.feedinfo = response.data;
+        }).catch(function (error) {
+            mapApp.networkError = true;
+            console.log(error);
+        });
         axios.get("/api/routes")
             .then(function (response) {
                 mapApp.routes = response.data;
@@ -174,6 +190,11 @@ var mapApp = new Vue({
 
         this.map = L.map('leafletMap');
 
+    }, 
+    computed: {
+        havePos: function () {
+            return false; // needed for display in footer
+        }
     }
 });
 
