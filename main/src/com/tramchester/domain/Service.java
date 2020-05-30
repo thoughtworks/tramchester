@@ -3,7 +3,6 @@ package com.tramchester.domain;
 
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
@@ -12,7 +11,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.tramchester.domain.time.DaysOfWeek.*;
 import static java.lang.String.format;
 
 public class Service implements HasId {
@@ -119,14 +117,6 @@ public class Service implements HasId {
         }
     }
 
-//    public TramServiceDate getStartDate() {
-//        return startDate;
-//    }
-//
-//    public TramServiceDate getEndDate() {
-//        return endDate;
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -213,7 +203,7 @@ public class Service implements HasId {
                 if (found.length()>0) {
                     found.append(",");
                 }
-                found.append(DaysOfWeek.values()[i].name());
+                found.append(DayOfWeek.values()[i].name());
             }
         }
         if (found.length()==0) {

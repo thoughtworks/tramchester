@@ -2,7 +2,6 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.input.StopCalls;
-import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.junit.AfterClass;
@@ -11,12 +10,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
-import java.time.DayOfWeek;
-import java.util.HashMap;
-import java.util.Map;
 
 import static java.lang.String.format;
-import static org.junit.Assert.fail;
 
 public class SummaryOfRoutesAndServicesTest {
 

@@ -1,23 +1,21 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.Test;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.HashMap;
 
 import static com.tramchester.domain.Platform.from;
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ServiceTest {
 

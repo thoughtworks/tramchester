@@ -2,18 +2,18 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.dataimport.DataLoader;
-import com.tramchester.dataimport.DataLoaderFactory;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.parsers.CalendarDatesDataMapper;
-import com.tramchester.domain.*;
+import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
-import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -227,21 +227,6 @@ public class TransportDataFromFilesTest {
         assertEquals(Stations.EndOfTheLine.size(), filteredStations.size());
     }
 
-    @Ignore("Due to exception dates this no longer applies")
-    @Test
-    public void shouldTestValidityOfCalendarImport() {
-        List<Service> mondayServices = new LinkedList<>();
-
-        for(Service svc : allServices) {
-            Map<DayOfWeek, Boolean> days = svc.getDays();
-            boolean monday = days.get(DayOfWeek.MONDAY);
-            if (monday) {
-                mondayServices.add(svc);
-            }
-        }
-        assertTrue(mondayServices.size()>0);
-    }
-
     @Test
     public void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
         Collection<Route> allRoutes = transportData.getRoutes();
@@ -309,7 +294,6 @@ public class TransportDataFromFilesTest {
 
         Set<Service> onDay = services.stream().
                 filter(service -> service.operatesOn(nextTuesday)).
-                filter(service -> service.getDays().get(DayOfWeek.TUESDAY)).
                 collect(Collectors.toSet());
 
         TramTime time = TramTime.of(12, 0);
@@ -319,14 +303,16 @@ public class TransportDataFromFilesTest {
         assertFalse(onTime.isEmpty()); // at least one service (likely is just one)
     }
 
-    // TODO Lockdown
-    @Ignore("Lockdown, no trams at this time currently")
     @Test
     public void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
         Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark);
 
+        LocalDate aMonday = TestEnv.nextTuesday(0).minusDays(1);
+        assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
+
+        // TOOD Due to exception dates makes no sense to use getDays
         Set<String> mondayAshToManServices = allServices.stream()
-                .filter(svc -> svc.getDays().get(DaysOfWeek.Monday))
+                .filter(svc -> svc.operatesOn(aMonday))
                 .filter(svc -> ashtonRoutes.contains(svc.getRouteId()))
                 .map(Service::getId)
                 .collect(Collectors.toSet());
@@ -357,7 +343,7 @@ public class TransportDataFromFilesTest {
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
     }
 
-    public List<StopCall> getStopsFor(Trip trip, String stationId) {
+    private List<StopCall> getStopsFor(Trip trip, String stationId) {
         return trip.getStops().stream().filter(stopCall -> stopCall.getStation().getId().equals(stationId)).collect(Collectors.toList());
     }
 
