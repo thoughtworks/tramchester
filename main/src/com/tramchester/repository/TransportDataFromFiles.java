@@ -10,7 +10,6 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
@@ -44,8 +43,8 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     public TransportDataFromFiles(StationLocations stationLocations, Stream<StopData> stops, Stream<RouteData> rawRoutes,
                                   Stream<TripData> rawTrips, Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
-                                  Stream<FeedInfo> feedInfo)  {
-        this.transportDataStreams = new TransportDataStreams(stops, rawRoutes, rawTrips, stopTimes, calendars, feedInfo);
+                                  Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates)  {
+        this.transportDataStreams = new TransportDataStreams(stops, rawRoutes, rawTrips, stopTimes, calendars, feedInfo, calendarsDates);
         this.stationLocations = stationLocations;
         logger.info("Data load is complete");
     }
@@ -65,7 +64,7 @@ public class TransportDataFromFiles implements TransportDataSource {
         populateRoutes(transportDataStreams.routes);
         populateTrips(transportDataStreams.trips);
         populateStopTimes(transportDataStreams.stopTimes);
-        populateCalendars(transportDataStreams.calendars);
+        populateCalendars(transportDataStreams.calendars, transportDataStreams.calendarsDates);
 
         logger.info(format("%s stations", stationsById.size()));
         logger.info(format("%s routes", this.routes.size()));
@@ -73,12 +72,8 @@ public class TransportDataFromFiles implements TransportDataSource {
         logger.info(format("%s trips", this.trips.size()));
 
         // update svcs where calendar data is missing
-        services.values().stream().filter(svc -> svc.getDays().get(DaysOfWeek.Monday) == null).forEach(svc -> {
-            logger.warn(format("Service %s is missing calendar information", svc.getId()));
-            svc.setDays(false, false, false, false, false, false, false);
-        });
-        services.values().stream().filter(svc -> !svc.getDays().containsValue(true)).forEach(
-                svc -> logger.warn(format("Service %s does not run on any days of the week", svc.getId()))
+        services.values().stream().filter(Service::HasMissingDates).forEach(
+                svc -> logger.warn(format("Service %s has missing date data or runs on zero days", svc.getId()))
         );
         transportDataStreams.closeAll();
         logger.info("Finished loading transport data");
@@ -104,7 +99,7 @@ public class TransportDataFromFiles implements TransportDataSource {
         areas.clear();
     }
 
-    private void populateCalendars(Stream<CalendarData> calendars) {
+    private void populateCalendars(Stream<CalendarData> calendars, Stream<CalendarDateData> calendarsDates) {
         calendars.forEach((calendar) -> {
             Service service = services.get(calendar.getServiceId());
 
@@ -119,6 +114,16 @@ public class TransportDataFromFiles implements TransportDataSource {
                         calendar.isSunday()
                 );
                 service.setServiceDateRange(calendar.getStartDate(), calendar.getEndDate());
+            } else {
+                logger.warn("Failed to match service id " + calendar.getServiceId());
+            }
+        });
+        calendarsDates.forEach(date -> {
+            Service service = services.get(date.getServiceId());
+            if (service != null) {
+                service.addExceptionDate(date.getDate(), date.getExceptionType());
+            } else {
+                logger.warn("Failed to match service id " + date.getServiceId());
             }
         });
     }
@@ -284,11 +289,6 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     @Override
-    public Stream<Trip> getTripsByRoute(Route route) {
-        return trips.values().stream().filter(t->t.getRoute().equals(route));
-    }
-
-    @Override
     public Route getRoute(String routeId) {
         return routes.get(routeId);
     }
@@ -374,11 +374,8 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
-        DaysOfWeek day = date.getDay();
-        return Collections.unmodifiableSet(services.values().stream().
-                filter(svc -> svc.getDays().get(day)).
-                filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toSet()));
-
+        return services.values().stream().
+                filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -393,16 +390,18 @@ public class TransportDataFromFiles implements TransportDataSource {
         final Stream<StopTimeData> stopTimes;
         final Stream<CalendarData> calendars;
         final Stream<FeedInfo> feedInfo;
+        final Stream<CalendarDateData> calendarsDates;
 
         public TransportDataStreams(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
                                     Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
-                                    Stream<FeedInfo> feedInfo) {
+                                    Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates) {
             this.stops = stops;
             this.routes = routes;
             this.trips = trips;
             this.stopTimes = stopTimes;
             this.calendars = calendars;
             this.feedInfo = feedInfo;
+            this.calendarsDates = calendarsDates;
         }
 
         public void closeAll() {
@@ -412,6 +411,7 @@ public class TransportDataFromFiles implements TransportDataSource {
             stopTimes.close();
             calendars.close();
             feedInfo.close();
+            calendarsDates.close();
         }
     }
 

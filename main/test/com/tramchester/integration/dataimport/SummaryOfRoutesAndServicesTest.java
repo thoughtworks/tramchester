@@ -11,9 +11,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
+import java.time.DayOfWeek;
 import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.String.format;
+import static org.junit.Assert.fail;
 
 public class SummaryOfRoutesAndServicesTest {
 
@@ -48,9 +51,8 @@ public class SummaryOfRoutesAndServicesTest {
             printStream.println(format("Route ID:'%s' Name:'%s'", route.getId(), route.getName()));
             route.getServices().forEach(svc -> {
                 printStream.println(format("Service ID:%s  (%s)",svc.getId(), route.getName()));
-                printStream.println(format("From: %s until: %s days: %s",
-                        svc.getStartDate().toDateString(), svc.getEndDate().toDateString(), report(svc.getDays())));
-                printStream.println(format("Earliest: %s Latest: %s", svc.earliestDepartTime().toPattern(), svc.latestDepartTime().toPattern()));
+                svc.summariseDates(printStream);
+
                 svc.getTrips().forEach(trip ->{
                     StopCalls stops = trip.getStops();
                     String from = stops.get(0).getStation().getName();
@@ -68,19 +70,5 @@ public class SummaryOfRoutesAndServicesTest {
         printStream.close();
     }
 
-    private String report(HashMap<DaysOfWeek, Boolean> days) {
-        StringBuilder found = new StringBuilder();
-        for (int i = 0; i < DaysOfWeek.values().length; i++) {
-            if (days.get(DaysOfWeek.values()[i])) {
-                if (found.length()>0) {
-                    found.append(",");
-                }
-                found.append(DaysOfWeek.values()[i].name());
-            }
-        }
-        if (found.length()==0) {
-            return "SPECIAL";
-        }
-        return found.toString();
-    }
+
 }

@@ -13,7 +13,7 @@ public class StopTimeData {
     private final String pickupType;
     private final String dropOffType;
 
-    public static final String COMMA = ",";
+    private static final String COMMA = ",";
 
 
     public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,

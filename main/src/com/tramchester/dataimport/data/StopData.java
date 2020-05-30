@@ -5,13 +5,13 @@ import com.tramchester.domain.presentation.LatLong;
 import java.util.Objects;
 
 public class StopData {
-    private String id;
-    private String code;
-    private String area;
-    private String name;
-    private double latitude;
-    private double longitude;
-    private boolean isTram;
+    private final String id;
+    private final String code;
+    private final String area;
+    private final String name;
+    private final double latitude;
+    private final double longitude;
+    private final boolean isTram;
 
     public StopData(String id, String code, String area, String name, double latitude, double longitude,
                     boolean isTram) {

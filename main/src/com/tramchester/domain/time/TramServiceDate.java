@@ -43,20 +43,6 @@ public class TramServiceDate {
         return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
-    public DaysOfWeek getDay() {
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        switch (dayOfWeek) {
-            case SUNDAY: return DaysOfWeek.Sunday;
-            case MONDAY: return DaysOfWeek.Monday;
-            case TUESDAY: return DaysOfWeek.Tuesday;
-            case WEDNESDAY: return DaysOfWeek.Wednesday;
-            case THURSDAY: return DaysOfWeek.Thursday;
-            case FRIDAY: return DaysOfWeek.Friday;
-            case SATURDAY: return DaysOfWeek.Saturday;
-        }
-        throw new RuntimeException(format("Cannot find day of week for %s on %s", dayOfWeek, date));
-    }
-
     public boolean isWeekend() {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return (dayOfWeek==DayOfWeek.SATURDAY) || (dayOfWeek==DayOfWeek.SUNDAY);

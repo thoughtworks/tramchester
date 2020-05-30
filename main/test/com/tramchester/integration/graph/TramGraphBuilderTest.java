@@ -73,8 +73,8 @@ public class TramGraphBuilderTest {
 
         // check number of outbound services matches services in transport data files
         Set<String> fileSvcIds = getTripsFor(transportData.getTrips(), Stations.MediaCityUK).stream().
-                filter(trip -> trip.getService().isRunning())
-                .map(trip -> trip.getService().getId()).
+//                filter(trip -> trip.getService().isRunning()).
+                map(trip -> trip.getService().getId()).
                 collect(Collectors.toSet());
         fileSvcIds.removeAll(graphSvcIds);
 
@@ -151,7 +151,7 @@ public class TramGraphBuilderTest {
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRouteId().equals(route.getId())).
-                filter(Service::isRunning).
+                //filter(Service::isRunning).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.getStops().callsAt(station)).
@@ -165,7 +165,6 @@ public class TramGraphBuilderTest {
         // each svc should be one outbound, no dups, so use list not set of ids
         assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
-
     }
 
     private void checkInboundConsistency(Station station, Route route) {
@@ -185,7 +184,7 @@ public class TramGraphBuilderTest {
                 collect(Collectors.toSet()));
 
         Set<Trip> callingTrips = transportData.getServices().stream().
-                filter(svc -> svc.isRunning()).
+                //filter(svc -> svc.isRunning()).
                 filter(svc -> svc.getRouteId().equals(route.getId())).
                 map(Service::getTrips).
                 flatMap(Collection::stream).

@@ -18,7 +18,6 @@ import com.tramchester.testSupport.TestEnv;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
 import static java.lang.String.format;
@@ -213,11 +212,6 @@ public class TransportDataForTest implements TransportDataSource {
     @Override
     public Collection<Route> getRoutes() {
         return routes.values();
-    }
-
-    @Override
-    public Stream<Trip> getTripsByRoute(Route route) {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override

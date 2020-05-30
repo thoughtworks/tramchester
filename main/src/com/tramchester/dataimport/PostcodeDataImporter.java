@@ -85,7 +85,7 @@ public class PostcodeDataImporter {
         logger.debug("Load postcode data from " + file.toAbsolutePath());
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
-        Stream<PostcodeData> stream = loader.loadAll(false);
+        Stream<PostcodeData> stream = loader.loadFiltered(false);
         Stream<PostcodeData> boundedBoxData = filterDataByBoundedBox(stream);
         Set<PostcodeData> postcodeData = boundedBoxData.filter(this::findNearbyStation).collect(Collectors.toSet());
 

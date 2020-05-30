@@ -36,10 +36,11 @@ public class TransportDataFileImporter {
         Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes(new StopTimeDataMapper(includeAll));
         Stream<CalendarData> calendarData = transportDataReader.getCalendar(new CalendarDataMapper(includeAll));
         Stream<FeedInfo> feedInfoData = transportDataReader.getFeedInfo(new FeedInfoDataMapper(providesNow));
+        Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
 
         logger.info("Finished reading csv files.");
         return new TransportDataFromFiles(stationLocations, stopData, routeData, tripData, stopTimeData, calendarData,
-                feedInfoData);
+                feedInfoData, calendarsDates);
 
     }
 }

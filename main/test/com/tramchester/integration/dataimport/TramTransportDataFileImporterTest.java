@@ -25,7 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TramTransportDataFileImporterTest {
 
-    private DownloadConfig config = new DownloadConfig() {
+    private final DownloadConfig config = new DownloadConfig() {
+
         @Override
         public String getTramDataUrl() {
             return null;
@@ -69,6 +70,8 @@ public class TramTransportDataFileImporterTest {
         Service service = route.getServices().stream().findFirst().get();
         assertThat(service.getId()).isEqualTo("Serv000001");
         assertThat(service.getTrips()).hasSize(20);
+        assertThat(service.operatesOn(LocalDate.of(2014,11,1)));
+        assertThat(!service.operatesOn(LocalDate.of(2014,11,20)));
 
         Trip trip = service.getTrips().stream().findFirst().get();
         assertThat(trip.getId()).isEqualTo("Trip000001");

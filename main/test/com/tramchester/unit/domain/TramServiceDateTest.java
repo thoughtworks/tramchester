@@ -1,8 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.time.DaysOfWeek;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.exceptions.TramchesterException;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -14,21 +12,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TramServiceDateTest {
 
     @Test
-    public void shouldInitiateWithDate() throws Exception {
+    public void shouldInitiateWithDate() {
         LocalDate date = LocalDate.of(2014, 10, 25);
         TramServiceDate tramServiceDate = new TramServiceDate(date);
 
         assertThat(tramServiceDate.getDate()).isEqualTo(date);
         assertThat(tramServiceDate.getStringDate()).isEqualTo("20141025");
-    }
-
-    @Test
-    public void shouldGetDayOfWeek() throws TramchesterException {
-        TramServiceDate tramServiceDate = new TramServiceDate(LocalDate.of(2016, 6, 13));
-        assertThat(tramServiceDate.getDay()).isEqualTo(DaysOfWeek.Monday);
-
-        tramServiceDate = new TramServiceDate(LocalDate.of(2017, 1, 1));
-        assertThat(tramServiceDate.getDay()).isEqualTo(DaysOfWeek.Sunday);
     }
 
     @Test

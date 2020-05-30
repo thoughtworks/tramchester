@@ -49,3 +49,4 @@ store_lock
 logs/
 databases/
 **/.vscode/*
+summaryOfRouteAndServices.txt

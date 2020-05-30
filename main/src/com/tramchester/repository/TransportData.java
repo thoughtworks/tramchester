@@ -16,7 +16,6 @@ public interface TransportData extends ProvidesFeedInfo, StationRepository {
 
     Collection<Trip> getTrips();
     Trip getTrip(String tripId);
-    Stream<Trip> getTripsByRoute(Route route);
 
     Collection<Route> getRoutes();
     Route getRoute(String routeId);

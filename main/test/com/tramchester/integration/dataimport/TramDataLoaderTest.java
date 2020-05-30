@@ -23,7 +23,7 @@ public class TramDataLoaderTest {
     public void shouldLoadRouteData() {
         HashSet<String> agencies = new HashSet<>(Collections.singletonList("MET"));
         DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), new RouteDataMapper(agencies, true));
-        List<RouteData> routeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
+        List<RouteData> routeData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);
         RouteData theRoute = routeData.get(0);
@@ -36,7 +36,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadCalendarData() {
         DataLoader<CalendarData> dataLoader = new DataLoader<>(Path.of("data/test/calendar.txt"), new CalendarDataMapper(Collections.emptySet()));
-        List<CalendarData> calendarData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
+        List<CalendarData> calendarData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(12);
         assertThat(calendarData.get(0).getServiceId()).isEqualTo("Serv000001");
@@ -47,7 +47,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadStopData() {
         DataLoader<StopData> dataLoader = new DataLoader<>(Path.of("data/test/stops.txt"), new StopDataMapper(Collections.emptySet()));
-        List<StopData> stopData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
+        List<StopData> stopData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
         assertThat(stopData).hasSize(178);
         StopData theStop = stopData.get(0);
@@ -62,7 +62,7 @@ public class TramDataLoaderTest {
     public void shouldLoadStopTimeData() {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>(Path.of("data/test/stop_times.txt"),
                 new StopTimeDataMapper(Collections.emptySet()));
-        List<StopTimeData> stopTimeData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
+        List<StopTimeData> stopTimeData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(20);
         StopTimeData stopTime = stopTimeData.get(0);
@@ -77,7 +77,7 @@ public class TramDataLoaderTest {
     @Test
     public void shouldLoadTripData() {
         DataLoader<TripData> dataLoader = new DataLoader<>(Path.of("data/test/trips.txt"), new TripDataMapper(Collections.emptySet()));
-        List<TripData> tripData = dataLoader.loadAll(skipHeader).collect(Collectors.toList());
+        List<TripData> tripData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
         assertThat(tripData).hasSize(20);
         TripData theTrip = tripData.get(0);

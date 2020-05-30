@@ -48,7 +48,9 @@ public class DataCleanser {
 
         cleanseStops(new StopDataMapper(stopIds));
 
-        cleanseCalendar(new CalendarDataMapper(servicesAndTrips.getServiceIds()));
+        Set<String> loadedServiceIds = servicesAndTrips.getServiceIds();
+        cleanseCalendar(new CalendarDataMapper(loadedServiceIds));
+        cleanseCalendarDates(new CalendarDatesDataMapper(loadedServiceIds));
 
         cleanFeedInfo(new FeedInfoDataMapper(providesNow));
 
@@ -76,12 +78,31 @@ public class DataCleanser {
                         runsOnDay(calendarData.isSunday()),
                         calendarData.getStartDate().format(DATE_FORMAT),
                         calendarData.getEndDate().format(DATE_FORMAT)));
-                        count.set(count.get() + 1);
+            count.getAndIncrement();
         });
 
         writer.close();
         calendar.close();
         logger.info("**** End cleansing calendar. Loaded "+count.get()+"\n");
+    }
+
+    public void cleanseCalendarDates(CalendarDatesDataMapper calendarDatesDataMapper) throws IOException {
+        logger.info("**** Start cleansing calendar dates.");
+        AtomicInteger count = new AtomicInteger();
+
+        Stream<CalendarDateData> calendarDates = dataReaderFactory.getForCleanser().getCalendarDates(calendarDatesDataMapper);
+
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("calendar_dates");
+        calendarDates.forEach(calendarDateData -> {
+            writer.writeLine(String.format("%s,%s,%s",
+                    calendarDateData.getServiceId(),
+                    calendarDateData.getDate().format(DATE_FORMAT),
+                    calendarDateData.getExceptionType()));
+            count.getAndIncrement();
+        });
+        writer.close();
+        calendarDates.close();
+        logger.info("**** End cleansing calendar dates. Loaded "+count.get()+"\n");
     }
 
     public Set<String> cleanseStoptimes(StopTimeDataMapper stopTimeDataMapper) throws IOException {

@@ -241,10 +241,11 @@ public class TransportGraphBuilder implements Startable {
 
             int cost = TramTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
 
-            if (runsAtLeastADay(service.getDays())) {
+            // due to exception dates cannot rely on this, dates are checked at query time anyway...
+            //if (runsAtLeastADay(service.getDays())) {
                 createRouteRelationship(fromRouteStation, toRouteStation, route, cost);
                 createRelationships(graphDatabase, fromRouteStation, toRouteStation, currentStop, nextStop, route, service, trip);
-            }
+            //}
         }
     }
 
@@ -562,8 +563,8 @@ public class TransportGraphBuilder implements Startable {
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
     }
 
-    private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
-        return days.containsValue(true);
-    }
+//    private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
+//        return days.containsValue(true);
+//    }
 
 }

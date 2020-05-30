@@ -21,7 +21,7 @@ public class DataLoader<T> {
         this.mapper = mapper;
     }
 
-    public Stream<T> loadAll(boolean skipHeaders) {
+    public Stream<T> loadFiltered(boolean skipHeaders) {
             try {
                 Reader in = new FileReader(fileName.toAbsolutePath().toString());
                 BufferedReader bufferedReader = new BufferedReader(in);

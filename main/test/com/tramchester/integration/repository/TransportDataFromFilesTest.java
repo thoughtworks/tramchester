@@ -2,10 +2,7 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -20,6 +17,7 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -88,7 +86,7 @@ public class TransportDataFromFilesTest {
         Set<Service> results = transportData.getServicesOnDate(date);
 
         assertFalse(results.isEmpty());
-        long saturdays = results.stream().filter(svc -> svc.getDays().get(DaysOfWeek.Saturday)).count();
+        long saturdays = results.stream().filter(svc -> svc.getDays().get(DayOfWeek.SATURDAY)).count();
         assertEquals(results.size(), saturdays);
         long onDate = results.stream().filter(svc -> svc.operatesOn(nextSaturday)).count();
         assertEquals(results.size(), onDate);
@@ -130,7 +128,8 @@ public class TransportDataFromFilesTest {
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
                 filter(trip -> trip.getStops().callsAt(Stations.Cornbrook)).collect(Collectors.toSet());
 
-        Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.contains(trip.getService().getId())).collect(Collectors.toSet());
+        Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.
+                contains(trip.getService().getId())).collect(Collectors.toSet());
 
         assertFalse(sundayTrips.isEmpty());
     }
@@ -221,19 +220,19 @@ public class TransportDataFromFilesTest {
         assertEquals(Stations.EndOfTheLine.size(), filteredStations.size());
     }
 
+    @Ignore("Due to exception dates this no longer applies")
     @Test
     public void shouldTestValidityOfCalendarImport() {
         List<Service> mondayServices = new LinkedList<>();
 
         for(Service svc : allServices) {
-            HashMap<DaysOfWeek, Boolean> days = svc.getDays();
-            boolean monday = days.get(DaysOfWeek.Monday);
+            Map<DayOfWeek, Boolean> days = svc.getDays();
+            boolean monday = days.get(DayOfWeek.MONDAY);
             if (monday) {
                 mondayServices.add(svc);
             }
         }
         assertTrue(mondayServices.size()>0);
-
     }
 
     @Test
@@ -266,6 +265,22 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
+    public void shouldLoadExceptionalDates() {
+        // adding in additional dates should result in no services without dates,
+        // without additional dates have some that operate on zero days
+        Set<Service> hasMissing = transportData.getServices().stream().filter(Service::HasMissingDates).collect(Collectors.toSet());
+        assertTrue(HasId.asIds(hasMissing), hasMissing.isEmpty());
+
+        // TODO How to improve this test
+//        long begin = transportData.getFeedInfo().validFrom().toEpochDay();
+//        long end = transportData.getFeedInfo().validUntil().toEpochDay();
+//
+//        allServices.stream().forEach(service -> {
+//
+//        });
+    }
+
+    @Test
     public void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Stations.Cornbrook);
 
@@ -282,7 +297,7 @@ public class TransportDataFromFilesTest {
 
         Set<Service> onDay = services.stream().
                 filter(service -> service.operatesOn(nextTuesday)).
-                filter(service -> service.getDays().get(DaysOfWeek.Tuesday)).
+                filter(service -> service.getDays().get(DayOfWeek.TUESDAY)).
                 collect(Collectors.toSet());
 
         TramTime time = TramTime.of(12, 0);

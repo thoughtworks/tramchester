@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class FeedInfoResourceTest {
-    public static LocalDate validFrom = LocalDate.of(2020, 5, 29); // year, month, day
+    public static LocalDate validFrom = LocalDate.of(2020, 5, 30); // year, month, day
     public static LocalDate validUntil = LocalDate.of(2020, 7, 28);
 
     @ClassRule

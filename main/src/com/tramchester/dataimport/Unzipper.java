@@ -51,7 +51,7 @@ public class Unzipper {
         }
         File unpackTarget = name.toFile();
         if (unpackTarget.exists()) {
-            logger.info(absolutePath + " already exists");
+            logger.debug(absolutePath + " already exists");
             long epochMilli = unpackTarget.lastModified();
             boolean modTime = zipEntry.getLastModifiedTime().toMillis() == epochMilli;
             boolean size = zipEntry.getSize() == unpackTarget.length();
@@ -62,7 +62,7 @@ public class Unzipper {
                 logger.warn("File exists but size does not match");
             }
             if (modTime&&size) {
-                logger.info("Not over-writing " + absolutePath);
+                logger.debug("Not over-writing " + absolutePath);
                 return;
             }
             logger.warn("Deleting " + absolutePath);

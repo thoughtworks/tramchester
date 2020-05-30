@@ -223,6 +223,29 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     @Test
+    public void shouldcleanseCalendarDates() throws IOException {
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate date = LocalDate.parse("20151025", dateFormatter);
+        CalendarDateData dayA = new CalendarDateData("svcIDA",date, 1);
+        CalendarDateData dayB = new CalendarDateData("svcIDB",date, 2);
+        CalendarDateData dayC = new CalendarDateData("svcIDC",date, 3);
+
+        Stream<CalendarDateData> dataStream = Stream.of(dayA, dayB, dayC);
+        EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
+
+        CalendarDatesDataMapper calendarDataMapper = new CalendarDatesDataMapper(Collections.emptySet());
+        EasyMock.expect(reader.getCalendarDates(calendarDataMapper)).andReturn(dataStream);
+        validateWriter("calendar_dates", "svcIDA,20151025,1",
+                "svcIDB,20151025,2",
+                "svcIDC,20151025,3");
+
+        replayAll();
+        cleanser.cleanseCalendarDates(calendarDataMapper);
+        verifyAll();
+    }
+
+    @Test
     public void shouldLeaveFeedInfoLinesUntouched() throws IOException {
 
         FeedInfo lineA = new FeedInfo("pubA", "urlA", "tzA", "landA", LocalDate.of(2016,11,29),
