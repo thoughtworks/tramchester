@@ -18,10 +18,10 @@ public class Service implements HasId {
     private final String serviceId;
     private final Route route;
     private final Set<Trip> trips;
-
-    private final Map<DayOfWeek, Boolean> days;
     private TramServiceDate startDate;
     private TramServiceDate endDate;
+
+    private final Set<DayOfWeek> days;
     private final Set<LocalDate> additional;
     private final Set<LocalDate> removed;
 
@@ -32,7 +32,7 @@ public class Service implements HasId {
         this.serviceId = serviceId.intern();
         this.route = route;
         this.trips = new LinkedHashSet<>();
-        this.days = new HashMap<>();
+        this.days = new HashSet<>();
         this.additional = new HashSet<>();
         this.removed = new HashSet<>();
         earliestDepart = null;
@@ -52,19 +52,19 @@ public class Service implements HasId {
     }
 
     public void setDays(boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
-        days.put(DayOfWeek.MONDAY, monday);
-        days.put(DayOfWeek.TUESDAY, tuesday);
-        days.put(DayOfWeek.WEDNESDAY, wednesday);
-        days.put(DayOfWeek.THURSDAY, thursday);
-        days.put(DayOfWeek.FRIDAY, friday);
-        days.put(DayOfWeek.SATURDAY, saturday);
-        days.put(DayOfWeek.SUNDAY, sunday);
+        maybeDay(monday, DayOfWeek.MONDAY);
+        maybeDay(tuesday, DayOfWeek.TUESDAY);
+        maybeDay(wednesday, DayOfWeek.WEDNESDAY);
+        maybeDay(thursday, DayOfWeek.THURSDAY);
+        maybeDay(friday, DayOfWeek.FRIDAY);
+        maybeDay(saturday, DayOfWeek.SATURDAY);
+        maybeDay(sunday, DayOfWeek.SUNDAY);
     }
 
-    // TODO should not call this without specific dates due to Exception Dates from calendar_dates.txt
-    @Deprecated
-    public Map<DayOfWeek, Boolean> getDays() {
-        return days;
+    private void maybeDay(boolean flag, DayOfWeek dayOfWeek) {
+        if (flag) {
+            days.add(dayOfWeek);
+        }
     }
 
     @Override
@@ -106,7 +106,7 @@ public class Service implements HasId {
         if (startDate.getDate().equals(LocalDate.MIN) && endDate.getDate().equals(LocalDate.MAX)) {
             return true;
         }
-        return days.values().stream().noneMatch(day -> day);
+        return days.isEmpty();
     }
 
     public void addExceptionDate(LocalDate exceptionDate, int exceptionType) {
@@ -121,15 +121,13 @@ public class Service implements HasId {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Service service = (Service) o;
-
-        return !(serviceId != null ? !serviceId.equals(service.serviceId) : service.serviceId != null);
+        return serviceId.equals(service.serviceId);
     }
 
     @Override
     public int hashCode() {
-        return serviceId != null ? serviceId.hashCode() : 0;
+        return Objects.hash(serviceId);
     }
 
     public boolean operatesOn(LocalDate queryDate) {
@@ -143,8 +141,7 @@ public class Service implements HasId {
         LocalDate begin = startDate.getDate();
         LocalDate end = endDate.getDate();
         if  (queryDate.isAfter(begin) && queryDate.isBefore(end)) {
-            DayOfWeek queryDay = queryDate.getDayOfWeek();
-            return days.get(queryDay);
+            return days.contains(queryDate.getDayOfWeek());
         }
         if (queryDate.equals(begin) || queryDate.equals(end)) {
             return true;
@@ -199,7 +196,7 @@ public class Service implements HasId {
     private String reportDays() {
         StringBuilder found = new StringBuilder();
         for (int i = 0; i < DayOfWeek.values().length; i++) {
-            if (days.get(DayOfWeek.values()[i])) {
+            if (days.contains(DayOfWeek.values()[i])) {
                 if (found.length()>0) {
                     found.append(",");
                 }

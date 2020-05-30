@@ -100,7 +100,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     private void populateCalendars(Stream<CalendarData> calendars, Stream<CalendarDateData> calendarsDates) {
-        calendars.forEach((calendar) -> {
+        calendars.forEach(calendar -> {
             Service service = services.get(calendar.getServiceId());
 
             if (service != null) {

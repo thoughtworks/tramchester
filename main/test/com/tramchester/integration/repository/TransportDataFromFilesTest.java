@@ -93,10 +93,8 @@ public class TransportDataFromFilesTest {
         Set<Service> results = transportData.getServicesOnDate(date);
 
         assertFalse(results.isEmpty());
-        long saturdays = results.stream().filter(svc -> svc.getDays().get(DayOfWeek.SATURDAY)).count();
-        assertEquals(results.size(), saturdays);
-        long onDate = results.stream().filter(svc -> svc.operatesOn(nextSaturday)).count();
-        assertEquals(results.size(), onDate);
+        long onCorrectDate = results.stream().filter(svc -> svc.operatesOn(nextSaturday)).count();
+        assertEquals("should all be on the specified date", results.size(), onCorrectDate);
 
         LocalDate noTramsDate = transportData.getFeedInfo().validUntil().plusMonths(12);
         results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
