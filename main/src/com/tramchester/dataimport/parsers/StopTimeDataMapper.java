@@ -11,7 +11,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class StopTimeDataMapper implements CSVEntryMapper<StopTimeData> {
+public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
     private static final Logger logger = LoggerFactory.getLogger(StopTimeDataMapper.class);
     private final Set<String> tripIds;
     private final boolean includeAll;

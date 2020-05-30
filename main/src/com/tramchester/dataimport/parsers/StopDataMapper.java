@@ -5,7 +5,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.util.Set;
 
-public class StopDataMapper implements CSVEntryMapper<StopData> {
+public class StopDataMapper extends CSVEntryMapper<StopData> {
 
     public static String tramStation = " (Manchester Metrolink)";
     private final boolean includeAll;

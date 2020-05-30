@@ -12,10 +12,10 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CalendarDataParserTest {
-    private String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
+    private final String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
 
     @Test
-    public void shouldParseTrip() throws IOException {
+    public void shouldParseCalendarEntry() throws IOException {
         CalendarDataMapper calendarParserTest = new CalendarDataMapper(Collections.emptySet());
 
         CalendarData calendarData = calendarParserTest.parseEntry(ParserBuilder.getRecordFor(calendar));

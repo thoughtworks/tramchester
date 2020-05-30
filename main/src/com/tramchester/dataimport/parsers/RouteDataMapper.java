@@ -11,7 +11,7 @@ import static com.tramchester.dataimport.data.RouteData.BUS_TYPE;
 import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
 import static java.lang.String.format;
 
-public class RouteDataMapper implements CSVEntryMapper<RouteData> {
+public class RouteDataMapper extends CSVEntryMapper<RouteData> {
     private static final Logger logger = LoggerFactory.getLogger(RouteDataMapper.class);
 
     private final Set<String> agencies;

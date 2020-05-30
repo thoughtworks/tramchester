@@ -5,7 +5,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.util.Set;
 
-public class TripDataMapper implements CSVEntryMapper<TripData> {
+public class TripDataMapper extends CSVEntryMapper<TripData> {
 
     private final Set<String> routeCodes;
     private final boolean includeAll;

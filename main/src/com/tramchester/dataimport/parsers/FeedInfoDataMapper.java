@@ -11,9 +11,9 @@ import java.time.format.DateTimeFormatter;
 
 import static java.lang.String.format;
 
-public class FeedInfoDataMapper implements CSVEntryMapper<FeedInfo> {
+public class FeedInfoDataMapper extends CSVEntryMapper<FeedInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FeedInfoDataMapper.class);
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
     private final ProvidesNow providesNow;
 
     public FeedInfoDataMapper(ProvidesNow providesNow) {
@@ -26,8 +26,8 @@ public class FeedInfoDataMapper implements CSVEntryMapper<FeedInfo> {
         String publisherUrl = data.get(1);
         String timezone = data.get(2);
         String lang = data.get(3);
-        LocalDate validFrom = parseDate(data.get(4), providesNow);
-        LocalDate validTo = parseDate(data.get(5), providesNow);
+        LocalDate validFrom = parseDate(data.get(4), providesNow.getDate(), logger);
+        LocalDate validTo = parseDate(data.get(5), providesNow.getDate(), logger);
         String version = data.get(6);
 
         return new FeedInfo(publisherName, publisherUrl, timezone, lang, validFrom, validTo, version);
@@ -38,12 +38,5 @@ public class FeedInfoDataMapper implements CSVEntryMapper<FeedInfo> {
         return true;
     }
 
-    private LocalDate parseDate(String str, ProvidesNow providesNow) {
-        try {
-            return LocalDate.parse(str, formatter);
-        } catch (IllegalArgumentException unableToParse) {
-            logger.warn(format("Unable to parse %s as a date", str), unableToParse);
-            return providesNow.getDate();
-        }
-    }
+
 }

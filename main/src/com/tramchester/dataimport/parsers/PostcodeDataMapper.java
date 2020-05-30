@@ -3,7 +3,7 @@ package com.tramchester.dataimport.parsers;
 import com.tramchester.dataimport.data.PostcodeData;
 import org.apache.commons.csv.CSVRecord;
 
-public class PostcodeDataMapper implements CSVEntryMapper<PostcodeData> {
+public class PostcodeDataMapper extends CSVEntryMapper<PostcodeData> {
     //Header:
     // Postcode,Positional_quality_indicator,Eastings,Northings,Country_code,NHS_regional_HA_code,
     //                                      NHS_HA_code,Admin_county_code,Admin_district_code,Admin_ward_code
