@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 
 public class TransportDataReader {
 
-
     public enum InputFiles {
         trips, stops, routes, feed_info, calendar, stop_times, calendar_dates;
     }

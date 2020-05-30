@@ -2,6 +2,12 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.Dependencies;
+import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.DataLoaderFactory;
+import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.TransportDataReaderFactory;
+import com.tramchester.dataimport.data.CalendarDateData;
+import com.tramchester.dataimport.parsers.CalendarDatesDataMapper;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -22,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.Assert.*;
@@ -266,18 +273,23 @@ public class TransportDataFromFilesTest {
 
     @Test
     public void shouldLoadExceptionalDates() {
-        // adding in additional dates should result in no services without dates,
-        // without additional dates have some that operate on zero days
-        Set<Service> hasMissing = transportData.getServices().stream().filter(Service::HasMissingDates).collect(Collectors.toSet());
-        assertTrue(HasId.asIds(hasMissing), hasMissing.isEmpty());
+        Set<String> servicesToLoad = allServices.stream().map(Service::getId).collect(Collectors.toSet());
 
-        // TODO How to improve this test
-//        long begin = transportData.getFeedInfo().validFrom().toEpochDay();
-//        long end = transportData.getFeedInfo().validUntil().toEpochDay();
-//
-//        allServices.stream().forEach(service -> {
-//
-//        });
+        TransportDataReaderFactory dataReaderFactory = dependencies.get(TransportDataReaderFactory.class);
+        TransportDataReader transportDataReader = dataReaderFactory.getForLoader();
+        Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(servicesToLoad));
+
+        calendarsDates.forEach(exception -> {
+            Service service = transportData.getServiceById(exception.getServiceId());
+            LocalDate exceptionDate = exception.getDate();
+            int exceptionType = exception.getExceptionType();
+            if (exceptionType == CalendarDateData.ADDED) {
+                assertTrue(service.operatesOn(exceptionDate));
+            } else if (exceptionType == CalendarDateData.REMOVED) {
+                assertFalse(service.operatesOn(exceptionDate));
+            }
+        });
+        calendarsDates.close();
     }
 
     @Test
