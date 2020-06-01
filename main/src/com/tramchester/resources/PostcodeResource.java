@@ -17,7 +17,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -36,7 +35,7 @@ public class PostcodeResource implements APIResource {
 
     @GET
     @Timed
-    @ApiOperation(value = "Return all routes", response = RouteDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Return all loaded (local) postcodes", response = RouteDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response getAll() {
         logger.info("Get all postcodes");
