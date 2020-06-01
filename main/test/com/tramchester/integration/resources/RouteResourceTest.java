@@ -1,7 +1,6 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.ProximityGroup;

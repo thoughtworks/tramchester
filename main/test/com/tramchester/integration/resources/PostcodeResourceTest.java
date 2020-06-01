@@ -1,0 +1,47 @@
+package com.tramchester.integration.resources;
+
+import com.tramchester.App;
+import com.tramchester.domain.presentation.DTO.PostcodeDTO;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.integration.IntegrationClient;
+import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationTramTestConfig;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.*;
+
+public class PostcodeResourceTest {
+
+    @ClassRule
+    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+
+    @Test
+    public void shouldGetAllPostcodes() {
+        String endPoint = "postcodes";
+        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
+
+        List<PostcodeDTO> results = response.readEntity(new GenericType<>(){});
+
+        assertFalse(results.isEmpty());
+
+        Optional<PostcodeDTO> found = results.stream().
+                filter(postcodeDTO -> postcodeDTO.getId().equals("M139WL")).findFirst();
+        assertTrue(found.isPresent());
+
+        PostcodeDTO result = found.get();
+
+        double lat = 53.4620378;
+        double lon = -2.2280871;
+
+        LatLong position = result.getLatLong();
+        assertEquals(lat, position.getLat(), 0.001);
+        assertEquals(lon, position.getLon(), 0.001);
+    }
+
+}

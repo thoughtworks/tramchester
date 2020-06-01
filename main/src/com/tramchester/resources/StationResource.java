@@ -12,7 +12,6 @@ import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;

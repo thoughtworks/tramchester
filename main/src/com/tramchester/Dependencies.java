@@ -98,6 +98,7 @@ public class Dependencies {
         picoContainer.addComponent(FileModTime.class);
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
+        picoContainer.addComponent(PostcodeResource.class);
         picoContainer.addComponent(DeparturesResource.class);
         picoContainer.addComponent(DeparturesMapper.class);
         picoContainer.addComponent(ClosedStations.class);
