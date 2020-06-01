@@ -28,7 +28,6 @@ public class ServiceHeuristics {
     private final ServiceReasons reasons;
     private final TramReachabilityRepository tramReachabilityRepository;
     private final int maxPathLength;
-//    private final List<Route> busRoutesSeen;
 
     private final StationRepository stationRepository;
     private final CachedNodeOperations nodeOperations;

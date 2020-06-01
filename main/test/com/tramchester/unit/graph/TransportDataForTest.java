@@ -3,16 +3,14 @@ package com.tramchester.unit.graph;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.TestEnv;
 
 import java.time.LocalDate;
@@ -265,11 +263,6 @@ public class TransportDataForTest implements TransportDataSource {
     @Override
     public Optional<Platform> getPlatformById(String platformId) {
         return Optional.ofNullable(platforms.get(platformId));
-    }
-
-    @Override
-    public List<AreaDTO> getAreas() {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override

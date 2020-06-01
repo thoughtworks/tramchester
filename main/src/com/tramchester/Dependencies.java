@@ -127,7 +127,6 @@ public class Dependencies {
         picoContainer.addComponent(FeedInfoResource.class);
         picoContainer.addComponent(RoutesMapper.class);
         picoContainer.addComponent(RouteResource.class);
-        picoContainer.addComponent(AreaResource.class);
         picoContainer.addComponent(LiveDataHTTPFetcher.class);
         picoContainer.addComponent(LiveDataParser.class);
         picoContainer.addComponent(LiveDataRepository.class);

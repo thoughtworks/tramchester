@@ -8,8 +8,6 @@ import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.AreaDTO;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
@@ -38,7 +36,6 @@ public class TransportDataFromFiles implements TransportDataSource {
     private final HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
     private final StationLocations stationLocations;
 
-    private final LinkedHashSet<AreaDTO> areas = new LinkedHashSet<>();
     private FeedInfo feedInfo = null;
 
     public TransportDataFromFiles(StationLocations stationLocations, Stream<StopData> stops, Stream<RouteData> rawRoutes,
@@ -96,7 +93,6 @@ public class TransportDataFromFiles implements TransportDataSource {
         routeStations.clear();
         agencies.clear();
         routes.clear();
-        areas.clear();
     }
 
     private void populateCalendars(Stream<CalendarData> calendars, Stream<CalendarDateData> calendarsDates) {
@@ -248,11 +244,8 @@ public class TransportDataFromFiles implements TransportDataSource {
                     station.addPlatform(platform);
                 }
             }
-            AreaDTO areaDTO = new AreaDTO(stop.getArea());
-            areas.add(areaDTO); // a set, so no dups
         });
-        logger.info("Loaded " + stationsById.size() + " stations " + platforms.size() + " tram platforms " +
-                areas.size() + " areas");
+        logger.info("Loaded " + stationsById.size() + " stations " + platforms.size() + " tram platforms ");
     }
 
     private Platform formPlatform(StopData stop) {
@@ -298,8 +291,7 @@ public class TransportDataFromFiles implements TransportDataSource {
     }
 
     public Set<Station> getStations() {
-        Set<Station> stationList = new HashSet<>(stationsById.values());
-        return stationList;
+        return new HashSet<>(stationsById.values());
     }
 
     @Override
@@ -376,11 +368,6 @@ public class TransportDataFromFiles implements TransportDataSource {
     public Set<Service> getServicesOnDate(TramServiceDate date) {
         return services.values().stream().
                 filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public List<AreaDTO> getAreas() {
-        return new LinkedList<>(areas);
     }
 
     public static class TransportDataStreams {

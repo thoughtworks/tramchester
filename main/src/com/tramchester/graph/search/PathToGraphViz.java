@@ -5,7 +5,10 @@ import com.tramchester.graph.GraphStaticKeys;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,9 +16,16 @@ import static java.lang.String.format;
 
 public class PathToGraphViz {
 
+    private static final Logger logger = LoggerFactory.getLogger(PathToGraphViz.class);
+
     private static final String prefixToRemove = Station.METROLINK_PREFIX + "MA";
 
     public static Set<RenderLater> map(Path path, ServiceReason serviceReason, boolean valid) {
+        if (!logger.isDebugEnabled()) {
+            // intermittent issue with Logged in ServiceReason incorrectly seeing debug enabled
+            logger.warn("map called but debug disabled");
+            return Collections.emptySet();
+        }
         Set<RenderLater> nodes = new HashSet<>();
         Set<RenderLater> edges = new HashSet<>();
         Iterable<Relationship> relationships = path.relationships();

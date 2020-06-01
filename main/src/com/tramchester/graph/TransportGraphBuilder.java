@@ -58,7 +58,7 @@ public class TransportGraphBuilder implements Startable {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, TRAM_STATION, BUS_STATION, AREA, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
+        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
     }
 
     // caching of various id's for peformance
@@ -278,14 +278,7 @@ public class TransportGraphBuilder implements Startable {
             stationNode.setProperty(GraphStaticKeys.ID, id);
             LatLong latLong = station.getLatLong();
             setLatLongFor(stationNode, latLong);
-
-            //graphBasebase.addToSpatialLayer(stationNode);
         }
-
-//        Node areaNode = getAreaNode(station.getArea());
-//        if (areaNode == null ) {
-//
-//        }
 
         return stationNode;
     }

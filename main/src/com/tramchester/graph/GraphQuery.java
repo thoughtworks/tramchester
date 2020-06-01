@@ -3,8 +3,6 @@ package com.tramchester.graph;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -13,13 +11,12 @@ import java.util.List;
 public class GraphQuery {
 
     // TODO REFACTOR Methods only used for tests into own class
-    private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
+    // private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
-    private GraphDatabase graphDatabase;
+    private final GraphDatabase graphDatabase;
 
     public GraphQuery(GraphDatabase graphDatabase) {
         this.graphDatabase = graphDatabase;
-        //this.spatialDatabaseService = spatialDatabaseService;
     }
 
     public Node getTramStationNode(String stationId) {
@@ -39,16 +36,8 @@ public class GraphQuery {
         return getNodeByLabel(id, Label);
     }
 
-    public Node getAreaNode(String id) {
-        return getNodeByLabel(id, TransportGraphBuilder.Labels.AREA);
-    }
-
     public Node getRouteStationNode(String id) {
         return getNodeByLabel(id, TransportGraphBuilder.Labels.ROUTE_STATION);
-    }
-
-    public Node getTimeNode(String id) {
-        return getNodeByLabel(id, TransportGraphBuilder.Labels.MINUTE);
     }
 
     public Node getHourNode(String id) {

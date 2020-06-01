@@ -13,7 +13,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.AreaDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -21,7 +20,10 @@ import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -109,17 +111,6 @@ public class TransportDataFromFilesTest {
         } catch (NoSuchElementException expected) {
             // no-op expected
         }
-    }
-
-    @Test
-    public void shouldGetAreas() {
-        List<AreaDTO> results = transportData.getAreas();
-        assertTrue(results.size() > 0 );
-        AreaDTO area = new AreaDTO("Manchester Airport");
-        assertTrue(results.contains(area));
-        // only once
-        long count = results.stream().filter(item -> item.equals(area)).count();
-        assertEquals(1, count);
     }
 
     @Test

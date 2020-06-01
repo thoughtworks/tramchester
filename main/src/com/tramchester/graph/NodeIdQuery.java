@@ -122,12 +122,6 @@ public final class NodeIdQuery implements ReportsCacheStats {
         return null;
     }
 
-    public Node getAreaNode(String areaName) {
-        // TODO Cache
-        Node node = graphQuery.getAreaNode(areaName);
-        return node;
-    }
-
     @Override
     public List<Pair<String, CacheStats>> stats() {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
