@@ -44,9 +44,6 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         this.graphDatabaseService = graphDatabaseService;
     }
 
-    @Context
-    UriInfo uri;
-
     @GET
     @Timed
     @ApiOperation(value = "Find quickest route", response = JourneyPlanRepresentation.class)
@@ -60,7 +57,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                   @QueryParam("arriveby") @DefaultValue("false") String arriveByRaw,
                                   @QueryParam("maxChanges") @DefaultValue("9999") String maxChangesRaw,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
-                                  @HeaderParam(RedirectHttpFilter.X_FORWARDED_PROTO) String forwardedHeader){
+                                  @HeaderParam(RedirectHttpFilter.X_FORWARDED_PROTO) String forwardedHeader,
+                                  @Context UriInfo uriInfo){
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));
 
@@ -68,7 +66,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         TramServiceDate queryDate = new TramServiceDate(date);
 
         boolean secure = forwardedHeader != null && forwardedHeader.toLowerCase().equals("https");
-        URI baseUri = uri.getBaseUri();
+        URI baseUri = uriInfo.getBaseUri();
 
         int maxChanges = Integer.parseInt(maxChangesRaw);
 

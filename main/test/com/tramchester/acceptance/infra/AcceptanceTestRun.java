@@ -12,7 +12,7 @@ import static java.lang.String.format;
 public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
 
     // if SERVER_URL env var not set then run against localhost
-    private Optional<String> serverURLFromEnv;
+    private final Optional<String> serverURLFromEnv;
     private final String localRunHost;
 
     public AcceptanceTestRun(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
@@ -34,7 +34,7 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     @Override
-    protected void before() {
+    protected void before() throws Exception {
         if (localRun()) {
             super.before();
         }
