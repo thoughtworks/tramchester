@@ -106,8 +106,13 @@
 
 .station-icon {
     border-radius:50%;
-    /* background:red; */
     border: 1px solid lightcoral;
+}
+
+.postcode-icon {
+    background-color: blue;
+    /* border-radius:50%;
+    border: 1px solid blue; */
 }
 
 .tram-icon {

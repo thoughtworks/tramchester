@@ -3,9 +3,9 @@ package com.tramchester.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.URI;
 
 import static java.lang.String.format;
 
@@ -47,7 +47,7 @@ public class UsesRecentCookie {
         }
     }
 
-    protected NewCookie createRecentCookie(Cookie cookie, String fromId, String endId) throws JsonProcessingException {
+    protected NewCookie createRecentCookie(Cookie cookie, String fromId, String endId, boolean secure, URI baseURI) throws JsonProcessingException {
         logger.info(format("Updating recent stations cookie with %s and %s ",fromId, endId));
         RecentJourneys recentJourneys = recentFromCookie(cookie);
         if (!isFromMyLocation(fromId)) {
@@ -57,9 +57,9 @@ public class UsesRecentCookie {
         recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, endId);
 
         int maxAgeSecs = 60 * 60 * 24 * 100;
-        return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper,recentJourneys)
-            , null, null, VERSION,
-                "tramchester recent journeys", maxAgeSecs, false);
+        return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper, recentJourneys)
+            , "/api", baseURI.getHost(), VERSION,
+                "tramchester recent journeys", maxAgeSecs, secure);
     }
 
     private boolean isFromMyLocation(String startId) {

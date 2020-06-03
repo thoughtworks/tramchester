@@ -1,9 +1,9 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
-import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -43,8 +43,8 @@ public class RouteResourceTest {
         List<StationDTO> ashtonRouteStations = ashtonRoute.getStations();
 
         assertEquals("3", ashtonRoute.getShortName().trim());
-        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Ashton, ProximityGroup.ALL)));
-        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Eccles, ProximityGroup.ALL)));
+        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Ashton, ProximityGroups.STOPS)));
+        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Eccles, ProximityGroups.STOPS)));
     }
 
     @Test

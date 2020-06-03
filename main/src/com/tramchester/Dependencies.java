@@ -10,6 +10,7 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
@@ -99,6 +100,7 @@ public class Dependencies {
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(PostcodeResource.class);
+        picoContainer.addComponent(ProximityGroups.class);
         picoContainer.addComponent(DeparturesResource.class);
         picoContainer.addComponent(DeparturesMapper.class);
         picoContainer.addComponent(ClosedStations.class);

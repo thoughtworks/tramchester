@@ -1,10 +1,10 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
-import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
@@ -37,7 +37,7 @@ public class RoutesMapper {
     private void populateDTOFor(Route route, List<RouteDTO> gather) {
         List<Station> calledAtStations = routeCallingStations.getStationsFor(route);
         List<StationDTO> stationDTOs = new ArrayList<>(calledAtStations.size());
-        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationDTO(calledAtStation, ProximityGroup.ALL)));
+        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationDTO(calledAtStation, ProximityGroups.STOPS)));
         gather.add(new RouteDTO(route.getName(), route.getShortName(), stationDTOs, mapper.map(route)));
     }
 

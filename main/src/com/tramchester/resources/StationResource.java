@@ -7,6 +7,7 @@ import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
@@ -45,17 +46,19 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final ClosedStations closedStations;
     private final StationRepository stationRepository;
     private final MyLocationFactory locationFactory;
+    private final ProximityGroups proximityGroups;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
-                           MyLocationFactory locationFactory, ProvidesNow providesNow) {
+                           MyLocationFactory locationFactory, ProvidesNow providesNow, ProximityGroups proximityGroups) {
         super(updateRecentJourneys, providesNow, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
         this.locationFactory = locationFactory;
+        this.proximityGroups = proximityGroups;
         allStationsSorted = new ArrayList<>();
     }
 
@@ -85,20 +88,20 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         List<StationDTO> displayStations = getStations().stream().
                 filter(station -> !recentJourneys.containsStationId(station.getId())).
-                map(station -> new StationDTO(station, ProximityGroup.ALL)).
+                map(station -> new StationDTO(station, ProximityGroups.STOPS)).
                 collect(Collectors.toList());
 
         recentJourneys.getRecentIds().forEach(recent -> {
             logger.info("Adding recent station to list " + recent);
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
-                displayStations.add(new StationDTO(stationRepository.getStation(recentId), ProximityGroup.RECENT));
+                displayStations.add(new StationDTO(stationRepository.getStation(recentId), ProximityGroups.RECENT));
             } else {
                 logger.warn("Unrecognised recent stationid " + recentId);
             }
         });
 
-        return Response.ok(new StationListDTO(displayStations, ProximityGroup.ALL_GROUPS)).build();
+        return Response.ok(new StationListDTO(displayStations, proximityGroups.getGroups())).build();
     }
 
     @GET
@@ -116,13 +119,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             logger.info("Adding recent station to list " + recent);
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
-                displayStations.add(new StationDTO(stationRepository.getStation(recentId), ProximityGroup.RECENT));
+                displayStations.add(new StationDTO(stationRepository.getStation(recentId), ProximityGroups.RECENT));
             } else {
                 logger.warn("Unrecognised recent stationid " + recentId);
             }
         });
 
-        return Response.ok(new StationListDTO(displayStations, Collections.singletonList(ProximityGroup.RECENT))).build();
+        return Response.ok(new StationListDTO(displayStations, Collections.singletonList(ProximityGroups.RECENT))).build();
     }
 
     @GET
@@ -143,17 +146,17 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
                 Station recentStation = stationRepository.getStation(recentId);
-                orderedStations.remove(new StationDTO(recentStation, ProximityGroup.ALL));
-                orderedStations.add(0, new StationDTO(recentStation, ProximityGroup.RECENT));
+                orderedStations.remove(new StationDTO(recentStation, ProximityGroups.STOPS));
+                orderedStations.add(0, new StationDTO(recentStation, ProximityGroups.RECENT));
             } else {
                 logger.warn("Unrecognised recent station id: " + recentId);
             }
         });
 
         MyLocation myLocation = locationFactory.create(latLong);
-        orderedStations.add(0, new StationDTO(myLocation, ProximityGroup.MY_LOCATION));
+        orderedStations.add(0, new StationDTO(myLocation, ProximityGroups.MY_LOCATION));
 
-        return Response.ok(new StationListDTO(orderedStations,ProximityGroup.ALL_GROUPS)).build();
+        return Response.ok(new StationListDTO(orderedStations, proximityGroups.getGroups())).build();
     }
 
     @GET
@@ -176,7 +179,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         // add nearby not in recents list
         nearestStations.forEach(near -> {
             if (!recentIds.contains(near.getId())) {
-                results.add(new StationDTO(near, ProximityGroup.NEAREST_STOPS));
+                results.add(new StationDTO(near, ProximityGroups.NEAREST_STOPS));
             }
         });
 
@@ -185,13 +188,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
                 Station recentStation = stationRepository.getStation(recentId);
-                results.add(0, new StationDTO(recentStation, ProximityGroup.RECENT));
+                results.add(0, new StationDTO(recentStation, ProximityGroups.RECENT));
             } else {
                 logger.warn("Unrecognised recent station id: " + recentId);
             }
         });
 
-        List<ProximityGroup> groups = Arrays.asList(ProximityGroup.RECENT, ProximityGroup.NEAREST_STOPS);
+        List<ProximityGroup> groups = Arrays.asList(ProximityGroups.RECENT, ProximityGroups.NEAREST_STOPS);
         return Response.ok(new StationListDTO(results, groups)).build();
     }
 

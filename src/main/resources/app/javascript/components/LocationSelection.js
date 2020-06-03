@@ -33,6 +33,7 @@ export default {
     },
     template: `
     <div>
+    <!-- trams -->
         <b-form-select v-bind:id="name+'Stop'"
                 :value="value"
                 v-on:input="updateValue($event)"
@@ -45,6 +46,7 @@ export default {
                 </option>
             </optgroup>
         </b-form-select>
+    <!-- buses -->
         <vue-bootstrap-typeahead
             class="mb-4"
             :data="stops"

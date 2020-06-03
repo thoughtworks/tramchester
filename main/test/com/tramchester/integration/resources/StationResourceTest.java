@@ -2,10 +2,10 @@ package com.tramchester.integration.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.presentation.DTO.DTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
@@ -66,10 +66,10 @@ public class StationResourceTest {
                 .collect(Collectors.groupingBy(StationDTO::getProximityGroup, Collectors.counting()));
 
         Long one = 1L;
-        assertEquals(one, stationGroups.get(ProximityGroup.MY_LOCATION));
-        assertTrue(stationGroups.get(ProximityGroup.NEAREST_STOPS) > 0);
+        assertEquals(one, stationGroups.get(ProximityGroups.MY_LOCATION));
+        assertTrue(stationGroups.get(ProximityGroups.NEAREST_STOPS) > 0);
         int ALL_STOPS_START = 7; // 6 + 1
-        assertEquals(ProximityGroup.ALL, stations.get(ALL_STOPS_START).getProximityGroup());
+        assertEquals(ProximityGroups.STOPS, stations.get(ALL_STOPS_START).getProximityGroup());
         assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
         StationDTO stationDTO = stations.get(ALL_STOPS_START + 1);
         assertEquals("Altrincham", stationDTO.getName());
@@ -82,12 +82,16 @@ public class StationResourceTest {
         assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());
 
         List<ProximityGroup> proximityGroups = stationListDTO.getProximityGroups();
+        checkProximityGroupsForTrams(proximityGroups);
+    }
+
+    private void checkProximityGroupsForTrams(List<ProximityGroup> proximityGroups) {
         assertEquals(4, proximityGroups.size());
         Set<String> names = proximityGroups.stream().map(ProximityGroup::getName).collect(Collectors.toSet());
-        assertTrue(names.contains(ProximityGroup.ALL.getName()));
-        assertTrue(names.contains(ProximityGroup.NEAREST_STOPS.getName()));
-        assertTrue(names.contains(ProximityGroup.RECENT.getName()));
-        assertTrue(names.contains(ProximityGroup.MY_LOCATION.getName()));
+        assertTrue(names.contains(ProximityGroups.STOPS.getName()));
+        assertTrue(names.contains(ProximityGroups.NEAREST_STOPS.getName()));
+        assertTrue(names.contains(ProximityGroups.RECENT.getName()));
+        assertTrue(names.contains(ProximityGroups.MY_LOCATION.getName()));
     }
 
     @Test
@@ -95,14 +99,14 @@ public class StationResourceTest {
         List<StationDTO> stations = getNearest(TestEnv.nearPiccGardens, Optional.empty()).getStations();
 
         StationDTO station = stations.get(0);
-        assertEquals(ProximityGroup.MY_LOCATION, station.getProximityGroup());
+        assertEquals(ProximityGroups.MY_LOCATION, station.getProximityGroup());
         assertEquals("MyLocationPlaceholderId", station.getId());
         String expectedArea = String.format("{\"lat\":%s,\"lon\":%s}",
                 TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon());
         assertEquals(expectedArea, station.getArea());
         assertEquals("My Location", station.getName());
         // the nearest stops show come next
-        assertEquals(ProximityGroup.NEAREST_STOPS, stations.get(1).getProximityGroup());
+        assertEquals(ProximityGroups.NEAREST_STOPS, stations.get(1).getProximityGroup());
 
     }
 
@@ -128,15 +132,10 @@ public class StationResourceTest {
         Collection<StationDTO> stations = stationListDTO.getStations();
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
-        stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo(ProximityGroup.ALL));
+        stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo(ProximityGroups.STOPS));
 
         List<ProximityGroup> proximityGroups = stationListDTO.getProximityGroups();
-        assertEquals(4, proximityGroups.size());
-        Set<String> names = proximityGroups.stream().map(ProximityGroup::getName).collect(Collectors.toSet());
-        assertTrue(names.contains(ProximityGroup.ALL.getName()));
-        assertTrue(names.contains(ProximityGroup.NEAREST_STOPS.getName()));
-        assertTrue(names.contains(ProximityGroup.RECENT.getName()));
-        assertTrue(names.contains(ProximityGroup.MY_LOCATION.getName()));
+        checkProximityGroupsForTrams(proximityGroups);
     }
 
     @Test
@@ -148,7 +147,7 @@ public class StationResourceTest {
         List<StationDTO> stations = getAll(Optional.of(cookie)).getStations();
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         assertEquals(1, stations.size());
-        assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
+        assertEquals(ProximityGroups.RECENT, stations.get(0).getProximityGroup());
     }
 
     @Test
@@ -160,7 +159,7 @@ public class StationResourceTest {
         List<StationDTO> stations = getNearest(TestEnv.nearPiccGardens, Optional.of(cookie)).getStations();
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         assertEquals(1, stations.size());
-        assertEquals(ProximityGroup.RECENT, stations.get(0).getProximityGroup());
+        assertEquals(ProximityGroups.RECENT, stations.get(0).getProximityGroup());
     }
 
     @Test
@@ -196,12 +195,12 @@ public class StationResourceTest {
         assertEquals(2, list.getProximityGroups().size());
 
         List<StationDTO> recents = list.getStations().stream().
-                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.RECENT)).collect(Collectors.toList());
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.RECENT)).collect(Collectors.toList());
         assertEquals(1, recents.size());
         assertEquals(Stations.Bury.getId(), recents.get(0).getId());
 
         List<StationDTO> nearby = list.getStations().stream().
-                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.NEAREST_STOPS)).collect(Collectors.toList());
         assertEquals(6, nearby.size());
 
         // add one of the nearby to the recents list
@@ -211,11 +210,11 @@ public class StationResourceTest {
         list = result.readEntity(StationListDTO.class);
 
         recents = list.getStations().stream().
-                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.RECENT)).collect(Collectors.toList());
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.RECENT)).collect(Collectors.toList());
         assertEquals(1, recents.size());
         assertEquals(Stations.PiccadillyGardens.getId(), recents.get(0).getId());
         nearby = list.getStations().stream().
-                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.NEAREST_STOPS)).collect(Collectors.toList());
         assertEquals(5, nearby.size());
 
         // switch locations, expect different nearby stations
@@ -224,7 +223,7 @@ public class StationResourceTest {
                 Optional.of(createRecentsCookieFor(Stations.PiccadillyGardens)), 200);
         list = result.readEntity(StationListDTO.class);
         List<StationDTO> updatedNearby = list.getStations().stream().
-                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroup.NEAREST_STOPS)).collect(Collectors.toList());
+                filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.NEAREST_STOPS)).collect(Collectors.toList());
         assertEquals(2, updatedNearby.size());
 
         Set<String> firstNearbyIds = nearby.stream().map(LocationDTO::getId).collect(Collectors.toSet());

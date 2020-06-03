@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 public class PostcodeDataImporter {
     // NOTE:
-    // Filters loaded postcodes with the bounds given by current set of StationLocations
+    // Filters load postcodes with the bounds given by current set of StationLocations
 
     // Useful geographic tram map at https://tfgm.com/public-transport/tram/geographical/network-map
 

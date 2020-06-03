@@ -41,7 +41,7 @@ function addStations() {
 
 function addStationsForRoute(route, stationIcon) {
     var stationLayerGroup = L.layerGroup();
-    var stationRender = L.canvas({ padding: 0.5 }); // todo needed??
+    //var stationRender = L.canvas({ padding: 0.5 }); 
 
     route.stations.forEach(station => {
         if (station.tram) {
@@ -52,6 +52,21 @@ function addStationsForRoute(route, stationIcon) {
         }
     });
     stationLayerGroup.addTo(mapApp.map);
+}
+
+function addPostcodes() {
+    var postcodeLayer = L.layerGroup();
+    var postcodeRender = L.canvas({ padding: 0.5 }); 
+
+    var postcodeIcon = L.divIcon({className: 'postcode-icon', iconSize:[1,1]});
+
+    mapApp.postcodes.forEach(postcode => {
+        var lat = postcode.latLong.lat;
+        var lon = postcode.latLong.lon;
+        var marker = new L.marker(L.latLng(lat,lon), { renderer: postcodeRender, title: postcode.name, icon: postcodeIcon })
+        postcodeLayer.addLayer(marker);
+    });
+    postcodeLayer.addTo(mapApp.map);
 }
 
 function addRoutes() {
@@ -66,7 +81,6 @@ function addRoutes() {
         routeLayerGroup.addLayer(line);
     })
     routeLayerGroup.addTo(mapApp.map);
-
 }
 
 function refreshTrams() {
@@ -113,8 +127,7 @@ function getTramTitle(tram, position) {
     }
 }
 
-
-
+// TODO use postcodes for this - although those are bounded server side
 function findAndSetMapBounds() {
     let minLat = 1000;
     let maxLat = -1000;
@@ -156,6 +169,7 @@ var mapApp = new Vue({
             positionsList: null,
             networkError: false,
             routes: [],
+            postcodes: [],
             tramLayerGroup: null,
             feedinfo: []
         }
@@ -182,21 +196,31 @@ var mapApp = new Vue({
         this.map = L.map('leafletMap');
 
         axios.get('/api/feedinfo')
-        .then(function (response) {
-            mapApp.networkError = false;
-            mapApp.feedinfo = response.data;
-        }).catch(function (error) {
-            mapApp.networkError = true;
-            console.log(error);
-        });
+            .then(function (response) {
+                mapApp.networkError = false;
+                mapApp.feedinfo = response.data;
+            }).catch(function (error) {
+                mapApp.networkError = true;
+                console.log(error);
+            });
         axios.get("/api/routes")
             .then(function (response) {
+                mapApp.networkError = false;
                 mapApp.routes = response.data;
                 mapApp.draw();
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
             });
+        // axios.get("/api/postcodes")
+        //     .then(function (response) {
+        //     mapApp.networkError = false;
+        //     mapApp.postcodes = response.data;
+        //     addPostcodes();
+        // }).catch(function (error){
+        //     mapApp.networkError = true;
+        //     console.log(error);
+        // });
 
     }, 
     computed: {

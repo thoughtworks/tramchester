@@ -174,7 +174,7 @@ task blockhost(dependsOn: cfnassist) {
     }
 }
 
-task buses(type:JavaExec) {
+task buses(type:JavaExec, dependsOn: 'webpack') {
     main = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     //maxHeapSize = "8000m"

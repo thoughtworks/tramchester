@@ -23,7 +23,7 @@ import java.nio.file.Paths;
 public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
     private final boolean enableGeo;
-    private Path locationStubJSON = Paths.get("geofile.json");
+    private final Path locationStubJSON = Paths.get("geofile.json");
 
     private final DesiredCapabilities capabilities;
     private ProvidesDateInput providesDateInput;

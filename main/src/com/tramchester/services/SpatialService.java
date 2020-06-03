@@ -1,10 +1,10 @@
 package com.tramchester.services;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +43,13 @@ public class SpatialService {
         }
 
         for (Station nearestStation : nearestStations) {
-            StationDTO displayStation = new StationDTO(nearestStation, ProximityGroup.NEAREST_STOPS);
+            StationDTO displayStation = new StationDTO(nearestStation, ProximityGroups.NEAREST_STOPS);
             reorderedStations.add(displayStation);
             seen.add(nearestStation);
         }
 
         List<StationDTO> remainingStations = sortedStations.stream().filter(station -> !seen.contains(station)).
-                map(station -> new StationDTO(station, ProximityGroup.ALL)).
+                map(station -> new StationDTO(station, ProximityGroups.STOPS)).
                 collect(Collectors.toList());
 
         reorderedStations.addAll(remainingStations);

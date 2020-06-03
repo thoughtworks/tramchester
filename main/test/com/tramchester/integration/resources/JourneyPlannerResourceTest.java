@@ -329,6 +329,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Map<String, NewCookie> cookies = response.getCookies();
         NewCookie recent = cookies.get("tramchesterRecent");
         assertNotNull(recent);
+        assertEquals("/api",recent.getPath());
+        assertEquals("localhost", recent.getDomain());
         String value = recent.toCookie().getValue();
         return RecentJourneys.decodeCookie(mapper,value);
     }

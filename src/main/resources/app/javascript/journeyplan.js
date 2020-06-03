@@ -17,7 +17,6 @@ import LiveDepartures from './components/LiveDepatures'
 import LocationSelection from './components/LocationSelection';
 
 const dateFormat = "YYYY-MM-DD";
-//const dateFormat = "DD-MM-YYYY";
 
 function getCurrentTime() {
     return moment().local().format("HH:mm");
@@ -27,8 +26,7 @@ function getCurrentDate() {
     return moment().format(dateFormat)
 }
 
-function stationsUrl(base, app) {
-    //var base = '/api/stations';
+function stationsUrl(app, base) {
     if (!app.hasGeo) {
         return base;
     }
@@ -39,12 +37,12 @@ function stationsUrl(base, app) {
     return base;
 }
 
-function livedataUrlFromLocation(app) {
+function livedataUrlFromLocation() {
     var place = app.location; // should not have location place holder without a valid location
     return '/api/departures/' + place.coords.latitude + '/' + place.coords.longitude;
 }
 
-function livedataUrl(app) {
+function livedataUrl() {
     if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
         return livedataUrlFromLocation(app)+'?querytime='+app.time;
     } else {
@@ -52,14 +50,14 @@ function livedataUrl(app) {
     }
 }
 
-function displayLiveData(app) {
+function displayLiveData() {
     var queryDate = moment(app.date, dateFormat);
     var today = moment();
     // check live data for today only - todo, into the API
     if (today.month()==queryDate.month()
         && today.year()==queryDate.year()
         && today.date()==queryDate.date()) {
-        queryLiveData(livedataUrl(app));
+        queryLiveData(livedataUrl());
     }
 }
 
@@ -79,12 +77,13 @@ function queryLiveData(url) {
 
 function getStationsFromServer(app) {
      axios
-         .get(stationsUrl('/api/stations', app))
+         .get(stationsUrl(app, '/api/stations'))
          .then(function (response) {
              app.networkError = false;
              app.proximityGroups = response.data.proximityGroups;
              app.stops = response.data.stations;
              app.ready = true;
+             //loadPostcodes();
          })
          .catch(function (error) {
              app.networkError = true;
@@ -93,12 +92,29 @@ function getStationsFromServer(app) {
          });
  }
 
- function updateStationsFromServer(app) {
+//  function loadPostcodes() {
+//      if (app.feedinfo.bus) {
+//         axios.get("/api/postcodes").then(function (response) {
+//             app.networkError = false;
+//             addPostcodes(response.data);
+//         }).catch(function (error){
+//             app.networkError = true;
+//             console.log(error);
+//         });
+//     }
+// }
+
+
+// function addPostcodes(postcodes) {
+//     app.stops = app.stops.concat(postcodes);
+// }
+
+ function updateStationsFromServer() {
     axios
-    .get(stationsUrl('/api/stations/update', app))
+    .get(stationsUrl(app, '/api/stations/update'))
         .then(function (response) {
             app.networkError = false;
-            refreshStops(app, response.data);
+            refreshStops(response.data);
             app.ready = true;
         })
         .catch(function (error) {
@@ -108,7 +124,7 @@ function getStationsFromServer(app) {
         });
  }
 
- function refreshStops(app, updates) {
+ function refreshStops(updates) {
     var updatedStops = updates.stations;
     var updatedProxGroups = updates.proximityGroups;
 
@@ -188,7 +204,7 @@ var app = new Vue({
             queryNearbyTrams() {
                 app.liveInProgress = true;
                 this.$nextTick(function () {
-                    queryLiveData(livedataUrlFromLocation(this)+'?notes=1');
+                    queryLiveData(livedataUrlFromLocation()+'?notes=1');
                 });
             },
             queryServer() {
@@ -212,10 +228,10 @@ var app = new Vue({
                         app.networkError = true;
                         console.log(error);
                     });
-                displayLiveData(this);
+                displayLiveData();
             },
             updateStations() {
-                updateStationsFromServer(this);
+                updateStationsFromServer();
             },
             setCookie() {
                 var cookie = { 'visited' : true };
@@ -241,7 +257,8 @@ var app = new Vue({
             axios.get('/api/feedinfo')
                 .then(function (response) {
                     app.networkError = false;
-                    app.feedinfo = response.data;})
+                    app.feedinfo = response.data;
+                })
                 .catch(function (error) {
                     this.networkError = true;
                     console.log(error);
@@ -257,6 +274,7 @@ var app = new Vue({
             } else {
                 getStationsFromServer(this);
             }
+
         },
         created() {
             if("geolocation" in navigator) {

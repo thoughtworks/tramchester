@@ -2,19 +2,14 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.RedirectHttpFilter;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.mappers.JourneysMapper;
-import com.tramchester.repository.TransportData;
 import com.tramchester.router.ProcessPlanRequest;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -24,9 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +44,9 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         this.graphDatabaseService = graphDatabaseService;
     }
 
+    @Context
+    UriInfo uri;
+
     @GET
     @Timed
     @ApiOperation(value = "Find quickest route", response = JourneyPlanRepresentation.class)
@@ -62,12 +59,16 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                   @QueryParam("lon") @DefaultValue("0") String lon,
                                   @QueryParam("arriveby") @DefaultValue("false") String arriveByRaw,
                                   @QueryParam("maxChanges") @DefaultValue("9999") String maxChangesRaw,
-                                  @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie){
+                                  @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
+                                  @HeaderParam(RedirectHttpFilter.X_FORWARDED_PROTO) String forwardedHeader){
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));
 
         LocalDate date = LocalDate.parse(departureDateRaw);
         TramServiceDate queryDate = new TramServiceDate(date);
+
+        boolean secure = forwardedHeader != null && forwardedHeader.toLowerCase().equals("https");
+        URI baseUri = uri.getBaseUri();
 
         int maxChanges = Integer.parseInt(maxChangesRaw);
 
@@ -89,7 +90,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                 }
 
                 Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
-                responseBuilder.cookie(createRecentCookie(cookie, startId, endId));
+                responseBuilder.cookie(createRecentCookie(cookie, startId, endId, secure, baseUri));
                 return responseBuilder.build();
             }
         } catch(Exception exception) {

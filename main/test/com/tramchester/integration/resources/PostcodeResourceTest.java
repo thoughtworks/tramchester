@@ -36,9 +36,11 @@ public class PostcodeResourceTest {
 
         PostcodeDTO result = found.get();
 
+        assertEquals("M13", result.getArea());
+        assertEquals("M139WL", result.getName());
+
         double lat = 53.4620378;
         double lon = -2.2280871;
-
         LatLong position = result.getLatLong();
         assertEquals(lat, position.getLat(), 0.001);
         assertEquals(lon, position.getLon(), 0.001);

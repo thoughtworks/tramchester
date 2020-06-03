@@ -23,7 +23,7 @@ public class PostcodeLocation implements Location {
 
     @Override
     public String getName() {
-        return null;
+        return id;
     }
 
     @Override
@@ -38,7 +38,16 @@ public class PostcodeLocation implements Location {
 
     @Override
     public String getArea() {
-        return null;
+        if (id.length()==5) {
+            return id.substring(0,2);
+        }
+        if (id.length()==6) {
+            return id.substring(0,3);
+        }
+        if (id.length()==7) {
+            return id.substring(0,4);
+        }
+        return id;
     }
 
     @Override

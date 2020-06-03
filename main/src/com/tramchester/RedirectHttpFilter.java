@@ -20,11 +20,12 @@ import static java.lang.String.format;
 
 public class RedirectHttpFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(RedirectHttpFilter.class);
+    public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
 
-    private TramchesterConfig config;
+    private final TramchesterConfig config;
 
     // no cert for these hosts
-    List<String> unsecureHosts = Arrays.asList("trambuster.com",
+    private List<String> unsecureHosts = Arrays.asList("trambuster.com",
             "trambuster.info",
             "trambuster.co.uk",
             "tramchester.co.uk",
@@ -41,7 +42,7 @@ public class RedirectHttpFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String header = httpServletRequest.getHeader("X-Forwarded-Proto"); // https is terminated by the ELB
+        String header = httpServletRequest.getHeader(X_FORWARDED_PROTO); // https is terminated by the ELB
         try {
             if (header != null) {
                 if ("http".equals(header.toLowerCase())) {
