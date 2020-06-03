@@ -259,9 +259,7 @@ task appium(type: Test) {
     }
 }
 
-task localAppium(type: Test) {
-    dependsOn 'webpack'
-    dependsOn 'compileJava'
+task localAppium(type: Test, dependsOn: ['webpack', 'compileJava']) {
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
     useJUnit()
