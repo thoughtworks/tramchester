@@ -35,7 +35,7 @@ public class PostcodeResource implements APIResource {
 
     @GET
     @Timed
-    @ApiOperation(value = "Return all loaded (local) postcodes", response = RouteDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Return all loaded (local) postcodes", response = PostcodeDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response getAll() {
         logger.info("Get all postcodes");
