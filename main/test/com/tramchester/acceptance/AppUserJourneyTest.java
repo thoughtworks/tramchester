@@ -416,6 +416,7 @@ public class AppUserJourneyTest {
         Cookie cookie = providesDriver.getCookieNamed("tramchesterVisited");
         assertNotNull("cookie null", cookie);
         assertNotNull("cookie null", cookie.getValue());
+
         String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
         assertEquals("{\"visited\":true}", cookieContents);
         assertTrue(appPage.waitForCookieAgreementInvisible());

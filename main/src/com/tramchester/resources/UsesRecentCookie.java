@@ -57,6 +57,7 @@ public class UsesRecentCookie {
         recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, endId);
 
         int maxAgeSecs = 60 * 60 * 24 * 100;
+        // NOTE: SameSite is set via ResponseCookieFilter as NewCookie can't set SameSite (yet, TODO)
         return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper, recentJourneys)
             , "/api", baseURI.getHost(), VERSION,
                 "tramchester recent journeys", maxAgeSecs, secure);

@@ -235,7 +235,7 @@ var app = new Vue({
             },
             setCookie() {
                 var cookie = { 'visited' : true };
-                this.$cookies.set("tramchesterVisited", cookie, "128d");
+                this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");
             },
             timeToNow() {
                 app.time = getCurrentTime();

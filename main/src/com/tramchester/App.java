@@ -5,11 +5,9 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.healthchecks.*;
+import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.VersionRepository;
-import com.tramchester.resources.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
@@ -41,7 +39,6 @@ public class App extends Application<AppConfiguration>  {
     private static final String SERVICE_NAME = "tramchester";
 
     private final Dependencies dependencies;
-    private ScheduledExecutorService executor;
 
     public App() {
         this.dependencies = new Dependencies();
@@ -106,12 +103,13 @@ public class App extends Application<AppConfiguration>  {
             System.exit(-1);
         }
 
-        ScheduledExecutorServiceBuilder builder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
-        executor = builder.build();
+        ScheduledExecutorServiceBuilder executorServiceBuilder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
+        ScheduledExecutorService executor = executorServiceBuilder.build();
 
-        environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(dependencies,executor));
+        environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(dependencies, executor));
 
         MutableServletContextHandler applicationContext = environment.getApplicationContext();
+
         // http -> https redirect
         if (configuration.getRedirectHTTP()) {
             RedirectHttpFilter redirectHttpFilter = new RedirectHttpFilter(configuration);
@@ -119,14 +117,16 @@ public class App extends Application<AppConfiguration>  {
                     "/*", EnumSet.of(DispatcherType.REQUEST));
         }
 
-        // / -> /app redirect
+        // / -> /app redirect for pages
         RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
         applicationContext.addFilter(new FilterHolder(redirectToAppFilter),
                 "/", EnumSet.of(DispatcherType.REQUEST));
+        filtersForStaticContent(environment);
 
         // api end points
         dependencies.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
-        filtersForStaticContent(environment);
+        // TOOD This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
+        environment.jersey().register(new ResponseCookieFilter());
 
         // initial load of live data
         LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
@@ -140,6 +140,7 @@ public class App extends Application<AppConfiguration>  {
                 (Gauge<Integer>) liveDataRepository::entriesWithMessages);
 
         CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
+        cacheMetrics.prepare();
 
         // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,

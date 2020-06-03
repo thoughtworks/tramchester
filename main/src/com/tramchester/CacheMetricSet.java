@@ -11,13 +11,16 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class CacheMetricSet {
-//    private final List<ReportsCacheStats> haveCacheStats;
-//    private final MetricRegistry registry;
+
+    private final List<ReportsCacheStats> haveCacheStats;
+    private final MetricRegistry registry;
 
     public CacheMetricSet(List<ReportsCacheStats> haveCacheStats, MetricRegistry registry) {
-//        this.haveCacheStats = haveCacheStats;
-//        this.registry = registry;
+        this.haveCacheStats = haveCacheStats;
+        this.registry = registry;
+    }
 
+    public void prepare() {
         haveCacheStats.forEach(reportsCacheStats -> register(registry, reportsCacheStats));
     }
 
