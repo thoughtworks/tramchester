@@ -51,7 +51,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
     private LocalDateTime now;
 

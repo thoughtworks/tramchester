@@ -10,7 +10,9 @@ public class ProximityGroup {
     public static final ProximityGroup RECENT = new ProximityGroup(2,"Recent");
     public static final ProximityGroup NEAREST_STOPS = new ProximityGroup(3,"Nearest Stops");
     public static final ProximityGroup ALL = new ProximityGroup(4,"All Stops");
+    public static final ProximityGroup POSTCODES = new ProximityGroup(5,"Postcodes");
 
+    // TODO Add postcodes
     public static final List<ProximityGroup> ALL_GROUPS =Arrays.asList(MY_LOCATION,RECENT,NEAREST_STOPS,ALL);
 
     private int order;

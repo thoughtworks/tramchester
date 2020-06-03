@@ -20,7 +20,7 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
     public RouteDataMapper(Set<String> agencies, boolean cleaning) {
         this.agencies = agencies;
         if (agencies.size()==0) {
-            if (!cleaning) {
+            if (cleaning) {
                 logger.warn("Loading all agencies and routes");
             }
             includeAll = true;
