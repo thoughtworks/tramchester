@@ -74,9 +74,6 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("createLocality")
     private boolean createLocality;
 
-    @JsonProperty("redirectHTTP")
-    private boolean redirectHTTP;
-
     @JsonProperty("secureHost")
     private String secureHost;
 
@@ -211,11 +208,6 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Override
     public String getLiveDataSubscriptionKey() { return liveDataSubscriptionKey; }
-
-    @Override
-    public boolean getRedirectHTTP() {
-        return redirectHTTP;
-    }
 
     @Override
     public String getSecureHost() {

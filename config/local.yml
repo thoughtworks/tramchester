@@ -13,7 +13,6 @@ server:
     bufferSize: 8KiB
     minimumEntitySize: 160B
 
-redirectHTTP: ${REDIRECTHTTP:- false}
 secureHost: tramchester.com
 
 rebuildGraph: true

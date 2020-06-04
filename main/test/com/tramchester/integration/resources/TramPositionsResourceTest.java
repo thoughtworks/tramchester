@@ -24,7 +24,7 @@ public class TramPositionsResourceTest {
     @Test
     public void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
-        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
 
         TramsPositionsDTO filtered = responce.readEntity(TramsPositionsDTO.class);
 
@@ -54,7 +54,7 @@ public class TramPositionsResourceTest {
     @Test
     public void shouldGetSomePositionsUnfiltered() {
         String endPoint = "positions?unfiltered=true";
-        Response responce = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
         TramsPositionsDTO unfiltered = responce.readEntity(TramsPositionsDTO.class);
 
         // should have some positions

@@ -110,20 +110,18 @@ public class App extends Application<AppConfiguration>  {
 
         MutableServletContextHandler applicationContext = environment.getApplicationContext();
 
-        // http -> https redirect
-        if (configuration.getRedirectHTTP()) {
-            RedirectHttpFilter redirectHttpFilter = new RedirectHttpFilter(configuration);
-            applicationContext.addFilter(new FilterHolder(redirectHttpFilter),
-                    "/*", EnumSet.of(DispatcherType.REQUEST));
-        }
+        // Redirect http -> https based on header set by ELB
+        RedirectToHttpsUsingELBProtoHeader redirectHttpFilter = new RedirectToHttpsUsingELBProtoHeader(configuration);
+        applicationContext.addFilter(new FilterHolder(redirectHttpFilter),
+                "/*", EnumSet.of(DispatcherType.REQUEST));
 
-        // / -> /app redirect for pages
+        // Redirect / -> /app
         RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
         applicationContext.addFilter(new FilterHolder(redirectToAppFilter),
                 "/", EnumSet.of(DispatcherType.REQUEST));
         filtersForStaticContent(environment);
 
-        // api end points
+        // api end points registration
         dependencies.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
         // TOOD This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());

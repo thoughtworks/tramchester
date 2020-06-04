@@ -2,7 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.RedirectHttpFilter;
+import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.time.ProvidesNow;
@@ -57,7 +57,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                   @QueryParam("arriveby") @DefaultValue("false") String arriveByRaw,
                                   @QueryParam("maxChanges") @DefaultValue("9999") String maxChangesRaw,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
-                                  @HeaderParam(RedirectHttpFilter.X_FORWARDED_PROTO) String forwardedHeader,
+                                  @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
                                   @Context UriInfo uriInfo){
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));

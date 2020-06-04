@@ -292,7 +292,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
         // journey to bury
-        Response response = IntegrationClient.getResponse(testRule,
+        Response response = IntegrationClient.getApiResponse(testRule,
                 String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
                 Optional.of(cookie), 200);
 
@@ -362,6 +362,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             }
             queryString = String.format("%s&lat=%f&lon=%f", queryString, latlong.getLat(), latlong.getLon());
         }
-        return IntegrationClient.getResponse(rule, queryString, Optional.empty(), 200);
+        return IntegrationClient.getApiResponse(rule, queryString, Optional.empty(), 200);
     }
 }

@@ -27,7 +27,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     //////
-    private List<String> closedStations = asList("St Peters Square");
+    private final List<String> closedStations = asList("St Peters Square");
 
     @Override
     public String getInstanceDataUrl() {
@@ -70,9 +70,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     public abstract Path getDataFolder();
-
-    @Override
-    public boolean getRedirectHTTP() { return false; }
 
     @Override
     public String getSecureHost() {

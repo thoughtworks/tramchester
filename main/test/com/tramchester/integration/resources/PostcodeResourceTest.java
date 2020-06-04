@@ -24,7 +24,7 @@ public class PostcodeResourceTest {
     @Test
     public void shouldGetAllPostcodes() {
         String endPoint = "postcodes";
-        Response response = IntegrationClient.getResponse(testRule, endPoint, Optional.empty(), 200);
+        Response response = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
 
         List<PostcodeDTO> results = response.readEntity(new GenericType<>(){});
 

@@ -1,7 +1,7 @@
 package com.tramchester.unit;
 
 
-import com.tramchester.RedirectHttpFilter;
+import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 public class RedirectHttpFilterTest extends EasyMockSupport {
 
-    private RedirectHttpFilter filter = new RedirectHttpFilter(new IntegrationTramTestConfig());
+    private RedirectToHttpsUsingELBProtoHeader filter = new RedirectToHttpsUsingELBProtoHeader(new IntegrationTramTestConfig());
     String path = "http://green.tramchester.co.uk/somethingelse";
     private String expected = "https://green.tramchester.com/somethingelse";
 

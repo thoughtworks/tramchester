@@ -1,6 +1,6 @@
 package com.tramchester;
 
-
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,13 +8,16 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
+import static com.tramchester.RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class RedirectToAppFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(RedirectToAppFilter.class);
+    public static final String ELB_HEALTH_CHECKER = "ELB-HealthChecker";
 
     public RedirectToAppFilter() {
     }
@@ -30,21 +33,43 @@ public class RedirectToAppFilter implements Filter {
         HttpServletResponse servletResponse = (HttpServletResponse) response;
         if (userAgent==null) {
             logger.warn("Got null user agent, request from " + request.getRemoteAddr());
-        } else if (userAgent.startsWith("ELB-HealthChecker")) {
+        } else if (userAgent.startsWith(ELB_HEALTH_CHECKER)) {
             servletResponse.setStatus(SC_OK);
             return;
         }
 
         String location = httpServletRequest.getRequestURL().toString().toLowerCase();
         URL url = new URL(location);
+
         if (url.getPath().equals("/")) {
-            String redirection = url.toString() + "app";
+            boolean forwardedSecure = isForwardedSecure(httpServletRequest);
+            String redirection = getRedirectURL(url, forwardedSecure);
+
             logger.info(format("Redirect from %s to %s", url, redirection));
             servletResponse.sendRedirect(redirection);
             return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    @NotNull
+    private String getRedirectURL(URL url, boolean forwardedSecure) throws MalformedURLException {
+        String redirection;
+        String protocol = url.getProtocol().toLowerCase();
+
+        if (forwardedSecure && "http".equals(protocol)) {
+            URL secureURL = new URL(url.toString().replace(protocol, "https"));
+            redirection = secureURL.toString() + "app";
+        } else {
+            redirection = url.toString() + "app";
+        }
+        return redirection;
+    }
+
+    private boolean isForwardedSecure(HttpServletRequest httpServletRequest) {
+        String header = httpServletRequest.getHeader(X_FORWARDED_PROTO); // https is terminated by the ELB
+        return header != null && "https".equals(header.toLowerCase());
     }
 
     @Override

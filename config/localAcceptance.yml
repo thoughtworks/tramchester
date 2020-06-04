@@ -7,7 +7,6 @@ server:
     type: http
     port: 8080
 
-redirectHTTP: ${REDIRECTHTTP:- false}
 secureHost: tramchester.com
 
 rebuildGraph: true

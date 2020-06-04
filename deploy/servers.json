@@ -23,14 +23,8 @@
 		"UAT":{ "keyName":"tramchester2", "webSize":"t2.micro" }, 
 		"ProdGreen":{ "keyName":"tramchester2", "webSize":"t2.micro" },
 		"ProdBlue":{ "keyName":"tramchester2", "webSize":"t2.micro" }
+		}
 	},
-	"redirectMap":{
-		"Dev":{ "keyName":"redirect", "flag":"false" }, 
-		"UAT":{ "keyName":"redirect", "flag":"true" }, 
-		"ProdGreen":{ "keyName":"redirect", "flag":"true" },
-		"ProdBlue":{ "keyName":"redirect", "flag":"true" }
-
-	}	}, 
 	"Resources":{
 	"webDoneWaitHandle":{
 		"Type":"AWS::CloudFormation::WaitConditionHandle", "Properties":{} }, 
@@ -66,8 +60,7 @@
 							"# ENV=", {"Ref":"env"}, "\n",
 							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "\n",
 							"# BUILD=", {"Ref":"build"}, "\n",
-							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n",
-							"# REDIRECTHTTP=", {"Fn::FindInMap":[ "redirectMap", { "Ref":"env" }, "flag" ]} , "\n"
+							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
 						]
 					]
 				}

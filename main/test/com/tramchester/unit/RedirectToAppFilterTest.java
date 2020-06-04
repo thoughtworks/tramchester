@@ -2,6 +2,7 @@ package com.tramchester.unit;
 
 
 import com.tramchester.RedirectToAppFilter;
+import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.Test;
@@ -14,7 +15,7 @@ import java.io.IOException;
 
 public class RedirectToAppFilterTest extends EasyMockSupport {
 
-    private RedirectToAppFilter filter = new RedirectToAppFilter();
+    private final RedirectToAppFilter filter = new RedirectToAppFilter();
 
     @Test
     public void shouldFilterIfMatchesRoot() throws IOException, ServletException {
@@ -62,6 +63,7 @@ public class RedirectToAppFilterTest extends EasyMockSupport {
         FilterChain chain = createMock(FilterChain.class);
 
         EasyMock.expect(request.getHeader("User-Agent")).andReturn(userAgent);
+        EasyMock.expect(request.getHeader(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO)).andReturn("http");
         EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
         response.sendRedirect(expected);
         EasyMock.expectLastCall();

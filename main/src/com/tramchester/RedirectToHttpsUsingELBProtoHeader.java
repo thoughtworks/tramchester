@@ -18,20 +18,20 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class RedirectHttpFilter implements Filter {
-    private static final Logger logger = LoggerFactory.getLogger(RedirectHttpFilter.class);
+public class RedirectToHttpsUsingELBProtoHeader implements Filter {
+    private static final Logger logger = LoggerFactory.getLogger(RedirectToHttpsUsingELBProtoHeader.class);
     public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
 
     private final TramchesterConfig config;
 
-    // no cert for these hosts
-    private List<String> unsecureHosts = Arrays.asList("trambuster.com",
+    // no cert for these hosts, redirect to secure domain
+    private final List<String> unsecureHosts = Arrays.asList("trambuster.com",
             "trambuster.info",
             "trambuster.co.uk",
             "tramchester.co.uk",
             "tramchester.info");
 
-    public RedirectHttpFilter(TramchesterConfig config) {
+    public RedirectToHttpsUsingELBProtoHeader(TramchesterConfig config) {
         this.config = config;
     }
 
@@ -46,7 +46,7 @@ public class RedirectHttpFilter implements Filter {
         try {
             if (header != null) {
                 if ("http".equals(header.toLowerCase())) {
-                    logger.info("found http header, need to redirect");
+                    logger.info("found http in " +X_FORWARDED_PROTO+ " need to redirect to https");
                     String location = mapUrl(httpServletRequest.getRequestURL().toString());
                     ((HttpServletResponse) response).sendRedirect(location);
                     return;
@@ -61,6 +61,7 @@ public class RedirectHttpFilter implements Filter {
     }
 
     public String mapUrl(String originalURL) throws URISyntaxException, MalformedURLException {
+        // Note: only called on initial redirection
         logger.debug("Mapping url "+originalURL);
         String result = "https"+ originalURL.substring(4);
 

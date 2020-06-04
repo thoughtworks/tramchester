@@ -43,9 +43,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // an assumed mph for walking
     public abstract double getWalkingMPH();
 
-    // direct traffic from http to https (not always true, is set false in deploys to dev)
-    public abstract boolean getRedirectHTTP();
-
     // the secure host, the one the certificate matches
     public abstract String getSecureHost();
 

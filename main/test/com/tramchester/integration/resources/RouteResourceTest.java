@@ -61,7 +61,7 @@ public class RouteResourceTest {
     }
 
     private List<RouteDTO> getRouteResponse() {
-        Response result = IntegrationClient.getResponse(testRule, "routes", Optional.empty(), 200);
+        Response result = IntegrationClient.getApiResponse(testRule, "routes", Optional.empty(), 200);
         return result.readEntity(new GenericType<>() {
         });
     }
