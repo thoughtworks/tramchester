@@ -42,8 +42,8 @@ repositories {
 }
 
 dependencies {
-    compile('io.dropwizard:dropwizard-core:' + dropwizardVersion)
-    compile 'org.picocontainer:picocontainer:2.15',
+    implementation('io.dropwizard:dropwizard-core:' + dropwizardVersion)
+    implementation 'org.picocontainer:picocontainer:2.15',
             'org.neo4j:neo4j:3.5.14',
             'org.neo4j:neo4j-slf4j:3.5.14',
             'com.github.cliftonlabs:json-simple:3.1.1',
@@ -60,10 +60,10 @@ dependencies {
             'software.amazon.awscdk:cdk-cx-api:1.31.0',
             'com.smoketurner:dropwizard-swagger:2.0.0-1'
     // javaee jax-rs implementation clashes with dropwizard
-    compile('org.geotools:gt-main:22.2')  { exclude group:'javax', module:'javaee-api'}
-    compile('org.geotools:gt-epsg-hsql:22.2')  { exclude group:'javax', module:'javaee-api'}
+    implementation('org.geotools:gt-main:22.2')  { exclude group:'javax', module:'javaee-api'}
+    implementation('org.geotools:gt-epsg-hsql:22.2')  { exclude group:'javax', module:'javaee-api'}
 
-    testCompile 'junit:junit:4.13',
+    testImplementation 'junit:junit:4.13',
             'org.assertj:assertj-core:1.2.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.2',

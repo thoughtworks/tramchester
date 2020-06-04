@@ -50,7 +50,23 @@ function livedataUrl() {
     }
 }
 
-function displayLiveData() {
+function saveTramStops(app) {
+    if (app.feedinfo.bus) {
+            app.stops.forEach(function(stop) { 
+                if (stop.tram) {
+                    app.tramStopIds.push(stop.id);
+                }
+        });
+    };
+}
+
+function displayLiveData(app) {
+    if (app.feedinfo.bus) {
+        if ( ! app.tramStopIds.includes(app.startStop)) {
+            app.liveDepartureResponse = null;
+            return; // only live data for trams
+        }
+    }
     var queryDate = moment(app.date, dateFormat);
     var today = moment();
     // check live data for today only - todo, into the API
@@ -69,9 +85,8 @@ function queryLiveData(url) {
                 app.liveInProgress = false;
             }).
             catch(function (error) {
-               app.networkError = true;
-               app.liveInProgress = false;
-               console.log(error);
+                app.liveInProgress = false;
+                reportError(error);
             });
 }
 
@@ -83,31 +98,29 @@ function getStationsFromServer(app) {
              app.proximityGroups = response.data.proximityGroups;
              app.stops = response.data.stations;
              app.ready = true;
-             //loadPostcodes();
+             saveTramStops(app);
+             loadPostcodes(app);
          })
          .catch(function (error) {
-             app.networkError = true;
-             app.ready = true;
-             console.log(error);
+            app.ready = true;
+            reportError(error);
          });
  }
 
-//  function loadPostcodes() {
-//      if (app.feedinfo.bus) {
-//         axios.get("/api/postcodes").then(function (response) {
-//             app.networkError = false;
-//             addPostcodes(response.data);
-//         }).catch(function (error){
-//             app.networkError = true;
-//             console.log(error);
-//         });
-//     }
-// }
+ function loadPostcodes(app) {
+     if (app.feedinfo.bus) {
+        axios.get("/api/postcodes").then(function (response) {
+            app.networkError = false;
+            addPostcodes(response.data);
+        }).catch(function (error){
+            reportError(error);
+        });
+    }
+}
 
-
-// function addPostcodes(postcodes) {
-//     app.stops = app.stops.concat(postcodes);
-// }
+function addPostcodes(postcodes) {
+    app.stops = app.stops.concat(postcodes);
+}
 
  function updateStationsFromServer() {
     axios
@@ -118,9 +131,8 @@ function getStationsFromServer(app) {
             app.ready = true;
         })
         .catch(function (error) {
-            app.networkError = true;
             app.ready = true;
-            console.log(error);
+            reportError(error);
         });
  }
 
@@ -150,13 +162,21 @@ function getStationsFromServer(app) {
             app.stops[i].proximityGroup = updatedStops[indexIntoUpdated].proximityGroup;
         }
     }
- 
+ }
+
+ function reportError(error) {
+    app.networkError = true;
+    console.log(error.message);
+    console.log("URL: " + error.request.responseURL);
+    console.log("File: " + error.fileName);
+    console.log("Line:" + error.lineNumber);
  }
 
  var data = {
     ready: false,                   // ready to respond
     stops: [],                      // all stops
     proximityGroups: [],
+    tramStopIds: [], // only used when buses enables, stores tram station ids
     startStop: null,
     endStop: null,
     arriveBy: false,
@@ -223,12 +243,11 @@ var app = new Vue({
                         app.searchInProgress = false;
                         }).
                     catch(function (error) {
-                        app.searchInProgress = false;
                         app.ready = true;
-                        app.networkError = true;
-                        console.log(error);
+                        app.searchInProgress = false;
+                        reportError(error);
                     });
-                displayLiveData();
+                displayLiveData(app);
             },
             updateStations() {
                 updateStationsFromServer();
@@ -260,8 +279,7 @@ var app = new Vue({
                     app.feedinfo = response.data;
                 })
                 .catch(function (error) {
-                    this.networkError = true;
-                    console.log(error);
+                    reportError(error);
                 });
             if (this.hasGeo) {
                 navigator.geolocation.getCurrentPosition(pos => {
@@ -290,3 +308,5 @@ var app = new Vue({
             }
         }
     })
+
+
