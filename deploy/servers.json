@@ -112,8 +112,8 @@
 							"# ENV=", {"Ref":"env"}, "\n",
 							"# ARTIFACTSURL=", {"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "\n",
 							"# BUILD=", {"Ref":"build"}, "\n" ,
-							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n",
-							"# REDIRECTHTTP=", {"Fn::FindInMap":[ "redirectMap", { "Ref":"env" }, "flag" ]} , "\n"]
+							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
+						]
 					]
 				}
 			}, "SubnetId":{
