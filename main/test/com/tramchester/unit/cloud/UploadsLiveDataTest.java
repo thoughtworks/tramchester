@@ -34,7 +34,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
         s3facade = createStrictMock(ClientForS3.class);
         uploadsLiveData = new UploadsLiveData(s3facade);
         liveData = new LinkedList<>();
-        LiveDataRepositoryTest.addStationInfo(liveData, lastUpdateTime, "displayId", "platforId", "messageTxt", Stations.NavigationRoad);
+        LiveDataRepositoryTest.addStationInfoWithDueTram(liveData, lastUpdateTime, "displayId", "platforId", "messageTxt", Stations.NavigationRoad);
     }
 
     @Test

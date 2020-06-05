@@ -69,7 +69,7 @@ function displayLiveData(app) {
     }
     var queryDate = moment(app.date, dateFormat);
     var today = moment();
-    // check live data for today only - todo, into the API
+    // check live data for today only 
     if (today.month()==queryDate.month()
         && today.year()==queryDate.year()
         && today.date()==queryDate.date()) {

@@ -13,6 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
+import org.apache.commons.collections4.keyvalue.TiedMapEntry;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -36,12 +37,12 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats {
     // platformId -> StationDepartureInfo
     private final Cache<String, StationDepartureInfo> departureInfoCache;
     private final Set<String> uniquePlatformsSeen;
-    private LocalDateTime lastRefresh;
-    private List<LiveDataObserver> observers;
-
+    private final List<LiveDataObserver> observers;
     private final LiveDataFetcher fetcher;
     private final LiveDataParser parser;
     private final ProvidesNow providesNow;
+
+    private LocalDateTime lastRefresh;
 
     public LiveDataRepository(LiveDataFetcher fetcher, LiveDataParser parser, ProvidesNow providesNow) {
         this.fetcher = fetcher;
@@ -179,8 +180,9 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats {
     }
 
     private boolean withinTime(TramTime queryTime, LocalTime updateTime) {
-        TramTime limit = TramTime.of(updateTime).plusMinutes(TIME_LIMIT);
-        return queryTime.between(TramTime.of(updateTime), limit);
+        TramTime limitBefore = TramTime.of(updateTime.minusMinutes(TIME_LIMIT));
+        TramTime limitAfter = TramTime.of(updateTime.plusMinutes(TIME_LIMIT));
+        return queryTime.between(limitBefore, limitAfter);
     }
 
     public int upToDateEntries() {

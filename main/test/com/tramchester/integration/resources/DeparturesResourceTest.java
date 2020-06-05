@@ -30,7 +30,7 @@ public class DeparturesResourceTest {
     @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
-    private List<String> nearby = Arrays.asList(Stations.PiccadillyGardens.getName(),
+    private final List<String> nearby = Arrays.asList(Stations.PiccadillyGardens.getName(),
             Stations.StPetersSquare.getName(),
             Stations.Piccadilly.getName(),
             Stations.MarketStreet.getName(),
@@ -138,7 +138,7 @@ public class DeparturesResourceTest {
 
     @Test
     @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldGetNearbyDeparturesWithNotes() {
+    public void shouldNotGetNearIfOutsideOfThreshold() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
