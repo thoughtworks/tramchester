@@ -61,7 +61,7 @@ class TramPositionInferenceTest {
 
     // TODO rework this test to account for new 12 minutes frequency which is causing frequent intermittent failures
     @Test
-    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
+    @LiveDataMessagesCategory
     void shouldInferTramPosition() {
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
         // Guess this is down to signalling, track, etc.
@@ -84,7 +84,7 @@ class TramPositionInferenceTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
+    @LiveDataTestCategory
     void shouldInferAllTramPositions() {
         List<TramPosition> results = positionInference.inferWholeNetwork(date, time);
         long hasTrams = results.stream().filter(position -> !position.getTrams().isEmpty()).count();

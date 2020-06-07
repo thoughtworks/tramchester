@@ -10,10 +10,10 @@ import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.*;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
 import java.time.DayOfWeek;
@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class DeparturesResourceTest {
 
-    @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     private final List<String> nearby = Arrays.asList(Stations.PiccadillyGardens.getName(),
@@ -38,8 +38,8 @@ public class DeparturesResourceTest {
             "Shudehill");
 
     @Test
-    @Category(LiveDataTestCategory.class)
-    public void shouldGetDueTramsForStation() {
+    @LiveDataTestCategory
+    void shouldGetDueTramsForStation() {
         Station station = Stations.StPetersSquare;
 
         Response response = IntegrationClient.getApiResponse(
@@ -54,8 +54,8 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
-    public void shouldGetDueTramsForStationWithQuerytimeNow() {
+    @LiveDataTestCategory
+    void shouldGetDueTramsForStationWithQuerytimeNow() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
         Station station = Stations.MarketStreet;
 
@@ -65,8 +65,8 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
-    public void shouldGetDueTramsForStationWithQuerytimePast() {
+    @LiveDataTestCategory
+    void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
         Station station = Stations.MarketStreet;
 
@@ -75,8 +75,8 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
-    public void shouldGetDueTramsForStationWithQuerytimeFuture() {
+    @LiveDataTestCategory
+    void shouldGetDueTramsForStationWithQuerytimeFuture() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
         Station station = Stations.MarketStreet;
 
@@ -96,8 +96,8 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldGetNearbyDeparturesQuerytimeNow() {
+    @LiveDataMessagesCategory
+    void shouldGetNearbyDeparturesQuerytimeNow() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
@@ -106,8 +106,8 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldGetNearbyDeparturesQuerytimeFuture() {
+    @LiveDataMessagesCategory
+    void shouldGetNearbyDeparturesQuerytimeFuture() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
@@ -116,8 +116,8 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldGetNearbyDeparturesQuerytimePast() {
+    @LiveDataMessagesCategory
+    void shouldGetNearbyDeparturesQuerytimePast() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
@@ -137,8 +137,8 @@ public class DeparturesResourceTest {
     }
 
     @Test
-    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldNotGetNearIfOutsideOfThreshold() {
+    @LiveDataMessagesCategory
+    void shouldNotGetNearIfOutsideOfThreshold() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
@@ -158,24 +158,24 @@ public class DeparturesResourceTest {
         assertTrue(when.asLocalTime().isAfter(nowWithin5mins.asLocalTime()) );
 
         String nextDepart = departureDTO.getFrom();
-        assertTrue(nextDepart,nearby.contains(nextDepart));
+        assertTrue(nearby.contains(nextDepart), nextDepart);
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
 
         List<Note> notes = departureList.getNotes();
-        Assert.assertFalse(notes.isEmpty());
+        assertFalse(notes.isEmpty());
         // ignore closure message which is always present, also if today is weekend exclude that
         int ignore = 1;
         DayOfWeek dayOfWeek = TestEnv.LocalNow().toLocalDate().getDayOfWeek();
         if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
             ignore++;
         }
-        Assert.assertTrue((notes.size())-ignore>0);
+        assertTrue((notes.size())-ignore>0);
     }
 
     @Test
-    @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldGetDueTramsForStationNotesOnOrOff() {
+    @LiveDataMessagesCategory
+    void shouldGetDueTramsForStationNotesOnOrOff() {
         Response response = IntegrationClient.getApiResponse(
                 testRule, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()), Optional.empty(), 200);
         assertEquals(200, response.getStatus());

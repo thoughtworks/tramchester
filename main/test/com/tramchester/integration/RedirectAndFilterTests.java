@@ -3,13 +3,13 @@ package com.tramchester.integration;
 import com.tramchester.App;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.RedirectToAppFilter;
-import com.tramchester.integration.IntegrationTestRun;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -19,33 +19,34 @@ import java.net.URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class RedirectAndFilterTests {
-    @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+
     private URL base;
     private URL app;
 
-    @Before
-    public void onceBeforeEachTestRuns() throws MalformedURLException {
+    @BeforeEach
+    void onceBeforeEachTestRuns() throws MalformedURLException {
         base = new URL("http://localhost:" + testRule.getLocalPort());
         app = new URL("http://localhost:" + testRule.getLocalPort() + "/app");
     }
 
     @Test
-    public void shouldUnsecureRedirectToAppIfNoHeaderFromELB() throws IOException {
+    void shouldUnsecureRedirectToAppIfNoHeaderFromELB() throws IOException {
         HttpURLConnection connection = getConnection(base);
         connection.connect();
         int code = connection.getResponseCode();
         String location = connection.getHeaderField("Location");
         connection.disconnect();
 
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
-        assertTrue(location.startsWith("http://"));
-        assertTrue(location.endsWith("/app"));
+        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertTrue(location.startsWith("http://"));
+        Assertions.assertTrue(location.endsWith("/app"));
     }
 
     @Test
-    public void shouldSecureRedirect() throws IOException {
+    void shouldSecureRedirect() throws IOException {
         HttpURLConnection connection = getConnection(base);
         connection.setRequestProperty(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO, "http");
         connection.connect();
@@ -53,13 +54,13 @@ public class RedirectAndFilterTests {
         String location = connection.getHeaderField("Location");
         connection.disconnect();
 
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
-        assertTrue(location.startsWith("https://"));
-        assertTrue(location.endsWith("/"));
+        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertTrue(location.startsWith("https://"));
+        Assertions.assertTrue(location.endsWith("/"));
     }
 
     @Test
-    public void shouldSecureRedirectToAppWithHTTPS() throws IOException {
+    void shouldSecureRedirectToAppWithHTTPS() throws IOException {
         HttpURLConnection connection = getConnection(base);
         connection.setRequestProperty(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO, "https");
         connection.connect();
@@ -68,13 +69,13 @@ public class RedirectAndFilterTests {
         int code = connection.getResponseCode();
         connection.disconnect();
 
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
-        assertTrue(location.startsWith("https://"));
-        assertTrue(location.endsWith("/app"));
+        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertTrue(location.startsWith("https://"));
+        Assertions.assertTrue(location.endsWith("/app"));
     }
 
     @Test
-    public void shouldNotRedirectTheELBHealthCheck() throws IOException {
+    void shouldNotRedirectTheELBHealthCheck() throws IOException {
         HttpURLConnection connection = getConnection(base);
         connection.setRequestProperty("User-Agent",RedirectToAppFilter.ELB_HEALTH_CHECKER);
         connection.connect();
@@ -82,11 +83,11 @@ public class RedirectAndFilterTests {
         int code = connection.getResponseCode();
         connection.disconnect();
 
-        assertEquals(HttpStatus.SC_OK, code);
+        Assertions.assertEquals(HttpStatus.SC_OK, code);
     }
 
     @Test
-    public void shouldHaveNoRedirectionIfAppPresentAndSecure() throws IOException {
+    void shouldHaveNoRedirectionIfAppPresentAndSecure() throws IOException {
         HttpURLConnection connection = getConnection(app);
         connection.setRequestProperty(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO, "https");
         connection.connect();
@@ -94,11 +95,11 @@ public class RedirectAndFilterTests {
         int code = connection.getResponseCode();
         connection.disconnect();
 
-        assertEquals(HttpStatus.SC_OK, code);
+        Assertions.assertEquals(HttpStatus.SC_OK, code);
     }
 
     @Test
-    public void shouldRedirectionIfNotSecure() throws IOException {
+    void shouldRedirectionIfNotSecure() throws IOException {
         HttpURLConnection connection = getConnection(app);
         connection.setRequestProperty(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO, "http");
         connection.connect();
@@ -107,10 +108,10 @@ public class RedirectAndFilterTests {
         int code = connection.getResponseCode();
         connection.disconnect();
 
-        assertTrue(location.startsWith("https://"));
-        assertTrue(location.endsWith("/app"));
+        Assertions.assertTrue(location.startsWith("https://"));
+        Assertions.assertTrue(location.endsWith("/app"));
 
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
     }
 
     @NotNull

@@ -5,22 +5,23 @@ import com.tramchester.domain.presentation.Version;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import org.junit.ClassRule;
-import org.junit.Test;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
 
-
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class VersionResourceTest {
-    @ClassRule
+
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     @Test
-    public void shouldGetVersion() {
+    void shouldGetVersion() {
         String endPoint = "version";
 
         Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
@@ -31,7 +32,7 @@ public class VersionResourceTest {
         if (build==null) {
             build = "0";
         }
-        assertEquals(format("2.%s", build), version.getBuildNumber());
+        Assertions.assertEquals(format("2.%s", build), version.getBuildNumber());
     }
 
 }

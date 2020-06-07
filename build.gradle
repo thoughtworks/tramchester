@@ -194,6 +194,7 @@ task dev(type:JavaExec, dependsOn: 'webpack') {
 }
 
 task busTest(type: Test) {
+    // TODO Use Junit5 tags, replace with useJUnitPlatform
     useJUnit {
         includeCategories 'com.tramchester.testSupport.BusTest'
     }
@@ -213,8 +214,8 @@ task unit(type: Test, dependsOn: compileJava) {
 task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "1500m"
-    useJUnit {
-        excludeCategories "com.tramchester.testSupport.LiveDataMessagesCategory" // hopefully temporary exclusion
+    useJUnitPlatform {
+        excludeTags "liveDataMessages" // hopefully temporary exclusion
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -230,20 +231,20 @@ task integration(type: Test, dependsOn: compileJava) {
 task allStationsTest(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
-    useJUnit()
+    useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.integration.graph.RouteCalculatorTestAllJourneys"
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started" , "standardError", "standardOut"
+        events("passed", "skipped", "failed", "started" , "standardError", "standardOut")
     }
 }
 
 task buildGraphTest(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
-    useJUnit()
+    useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.integration.graph.GraphBuildAndStartTest"
     }
@@ -257,7 +258,7 @@ task appium(type: Test) {
     dependsOn 'allowhost'
     dependsOn 'compileJava'
     dependsOn 'webpack'
-    useJUnit()
+    useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.acceptance.*"
     }
@@ -273,7 +274,7 @@ task appium(type: Test) {
 task localAppium(type: Test, dependsOn: ['webpack', 'compileJava']) {
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
-    useJUnit()
+    useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.acceptance.*"
     }

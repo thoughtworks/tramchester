@@ -6,23 +6,24 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import org.junit.ClassRule;
-import org.junit.Test;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class PostcodeResourceTest {
 
-    @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     @Test
-    public void shouldGetAllPostcodes() {
+    void shouldGetAllPostcodes() {
         String endPoint = "postcodes";
         Response response = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
 

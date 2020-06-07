@@ -9,8 +9,9 @@ import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
-import org.junit.ClassRule;
-import org.junit.Test;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -18,21 +19,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class RouteResourceTest {
 
-    @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     @Test
-    public void shouldGetAllRoutes() {
+    void shouldGetAllRoutes() {
         List<RouteDTO> routes = getRouteResponse();
 
         // TODO Lockdown 14->12
         assertEquals(12, routes.size());
 
-        routes.forEach(route -> assertFalse("Route no stations "+route.getRouteName(),route.getStations().isEmpty()));
+        routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
        RouteDTO query = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
                 "shortName", new LinkedList<>(), "displayClass");
@@ -48,7 +49,7 @@ public class RouteResourceTest {
     }
 
     @Test
-    public void shouldListStationsInOrder() {
+    void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
         RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName", new LinkedList<>(), "displayClass");

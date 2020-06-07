@@ -66,14 +66,14 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
+    @LiveDataTestCategory
     void shouldFetchSomethingFromTFGM() {
         assertNotNull(payload);
         assertFalse(payload.isEmpty());
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
+    @LiveDataTestCategory
     void shouldFetchValidDataFromTFGMAPI() {
         List<StationDepartureInfo> departureInfos = parser.parse(payload);
 
@@ -94,7 +94,7 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
+    @LiveDataTestCategory
     void shouldHaveCrosscheckOnLiveDateDestinations() {
         List<StationDepartureInfo> departureInfos = parser.parse(payload);
 
@@ -113,7 +113,7 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
+    @LiveDataTestCategory
     @Disabled("Part of spike on character set encoding issue for live api")
     void checkCharacterEncodingOnResponse()  {
         String rawJSON = fetcher.fetch();

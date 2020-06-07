@@ -6,23 +6,26 @@ import com.tramchester.domain.presentation.TramPositionDTO;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import org.junit.ClassRule;
-import org.junit.Test;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class TramPositionsResourceTest {
-    @ClassRule
+
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     @Test
-    public void shouldGetSomePositionsFilteredByDefault() {
+    void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
         Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
 
@@ -46,13 +49,13 @@ public class TramPositionsResourceTest {
         long hasCost = positions.stream().filter(position -> position.getCost()>0).count();
         assertEquals(positions.size(), hasCost);
 
-        long departingTrams = positions.stream().map(position -> position.getTrams()).
-                flatMap(dueTrams -> dueTrams.stream()).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();
+        long departingTrams = positions.stream().map(TramPositionDTO::getTrams).
+                flatMap(Collection::stream).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();
         assertEquals(0, departingTrams);
     }
 
     @Test
-    public void shouldGetSomePositionsUnfiltered() {
+    void shouldGetSomePositionsUnfiltered() {
         String endPoint = "positions?unfiltered=true";
         Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
         TramsPositionsDTO unfiltered = responce.readEntity(TramsPositionsDTO.class);
@@ -65,8 +68,8 @@ public class TramPositionsResourceTest {
         // for unfiltered should have more positions than ones with trams
         assertTrue(positions.size() > positionsWithTrams);
 
-        long departingTrams = positions.stream().map(position -> position.getTrams()).
-                flatMap(dueTrams -> dueTrams.stream()).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();
+        long departingTrams = positions.stream().map(TramPositionDTO::getTrams).
+                flatMap(Collection::stream).filter(dueTram -> "Departing".equals(dueTram.getStatus())).count();
         assertEquals(0, departingTrams);
     }
 }

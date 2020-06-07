@@ -16,24 +16,25 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-@RunWith(Parameterized.class)
-public class PostcodeJourneyPlannerTest {
+class PostcodeJourneyPlannerTest {
 
     // TODO WIP
 
@@ -42,52 +43,49 @@ public class PostcodeJourneyPlannerTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private static final LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
     private LocationJourneyPlanner planner;
     private PostcodeRepository repository;
-    private JourneyRequest request;
     private PostcodeLocation centralLocation;
-    private TramTime planningTime;
+    private static final TramTime planningTime = TramTime.of(11, 42);
 
-    @Parameterized.Parameters(name="{index}: {0}")
-    public static Iterable<Boolean> data() {
-        return Arrays.asList(true, false);
-    }
-
-    @Parameterized.Parameter
-    public Boolean arriveBy;
-
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         TramchesterConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         planner = dependencies.get(LocationJourneyPlanner.class);
         repository = dependencies.get(PostcodeRepository.class);
-        planningTime = TramTime.of(11, 42);
-        request = new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, arriveBy);
+        //request = new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, arriveBy);
         centralLocation = repository.getPostcode(Postcodes.NearPiccadily);
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         tx.close();
     }
 
-    @Test
-    public void shouldHaveJourneyFromCentralPostcodeToBury() {
+    private static Stream<JourneyRequest> getRequest() {
+        return Stream.of(
+                new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, false),
+                new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, true));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getRequest")
+    void shouldHaveJourneyFromCentralPostcodeToBury(JourneyRequest request) {
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation.getLatLong(),
                 Stations.Bury, request);
 
@@ -96,11 +94,12 @@ public class PostcodeJourneyPlannerTest {
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
-        checkDepartBefore(journeySet);
+        checkDepartBefore(journeySet, request.getArriveBy());
     }
 
-    @Test
-    public void shouldHaveJourneyFromBuryToCentralPostcode() {
+    @ParameterizedTest
+    @MethodSource("getRequest")
+    void shouldHaveJourneyFromBuryToCentralPostcode(JourneyRequest request) {
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.Bury,
                 centralLocation.getLatLong(), request);
 
@@ -109,12 +108,13 @@ public class PostcodeJourneyPlannerTest {
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().get(0).getMode()));
-        checkDepartBefore(journeySet);
+        checkDepartBefore(journeySet, request.getArriveBy());
 
     }
 
-    @Test
-    public void shouldHavePostcodeToPostcodeJourney() {
+    @ParameterizedTest
+    @MethodSource("getRequest")
+    void shouldHavePostcodeToPostcodeJourney(JourneyRequest request) {
         PostcodeLocation buryPostcode = repository.getPostcode(Postcodes.CentralBury);
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation.getLatLong(),
                 buryPostcode.getLatLong(), request);
@@ -139,10 +139,10 @@ public class PostcodeJourneyPlannerTest {
                 assertEquals(TransportMode.Tram, stages.get(i).getMode());
             }
         });
-        checkDepartBefore(journeySet);
+        checkDepartBefore(journeySet, request.getArriveBy());
     }
 
-    private void checkDepartBefore(Set<Journey> journeySet) {
+    private void checkDepartBefore(Set<Journey> journeySet, boolean arriveBy) {
         if (arriveBy) {
             journeySet.forEach(journey -> journey.getStages().get(0).getFirstDepartureTime().isBefore(planningTime));
         }

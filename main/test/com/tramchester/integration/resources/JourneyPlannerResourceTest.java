@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.Note;
@@ -21,8 +21,13 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
@@ -35,40 +40,36 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.oneOf;
 import static org.joda.time.DateTimeConstants.SATURDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
-    @ClassRule
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
     private LocalDateTime now;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         when = TestEnv.nextTuesday(0);
         now = TestEnv.LocalNow();
     }
 
     @Test
-    public void shouldPlanSimpleJourneyFromAltyToCornbrook() {
+    void shouldPlanSimpleJourneyFromAltyToCornbrook() {
         TramTime departTime = TramTime.of(8, 15);
         checkAltyToCornbrook(departTime, false);
     }
 
     @Test
-    public void shouldPlanSimpleJourneyFromAltyToCornbrookArriveBy() {
+    void shouldPlanSimpleJourneyFromAltyToCornbrookArriveBy() {
         TramTime arriveByTime = TramTime.of(8, 15);
         checkAltyToCornbrook(arriveByTime, true);
     }
@@ -78,49 +79,49 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 arriveBy, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size() > 0);
+        Assertions.assertTrue(journeys.size() > 0);
         JourneyDTO journey = journeys.first();
         StageDTO firstStage = journey.getStages().get(0);
         DTO platform = firstStage.getPlatform();
         if (arriveBy) {
-            assertTrue(journey.getFirstDepartureTime().isBefore(queryTime));
+            Assertions.assertTrue(journey.getFirstDepartureTime().isBefore(queryTime));
         } else {
-            assertTrue(journey.getFirstDepartureTime().isAfter(queryTime));
+            Assertions.assertTrue(journey.getFirstDepartureTime().isAfter(queryTime));
         }
 
-        assertEquals("1", platform.getPlatformNumber());
-        assertEquals("Altrincham platform 1", platform.getName());
-        assertEquals(Stations.Altrincham.getId() + "1", platform.getId());
+        Assertions.assertEquals("1", platform.getPlatformNumber());
+        Assertions.assertEquals("Altrincham platform 1", platform.getName());
+        Assertions.assertEquals(Stations.Altrincham.getId() + "1", platform.getId());
     }
 
     @Test
-    public void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
+    void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
                 true, 3);
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
+            Assertions.assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
             // TODO lockdown less frequent services during lockdown mean threshhold here increased to 12
             if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<=12) {
                 found.add(journeyDTO);
             }
         });
-        assertFalse("no journeys found", found.isEmpty());
+        Assertions.assertFalse(found.isEmpty(), "no journeys found");
     }
 
     @Test
-    public void shouldGetNoResultsToAirportWhenLimitOnChanges() {
+    void shouldGetNoResultsToAirportWhenLimitOnChanges() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.ManAirport, new TramServiceDate(when), queryTime,
                 true, 0);
-        assertTrue(plan.getJourneys().isEmpty());
+        Assertions.assertTrue(plan.getJourneys().isEmpty());
     }
 
     @Test
-    @Category(LiveDataTestCategory.class)
-    public void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() {
+    @LiveDataTestCategory
+    void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() {
 
         // has to be NOW to get a hit on live data
         LocalTime currentLocalTime = ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalTime();
@@ -130,53 +131,53 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 false, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue("No journeys found, no trams running now??", journeys.size()>0);
+        Assertions.assertTrue(journeys.size()>0, "No journeys found, no trams running now??");
         JourneyDTO journey = journeys.first();
         StageDTO firstStage = journey.getStages().get(0);
         DTO platform = firstStage.getPlatform();
 
         // depends on up to date departure info and current query time
         StationDepartureInfoDTO departInfo = platform.getStationDepartureInfo();
-        assertNotNull("departInfo was null",departInfo);
+        Assertions.assertNotNull(departInfo, "departInfo was null");
         String expected = Stations.Altrincham.getId() + "1";
-        assertEquals("got "+departInfo.getStationPlatform(), expected,departInfo.getStationPlatform());
+        Assertions.assertEquals(expected,departInfo.getStationPlatform(), "got "+departInfo.getStationPlatform());
     }
 
-    @Ignore("Temporary: trams finish at 2300")
+    @Disabled("Temporary: trams finish at 2300")
     @Test
-    public void shouldReproLateNightIssueShudehillToAltrincham() {
+    void shouldReproLateNightIssueShudehillToAltrincham() {
         TramTime timeForQuery = TramTime.of(23,11);
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, new TramServiceDate(now.toLocalDate()), timeForQuery,
                 false, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size()>0);
+        Assertions.assertTrue(journeys.size()>0);
         journeys.forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime()));
+            Assertions.assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime()));
         });
     }
 
     @Test
-    public void shouldPlanSimpleJourneyFromAltyToAshton() {
+    void shouldPlanSimpleJourneyFromAltyToAshton() {
 
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when), TramTime.of(17,45),
                 false, 3);
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size()>0);
+        Assertions.assertTrue(journeys.size()>0);
         JourneyDTO journey = journeys.first();
 
         StageDTO firstStage = journey.getStages().get(0);
         DTO platform1 = firstStage.getPlatform();
 
-        assertEquals("1", platform1.getPlatformNumber());
-        assertEquals( "Altrincham platform 1", platform1.getName());
-        assertEquals( Stations.Altrincham.getId()+"1", platform1.getId());
+        Assertions.assertEquals("1", platform1.getPlatformNumber());
+        Assertions.assertEquals( "Altrincham platform 1", platform1.getName());
+        Assertions.assertEquals( Stations.Altrincham.getId()+"1", platform1.getId());
 
         StageDTO secondStage = journey.getStages().get(1);
         DTO platform2 = secondStage.getPlatform();
 
-        assertEquals("1", platform2.getPlatformNumber());
+        Assertions.assertEquals("1", platform2.getPlatformNumber());
         // multiple possible places to change depending on timetable etc
         assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
         assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.getId()+"1",
@@ -185,7 +186,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     @Test
-    public void testAltyToManAirportHasRealisticTranferAtCornbrook() throws TramchesterException {
+    void testAltyToManAirportHasRealisticTranferAtCornbrook() throws TramchesterException {
         int offsetToSunday = SUNDAY - when.getDayOfWeek().getValue();
         LocalDate nextSunday = when.plusDays(offsetToSunday).plusWeeks(1);
 
@@ -194,12 +195,12 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        assertTrue(journeys.size()>0);
+        Assertions.assertTrue(journeys.size()>0);
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
     }
 
     @Test
-    public void shouldWarnOnSaturdayAndSundayJourney() throws TramchesterException {
+    void shouldWarnOnSaturdayAndSundayJourney() throws TramchesterException {
         int offsetToSunday = SUNDAY-when.getDayOfWeek().getValue();
         LocalDate nextSunday = when.plusDays(offsetToSunday);
 
@@ -207,7 +208,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 TramTime.of(11,43), nextSunday);
 
         List<Note> notes = results.getNotes();
-        assertEquals(2, notes.size()); // include station closure message
+        Assertions.assertEquals(2, notes.size()); // include station closure message
         Note weekendNote = new Note(Note.NoteType.Weekend,"At the weekend your journey may be affected by improvement works."+ProvidesNotes.website);
         assertThat(notes, hasItem(weekendNote));
 
@@ -218,68 +219,68 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 TramTime.of(11,43), nextSaturday);
 
         notes = results.getNotes();
-        assertEquals(2,notes.size());
+        Assertions.assertEquals(2,notes.size());
         assertThat(notes, hasItem(weekendNote));
 
         JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11,43), nextSunday.plusDays(1));
         notes = notWeekendResult.getNotes();
-        assertEquals(1,notes.size());
+        Assertions.assertEquals(1,notes.size());
         assertThat(notes, not(hasItem(weekendNote)));
     }
 
-    @Ignore("Temporary: trams finish at 2300")
+    @Disabled("Temporary: trams finish at 2300")
     @Test
-    public void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
+    void shouldFindRouteVicToShawAndCrompton() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, when, TramTime.of(23,34));
     }
 
-    @Ignore("Temporary: trams finish at 2300")
+    @Disabled("Temporary: trams finish at 2300")
     @Test
-    public void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
+    void shouldFindRouteDeansgateToVictoria() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, when, TramTime.of(23,41));
     }
 
-    @Ignore("Temporary: trams finish at 2300")
+    @Disabled("Temporary: trams finish at 2300")
     @Test
-    public void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
+    void shouldFindEndOfDayTwoStageJourney() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, when, TramTime.of(22,56));
     }
 
-    @Ignore("Temporary: trams finish at 2300")
+    @Disabled("Temporary: trams finish at 2300")
     @Test
-    public void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
+    void shouldFindEndOfDayThreeStageJourney() throws TramchesterException {
         validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, when, TramTime.of(22,45));
     }
 
-    @Ignore("Temporary: trams finish at 2300")
+    @Disabled("Temporary: trams finish at 2300")
     @Test
-    public void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
+    void shouldOnlyReturnFullJourneysForEndOfDaysJourney() throws TramchesterException {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,
                 Stations.ManAirport, when, TramTime.of(23,5));
 
-        Assert.assertTrue(results.getJourneys().size()>0);
+        Assertions.assertTrue(results.getJourneys().size()>0);
     }
 
     @Test
-    public void shouldSetCookieForRecentJourney() throws IOException {
+    void shouldSetCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
         Response result = getResponseForJourney(testRule, start, end, time, date, null, false, 3);
 
-        assertEquals(200, result.getStatus());
+        Assertions.assertEquals(200, result.getStatus());
 
         RecentJourneys recentJourneys = getRecentJourneysFromCookie(result);
 
-        assertEquals(2,recentJourneys.getRecentIds().size());
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, now)));
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, now)));
+        Assertions.assertEquals(2,recentJourneys.getRecentIds().size());
+        Assertions.assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, now)));
+        Assertions.assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, now)));
     }
 
     @Test
-    public void shouldUdateCookieForRecentJourney() throws IOException {
+    void shouldUdateCookieForRecentJourney() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
@@ -296,20 +297,20 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
                 Optional.of(cookie), 200);
 
-        assertEquals(200, response.getStatus());
+        Assertions.assertEquals(200, response.getStatus());
 
         RecentJourneys result = getRecentJourneysFromCookie(response);
 
         // ashton, bury and man airport now in cookie
         Set<Timestamped> recents = result.getRecentIds();
-        assertEquals(3, recents.size());
-        assertTrue(recents.contains(new Timestamped(start, now)));
-        assertTrue(recents.contains(ashton));
-        assertTrue(recents.contains(new Timestamped(end, now)));
+        Assertions.assertEquals(3, recents.size());
+        Assertions.assertTrue(recents.contains(new Timestamped(start, now)));
+        Assertions.assertTrue(recents.contains(ashton));
+        Assertions.assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     @Test
-    public void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
+    void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         String start = MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
         String end = Stations.ManAirport.getId();
@@ -317,20 +318,20 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String date = now.toLocalDate().format(dateFormatDashes);
         Response response = getResponseForJourney(testRule, start, end, time, date, latlong, false, 3);
 
-        assertEquals(200, response.getStatus());
+        Assertions.assertEquals(200, response.getStatus());
         RecentJourneys result = getRecentJourneysFromCookie(response);
         Set<Timestamped> recents = result.getRecentIds();
-        assertEquals(1, recents.size());
+        Assertions.assertEquals(1, recents.size());
         // checks ID only
-        assertTrue(recents.contains(new Timestamped(end, now)));
+        Assertions.assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {
         Map<String, NewCookie> cookies = response.getCookies();
         NewCookie recent = cookies.get("tramchesterRecent");
-        assertNotNull(recent);
-        assertEquals("/api",recent.getPath());
-        assertEquals("localhost", recent.getDomain());
+        Assertions.assertNotNull(recent);
+        Assertions.assertEquals("/api",recent.getPath());
+        Assertions.assertEquals("localhost", recent.getDomain());
         String value = recent.toCookie().getValue();
         return RecentJourneys.decodeCookie(mapper,value);
     }
@@ -347,7 +348,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
         Response response = getResponseForJourney(rule, start.getId(), end.getId(), time, date,
                 null, arriveBy, maxChanges);
-        assertEquals(200, response.getStatus());
+        Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
