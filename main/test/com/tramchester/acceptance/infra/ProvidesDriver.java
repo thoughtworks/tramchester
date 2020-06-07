@@ -2,7 +2,6 @@ package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.domain.presentation.LatLong;
-import org.junit.rules.TestName;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -23,9 +22,9 @@ public abstract class ProvidesDriver {
     public abstract AppPage getAppPage();
     public abstract Cookie getCookieNamed(String name);
     public abstract void setStubbedLocation(LatLong place) throws IOException;
-    public abstract void commonAfter(TestName testName);
+    public abstract void commonAfter(String testName);
 
-    protected void takeScreenShot(TestName testName) {
+    protected void takeScreenShot(String testName) {
         TakesScreenshot driver = getDriver();
         if (driver==null) {
             return;
@@ -42,8 +41,8 @@ public abstract class ProvidesDriver {
         }
     }
 
-    private String safeFilename(TestName testName) {
-        String result = testName.getMethodName().
+    private String safeFilename(String testName) {
+        String result = testName.
                 replaceAll(":","_").
                 replaceAll(" ","");
         return result;

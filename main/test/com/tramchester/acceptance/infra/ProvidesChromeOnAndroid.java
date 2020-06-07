@@ -6,14 +6,14 @@ import com.tramchester.domain.presentation.LatLong;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
-import org.junit.rules.TestName;
-import org.openqa.selenium.*;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.InvalidArgumentException;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import java.io.IOException;
 
 public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
@@ -40,7 +40,7 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
             capabilities.setCapability(MobileCapabilityType.TAKES_SCREENSHOT, "true");
             capabilities.setCapability(MobileCapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.DISMISS);
 
-            driver = new AndroidDriver(capabilities);
+            driver = new AndroidDriver<>(capabilities);
         }
     }
 
@@ -53,7 +53,7 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     }
 
     @Override
-    public void commonAfter(TestName testName) {
+    public void commonAfter(String testName) {
         if (driver!=null) {
             takeScreenShot(testName);
             LogEntries logs = driver.manage().logs().get(LogType.BROWSER);

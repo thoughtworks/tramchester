@@ -215,7 +215,7 @@ task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "1500m"
     useJUnitPlatform {
-        excludeTags "liveDataMessages" // hopefully temporary exclusion
+        //excludeTags "liveDataMessages" // hopefully temporary exclusion
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -224,8 +224,6 @@ task integration(type: Test, dependsOn: compileJava) {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
-
-    forkEvery = 10 // bascially a workaround for memory growth over time, which TODO needs to get fixed!
 }
 
 task allStationsTest(type: Test, dependsOn: compileJava) {

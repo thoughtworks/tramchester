@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class DriverFactory {
 
-    private Map<String, ProvidesDriver> drivers;
+    private final Map<String, ProvidesDriver> drivers;
 
     public DriverFactory() {
         drivers = new HashMap<>();

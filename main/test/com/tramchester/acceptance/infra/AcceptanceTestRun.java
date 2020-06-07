@@ -3,13 +3,13 @@ package com.tramchester.acceptance.infra;
 import com.tramchester.config.AppConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.dropwizard.testing.junit5.DropwizardAppExtension;
 
 import java.util.Optional;
 
 import static java.lang.String.format;
 
-public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
+public class AcceptanceTestRun extends DropwizardAppExtension<AppConfiguration> {
 
     // if SERVER_URL env var not set then run against localhost
     private final Optional<String> serverURLFromEnv;
@@ -34,18 +34,18 @@ public class AcceptanceTestRun extends DropwizardAppRule<AppConfiguration> {
     }
 
     @Override
-    protected void before() throws Exception {
+    public void before() throws Exception {
         if (localRun()) {
             super.before();
         }
     }
 
     private boolean localRun() {
-        return !serverURLFromEnv.isPresent();
+        return serverURLFromEnv.isEmpty();
     }
 
     @Override
-    protected void after() {
+    public void after() {
         if (localRun()) {
             super.after();
         }

@@ -2,54 +2,47 @@ package com.tramchester.acceptance;
 
 import com.tramchester.App;
 import com.tramchester.acceptance.infra.AcceptanceTestRun;
-import com.tramchester.acceptance.infra.DriverFactory;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.integration.resources.FeedInfoResourceTest;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
-import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.openqa.selenium.Cookie;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Parameterized.class)
-public class AppUserJourneyTest {
-    private static final String configPath = "config/localAcceptance.yml";
-    private static DriverFactory driverFactory;
-
+@ExtendWith(DropwizardExtensionsSupport.class)
+public class AppUserJourneyTest extends UserJourneyTest {
     // NOTE: Needs correct locale settings, see .circleci/config.yml setupLocale target
 
-    @ClassRule
+    private static final String configPath = "config/localAcceptance.yml";
+
     public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
 
     private final String bury = Stations.Bury.getName();
     private final String altrincham = Stations.Altrincham.getName();
     private final String deansgate = Stations.Deansgate.getName();
-
-    @Rule
-    public TestName testName = new TestName();
-
-    private LocalDate nextTuesday;
-    private String url;
-    private ProvidesDriver providesDriver;
 
     // useful consts, keep around as can swap when timetable changes
     private static final String altyToBuryClass = "RouteClass1";
@@ -57,56 +50,40 @@ public class AppUserJourneyTest {
     private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
-    private static List<String> getBrowserList() {
-        if (!TestEnv.isCircleci()) {
-            return Arrays.asList("chrome", "firefox");
-        }
+    private LocalDate nextTuesday;
+    private String url;
 
-        // TODO - confirm this is still an issue
-        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
-        return Collections.singletonList("firefox");
+    @BeforeAll
+    static void beforeAnyTestsRun() {
+        createFactory();
     }
 
-    @Parameterized.Parameters(name="{index}: {0}")
-    public static Iterable<? extends Object> data() {
-        return getBrowserList();
+    private static Stream<ProvidesDriver> getProvider() {
+        return getProviderCommon(false);
     }
 
-    @Parameterized.Parameter
-    public String browserName;
-
-
-    @BeforeClass
-    public static void beforeAnyTestsRun() {
-        driverFactory = new DriverFactory();
-    }
-
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         url = testRule.getUrl()+"/app/index.html";
+        nextTuesday = TestEnv.nextTuesday(0); // TODO offset for when tfgm data is expiring
+    }
 
-        providesDriver = driverFactory.get(false, browserName);
+//    @AfterEach
+//    void afterEachTestRuns(TestInfo testInfo, ProvidesDriver providesDriver) {
+//        providesDriver.commonAfter(testInfo.getDisplayName());
+//    }
+
+    @AfterAll
+    static void afterAllTestsRun() {
+        closeFactory();
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldShowInitialCookieConsentAndThenDismiss(ProvidesDriver providesDriver) {
         providesDriver.init();
         providesDriver.clearCookies();
 
-        // TODO offset for when tfgm data is expiring
-        nextTuesday = TestEnv.nextTuesday(0);
-    }
-
-    @After
-    public void afterEachTestRuns() {
-        providesDriver.commonAfter(testName);
-    }
-
-    @AfterClass
-    public static void afterAllTestsRun() {
-        driverFactory.close();
-        driverFactory.quit();
-    }
-
-    @Test
-    public void shouldShowInitialCookieConsentAndThenDismiss() {
         AppPage appPage = providesDriver.getAppPage();
         appPage.load(url);
 
@@ -117,9 +94,10 @@ public class AppUserJourneyTest {
         assertTrue(appPage.waitForToStops());
     }
 
-    @Test
-    public void shouldHaveInitialValuesAndSetInputsSetCorrectly() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldHaveInitialValuesAndSetInputsSetCorrectly(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
 
         validateCurrentTimeIsSelected(appPage);
 
@@ -142,7 +120,7 @@ public class AppUserJourneyTest {
         LocalTime now = TestEnv.LocalNow().toLocalTime();
         int diff = Math.abs(now.toSecondOfDay() - timeOnPage.toSecondOfDay());
         // allow for page render and webdriver overheads
-        assertTrue(String.format("now:%s timeOnPage: %s diff: %s", now, timeOnPage, diff), diff <= 110);
+        assertTrue(diff <= 110, String.format("now:%s timeOnPage: %s diff: %s", now, timeOnPage, diff));
     }
 
     private LocalTime timeSelectedOnPage(AppPage appPage) {
@@ -150,9 +128,10 @@ public class AppUserJourneyTest {
         return LocalTime.parse(timeOnPageRaw);
     }
 
-    @Test
-    public void shouldTravelAltyToBuryAndSetRecents() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
         appPage.planAJourney();
 
@@ -182,9 +161,10 @@ public class AppUserJourneyTest {
         assertJourney(appPage, Stations.ExchangeSquare.getName(), Stations.PiccadillyGardens.getName(), "10:15", nextTuesday, false);
     }
 
-    @Test
-    public void shouldCheckAltrinchamToDeansgate() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
         LocalTime planTime = LocalTime.parse("10:00");
         desiredJourney(appPage, altrincham, deansgate, nextTuesday, planTime, false);
         appPage.planAJourney();
@@ -193,7 +173,7 @@ public class AppUserJourneyTest {
 
         List<SummaryResult> results = appPage.getResults();
         // TODO Lockdown 3->2
-        assertTrue("at least 2 results", results.size()>=2);
+        assertTrue(results.size()>=2, "at least 2 results");
 
         LocalTime previous = planTime;
         for (SummaryResult result : results) {
@@ -217,31 +197,34 @@ public class AppUserJourneyTest {
                 altyToPiccClass, altyToPicLineName, Stations.Piccadilly.getName(), 9);
     }
 
-    @Test
-    public void shouldHideStationInToListWhenSelectedInFromList() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldHideStationInToListWhenSelectedInFromList(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
 
         appPage.waitForToStopsContains(Stations.Bury);
         List<String> destStops = appPage.getToStops();
-        assertFalse("should not contain alty", destStops.contains(altrincham));
+        assertFalse(destStops.contains(altrincham), "should not contain alty");
     }
 
-    @Test
-    public void shouldShowNoRoutesMessage() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldShowNoRoutesMessage(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("03:15"), false);
         appPage.planAJourney();
 
         assertTrue(appPage.noResults());
     }
 
-    @Test
-    public void shouldUpdateWhenNewJourneyIsEntered() {
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldUpdateWhenNewJourneyIsEntered(ProvidesDriver providesDriver) {
         LocalTime tenFifteen = LocalTime.parse("10:15");
         LocalTime eightFifteen = LocalTime.parse("08:15");
 
-        AppPage appPage = prepare();
+        AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
@@ -262,11 +245,12 @@ public class AppUserJourneyTest {
         assertTrue(updatedResults.get(0).getDepartTime().isAfter(eightFifteen));
     }
 
-    @Test
-    public void shouldUpdateWhenEarlierClicked() {
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldUpdateWhenEarlierClicked(ProvidesDriver providesDriver) {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
-        AppPage appPage = prepare();
+        AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
@@ -284,11 +268,12 @@ public class AppUserJourneyTest {
         assertTrue(updatedResults.get(0).getDepartTime().isBefore(firstDepartureTime));
     }
 
-    @Test
-    public void shouldUpdateWhenLaterClicked() {
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldUpdateWhenLaterClicked(ProvidesDriver providesDriver) {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
-        AppPage appPage = prepare();
+        AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
@@ -306,9 +291,10 @@ public class AppUserJourneyTest {
         assertTrue(updatedResults.get(0).getDepartTime().isAfter(lastDepartureTime));
     }
 
-    @Test
-    public void shouldHaveMultistageJourney() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldHaveMultistageJourney(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
         LocalTime planTime = LocalTime.parse("10:00");
         desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, planTime, false);
         appPage.planAJourney();
@@ -316,7 +302,7 @@ public class AppUserJourneyTest {
 
         List<SummaryResult> results = appPage.getResults();
         // TODO pre-lockdown timetable was 3
-        assertTrue("at least 2 journeys, was "+results.size(),results.size()>=2);
+        assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
         LocalTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
         for (SummaryResult result : results) {
             LocalTime arriveTime = result.getArriveTime();
@@ -352,12 +338,13 @@ public class AppUserJourneyTest {
 
     }
 
-    @Test
-    public void shouldDisplayWeekendWorkNoteOnlyOnWeekends() {
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) {
         LocalTime time = LocalTime.parse("10:15");
         String weekendMsg = "At the weekend your journey may be affected by improvement works.Please check TFGM for details.";
 
-        AppPage appPage = prepare();
+        AppPage appPage = prepare(providesDriver, url);
         LocalDate aSaturday = TestEnv.nextSaturday();
 
         desiredJourney(appPage, altrincham, bury, aSaturday, time, false);
@@ -383,9 +370,10 @@ public class AppUserJourneyTest {
         assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
     }
 
-    @Test
-    public void shouldHaveBuildAndVersionNumberInFooter() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldHaveBuildAndVersionNumberInFooter(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
 
         String build = appPage.getExpectedBuildNumberFromEnv();
 
@@ -393,15 +381,19 @@ public class AppUserJourneyTest {
         assertEquals("2."+build, result);
 
         String dataBegin = appPage.getValidFrom();
-        assertEquals("valid from", FeedInfoResourceTest.validFrom.format(dateFormatDashes), dataBegin);
+        assertEquals(FeedInfoResourceTest.validFrom.format(dateFormatDashes), dataBegin, "valid from");
 
         String dataEnd = appPage.getValidUntil();
-        assertEquals("valid until", FeedInfoResourceTest.validUntil.format(dateFormatDashes), dataEnd);
+        assertEquals(FeedInfoResourceTest.validUntil.format(dateFormatDashes), dataEnd, "valid until");
 
     }
 
-    @Test
-    public void shouldDisplayCookieAgreementIfNotVisited() throws UnsupportedEncodingException {
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldDisplayCookieAgreementIfNotVisited(ProvidesDriver providesDriver) {
+        providesDriver.init();
+        providesDriver.clearCookies();
+
         AppPage appPage = providesDriver.getAppPage();
         appPage.load(url);
 
@@ -410,14 +402,14 @@ public class AppUserJourneyTest {
         assertTrue(appPage.waitForCookieAgreementVisible());
 
         appPage.agreeToCookies();
-        assertTrue("wait for cookie agreement to close", appPage.waitForCookieAgreementInvisible());
+        assertTrue(appPage.waitForCookieAgreementInvisible(), "wait for cookie agreement to close");
 
         // cookie should now be set
         Cookie cookie = providesDriver.getCookieNamed("tramchesterVisited");
-        assertNotNull("cookie null", cookie);
-        assertNotNull("cookie null", cookie.getValue());
+        assertNotNull(cookie, "cookie null");
+        assertNotNull(cookie.getValue(), "cookie null");
 
-        String cookieContents = URLDecoder.decode(cookie.getValue(), "utf8");
+        String cookieContents = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
         assertEquals("{\"visited\":true}", cookieContents);
         assertTrue(appPage.waitForCookieAgreementInvisible());
 
@@ -426,9 +418,10 @@ public class AppUserJourneyTest {
         afterReload.waitForToStops();
     }
 
-    @Test
-    public void shouldDisplayDisclaimer() {
-        AppPage appPage = prepare();
+    @ParameterizedTest
+    @MethodSource("getProvider")
+    void shouldDisplayDisclaimer(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
 
         appPage.displayDisclaimer();
         assertTrue(appPage.waitForDisclaimerVisible());
@@ -436,23 +429,6 @@ public class AppUserJourneyTest {
         appPage.dismissDisclaimer();
         // chrome takes a while to close it, so wait for it to go
         assertTrue(appPage.waitForDisclaimerInvisible());
-    }
-
-    private AppPage prepare() {
-        return prepare(providesDriver, url);
-    }
-
-    public static AppPage prepare(ProvidesDriver providesDriver, String url) {
-        AppPage appPage = providesDriver.getAppPage();
-        appPage.load(url);
-
-        assertTrue("cookie agreement visible", appPage.waitForCookieAgreementVisible());
-        appPage.agreeToCookies();
-        assertTrue("wait for cookie agreement to close", appPage.waitForCookieAgreementInvisible());
-        assertTrue("app ready", appPage.waitForReady());
-        assertTrue("stops appeared", appPage.waitForToStops());
-
-        return appPage;
     }
 
     public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time, boolean arriveBy) {
@@ -473,13 +449,13 @@ public class AppUserJourneyTest {
 
     public static void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
                                       String lineClass, String lineName, String headsign, int passedStops) {
-        assertEquals("departTime", departTime, stage.getDepartTime());
-        assertEquals("action", action, stage.getAction());
-        assertEquals("actionStation", actionStation, stage.getActionStation());
-        assertEquals("platform", platform, stage.getPlatform());
-        assertEquals("lineName", lineName, stage.getLine(lineClass));
-        assertEquals("headsign", headsign, stage.getHeadsign());
-        assertEquals("passedStops", passedStops, stage.getPassedStops());
+        assertEquals(departTime, stage.getDepartTime(), "departTime");
+        assertEquals(action, stage.getAction(), "action");
+        assertEquals(actionStation, stage.getActionStation(), "actionStation");
+        assertEquals(platform, stage.getPlatform(), "platform");
+        assertEquals(lineName, stage.getLine(lineClass), "lineName");
+        assertEquals(headsign, stage.getHeadsign(), "headsign");
+        assertEquals(passedStops, stage.getPassedStops(), "passedStops");
     }
 
 }

@@ -30,7 +30,7 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
     }
 
     @Override
-    public void commonAfter(TestName testName) {
+    public void commonAfter(String testName) {
         if (driver!=null) {
             takeScreenShot(testName);
         }

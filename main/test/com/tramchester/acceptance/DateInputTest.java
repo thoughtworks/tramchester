@@ -2,7 +2,8 @@ package com.tramchester.acceptance;
 
 import com.tramchester.acceptance.infra.ProvidesChromeDateInput;
 import com.tramchester.acceptance.infra.ProvidesFirefoxDateInput;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -11,47 +12,47 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DateInputTest {
+class DateInputTest {
 
-    ProvidesFirefoxDateInput firefoxProvider = new ProvidesFirefoxDateInput();
-    ProvidesChromeDateInput chromeProvider = new ProvidesChromeDateInput();
+    private final ProvidesFirefoxDateInput firefoxProvider = new ProvidesFirefoxDateInput();
+    private final ProvidesChromeDateInput chromeProvider = new ProvidesChromeDateInput();
 
     @Test
-    public void shouldGetFirefoxDateCorrectly() {
+    void shouldGetFirefoxDateCorrectly() {
         LocalDate date = LocalDate.of(2019, 11, 30);
         String result = firefoxProvider.createDateInput(date);
 
         // UK is30112019
-        assertEquals(8, result.length());
-        assertTrue(result.contains("30"));
-        assertTrue(result.contains("11"));
-        assertTrue(result.contains("2019"));
+        Assertions.assertEquals(8, result.length());
+        Assertions.assertTrue(result.contains("30"));
+        Assertions.assertTrue(result.contains("11"));
+        Assertions.assertTrue(result.contains("2019"));
     }
 
     @Test
-    public void shouldFirefoxTimeCorrecly() {
+    void shouldFirefoxTimeCorrecly() {
         String result = firefoxProvider.createTimeFormat(LocalTime.of(14,45));
-        assertTrue(result, result.startsWith("14"));
-        assertTrue(result, result.endsWith("45"));
+        Assertions.assertTrue(result.startsWith("14"), result);
+        Assertions.assertTrue(result.endsWith("45"), result);
     }
 
     @Test
-    public void shouldGetChromeDateCorrectly() {
+    void shouldGetChromeDateCorrectly() {
         LocalDate date = LocalDate.of(2019, 11, 30);
         String result = chromeProvider.createDateInput(date);
 
         // actual ordering is locale specific, which is needed to support browser running in other locals i.e. on CI box
-        assertEquals(8, result.length());
-        assertTrue(result.contains("30"));
-        assertTrue(result.contains("11"));
-        assertTrue(result.contains("2019"));
+        Assertions.assertEquals(8, result.length());
+        Assertions.assertTrue(result.contains("30"));
+        Assertions.assertTrue(result.contains("11"));
+        Assertions.assertTrue(result.contains("2019"));
     }
 
     @Test
-    public void shouldGetChromeTimeCorrectly() {
+    void shouldGetChromeTimeCorrectly() {
         String result = firefoxProvider.createTimeFormat(LocalTime.of(16,55));
-        assertTrue(result, result.startsWith("16"));
-        assertTrue(result, result.endsWith("55"));
+        Assertions.assertTrue(result.startsWith("16"), result);
+        Assertions.assertTrue(result.endsWith("55"), result);
     }
 
 
