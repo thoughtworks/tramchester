@@ -5,7 +5,8 @@ import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,57 +16,55 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
+class RedirectHttpFilterTest extends EasyMockSupport {
 
-public class RedirectHttpFilterTest extends EasyMockSupport {
-
-    private RedirectToHttpsUsingELBProtoHeader filter = new RedirectToHttpsUsingELBProtoHeader(new IntegrationTramTestConfig());
-    String path = "http://green.tramchester.co.uk/somethingelse";
-    private String expected = "https://green.tramchester.com/somethingelse";
+    private final RedirectToHttpsUsingELBProtoHeader filter = new RedirectToHttpsUsingELBProtoHeader(new IntegrationTramTestConfig());
+    private final String path = "http://green.tramchester.co.uk/somethingelse";
+    private final String expected = "https://green.tramchester.com/somethingelse";
 
     @Test
-    public void shouldFormNewURLLower() throws MalformedURLException, URISyntaxException {
+    void shouldFormNewURLLower() throws MalformedURLException, URISyntaxException {
         String result = filter.mapUrl(path);
-        assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
     }
 
     @Test
-    public void shouldFormNewURLUpper() throws MalformedURLException, URISyntaxException {
+    void shouldFormNewURLUpper() throws MalformedURLException, URISyntaxException {
         String original = path.replace("http","HTTP");
 
         String result = filter.mapUrl(original);
 
-        assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
     }
 
     @Test
-    public void shouldFilterIfCorrectHeaderIsSetTramBusterCoUk() throws IOException, ServletException {
-        checkUrl("http://green.trambuster.co.uk/somethingelse");
+    void shouldFilterIfCorrectHeaderIsSetTramBusterCoUk() {
+        Assertions.assertAll(() -> checkUrl("http://green.trambuster.co.uk/somethingelse"));
     }
 
     @Test
-    public void shouldFilterIfCorrectHeaderIsSetTramBusterCom() throws IOException, ServletException {
-        checkUrl("http://green.trambuster.com/somethingelse");
+    void shouldFilterIfCorrectHeaderIsSetTramBusterCom() {
+        Assertions.assertAll(() -> checkUrl("http://green.trambuster.com/somethingelse"));
     }
 
     @Test
-    public void shouldFilterIfCorrectHeaderIsSetTramBusterIndo() throws IOException, ServletException {
-        checkUrl("http://green.trambuster.info/somethingelse");
+    void shouldFilterIfCorrectHeaderIsSetTramBusterIndo() {
+        Assertions.assertAll(() -> checkUrl("http://green.trambuster.info/somethingelse"));
     }
 
     @Test
-    public void shouldFilterIfCorrectHeaderIsSetTramChesterCoUK() throws IOException, ServletException {
-        checkUrl("http://green.tramchester.co.uk/somethingelse");
+    void shouldFilterIfCorrectHeaderIsSetTramChesterCoUK() {
+        Assertions.assertAll(() -> checkUrl("http://green.tramchester.co.uk/somethingelse"));
     }
 
     @Test
-    public void shouldFilterIfCorrectHeaderIsSetTramChesterInfo() throws IOException, ServletException {
-        checkUrl("http://green.tramchester.info/somethingelse");
+    void shouldFilterIfCorrectHeaderIsSetTramChesterInfo() {
+        Assertions.assertAll(() -> checkUrl("http://green.tramchester.info/somethingelse"));
     }
 
     @Test
-    public void shouldFilterIfCorrectHeaderIsSetTramChesterCom() throws IOException, ServletException {
-        checkUrl("http://green.tramchester.com/somethingelse");
+    void shouldFilterIfCorrectHeaderIsSetTramChesterCom() {
+        Assertions.assertAll(() -> checkUrl("http://green.tramchester.com/somethingelse"));
     }
 
     private void checkUrl(String original) throws IOException, ServletException {
@@ -84,7 +83,7 @@ public class RedirectHttpFilterTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotFilterIfCHeaderIsMissing() throws IOException, ServletException {
+    void shouldNotFilterIfCHeaderIsMissing() throws IOException, ServletException {
         HttpServletRequest request = createMock(HttpServletRequest.class);
         HttpServletResponse response = createMock(HttpServletResponse.class);
         FilterChain chain = createMock(FilterChain.class);
@@ -94,7 +93,7 @@ public class RedirectHttpFilterTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        filter.doFilter(request, response, chain);
+        Assertions.assertAll(() -> filter.doFilter(request, response, chain));
         verifyAll();
     }
 }

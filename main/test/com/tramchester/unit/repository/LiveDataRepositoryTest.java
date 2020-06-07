@@ -16,14 +16,14 @@ import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LiveDataRepositoryTest extends EasyMockSupport {
 
@@ -33,8 +33,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     private ProvidesNow providesNow;
     private LocalDateTime lastUpdate;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         fetcher = createMock(LiveDataHTTPFetcher.class);
         mapper = createMock(LiveDataParser.class);
         providesNow = createMock(ProvidesNow.class);
@@ -44,7 +44,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetDepartureInformationForSingleStation() {
+    void shouldGetDepartureInformationForSingleStation() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         StationDepartureInfo departureInfo = addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId",
@@ -72,7 +72,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldGetDueTramsWithinTimeWindows() {
+    void shouldGetDueTramsWithinTimeWindows() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId", "some message", Stations.Altrincham);
@@ -101,7 +101,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateStatusWhenRefreshingDataOK() {
+    void shouldUpdateStatusWhenRefreshingDataOK() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         addStationInfoWithDueTram(info, lastUpdate.plusMinutes(14), "yyy", "platformIdA", "some message", Stations.Altrincham);
@@ -124,7 +124,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateMessageCountWhenRefreshingDataOK() {
+    void shouldUpdateMessageCountWhenRefreshingDataOK() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         addStationInfoWithDueTram(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
@@ -146,7 +146,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldUpdateStatusWhenRefreshingStaleData() {
+    void shouldUpdateStatusWhenRefreshingStaleData() {
         List<StationDepartureInfo> info = new LinkedList<>();
         Station altrincham = Stations.Altrincham;
         String platformId1 = Stations.Altrincham.getId() + "1";

@@ -4,18 +4,17 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.StationAdjacenyRepository;
 import com.tramchester.unit.graph.TransportDataForTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-
-public class StationAdjacencyRepositoryTest {
+class StationAdjacencyRepositoryTest {
 
     private TransportDataForTest transportDataSource;
     private StationAdjacenyRepository repository;
 
-    @Before
-    public void onceBeforeEachTestRuns() {
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
         transportDataSource = new TransportDataForTest(stationLocations);
@@ -25,9 +24,9 @@ public class StationAdjacencyRepositoryTest {
     }
 
     @Test
-    public void shouldGiveCorrectCostForAdjaceny() {
-        assertEquals(11, repository.getAdjacent(transportDataSource.getFirst(), transportDataSource.getSecond()));
-        assertEquals(9, repository.getAdjacent(transportDataSource.getSecond(), transportDataSource.getInterchange()));
-        assertEquals(-1, repository.getAdjacent(transportDataSource.getFirst(), transportDataSource.getInterchange()));
+    void shouldGiveCorrectCostForAdjaceny() {
+        Assertions.assertEquals(11, repository.getAdjacent(transportDataSource.getFirst(), transportDataSource.getSecond()));
+        Assertions.assertEquals(9, repository.getAdjacent(transportDataSource.getSecond(), transportDataSource.getInterchange()));
+        Assertions.assertEquals(-1, repository.getAdjacent(transportDataSource.getFirst(), transportDataSource.getInterchange()));
     }
 }

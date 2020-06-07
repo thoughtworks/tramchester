@@ -15,11 +15,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertTrue;
 
-
-public class UploadsLiveDataTest extends EasyMockSupport {
+class UploadsLiveDataTest extends EasyMockSupport {
 
     private ClientForS3 s3facade;
     private UploadsLiveData uploadsLiveData;
@@ -27,7 +24,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
     private String environment;
 
     @BeforeEach
-    public void beforeEachTestRuns() {
+    void beforeEachTestRuns() {
         environment = System.getenv("PLACE");
         environment = environment==null ? "test" : environment.toLowerCase();
         LocalDateTime lastUpdateTime = LocalDateTime.parse("2018-11-15T15:06:32");
@@ -39,7 +36,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldConvertToJsonStringAndThenUploadIfNotDuplicate() {
+    void shouldConvertToJsonStringAndThenUploadIfNotDuplicate() {
         String expectedJSON = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"platforId\",\"message\":\"messageTxt\"," +
                 "\"dueTrams\":[{\"from\":\"Navigation Road\",\"carriages\":\"Single\",\"status\":\"Due\",\"destination\":\"Bury\",\"when\":\"15:48\",\"wait\":42}]," +
                 "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"Navigation Road\"}]";
@@ -56,7 +53,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotUploadIfKeyExists() {
+    void shouldNotUploadIfKeyExists() {
         EasyMock.expect(s3facade.isStarted()).andReturn(true);
         EasyMock.expect(s3facade.keyExists("20181115", environment+"/20181115/15:06:32")).andReturn(true);
 
@@ -68,7 +65,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotUploadIfNotStarted() {
+    void shouldNotUploadIfNotStarted() {
         EasyMock.expect(s3facade.isStarted()).andReturn(false);
 
         replayAll();
