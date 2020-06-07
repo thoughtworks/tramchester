@@ -26,6 +26,10 @@ public class PathToGraphViz {
             logger.warn("map called but debug disabled");
             return Collections.emptySet();
         }
+        if (System.getenv("CIRCLECI")!=null) {
+            logger.error("Invoked on CI machine, returning without generating");
+            return Collections.emptySet();
+        }
         Set<RenderLater> nodes = new HashSet<>();
         Set<RenderLater> edges = new HashSet<>();
         Iterable<Relationship> relationships = path.relationships();

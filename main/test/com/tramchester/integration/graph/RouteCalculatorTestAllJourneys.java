@@ -16,7 +16,6 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.NotInTransactionException;
 import org.neo4j.graphdb.Transaction;
 
@@ -29,9 +28,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
 
 class RouteCalculatorTestAllJourneys {
 

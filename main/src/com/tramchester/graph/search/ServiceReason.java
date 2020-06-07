@@ -17,8 +17,8 @@ public abstract class ServiceReason {
 
     public static final IsValid isValid = new IsValid();
 
-    // seems to periodically erronously return true .....
-    private static final boolean debugEnabled = logger.isDebugEnabled();
+    // seems to periodically incorrectly return true for isDebugEnabled()
+    private static final boolean debugEnabled = logger.isDebugEnabled() && System.getenv("CIRCLECI")!=null;
 
     public enum ReasonCode {
         Valid,
