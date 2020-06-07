@@ -9,6 +9,7 @@ import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.repository.PlatformRepository;
@@ -17,6 +18,7 @@ import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +40,16 @@ public class MapPathToStages {
     private final TransportData transportData;
     private final MyLocationFactory myLocationFactory;
     private final PlatformRepository platformRepository;
+    private final StationLocations stationLocations;
 
     public MapPathToStages(RouteCodeToClassMapper routeIdToClass, TransportData transportData,
-                           MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
+                           MyLocationFactory myLocationFactory, PlatformRepository platformRepository,
+                           StationLocations stationLocations) {
         this.routeIdToClass = routeIdToClass;
         this.transportData = transportData;
         this.myLocationFactory = myLocationFactory;
         this.platformRepository = platformRepository;
+        this.stationLocations = stationLocations;
     }
 
     public List<TransportStage> mapDirect(Path path, TramTime queryTime) {
@@ -128,15 +133,25 @@ public class MapPathToStages {
 
     private WalkStarted walkStarted(Relationship relationship) {
         int cost = getCost(relationship);
-        Node startNode = relationship.getStartNode();
 
         String stationId = relationship.getProperty(STATION_ID).toString();
-        Location destination = transportData.getStation(stationId);
+        Station destination = transportData.getStation(stationId);
 
-        double lat = (double)startNode.getProperty(GraphStaticKeys.Station.LAT);
-        double lon =  (double)startNode.getProperty(GraphStaticKeys.Station.LONG);
-        Location start = myLocationFactory.create(new LatLong(lat,lon));
-        return new WalkStarted(start, destination, cost);
+//        Node startNode = relationship.getStartNode();
+//        double lat = (double)startNode.getProperty(GraphStaticKeys.Station.LAT);
+//        double lon =  (double)startNode.getProperty(GraphStaticKeys.Station.LONG);
+//        LatLong latLong = new LatLong(lat, lon);
+
+        try {
+            LatLong latLong = stationLocations.getStationPosition(destination);
+            Location start = myLocationFactory.create(latLong);
+            return new WalkStarted(start, destination, cost);
+        } catch (TransformException transformException) {
+            String msg = "Cannot find location of station " + destination;
+            logger.error(msg, transformException);
+            throw new RuntimeException(msg,transformException);
+        }
+
     }
 
     private WalkingStage createWalkFrom(Relationship relationship, TramTime walkStartTime) {

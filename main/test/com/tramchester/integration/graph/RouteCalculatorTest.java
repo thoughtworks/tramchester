@@ -96,8 +96,6 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Stations.Altrincham, Stations.Bury, nextTuesday, TramTime.of(9,0), 1);
     }
 
-
-
     @Test
     void shouldFindInterchangesToEndOfLines() {
         Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges,Stations.EndOfTheLine );

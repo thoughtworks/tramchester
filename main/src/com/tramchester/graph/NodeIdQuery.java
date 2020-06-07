@@ -52,11 +52,6 @@ public final class NodeIdQuery implements ReportsCacheStats {
         }
     }
 
-
-//    public Node createNode(TransportGraphBuilder.Labels labels) {
-//        return graphDatabaseService.createNode(labels);
-//    }
-
     private CacheOfNodes createCache(long maximumSize, String routeStationNodeCache, FindNode getRouteStationNode) {
         CacheOfNodes cache = new CacheOfNodes(routeStationNodeCache, getRouteStationNode, maximumSize);
         caches.add(cache);
@@ -143,7 +138,7 @@ public final class NodeIdQuery implements ReportsCacheStats {
 
     private class CacheOfNodes {
         private final Cache<String,Node> theCache;
-        private String name;
+        private final String name;
         private final FindNode findNode;
 
         public CacheOfNodes(String name, FindNode findNode, long maximumSize) {

@@ -157,7 +157,7 @@ public class TransportGraphBuilder implements Startable {
         nodeIdQuery.clearAfterGraphBuild();
     }
 
-    private boolean buildGraph(GraphDatabase graphDatabase) {
+    private void buildGraph(GraphDatabase graphDatabase) {
         logger.info("Building graph from " + transportData.getFeedInfo());
         logMemory("Before graph build");
         long start = System.currentTimeMillis();
@@ -194,7 +194,7 @@ public class TransportGraphBuilder implements Startable {
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
-            return false;
+            return;
         } finally {
             tx.close();
         }
@@ -202,10 +202,7 @@ public class TransportGraphBuilder implements Startable {
         clearBuildCaches();
         logMemory("After graph build");
         System.gc();
-        return true;
     }
-
-
 
     private void logMemory(String prefix) {
         logger.warn(format("MemoryUsage %s free:%s total:%s ", prefix,
@@ -245,11 +242,8 @@ public class TransportGraphBuilder implements Startable {
 
             int cost = TramTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
 
-            // due to exception dates cannot rely on this, dates are checked at query time anyway...
-            //if (runsAtLeastADay(service.getDays())) {
-                createRouteRelationship(fromRouteStation, toRouteStation, route, cost);
-                createRelationships(graphDatabase, fromRouteStation, toRouteStation, currentStop, nextStop, route, service, trip);
-            //}
+            createRouteRelationship(fromRouteStation, toRouteStation, route, cost);
+            createRelationships(graphDatabase, fromRouteStation, toRouteStation, currentStop, nextStop, route, service, trip);
         }
     }
 
@@ -265,7 +259,6 @@ public class TransportGraphBuilder implements Startable {
     }
 
     private Node getOrCreateStation(GraphDatabase graphBasebase, Location station) {
-
         String id = station.getId();
         boolean tram = station.isTram();
 
@@ -283,18 +276,6 @@ public class TransportGraphBuilder implements Startable {
         return stationNode;
     }
 
-    private void setLatLongFor(Node node, LatLong latLong) {
-        node.setProperty(GraphStaticKeys.Station.LAT, latLong.getLat());
-        node.setProperty(GraphStaticKeys.Station.LONG, latLong.getLon());
-    }
-
-    private Node createGraphNode(GraphDatabase graphDatabase, Labels label) {
-        numberNodes++;
-        Node node = graphDatabase.createNode(label);
-        nodeIdLabelMap.put(node.getId(), label);
-        return node;
-    }
-
     private Node getOrCreatePlatform(GraphDatabase graphDatabase, StopCall stop) {
         String platformId = stop.getPlatformId();
 
@@ -305,6 +286,18 @@ public class TransportGraphBuilder implements Startable {
             setLatLongFor(platformNode, stop.getStation().getLatLong());
         }
         return platformNode;
+    }
+
+    private void setLatLongFor(Node node, LatLong latLong) {
+        node.setProperty(GraphStaticKeys.Station.LAT, latLong.getLat());
+        node.setProperty(GraphStaticKeys.Station.LONG, latLong.getLon());
+    }
+
+    private Node createGraphNode(GraphDatabase graphDatabase, Labels label) {
+        numberNodes++;
+        Node node = graphDatabase.createNode(label);
+        nodeIdLabelMap.put(node.getId(), label);
+        return node;
     }
 
     private Node getOrCreateCallingPointAndStation(GraphDatabase graphDatabase, StopCall stop, Route route, Service service,
@@ -464,9 +457,8 @@ public class TransportGraphBuilder implements Startable {
         // Node for the service
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
-        //String routeIdClean = route.getId().replaceAll(" ", "");
         String beginSvcNodeId = startLocation.getId()+"_"+endStop.getStation().getId()+"_"+
-                service.getId(); //+"_"+routeIdClean;
+                service.getId();
 
         Node beginServiceNode = nodeIdQuery.getServiceNode(beginSvcNodeId);
         String tripId = trip.getId();
@@ -559,9 +551,5 @@ public class TransportGraphBuilder implements Startable {
         relationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
         relationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
     }
-
-//    private boolean runsAtLeastADay(HashMap<DaysOfWeek, Boolean> days) {
-//        return days.containsValue(true);
-//    }
 
 }

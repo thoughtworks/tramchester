@@ -50,6 +50,11 @@ public class StationLocations {
         }
     }
 
+    public LatLong getStationPosition(Station station) throws TransformException {
+        GridPosition gridPostition = positions.get(station);
+        return coordinateTransforms.getLatLong(gridPostition.eastings, gridPostition.northings);
+    }
+
     private void updateBoundingBox(GridPosition gridPosition) {
         if (gridPosition.eastings<minEastings) {
             minEastings = gridPosition.eastings;
@@ -126,6 +131,7 @@ public class StationLocations {
     public long getNorthingsMin() {
         return minNorthings;
     }
+
 
     public static class GridPosition  {
 

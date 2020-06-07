@@ -7,6 +7,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.List;
 
@@ -39,6 +40,22 @@ class StationLocationsTest {
         assertFalse(origin.withinDistNorthing(gridPositionA, 2));
         assertTrue(origin.withinDistNorthing(gridPositionA, 4));
         assertTrue(origin.withinDistNorthing(gridPositionA, 5));
+    }
+
+    @Test
+    void shouldGetLatLongForStation() throws TransformException {
+        Station stationA = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
+        Station stationB = new Station("id789", "area", "nameC", TestEnv.nearShudehill, true);
+        stationLocations.addStation(stationA);
+        stationLocations.addStation(stationB);
+
+        LatLong resultA = stationLocations.getStationPosition(stationA);
+        assertEquals(TestEnv.nearPiccGardens.getLat(), resultA.getLat(), 0.00001);
+        assertEquals(TestEnv.nearPiccGardens.getLon(), resultA.getLon(), 0.00001);
+
+        LatLong resultB = stationLocations.getStationPosition(stationB);
+        assertEquals(TestEnv.nearShudehill.getLat(), resultB.getLat(), 0.00001);
+        assertEquals(TestEnv.nearShudehill.getLon(), resultB.getLon(), 0.00001);
 
     }
 
