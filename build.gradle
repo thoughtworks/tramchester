@@ -200,7 +200,7 @@ task busTest(type: Test) {
 }
 
 task unit(type: Test, dependsOn: compileJava) {
-    useJUnit()
+    useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
     }
