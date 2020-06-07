@@ -43,7 +43,6 @@ public class TransportDataFromFiles implements TransportDataSource {
                                   Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates)  {
         this.transportDataStreams = new TransportDataStreams(stops, rawRoutes, rawTrips, stopTimes, calendars, feedInfo, calendarsDates);
         this.stationLocations = stationLocations;
-        logger.info("Data load is complete");
     }
 
     @Override

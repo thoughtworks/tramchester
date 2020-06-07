@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
@@ -46,7 +47,7 @@ public class RouteCallingStations implements Startable, Disposable {
                 StopCalls stops = longestTrip.getStops();
                 List<Station> inOrderStations = stops.stream().map(StopCall::getStation).collect(Collectors.toList());
                 int size = inOrderStations.size();
-                logger.info("Adding " + size + " stations for route " + route +
+                logger.info("Adding " + size + " stations for route " + HasId.asId(route) +
                         "First:" + inOrderStations.get(0).getName() + "Last:"+inOrderStations.get(size -1).getName());
                 stations.put(route, inOrderStations);
             });

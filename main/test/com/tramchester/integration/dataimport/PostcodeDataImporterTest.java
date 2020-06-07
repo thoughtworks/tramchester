@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 class PostcodeDataImporterTest {
 
     private static Dependencies dependencies;
@@ -42,12 +44,12 @@ class PostcodeDataImporterTest {
     @Test
     void shouldLoadLocalPostcodesFromFilesInLocation() {
 
-        Assertions.assertFalse(loadedPostcodes.isEmpty());
+        assertFalse(loadedPostcodes.isEmpty());
 
         Set<String> postcodes = loadedPostcodes.stream().map(PostcodeData::getId).collect(Collectors.toSet());
 
         Assertions.assertTrue(postcodes.contains("M44BF")); // central manchester
-        Assertions.assertFalse(postcodes.contains("EC1A1XH")); // no london, outside area
+        assertFalse(postcodes.contains("EC1A1XH")); // no london, outside area
 
         // outside stations box but within margin and within range of a station
         Assertions.assertTrue(postcodes.contains("WA142RQ"));
@@ -75,6 +77,7 @@ class PostcodeDataImporterTest {
         Set<PostcodeData> postcodesOutsideRangeOfAStation = loadedPostcodes.stream().
                 filter(this::outsideStationRange).
                 collect(Collectors.toSet());
+        assertFalse(loadedPostcodes.isEmpty());
         Assertions.assertTrue(postcodesOutsideRangeOfAStation.isEmpty(), postcodesOutsideRangeOfAStation.toString());
     }
 

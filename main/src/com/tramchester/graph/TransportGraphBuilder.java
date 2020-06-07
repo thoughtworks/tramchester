@@ -206,7 +206,7 @@ public class TransportGraphBuilder implements Startable {
 
     private void logMemory(String prefix) {
         logger.warn(format("MemoryUsage %s free:%s total:%s ", prefix,
-                Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory()));
+                Runtime.getRuntime().freeMemory(), Runtime.getRuntime().totalMemory()));
     }
 
     private void reportStats() {

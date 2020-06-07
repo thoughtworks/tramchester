@@ -29,17 +29,28 @@ public class PostcodeDataImporter {
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final Unzipper unzipper;
-    private final long margin; // meters
+    private long eastingsMin;
+    private long eastingsMax;
+    private long northingsMin;
+    private long northingsMax;
+    private final long margin;
 
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper) {
         this.directory = config.getPostcodeDataPath();
+        // meters
         margin = Math.round(config.getNearestStopRangeKM() * 1000D);
         this.config = config;
         this.stationLocations = stationLocations;
         this.unzipper = unzipper;
+
     }
 
     public Set<PostcodeData> loadLocalPostcodes() {
+        eastingsMin = stationLocations.getEastingsMin() - margin;
+        eastingsMax = stationLocations.getEastingsMax() + margin;
+        northingsMin = stationLocations.getNorthingsMin() - margin;
+        northingsMax = stationLocations.getNorthingsMax() + margin;
+
         Path postcodeZip = config.getPostcodeZip();
         String unzipTarget = config.getPostcodeZip().toAbsolutePath().toString().replace(".zip","");
         unzipper.unpack(postcodeZip, Path.of(unzipTarget));
@@ -50,7 +61,7 @@ public class PostcodeDataImporter {
             return Collections.emptySet();
         }
 
-        Set<Path> csvFiles = null;
+        Set<Path> csvFiles;
         try {
             csvFiles = Files.list(directory).
                     filter(Files::isRegularFile).
@@ -83,31 +94,32 @@ public class PostcodeDataImporter {
 
     private void loadDataFromFile(Set<PostcodeData> target, PostcodeDataMapper mapper, Path file) {
         logger.debug("Load postcode data from " + file.toAbsolutePath());
+        int sizeBefore = target.size();
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
         Stream<PostcodeData> stream = loader.loadFiltered(false);
-        Stream<PostcodeData> boundedBoxData = filterDataByBoundedBox(stream);
-        Set<PostcodeData> postcodeData = boundedBoxData.filter(this::findNearbyStation).collect(Collectors.toSet());
+        filterDataByBoundedBox(stream).filter(this::hasNearbyStation).forEach(target::add);
 
-        if (postcodeData.size()>0) {
-            logger.info("Loaded " + postcodeData.size() + " records from " + file.toAbsolutePath());
+        int loaded = target.size()-sizeBefore;
+        if (loaded>0) {
+            logger.info("Loaded " + loaded + " records from " + file.toAbsolutePath());
         }
-        target.addAll(postcodeData);
         stream.close();
     }
 
-    private boolean findNearbyStation(PostcodeData postcodeData) {
+    private boolean hasNearbyStation(PostcodeData postcodeData) {
         Double range = config.getNearestStopRangeKM();
-        StationLocations.GridPosition gridPosition = new StationLocations.GridPosition(postcodeData.getEastings(), postcodeData.getNorthings());
+        StationLocations.GridPosition gridPosition = new StationLocations.GridPosition(postcodeData.getEastings(),
+                postcodeData.getNorthings());
         return !stationLocations.nearestStations(gridPosition,1, range).isEmpty();
     }
 
     private Stream<PostcodeData> filterDataByBoundedBox(Stream<PostcodeData> stream) {
         return stream.
-                filter(postcode -> postcode.getEastings() >= (stationLocations.getEastingsMin()-margin)).
-                filter(postcode -> postcode.getEastings() <= (stationLocations.getEastingsMax()+margin)).
-                filter(postcode -> postcode.getNorthings() >= (stationLocations.getNorthingsMin()-margin)).
-                filter(postcode -> postcode.getNorthings() <= (stationLocations.getNorthingsMax()+margin));
+                filter(postcode -> postcode.getEastings() >= eastingsMin).
+                filter(postcode -> postcode.getEastings() <= eastingsMax).
+                filter(postcode -> postcode.getNorthings() >= northingsMin).
+                filter(postcode -> postcode.getNorthings() <= northingsMax);
     }
 
 }
