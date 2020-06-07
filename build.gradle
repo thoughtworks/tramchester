@@ -63,7 +63,7 @@ dependencies {
     implementation('org.geotools:gt-main:22.2')  { exclude group:'javax', module:'javaee-api'}
     implementation('org.geotools:gt-epsg-hsql:22.2')  { exclude group:'javax', module:'javaee-api'}
 
-    testImplementation 'junit:junit:4.13',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2',
             'org.assertj:assertj-core:1.2.0',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.2',
@@ -76,6 +76,9 @@ dependencies {
         implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
         implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
         implementation "com.google.guava:guava:28.2-jre"
+        // legacy junit4 support, TODO remove once migration finished
+        testImplementation("junit:junit:4.13")
+        testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.6.2")
     }
 }
 
@@ -150,6 +153,10 @@ run {
     //jvmArgs '-verbose:class'
     dependsOn 'webpack'
     args 'server', 'config/local.yml'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 task pullData(type:JavaExec, dependsOn:classes) {

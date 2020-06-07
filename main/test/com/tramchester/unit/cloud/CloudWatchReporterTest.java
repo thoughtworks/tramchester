@@ -5,22 +5,22 @@ import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CloudWatchReporterTest extends EasyMockSupport {
+class CloudWatchReporterTest extends EasyMockSupport {
 
     private ConfigFromInstanceUserData configFromInstanceUserData;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         configFromInstanceUserData = createMock(ConfigFromInstanceUserData.class);
     }
 
     @Test
-    public void shouldFormNamespaceCorrectly() {
+    void shouldFormNamespaceCorrectly() {
         EasyMock.expect(configFromInstanceUserData.get("ENV")).andReturn("environment");
 
         replayAll();
