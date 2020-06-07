@@ -168,8 +168,8 @@ public class LocationJourneyPlanner {
 
     private Node createWalkingNode(LatLong origin) {
         Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabase);
-        startOfWalkNode.setProperty(GraphStaticKeys.Station.LAT, origin.getLat());
-        startOfWalkNode.setProperty(GraphStaticKeys.Station.LONG, origin.getLon());
+        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
+        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

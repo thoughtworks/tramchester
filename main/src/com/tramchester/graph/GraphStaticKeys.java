@@ -17,8 +17,8 @@ public class GraphStaticKeys {
     public static final String TRIP_ID = "trip_id";
     public static final String ROUTE_ID = "route_id";
 
-    // station properties
-    public static class Station {
+    // start/end of walk properties
+    public static class Walk {
         public static final String LAT = "latitude";
         public static final String LONG = "longitude";
     }

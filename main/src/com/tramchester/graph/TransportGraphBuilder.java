@@ -269,8 +269,6 @@ public class TransportGraphBuilder implements Startable {
             logger.debug(format("Creating station node: %s with label: %s ", station, label));
             stationNode = createGraphNode(graphBasebase, label) ;
             stationNode.setProperty(GraphStaticKeys.ID, id);
-            LatLong latLong = station.getLatLong();
-            setLatLongFor(stationNode, latLong);
         }
 
         return stationNode;
@@ -283,14 +281,8 @@ public class TransportGraphBuilder implements Startable {
         if (platformNode==null) {
             platformNode = createGraphNode(graphDatabase, Labels.PLATFORM);
             platformNode.setProperty(GraphStaticKeys.ID, platformId);
-            setLatLongFor(platformNode, stop.getStation().getLatLong());
         }
         return platformNode;
-    }
-
-    private void setLatLongFor(Node node, LatLong latLong) {
-        node.setProperty(GraphStaticKeys.Station.LAT, latLong.getLat());
-        node.setProperty(GraphStaticKeys.Station.LONG, latLong.getLon());
     }
 
     private Node createGraphNode(GraphDatabase graphDatabase, Labels label) {
@@ -445,14 +437,12 @@ public class TransportGraphBuilder implements Startable {
         routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
         routeStation.setProperty(STATION_ID, station.getId());
         routeStation.setProperty(ROUTE_ID, route.getId());
-        setLatLongFor(routeStation, station.getLatLong());
         return routeStation;
     }
 
     private void createRelationships(GraphDatabase graphDatabase, Node routeStationStart, Node routeStationEnd,
                                      StopCall beginStop, StopCall endStop, Route route, Service service, Trip trip) {
         Location startLocation = beginStop.getStation();
-        LatLong destinationLatLong = endStop.getStation().getLatLong();
 
         // Node for the service
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
@@ -468,8 +458,6 @@ public class TransportGraphBuilder implements Startable {
             beginServiceNode.setProperty(GraphStaticKeys.ID, beginSvcNodeId);
             beginServiceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
             beginServiceNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
-
-            setLatLongFor(beginServiceNode, destinationLatLong);
 
             // start route station -> svc node
             Relationship svcRelationship = createRelationships(routeStationStart, beginServiceNode, TransportRelationshipTypes.TO_SERVICE);

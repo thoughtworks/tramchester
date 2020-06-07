@@ -132,37 +132,31 @@ public class MapPathToStages {
     }
 
     private WalkStarted walkStarted(Relationship relationship) {
+        // position -> station
         int cost = getCost(relationship);
 
         String stationId = relationship.getProperty(STATION_ID).toString();
         Station destination = transportData.getStation(stationId);
 
-//        Node startNode = relationship.getStartNode();
-//        double lat = (double)startNode.getProperty(GraphStaticKeys.Station.LAT);
-//        double lon =  (double)startNode.getProperty(GraphStaticKeys.Station.LONG);
-//        LatLong latLong = new LatLong(lat, lon);
-
-        try {
-            LatLong latLong = stationLocations.getStationPosition(destination);
-            Location start = myLocationFactory.create(latLong);
-            return new WalkStarted(start, destination, cost);
-        } catch (TransformException transformException) {
-            String msg = "Cannot find location of station " + destination;
-            logger.error(msg, transformException);
-            throw new RuntimeException(msg,transformException);
-        }
+        Node startNode = relationship.getStartNode();
+        double lat = (double)startNode.getProperty(GraphStaticKeys.Walk.LAT);
+        double lon =  (double)startNode.getProperty(GraphStaticKeys.Walk.LONG);
+        LatLong latLong = new LatLong(lat, lon);
+        Location start = myLocationFactory.create(latLong);
+        return new WalkStarted(start, destination, cost);
 
     }
 
     private WalkingStage createWalkFrom(Relationship relationship, TramTime walkStartTime) {
+        // station -> position
         int cost = getCost(relationship);
 
         String stationId = relationship.getProperty(STATION_ID).toString();
         Location start = transportData.getStation(stationId);
 
         Node endNode = relationship.getEndNode();
-        double lat = (double)endNode.getProperty(GraphStaticKeys.Station.LAT);
-        double lon =  (double)endNode.getProperty(GraphStaticKeys.Station.LONG);
+        double lat = (double)endNode.getProperty(GraphStaticKeys.Walk.LAT);
+        double lon =  (double)endNode.getProperty(GraphStaticKeys.Walk.LONG);
         Location walkEnd = myLocationFactory.create(new LatLong(lat,lon));
 
         return new WalkingStage(start, walkEnd, cost, walkStartTime, true);
