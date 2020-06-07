@@ -13,15 +13,15 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class RouteCalculatorArriveByTest extends EasyMockSupport {
+class RouteCalculatorArriveByTest extends EasyMockSupport {
 
     private RouteCalculatorArriveBy routeCalculatorArriveBy;
     private RouteCalculator routeCalculator;
@@ -29,8 +29,8 @@ public class RouteCalculatorArriveByTest extends EasyMockSupport {
     private int costBetweenStartDest;
     private TramchesterConfig config;
 
-    @Before
-    public void onceBeforeEachTestRuns() {
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
         routeReachable = createStrictMock(RouteReachable.class);
         routeCalculator = createStrictMock(RouteCalculator.class);
         config = createStrictMock(TramchesterConfig.class);
@@ -39,7 +39,7 @@ public class RouteCalculatorArriveByTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldArriveByTramNoWalk() {
+    void shouldArriveByTramNoWalk() {
         TramTime arriveBy = TramTime.of(14,35);
         LocalDate localDate = TestEnv.nextTuesday(0);
 
@@ -60,7 +60,7 @@ public class RouteCalculatorArriveByTest extends EasyMockSupport {
         JourneyRequest originalRequest = new JourneyRequest(serviceDate, arriveBy, false, 5);
         Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(start, destinationId, originalRequest);
         verifyAll();
-        assertTrue(journeyStream==result);
+        assertSame(journeyStream, result);
     }
 
 }

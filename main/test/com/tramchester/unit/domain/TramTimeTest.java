@@ -1,29 +1,29 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.exceptions.TramchesterException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TramTimeTest {
+class TramTimeTest {
 
     @Test
-    public void shouldCreateTramTime() {
+    void shouldCreateTramTime() {
         TramTime timeA = TramTime.of(11,23);
         assertEquals(11, timeA.getHourOfDay());
         assertEquals(23, timeA.getMinuteOfHour());
     }
 
     @Test
-    public void shouldHaveEquality() {
+    void shouldHaveEquality() {
         for (int hour = 0; hour < 24; hour++) {
             for (int minute = 0; minute < 60; minute++) {
                 TramTime tramTime = TramTime.of(hour, minute);
@@ -34,29 +34,29 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldParseHMS() {
+    void shouldParseHMS() {
         checkCorrectTimePresent(TramTime.parse("11:23:00"), 11, 23);
-        checkCorrectTimePresent(TramTime.parse("00:15:00"), 00, 15);
+        checkCorrectTimePresent(TramTime.parse("00:15:00"), 0, 15);
         checkCorrectTimePresent(TramTime.parse("23:35:00"), 23, 35);
     }
 
     @Test
-    public void shouldParseHM() {
+    void shouldParseHM() {
         checkCorrectTimePresent(TramTime.parse("11:23"), 11, 23);
-        checkCorrectTimePresent(TramTime.parse("00:15"), 00, 15);
+        checkCorrectTimePresent(TramTime.parse("00:15"), 0, 15);
         checkCorrectTimePresent(TramTime.parse("23:35"), 23, 35);
         checkCorrectTimePresent(TramTime.parse("23:47"), 23, 47);
 
     }
 
     @Test
-    public void shouldParseEmptyIfInvalid() {
-        assertFalse(TramTime.parse("43:12").isPresent());
-        assertFalse(TramTime.parse("12:99").isPresent());
+    void shouldParseEmptyIfInvalid() {
+        Assertions.assertFalse(TramTime.parse("43:12").isPresent());
+        Assertions.assertFalse(TramTime.parse("12:99").isPresent());
     }
 
     @Test
-    public void shouldFormatCorrectly() {
+    void shouldFormatCorrectly() {
         TramTime time = TramTime.of(18,56);
 
         assertEquals("18:56",time.toPattern());
@@ -64,14 +64,14 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldBeComparableDuringDaySameHour() {
-        TramTime timeA = TramTime.of(12,04);
-        TramTime timeB =  TramTime.of(12,03);
+    void shouldBeComparableDuringDaySameHour() {
+        TramTime timeA = TramTime.of(12, 4);
+        TramTime timeB =  TramTime.of(12, 3);
 
         assertTrue(timeA.compareTo(timeB)>0);
         assertTrue(timeB.compareTo(timeA)<0);
 
-        TramTime timeC = TramTime.of(12,03);
+        TramTime timeC = TramTime.of(12, 3);
         assertEquals(0, timeC.compareTo(timeB));
         assertEquals(0, timeB.compareTo(timeC));
 
@@ -83,9 +83,9 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldBeComparableDuringDayDifferentHour() {
-        TramTime timeA = TramTime.of(13,01);
-        TramTime timeB =  TramTime.of(12,03);
+    void shouldBeComparableDuringDayDifferentHour() {
+        TramTime timeA = TramTime.of(13, 1);
+        TramTime timeB =  TramTime.of(12, 3);
 
         assertTrue(timeA.compareTo(timeB)>0);
         assertTrue(timeB.compareTo(timeA)<0);
@@ -98,14 +98,14 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldBeComparableAcrossMidnight() {
-        TramTime timeA = TramTime.of(00,10);
+    void shouldBeComparableAcrossMidnight() {
+        TramTime timeA = TramTime.of(0,10);
         TramTime timeB =  TramTime.of(23,10);
 
         assertTrue(timeA.compareTo(timeB)>0);
         assertTrue(timeB.compareTo(timeA)<0);
 
-        TramTime timeC = TramTime.of(00,10);
+        TramTime timeC = TramTime.of(0,10);
         assertEquals(0, timeC.compareTo(timeA));
         assertEquals(0, timeA.compareTo(timeC));
 
@@ -117,15 +117,15 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldTestTimeWindowsIntervalNearMidnight() {
+    void shouldTestTimeWindowsIntervalNearMidnight() {
         TimeWindow timeWindow = new TimeWindow(TramTime.of(0,1),60);
         TramTime firstStopDepart = TramTime.of(23,9);
         TramTime secondStopArrival = TramTime.of(23, 27);
-        assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+        Assertions.assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
     }
 
     @Test
-    public void shouldTestTimeWindowsIntervalAfterMidnight() {
+    void shouldTestTimeWindowsIntervalAfterMidnight() {
         TimeWindow timeWindow = new TimeWindow(TramTime.of(0,1),60);
         TramTime firstStopDepart = TramTime.of(0,9);
         TramTime secondStopArrival = TramTime.of(0, 27);
@@ -133,7 +133,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldTestTimeWindowsEarlyMorning() {
+    void shouldTestTimeWindowsEarlyMorning() {
         TimeWindow timeWindow = new TimeWindow(TramTime.of(1,1),60);
         TramTime firstStopDepart = TramTime.of(1,9);
         TramTime secondStopArrival = TramTime.of(1, 27);
@@ -141,7 +141,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldTestTimeWindowsIntervalBeforeMidnight() {
+    void shouldTestTimeWindowsIntervalBeforeMidnight() {
         TimeWindow timeWindow = new TimeWindow(TramTime.of(23,10),60);
         TramTime firstStopDepart = TramTime.of(23,20);
         TramTime secondStopArrival = TramTime.of(23, 55);
@@ -149,7 +149,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldTestTimeWindowsIntervalOverMidnight() {
+    void shouldTestTimeWindowsIntervalOverMidnight() {
         TimeWindow timeWindow = new TimeWindow(TramTime.of(23,45),60);
         TramTime firstStopDepart = TramTime.of(23,55);
         TramTime secondStopArrival = TramTime.of(0, 15);
@@ -157,7 +157,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldTestTimeWindows() {
+    void shouldTestTimeWindows() {
         TimeWindow timeWindow = new TimeWindow(TramTime.of(10, 1), 60);
         TramTime firstStopDepart = TramTime.of(10, 30);
         TramTime secondStopArrival = TramTime.of(10, 35);
@@ -165,16 +165,16 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldTestTimeWindowsNoMatch() {
+    void shouldTestTimeWindowsNoMatch() {
         TimeWindow timeWindow = new TimeWindow(TramTime.of(10,1),60);
         TramTime firstStopDepart = TramTime.of(9,9);
         TramTime secondStopArrival = TramTime.of(9, 27);
-        assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
+        Assertions.assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
     }
 
     @Test
-    public void shouldOrderTramTimesCorrectlyOverMidnight() {
-        TramTime timeA = TramTime.of(00,10);
+    void shouldOrderTramTimesCorrectlyOverMidnight() {
+        TramTime timeA = TramTime.of(0,10);
         TramTime timeB =  TramTime.of(23,10); // show first
 
         SortedSet<TramTime> set = new TreeSet<>();
@@ -185,7 +185,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldOrderTramTimesNearMidnight() {
+    void shouldOrderTramTimesNearMidnight() {
         TramTime timeA = TramTime.of(23,47);
         TramTime timeB =  TramTime.of(23,23); // show first
 
@@ -197,7 +197,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldCheckIfDepartsAfter() {
+    void shouldCheckIfDepartsAfter() {
         TramTime timeA = TramTime.of(LocalTime.of(0,10));
         TramTime timeB =  TramTime.of(LocalTime.of(23,10));
 
@@ -207,42 +207,42 @@ public class TramTimeTest {
         timeB = TramTime.of(LocalTime.of(6,11));
 
         assertTrue(timeA.departsAfter(timeB));
-        assertFalse(timeB.departsAfter(timeA));
+        Assertions.assertFalse(timeB.departsAfter(timeA));
     }
 
     @Test
-    public void shouldHaveIsBefore() {
-        assertTrue(TramTime.of(11,33).isBefore(TramTime.of(12,00)));
+    void shouldHaveIsBefore() {
+        assertTrue(TramTime.of(11,33).isBefore(TramTime.of(12, 0)));
         assertTrue(TramTime.of(0,3).isBefore(TramTime.of(0,30)));
         assertTrue(TramTime.of(11,3).isBefore(TramTime.of(0,30)));
 
-        assertFalse(TramTime.of(10,30).isBefore(TramTime.of(10,30)));
-        assertFalse(TramTime.of(10,30).isBefore(TramTime.of(9,30)));
-        assertFalse(TramTime.of(0,30).isBefore(TramTime.of(4,0))); // late night
+        Assertions.assertFalse(TramTime.of(10,30).isBefore(TramTime.of(10,30)));
+        Assertions.assertFalse(TramTime.of(10,30).isBefore(TramTime.of(9,30)));
+        Assertions.assertFalse(TramTime.of(0,30).isBefore(TramTime.of(4,0))); // late night
     }
 
     @Test
-    public void shouldHaveAfter() {
-        assertTrue(TramTime.of(11,44).isAfter(TramTime.of(11,00)));
+    void shouldHaveAfter() {
+        assertTrue(TramTime.of(11,44).isAfter(TramTime.of(11, 0)));
         assertTrue(TramTime.of(0,30).isAfter(TramTime.of(23,30)));
         assertTrue(TramTime.of(0,30).isAfter(TramTime.of(21,30)));
-        assertTrue(TramTime.of(00,44).isAfter(TramTime.of(00,20)));
+        assertTrue(TramTime.of(0,44).isAfter(TramTime.of(0,20)));
         assertTrue(TramTime.of(2,44).isAfter(TramTime.of(2,20)));
 
-        assertFalse(TramTime.of(2,30).isAfter(TramTime.of(23,30)));
-        assertFalse(TramTime.of(4,30).isAfter(TramTime.of(0,30)));
+        Assertions.assertFalse(TramTime.of(2,30).isAfter(TramTime.of(23,30)));
+        Assertions.assertFalse(TramTime.of(4,30).isAfter(TramTime.of(0,30)));
     }
 
     @Test
-    public void shouldIfBetweenAccountingForMidnight() {
+    void shouldIfBetweenAccountingForMidnight() {
         TramTime morning = TramTime.of(11,30);
 
         assertTrue(morning.between(TramTime.of(9,0), TramTime.of(13,0)));
         assertTrue(morning.between(TramTime.of(11,30), TramTime.of(13,0)));
         assertTrue(morning.between(TramTime.of(10,30), TramTime.of(11,30)));
 
-        assertFalse(morning.between(TramTime.of(9,0), TramTime.of(11,0)));
-        assertFalse(morning.between(TramTime.of(12,0), TramTime.of(13,0)));
+        Assertions.assertFalse(morning.between(TramTime.of(9,0), TramTime.of(11,0)));
+        Assertions.assertFalse(morning.between(TramTime.of(12,0), TramTime.of(13,0)));
 
         assertTrue(morning.between(TramTime.of(5,0), TramTime.of(0,1)));
         assertTrue(morning.between(TramTime.of(5,0), TramTime.of(0,0)));
@@ -254,13 +254,13 @@ public class TramTimeTest {
         assertTrue(earlyMorning.between(TramTime.of(0,1), TramTime.of(0,20)));
         assertTrue(earlyMorning.between(TramTime.of(0,0), TramTime.of(0,20)));
         assertTrue(earlyMorning.between(TramTime.of(5,0), TramTime.of(1,20)));
-        assertFalse(earlyMorning.between(TramTime.of(3,0), TramTime.of(11,20)));
-        assertFalse(earlyMorning.between(TramTime.of(23,0), TramTime.of(0,15)));
+        Assertions.assertFalse(earlyMorning.between(TramTime.of(3,0), TramTime.of(11,20)));
+        Assertions.assertFalse(earlyMorning.between(TramTime.of(23,0), TramTime.of(0,15)));
 
     }
 
     @Test
-    public void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnight() throws TramchesterException {
+    void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnight() {
         TramTime first = TramTime.of(9,30);
         TramTime second = TramTime.of(10,45);
 
@@ -271,7 +271,7 @@ public class TramTimeTest {
         assertEquals(75, result);
 
         ////
-        first = TramTime.of(00,5);
+        first = TramTime.of(0,5);
         second = TramTime.of(23,15);
 
         result = TramTime.diffenceAsMinutes(first, second);
@@ -281,7 +281,7 @@ public class TramTimeTest {
         assertEquals(50, result);
 
         ////
-        first = TramTime.of(00,5);
+        first = TramTime.of(0,5);
         second = TramTime.of(22,59);
 
         result = TramTime.diffenceAsMinutes(first, second);
@@ -302,7 +302,7 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldAddMins() {
+    void shouldAddMins() {
         TramTime ref = TramTime.of(0,0);
         assertEquals(TramTime.of(0,42), ref.plusMinutes(42));
         assertEquals(TramTime.of(1,42), ref.plusMinutes(42+60));
@@ -320,26 +320,26 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldSubstractMins() {
-        TramTime reference = TramTime.of(12,04);
+    void shouldSubstractMins() {
+        TramTime reference = TramTime.of(12, 4);
         TramTime result = reference.minusMinutes(30);
 
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
 
-        reference = TramTime.of(12,04);
+        reference = TramTime.of(12, 4);
         result = reference.minusMinutes(90);
 
         assertEquals(10, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
 
-        reference = TramTime.of(00,04);
+        reference = TramTime.of(0, 4);
         result = reference.minusMinutes(30);
 
         assertEquals(23, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
 
-        reference = TramTime.of(00,04);
+        reference = TramTime.of(0, 4);
         result = reference.minusMinutes(90);
 
         assertEquals(22, result.getHourOfDay());
@@ -347,8 +347,8 @@ public class TramTimeTest {
     }
 
     @Test
-    public void shouldSubstractMinsViaLocalTime() {
-        LocalTime reference = LocalTime.of(12, 04);
+    void shouldSubstractMinsViaLocalTime() {
+        LocalTime reference = LocalTime.of(12, 4);
         TramTime result = TramTime.of(reference.minusMinutes(30));
 
         assertEquals(11, result.getHourOfDay());

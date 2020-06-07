@@ -3,15 +3,14 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
 
-import static org.junit.Assert.assertEquals;
-
-public class CoordinateTransformsTest {
+class CoordinateTransformsTest {
 
     @Test
-    public void shouldConvertToGridCorrectly() throws TransformException {
+    void shouldConvertToGridCorrectly() throws TransformException {
         CoordinateTransforms transforms = new CoordinateTransforms();
 
         double lat = 52.940190;
@@ -24,12 +23,12 @@ public class CoordinateTransformsTest {
         long expectedEasting = 433931;
         long expectedNorthing = 338207;
 
-        assertEquals(expectedEasting, result.getEastings());
-        assertEquals(expectedNorthing, result.getNorthings());
+        Assertions.assertEquals(expectedEasting, result.getEastings());
+        Assertions.assertEquals(expectedNorthing, result.getNorthings());
     }
 
     @Test
-    public void shouldConvertToLatLongCorrectly() throws TransformException {
+    void shouldConvertToLatLongCorrectly() throws TransformException {
         CoordinateTransforms transforms = new CoordinateTransforms();
 
         long easting = 433931;
@@ -39,7 +38,7 @@ public class CoordinateTransformsTest {
 
         double lat = 52.94018971498456;
         double lon = -1.496557148808237;
-        assertEquals(lat, result.getLat(), 0.00000000001);
-        assertEquals(lon, result.getLon(), 0.00000000001);
+        Assertions.assertEquals(lat, result.getLat(), 0.00000000001);
+        Assertions.assertEquals(lon, result.getLon(), 0.00000000001);
     }
 }

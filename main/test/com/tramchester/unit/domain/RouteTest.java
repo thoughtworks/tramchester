@@ -5,27 +5,24 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-public class RouteTest {
+class RouteTest {
 
     @Test
-    public void shouldHaveTramRoute() {
+    void shouldHaveTramRoute() {
         Route route = new Route("id","code","name", TestEnv.MetAgency(), TransportMode.Tram);
-        assertTrue(route.isTram());
+        Assertions.assertTrue(route.isTram());
 
         route = new Route("id","code","name", new Agency("GMS"), TransportMode.Bus);
-        assertFalse(route.isTram());
+        Assertions.assertFalse(route.isTram());
     }
 
     @Test
-    public void shouldAddService() {
+    void shouldAddService() {
         Route  route = new Route("id","code","name", TestEnv.MetAgency(), TransportMode.Tram);
 
         route.addService(new Service("serviceId", TestEnv.getTestRoute()));
@@ -34,11 +31,11 @@ public class RouteTest {
 
         Set<Service> services = route.getServices();
 
-        assertEquals(2, services.size());
+        Assertions.assertEquals(2, services.size());
     }
 
     @Test
-    public void shouldAddHeadsign() {
+    void shouldAddHeadsign() {
         Route  route = new Route("id","code","name", TestEnv.MetAgency(), TransportMode.Tram);
 
         route.addHeadsign("hs1");
@@ -47,6 +44,6 @@ public class RouteTest {
 
         Set<String> results = route.getHeadsigns();
 
-        assertEquals(2, results.size());
+        Assertions.assertEquals(2, results.size());
     }
 }

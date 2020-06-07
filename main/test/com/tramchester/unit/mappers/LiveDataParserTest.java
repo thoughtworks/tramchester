@@ -8,8 +8,9 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -18,9 +19,9 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
-public class LiveDataParserTest extends EasyMockSupport {
+class LiveDataParserTest extends EasyMockSupport {
 
-    public static String exampleData = "{\n" +
+    private static final String exampleData = "{\n" +
             "  \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n" +
             "    {\n" +
             "      \"Id\":1,\"Line\":\"Eccles\",\"TLAREF\":\"MEC\",\"PIDREF\":\"MEC-TPID03\",\"StationLocation\":\"MediaCityUK\",\"AtcoCode\":\"9400ZZMAMCU2\",\"Direction\":\"Incoming\",\"Dest0\":\"Piccadilly\",\"Carriages0\":\"Single\",\"Status0\":\"Due\",\"Wait0\":\"1\",\"Dest1\":\"Piccadilly\",\"Carriages1\":\"Single\",\"Status1\":\"Due\",\"Wait1\":\"12\",\"Dest2\":\"Piccadilly\",\"Carriages2\":\"Single\",\"Status2\":\"Due\",\"Wait2\":\"21\",\"Dest3\":\"\",\"Carriages3\":\"\",\"Status3\":\"\",\"MessageBoard\":\"Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and services are expected to be busier than usual. Please plan your journey ahead with additional time for travel.\",\"Wait3\":\"\",\"LastUpdated\":\"2017-11-29T11:45:00Z\"\n" +
@@ -31,11 +32,10 @@ public class LiveDataParserTest extends EasyMockSupport {
 
 
     private LiveDataParser parser;
-    private StationRepository stationRepository;
 
-    @Before
-    public void beforeEachTestRuns() {
-        stationRepository = createStrictMock(StationRepository.class);
+    @BeforeEach
+    void beforeEachTestRuns() {
+        StationRepository stationRepository = createStrictMock(StationRepository.class);
         parser = new LiveDataParser(stationRepository);
 
         EasyMock.expect(stationRepository.getStation(Stations.MediaCityUK.getId())).andStubReturn(Stations.MediaCityUK);
@@ -54,7 +54,7 @@ public class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldMapTimesCorrectlyDuringEarlyHours() {
+    void shouldMapTimesCorrectlyDuringEarlyHours() {
         String header = "{\n \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n";
         String footer = "]\n }\n";
 
@@ -79,96 +79,96 @@ public class LiveDataParserTest extends EasyMockSupport {
 
         replayAll();
         List<StationDepartureInfo> info = parser.parse(message.toString());
-        assertEquals(11, info.size());
+        Assertions.assertEquals(11, info.size());
         for (int i = 1; i < 12; i++) {
             LocalDateTime expected = LocalDateTime.of(2017, 11, 29, i, 45);
-            assertEquals(expected.toString(), expected, info.get(i-1).getLastUpdate());
+            Assertions.assertEquals(expected, info.get(i-1).getLastUpdate(), expected.toString());
         }
         verifyAll();
     }
 
     @Test
-    public void shouldMapLiveDataToStationInfo() {
+    void shouldMapLiveDataToStationInfo() {
 
         replayAll();
         List<StationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
 
-        assertEquals(2, info.size());
+        Assertions.assertEquals(2, info.size());
 
         StationDepartureInfo departureInfoA = info.get(0);
-        assertEquals("1", departureInfoA.getDisplayId());
-        assertEquals("Eccles", departureInfoA.getLineName());
-        assertEquals("9400ZZMAMCU2", departureInfoA.getStationPlatform());
-        assertEquals("MediaCityUK", departureInfoA.getLocation());
-        assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
+        Assertions.assertEquals("1", departureInfoA.getDisplayId());
+        Assertions.assertEquals("Eccles", departureInfoA.getLineName());
+        Assertions.assertEquals("9400ZZMAMCU2", departureInfoA.getStationPlatform());
+        Assertions.assertEquals("MediaCityUK", departureInfoA.getLocation());
+        Assertions.assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +
                 "ahead with additional time for travel.", departureInfoA.getMessage());
-        assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoA.getDirection());
+        Assertions.assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoA.getDirection());
 
         List<DueTram> dueTrams = departureInfoA.getDueTrams();
-        assertEquals(3, dueTrams.size());
+        Assertions.assertEquals(3, dueTrams.size());
         DueTram dueTram = dueTrams.get(1);
 
-        assertEquals("Piccadilly", dueTram.getDestination().getName());
-        assertEquals("Due", dueTram.getStatus());
-        assertEquals(12, dueTram.getWait());
-        assertEquals("Single",dueTram.getCarriages());
+        Assertions.assertEquals("Piccadilly", dueTram.getDestination().getName());
+        Assertions.assertEquals("Due", dueTram.getStatus());
+        Assertions.assertEquals(12, dueTram.getWait());
+        Assertions.assertEquals("Single",dueTram.getCarriages());
 
         ZonedDateTime expectedDateA = ZonedDateTime.of(LocalDateTime.of(2017, 11, 29, 11, 45), TramchesterConfig.TimeZone);
-        assertEquals(expectedDateA.toLocalDateTime(), departureInfoA.getLastUpdate());
+        Assertions.assertEquals(expectedDateA.toLocalDateTime(), departureInfoA.getLastUpdate());
 
         // WORKAROUND - Live data erronously gives timestamps as 'UTC'/'Z' even though they switch to DST/BST
         StationDepartureInfo departureInfoB = info.get(1);
-        assertEquals("234", departureInfoB.getDisplayId());
+        Assertions.assertEquals("234", departureInfoB.getDisplayId());
 
-        assertEquals("Airport", departureInfoB.getLineName());
-        ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 06, 29, 13, 55), TramchesterConfig.TimeZone);
-        assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
-        assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoB.getDirection());
+        Assertions.assertEquals("Airport", departureInfoB.getLineName());
+        ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 6, 29, 13, 55), TramchesterConfig.TimeZone);
+        Assertions.assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
+        Assertions.assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoB.getDirection());
     }
 
     @Test
-    public void shouldExcludeSeeTramFrontDestination()  {
+    void shouldExcludeSeeTramFrontDestination()  {
         replayAll();
         List<StationDepartureInfo> info = parser.parse(exampleData);
         verifyAll();
 
-        assertEquals(2, info.size());
+        Assertions.assertEquals(2, info.size());
         StationDepartureInfo departureInfoB = info.get(1);
-        assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
-        assertEquals(2, departureInfoB.getDueTrams().size());
+        Assertions.assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
+        Assertions.assertEquals(2, departureInfoB.getDueTrams().size());
     }
 
     @Test
-    public void shouldExcludeDueTramsWithDestinationSetToNotInService() {
+    void shouldExcludeDueTramsWithDestinationSetToNotInService() {
         String notInService = exampleData.replaceFirst("Deansgate Castlefield", "Not in Service");
 
         replayAll();
         List<StationDepartureInfo> info = parser.parse(notInService);
         verifyAll();
 
-        assertEquals(2, info.size());
+        Assertions.assertEquals(2, info.size());
         StationDepartureInfo departureInfoB = info.get(1);
-        assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
-        assertEquals(1, departureInfoB.getDueTrams().size());
+        Assertions.assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
+        Assertions.assertEquals(1, departureInfoB.getDueTrams().size());
     }
 
     @Test
-    public void shouldParseDataWithDirectionIncomingOutgoing() {
+    void shouldParseDataWithDirectionIncomingOutgoing() {
         String bothDirections = exampleData.replaceAll("Incoming", "Incoming/Outgoing");
 
         replayAll();
         List<StationDepartureInfo> info = parser.parse(bothDirections);
         verifyAll();
-        assertEquals(2, info.size());
-        assertEquals(StationDepartureInfo.Direction.Both, info.get(0).getDirection());
-        assertEquals(StationDepartureInfo.Direction.Both, info.get(1).getDirection());
+        Assertions.assertEquals(2, info.size());
+        Assertions.assertEquals(StationDepartureInfo.Direction.Both, info.get(0).getDirection());
+        Assertions.assertEquals(StationDepartureInfo.Direction.Both, info.get(1).getDirection());
 
     }
 
     @Test
-    public void shouldParseDestinationsThatIncludeVIAPostfixForDestination() {
+    void shouldParseDestinationsThatIncludeVIAPostfixForDestination() {
         String exampleData = "{\n" +
                 "  \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n" +
                 "    {\n" +
@@ -179,7 +179,7 @@ public class LiveDataParserTest extends EasyMockSupport {
                 "]\n }\n";
 
         replayAll();
-        parser.parse(exampleData);
+        Assertions.assertAll(() -> parser.parse(exampleData));
         verifyAll();
     }
 }

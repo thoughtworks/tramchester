@@ -1,31 +1,28 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-public class LiveDataHealthCheckTest extends EasyMockSupport {
+class LiveDataHealthCheckTest extends EasyMockSupport {
 
     private LiveDataRepository repository;
     private LiveDataHealthCheck healthCheck;
     private TramTime now;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         now = TramTime.of(TestEnv.LocalNow());
         repository = createMock(LiveDataRepository.class);
         healthCheck = new LiveDataHealthCheck(repository, new ProvidesNow() {
@@ -47,19 +44,19 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldReportUnhealthyIfNoData() {
+    void shouldReportUnhealthyIfNoData() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(0);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
-        assertFalse(result.isHealthy());
-        assertEquals("no entries present", result.getMessage());
+        Assertions.assertFalse(result.isHealthy());
+        Assertions.assertEquals("no entries present", result.getMessage());
     }
 
     @Test
-    public void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
+    void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.missingDataCount()).andReturn(0L);
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
@@ -68,11 +65,11 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
-        assertTrue(result.isHealthy());
+        Assertions.assertTrue(result.isHealthy());
     }
 
     @Test
-    public void shouldReportUnhealthIfStaleDate() {
+    void shouldReportUnhealthIfStaleDate() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.missingDataCount()).andReturn(2L);
 
@@ -80,12 +77,12 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
-        assertFalse(result.isHealthy());
-        assertEquals("2 of 40 entries are stale", result.getMessage());
+        Assertions.assertFalse(result.isHealthy());
+        Assertions.assertEquals("2 of 40 entries are stale", result.getMessage());
     }
 
     @Test
-    public void shouldReportUnhealthIfStaleTime() {
+    void shouldReportUnhealthIfStaleTime() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.upToDateEntries()).andReturn(20);
         EasyMock.expect(repository.missingDataCount()).andReturn(0L);
@@ -94,7 +91,7 @@ public class LiveDataHealthCheckTest extends EasyMockSupport {
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
-        assertFalse(result.isHealthy());
-        assertEquals("20 of 40 entries are expired at "+now.toString(), result.getMessage());
+        Assertions.assertFalse(result.isHealthy());
+        Assertions.assertEquals("20 of 40 entries are expired at "+now.toString(), result.getMessage());
     }
 }

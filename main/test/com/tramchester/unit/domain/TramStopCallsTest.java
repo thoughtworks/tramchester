@@ -6,13 +6,13 @@ import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.tramchester.domain.Platform.from;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TramStopCallsTest {
+class TramStopCallsTest {
     private Station stationA;
     private Station stationB;
     private Station stationC;
@@ -21,8 +21,8 @@ public class TramStopCallsTest {
     private TramStopCall stopB;
     private TramStopCall stopC;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         stationA = new Station("statA", "areaA", "nameA", new LatLong(-1,1), false);
         stationB = new Station("statB", "areaB", "nameB", new LatLong(-2,2), false);
         stationC = new Station("statC", "areaC", "nameC", new LatLong(-3,3), false);
@@ -34,7 +34,7 @@ public class TramStopCallsTest {
     }
 
     @Test
-    public void shouldAddStops() {
+    void shouldAddStops() {
         StopCalls stops = new StopCalls();
 
         stops.add(stopA);

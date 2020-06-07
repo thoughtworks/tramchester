@@ -10,28 +10,26 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
+class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
     private URLDownloader urlDownloader;
-    private TramchesterConfig config = new IntegrationTramTestConfig();
+    private final TramchesterConfig config = new IntegrationTramTestConfig();
     private FileModTime fileModTime;
     private Path expectedPath;
     private NewDataAvailableHealthCheck healthCheck;
     private String expectedURL;
     private LocalDateTime time;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         urlDownloader = createMock(URLDownloader.class);
         fileModTime = createMock(FileModTime.class);
         expectedPath = config.getDataPath().resolve(FetchDataFromUrl.ZIP_FILENAME);
@@ -42,26 +40,26 @@ public class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
+    void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
 
         EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.minusDays(1));
         EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();
         HealthCheck.Result result = healthCheck.execute();
-        assertTrue(result.isHealthy());
+        Assertions.assertTrue(result.isHealthy());
         verifyAll();
     }
 
     @Test
-    public void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
+    void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
 
         EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.plusDays(1));
         EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();
         HealthCheck.Result result = healthCheck.execute();
-        assertFalse(result.isHealthy());
+        Assertions.assertFalse(result.isHealthy());
         verifyAll();
     }
 

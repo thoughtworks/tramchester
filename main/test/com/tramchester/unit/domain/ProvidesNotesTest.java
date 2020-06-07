@@ -6,16 +6,19 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,18 +30,16 @@ import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 
-public class ProvidesNotesTest extends EasyMockSupport {
+class ProvidesNotesTest extends EasyMockSupport {
     private ProvidesNotes provider;
     private Set<Journey> journeys;
     private LiveDataRepository liveDataRepository;
     private LocalDateTime lastUpdate;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         liveDataRepository = createStrictMock(LiveDataRepository.class);
         provider = new ProvidesNotes(TestEnv.GET(), liveDataRepository);
         journeys = new HashSet<>();
@@ -46,7 +47,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldAddNotesForClosedStations() {
+    void shouldAddNotesForClosedStations() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
         List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
@@ -54,7 +55,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldAddNotesForSaturdayJourney() {
+    void shouldAddNotesForSaturdayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
         List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
@@ -62,7 +63,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldAddNotesForSundayJourney() {
+    void shouldAddNotesForSundayJourney() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,30));
         List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
@@ -70,7 +71,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotShowNotesOnOtherDay() {
+    void shouldNotShowNotesOnOtherDay() {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
         List<Note> result = provider.createNotesForJourneys(Collections.emptySet(), queryDate);
 
@@ -78,7 +79,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveNoteForChristmasServices() {
+    void shouldHaveNoteForChristmasServices() {
         int year = 2018;
         LocalDate date = LocalDate.of(year, 12, 23);
         Note christmasNote = new Note(Note.NoteType.Christmas, ProvidesNotes.christmas);
@@ -98,7 +99,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNotAddMessageIfNotMessageForJourney() {
+    void shouldNotAddMessageIfNotMessageForJourney() {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
         TramTime queryTime = TramTime.of(8,11);
@@ -111,7 +112,6 @@ public class ProvidesNotesTest extends EasyMockSupport {
         StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "<no message>");
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(info));
 
-        double cost = 42;
         journeys.add(new Journey(Collections.singletonList(stageA), queryTime));
 
         replayAll();
@@ -123,11 +123,11 @@ public class ProvidesNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-        assertEquals(expected, notes.size());
+        Assertions.assertEquals(expected, notes.size());
     }
 
     @Test
-    public void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
+    void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
@@ -149,11 +149,11 @@ public class ProvidesNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-        assertEquals(expected, notes.size());
+        Assertions.assertEquals(expected, notes.size());
     }
 
     @Test
-    public void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
+    void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
         TransportStage stageA = createStageWithBoardingPlatform("platformId");
 
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
@@ -177,11 +177,11 @@ public class ProvidesNotesTest extends EasyMockSupport {
         if (queryDate.isChristmasPeriod()) {
             expected++;
         }
-        assertEquals(expected, notes.size());
+        Assertions.assertEquals(expected, notes.size());
     }
 
     @Test
-    public void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
+    void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
         TransportStage stageA = createStageWithBoardingPlatform("platformId1");
         TransportStage stageB = createStageWithBoardingPlatform("platformId2");
         TransportStage stageC = createStageWithBoardingPlatform("platformId3");
@@ -221,13 +221,13 @@ public class ProvidesNotesTest extends EasyMockSupport {
             expected++;
         }
 
-        assertEquals(expected, notes.size());
-        assertTrue(notes.toString(), notes.contains(new Note(Live,"'Some long message' - Metrolink")));
-        assertTrue(notes.toString(), notes.contains(new Note(Live,"'Some Location Long message' - Altrincham, Metrolink")));
+        Assertions.assertEquals(expected, notes.size());
+        Assertions.assertTrue(notes.contains(new Note(Live,"'Some long message' - Metrolink")), notes.toString());
+        Assertions.assertTrue(notes.contains(new Note(Live,"'Some Location Long message' - Altrincham, Metrolink")), notes.toString());
     }
 
     @Test
-    public void shouldAddNotesForStations() {
+    void shouldAddNotesForStations() {
 
         List<Station> stations = Arrays.asList(Stations.Pomona, Stations.VeloPark, Stations.Cornbrook);
 
@@ -245,7 +245,7 @@ public class ProvidesNotesTest extends EasyMockSupport {
         List<Note> notes = provider.createNotesForStations(stations, queryDate, queryTime);
         verifyAll();
 
-        assertEquals(3, notes.size());
+        Assertions.assertEquals(3, notes.size());
         assertThat(notes.toString(), notes.contains(new Note(Live,"'first message' - Velopark, Metrolink")));
         assertThat(notes.toString(), notes.contains(new Note(Live,"'second message' - Metrolink")));
 

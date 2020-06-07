@@ -1,35 +1,34 @@
 package com.tramchester.unit.environment;
 
 import com.tramchester.testSupport.TestEnv;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static junit.framework.TestCase.assertTrue;
-
 // want to find out as soon as possible, not wait for integration tests
-public class AcceptanceTestEnvironmentVarsPreCheck {
+class AcceptanceTestEnvironmentVarsPreCheck {
 
     @Test
-    public void firefoxBinaryPathShouldBeValidIfSet() {
+    void firefoxBinaryPathShouldBeValidIfSet() {
         assertPathValid("FIREFOX_PATH");
     }
 
     @Test
-    public void chromedriverPathShouldBeValidIfSet() {
+    void chromedriverPathShouldBeValidIfSet() {
         assertPathValid("CHROMEDRIVER_PATH");
     }
 
     @Test
-    public void geckodriverPathShouldBeValidIfSet() {
+    void geckodriverPathShouldBeValidIfSet() {
         assertPathValid("GECKODRIVER_PATH");
     }
 
     private void assertPathValid(String envVarName) {
         Path path = TestEnv.getPathFromEnv(envVarName);
         if (path != null) {
-            assertTrue("Check failed for "+ envVarName, Files.exists(path));
+            Assertions.assertTrue(Files.exists(path), "Check failed for "+ envVarName);
         }
     }
 

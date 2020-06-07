@@ -2,21 +2,20 @@ package com.tramchester.unit.domain.time;
 
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.testSupport.TestConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static junit.framework.TestCase.assertEquals;
-
-public class ProvidesLocalTimeTest {
+class ProvidesLocalTimeTest {
 
     @Test
-    public void shouldProvideTimeWithCorrectZone() {
+    void shouldProvideTimeWithCorrectZone() {
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
 
         LocalDateTime dateTime = providesLocalNow.getDateTime();
         // not great
-        assertEquals(dateTime.atZone(TestConfig.TimeZone).toLocalDateTime(), dateTime);
+        Assertions.assertEquals(dateTime.atZone(TestConfig.TimeZone).toLocalDateTime(), dateTime);
 
     }
 }

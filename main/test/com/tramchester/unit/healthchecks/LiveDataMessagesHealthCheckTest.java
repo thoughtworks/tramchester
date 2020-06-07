@@ -2,29 +2,26 @@ package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataMessagesHealthCheck;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.testSupport.TestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.*;
-
-public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
+class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
     private LiveDataRepository repository;
     private LiveDataMessagesHealthCheck healthCheck;
     private ProvidesNow providesNow;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         repository = createMock(LiveDataRepository.class);
         providesNow = createMock(ProvidesNow.class);
         TramchesterConfig config = new IntegrationTramTestConfig();
@@ -32,7 +29,7 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldReportUnhealthyIfNoData() {
+    void shouldReportUnhealthyIfNoData() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.entriesWithMessages()).andReturn(0);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
@@ -46,7 +43,7 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNOTReportUnhealthyIfNoDataLateAtNight() {
+    void shouldNOTReportUnhealthyIfNoDataLateAtNight() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.entriesWithMessages()).andReturn(0);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(4,0));
@@ -59,7 +56,7 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldReportUnhealthyIfHaveDataAndOverThreshold() {
+    void shouldReportUnhealthyIfHaveDataAndOverThreshold() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.entriesWithMessages()).andReturn(34);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
@@ -72,7 +69,7 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldNOTReportUnhealthyIfHaveDataAndOverThresholdLateAtNight() {
+    void shouldNOTReportUnhealthyIfHaveDataAndOverThresholdLateAtNight() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.entriesWithMessages()).andReturn(37);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(3,0));
@@ -85,7 +82,7 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldReportHealthyIfHaveDataAndWithinThreshold() {
+    void shouldReportHealthyIfHaveDataAndWithinThreshold() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.entriesWithMessages()).andReturn(38);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
@@ -98,7 +95,7 @@ public class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
+    void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
         EasyMock.expect(repository.entriesWithMessages()).andReturn(40);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));

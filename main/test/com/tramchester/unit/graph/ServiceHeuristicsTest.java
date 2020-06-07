@@ -4,43 +4,47 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.*;
-import com.tramchester.graph.search.*;
+import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.NodeIdLabelMap;
+import com.tramchester.graph.search.ServiceHeuristics;
+import com.tramchester.graph.search.ServiceReason;
+import com.tramchester.graph.search.ServiceReasons;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TramReachabilityRepository;
+import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
 import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ServiceHeuristicsTest extends EasyMockSupport {
+class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
-    private final List<Station> endStationIds = Arrays.asList(Stations.Deansgate);
+    private final List<Station> endStationIds = Collections.singletonList(Stations.Deansgate);
 
-    private TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
+    private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private CachedNodeOperations nodeOperations;
     private RunningServices runningServices;
     private Path path;
     private TramReachabilityRepository tramReachabilityRepository;
-    private int maxPathLength = 400;
+    private final int maxPathLength = 400;
     private StationRepository stationRepository;
     private ProvidesLocalNow providesLocalNow;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
         runningServices = createMock(RunningServices.class);
@@ -51,7 +55,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckNodeBasedOnServiceId() {
+    void shouldCheckNodeBasedOnServiceId() {
         TramTime queryTime = TramTime.of(8,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -76,7 +80,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckNodeBasedOnServiceIdAndTimeOverlaps() {
+    void shouldCheckNodeBasedOnServiceIdAndTimeOverlaps() {
         TramTime queryTime = TramTime.of(8,1);
         LocalTime elaspsedTime = LocalTime.of(9,1);
         TramTime elaspsedTramTime = TramTime.of(elaspsedTime);
@@ -139,7 +143,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHours() {
+    void shouldBeInterestedInCorrectHours() {
         TramTime queryTime = TramTime.of(9,1);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -158,7 +162,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHoursCrossesNextHour() {
+    void shouldBeInterestedInCorrectHoursCrossesNextHour() {
         TramTime queryTime = TramTime.of(7,0);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -172,7 +176,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHoursPriorToMidnight() {
+    void shouldBeInterestedInCorrectHoursPriorToMidnight() {
         TramTime queryTime = TramTime.of(23,10);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -188,7 +192,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHoursPriorAcrossMidnight() {
+    void shouldBeInterestedInCorrectHoursPriorAcrossMidnight() {
         TramTime queryTime = TramTime.of(23,40);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -205,7 +209,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHoursEarlyMorning() {
+    void shouldBeInterestedInCorrectHoursEarlyMorning() {
         TramTime queryTime = TramTime.of(0,5);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -220,7 +224,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHoursEarlyMorningNextHour() {
+    void shouldBeInterestedInCorrectHoursEarlyMorningNextHour() {
         TramTime queryTime = TramTime.of(0,50);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -235,7 +239,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckTimeAtNodeCorrectly() {
+    void shouldCheckTimeAtNodeCorrectly() {
         TramTime queryTime = TramTime.of(7,0);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -263,7 +267,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckTimeAtNodeCorrectlyOvermidnight() {
+    void shouldCheckTimeAtNodeCorrectlyOvermidnight() {
         TramTime queryTime = TramTime.of(23,50);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -292,7 +296,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldBeInterestedInCorrectHoursOverMidnightLongerJourney() {
+    void shouldBeInterestedInCorrectHoursOverMidnightLongerJourney() {
         TramTime queryTime = TramTime.of(23,10);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository, config30MinsWait,
@@ -307,7 +311,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckMaximumDurationCorrectly() {
+    void shouldCheckMaximumDurationCorrectly() {
         TramTime queryTime = TramTime.of(11,20);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
@@ -323,7 +327,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckChangeLimit() {
+    void shouldCheckChangeLimit() {
         TramTime queryTime = TramTime.of(11,20);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
@@ -336,7 +340,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCheckMaximumDurationCorrectlyAcrossMidnight() {
+    void shouldCheckMaximumDurationCorrectlyAcrossMidnight() {
         TramTime queryTime = TramTime.of(23,20);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
@@ -351,7 +355,7 @@ public class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     private static class NeedMaxWaitConfig extends IntegrationTramTestConfig {
-        private int maxWait;
+        private final int maxWait;
 
         public NeedMaxWaitConfig(int maxWait) {
             this.maxWait = maxWait;

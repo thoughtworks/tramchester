@@ -5,25 +5,25 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class StationLocationsTest {
+class StationLocationsTest {
 
     private StationLocations stationLocations;
 
-    @Before
-    public void onceBeforeEachTest() {
+    @BeforeEach
+    void onceBeforeEachTest() {
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         stationLocations = new StationLocations(coordinateTransforms);
     }
 
     @Test
-    public void shouldHaveGridPositionBehaviours() {
+    void shouldHaveGridPositionBehaviours() {
         StationLocations.GridPosition gridPositionA = new StationLocations.GridPosition(3,4);
         assertEquals(3, gridPositionA.getEastings());
         assertEquals(4, gridPositionA.getNorthings());
@@ -43,7 +43,7 @@ public class StationLocationsTest {
     }
 
     @Test
-    public void shouldFindNearbyStation() {
+    void shouldFindNearbyStation() {
         LatLong place = TestEnv.nearAltrincham;
         Station stationA = new Station("id123", "area", "nameA", place, true);
         Station stationB = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
@@ -74,7 +74,7 @@ public class StationLocationsTest {
     }
 
     @Test
-    public void shouldOrderClosestFirst() {
+    void shouldOrderClosestFirst() {
         Station stationA = new Station("id123", "area", "nameA", TestEnv.nearAltrincham, true);
         Station stationB = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
         Station stationC = new Station("id789", "area", "nameC", TestEnv.nearShudehill, true);
@@ -91,7 +91,7 @@ public class StationLocationsTest {
     }
 
     @Test
-    public void shouldRespectLimitOnNumberResults() {
+    void shouldRespectLimitOnNumberResults() {
         Station stationA = new Station("id123", "area", "nameA", TestEnv.nearAltrincham, true);
         Station stationB = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
         Station stationC = new Station("id789", "area", "nameC", TestEnv.nearShudehill, true);
@@ -106,7 +106,7 @@ public class StationLocationsTest {
     }
 
     @Test
-    public void shouldFindNearbyStationRespectingRange() {
+    void shouldFindNearbyStationRespectingRange() {
         Station testStation = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
         stationLocations.addStation(testStation);
 
@@ -119,7 +119,7 @@ public class StationLocationsTest {
     }
 
     @Test
-    public void shouldCaptureBoundingAreaForStations() {
+    void shouldCaptureBoundingAreaForStations() {
         Station testStationA = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
         Station testStationB = new Station("id456", "area", "name", TestEnv.nearShudehill, true);
         Station testStationC = new Station("id789", "area", "nameB", TestEnv.nearPiccGardens, true);

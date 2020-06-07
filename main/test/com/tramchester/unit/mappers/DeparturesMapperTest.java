@@ -1,47 +1,43 @@
 package com.tramchester.unit.mappers;
 
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.DeparturesMapper;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-public class DeparturesMapperTest extends EasyMockSupport {
+class DeparturesMapperTest extends EasyMockSupport {
 
     private DeparturesMapper mapper;
 
-    @Before
-    public void beforeEachTestRuns() {
-        LiveDataRepository liveDataRepository = createStrictMock(LiveDataRepository.class);
+    @BeforeEach
+    void beforeEachTestRuns() {
         mapper = new DeparturesMapper();
     }
 
     @Test
-    public void shouldMapToDTOCorrectly() {
-        Collection<DueTram> dueTrams = Arrays.asList(new DueTram(Stations.PiccadillyGardens, "DUE", 9,
-                "single", LocalTime.of(10,32)));
+    void shouldMapToDTOCorrectly() {
+        Collection<DueTram> dueTrams = Collections.singletonList(new DueTram(Stations.PiccadillyGardens, "DUE", 9,
+                "single", LocalTime.of(10, 32)));
 
         Set<DepartureDTO> results = mapper.mapToDTO(Stations.Bury, dueTrams);
 
         List<DepartureDTO> list = new LinkedList<>(results);
 
-        assertEquals(1, list.size());
+        Assertions.assertEquals(1, list.size());
         DepartureDTO departureDTO = list.get(0);
-        assertEquals(Stations.PiccadillyGardens.getName(), departureDTO.getDestination());
-        assertEquals("DUE", departureDTO.getStatus());
-        assertEquals(Stations.Bury.getName(), departureDTO.getFrom());
-        assertEquals(TramTime.of(10,41), departureDTO.getWhen());
-        assertEquals("single", departureDTO.getCarriages());
+        Assertions.assertEquals(Stations.PiccadillyGardens.getName(), departureDTO.getDestination());
+        Assertions.assertEquals("DUE", departureDTO.getStatus());
+        Assertions.assertEquals(Stations.Bury.getName(), departureDTO.getFrom());
+        Assertions.assertEquals(TramTime.of(10,41), departureDTO.getWhen());
+        Assertions.assertEquals("single", departureDTO.getCarriages());
 
     }
 

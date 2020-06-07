@@ -1,34 +1,35 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.*;
+import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.NodeIdLabelMap;
+import com.tramchester.graph.TransportGraphBuilder;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-public class TramRouteEvaluatorTest extends EasyMockSupport {
+class TramRouteEvaluatorTest extends EasyMockSupport {
 
-    private final List<String> destinationStationIds = Arrays.asList("destinationStationId");
+    private final List<String> destinationStationIds = Collections.singletonList("destinationStationId");
     private ServiceHeuristics serviceHeuristics;
     private CachedNodeOperations nodeOperations;
     private Path path;
@@ -37,8 +38,8 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
     private ServiceReasons reasons;
     private TramchesterConfig config;
 
-    @Before
-    public void onceBeforeEachTestRuns() {
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
@@ -59,7 +60,7 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldMatchDestination() {
+    void shouldMatchDestination() {
         long destinationNodeId = 42;
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
 
@@ -71,12 +72,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldPruneIfTooLong() {
+    void shouldPruneIfTooLong() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(200);
 
@@ -89,12 +90,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldExcludeIfServiceNotRunningToday() {
+    void shouldExcludeIfServiceNotRunningToday() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path)).andStubReturn(ServiceReason.IsValid(path));
@@ -113,12 +114,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldExcludeIfUnreachableNode() throws TramchesterException {
+    void shouldExcludeIfUnreachableNode() throws TramchesterException {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -138,12 +139,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldIncludeIfNotOnTramNode() throws TramchesterException {
+    void shouldIncludeIfNotOnTramNode() throws TramchesterException {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -171,12 +172,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
+        Assertions.assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldIncludeIfWalking() {
+    void shouldIncludeIfWalking() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -198,12 +199,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
+        Assertions.assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldExcludeIfTakingTooLong() {
+    void shouldExcludeIfTakingTooLong() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
 
@@ -225,12 +226,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldExcludeIfOverLimitOnChanges() {
+    void shouldExcludeIfOverLimitOnChanges() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
 
@@ -245,12 +246,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldExcludeIfServiceNotRunning() {
+    void shouldExcludeIfServiceNotRunning() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -275,12 +276,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldExcludeIfServiceNotCorrectHour() {
+    void shouldExcludeIfServiceNotCorrectHour() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -307,12 +308,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldExcludeIfServiceNotCorrectMinute() {
+    void shouldExcludeIfServiceNotCorrectMinute() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -339,12 +340,12 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
     @Test
-    public void shouldIncludeIfMatchesNoRules() {
+    void shouldIncludeIfMatchesNoRules() {
         TramRouteEvaluator evaluator = getEvaluator(88L);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -369,11 +370,11 @@ public class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
+        Assertions.assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
 
-    private class TestBranchState implements BranchState<JourneyState> {
+    private static class TestBranchState implements BranchState<JourneyState> {
         private JourneyState journeyState;
 
         @Override
