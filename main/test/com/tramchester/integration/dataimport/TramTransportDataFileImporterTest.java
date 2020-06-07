@@ -13,9 +13,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +22,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TramTransportDataFileImporterTest {
+class TramTransportDataFileImporterTest {
 
     private final DownloadConfig config = new DownloadConfig() {
 
@@ -49,7 +48,7 @@ public class TramTransportDataFileImporterTest {
     };
 
     @Test
-    public void shouldLoadTransportData() {
+    void shouldLoadTransportData() {
         TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
         ProvidesNow providesNow = new ProvidesLocalNow();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();

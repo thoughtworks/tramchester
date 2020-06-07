@@ -15,7 +15,8 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.NotInTransactionException;
 import org.neo4j.graphdb.Transaction;
 
@@ -24,7 +25,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,42 +33,42 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
-public class RouteCalculatorTestAllJourneys {
+class RouteCalculatorTestAllJourneys {
 
     // TODO this needs to be > longest running test which is far from ideal
     private static final int TXN_TIMEOUT_SECS = 4 * 60;
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private static boolean circleCi = TestEnv.isCircleci();
+    private static final boolean circleCi = TestEnv.isCircleci();
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
     private Map<Long, Transaction> threadToTxnMap;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         TramchesterConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         tx = database.beginTx(TXN_TIMEOUT_SECS, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
         threadToTxnMap = new HashMap<>();
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         tx.close();
         // can't close transactions on other threads as neo4j uses thread local to cache the transaction
 //        threadToTxnMap.values().forEach(Transaction::close);
@@ -76,8 +76,8 @@ public class RouteCalculatorTestAllJourneys {
     }
 
     @Test
-    public void shouldFindRouteEachStationToEveryOtherStream() {
-        assumeFalse(circleCi);
+    void shouldFindRouteEachStationToEveryOtherStream() {
+        Assumptions.assumeFalse(circleCi);
 
         TransportData data = dependencies.get(TransportData.class);
 
@@ -106,8 +106,8 @@ public class RouteCalculatorTestAllJourneys {
                 map(Optional::get).
                 max(Integer::compare);
 
-        assertTrue(maxNumberStops.isPresent());
-        assertEquals(39, maxNumberStops.get().intValue());
+        Assertions.assertTrue(maxNumberStops.isPresent());
+        Assertions.assertEquals(39, maxNumberStops.get().intValue());
     }
 
     private boolean matches(Pair<Station, Station> locationPair, List<Station> locations) {
@@ -128,7 +128,7 @@ public class RouteCalculatorTestAllJourneys {
                         calculator.calculateRoute(journey.getLeft(), journey.getRight(), journeyRequest).findAny())).
                 forEach(stationsJourneyPair -> results.put(stationsJourneyPair.getLeft(), stationsJourneyPair.getRight()));
 
-        assertEquals("Not enough results", combinations.size(), results.size());
+        Assertions.assertEquals(combinations.size(), results.size(), "Not enough results");
 
         // check all results present, collect failures into a list
         List<Pair<Station, Station>> failed = results.
@@ -142,8 +142,8 @@ public class RouteCalculatorTestAllJourneys {
                 filter(Optional::isPresent).
                 map(Optional::get).
                 collect(Collectors.toList());
-        assertEquals(format("Failed some of %s (finished %s) combinations %s retry is %s", results.size(), combinations.size(), displayFailed(failed), retry),
-                0L, failed.size());
+        Assertions.assertEquals(
+                0L, failed.size(), format("Failed some of %s (finished %s) combinations %s retry is %s", results.size(), combinations.size(), displayFailed(failed), retry));
 
         return results;
     }

@@ -7,10 +7,10 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,29 +19,30 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class CreateDotDiagramTest {
+class CreateDotDiagramTest {
     private static Dependencies dependencies;
     private GraphDatabase database;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
         dependencies.initialise(configuration);
     }
 
-    @Before
-    public void beforeEachOfTheTestsRun() {
+    @BeforeEach
+    void beforeEachOfTheTestsRun() {
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
-    public void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
+    void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
         int depthLimit = 2;
 
         create(Stations.Deansgate, depthLimit);

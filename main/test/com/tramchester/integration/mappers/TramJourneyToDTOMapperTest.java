@@ -2,21 +2,21 @@ package com.tramchester.integration.mappers;
 
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.places.Location;
-import com.tramchester.graph.GraphDatabase;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -27,11 +27,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
-public class TramJourneyToDTOMapperTest {
+class TramJourneyToDTOMapperTest {
     private static GraphDatabase database;
     private static TransportDataFromFiles transportData;
     private final LocalDate when = TestEnv.nextTuesday(0);
@@ -44,8 +41,8 @@ public class TramJourneyToDTOMapperTest {
     private Transaction tx;
     private TramServiceDate tramServiceDate;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws IOException {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
@@ -53,13 +50,13 @@ public class TramJourneyToDTOMapperTest {
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         tx = database.beginTx(180, TimeUnit.SECONDS);
 
         mapper = dependencies.get(TramJourneyToDTOMapper.class);
@@ -69,13 +66,13 @@ public class TramJourneyToDTOMapperTest {
         tramServiceDate = new TramServiceDate(when);
     }
 
-    @After
-    public void onceAfterEachTestRuns() {
+    @AfterEach
+    void onceAfterEachTestRuns() {
         tx.close();
     }
 
     @Test
-    public void shouldEnsureTripsAreOrderByEarliestFirst() {
+    void shouldEnsureTripsAreOrderByEarliestFirst() {
         TramTime time = TramTime.of(15,30);
 
         TransportStage vicToRoch = getRawVehicleStage(Stations.Victoria, Stations.Rochdale, TestEnv.getTestRoute(),
@@ -86,11 +83,11 @@ public class TramJourneyToDTOMapperTest {
 
         StageDTO stage = result.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
-        assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(LocalTime.of(16,0)));
+        Assertions.assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(LocalTime.of(16,0)));
     }
 
     @Test
-    public void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() {
+    void shouldEnsureTripsAreOrderByEarliestFirstSpanningMidnightService() {
         TramTime pm1044  = TramTime.of(22,44);
 
         VehicleStage rawStage = getRawVehicleStage(Stations.ManAirport, Stations.Cornbrook, TestEnv.getTestRoute(),
@@ -99,14 +96,14 @@ public class TramJourneyToDTOMapperTest {
         stages.add(rawStage);
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm1044), tramServiceDate);
 
-        assertFalse(journey.getStages().isEmpty());
+        Assertions.assertFalse(journey.getStages().isEmpty());
         StageDTO stage = journey.getStages().get(0);
         // for this service trips later in the list actually depart earlier, so this would fail
-        assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(LocalTime.of(22,55)));
+        Assertions.assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(LocalTime.of(22,55)));
     }
 
     @Test
-    public void shouldMapSimpleJourney() {
+    void shouldMapSimpleJourney() {
 
         VehicleStage altToCorn = getRawVehicleStage(Stations.Altrincham, Stations.Cornbrook, TestEnv.getTestRoute(),
                 TramTime.of(7,0), 42, 8);
@@ -114,21 +111,21 @@ public class TramJourneyToDTOMapperTest {
         stages.add(altToCorn);
         JourneyDTO journeyDTO = mapper.createJourneyDTO(new Journey(stages, TramTime.of(7,0)), tramServiceDate);
 
-        assertEquals(1, journeyDTO.getStages().size());
+        Assertions.assertEquals(1, journeyDTO.getStages().size());
         StageDTO stage = journeyDTO.getStages().get(0);
-        assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
-        assertEquals(Stations.Cornbrook.getId(),stage.getLastStation().getId());
-        assertTrue(stage.getDuration()>0);
-        assertTrue(stage.getFirstDepartureTime().asLocalTime().isAfter(sevenAM));
-        assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(eightAM));
-        assertTrue(stage.getExpectedArrivalTime().asLocalTime().isAfter(sevenAM));
-        assertTrue(stage.getExpectedArrivalTime().asLocalTime().isBefore(eightAM));
-        assertEquals(8, stage.getPassedStops());
-        assertEquals(TramTime.of(7,0), journeyDTO.getQueryTime());
+        Assertions.assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
+        Assertions.assertEquals(Stations.Cornbrook.getId(),stage.getLastStation().getId());
+        Assertions.assertTrue(stage.getDuration()>0);
+        Assertions.assertTrue(stage.getFirstDepartureTime().asLocalTime().isAfter(sevenAM));
+        Assertions.assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(eightAM));
+        Assertions.assertTrue(stage.getExpectedArrivalTime().asLocalTime().isAfter(sevenAM));
+        Assertions.assertTrue(stage.getExpectedArrivalTime().asLocalTime().isBefore(eightAM));
+        Assertions.assertEquals(8, stage.getPassedStops());
+        Assertions.assertEquals(TramTime.of(7,0), journeyDTO.getQueryTime());
     }
 
     @Test
-    public void shouldMapTwoStageJourney() {
+    void shouldMapTwoStageJourney() {
         TramTime am10 = TramTime.of(10,0);
         Location begin = Stations.Altrincham;
         Location middle = Stations.Cornbrook;
@@ -141,15 +138,15 @@ public class TramJourneyToDTOMapperTest {
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
-        assertEquals(2, journey.getStages().size());
+        Assertions.assertEquals(2, journey.getStages().size());
 
         StageDTO stage1 = journey.getStages().get(0);
-        assertEquals(begin.getId(),stage1.getFirstStation().getId());
-        assertEquals(middle.getId(),stage1.getLastStation().getId());
+        Assertions.assertEquals(begin.getId(),stage1.getFirstStation().getId());
+        Assertions.assertEquals(middle.getId(),stage1.getLastStation().getId());
 
         StageDTO stage2 = journey.getStages().get(1);
-        assertEquals(middle.getId(),stage2.getFirstStation().getId());
-        assertEquals(end.getId(),stage2.getLastStation().getId());
+        Assertions.assertEquals(middle.getId(),stage2.getFirstStation().getId());
+        Assertions.assertEquals(end.getId(),stage2.getLastStation().getId());
     }
 
     private Route createRoute(String name) {
@@ -157,39 +154,39 @@ public class TramJourneyToDTOMapperTest {
     }
 
     @Test
-    public void shouldMapWalkingStageJourneyFromMyLocation() {
+    void shouldMapWalkingStageJourneyFromMyLocation() {
         TramTime pm10 = TramTime.of(22,0);
 
         WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, false);
         stages.add(walkingStage);
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
-        assertEquals(1, journey.getStages().size());
+        Assertions.assertEquals(1, journey.getStages().size());
 
         StageDTO stage = journey.getStages().get(0);
-        assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
-        assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
-        assertEquals(Stations.MarketStreet.getId(),stage.getActionStation().getId());
+        Assertions.assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
+        Assertions.assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
+        Assertions.assertEquals(Stations.MarketStreet.getId(),stage.getActionStation().getId());
     }
 
     @Test
-    public void shouldMapWalkingStageJourneyToMyLocation() {
+    void shouldMapWalkingStageJourneyToMyLocation() {
         TramTime pm10 = TramTime.of(22,0);
 
         WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, true);
         stages.add(walkingStage);
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
-        assertEquals(1, journey.getStages().size());
+        Assertions.assertEquals(1, journey.getStages().size());
 
         StageDTO stage = journey.getStages().get(0);
-        assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
-        assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
-        assertEquals(Stations.Deansgate.getId(),stage.getActionStation().getId());
+        Assertions.assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
+        Assertions.assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
+        Assertions.assertEquals(Stations.Deansgate.getId(),stage.getActionStation().getId());
     }
 
     @Test
-    public void shouldMapThreeStageJourneyWithWalk() {
+    void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
         Location begin = Stations.Altrincham;
         Location middleA = Stations.Deansgate;
@@ -207,26 +204,26 @@ public class TramJourneyToDTOMapperTest {
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
-        assertEquals(3, journey.getStages().size());
+        Assertions.assertEquals(3, journey.getStages().size());
 
 //        StageDTO stage1 = journey.getStages().get(0);
 
         StageDTO stage2 = journey.getStages().get(1);
-        assertEquals(middleB.getId(),stage2.getActionStation().getId());
-        assertEquals(middleB.getId(),stage2.getLastStation().getId());
-        assertEquals(walkCost, stage2.getDuration());
+        Assertions.assertEquals(middleB.getId(),stage2.getActionStation().getId());
+        Assertions.assertEquals(middleB.getId(),stage2.getLastStation().getId());
+        Assertions.assertEquals(walkCost, stage2.getDuration());
 
         StageDTO stage3 = journey.getStages().get(2);
-        assertEquals(middleB.getId(),stage3.getFirstStation().getId());
-        assertEquals(end.getId(),stage3.getLastStation().getId());
+        Assertions.assertEquals(middleB.getId(),stage3.getFirstStation().getId());
+        Assertions.assertEquals(end.getId(),stage3.getLastStation().getId());
 
         TramTime arrivalTime = stage3.getExpectedArrivalTime();
-        assertTrue(arrivalTime.asLocalTime().isAfter(LocalTime.of(10,10)));
+        Assertions.assertTrue(arrivalTime.asLocalTime().isAfter(LocalTime.of(10,10)));
 
     }
 
     @Test
-    public void shouldMapEndOfDayJourneyCorrectly() {
+    void shouldMapEndOfDayJourneyCorrectly() {
         TramTime startTime = TramTime.of(22,50);
         Location start = Stations.Altrincham;
         Location middle = Stations.TraffordBar;
@@ -242,9 +239,9 @@ public class TramJourneyToDTOMapperTest {
 
         JourneyDTO result = mapper.createJourneyDTO(new Journey(stages, startTime), tramServiceDate);
 
-        assertEquals(2, result.getStages().size());
+        Assertions.assertEquals(2, result.getStages().size());
         // +1, leave tram time
-        assertEquals(startTime.plusMinutes(18+42+1), result.getExpectedArrivalTime());
+        Assertions.assertEquals(startTime.plusMinutes(18+42+1), result.getExpectedArrivalTime());
     }
 
     private VehicleStage getRawVehicleStage(Location start, Location finish, Route route, TramTime startTime,

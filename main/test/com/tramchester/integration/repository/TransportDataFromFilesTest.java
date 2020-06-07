@@ -20,10 +20,9 @@ import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -33,9 +32,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TransportDataFromFilesTest {
+class TransportDataFromFilesTest {
     private static final List<String> ashtonRoutes = Collections.singletonList(RoutesForTesting.ASH_TO_ECCLES.getId());
 
     private static Dependencies dependencies;
@@ -43,31 +42,31 @@ public class TransportDataFromFilesTest {
     private TransportDataFromFiles transportData;
     private Collection<Service> allServices;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         transportData = dependencies.get(TransportDataFromFiles.class);
         allServices = transportData.getServices();
     }
 
     @Test
-    public void shouldGetFeedInfo() {
+    void shouldGetFeedInfo() {
         FeedInfo result = transportData.getFeedInfo();
         assertEquals("http://www.tfgm.com", result.getPublisherUrl());
     }
 
     @Test
-    public void shouldGetRoute() {
+    void shouldGetRoute() {
         Route result = transportData.getRoute(RoutesForTesting.ASH_TO_ECCLES.getId());
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
@@ -75,12 +74,12 @@ public class TransportDataFromFilesTest {
         assertTrue(result.isTram());
 
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals("expected headsigns", 2, headsigns.size());
+        assertEquals(2, headsigns.size(), "expected headsigns");
         assertTrue(headsigns.contains("Eccles"));
     }
 
     @Test
-    public void shouldGetTramRoutes() {
+    void shouldGetTramRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
 
@@ -89,14 +88,14 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldGetServicesByDate() {
+    void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
         TramServiceDate date = new TramServiceDate(nextSaturday);
         Set<Service> results = transportData.getServicesOnDate(date);
 
         assertFalse(results.isEmpty());
         long onCorrectDate = results.stream().filter(svc -> svc.operatesOn(nextSaturday)).count();
-        assertEquals("should all be on the specified date", results.size(), onCorrectDate);
+        assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noTramsDate = transportData.getFeedInfo().validUntil().plusMonths(12);
         results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
@@ -104,7 +103,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldThrowOnMissingSvc() {
+    void shouldThrowOnMissingSvc() {
         try {
             transportData.getServiceById("doesnotExist");
             fail("Should have thrown");
@@ -114,7 +113,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldHaveSundayServicesFromCornbrook() {
+    void shouldHaveSundayServicesFromCornbrook() {
         LocalDate nextSunday = TestEnv.nextSunday();
 
         Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
@@ -131,7 +130,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldHaveServicesRunningAtReasonableTimes() {
+    void shouldHaveServicesRunningAtReasonableTimes() {
 
         // temporary 23 -> 22, 6->7
         int latestHour = 22;
@@ -150,7 +149,7 @@ public class TransportDataFromFilesTest {
                         filter(trip -> trip.getStops().callsAt(station)).
                         filter(trip -> servicesOnDateIds.contains(trip.getService().getId())).
                         collect(Collectors.toSet());
-                assertFalse(String.format("%s %s", date, station), callingTripsOnDate.isEmpty());
+                assertFalse(callingTripsOnDate.isEmpty(), String.format("%s %s", date, station));
 
                 Set<String> callingServicesIds = callingTripsOnDate.stream().map(trip -> trip.getService().getId()).collect(Collectors.toSet());
 
@@ -160,7 +159,7 @@ public class TransportDataFromFilesTest {
                             filter(svc -> callingServicesIds.contains(svc.getId())).
                             filter(svc -> tramTime.between(svc.earliestDepartTime(), svc.latestDepartTime())).collect(Collectors.toSet());
 
-                    assertFalse(String.format("%s %s %s", date, tramTime, station.getName()), runningAtTime.isEmpty());
+                    assertFalse(runningAtTime.isEmpty(), String.format("%s %s %s", date, tramTime, station.getName()));
 
                     Set<StopCall> calling = new HashSet<>();
                     callingTripsOnDate.forEach(trip -> {
@@ -170,7 +169,7 @@ public class TransportDataFromFilesTest {
                                 collect(Collectors.toSet());
                         calling.addAll(onTime);
                     });
-                    assertFalse(String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()), calling.isEmpty());
+                    assertFalse(calling.isEmpty(), String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()));
                 }
 
             });
@@ -178,14 +177,14 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldHaveAtLeastOnePlatformForEveryStation() {
+    void shouldHaveAtLeastOnePlatformForEveryStation() {
         Set<Station> stations = transportData.getStations();
         Set<Station> noPlatforms = stations.stream().filter(station -> station.getPlatforms().isEmpty()).collect(Collectors.toSet());
         assertEquals(Collections.emptySet(),noPlatforms);
     }
 
     @Test
-    public void shouldGetStation() {
+    void shouldGetStation() {
         assertTrue(transportData.hasStationId(Stations.Altrincham.getId()));
         Station station = transportData.getStation(Stations.Altrincham.getId());
         assertEquals("Altrincham", station.getName());
@@ -200,7 +199,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldHavePlatform() {
+    void shouldHavePlatform() {
         Optional<Platform> result = transportData.getPlatformById(Stations.StPetersSquare.getId()+"3");
         assertTrue(result.isPresent());
         Platform platform = result.get();
@@ -209,7 +208,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldHaveAllEndOfLineTramStations() {
+    void shouldHaveAllEndOfLineTramStations() {
         List<Station> filteredStations = transportData.getStations().stream()
                 .filter(station -> Stations.EndOfTheLine.contains(station)).collect(Collectors.toList());
 
@@ -217,7 +216,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
+    void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
         Collection<Route> allRoutes = transportData.getRoutes();
         List<Integer> svcSizes = new LinkedList<>();
 
@@ -246,7 +245,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldLoadExceptionalDates() {
+    void shouldLoadExceptionalDates() {
         Set<String> servicesToLoad = allServices.stream().map(Service::getId).collect(Collectors.toSet());
 
         TransportDataReaderFactory dataReaderFactory = dependencies.get(TransportDataReaderFactory.class);
@@ -267,7 +266,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
+    void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Stations.Cornbrook);
 
         Set<String> toMediaCity = allTrips.stream().
@@ -293,7 +292,7 @@ public class TransportDataFromFilesTest {
     }
 
     @Test
-    public void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
+    void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
         Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark);
 
         LocalDate aMonday = TestEnv.nextTuesday(0).minusDays(1);

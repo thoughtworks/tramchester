@@ -2,7 +2,6 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -14,7 +13,8 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -26,16 +26,16 @@ import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class RouteCalculatorSubGraphMonsallTest {
+class RouteCalculatorSubGraphMonsallTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
     private Transaction tx;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws IOException {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws IOException {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(RoutesForTesting.DIDS_TO_ROCH);
 
@@ -45,24 +45,24 @@ public class RouteCalculatorSubGraphMonsallTest {
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
         tx = database.beginTx();
     }
 
-    @After
-    public void reproduceIssueWithTooManyStages() {
+    @AfterEach
+    void reproduceIssueWithTooManyStages() {
         tx.close();
     }
 
     @Test
-    public void shouldReproIssueWithNotFindingDirectRouting() {
+    void shouldReproIssueWithNotFindingDirectRouting() {
 
         // Can be direct or with a change depending on the timetable data
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5),
@@ -74,18 +74,18 @@ public class RouteCalculatorSubGraphMonsallTest {
     }
 
     @Test
-    public void shouldHaveEndToEnd() {
+    void shouldHaveEndToEnd() {
         validateNumberOfStages(Stations.EastDidsbury, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
     }
 
     @Test
-    public void shouldHaveJourneysTerminationPointsToEndOfLine() {
+    void shouldHaveJourneysTerminationPointsToEndOfLine() {
         // many trams only run as far as Shaw
         validateNumberOfStages(Stations.ShawAndCrompton, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
     }
 
     @Test
-    public void shouldHaveSimpleOneStopJourney() {
+    void shouldHaveSimpleOneStopJourney() {
         validateNumberOfStages(Stations.RochdaleRail, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
     }
 
@@ -106,8 +106,8 @@ public class RouteCalculatorSubGraphMonsallTest {
                 false)).
                 collect(Collectors.toSet());
 
-        assertFalse(format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date),
-                journeys.isEmpty());
-        journeys.forEach(journey -> assertEquals(numStages, journey.getStages().size()));
+        Assertions.assertFalse(
+                journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));
+        journeys.forEach(journey -> Assertions.assertEquals(numStages, journey.getStages().size()));
     }
 }

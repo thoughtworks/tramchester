@@ -7,34 +7,33 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.TestCase.assertTrue;
+class DataCleanserTest {
 
-public class DataCleanserTest {
-
-    private IntegrationTramTestConfig config = new IntegrationTramTestConfig();
+    private final IntegrationTramTestConfig config = new IntegrationTramTestConfig();
     private Path dataOutputFolder;
     private Path unpackedZipPath;
     private List<TransportDataReader.InputFiles> files;
 
-    @Before
-    public void beforeAllTestRuns() throws IOException {
+    @BeforeEach
+    void beforeAllTestRuns() throws IOException {
         files = Arrays.asList(TransportDataReader.InputFiles.values());
         dataOutputFolder = config.getDataFolder();
         unpackedZipPath = config.getDataFolder().resolve("gtdf-out");
         tidyFiles();
     }
 
-    @After
-    public void afterAllTestsRun() throws IOException {
+    @AfterEach
+    void afterAllTestsRun() throws IOException {
         tidyFiles();
     }
 
@@ -52,7 +51,7 @@ public class DataCleanserTest {
     }
 
     @Test
-    public void cleanseCurrentDataWithNoErrors() throws IOException {
+    void cleanseCurrentDataWithNoErrors() throws IOException {
 
         TransportDataReaderFactory readerFactory = new TransportDataReaderFactory(config);
         TransportDataWriterFactory writerFactory = new TransportDataWriterFactory(config);
@@ -66,12 +65,12 @@ public class DataCleanserTest {
 
         dataCleanser.run();
 
-        assertTrue(dataOutputFolder.toFile().exists());
-        assertTrue(unpackedZipPath.toFile().exists());
+        Assertions.assertTrue(dataOutputFolder.toFile().exists());
+        Assertions.assertTrue(unpackedZipPath.toFile().exists());
 
         files.forEach(file -> {
-            assertTrue(file.name(), unpackedZipPath.resolve(file.name()+".txt").toFile().exists());
-            assertTrue(file.name(), dataOutputFolder.resolve(file.name()+".txt").toFile().exists());
+            Assertions.assertTrue(unpackedZipPath.resolve(file.name()+".txt").toFile().exists(), file.name());
+            Assertions.assertTrue(dataOutputFolder.resolve(file.name()+".txt").toFile().exists(), file.name());
         });
 
     }

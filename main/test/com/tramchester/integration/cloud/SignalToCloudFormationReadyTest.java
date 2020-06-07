@@ -2,17 +2,15 @@ package com.tramchester.integration.cloud;
 
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SignalToCloudformationReady;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class SignalToCloudFormationReadyTest {
-
-    // examplePostData = "{\"Status\": \"SUCCESS\", \"Reason\": \"Web Server started\", \"UniqueId\": \"UNIQUEID\", \"Data\": \"887\"}";
+class SignalToCloudFormationReadyTest {
 
     @Test
-    public void shouldSignalWhenUserDataContainsCallbackURL() throws Exception {
+    void shouldSignalWhenUserDataContainsCallbackURL() throws Exception {
 
         StubbedAWSServer stubbedServer = new StubbedAWSServer();
         stubbedServer.run();
@@ -31,7 +29,7 @@ public class SignalToCloudFormationReadyTest {
     }
 
     @Test
-    public void shouldNotSignalWhenUserDataDoesNotContainCallbackURL() throws Exception {
+    void shouldNotSignalWhenUserDataDoesNotContainCallbackURL() throws Exception {
         StubbedAWSServer stubbedServer = new StubbedAWSServer();
         stubbedServer.run();
 
@@ -46,7 +44,7 @@ public class SignalToCloudFormationReadyTest {
     }
 
     @Test
-    public void shouldNotSignalWhenNoUserDataAvailable() throws Exception {
+    void shouldNotSignalWhenNoUserDataAvailable() throws Exception {
         StubbedAWSServer stubbedServer = new StubbedAWSServer();
         stubbedServer.run();
 

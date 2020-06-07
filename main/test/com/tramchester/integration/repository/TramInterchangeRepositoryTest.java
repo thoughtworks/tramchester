@@ -1,14 +1,12 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
 
@@ -16,30 +14,30 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
-public class TramInterchangeRepositoryTest {
+class TramInterchangeRepositoryTest {
     private static Dependencies dependencies;
     private InterchangeRepository repository;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws IOException {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void onceBeforeEachTestRuns() {
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
         repository = dependencies.get(InterchangeRepository.class);
     }
 
     @Test
-    public void shouldFindTramInterchanges() {
+    void shouldFindTramInterchanges() {
         for (String interchange : TramInterchanges.stations()) {
-            assertTrue(repository.isInterchange(interchange));
+            Assertions.assertTrue(repository.isInterchange(interchange));
         }
     }
 

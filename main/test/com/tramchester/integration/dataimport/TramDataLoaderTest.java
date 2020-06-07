@@ -4,7 +4,7 @@ import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.time.TramTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TramDataLoaderTest {
+class TramDataLoaderTest {
     private final boolean skipHeader = false;
 
     // the test data files currently manually maintained, copy over from data/tram as needed
 
     @Test
-    public void shouldLoadRouteData() {
+    void shouldLoadRouteData() {
         HashSet<String> agencies = new HashSet<>(Collections.singletonList("MET"));
         DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), new RouteDataMapper(agencies, true));
         List<RouteData> routeData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
@@ -34,7 +34,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadCalendarData() {
+    void shouldLoadCalendarData() {
         DataLoader<CalendarData> dataLoader = new DataLoader<>(Path.of("data/test/calendar.txt"), new CalendarDataMapper(Collections.emptySet()));
         List<CalendarData> calendarData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
@@ -45,7 +45,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadStopData() {
+    void shouldLoadStopData() {
         DataLoader<StopData> dataLoader = new DataLoader<>(Path.of("data/test/stops.txt"), new StopDataMapper(Collections.emptySet()));
         List<StopData> stopData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
@@ -59,7 +59,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadStopTimeData() {
+    void shouldLoadStopTimeData() {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>(Path.of("data/test/stop_times.txt"),
                 new StopTimeDataMapper(Collections.emptySet()));
         List<StopTimeData> stopTimeData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class TramDataLoaderTest {
     }
 
     @Test
-    public void shouldLoadTripData() {
+    void shouldLoadTripData() {
         DataLoader<TripData> dataLoader = new DataLoader<>(Path.of("data/test/trips.txt"), new TripDataMapper(Collections.emptySet()));
         List<TripData> tripData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 

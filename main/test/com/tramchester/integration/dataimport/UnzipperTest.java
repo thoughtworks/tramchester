@@ -2,11 +2,11 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.Unzipper;
-import com.tramchester.repository.TransportData;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,26 +15,23 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.TestCase.assertTrue;
-
-public class UnzipperTest {
+class UnzipperTest {
 
     private Path zipFilename;
     private Path targetDirectory;
     private Path unpackedDir;
 
-    @Before
-    public void beforeEachTestRuns() throws IOException {
+    @BeforeEach
+    void beforeEachTestRuns() throws IOException {
         zipFilename = Paths.get("testData", "data.zip");
         targetDirectory = Paths.get(FileUtils.getTempDirectoryPath(),"unpackTarget");
         unpackedDir = targetDirectory.resolve("gtdf-out");
         cleanOutputFiles();
     }
 
-    @After
-    public void afterEachTestRuns() throws IOException {
+    @AfterEach
+    void afterEachTestRuns() throws IOException {
         cleanOutputFiles();
-        return;
     }
 
     private void cleanOutputFiles() throws IOException {
@@ -46,17 +43,15 @@ public class UnzipperTest {
     }
 
     @Test
-    public void shouldUnzipFileToExpectedPlaced() {
+    void shouldUnzipFileToExpectedPlaced() {
         Unzipper unzipper = new Unzipper();
 
         unzipper.unpack(zipFilename, targetDirectory);
-        assertTrue(Files.isDirectory(targetDirectory));
-        assertTrue(Files.isDirectory(unpackedDir));
+        Assertions.assertTrue(Files.isDirectory(targetDirectory));
+        Assertions.assertTrue(Files.isDirectory(unpackedDir));
 
         List<TransportDataReader.InputFiles> files = Arrays.asList(TransportDataReader.InputFiles.values());
-        files.forEach(file -> {
-            assertTrue(file.name(), Files.isRegularFile(formFilename(file)));
-        });
+        files.forEach(file -> Assertions.assertTrue(Files.isRegularFile(formFilename(file)), file.name()));
 
     }
 

@@ -2,35 +2,34 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.testSupport.TestConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Ignore("for performance testing")
-public class GraphBuilderTestPerformance {
+@Disabled("for performance testing")
+class GraphBuilderTestPerformance {
 
     private static Dependencies dependencies;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         dependencies = new Dependencies();
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         dependencies.close();
     }
 
     @Test
-    public void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
+    void shouldTestTimeToFileDataAndRebuildGraph() throws Exception {
 
         long start = System.currentTimeMillis();
         dependencies.initialise(new PerformanceTestConfig());
@@ -49,7 +48,7 @@ public class GraphBuilderTestPerformance {
         @Override
         public Set<String> getAgencies() {
 
-            return new HashSet<>(Arrays.asList("MET")); // , "GMS", "GMN"));
+            return new HashSet<>(Collections.singletonList("MET")); // , "GMS", "GMN"));
         }
 
         @Override

@@ -2,24 +2,24 @@ package com.tramchester.integration.cloud;
 
 import com.tramchester.cloud.FetchInstanceMetadata;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FetchInstanceMetadataTest {
+class FetchInstanceMetadataTest {
 
     private FetchInstanceMetadata fetcher;
 
-    @Before
-    public void beforeEachTestRuns() throws MalformedURLException {
+    @BeforeEach
+    void beforeEachTestRuns() throws MalformedURLException {
         fetcher = new FetchInstanceMetadata(new IntegrationTramTestConfig());
     }
 
     @Test
-    public void shouldFetchInstanceMetadata() throws Exception {
+    void shouldFetchInstanceMetadata() throws Exception {
         StubbedAWSServer server = new StubbedAWSServer();
         server.run("someSimpleMetaData");
 
@@ -31,7 +31,7 @@ public class FetchInstanceMetadataTest {
     }
 
     @Test
-    public void shouldReturnEmptyIfNoMetaDataAvailable() {
+    void shouldReturnEmptyIfNoMetaDataAvailable() {
         String result = fetcher.getUserData();
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();

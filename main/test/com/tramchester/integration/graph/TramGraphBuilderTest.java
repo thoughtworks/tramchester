@@ -2,10 +2,10 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
@@ -14,7 +14,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -23,43 +23,41 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-public class TramGraphBuilderTest {
+class TramGraphBuilderTest {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
     private Transaction transaction;
     private GraphQuery graphQuery;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         graphQuery = dependencies.get(GraphQuery.class);
         transportData = dependencies.get(TransportDataFromFiles.class);
         GraphDatabase service = dependencies.get(GraphDatabase.class);
         transaction = service.beginTx();
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         transaction.close();
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
     @Test
-    public void shouldHaveCorrectOutboundsAtMediaCity() {
+    void shouldHaveCorrectOutboundsAtMediaCity() {
 
         List<Relationship> outbounds = getOutboundRouteStationRelationships(
                 RouteStation.formId(Stations.MediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
@@ -78,7 +76,7 @@ public class TramGraphBuilderTest {
                 collect(Collectors.toSet());
         fileSvcIds.removeAll(graphSvcIds);
 
-        assertEquals(0, fileSvcIds.size());
+        Assertions.assertEquals(0, fileSvcIds.size());
     }
 
     private List<Relationship> getOutboundRouteStationRelationships(String routeStationId) {
@@ -86,21 +84,21 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldHaveCorrectRelationshipsAtCornbrook() {
+    void shouldHaveCorrectRelationshipsAtCornbrook() {
 
         List<Relationship> outbounds = getOutboundRouteStationRelationships(RouteStation.formId(Stations.Cornbrook,
                 RoutesForTesting.ALTY_TO_PICC));
 
-        assertTrue("have at least one outbound", outbounds.size()>1);
+        Assertions.assertTrue(outbounds.size()>1, "have at least one outbound");
 
         outbounds = getOutboundRouteStationRelationships(RouteStation.formId(Stations.Cornbrook, RoutesForTesting.ASH_TO_ECCLES));
 
-        assertTrue(outbounds.size()>1);
+        Assertions.assertTrue(outbounds.size()>1);
 
     }
 
     @Test
-    public void shouldHaveCorrectInboundsAtMediaCity() {
+    void shouldHaveCorrectInboundsAtMediaCity() {
 
         checkInboundConsistency(Stations.MediaCityUK, RoutesForTesting.ECCLES_TO_ASH);
         checkInboundConsistency(Stations.MediaCityUK, RoutesForTesting.ASH_TO_ECCLES);
@@ -113,7 +111,7 @@ public class TramGraphBuilderTest {
     }
 
     @Test
-    public void shouldCheckOutboundSvcRelationships() {
+    void shouldCheckOutboundSvcRelationships() {
 
         // TODO Lockdown - Route 1 is gone for now
 //        checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_BURY);
@@ -142,7 +140,7 @@ public class TramGraphBuilderTest {
     private void checkOutboundConsistency(Station station, Route route) {
         List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(RouteStation.formId(station, route));
 
-        assertTrue(graphOutbounds.size()>0);
+        Assertions.assertTrue(graphOutbounds.size()>0);
 
         List<String> serviceRelatIds = graphOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -163,8 +161,8 @@ public class TramGraphBuilderTest {
 
         // NOTE: Check clean target that and graph has been rebuilt if see failure here
         // each svc should be one outbound, no dups, so use list not set of ids
-        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
-        assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
+        Assertions.assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
+        Assertions.assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
     }
 
     private void checkInboundConsistency(Station station, Route route) {
@@ -176,7 +174,7 @@ public class TramGraphBuilderTest {
         long boardingCount = inbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.BOARD)
                         || relationship.isType(TransportRelationshipTypes.INTERCHANGE_BOARD)).count();
-        assertEquals(1, boardingCount);
+        Assertions.assertEquals(1, boardingCount);
 
         SortedSet<String> graphInboundSvcIds = new TreeSet<>();
         graphInboundSvcIds.addAll(graphTramsIntoStation.stream().
@@ -197,17 +195,17 @@ public class TramGraphBuilderTest {
                 map(trip -> trip.getService().getId()).
                 collect(Collectors.toSet()));
 
-        assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
+        Assertions.assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
 
         Set<String> graphInboundTripIds = graphTramsIntoStation.stream().
                 map(relationship -> relationship.getProperty(GraphStaticKeys.TRIP_ID).toString()).
                 collect(Collectors.toSet());
 
-        assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
+        Assertions.assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
 
         Set<String> tripIdsFromFile = callingTrips.stream().map(Trip::getId).collect(Collectors.toSet());
 
         tripIdsFromFile.removeAll(graphInboundTripIds);
-        assertEquals(0, tripIdsFromFile.size());
+        Assertions.assertEquals(0, tripIdsFromFile.size());
     }
 }

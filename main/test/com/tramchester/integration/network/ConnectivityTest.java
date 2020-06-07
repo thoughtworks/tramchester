@@ -1,23 +1,22 @@
 package com.tramchester.integration.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
 import java.util.Optional;
 
-import static org.junit.Assert.assertTrue;
-
-public class ConnectivityTest {
+class ConnectivityTest {
 
     // Here to assist in diagnosing connectivity issues on the CI machines
 
     @Test
-    public void checkCanReachDevServer() {
+    void checkCanReachDevServer() {
         Optional<String> maybeUrl = Optional.ofNullable(System.getenv("SERVER_URL"));
 
-        if (!maybeUrl.isPresent()) {
+        if (maybeUrl.isEmpty()) {
             return;
         }
 
@@ -25,13 +24,13 @@ public class ConnectivityTest {
         String host = uri.getHost();
 
         boolean reachable = isReachable(host, 443);
-        assertTrue(reachable);
+        Assertions.assertTrue(reachable);
     }
 
     @Test
-    public void shouldReachWellKnownServer() {
+    void shouldReachWellKnownServer() {
         boolean reachable = isReachable("google.co.uk", 443);
-        assertTrue(reachable);
+        Assertions.assertTrue(reachable);
     }
 
     private boolean isReachable(String host, int port) {

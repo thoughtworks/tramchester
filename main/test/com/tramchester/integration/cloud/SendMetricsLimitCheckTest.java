@@ -7,15 +7,14 @@ import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.Date;
 
-import static org.junit.Assert.fail;
-
-public class SendMetricsLimitCheckTest {
+class SendMetricsLimitCheckTest {
 
     private AmazonCloudWatch client;
     private double belowLimit;
@@ -24,28 +23,28 @@ public class SendMetricsLimitCheckTest {
     // "Values must be in the range of 8.515920e-109 to 1.174271e+108"
     // i.e. between 0 and 8.515920e-109 an exception is thrown
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         client = AmazonCloudWatchClientBuilder.defaultClient();
         belowLimit = SendMetricsToCloudWatch.LOWER_LIMIT / 10D;
 
     }
 
     @Test
-    public void shouldReportZeroOk() {
+    void shouldReportZeroOk() {
         sendDatum(createDatum(0D, "testZero"));
     }
 
     @Test
-    public void shouldReportAtLowerLimitOk() {
+    void shouldReportAtLowerLimitOk() {
         sendDatum(createDatum(SendMetricsToCloudWatch.LOWER_LIMIT, "lowerLimit"));
     }
 
     @Test
-    public void shouldThrowBelowLowerLimitOk() {
+    void shouldThrowBelowLowerLimitOk() {
         try {
             sendDatum(createDatum(belowLimit, "belowLimitShouldThrow"));
-            fail("expected to throw");
+            Assertions.fail("expected to throw");
         }
         catch (InvalidParameterValueException expectedException) {
             // expected
@@ -53,7 +52,7 @@ public class SendMetricsLimitCheckTest {
     }
 
     @Test
-    public void shouldConvertToZeroCorrectly() {
+    void shouldConvertToZeroCorrectly() {
         sendDatum(createDatum(SendMetricsToCloudWatch.zeroFilter(belowLimit), "filteredBelowLimit"));
     }
 

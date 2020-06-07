@@ -13,8 +13,8 @@ import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -23,11 +23,8 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-@Ignore("WIP")
-public class RouteCalculatorFromPostcodeSpike {
+@Disabled("WIP")
+class RouteCalculatorFromPostcodeSpike {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
@@ -36,34 +33,34 @@ public class RouteCalculatorFromPostcodeSpike {
     private LocationJourneyPlanner locationJourneyPlanner;
     private PostcodeRepository postCodeRepository;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         TramchesterConfig testConfig = new IntegrationBusTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         tx = database.beginTx(60, TimeUnit.SECONDS);
         locationJourneyPlanner = dependencies.get(LocationJourneyPlanner.class);
         postCodeRepository = dependencies.get(PostcodeRepository.class);
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         tx.close();
     }
 
     @Category(BusTest.class)
     @Test
-    public void shouldSpikePostcodeToPostcode() {
+    void shouldSpikePostcodeToPostcode() {
         int count = postCodeRepository.getNumberOf();
 
         ArrayList<Pair> failures = new ArrayList<>();
@@ -82,13 +79,13 @@ public class RouteCalculatorFromPostcodeSpike {
                     journeyRequest);
             if (journeys.findAny().isEmpty()) {
                 // TOOD tmp
-                fail("Not journey between " + locations);
+                Assertions.fail("Not journey between " + locations);
 
                 failures.add(locations);
             }
             journeys.close();
         }
-        assertTrue(failures.toString(), failures.isEmpty());
+        Assertions.assertTrue(failures.isEmpty(), failures.toString());
     }
 
     private static class Pair {

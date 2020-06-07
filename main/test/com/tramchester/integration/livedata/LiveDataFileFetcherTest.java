@@ -3,16 +3,15 @@ package com.tramchester.integration.livedata;
 
 import com.tramchester.livedata.LiveDataFileFetcher;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertTrue;
-
-public class LiveDataFileFetcherTest {
+class LiveDataFileFetcherTest {
 
     @Test
-    public void shouldLoadDataInFile() {
+    void shouldLoadDataInFile() {
         LiveDataFileFetcher fetcher = new LiveDataFileFetcher(TestEnv.LiveDataExampleFile);
         String data = fetcher.fetch();
-        assertTrue(data.length()>0);
+        Assertions.assertTrue(data.length()>0);
     }
 }

@@ -17,7 +17,7 @@ public class StubbedAWSServer  {
     private String calledUrl;
     private String postedData;
     private Server server;
-    private Handler handler;
+    private final Handler handler;
     private String contentHeader;
 
     public StubbedAWSServer() {

@@ -3,7 +3,6 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -15,7 +14,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -24,16 +23,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertTrue;
 
-public class RouteCalculatorSubGraphMediaCityTest {
+class RouteCalculatorSubGraphMediaCityTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
 
-    private static List<Station> stations = Arrays.asList(
+    private static final List<Station> stations = Arrays.asList(
             Stations.ExchangeSquare,
             Stations.StPetersSquare,
             Stations.Deansgate,
@@ -50,8 +48,8 @@ public class RouteCalculatorSubGraphMediaCityTest {
             Stations.TraffordBar);
     private Transaction tx;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws IOException {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws IOException {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(RoutesForTesting.ASH_TO_ECCLES);
         graphFilter.addRoute(RoutesForTesting.ROCH_TO_DIDS);
@@ -65,31 +63,32 @@ public class RouteCalculatorSubGraphMediaCityTest {
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
         tx = database.beginTx();
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         tx.close();
     }
 
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
-    public void shouldHaveMediaCityToExchangeSquare() {
+    void shouldHaveMediaCityToExchangeSquare() {
         validateAtLeastOneJourney(Stations.MediaCityUK, Stations.Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
         validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
         validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
-    public void shouldHaveJourneyFromEveryStationToEveryOther() {
+    void shouldHaveJourneyFromEveryStationToEveryOther() {
         List<String> failures = new LinkedList<>();
 
         for (Station start: stations) {
@@ -106,29 +105,31 @@ public class RouteCalculatorSubGraphMediaCityTest {
                 }
             }
         }
-        assertTrue(failures.isEmpty());
+        Assertions.assertTrue(failures.isEmpty());
     }
 
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
-    public void reproduceMediaCityIssue() {
+    void reproduceMediaCityIssue() {
         validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, TramTime.of(12,0), nextTuesday);
     }
 
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
-    public void reproduceMediaCityIssueSaturdays() {
+    void reproduceMediaCityIssueSaturdays() {
         validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, TramTime.of(9,0), TestEnv.nextSaturday());
     }
 
     @Test
-    public void shouldHaveSimpleJourney() {
+    void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.Pomona, Stations.MediaCityUK,
                 new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(12, 0), false)).collect(Collectors.toSet());
-        assertTrue(results.size()>0);
+        Assertions.assertTrue(results.size()>0);
     }
 
-    @Ignore
+    @Disabled
     @Test
-    public void produceDiagramOfGraphSubset() throws IOException {
+    void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(database, 5);
         List<String> toDraw = new ArrayList<>();
         toDraw.add(Stations.MediaCityUK.getId());

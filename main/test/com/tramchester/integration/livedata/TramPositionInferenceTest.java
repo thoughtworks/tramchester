@@ -15,18 +15,15 @@ import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationAdjacenyRepository;
 import com.tramchester.repository.StationRepository;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TramPositionInferenceTest {
+class TramPositionInferenceTest {
 
     private static Dependencies dependencies;
 
@@ -35,16 +32,16 @@ public class TramPositionInferenceTest {
     private TramServiceDate date;
     private TramTime time;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws IOException {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
 
     }
 
-    @Before
-    public void onceBeforeEachTestRuns() {
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
 
         LiveDataRepository liveDataSource = dependencies.get(LiveDataRepository.class);
@@ -57,15 +54,15 @@ public class TramPositionInferenceTest {
         time = providesLocalNow.getNow();
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
     // TODO rework this test to account for new 12 minutes frequency which is causing frequent intermittent failures
     @Test
     @Category({LiveDataTestCategory.class, LiveDataMessagesCategory.class})
-    public void shouldInferTramPosition() {
+    void shouldInferTramPosition() {
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
         // Guess this is down to signalling, track, etc.
         int cost = 3; // cost between the stations, no due trams outside this limit should appear
@@ -76,19 +73,19 @@ public class TramPositionInferenceTest {
         TramPosition between = positionInference.findBetween(first, second, date, time);
         assertEquals(first, between.getFirst());
         assertEquals(second, between.getSecond());
-        assertTrue("trams between", between.getTrams().size()>=1);
+        assertTrue(between.getTrams().size()>=1, "trams between");
         assertEquals(cost, between.getCost());
-        between.getTrams().forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
+        between.getTrams().forEach(dueTram -> assertFalse((dueTram.getWait())> cost, Integer.toString(dueTram.getWait())));
 
         TramPosition otherDirection = positionInference.findBetween(second, first, date, time);
-        assertTrue("no trams in other direction", otherDirection.getTrams().size()>=1);
+        assertTrue(otherDirection.getTrams().size()>=1, "no trams in other direction");
         assertEquals(cost, between.getCost());
-        otherDirection.getTrams().forEach(dueTram -> assertFalse(Integer.toString(dueTram.getWait()), (dueTram.getWait())> cost));
+        otherDirection.getTrams().forEach(dueTram -> assertFalse((dueTram.getWait())> cost, Integer.toString(dueTram.getWait())));
     }
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldInferAllTramPositions() {
+    void shouldInferAllTramPositions() {
         List<TramPosition> results = positionInference.inferWholeNetwork(date, time);
         long hasTrams = results.stream().filter(position -> !position.getTrams().isEmpty()).count();
 

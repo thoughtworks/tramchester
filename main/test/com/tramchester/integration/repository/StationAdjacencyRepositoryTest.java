@@ -3,57 +3,51 @@ package com.tramchester.integration.repository;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.repository.StationAdjacenyRepository;
 import com.tramchester.repository.TransportDataSource;
+import com.tramchester.testSupport.Stations;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-public class StationAdjacencyRepositoryTest {
+class StationAdjacencyRepositoryTest {
     private static Dependencies dependencies;
 
     private StationAdjacenyRepository repository;
     private TransportDataSource transportDataSource;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws IOException {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void onceBeforeEachTestRuns() {
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
         transportDataSource = dependencies.get(TransportDataSource.class);
         repository = dependencies.get(StationAdjacenyRepository.class);
     }
 
     @Test
-    public void shouldGiveCorrectCostForAdjaceny() {
-        assertEquals(3, getAdjacent(Stations.Altrincham, Stations.NavigationRoad));
-        assertEquals(3, getAdjacent(Stations.Altrincham, Stations.NavigationRoad));
-        assertEquals(3, getAdjacent(Stations.Cornbrook, Stations.Deansgate));
-        assertEquals(3, getAdjacent(Stations.Deansgate, Stations.Cornbrook));
-        assertEquals(-1, getAdjacent(Stations.NavigationRoad, Stations.Cornbrook));
+    void shouldGiveCorrectCostForAdjaceny() {
+        Assertions.assertEquals(3, getAdjacent(Stations.Altrincham, Stations.NavigationRoad));
+        Assertions.assertEquals(3, getAdjacent(Stations.Altrincham, Stations.NavigationRoad));
+        Assertions.assertEquals(3, getAdjacent(Stations.Cornbrook, Stations.Deansgate));
+        Assertions.assertEquals(3, getAdjacent(Stations.Deansgate, Stations.Cornbrook));
+        Assertions.assertEquals(-1, getAdjacent(Stations.NavigationRoad, Stations.Cornbrook));
     }
 
     @Test
-    public void shouldHavePairsOfStations() {
+    void shouldHavePairsOfStations() {
         Set<Pair<Station, Station>> pairs = repository.getStationParis();
         String stationId = Stations.NavigationRoad.getId();
 
@@ -61,7 +55,7 @@ public class StationAdjacencyRepositoryTest {
                 filter(pair -> pair.getLeft().getId().equals(stationId) ||
                         pair.getRight().getId().equals(stationId)).
                 collect(Collectors.toList());
-        assertEquals(pairs.toString(), 4, results.size());
+        Assertions.assertEquals(4, results.size(), pairs.toString());
     }
 
     private int getAdjacent(Station first, Station second) {

@@ -13,19 +13,18 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertTrue;
-
-public class GraphBuildAndStartTest {
+class GraphBuildAndStartTest {
 
     // spin up graph, primarily here to diagnose out of memory issues, isolate just the graph build
 
     @Test
-    public void shouldBuildGraphAndStart() throws IOException {
+    void shouldBuildGraphAndStart() throws IOException {
         TramchesterConfig config =new SubgraphConfig();
         File graphFile = new File(config.getGraphName());
         if (graphFile.exists()) {
@@ -56,7 +55,7 @@ public class GraphBuildAndStartTest {
 
         transportData.start();
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(2000));
+        Assertions.assertTrue(graphDatabase.isAvailable(2000));
         transportGraphBuilder.start();
         graphDatabase.stop();
         transportData.dispose();

@@ -16,7 +16,8 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -29,9 +30,9 @@ import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.nearAltrincham;
 import static com.tramchester.testSupport.TestEnv.nearPiccGardens;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class LocationJourneyPlannerTest {
+class LocationJourneyPlannerTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static Dependencies dependencies;
@@ -41,32 +42,32 @@ public class LocationJourneyPlannerTest {
     private Transaction tx;
     private LocationJourneyPlanner planner;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         TramchesterConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         planner = dependencies.get(LocationJourneyPlanner.class);
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         tx.close();
     }
 
     @Test
-    public void shouldHaveDirectWalkNearPiccadily() {
+    void shouldHaveDirectWalkNearPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
         Set<Journey> unsortedResults = getJourneySet(new JourneyRequest(queryDate,TramTime.of(9, 0), false) ,
@@ -89,7 +90,7 @@ public class LocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldHaveDirectWalkFromPiccadily() {
+    void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.PiccadillyGardens,
@@ -107,9 +108,9 @@ public class LocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
+    void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Deansgate, nearAltrincham,
-                TramTime.of(8,00), false);
+                TramTime.of(8, 0), false);
         List<Journey> twoStageJourneys = results.stream().
                 filter(journey -> journey.getStages().size() == 2).collect(Collectors.toList());
 
@@ -127,9 +128,9 @@ public class LocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindJourneyWithWalkingEarlyMorning() {
+    void shouldFindJourneyWithWalkingEarlyMorning() {
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate,
-                TramTime.of(8,00), false, 2);
+                TramTime.of(8, 0), false, 2);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
@@ -137,8 +138,8 @@ public class LocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindJourneyWithWalkingEarlyMorningArriveBy() {
-        TramTime queryTime = TramTime.of(8, 00);
+    void shouldFindJourneyWithWalkingEarlyMorningArriveBy() {
+        TramTime queryTime = TramTime.of(8, 0);
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate,
                 queryTime, true, 2);
 
@@ -147,8 +148,8 @@ public class LocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
-        TramTime queryTime = TramTime.of(8, 00);
+    void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
+        TramTime queryTime = TramTime.of(8, 0);
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Deansgate, nearAltrincham,
                 queryTime, true);
 
@@ -157,16 +158,16 @@ public class LocationJourneyPlannerTest {
     }
 
     @Test
-    public void shouldFindJourneyWithWalkingAtEndNearShudehill() {
+    void shouldFindJourneyWithWalkingAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Shudehill, TestEnv.nearShudehill,
                 queryTime, false);
         assertFalse(results.isEmpty());
     }
 
-    @Ignore("No longer passing due to increased wait times")
+    @Disabled("No longer passing due to increased wait times")
     @Test
-    public void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
+    void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Altrincham, TestEnv.nearShudehill,
                 queryTime, false);
@@ -177,7 +178,7 @@ public class LocationJourneyPlannerTest {
         Journey lowestCostJourney = results.get(0);
 
         // 33 -> 41
-        assertEquals(lowestCostJourney.toString(), 33, RouteCalculatorTest.costOfJourney(lowestCostJourney));
+        assertEquals(33, RouteCalculatorTest.costOfJourney(lowestCostJourney), lowestCostJourney.toString());
 
         List<TransportStage> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);
@@ -186,19 +187,19 @@ public class LocationJourneyPlannerTest {
         assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
     }
 
-    @Ignore("Temporary: trams finish at 2300")
+    @Disabled("Temporary: trams finish at 2300")
     @Test
-    public void shouldFindJourneyWithWalkingEndOfDay() {
+    void shouldFindJourneyWithWalkingEndOfDay() {
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, Stations.Deansgate,
-                TramTime.of(23,00), false, 2);
+                TramTime.of(23, 0), false, 2);
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
 
     @Test
-    public void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
+    void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
         Set<Journey> results = getJourneysForWalkThenTram(nearPiccGardens, Stations.PiccadillyGardens,
-                TramTime.of(9,00), false, 2); //, new StationWalk(Stations.PiccadillyGardens, 3));
+                TramTime.of(9, 0), false, 2); //, new StationWalk(Stations.PiccadillyGardens, 3));
         assertFalse(results.isEmpty());
         results.forEach(journey-> {
             assertEquals(1,journey.getStages().size());

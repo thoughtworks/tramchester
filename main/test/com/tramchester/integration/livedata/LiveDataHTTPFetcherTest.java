@@ -4,6 +4,7 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.Dependencies;
+import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -12,8 +13,9 @@ import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.*;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,9 +27,9 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class LiveDataHTTPFetcherTest {
+class LiveDataHTTPFetcherTest {
 
     private static Dependencies dependencies;
     private static LiveDataHTTPFetcher fetcher;
@@ -37,8 +39,8 @@ public class LiveDataHTTPFetcherTest {
     private TransportDataFromFiles transportData;
     private LiveDataParser parser;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         configuration = new IntegrationTramTestConfig();
         dependencies.initialise(configuration);
@@ -47,32 +49,32 @@ public class LiveDataHTTPFetcherTest {
         payload = fetcher.fetch();
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         transportData = dependencies.get(TransportDataFromFiles.class);
         parser = dependencies.get(LiveDataParser.class);
     }
 
     @Test
-    public void shouldHaveTFGMKeyInConfig() {
-        assertNotNull("missing tfgm live data key", configuration.getLiveDataSubscriptionKey());
+    void shouldHaveTFGMKeyInConfig() {
+        assertNotNull(configuration.getLiveDataSubscriptionKey(), "missing tfgm live data key");
     }
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldFetchSomethingFromTFGM() {
+    void shouldFetchSomethingFromTFGM() {
         assertNotNull(payload);
         assertFalse(payload.isEmpty());
     }
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldFetchValidDataFromTFGMAPI() {
+    void shouldFetchValidDataFromTFGMAPI() {
         List<StationDepartureInfo> departureInfos = parser.parse(payload);
 
         assertTrue(departureInfos.size()>0);
@@ -80,7 +82,7 @@ public class LiveDataHTTPFetcherTest {
         Optional<StationDepartureInfo> hasMsgs = departureInfos.stream().
                 filter(info -> !info.getMessage().isEmpty()).findAny();
 
-        assertTrue("display with msgs", hasMsgs.isPresent());
+        assertTrue(hasMsgs.isPresent(), "display with msgs");
 
         StationDepartureInfo display = hasMsgs.get();
 
@@ -88,32 +90,32 @@ public class LiveDataHTTPFetcherTest {
         // assertTrue(aDisplay.getDueTrams().size()>0);
         assertTrue(display.getLineName().length()>0);
         LocalDateTime when = display.getLastUpdate();
-        assertEquals(TestEnv.LocalNow().getDayOfMonth(),when.getDayOfMonth());
+        Assertions.assertEquals(TestEnv.LocalNow().getDayOfMonth(),when.getDayOfMonth());
     }
 
     @Test
     @Category(LiveDataTestCategory.class)
-    public void shouldHaveCrosscheckOnLiveDateDestinations() {
+    void shouldHaveCrosscheckOnLiveDateDestinations() {
         List<StationDepartureInfo> departureInfos = parser.parse(payload);
 
         assertTrue(departureInfos.size()>0);
 
         Set<Station> destinations = departureInfos.stream().map(entry -> entry.getDueTrams().stream()).
                 flatMap(Function.identity()).
-                map(dueTram -> dueTram.getDestination()).collect(Collectors.toSet());
+                map(DueTram::getDestination).collect(Collectors.toSet());
 
-        Set<String> stationNames = transportData.getStations().stream().map(station -> station.getName()).collect(Collectors.toSet());
+        Set<String> stationNames = transportData.getStations().stream().map(Station::getName).collect(Collectors.toSet());
 
         Set<Station> mismatch = destinations.stream().filter(destination -> !stationNames.contains(destination.getName())).
                 collect(Collectors.toSet());
 
-        assertTrue(mismatch.toString(), mismatch.isEmpty());
+        assertTrue(mismatch.isEmpty(), mismatch.toString());
     }
 
     @Test
     @Category(LiveDataTestCategory.class)
-    @Ignore("Part of spike on character set encoding issue for live api")
-    public void checkCharacterEncodingOnResponse()  {
+    @Disabled("Part of spike on character set encoding issue for live api")
+    void checkCharacterEncodingOnResponse()  {
         String rawJSON = fetcher.fetch();
 
         //JSONParser jsonParser = new JSONParser();

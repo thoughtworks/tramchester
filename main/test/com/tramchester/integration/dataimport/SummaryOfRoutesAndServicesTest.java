@@ -4,39 +4,37 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportDataFromFiles;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.*;
 
 import static java.lang.String.format;
 
-public class SummaryOfRoutesAndServicesTest {
+class SummaryOfRoutesAndServicesTest {
 
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestsRun() throws Exception {
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         transportData = dependencies.get(TransportDataFromFiles.class);
     }
 
     @Test
-    public void createsSummaryOfRoutesAndServicesToAidInDiagnostics() throws FileNotFoundException {
+    void createsSummaryOfRoutesAndServicesToAidInDiagnostics() throws FileNotFoundException {
         String fileName = "summaryOfRouteAndServices.txt";
         OutputStream fileStream = new FileOutputStream(fileName);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);

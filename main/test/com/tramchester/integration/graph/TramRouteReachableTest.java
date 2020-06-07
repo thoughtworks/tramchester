@@ -8,36 +8,36 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
-import org.junit.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 
 import static com.tramchester.testSupport.RoutesForTesting.*;
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TramRouteReachableTest {
-    private static TramchesterConfig config;
+class TramRouteReachableTest {
     private static Dependencies dependencies;
 
     private RouteReachable reachable;
     private StationRepository stationRepository;
     private Transaction tx;
 
-    @BeforeClass
-    public static void onceBeforeAnyTestRuns() throws IOException {
+    @BeforeAll
+    static void onceBeforeAnyTestRuns() throws IOException {
         dependencies = new Dependencies();
-        config = new IntegrationTramTestConfig();
+        TramchesterConfig config = new IntegrationTramTestConfig();
         dependencies.initialise(config);
     }
 
-    @AfterClass
-    public static void OnceAfterAllTestsAreFinished() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
 
         stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(RouteReachable.class);
@@ -45,13 +45,13 @@ public class TramRouteReachableTest {
         tx = database.beginTx();
     }
 
-    @After
-    public void afterEachTestRuns() {
+    @AfterEach
+    void afterEachTestRuns() {
         tx.close();
     }
 
     @Test
-    public void shouldHaveCorrectReachabilityOrInterchanges() {
+    void shouldHaveCorrectReachabilityOrInterchanges() {
         assertTrue(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(),
                 ALTY_TO_PICC));
         assertFalse(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(),
@@ -64,7 +64,7 @@ public class TramRouteReachableTest {
     }
 
     @Test
-    public void shouldHaveCorrectReachabilityMonsalToRochs() {
+    void shouldHaveCorrectReachabilityMonsalToRochs() {
         assertTrue(reachable.getRouteReachableWithInterchange(Stations.RochdaleRail.getId(), Stations.Monsall.getId(),
                 ROCH_TO_DIDS));
         assertTrue(reachable.getRouteReachableWithInterchange(Stations.Monsall.getId(), Stations.RochdaleRail.getId(),
@@ -72,7 +72,7 @@ public class TramRouteReachableTest {
     }
 
     @Test
-    public void shouldHaveAdjacentRoutesCorrectly() {
+    void shouldHaveAdjacentRoutesCorrectly() {
 
         // TODO Lockdown 2->1 for next two tests, only one route to alty now
         assertEquals(1,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
@@ -91,7 +91,7 @@ public class TramRouteReachableTest {
     }
 
     @Test
-    public void shouldComputeSimpleCostBetweenStations() {
+    void shouldComputeSimpleCostBetweenStations() {
 
         assertEquals(62, reachable.getApproxCostBetween(Stations.Bury.getId(), Stations.Altrincham.getId()));
         assertEquals(62, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.Bury.getId()));
