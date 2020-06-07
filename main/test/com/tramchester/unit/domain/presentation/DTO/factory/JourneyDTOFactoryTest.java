@@ -18,8 +18,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.HeadsignMapper;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,24 +32,24 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class JourneyDTOFactoryTest extends EasyMockSupport {
-    private Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
-    private Location stationB = new Station("stationB", "area", "nameB", new LatLong(-3, 1), false);
+class JourneyDTOFactoryTest extends EasyMockSupport {
+    private final Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
+    private final Location stationB = new Station("stationB", "area", "nameB", new LatLong(-3, 1), false);
     private JourneyDTOFactory factory;
     private MyLocationFactory myLocationFactory;
 
-    private TramTime queryTime = TramTime.of(8,46);
+    private final TramTime queryTime = TramTime.of(8,46);
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         myLocationFactory = new MyLocationFactory(new ObjectMapper());
         factory = new JourneyDTOFactory(new HeadsignMapper());
     }
 
     @Test
-    public void shouldCreateJourneyDTO() {
+    void shouldCreateJourneyDTO() {
 
         StageDTO transportStage = createStage(TramTime.of(10, 8), TramTime.of(10, 20), 11);
 
@@ -66,7 +67,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCreateJourneyDTOWithDueTram() {
+    void shouldCreateJourneyDTOWithDueTram() {
         LocalDateTime when = LocalDateTime.of(2017,11,30,18,41);
 
         StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 5);
@@ -79,7 +80,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCreateJourneyDTOWithDueTramTimeOutOfRange() {
+    void shouldCreateJourneyDTOWithDueTramTimeOutOfRange() {
 
         LocalDateTime dateTime = LocalDateTime.of(2017,11,30,18,41);
         StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, dateTime, 22);
@@ -88,11 +89,11 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime);
         verifyAll();
 
-        assertNull(journeyDTO.getDueTram());
+        Assertions.assertNull(journeyDTO.getDueTram());
     }
 
     @Test
-    public void shouldCreateJourneyDTOWithLaterDueTramMatching() {
+    void shouldCreateJourneyDTOWithLaterDueTramMatching() {
         LocalDateTime when = LocalDateTime.of(2017,11,30, 18,41);
         StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 7);
 
@@ -105,7 +106,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveCorrectSummaryAndHeadingForWalkAndTram() {
+    void shouldHaveCorrectSummaryAndHeadingForWalkAndTram() {
         List<StageDTO> stages = new LinkedList<>();
         Location start = myLocationFactory.create(new LatLong(-2,1));
         Location destination = Stations.Cornbrook;
@@ -118,12 +119,12 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(TramTime.of(8,13), journey.getFirstDepartureTime());
-        assertTrue(journey.getChangeStations().isEmpty());
-        assertTrue(journey.getIsDirect());
+        Assertions.assertTrue(journey.getChangeStations().isEmpty());
+        Assertions.assertTrue(journey.getIsDirect());
     }
 
     @Test
-    public void shouldHaveRightSummaryAndHeadingFor2Stage() {
+    void shouldHaveRightSummaryAndHeadingFor2Stage() {
         List<StageDTO> stages = new LinkedList<>();
         stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook, 9));
         stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
@@ -137,7 +138,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveRightSummaryAndHeadingFor3Stage() {
+    void shouldHaveRightSummaryAndHeadingFor3Stage() {
         List<StageDTO> stages = createThreeStages();
 
         replayAll();
@@ -148,7 +149,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveBeginAndEnd() {
+    void shouldHaveBeginAndEnd() {
         List<StageDTO> stages = createThreeStages();
 
         replayAll();
@@ -160,7 +161,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveRightSummaryAndHeadingFor4Stage() {
+    void shouldHaveRightSummaryAndHeadingFor4Stage() {
         List<StageDTO> stages = createThreeStages();
         stages.add(createStage(Stations.ExchangeSquare, TravelAction.Change, Stations.Rochdale, 24));
 
@@ -172,7 +173,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() {
+    void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() {
         List<StageDTO> stages = new LinkedList<>();
         MyLocation myLocation = myLocationFactory.create(new LatLong(-1, 2));
         stages.add(createWalkingStage(myLocation, Stations.Victoria, TramTime.of(8,13), TramTime.of(8,16)));
@@ -181,11 +182,11 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(stages, queryTime);
         verifyAll();
 
-        assertTrue(journey.getChangeStations().isEmpty());
+        Assertions.assertTrue(journey.getChangeStations().isEmpty());
     }
 
     @Test
-    public void shouldHaveCorrectSummaryAndHeadingForTramStagesConnectedByWalk() {
+    void shouldHaveCorrectSummaryAndHeadingForTramStagesConnectedByWalk() {
         List<StageDTO> stages = new LinkedList<>();
         stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate, 13));
         stages.add(createWalkingStage(Stations.Deansgate, Stations.MarketStreet, TramTime.of(8,13), TramTime.of(8,16)));
@@ -199,7 +200,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void reproduceIssueWithJourneyWithJustWalking() throws JsonProcessingException {
+    void reproduceIssueWithJourneyWithJustWalking() {
         List<StageDTO> stages = new LinkedList<>();
         MyLocation start = myLocationFactory.create(new LatLong(1, 2));
         stages.add(createWalkingStage(start, Stations.Altrincham, TramTime.of(8,0), TramTime.of(8,10)));
@@ -211,7 +212,7 @@ public class JourneyDTOFactoryTest extends EasyMockSupport {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JodaModule());
 
-        objectMapper.writeValueAsString(journey);
+        Assertions.assertAll(() -> objectMapper.writeValueAsString(journey));
     }
 
     private List<StageDTO> createThreeStages() {

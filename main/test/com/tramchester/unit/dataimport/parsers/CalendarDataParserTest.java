@@ -3,7 +3,7 @@ package com.tramchester.unit.dataimport.parsers;
 import com.tramchester.dataimport.data.CalendarData;
 import com.tramchester.dataimport.parsers.CalendarDataMapper;
 import org.apache.commons.csv.CSVRecord;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -13,11 +13,11 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CalendarDataParserTest {
+class CalendarDataParserTest {
     private final String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
 
     @Test
-    public void shouldParseCalendarEntry() throws IOException {
+    void shouldParseCalendarEntry() throws IOException {
         CalendarDataMapper calendarDataMapper = new CalendarDataMapper(Collections.emptySet());
 
         CSVRecord recordFor = ParserBuilder.getRecordFor(calendar);
@@ -37,7 +37,7 @@ public class CalendarDataParserTest {
     }
 
     @Test
-    public void shouldIncludeIfServiceInList() throws IOException {
+    void shouldIncludeIfServiceInList() throws IOException {
         CSVRecord recordFor = ParserBuilder.getRecordFor(calendar);
 
         CalendarDataMapper calendarDataMapper = new CalendarDataMapper(Collections.emptySet());

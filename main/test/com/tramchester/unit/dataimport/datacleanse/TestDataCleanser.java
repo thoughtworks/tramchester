@@ -1,7 +1,5 @@
 package com.tramchester.unit.dataimport.datacleanse;
 
-import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
@@ -12,25 +10,27 @@ import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-public class TestDataCleanser extends EasyMockSupport {
+class TestDataCleanser extends EasyMockSupport {
 
     private TransportDataReader reader;
     private TransportDataWriter writer;
@@ -39,8 +39,8 @@ public class TestDataCleanser extends EasyMockSupport {
     private TransportDataReaderFactory readerFactory;
     private ProvidesNow providesNow;
 
-    @Before
-    public void beforeEachTestRuns() {
+    @BeforeEach
+    void beforeEachTestRuns() {
         TramchesterConfig config = TestEnv.GET();
         providesNow = new ProvidesLocalNow();
 
@@ -52,7 +52,7 @@ public class TestDataCleanser extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCleanseRoutesTram() throws IOException {
+    void shouldCleanseRoutesTram() throws IOException {
 
         RouteData routeB = new RouteData("R1", "MET", "CODE1", "AtoB name with issue (ignore me", "0");
         Stream<RouteData> routes = Stream.of(routeB);
@@ -67,12 +67,12 @@ public class TestDataCleanser extends EasyMockSupport {
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
         verifyAll();
 
-        assertEquals(1, routeCodes.size());
-        assertTrue(routeCodes.contains("R1"));
+        Assertions.assertEquals(1, routeCodes.size());
+        Assertions.assertTrue(routeCodes.contains("R1"));
     }
 
     @Test
-    public void shouldCleanseRoutesBus() throws IOException {
+    void shouldCleanseRoutesBus() throws IOException {
 
         RouteData routeB = new RouteData("R2", "GMS", "X58", "Altrincham - Strockport", "3");
         Stream<RouteData> routes = Stream.of(routeB);
@@ -87,16 +87,16 @@ public class TestDataCleanser extends EasyMockSupport {
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
         verifyAll();
 
-        assertEquals(1, routeCodes.size());
-        assertTrue(routeCodes.contains("R2"));
+        Assertions.assertEquals(1, routeCodes.size());
+        Assertions.assertTrue(routeCodes.contains("R2"));
     }
 
     @Test
-    public void shouldCleanseRoutesWildcard() throws IOException {
+    void shouldCleanseRoutesWildcard() throws IOException {
         RouteData routeA = new RouteData("R2", "ANY", "CODE2", "CtoD", "0");
         RouteData routeB = new RouteData("R1", "XYX", "CODE1", "AtoB", "3");
         Stream<RouteData> routes = Stream.of(routeA, routeB);
-        HashSet<String> agencyCodes = new HashSet<>(Arrays.asList("*"));
+        HashSet<String> agencyCodes = new HashSet<>(Collections.singletonList("*"));
 
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
@@ -108,11 +108,11 @@ public class TestDataCleanser extends EasyMockSupport {
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
         verifyAll();
 
-        assertEquals(2, routeCodes.size());
+        Assertions.assertEquals(2, routeCodes.size());
     }
 
     @Test
-    public void shouldCleanseStopsMet() throws IOException {
+    void shouldCleanseStopsMet() throws IOException {
 
         StopData stopData = new StopData("9400IdB", "codeB", "areaB", "nameB", 0.33, 0.44, true);
 
@@ -123,12 +123,12 @@ public class TestDataCleanser extends EasyMockSupport {
         validateWriter("stops", "9400IdB,codeB,\"areaB,nameB (Manchester Metrolink)\",0.33,0.44");
 
         replayAll();
-        cleanser.cleanseStops(stopDataMapper);
+        Assertions.assertAll(() -> cleanser.cleanseStops(stopDataMapper));
         verifyAll();
     }
 
     @Test
-    public void shouldCleanseStopMultiPart() throws IOException {
+    void shouldCleanseStopMultiPart() throws IOException {
         StopData stopA = new StopData("1800EB05551", "mantdwgj", "Rusholme", "Anson Road/St. Anselm Hall (Stop B)",
                 53.45412,-2.21209, false);
         Stream<StopData> stops = Stream.of(stopA);
@@ -144,12 +144,12 @@ public class TestDataCleanser extends EasyMockSupport {
                 "1800EB05551,mantdwgj,\"Rusholme,Anson Road/St. Anselm Hall (Stop B)\",53.45412,-2.21209");
 
         replayAll();
-        cleanser.cleanseStops(stopDataMapper);
+        Assertions.assertAll(() -> cleanser.cleanseStops(stopDataMapper));
         verifyAll();
     }
 
     @Test
-    public void shouldCleanseTrips() throws IOException {
+    void shouldCleanseTrips() throws IOException {
         TripData tripB = new TripData("METrouteIdB", "svcIdB", "tripIdB","headsignB");
         TripData tripC = new TripData("METrouteIdB", "svcIdB", "tripIdC","headsignC");
         Stream<TripData> trips = Stream.of(tripB, tripC);
@@ -165,16 +165,16 @@ public class TestDataCleanser extends EasyMockSupport {
         verifyAll();
 
         Set<String> serviceIds = servicesAndTrips.getServiceIds();
-        assertEquals(1, serviceIds.size());
-        assertTrue(serviceIds.contains("svcIdB"));
+        Assertions.assertEquals(1, serviceIds.size());
+        Assertions.assertTrue(serviceIds.contains("svcIdB"));
         Set<String> tripIds = servicesAndTrips.getTripIds();
-        assertEquals(2, tripIds.size());
-        assertTrue(tripIds.contains("tripIdB"));
-        assertTrue(tripIds.contains("tripIdC"));
+        Assertions.assertEquals(2, tripIds.size());
+        Assertions.assertTrue(tripIds.contains("tripIdB"));
+        Assertions.assertTrue(tripIds.contains("tripIdC"));
     }
 
     @Test
-    public void shouldCleanseStopTimes() throws IOException {
+    void shouldCleanseStopTimes() throws IOException {
         LocalTime arrivalTime = LocalTime.parse("11:10:00");
         LocalTime departureTime = LocalTime.parse("12:09:00");
 
@@ -194,12 +194,12 @@ public class TestDataCleanser extends EasyMockSupport {
 
         Set<String> stopIds = cleanser.cleanseStoptimes(stopTimeDataMapper);
         verifyAll();
-        assertEquals(1, stopIds.size());
-        assertTrue(stopIds.contains("9400stopIdB"));
+        Assertions.assertEquals(1, stopIds.size());
+        Assertions.assertTrue(stopIds.contains("9400stopIdB"));
     }
 
     @Test
-    public void shouldcleanseCalendar() throws IOException {
+    void shouldcleanseCalendar() throws IOException {
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate start = LocalDate.parse("20151025", dateFormatter);
@@ -218,12 +218,12 @@ public class TestDataCleanser extends EasyMockSupport {
                 "svcIDC,0,1,0,0,0,0,0,20151025,20151026");
 
         replayAll();
-        cleanser.cleanseCalendar(calendarDataMapper);
+        Assertions.assertAll(() -> cleanser.cleanseCalendar(calendarDataMapper));
         verifyAll();
     }
 
     @Test
-    public void shouldcleanseCalendarDates() throws IOException {
+    void shouldcleanseCalendarDates() throws IOException {
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate date = LocalDate.parse("20151025", dateFormatter);
@@ -241,12 +241,12 @@ public class TestDataCleanser extends EasyMockSupport {
                 "svcIDC,20151025,3");
 
         replayAll();
-        cleanser.cleanseCalendarDates(calendarDataMapper);
+        Assertions.assertAll(() -> cleanser.cleanseCalendarDates(calendarDataMapper));
         verifyAll();
     }
 
     @Test
-    public void shouldLeaveFeedInfoLinesUntouched() throws IOException {
+    void shouldLeaveFeedInfoLinesUntouched() throws IOException {
 
         FeedInfo lineA = new FeedInfo("pubA", "urlA", "tzA", "landA", LocalDate.of(2016,11,29),
                 LocalDate.of(2016,11,30), "versionA");
@@ -259,7 +259,7 @@ public class TestDataCleanser extends EasyMockSupport {
         validateWriter("feed_info",  "pubA,urlA,tzA,landA,20161129,20161130,versionA");
 
         replayAll();
-        cleanser.cleanFeedInfo(feedInfoDataMapper);
+        Assertions.assertAll(() -> cleanser.cleanFeedInfo(feedInfoDataMapper));
         verifyAll();
     }
 

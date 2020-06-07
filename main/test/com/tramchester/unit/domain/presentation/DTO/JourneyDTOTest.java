@@ -1,29 +1,26 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
-import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-public class JourneyDTOTest {
-    private LocationDTO stationA = new LocationDTO(Stations.Deansgate);
-    private LocationDTO stationB = new LocationDTO(Stations.VeloPark);
+class JourneyDTOTest {
+    private final LocationDTO stationA = new LocationDTO(Stations.Deansgate);
+    private final LocationDTO stationB = new LocationDTO(Stations.VeloPark);
 
     private JourneyDTO journeyA;
     private JourneyDTO journeyB;
-    private List<String> changeStations = new ArrayList<>();
-    private TramTime queryTime = TramTime.of(8,46);
+    private final List<String> changeStations = new ArrayList<>();
+    private final TramTime queryTime = TramTime.of(8,46);
 
-    @Before
-    public void beforeEachTestRuns() throws TramchesterException {
+    @BeforeEach
+    void beforeEachTestRuns() {
         journeyA = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.of(10, 20), TramTime.of(10, 8),
                 false, changeStations, queryTime);
@@ -33,35 +30,35 @@ public class JourneyDTOTest {
     }
 
     @Test
-    public void shouldCompareJourneysNearMidnight() throws TramchesterException {
+    void shouldCompareJourneysNearMidnight() {
         JourneyDTO journeyC = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.of(23, 27), TramTime.of(23, 47),
                 false, changeStations, queryTime);
         JourneyDTO journeyD = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.of(0, 3), TramTime.of(23, 23),
                 false, changeStations, queryTime);
-        assertTrue(journeyC.compareTo(journeyD)<0);
-        assertTrue(journeyD.compareTo(journeyC)>0);
+        Assertions.assertTrue(journeyC.compareTo(journeyD)<0);
+        Assertions.assertTrue(journeyD.compareTo(journeyC)>0);
     }
 
     @Test
-    public void shouldCompareJourneysBasedOnEarliestArrival() {
-        assertTrue(journeyA.compareTo(journeyB)<0);
-        assertTrue(journeyB.compareTo(journeyA)>0);
+    void shouldCompareJourneysBasedOnEarliestArrival() {
+        Assertions.assertTrue(journeyA.compareTo(journeyB)<0);
+        Assertions.assertTrue(journeyB.compareTo(journeyA)>0);
     }
 
     @Test
-    public void shouldHaveSortedSetInExpectedOrder() throws TramchesterException {
+    void shouldHaveSortedSetInExpectedOrder() {
         SortedSet<JourneyDTO> set = new TreeSet<>();
         set.add(journeyB);
         set.add(journeyA);
-        assertEquals(TramTime.of(10,20), set.first().getExpectedArrivalTime());
+        Assertions.assertEquals(TramTime.of(10,20), set.first().getExpectedArrivalTime());
     }
 
     @Test
-    public void shouldHaveSortedSetInExpectedOrderAccrossMidnight() throws TramchesterException {
+    void shouldHaveSortedSetInExpectedOrderAccrossMidnight() {
         JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
-                TramTime.of(00, 10), TramTime.of(10, 8),
+                TramTime.of(0, 10), TramTime.of(10, 8),
                 false, changeStations, queryTime);
 
         JourneyDTO afterMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
@@ -72,12 +69,12 @@ public class JourneyDTOTest {
         set.add(afterMidnight);
         set.add(beforeMidnight);
 
-        assertEquals(TramTime.of(23,50), set.first().getExpectedArrivalTime());
-        assertEquals(TramTime.of(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
+        Assertions.assertEquals(TramTime.of(23,50), set.first().getExpectedArrivalTime());
+        Assertions.assertEquals(TramTime.of(23,50), set.stream().findFirst().get().getExpectedArrivalTime());
     }
 
     @Test
-    public void shouldHaveSortedSetInExpectedOrderLateNight() throws TramchesterException {
+    void shouldHaveSortedSetInExpectedOrderLateNight() {
         JourneyDTO beforeMidnight = new JourneyDTO(stationA, stationB, new LinkedList<>(),
                 TramTime.of(23, 42), TramTime.of(10, 8),
                 false, changeStations, queryTime);
@@ -90,8 +87,8 @@ public class JourneyDTOTest {
         set.add(afterMidnight);
         set.add(beforeMidnight);
 
-        assertEquals(TramTime.of(23,12), set.first().getExpectedArrivalTime());
-        assertEquals(TramTime.of(23,12), set.stream().findFirst().get().getExpectedArrivalTime());
+        Assertions.assertEquals(TramTime.of(23,12), set.first().getExpectedArrivalTime());
+        Assertions.assertEquals(TramTime.of(23,12), set.stream().findFirst().get().getExpectedArrivalTime());
     }
 
 }

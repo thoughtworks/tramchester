@@ -2,7 +2,8 @@ package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,10 +11,10 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RouteDTOTest {
+class RouteDTOTest {
 
     @Test
-    public void shouldUseRouteNameForEquality() {
+    void shouldUseRouteNameForEquality() {
 
         List<StationDTO> stations = new LinkedList<>();
 
@@ -21,9 +22,9 @@ public class RouteDTOTest {
         RouteDTO routeB = new RouteDTO("nameB", "B", stations, "displayClass");
         RouteDTO routeC = new RouteDTO("nameA", "C", stations, "displayClass");
 
-        assertTrue(routeA.equals(routeC));
-        assertTrue(routeC.equals(routeA));
-        assertFalse(routeA.equals(routeB));
+        Assertions.assertEquals(routeA, routeC);
+        Assertions.assertEquals(routeC, routeA);
+        Assertions.assertNotEquals(routeA, routeB);
 
     }
 }

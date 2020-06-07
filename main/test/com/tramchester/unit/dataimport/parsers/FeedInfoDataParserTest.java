@@ -5,18 +5,18 @@ import com.tramchester.dataimport.parsers.FeedInfoDataMapper;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FeedInfoDataParserTest {
-    String feedInfo = "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,20160530,20160615,feed_version";
+class FeedInfoDataParserTest {
+    private final String feedInfo = "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,20160530,20160615,feed_version";
 
     @Test
-    public void shouldParserFeedInfo() throws IOException {
+    void shouldParserFeedInfo() throws IOException {
         ProvidesNow providesNow = new ProvidesLocalNow();
         FeedInfoDataMapper feedInfoDataParser = new FeedInfoDataMapper(providesNow);
 

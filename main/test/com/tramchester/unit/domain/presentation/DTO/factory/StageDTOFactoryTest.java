@@ -15,8 +15,9 @@ import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -24,21 +25,21 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
-public class StageDTOFactoryTest extends EasyMockSupport {
+class StageDTOFactoryTest extends EasyMockSupport {
 
     private StageDTOFactory factory;
     private LiveDataRepository liveDataRepository;
     private TramServiceDate tramServiceDate;
 
-    @Before
-    public void beforeEachTestRun() {
+    @BeforeEach
+    void beforeEachTestRun() {
         liveDataRepository = createMock(LiveDataRepository.class);
         factory = new StageDTOFactory(liveDataRepository);
         tramServiceDate = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
     }
 
     @Test
-    public void shouldCreateStageDTOCorrectlyForWalking() {
+    void shouldCreateStageDTOCorrectlyForWalking() {
         WalkingStage stage = new WalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15,
                 TramTime.of(8,11), false);
 
@@ -49,7 +50,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCreateStageDTOCorrectlyForTransportStage() {
+    void shouldCreateStageDTOCorrectlyForTransportStage() {
         Route testRoute = TestEnv.getTestRoute();
         Service service = new Service("svcId", testRoute);
 
@@ -74,7 +75,7 @@ public class StageDTOFactoryTest extends EasyMockSupport {
     }
 
     @Test
-    public void shouldCreateStageDTOCorrectlyForTransportStageHasLiveData() {
+    void shouldCreateStageDTOCorrectlyForTransportStageHasLiveData() {
         Route testRoute = TestEnv.getTestRoute();
         Service service = new Service("svcId", testRoute);
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
@@ -102,23 +103,23 @@ public class StageDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         StationDepartureInfoDTO departDTO = stageDTO.getPlatform().getStationDepartureInfo();
-        assertEquals("message", departDTO.getMessage());
-        assertEquals(Stations.MarketStreet.getName(), departDTO.getLocation());
+        Assertions.assertEquals("message", departDTO.getMessage());
+        Assertions.assertEquals(Stations.MarketStreet.getName(), departDTO.getLocation());
     }
 
     private void checkValues(TransportStage stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
-        assertEquals(stage.getActionStation().getId(), dto.getActionStation().getId());
-        assertEquals(stage.getMode(), dto.getMode());
-        assertEquals(stage.getFirstDepartureTime(), dto.getFirstDepartureTime());
-        assertEquals(stage.getLastStation().getId(), dto.getLastStation().getId());
-        assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
-        assertEquals(stage.getDuration(), dto.getDuration());
-        assertEquals(stage.getFirstStation().getId(), dto.getFirstStation().getId());
-        assertEquals(stage.getHeadSign(), dto.getHeadSign());
-        assertEquals(stage.getRouteName(), dto.getRouteName());
-        assertEquals(stage.getDisplayClass(), dto.getDisplayClass());
-        assertEquals(stage.getPassedStops(), dto.getPassedStops());
-        assertEquals(action.toString(), dto.getAction());
-        assertEquals(hasPlatform, dto.getHasPlatform());
+        Assertions.assertEquals(stage.getActionStation().getId(), dto.getActionStation().getId());
+        Assertions.assertEquals(stage.getMode(), dto.getMode());
+        Assertions.assertEquals(stage.getFirstDepartureTime(), dto.getFirstDepartureTime());
+        Assertions.assertEquals(stage.getLastStation().getId(), dto.getLastStation().getId());
+        Assertions.assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
+        Assertions.assertEquals(stage.getDuration(), dto.getDuration());
+        Assertions.assertEquals(stage.getFirstStation().getId(), dto.getFirstStation().getId());
+        Assertions.assertEquals(stage.getHeadSign(), dto.getHeadSign());
+        Assertions.assertEquals(stage.getRouteName(), dto.getRouteName());
+        Assertions.assertEquals(stage.getDisplayClass(), dto.getDisplayClass());
+        Assertions.assertEquals(stage.getPassedStops(), dto.getPassedStops());
+        Assertions.assertEquals(action.toString(), dto.getAction());
+        Assertions.assertEquals(hasPlatform, dto.getHasPlatform());
     }
 }

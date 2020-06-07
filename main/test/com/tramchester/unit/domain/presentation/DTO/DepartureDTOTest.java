@@ -5,7 +5,8 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 import java.util.Set;
@@ -13,25 +14,25 @@ import java.util.TreeSet;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class DepartureDTOTest {
+class DepartureDTOTest {
 
     @Test
-    public void shouldCreateFromDueTramAndLocation() {
+    void shouldCreateFromDueTramAndLocation() {
         LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
 
         String location = "aPlace";
         DueTram dueTram = new DueTram(Stations.Bury, "status", 42, "carriages", updateTime);
         DepartureDTO departureDTO = new DepartureDTO(location, dueTram);
 
-        assertEquals("aPlace", departureDTO.getFrom());
-        assertEquals("Bury", departureDTO.getDestination());
-        assertEquals("status", departureDTO.getStatus());
-        assertEquals("carriages", departureDTO.getCarriages());
-        assertEquals(TramTime.of(updateTime.plusMinutes(42)), departureDTO.getWhen());
+        Assertions.assertEquals("aPlace", departureDTO.getFrom());
+        Assertions.assertEquals("Bury", departureDTO.getDestination());
+        Assertions.assertEquals("status", departureDTO.getStatus());
+        Assertions.assertEquals("carriages", departureDTO.getCarriages());
+        Assertions.assertEquals(TramTime.of(updateTime.plusMinutes(42)), departureDTO.getWhen());
     }
 
     @Test
-    public void shouldCompareBasedOnWhenTramDue() {
+    void shouldCompareBasedOnWhenTramDue() {
         LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
 
         DepartureDTO departureDTOA = new DepartureDTO("station", new DueTram(Stations.Deansgate, "status", 5, "carriages", updateTime));
@@ -44,9 +45,9 @@ public class DepartureDTOTest {
         list.add(departureDTOC);
 
         DepartureDTO[] elements = list.toArray(new DepartureDTO[3]);
-        assertEquals("Bury", elements[0].getDestination());
-        assertEquals("Deansgate-Castlefield", elements[1].getDestination());
-        assertEquals("Piccadilly", elements[2].getDestination());
+        Assertions.assertEquals("Bury", elements[0].getDestination());
+        Assertions.assertEquals("Deansgate-Castlefield", elements[1].getDestination());
+        Assertions.assertEquals("Piccadilly", elements[2].getDestination());
 
     }
 }

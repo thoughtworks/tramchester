@@ -2,7 +2,8 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.parsers.RouteDataMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -11,22 +12,22 @@ import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 
-public class RouteDataParserTest {
+class RouteDataParserTest {
     private final String routeA = "MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
     private final String routeB = "MET:MET4:O:,XXX,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
 
     private final String problemBusRoute = "JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3";
 
     @Test
-    public void shouldFilter() throws IOException {
+    void shouldFilter() throws IOException {
         RouteDataMapper mapper = new RouteDataMapper(Collections.singleton("MET"), true);
 
-        assertTrue(mapper.shouldInclude(ParserBuilder.getRecordFor(routeA)));
-        assertFalse(mapper.shouldInclude(ParserBuilder.getRecordFor(routeB)));
+        Assertions.assertTrue(mapper.shouldInclude(ParserBuilder.getRecordFor(routeA)));
+        Assertions.assertFalse(mapper.shouldInclude(ParserBuilder.getRecordFor(routeB)));
     }
 
     @Test
-    public void shouldParseRoute() throws IOException {
+    void shouldParseRoute() throws IOException {
         RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet(), true);
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(routeA));
@@ -38,7 +39,7 @@ public class RouteDataParserTest {
     }
 
     @Test
-    public void shouldParseBusRoute() throws IOException {
+    void shouldParseBusRoute() throws IOException {
         RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet(), true);
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(problemBusRoute));

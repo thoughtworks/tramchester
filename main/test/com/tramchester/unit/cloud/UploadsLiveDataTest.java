@@ -7,8 +7,9 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.unit.repository.LiveDataRepositoryTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -25,7 +26,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
     private List<StationDepartureInfo> liveData;
     private String environment;
 
-    @Before
+    @BeforeEach
     public void beforeEachTestRuns() {
         environment = System.getenv("PLACE");
         environment = environment==null ? "test" : environment.toLowerCase();
@@ -51,7 +52,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
         boolean result = uploadsLiveData.seenUpdate(liveData);
         verifyAll();
 
-        assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
@@ -63,7 +64,7 @@ public class UploadsLiveDataTest extends EasyMockSupport {
         boolean result = uploadsLiveData.seenUpdate(liveData);
         verifyAll();
 
-        assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
@@ -74,6 +75,6 @@ public class UploadsLiveDataTest extends EasyMockSupport {
         boolean result = uploadsLiveData.seenUpdate(liveData);
         verifyAll();
 
-        assertFalse(result);
+        Assertions.assertFalse(result);
     }
 }
