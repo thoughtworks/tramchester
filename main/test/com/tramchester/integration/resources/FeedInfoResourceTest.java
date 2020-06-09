@@ -21,8 +21,8 @@ import static org.junit.Assert.assertFalse;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class FeedInfoResourceTest {
-    public static LocalDate validFrom = LocalDate.of(2020, 6, 5); // year, month, day
-    public static LocalDate validUntil = LocalDate.of(2020, 8, 5);
+    public static LocalDate validFrom = LocalDate.of(2020, 6, 8); // year, month, day
+    public static LocalDate validUntil = LocalDate.of(2020, 8, 8);
 
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
 

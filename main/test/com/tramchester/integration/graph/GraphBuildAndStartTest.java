@@ -54,10 +54,12 @@ class GraphBuildAndStartTest {
                 nodeIdLabelMap, nodeIdQuery, interchangeRepository, config);
 
         transportData.start();
+        interchangeRepository.start();
         graphDatabase.start();
         Assertions.assertTrue(graphDatabase.isAvailable(2000));
         transportGraphBuilder.start();
         graphDatabase.stop();
+        interchangeRepository.dispose();
         transportData.dispose();
     }
 

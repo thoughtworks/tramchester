@@ -10,7 +10,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static java.lang.String.format;
@@ -51,8 +51,8 @@ public class TransportGraphBuilder implements Startable {
     private static final int ENTER_INTER_PLATFORM_COST = 0;
     private static final int LEAVE_INTER_PLATFORM_COST = 0;
 
-    private int numberNodes = 0;
-    private int numberRelationships = 0;
+    private final AtomicInteger numberNodes;
+    private final AtomicInteger numberRelationships;
     private final GraphFilter graphFilter;
     private final GraphDatabase graphDatabase;
 
@@ -89,6 +89,8 @@ public class TransportGraphBuilder implements Startable {
         platforms = new LinkedList<>();
         timeNodeIds = new HashSet<>();
         nodesWithRouteRelationship = new HashSet<>();
+        numberNodes = new AtomicInteger();
+        numberRelationships = new AtomicInteger();
     }
 
     @Override
@@ -164,10 +166,11 @@ public class TransportGraphBuilder implements Startable {
 
         graphDatabase.createIndexs();
 
-        Transaction tx = graphDatabase.beginTx();
+
         try {
             logger.info("Rebuilding the graph...");
             for(Agency agency : transportData.getAgencies()) {
+                Transaction tx = graphDatabase.beginTx();
                 logger.info("Add routes for agency " + agency.getId());
 
                 for (Route route : agency.getRoutes()) {
@@ -176,18 +179,19 @@ public class TransportGraphBuilder implements Startable {
                         for (Trip trip : service.getTrips()) {
                             AddRouteServiceTrip(graphDatabase, route, service, trip);
                         }
-                        // performance & memory use control
-                        tx.success();
-                        tx.close();
-                        tx = graphDatabase.beginTx();
+
                     }
                 }
+                // performance & memory use control
+                tx.success();
+                tx.close();
+                //tx = graphDatabase.beginTx();
             }
 
             logger.info("Wait for indexes online");
             graphDatabase.waitForIndexesReady();
 
-            tx.success();
+            //tx.success();
 
             long duration = System.currentTimeMillis()-start;
             logger.info("Graph rebuild finished, took " + duration);
@@ -195,9 +199,10 @@ public class TransportGraphBuilder implements Startable {
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
             return;
-        } finally {
-            tx.close();
         }
+//        finally {
+//            tx.close();
+//        }
         reportStats();
         clearBuildCaches();
         logMemory("After graph build");
@@ -210,8 +215,8 @@ public class TransportGraphBuilder implements Startable {
     }
 
     private void reportStats() {
-        logger.info("Nodes created: " + numberNodes);
-        logger.info("Relationships created: " + numberRelationships);
+        logger.info("Nodes created: " + numberNodes.get());
+        logger.info("Relationships created: " + numberRelationships.get());
     }
 
 
@@ -286,7 +291,7 @@ public class TransportGraphBuilder implements Startable {
     }
 
     private Node createGraphNode(GraphDatabase graphDatabase, Labels label) {
-        numberNodes++;
+        numberNodes.incrementAndGet();
         Node node = graphDatabase.createNode(label);
         nodeIdLabelMap.put(node.getId(), label);
         return node;
@@ -395,7 +400,7 @@ public class TransportGraphBuilder implements Startable {
     }
 
     private Relationship createRelationships(Node node, Node platformNode, TransportRelationshipTypes relationshipType) {
-        numberRelationships++;
+        numberRelationships.incrementAndGet();
         return node.createRelationshipTo(platformNode, relationshipType);
     }
 

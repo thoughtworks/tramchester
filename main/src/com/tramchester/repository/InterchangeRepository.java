@@ -3,6 +3,8 @@ package com.tramchester.repository;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.TramInterchanges;
+import org.picocontainer.Disposable;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,25 +13,40 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class InterchangeRepository {
+public class InterchangeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
     private final TransportDataSource dataSource;
     private final TramchesterConfig config;
 
     // id -> Station
-    private final Map<String, Station> busInterchanges;
+    private Map<String, Station> busInterchanges;
 
     public InterchangeRepository(TransportDataSource dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
         this.config = config;
+    }
+
+    @Override
+    public void dispose() {
+        busInterchanges.clear();
+    }
+
+    @Override
+    public void start() {
         if (config.getBus()) {
             // potentially expensive
             busInterchanges = createBusInterchangeList();
             logger.info(format("Added %s bus interchanges", busInterchanges.size()));
         } else {
             busInterchanges = Collections.emptyMap();
+            logger.info("Buses disabled");
         }
+    }
+
+    @Override
+    public void stop() {
+        // no op
     }
 
     private Map<String, Station> createBusInterchangeList() {
@@ -39,7 +56,7 @@ public class InterchangeRepository {
 
         return allStations.stream().
                 filter(station -> !station.isTram()).
-                filter(station -> checkForInterchange(station.getName())).
+                filter(station -> checkForBusInterchange(station.getName())).
                 collect(Collectors.toMap(Station::getId, (station -> station)));
 
 
@@ -49,18 +66,15 @@ public class InterchangeRepository {
 //                collect(Collectors.toMap(Station::getId, (station -> station)));
     }
 
-    private boolean checkForInterchange(String name) {
+    // TODO WIP
+    private boolean checkForBusInterchange(String name) {
         String lower = name.toLowerCase();
 
         if (lower.contains("interchange")) {
             return true;
         }
 
-        if ( lower.contains("bus station") && (!lower.contains("adj bus station")) ) {
-            return true;
-        }
-
-        return false;
+        return lower.contains("bus station") && (!lower.contains("adj bus station"));
     }
 
     public Collection<Station> getBusInterchanges() {
@@ -83,5 +97,6 @@ public class InterchangeRepository {
         }
         return false;
     }
+
 
 }
