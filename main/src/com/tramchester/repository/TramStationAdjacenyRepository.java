@@ -16,13 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class StationAdjacenyRepository implements Startable, Disposable {
-    private static final Logger logger = LoggerFactory.getLogger(StationAdjacenyRepository.class);
+public class TramStationAdjacenyRepository implements Startable, Disposable {
+    private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 
     private final Map<Pair<Station,Station>, Integer> matrix;
     private final TransportDataSource transportDataSource;
 
-    public StationAdjacenyRepository(TransportDataSource transportDataSource) {
+    public TramStationAdjacenyRepository(TransportDataSource transportDataSource) {
         this.transportDataSource = transportDataSource;
         matrix = new HashMap<>();
     }
@@ -31,7 +31,7 @@ public class StationAdjacenyRepository implements Startable, Disposable {
     public void start() {
         logger.info("Build adjacency matrix");
         Collection<Trip> trips = transportDataSource.getTrips();
-        trips.forEach(trip -> {
+        trips.stream().filter(Trip::getTram).forEach(trip -> {
             StopCalls stops = trip.getStops();
             for (int i = 0; i < stops.size() - 1; i++) {
                 StopCall currentStop = stops.get(i);
@@ -68,7 +68,7 @@ public class StationAdjacenyRepository implements Startable, Disposable {
         return -1;
     }
 
-    public Set<Pair<Station, Station>> getStationParis() {
+    public Set<Pair<Station, Station>> getTramStationParis() {
         return matrix.keySet();
     }
 

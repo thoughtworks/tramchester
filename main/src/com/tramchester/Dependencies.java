@@ -141,7 +141,7 @@ public class Dependencies {
         picoContainer.addComponent(TramReachabilityRepository.class);
         picoContainer.addComponent(NodeIdLabelMap.class);
         picoContainer.addComponent(GraphQuery.class);
-        picoContainer.addComponent(StationAdjacenyRepository.class);
+        picoContainer.addComponent(TramStationAdjacenyRepository.class);
         picoContainer.addComponent(new ObjectMapper());
         picoContainer.addComponent(StageDTOFactory.class);
         picoContainer.addComponent(JourneyDTOFactory.class);

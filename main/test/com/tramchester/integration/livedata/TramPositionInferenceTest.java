@@ -13,10 +13,9 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.StationAdjacenyRepository;
+import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.repository.StationRepository;
 import org.junit.jupiter.api.*;
-import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +46,7 @@ class TramPositionInferenceTest {
         LiveDataRepository liveDataSource = dependencies.get(LiveDataRepository.class);
         liveDataSource.refreshRespository();
         RouteReachable routeReachable = dependencies.get(RouteReachable.class);
-        StationAdjacenyRepository adjacenyMatrix = dependencies.get(StationAdjacenyRepository.class);
+        TramStationAdjacenyRepository adjacenyMatrix = dependencies.get(TramStationAdjacenyRepository.class);
         positionInference = new TramPositionInference(liveDataSource, adjacenyMatrix, routeReachable);
         stationRepository = dependencies.get(StationRepository.class);
         date = TramServiceDate.of(providesLocalNow.getDate());

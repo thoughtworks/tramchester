@@ -3,7 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.repository.StationAdjacenyRepository;
+import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.Stations;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 class StationAdjacencyRepositoryTest {
     private static Dependencies dependencies;
 
-    private StationAdjacenyRepository repository;
+    private TramStationAdjacenyRepository repository;
     private TransportDataSource transportDataSource;
 
     @BeforeAll
@@ -34,7 +34,7 @@ class StationAdjacencyRepositoryTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         transportDataSource = dependencies.get(TransportDataSource.class);
-        repository = dependencies.get(StationAdjacenyRepository.class);
+        repository = dependencies.get(TramStationAdjacenyRepository.class);
     }
 
     @Test
@@ -48,7 +48,7 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldHavePairsOfStations() {
-        Set<Pair<Station, Station>> pairs = repository.getStationParis();
+        Set<Pair<Station, Station>> pairs = repository.getTramStationParis();
         String stationId = Stations.NavigationRoad.getId();
 
         List<Pair<Station, Station>> results = pairs.stream().

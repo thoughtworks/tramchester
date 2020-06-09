@@ -8,7 +8,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.repository.LiveDataSource;
-import com.tramchester.repository.StationAdjacenyRepository;
+import com.tramchester.repository.TramStationAdjacenyRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +21,13 @@ import static java.lang.String.format;
 public class TramPositionInference {
     private static final Logger logger = LoggerFactory.getLogger(TramPositionInference.class);
 
-    public static final String DEPARTING = "Departing";
+    private static final String DEPARTING = "Departing";
 
     private final LiveDataSource liveDataSource;
-    private final StationAdjacenyRepository adjacenyRepository;
+    private final TramStationAdjacenyRepository adjacenyRepository;
     private final RouteReachable routeReachable;
 
-    public TramPositionInference(LiveDataSource liveDataSource, StationAdjacenyRepository adjacenyRepository, RouteReachable routeReachable) {
+    public TramPositionInference(LiveDataSource liveDataSource, TramStationAdjacenyRepository adjacenyRepository, RouteReachable routeReachable) {
         this.liveDataSource = liveDataSource;
         this.adjacenyRepository = adjacenyRepository;
         this.routeReachable = routeReachable;
@@ -37,7 +37,7 @@ public class TramPositionInference {
     public List<TramPosition> inferWholeNetwork(TramServiceDate date, TramTime time) {
         logger.info("Infer tram positions for whole network");
         List<TramPosition> results = new ArrayList<>();
-        Set<Pair<Station, Station>> pairs = adjacenyRepository.getStationParis();
+        Set<Pair<Station, Station>> pairs = adjacenyRepository.getTramStationParis();
         pairs.forEach(pair -> {
             TramPosition result = findBetween(pair.getLeft(), pair.getRight(), date, time);
             results.add(result);
