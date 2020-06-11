@@ -165,11 +165,10 @@ public class TransportGraphBuilder implements Startable {
 
         graphDatabase.createIndexs();
 
-
+        Transaction tx = graphDatabase.beginTx();
         try {
             logger.info("Rebuilding the graph...");
             for(Agency agency : transportData.getAgencies()) {
-                Transaction tx = graphDatabase.beginTx();
                 logger.info("Add routes for agency " + agency.getId());
 
                 for (Route route : agency.getRoutes()) {
@@ -178,13 +177,12 @@ public class TransportGraphBuilder implements Startable {
                         for (Trip trip : service.getTrips()) {
                             AddRouteServiceTrip(graphDatabase, route, service, trip);
                         }
-
+                        // performance & memory use control
+                        tx.success();
+                        tx.close();
+                        tx = graphDatabase.beginTx();
                     }
                 }
-                // performance & memory use control
-                tx.success();
-                tx.close();
-                //tx = graphDatabase.beginTx();
             }
 
             logger.info("Wait for indexes online");
