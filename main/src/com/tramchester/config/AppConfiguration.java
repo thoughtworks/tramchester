@@ -47,6 +47,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("dataPath")
     private Path dataPath;
 
+    @JsonProperty("loadPostcodes")
+    private boolean loadPostcodes;
+
     @JsonProperty("postcodeDataPath")
     private Path postcodeDataPath;
 
@@ -284,6 +287,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxNumberMissingLiveMessages() {
         return maxNumberMissingLiveMessages;
+    }
+
+    @Override
+    public boolean getLoadPostcodes() {
+        return loadPostcodes;
     }
 
     @Override

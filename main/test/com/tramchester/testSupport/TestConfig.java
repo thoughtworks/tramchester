@@ -144,6 +144,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public boolean getLoadPostcodes() {
+        return true;
+    }
+
+    @Override
     public Path getPostcodeDataPath() {
         return Path.of("data", "codepo_gb", "Data", "CSV");
     }
