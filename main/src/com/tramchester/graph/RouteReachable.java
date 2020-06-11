@@ -61,6 +61,7 @@ public class RouteReachable {
         return results;
     }
 
+    // TODO WIP to support bus routing
     public Map<String,String> getShortestRoutesBetween(String startStationId, String endStationId) {
         HashMap<String, String> results = new HashMap<>();
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -71,10 +72,7 @@ public class RouteReachable {
             Iterable<WeightedPath> paths = finder.findAllPaths(startNode, endNode);
 
             paths.forEach(path -> path.relationships().forEach(relationship -> {
-//                if (relationship.isType(ON_ROUTE)) {
-//                    String routeId = relationship.getProperty(ROUTE_ID).toString();
-//                    results.add(routeId);
-//                }
+
                 if (relationship.isType(BOARD) || relationship.isType(INTERCHANGE_BOARD)) {
                     Node node = relationship.getEndNode();
                     String routeId = node.getProperty(ROUTE_ID).toString();

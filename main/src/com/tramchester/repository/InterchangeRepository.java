@@ -21,10 +21,14 @@ public class InterchangeRepository implements Disposable, Startable {
 
     // id -> Station
     private Map<String, Station> busInterchanges;
+    private Set<Station> multiAgency;
 
     public InterchangeRepository(TransportDataSource dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
         this.config = config;
+        // both of these empty for trams
+        busInterchanges = Collections.emptyMap();
+        multiAgency = Collections.emptySet();
     }
 
     @Override
@@ -35,13 +39,21 @@ public class InterchangeRepository implements Disposable, Startable {
     @Override
     public void start() {
         if (config.getBus()) {
-            // potentially expensive
-            busInterchanges = createBusInterchangeList();
+            Set<Station> allStations = dataSource.getStations();
+            busInterchanges = createBusInterchangeList(allStations);
             logger.info(format("Added %s bus interchanges", busInterchanges.size()));
+            multiAgency = createMultiAgency(allStations);
+            logger.info(format("Added %s stations to multiagency list", multiAgency.size()));
         } else {
-            busInterchanges = Collections.emptyMap();
             logger.info("Buses disabled");
         }
+    }
+
+    private Set<Station> createMultiAgency(Set<Station> allStations) {
+        return allStations.stream().
+            filter(station -> !station.isTram()).
+            filter(station -> station.getAgencies().size()>=2).
+            collect(Collectors.toSet());
     }
 
     @Override
@@ -49,21 +61,13 @@ public class InterchangeRepository implements Disposable, Startable {
         // no op
     }
 
-    private Map<String, Station> createBusInterchangeList() {
+    private Map<String, Station> createBusInterchangeList(Set<Station> allStations) {
         logger.info("Finding bus interchanges based on names");
-
-        Set<Station> allStations = dataSource.getStations();
 
         return allStations.stream().
                 filter(station -> !station.isTram()).
                 filter(station -> checkForBusInterchange(station.getName())).
                 collect(Collectors.toMap(Station::getId, (station -> station)));
-
-
-//        return allStations.stream().
-//                filter(station -> !station.isTram()).
-//                filter(station -> station.getAgencies().size()>=numberAgencies).
-//                collect(Collectors.toMap(Station::getId, (station -> station)));
     }
 
     // TODO WIP
@@ -99,4 +103,7 @@ public class InterchangeRepository implements Disposable, Startable {
     }
 
 
+    public Set<Station> getMultiAgencyStations() {
+        return multiAgency;
+    }
 }

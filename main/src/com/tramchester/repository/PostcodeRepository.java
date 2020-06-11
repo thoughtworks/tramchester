@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -20,12 +21,14 @@ public class PostcodeRepository implements Disposable, Startable {
 
     private final PostcodeDataImporter importer;
     private final CoordinateTransforms coordinateTransforms;
+    private final TramchesterConfig config;
 
     private final HashMap<String, PostcodeLocation> postcodes; // Id -> PostcodeLocation
 
-    public PostcodeRepository(PostcodeDataImporter importer, CoordinateTransforms coordinateTransforms) {
+    public PostcodeRepository(PostcodeDataImporter importer, CoordinateTransforms coordinateTransforms, TramchesterConfig config) {
         this.importer = importer;
         this.coordinateTransforms = coordinateTransforms;
+        this.config = config;
         postcodes = new HashMap<>();
     }
 
@@ -36,6 +39,11 @@ public class PostcodeRepository implements Disposable, Startable {
 
     @Override
     public void start() {
+        if (config.getBus()) {
+            logger.warn("Not loading postcodes, buses disabled");
+            return;
+        }
+
         Set<PostcodeData> rawCodes = importer.loadLocalPostcodes();
 
         rawCodes.forEach(code -> {

@@ -6,9 +6,9 @@ import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.BusTest;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -16,9 +16,11 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Disabled("WIP")
+import static org.junit.jupiter.api.Assertions.*;
+
+
+@Disabled("Experimental")
 class BusInterchangeRepositoryTest {
-    private static TramchesterConfig config;
     private static Dependencies dependencies;
     private InterchangeRepository repository;
 
@@ -35,30 +37,44 @@ class BusInterchangeRepositoryTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         repository = dependencies.get(InterchangeRepository.class);
-        config = dependencies.getConfig();
     }
 
     @Test
     void shouldFindTramInterchanges() {
         for (String interchange : TramInterchanges.stations()) {
-            Assertions.assertTrue(repository.isInterchange(interchange));
+            assertTrue(repository.isInterchange(interchange));
         }
     }
 
-    @Category({BusTest.class})
+    @BusTest
     @Test
     void shouldFindBusInterchanges() {
-        Assumptions.assumeTrue(config.getBus());
 
         Collection<Station> interchanges = repository.getBusInterchanges();
 
         for (Station interchange : interchanges) {
-            Assertions.assertFalse(interchange.isTram());
+            assertFalse(interchange.isTram());
         }
 
-        Assertions.assertFalse(interchanges.isEmpty());
+        assertFalse(interchanges.isEmpty());
         Set<String> interchangeIds = interchanges.stream().map(Station::getId).collect(Collectors.toSet());
-        Assertions.assertTrue(interchangeIds.contains(BusStations.AltrinchamInterchange.getId()));
+        assertTrue(interchangeIds.contains(BusStations.AltrinchamInterchange.getId()));
+    }
+
+    @BusTest
+    @Test
+    void shouldFindSharedStationsUsedByMultipleAgencies() {
+
+        Set<Station> shared = repository.getMultiAgencyStations();
+
+        assertFalse(shared.isEmpty());
+
+        assertTrue(shared.contains(BusStations.AltrinchamInterchange));
+        assertTrue(shared.contains(BusStations.StockportBusStation));
+        assertTrue(shared.contains(BusStations.ShudehillInterchange));
+
+        StationRepository stationRepos = dependencies.get(StationRepository.class);
+        assertNotEquals(stationRepos.getStations().size(), shared.size());
     }
 
 }

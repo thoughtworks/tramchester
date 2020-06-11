@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static java.lang.String.format;
@@ -51,8 +50,8 @@ public class TransportGraphBuilder implements Startable {
     private static final int ENTER_INTER_PLATFORM_COST = 0;
     private static final int LEAVE_INTER_PLATFORM_COST = 0;
 
-    private final AtomicInteger numberNodes;
-    private final AtomicInteger numberRelationships;
+    private int numberNodes;
+    private int numberRelationships;
     private final GraphFilter graphFilter;
     private final GraphDatabase graphDatabase;
 
@@ -89,8 +88,8 @@ public class TransportGraphBuilder implements Startable {
         platforms = new LinkedList<>();
         timeNodeIds = new HashSet<>();
         nodesWithRouteRelationship = new HashSet<>();
-        numberNodes = new AtomicInteger();
-        numberRelationships = new AtomicInteger();
+        numberNodes = 0;
+        numberRelationships = 0;
     }
 
     @Override
@@ -215,8 +214,8 @@ public class TransportGraphBuilder implements Startable {
     }
 
     private void reportStats() {
-        logger.info("Nodes created: " + numberNodes.get());
-        logger.info("Relationships created: " + numberRelationships.get());
+        logger.info("Nodes created: " + numberNodes);
+        logger.info("Relationships created: " + numberRelationships);
     }
 
 
@@ -291,7 +290,7 @@ public class TransportGraphBuilder implements Startable {
     }
 
     private Node createGraphNode(GraphDatabase graphDatabase, Labels label) {
-        numberNodes.incrementAndGet();
+        numberNodes++;
         Node node = graphDatabase.createNode(label);
         nodeIdLabelMap.put(node.getId(), label);
         return node;
@@ -400,7 +399,7 @@ public class TransportGraphBuilder implements Startable {
     }
 
     private Relationship createRelationships(Node node, Node platformNode, TransportRelationshipTypes relationshipType) {
-        numberRelationships.incrementAndGet();
+        numberRelationships++;
         return node.createRelationshipTo(platformNode, relationshipType);
     }
 
