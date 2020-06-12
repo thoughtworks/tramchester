@@ -1,7 +1,6 @@
 package com.tramchester.acceptance.infra;
 
 
-import org.junit.rules.TestName;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogType;
@@ -27,13 +26,6 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
         caps.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
 
         return caps;
-    }
-
-    @Override
-    public void commonAfter(String testName) {
-        if (driver!=null) {
-            takeScreenShot(testName);
-        }
     }
 
     @Override

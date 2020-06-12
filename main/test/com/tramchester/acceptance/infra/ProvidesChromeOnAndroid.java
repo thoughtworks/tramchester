@@ -10,13 +10,12 @@ import org.openqa.selenium.Cookie;
 import org.openqa.selenium.InvalidArgumentException;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.logging.LogEntries;
-import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
+    public final static String Name ="androidChrome";
     private final boolean enableGeo;
     private AppiumDriver<WebElement> driver;
     private ProvidesDateInput providesDateInput;
@@ -53,15 +52,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     }
 
     @Override
-    public void commonAfter(String testName) {
-        if (driver!=null) {
-            takeScreenShot(testName);
-            LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-            logs.forEach(System.out::println);
-        }
-    }
-
-    @Override
     protected RemoteWebDriver getDriver() {
         return driver;
     }
@@ -84,5 +74,10 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     @Override
     public void setStubbedLocation(LatLong location) {
         throw new InvalidArgumentException("Not implemented yet");
+    }
+
+    @Override
+    protected String getDriverName() {
+        return Name;
     }
 }

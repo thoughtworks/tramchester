@@ -10,12 +10,9 @@ import com.tramchester.integration.resources.FeedInfoResourceTest;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openqa.selenium.Cookie;
 
@@ -68,17 +65,17 @@ public class AppUserJourneyTest extends UserJourneyTest {
         nextTuesday = TestEnv.nextTuesday(0); // TODO offset for when tfgm data is expiring
     }
 
-//    @AfterEach
-//    void afterEachTestRuns(TestInfo testInfo, ProvidesDriver providesDriver) {
-//        providesDriver.commonAfter(testInfo.getDisplayName());
-//    }
+    @AfterEach
+    void afterEachTestRuns(TestInfo testInfo) {
+        takeScreenshotsFor(testInfo);
+    }
 
     @AfterAll
     static void afterAllTestsRun() {
         closeFactory();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldShowInitialCookieConsentAndThenDismiss(ProvidesDriver providesDriver) {
         providesDriver.init();
@@ -94,7 +91,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.waitForToStops());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveInitialValuesAndSetInputsSetCorrectly(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
@@ -128,7 +125,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         return LocalTime.parse(timeOnPageRaw);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
@@ -161,7 +158,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertJourney(appPage, Stations.ExchangeSquare.getName(), Stations.PiccadillyGardens.getName(), "10:15", nextTuesday, false);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
@@ -197,7 +194,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
                 altyToPiccClass, altyToPicLineName, Stations.Piccadilly.getName(), 9);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHideStationInToListWhenSelectedInFromList(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
@@ -208,7 +205,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertFalse(destStops.contains(altrincham), "should not contain alty");
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldShowNoRoutesMessage(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
@@ -218,7 +215,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.noResults());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldUpdateWhenNewJourneyIsEntered(ProvidesDriver providesDriver) {
         LocalTime tenFifteen = LocalTime.parse("10:15");
@@ -245,7 +242,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(updatedResults.get(0).getDepartTime().isAfter(eightFifteen));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldUpdateWhenEarlierClicked(ProvidesDriver providesDriver) {
         LocalTime tenFifteen = LocalTime.parse("10:15");
@@ -268,7 +265,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(updatedResults.get(0).getDepartTime().isBefore(firstDepartureTime));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldUpdateWhenLaterClicked(ProvidesDriver providesDriver) {
         LocalTime tenFifteen = LocalTime.parse("10:15");
@@ -291,7 +288,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(updatedResults.get(0).getDepartTime().isAfter(lastDepartureTime));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);

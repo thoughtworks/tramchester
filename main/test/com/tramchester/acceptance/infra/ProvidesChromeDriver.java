@@ -18,6 +18,7 @@ import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_EXE_P
 import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_VERBOSE_LOG_PROPERTY;
 
 public class ProvidesChromeDriver extends ProvidesDesktopDriver {
+    public final static String Name = "chrome";
     private final DesiredCapabilities capabilities;
     private final ChromeOptions chromeOptions;
     private final boolean enableGeo;
@@ -94,13 +95,18 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     }
 
     @Override
+    protected String getDriverName() {
+        return Name;
+    }
+
+    @Override
     public boolean isEnabledGeo() {
         return enableGeo;
     }
 
     @Override
     public String toString() {
-        return "Chrome{" +
+        return Name+"{" +
                 "geo=" + enableGeo +
                 '}';
     }

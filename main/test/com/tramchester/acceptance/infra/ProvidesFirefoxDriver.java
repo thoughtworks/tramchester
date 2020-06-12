@@ -19,9 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
 public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
+    public final static String Name = "firefox";
     private final boolean enableGeo;
     private final Path locationStubJSON = Paths.get("geofile.json");
 
@@ -86,6 +86,11 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         capabilities.setCapability(FirefoxDriver.PROFILE, profile);
     }
 
+    @Override
+    protected String getDriverName() {
+        return Name;
+    }
+
     private void createGeoFile(LatLong place) throws IOException {
         Files.deleteIfExists(locationStubJSON);
 
@@ -140,7 +145,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
     @Override
     public String toString() {
-        return "Firefox{" +
+        return Name+"{" +
                 "geo=" + enableGeo +
                 '}';
     }

@@ -1,9 +1,12 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.acceptance.infra.DriverFactory;
+import com.tramchester.acceptance.infra.ProvidesChromeDriver;
 import com.tramchester.acceptance.infra.ProvidesDriver;
+import com.tramchester.acceptance.infra.ProvidesFirefoxDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.testSupport.TestEnv;
+import org.junit.jupiter.api.TestInfo;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +59,16 @@ public class UserJourneyTest {
             names = Collections.singletonList("firefox");
         }
         return names.stream().map(browserName -> driverFactory.get(enableGeolocation, browserName));
+    }
+
+    protected void takeScreenshotsFor(TestInfo testInfo) {
+        String displayName = testInfo.getDisplayName();
+
+        if (displayName.contains(ProvidesFirefoxDriver.Name)) {
+            driverFactory.takeScreenshotFor(ProvidesFirefoxDriver.Name, displayName);
+        } else if (displayName.contains(ProvidesChromeDriver.Name)) {
+            driverFactory.takeScreenshotFor(ProvidesChromeDriver.Name, displayName);
+        }
     }
 
 }

@@ -22,7 +22,8 @@ public abstract class ProvidesDriver {
     public abstract AppPage getAppPage();
     public abstract Cookie getCookieNamed(String name);
     public abstract void setStubbedLocation(LatLong place) throws IOException;
-    public abstract void commonAfter(String testName);
+    protected abstract String getDriverName();
+    public abstract boolean isEnabledGeo();
 
     protected void takeScreenShot(String testName) {
         TakesScreenshot driver = getDriver();
@@ -42,10 +43,8 @@ public abstract class ProvidesDriver {
     }
 
     private String safeFilename(String testName) {
-        String result = testName.
-                replaceAll(":","_").
-                replaceAll(" ","");
-        return result;
+        int endOfTestName = testName.indexOf("(");
+        return testName.substring(0, endOfTestName) + "_" + getDriverName();
     }
 
     protected abstract RemoteWebDriver getDriver();
@@ -67,7 +66,6 @@ public abstract class ProvidesDriver {
         }
      }
 
-    public abstract boolean isEnabledGeo();
 
     public void clearCookies() {
         getDriver().manage().deleteAllCookies();

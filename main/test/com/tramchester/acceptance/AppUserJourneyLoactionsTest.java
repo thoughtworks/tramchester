@@ -9,10 +9,7 @@ import com.tramchester.acceptance.pages.App.SummaryResult;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -57,6 +54,11 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
         url = testRule.getUrl()+"/app/index.html";
         // TODO offset for when tfgm data is expiring
         nextTuesday = TestEnv.nextTuesday(0);
+    }
+
+    @AfterEach
+    void afterEachTestRuns(TestInfo testInfo) {
+        takeScreenshotsFor(testInfo);
     }
 
     @AfterAll
