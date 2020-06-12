@@ -42,11 +42,11 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
 
     @BeforeAll
     static void beforeAnyTestsRun() {
-        createFactory();
+        createFactory(true);
     }
 
     private static Stream<ProvidesDriver> getProvider() {
-        return getProviderCommon(true);
+        return getProviderCommon();
     }
 
     @BeforeEach

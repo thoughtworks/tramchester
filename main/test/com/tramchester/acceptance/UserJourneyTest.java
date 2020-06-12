@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class UserJourneyTest {
     private static DriverFactory driverFactory;
 
-    protected static void createFactory() {
+    protected static void createFactory(boolean enableGeoLocation) {
         if (driverFactory!=null) {
             throw new RuntimeException("Factory already created");
         }
-        driverFactory = new DriverFactory();
+        driverFactory = new DriverFactory(enableGeoLocation);
     }
 
     protected static void closeFactory() {
@@ -47,7 +47,7 @@ public class UserJourneyTest {
         return appPage;
     }
 
-    public static Stream<ProvidesDriver> getProviderCommon(boolean enableGeolocation) {
+    public static Stream<ProvidesDriver> getProviderCommon() {
 
         List<String> names;
         if (!TestEnv.isCircleci()) {
@@ -58,7 +58,7 @@ public class UserJourneyTest {
             // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
             names = Collections.singletonList("firefox");
         }
-        return names.stream().map(browserName -> driverFactory.get(enableGeolocation, browserName));
+        return names.stream().map(browserName -> driverFactory.get(browserName));
     }
 
     protected void takeScreenshotsFor(TestInfo testInfo) {

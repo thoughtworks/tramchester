@@ -6,20 +6,19 @@ import java.util.Map;
 public class DriverFactory {
 
     private final Map<String, ProvidesDriver> drivers;
+    private final boolean enableGeoLocation;
 
     // Map Name -> Driver Instance
-    public DriverFactory() {
+    public DriverFactory(boolean enableGeoLocation) {
+        this.enableGeoLocation = enableGeoLocation;
         drivers = new HashMap<>();
     }
 
-    // TODO Push enable geo into Cons
-    public ProvidesDriver get(boolean enableGeo, String browserName) {
+    public ProvidesDriver get(String browserName) {
         if (drivers.containsKey(browserName)) {
-            if (enableGeo==drivers.get(browserName).isEnabledGeo()) {
-                return drivers.get(browserName);
-            }
+            return drivers.get(browserName);
         }
-        ProvidesDriver driver = create(enableGeo, browserName);
+        ProvidesDriver driver = create(enableGeoLocation, browserName);
         drivers.put(browserName, driver);
         return driver;
     }

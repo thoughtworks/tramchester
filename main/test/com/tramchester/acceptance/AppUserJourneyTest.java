@@ -52,11 +52,11 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @BeforeAll
     static void beforeAnyTestsRun() {
-        createFactory();
+        createFactory(false);
     }
 
     private static Stream<ProvidesDriver> getProvider() {
-        return getProviderCommon(false);
+        return getProviderCommon();
     }
 
     @BeforeEach
