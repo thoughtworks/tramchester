@@ -64,7 +64,7 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
         closeFactory();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveCorrectNearbyStops(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);
@@ -110,7 +110,7 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
         // TODO to recent just bury, not alty
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldCheckNearAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);

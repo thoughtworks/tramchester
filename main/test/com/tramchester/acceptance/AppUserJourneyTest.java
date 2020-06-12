@@ -338,7 +338,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) {
         LocalTime time = LocalTime.parse("10:15");
@@ -358,9 +358,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.noWeekendMessage());
-//        if (appPage.notesPresent()) {
-//            assertThat(appPage.getAllNotes(), not(hasItem(weekendMsg)));
-//        }
 
         desiredJourney(appPage, altrincham, bury, aSaturday.plusDays(1), time, false);
         appPage.planAJourney();
@@ -370,7 +367,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveBuildAndVersionNumberInFooter(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
@@ -388,7 +385,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldDisplayCookieAgreementIfNotVisited(ProvidesDriver providesDriver) {
         providesDriver.init();
@@ -418,7 +415,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         afterReload.waitForToStops();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldDisplayDisclaimer(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);

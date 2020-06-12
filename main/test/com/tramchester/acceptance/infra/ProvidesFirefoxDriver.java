@@ -138,4 +138,10 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         return enableGeo;
     }
 
+    @Override
+    public String toString() {
+        return "Firefox{" +
+                "geo=" + enableGeo +
+                '}';
+    }
 }

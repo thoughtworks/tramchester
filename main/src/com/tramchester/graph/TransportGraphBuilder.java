@@ -177,7 +177,7 @@ public class TransportGraphBuilder implements Startable {
                         for (Trip trip : service.getTrips()) {
                             AddRouteServiceTrip(graphDatabase, route, service, trip);
                         }
-                        // performance & memory use control
+                        // performance & memory use control, specifically on prod box with limited ram
                         tx.success();
                         tx.close();
                         tx = graphDatabase.beginTx();

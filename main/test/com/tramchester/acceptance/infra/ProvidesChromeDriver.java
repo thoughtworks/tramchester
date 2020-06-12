@@ -98,4 +98,11 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         return enableGeo;
     }
 
+    @Override
+    public String toString() {
+        return "Chrome{" +
+                "geo=" + enableGeo +
+                '}';
+    }
+
 }
