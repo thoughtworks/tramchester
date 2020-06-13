@@ -65,25 +65,25 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         graphDatabase.createIndexs();
 
-        Transaction tx = graphDatabase.beginTx();
         try {
             logger.info("Rebuilding the graph...");
             for(Agency agency : transportData.getAgencies()) {
+                logger.info("Adding agency " + agency.getId());
                 Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
-                buildGraphForRoutes(graphFilter, routes);
+                buildGraphForRoutes(graphDatabase, graphFilter, routes);
             }
 
-            logger.info("Wait for indexes online");
-            graphDatabase.waitForIndexesReady();
+            try(Transaction tx = graphDatabase.beginTx()) {
+                logger.info("Wait for indexes online");
+                graphDatabase.waitForIndexesReady();
+            }
 
             long duration = System.currentTimeMillis()-start;
             logger.info("Graph rebuild finished, took " + duration);
 
-            tx.success();
-            tx.close();
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
-            return;
+            throw new RuntimeException("Unable to build graph", except);
         }
         nodeIdQuery.clearAfterGraphBuild();
         reportStats();
@@ -91,31 +91,31 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         System.gc();
     }
 
-//    private StopCalls getStops(GraphFilter filter, Trip trip) {
-//        if (filter.isFiltered()) {
-//            return filter.filterStops(trip.getStops());
-//        } else {
-//            return trip.getStops();
-//        }
-//    }
-
-    private void buildGraphForRoutes(GraphFilter filter, Stream<Route> routes) {
+    private void buildGraphForRoutes(GraphDatabase graphDatabase, GraphFilter filter, Stream<Route> routes) {
         Set<Station> filteredStations = filter.isFiltered() ? transportData.getStations().
                 stream().filter(filter::shouldInclude).collect(Collectors.toSet()) : transportData.getStations();
 
         routes.forEach(route -> {
-            logger.info("Adding route " + HasId.asId(route));
-            // create or cache stations and platforms for route, create route stations
-            RouteBuilderCache routeBuilderCache = new RouteBuilderCache();
-            filteredStations.stream().filter(station -> station.servesRoute(route)).
-                    forEach(station -> createStationAndPlatforms(route, station, routeBuilderCache));
+            try(Transaction tx = graphDatabase.beginTx()) {
+                String asId = HasId.asId(route);
+                logger.info("Adding route " + asId);
 
-            // route relationships
-            createRouteRelationships(filter, route, routeBuilderCache);
+                // create or cache stations and platforms for route, create route stations
+                RouteBuilderCache routeBuilderCache = new RouteBuilderCache();
+                filteredStations.stream().filter(station -> station.servesRoute(route)).
+                        forEach(station -> createStationAndPlatforms(route, station, routeBuilderCache));
 
-            Stream<Service> services = getServices(filter, route);
-            buildGraphForServices(filter, route, routeBuilderCache, services);
-            routeBuilderCache.clear();
+                // route relationships
+                createRouteRelationships(filter, route, routeBuilderCache);
+
+                Stream<Service> services = getServices(filter, route);
+                buildGraphForServices(filter, route, routeBuilderCache, services);
+                routeBuilderCache.clear();
+
+                logger.info("Route " + asId + " added ");
+                tx.success();
+            }
+
         });
     }
 
@@ -148,7 +148,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     StopCall currentStop = stops.get(stopIndex);
                     StopCall nextStop = stops.get(stopIndex + 1);
 
-                    if (filter.shouldInclude(currentStop) && filter.shouldInclude(nextStop)) {
+                    if (includeBothStops(filter, currentStop, nextStop)) {
                         services.add(Pair.of(currentStop.getStation(), nextStop.getStation()));
                         hours.add(Triple.of(currentStop.getStation(), nextStop.getStation(), currentStop.getDepartureTime().getHourOfDay()));
                     }
@@ -223,7 +223,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 StopCall currentStop = stops.get(stopIndex);
                 StopCall nextStop = stops.get(stopIndex + 1);
 
-                if (filter.shouldInclude(currentStop) && filter.shouldInclude(nextStop)) {
+                if (includeBothStops(filter, currentStop, nextStop)) {
                     if (!pairs.containsKey(Pair.of(currentStop.getStation(), nextStop.getStation()))) {
                         int cost = TramTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
                         pairs.put(Pair.of(currentStop.getStation(), nextStop.getStation()), cost);
@@ -235,6 +235,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         pairs.forEach((pair, cost) -> createRouteRelationship(
                 routeBuilderCache.getRouteStation(route, pair.getLeft()),
                 routeBuilderCache.getRouteStation(route, pair.getRight()), route, cost));
+    }
+
+    private boolean includeBothStops(GraphFilter filter, StopCall currentStop, StopCall nextStop) {
+        return filter.shouldInclude(currentStop) && filter.shouldInclude(nextStop);
     }
 
     @NotNull
@@ -320,24 +324,34 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             StopCall currentStop = stops.get(stopIndex);
             StopCall nextStop = stops.get(stopIndex + 1);
 
-            if (filter.shouldInclude(currentStop) && filter.shouldInclude(nextStop)) {
+            if (includeBothStops(filter, currentStop, nextStop)) {
                 updateTripRelationship(route, service, trip, currentStop, nextStop, routeBuilderCache, timeNodes);
             }
         }
     }
 
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {
+        Set<Node> endNodes = new HashSet<>();
+        // relative infrequence occurance, so performance hit not large
         if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
-            // legit for some routes when trams return to depot and at media city where they branch
-            Relationship current = from.getSingleRelationship(ON_ROUTE, OUTGOING);
-            logger.info(format("Different outbounds at %s for same route %s currently has %s, new is %s",
-                    from.getProperty(STATION_ID), route.getId(),
-                    current.getEndNode().getProperty(STATION_ID),
-                    to.getProperty(STATION_ID)));
+            // legit for some routes when trams return to depot, or at media city where they branch, etc
+            Iterable<Relationship> relationships = from.getRelationships(ON_ROUTE, OUTGOING);
+
+            for (Relationship current : relationships) {
+                endNodes.add(current.getEndNode());
+                logger.info(format("Existing outbounds at %s for same route %s currently has %s, new is %s",
+                        from.getProperty(STATION_ID), route.getId(),
+                        current.getEndNode().getProperty(STATION_ID),
+                        to.getProperty(STATION_ID)));
+            }
+
         }
-        Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
-        onRoute.setProperty(ROUTE_ID, route.getId());
-        onRoute.setProperty(COST, cost);
+        if (!endNodes.contains(to)) {
+            Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
+            onRoute.setProperty(ROUTE_ID, route.getId());
+            onRoute.setProperty(COST, cost);
+        }
+
     }
 
     private Node createPlatformNode(Platform platform) {
@@ -345,8 +359,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         platformNode.setProperty(GraphStaticKeys.ID, platform.getId());
         return platformNode;
     }
-
-
 
     private void createPlatformStationRelationships(Station station, Node stationNode, Platform platform, Node platformNode) {
         boolean isInterchange = interchangeRepository.isInterchange(station);
@@ -402,9 +414,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Map<Pair<Station, TramTime>, Node> timeNodes = new HashMap<>();
 
         StopCalls stops = trip.getStops();
+        // TODO -1 here?
         for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
             StopCall currentStop = stops.get(stopIndex);
-            if (filter.shouldInclude(currentStop)) {
+            StopCall nextStop = stops.get(stopIndex+1);
+            if (includeBothStops(filter, currentStop, nextStop)) {
                 Station start = currentStop.getStation();
                 TramTime departureTime = currentStop.getDepartureTime();
                 Node timeNode = createMinuteNode(service, trip, start, departureTime, routeBuilderCache);
@@ -521,8 +535,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             hourNodes.put(CreateKeys.getHourKey(service, station, hour), node);
         }
 
-        public Node getHourNode(Service service, Station start, Integer hour) {
-            return hourNodes.get(CreateKeys.getHourKey(service, start, hour));
+        public Node getHourNode(Service service, Station station, Integer hour) {
+            String key = CreateKeys.getHourKey(service, station, hour);
+            if (!hourNodes.containsKey(key)) {
+                throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",
+                        key, service.getId(), station.getId(), hour.toString()));
+            }
+            return hourNodes.get(key);
         }
 
         public boolean hasBoarding(long boardingNodeId, long routeStationNodeId) {

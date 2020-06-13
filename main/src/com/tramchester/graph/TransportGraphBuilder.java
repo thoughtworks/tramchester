@@ -58,6 +58,10 @@ public class TransportGraphBuilder extends GraphBuilder {
         nodesWithRouteRelationship = new HashSet<>();
     }
 
+    protected void buildGraph(GraphDatabase graphDatabase) {
+        buildGraphwithFilter(new IncludeAllFilter(), graphDatabase);
+    }
+
     protected void buildGraphwithFilter(GraphFilter filter, GraphDatabase graphDatabase) {
         logger.info("Building graph from " + transportData.getFeedInfo());
         long start = System.currentTimeMillis();
@@ -103,49 +107,6 @@ public class TransportGraphBuilder extends GraphBuilder {
         System.gc();
     }
 
-    protected void buildGraph(GraphDatabase graphDatabase) {
-        buildGraphwithFilter(new IncludeAllFilter(), graphDatabase);
-//        logger.info("Building graph from " + transportData.getFeedInfo());
-//        logMemory("Before graph build");
-//        long start = System.currentTimeMillis();
-//
-//        graphDatabase.createIndexs();
-//
-//        Transaction tx = graphDatabase.beginTx();
-//        try {
-//            logger.info("Rebuilding the graph...");
-//            for(Agency agency : transportData.getAgencies()) {
-//                logger.info("Add routes for agency " + agency.getId());
-//
-//                for (Route route : agency.getRoutes()) {
-//                    logger.info("Add nodes for route " + route.getId());
-//                    for (Service service : route.getServices()) {
-//                        for (Trip trip : service.getTrips()) {
-//                            AddRouteServiceTrip(graphDatabase, route, service, trip);
-//                        }
-//                        // performance & memory use control, specifically on prod box with limited ram
-//                        tx.success();
-//                        tx.close();
-//                        tx = graphDatabase.beginTx();
-//                    }
-//                }
-//            }
-//
-//            logger.info("Wait for indexes online");
-//            graphDatabase.waitForIndexesReady();
-//
-//            long duration = System.currentTimeMillis()-start;
-//            logger.info("Graph rebuild finished, took " + duration);
-//
-//        } catch (Exception except) {
-//            logger.error("Exception while rebuilding the graph", except);
-//            return;
-//        }
-//        reportStats();
-//        clearBuildCaches();
-//        logMemory("After graph build");
-//        System.gc();
-    }
 
     private void clearBuildCaches() {
         nodesWithRouteRelationship.clear();
@@ -164,13 +125,6 @@ public class TransportGraphBuilder extends GraphBuilder {
         AddRouteServiceTripStops(graphBasebase, filter, route, service, trip, stops, lastStopNum);
     }
 
-//    private void AddRouteServiceTrip(GraphDatabase graphBasebase, Route route, Service service, Trip trip) {
-//        StopCalls stops = trip.getStops();
-//        byte lastStopNum = (byte) stops.size(); // sequence runs from 1
-//
-//        AddRouteServiceTripStops(graphBasebase, filter, route, service, trip, stops, lastStopNum);
-//    }
-
     private void AddRouteServiceTripStops(GraphDatabase graphDatabase, GraphFilter filter, Route route, Service service, Trip trip, StopCalls stops, byte lastStopNum) {
         for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
             StopCall currentStop = stops.get(stopIndex);
@@ -188,8 +142,6 @@ public class TransportGraphBuilder extends GraphBuilder {
                 createRouteRelationship(fromRouteStation, toRouteStation, route, cost);
                 createRelationships(graphDatabase, fromRouteStation, toRouteStation, currentStop, nextStop, route, service, trip);
             }
-
-
         }
     }
 
