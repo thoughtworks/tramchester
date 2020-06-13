@@ -2,19 +2,18 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
-import com.tramchester.graph.GraphDatabase;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.ActiveGraphFilter;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -26,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertTrue;
 
 class RouteCalculatorSubGraphTest {
     private static Dependencies dependencies;
@@ -34,9 +32,13 @@ class RouteCalculatorSubGraphTest {
 
     private RouteCalculator calculator;
     private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
-    private static final List<Station> stations = Arrays.asList(Stations.Cornbrook,
-            Stations.StPetersSquare, Stations.Deansgate, Stations.Pomona);
+    private static final List<Station> stations = Arrays.asList(
+            Stations.Cornbrook,
+            Stations.StPetersSquare,
+            Stations.Deansgate,
+            Stations.Pomona);
     private Transaction tx;
+    private TramTime tramTime;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -60,6 +62,7 @@ class RouteCalculatorSubGraphTest {
     void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
         tx = database.beginTx();
+        tramTime = TramTime.of(8, 0);
     }
 
     @AfterEach
@@ -91,13 +94,12 @@ class RouteCalculatorSubGraphTest {
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveJourneysBetweenAllStations() {
-        TramTime time = TramTime.of(9, 0);
         for (Station start: stations) {
             for (Station destination: stations) {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < 7; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
-                        validateAtLeastOneJourney(start, destination, time, day);
+                        validateAtLeastOneJourney(start, destination, tramTime, day);
                     }
                 }
             }
@@ -107,26 +109,33 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveSimpleOneStopJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook, Stations.Pomona,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
+        Assertions.assertTrue(results.size()>0);
+    }
+
+    @Test
+    void shouldHaveSimpleOneStopJourneyAtWeekend() {
+        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook, Stations.Pomona,
+                new JourneyRequest(new TramServiceDate(TestEnv.nextSaturday()), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare, Stations.Deansgate,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare, Stations.Cornbrook,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8, 0), false)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
-    @Disabled
+    //@Disabled
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(database, 7);
         creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));

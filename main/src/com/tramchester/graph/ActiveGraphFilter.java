@@ -1,9 +1,11 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCalls;
+import com.tramchester.domain.places.Station;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +13,7 @@ import java.util.Set;
 public class ActiveGraphFilter implements GraphFilter {
     private final Set<String> routeCodes;
     private final Set<String> serviceCodes;
-    private final Set<String> stations;
+    private final Set<Station> stations;
 
     public ActiveGraphFilter() {
         routeCodes = new HashSet<>();
@@ -27,39 +29,33 @@ public class ActiveGraphFilter implements GraphFilter {
         serviceCodes.add(serviceId);
     }
 
-    public void addStation(Location station) {
-        stations.add(station.getId());
-    }
-
-    public void addStation(String stationId) {
-        stations.add(stationId);
+    public void addStation(Station station) {
+        stations.add(station);
     }
 
     public boolean shouldInclude(Route route) {
-        if (routeCodes.size()==0) {
+        if (routeCodes.isEmpty()) {
             return true;
         }
         return routeCodes.contains(route.getId());
     }
 
     public boolean shouldInclude(Service service) {
-        if (serviceCodes.size()==0) {
+        if (serviceCodes.isEmpty()) {
             return true;
         }
         return serviceCodes.contains(service.getId());
     }
 
-    public StopCalls filterStops(StopCalls stops) {
-        if (stations.size()==0) {
-            return stops;
+    public boolean shouldInclude(Station station) {
+        if (stations.isEmpty()) {
+            return true;
         }
-        StopCalls filteredStops = new StopCalls();
-        stops.forEach(stop -> {
-            if (stations.contains(stop.getStation().getId())) {
-                filteredStops.add(stop);
-            }
-        });
-        return filteredStops;
+        return stations.contains(station);
+    }
+
+    public boolean shouldInclude(StopCall call) {
+        return shouldInclude(call.getStation());
     }
 
     @Override

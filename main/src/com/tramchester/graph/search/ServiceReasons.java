@@ -112,6 +112,7 @@ public class ServiceReasons {
         if (journeyState.onTram()) {
             incrementStat(ServiceReason.ReasonCode.OnTram);
         } else {
+            // TODO not quite right, might not be boarded....
             incrementStat(ServiceReason.ReasonCode.OnBus);
         }
     }
