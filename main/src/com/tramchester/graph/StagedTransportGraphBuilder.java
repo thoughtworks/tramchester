@@ -96,12 +96,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 stream().filter(filter::shouldInclude).collect(Collectors.toSet()) : transportData.getStations();
 
         routes.forEach(route -> {
-            try(Transaction tx = graphDatabase.beginTx()) {
-                String asId = HasId.asId(route);
-                logger.info("Adding route " + asId);
+            RouteBuilderCache routeBuilderCache = new RouteBuilderCache();
+            String asId = HasId.asId(route);
+            logger.info("Adding route " + asId);
 
+            try(Transaction tx = graphDatabase.beginTx()) {
                 // create or cache stations and platforms for route, create route stations
-                RouteBuilderCache routeBuilderCache = new RouteBuilderCache();
                 filteredStations.stream().filter(station -> station.servesRoute(route)).
                         forEach(station -> createStationAndPlatforms(route, station, routeBuilderCache));
 
@@ -110,12 +110,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
                 Stream<Service> services = getServices(filter, route);
                 buildGraphForServices(filter, route, routeBuilderCache, services);
-                routeBuilderCache.clear();
-
-                logger.info("Route " + asId + " added ");
                 tx.success();
             }
 
+            routeBuilderCache.clear();
+            logger.info("Route " + asId + " added ");
         });
     }
 
@@ -123,7 +122,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        RouteBuilderCache routeBuilderCache, Stream<Service> services) {
         services.forEach(service -> {
             Set<Trip> serviceTrips = service.getTrips();
-
             // nodes for services and hours
             createServiceAndHourNodesForServices(filter, route, service, serviceTrips, routeBuilderCache);
 
@@ -134,6 +132,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 createTripRelationships(filter, route, service, trip, routeBuilderCache, timeNodes);
                 timeNodes.clear();
             }
+
         });
     }
 

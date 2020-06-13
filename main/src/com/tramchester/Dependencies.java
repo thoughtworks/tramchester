@@ -119,8 +119,11 @@ public class Dependencies {
         picoContainer.addComponent(TramJourneyToDTOMapper.class);
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
-//        picoContainer.addComponent(StagedTransportGraphBuilder.class);
-        picoContainer.addComponent(TransportGraphBuilder.class);
+        if (configuration.getBus()) {
+            picoContainer.addComponent(StagedTransportGraphBuilder.class);
+        } else {
+            picoContainer.addComponent(TransportGraphBuilder.class);
+        }
         picoContainer.addComponent(SpatialService.class);
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
         picoContainer.addComponent(FetchInstanceMetadata.class);

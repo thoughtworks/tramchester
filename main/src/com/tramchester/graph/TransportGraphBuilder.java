@@ -32,6 +32,9 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 // RouteStation-[onRoute]->RouteStation
 ///
 
+
+// TODO Retire this version
+@Deprecated
 public class TransportGraphBuilder extends GraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
 
