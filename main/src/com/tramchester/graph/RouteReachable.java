@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
+import static com.tramchester.graph.GraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class RouteReachable {
@@ -180,12 +180,15 @@ public class RouteReachable {
             }
 
             if (queryNode.hasRelationship(Direction.OUTGOING, ON_ROUTE)) {
-                Relationship routeRelat = queryNode.getSingleRelationship(ON_ROUTE, Direction.OUTGOING);
                 if (routeId.isEmpty()) {
                     return Evaluation.EXCLUDE_AND_CONTINUE;
                 }
-                String id = routeRelat.getProperty(ROUTE_ID).toString();
-                if (routeId.equals(id)) {
+                Iterable<Relationship> routeRelat = queryNode.getRelationships(ON_ROUTE, Direction.OUTGOING);
+                Set<String> routeIds = new HashSet<>();
+                routeRelat.forEach(relationship -> routeIds.add(relationship.getProperty(ROUTE_ID).toString()));
+
+                //String id = routeRelat.getProperty(ROUTE_ID).toString();
+                if (routeIds.contains(routeId)) {
                     return Evaluation.EXCLUDE_AND_CONTINUE; // if have routeId then only follow if on same route
                 } else {
                     return Evaluation.EXCLUDE_AND_PRUNE;

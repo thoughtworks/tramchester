@@ -7,7 +7,7 @@ public abstract class StopCall {
     protected final Station station;
     protected final TramTime arrivalTime;
     protected final TramTime departureTime;
-    private final byte sequenceNumber;
+    protected final byte sequenceNumber;
 
     public StopCall(Station station, TramTime arrivalTime, TramTime departureTime, byte sequenceNumber) {
         this.station = station;

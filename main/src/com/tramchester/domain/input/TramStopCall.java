@@ -1,5 +1,6 @@
 package com.tramchester.domain.input;
 
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -18,12 +19,12 @@ public class TramStopCall extends StopCall {
 
     @Override
     public String toString() {
-        return "Stop{" +
-                "station=" + station.getId() +
+        return "TramStopCall{" +
+                "callingPlatform=" + HasId.asId(callingPlatform) +
+                ", station=" + HasId.asId(station) +
                 ", arrivalTime=" + arrivalTime +
                 ", departureTime=" + departureTime +
-                ", callingPlatform='" + callingPlatform.getId() + '\'' +
+                ", sequenceNumber=" + sequenceNumber +
                 '}';
     }
-
 }

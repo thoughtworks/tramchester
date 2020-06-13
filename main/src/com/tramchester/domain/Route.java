@@ -85,7 +85,7 @@ public class Route implements HasId {
                 "id='" + id + '\'' +
                 ", code='" + shortName + '\'' +
                 ", name='" + name + '\'' +
-                ", agency='" + agency + '\'' +
+                ", agency='" + HasId.asId(agency) + '\'' +
                 ", transportMode=" + transportMode +
                 ", headsigns=" + headsigns +
                 '}';

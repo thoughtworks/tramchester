@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.TransportGraphBuilder.Labels.BUS_STATION;
-import static com.tramchester.graph.TransportGraphBuilder.Labels.ROUTE_STATION;
+import static com.tramchester.graph.GraphBuilder.Labels.BUS_STATION;
+import static com.tramchester.graph.GraphBuilder.Labels.ROUTE_STATION;
 
 public class CachedNodeOperations implements ReportsCacheStats, Disposable {
 

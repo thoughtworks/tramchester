@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ActiveGraphFilter implements GraphFilter {
-    private Set<String> routeCodes;
-    private Set<String> serviceCodes;
-    private Set<String> stations;
+    private final Set<String> routeCodes;
+    private final Set<String> serviceCodes;
+    private final Set<String> stations;
 
     public ActiveGraphFilter() {
         routeCodes = new HashSet<>();

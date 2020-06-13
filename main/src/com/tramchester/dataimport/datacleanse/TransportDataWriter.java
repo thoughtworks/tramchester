@@ -28,6 +28,7 @@ public class TransportDataWriter {
     }
 
     public void close() {
+        out.flush();
         out.close();
     }
 }

@@ -1,0 +1,133 @@
+package com.tramchester.graph;
+
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.RouteStation;
+import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.picocontainer.Startable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
+import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
+import static java.lang.String.format;
+
+public abstract class GraphBuilder implements Startable {
+    private static final Logger logger = LoggerFactory.getLogger(GraphBuilder.class);
+
+    protected static final int INTERCHANGE_DEPART_COST = 1;
+    protected static final int INTERCHANGE_BOARD_COST = 1;
+    protected static final int DEPARTS_COST = 1;
+    protected static final int BOARDING_COST = 2;
+    // TODO compute actual costs depend on physical configuration of platforms at the station? No data available yet.
+    protected static final int ENTER_PLATFORM_COST = 0;
+    protected static final int LEAVE_PLATFORM_COST = 0;
+    protected static final int ENTER_INTER_PLATFORM_COST = 0;
+    protected static final int LEAVE_INTER_PLATFORM_COST = 0;
+
+    public enum Labels implements Label
+    {
+        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
+    }
+
+    private final TramchesterConfig config;
+    private final GraphFilter graphFilter;
+    private final GraphDatabase graphDatabase;
+    private final NodeIdLabelMap nodeIdLabelMap;
+    protected final NodeIdQuery nodeIdQuery;
+
+    private int numberNodes;
+    private int numberRelationships;
+
+    protected GraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter, NodeIdLabelMap nodeIdLabelMap, NodeIdQuery nodeIdQuery) {
+        this.graphDatabase = graphDatabase;
+        this.config = config;
+        this.graphFilter = graphFilter;
+        this.nodeIdLabelMap = nodeIdLabelMap;
+        this.nodeIdQuery = nodeIdQuery;
+        numberNodes = 0;
+        numberRelationships = 0;
+    }
+
+    @NotNull
+    protected Node createRouteStationNode(Location station, Route route) {
+        Node routeStation = createGraphNode(Labels.ROUTE_STATION);
+        String routeStationId = RouteStation.formId(station, route);
+
+        logger.debug(format("Creating route station %s route %s nodeId %s", station.getId(),route.getId(),
+                routeStation.getId()));
+        routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
+        routeStation.setProperty(STATION_ID, station.getId());
+        routeStation.setProperty(ROUTE_ID, route.getId());
+        return routeStation;
+    }
+
+    @NotNull
+    protected Node createStationNode(Location station) {
+        boolean tram = station.isTram();
+        String id = station.getId();
+
+        Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
+        logger.debug(format("Creating station node: %s with label: %s ", station, label));
+        Node stationNode = createGraphNode(label);;
+        stationNode.setProperty(GraphStaticKeys.ID, id);
+        return stationNode;
+    }
+
+
+    @Override
+    public void start() {
+        logger.info("start");
+        if (config.getRebuildGraph()) {
+            logger.info("Rebuild of graph DB for " + config.getGraphName());
+            if (graphFilter.isFiltered()) {
+                buildGraphwithFilter(graphFilter, graphDatabase);
+            } else {
+                buildGraph(graphDatabase);
+            }
+            logger.info("Graph rebuild is finished for " + config.getGraphName());
+        } else {
+            logger.info("Load existing graph");
+            loadGraph();
+        }
+    }
+
+    protected abstract void buildGraph(GraphDatabase graphDatabase);
+
+    protected abstract void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase);
+
+    @Override
+    public void stop() {
+        // no op
+    }
+
+    private void loadGraph() {
+        nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
+    }
+
+    protected Node createGraphNode(Labels label) {
+        numberNodes++;
+        Node node = graphDatabase.createNode(label);
+        nodeIdLabelMap.put(node.getId(), label);
+        return node;
+    }
+
+    protected Relationship createRelationship(Node start, Node end, TransportRelationshipTypes relationshipType) {
+        numberRelationships++;
+        return start.createRelationshipTo(end, relationshipType);
+    }
+
+    protected void logMemory(String prefix) {
+        logger.warn(format("MemoryUsage %s free:%s total:%s ", prefix,
+                Runtime.getRuntime().freeMemory(), Runtime.getRuntime().totalMemory()));
+    }
+
+    protected void reportStats() {
+        logger.info("Nodes created: " + numberNodes);
+        logger.info("Relationships created: " + numberRelationships);
+    }
+}

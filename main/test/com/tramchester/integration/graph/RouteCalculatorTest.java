@@ -75,7 +75,6 @@ public class RouteCalculatorTest {
         threadToTxnMap.clear();
     }
 
-
     @Test
     void shouldReproIssueWithChangesVeloToTraffordBar() {
         validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, TramTime.of(8,0), nextTuesday);

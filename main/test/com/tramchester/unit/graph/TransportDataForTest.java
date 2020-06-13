@@ -22,9 +22,9 @@ import static java.lang.String.format;
 
 public class TransportDataForTest implements TransportDataSource {
     private Service serviceB;
-    private String serviceAId = "serviceAId";
-    private String serviceBId = "serviceBId";
-    private String serviceCId = "serviceCId";
+    private final String serviceAId = "serviceAId";
+    private final String serviceBId = "serviceBId";
+    private final String serviceCId = "serviceCId";
 
     public static final String FIRST_STATION = METROLINK_PREFIX + "_ST_FIRST";
     public static final String SECOND_STATION = METROLINK_PREFIX + "_ST_SECOND";
@@ -43,6 +43,7 @@ public class TransportDataForTest implements TransportDataSource {
     private final Map<String, Trip> trips;
 
     private final StationLocations stationLocations;
+    private Agency agency;
 
     public TransportDataForTest(StationLocations stationLocations) {
         this.stationLocations = stationLocations;
@@ -82,6 +83,9 @@ public class TransportDataForTest implements TransportDataSource {
         routes.put(routeB.getId(), routeB);
         routes.put(routeC.getId(), routeC);
 
+        agency = new Agency("MET");
+        routes.values().forEach(agency::addRoute);
+
         Service serviceA = new Service(serviceAId, routeA);
         serviceB = new Service(serviceBId, routeB);
         Service serviceC = new Service(serviceCId, routeC);
@@ -115,23 +119,24 @@ public class TransportDataForTest implements TransportDataSource {
         tripA.addStop(stopA);
 
         Station second = new Station(SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens, true);
-        TramStopCall stopB = createStop(second, TramTime.of(8, 11), TramTime.of(8, 11), 2);
-        tripA.addStop(stopB);
         addStation(second);
         addRouteStation(second, routeA);
+        TramStopCall stopB = createStop(second, TramTime.of(8, 11), TramTime.of(8, 11), 2);
+        tripA.addStop(stopB);
 
         Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill, true);
-        TramStopCall stopC = createStop(interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), 3);
-        tripA.addStop(stopC);
         addStation(interchangeStation);
         addRouteStation(interchangeStation, routeA);
+        TramStopCall stopC = createStop(interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), 3);
+        tripA.addStop(stopC);
 
         Station last = new Station(LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens, true);
         addStation(last);
         addRouteStation(last, routeA);
         TramStopCall stopD = createStop(last, TramTime.of(8, 40), TramTime.of(8, 40), 4);
         tripA.addStop(stopD);
-        // service
+
+        // service A
         serviceA.addTrip(tripA);
 
         Station stationFour = new Station(STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens, true);
@@ -165,6 +170,7 @@ public class TransportDataForTest implements TransportDataSource {
     private void addRouteStation(Station station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         routeStations.put(routeStation.getId(), routeStation);
+        station.addRoute(route);
     }
 
     private void addTrip(Trip trip) {
@@ -190,11 +196,12 @@ public class TransportDataForTest implements TransportDataSource {
         stationLocations.addStation(station);
     }
 
-    private TramStopCall createStop(Station startStation, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
-        String platformId = startStation.getId() + "1";
-        Platform platform = new Platform(platformId, format("%s platform 1", startStation.getName()));
+    private TramStopCall createStop(Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
+        String platformId = station.getId() + "1";
+        Platform platform = new Platform(platformId, format("%s platform 1", station.getName()));
         platforms.put(platformId, platform);
-        return new TramStopCall(platform, startStation, (byte) sequenceNum, arrivalTime, departureTime);
+        station.addPlatform(platform);
+        return new TramStopCall(platform, station, (byte) sequenceNum, arrivalTime, departureTime);
     }
 
     @Override
@@ -224,9 +231,8 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public Collection<Agency> getAgencies() {
-        Agency agency = new Agency("MET");
-        routes.values().forEach(agency::addRoute);
-        return Arrays.asList(agency);
+
+        return Collections.singletonList(agency);
     }
 
     @Override
@@ -241,7 +247,8 @@ public class TransportDataForTest implements TransportDataSource {
 
     @Override
     public FeedInfo getFeedInfo() {
-        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang", LocalDate.of(2016, 5, 25),
+        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
+                LocalDate.of(2016, 5, 25),
                 LocalDate.of(2016, 6, 30), "version");
     }
 

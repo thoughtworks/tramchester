@@ -166,7 +166,6 @@ class GraphWithSimpleRouteTest {
                 transportData.getFifthStation(),  new JourneyRequest(queryDate, TramTime.of(8, 10), false)).collect(Collectors.toSet());
         Assertions.assertTrue(journeys.size()>=1);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
-
     }
 
     @Test

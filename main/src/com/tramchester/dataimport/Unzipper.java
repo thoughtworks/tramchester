@@ -43,10 +43,10 @@ public class Unzipper {
             Files.createDirectories(name);
             return;
         }
-        logger.info("Unpack file " + absolutePath);
+        logger.debug("Unpack file " + absolutePath);
         Path parent = name.getParent();
         if (!parent.toFile().exists()) {
-            logger.info("Create needed directory " + parent);
+            logger.info("Create needed directory " + parent + " for " +absolutePath);
             Files.createDirectories(parent);
         }
         File unpackTarget = name.toFile();

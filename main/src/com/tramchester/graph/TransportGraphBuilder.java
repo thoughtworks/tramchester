@@ -13,11 +13,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +23,6 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
 
 ///
@@ -35,30 +32,8 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 // RouteStation-[onRoute]->RouteStation
 ///
 
-public class TransportGraphBuilder implements Startable {
+public class TransportGraphBuilder extends GraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
-
-    private static final int INTERCHANGE_DEPART_COST = 1;
-    private static final int INTERCHANGE_BOARD_COST = 1;
-
-    private static final int DEPARTS_COST = 1;
-    private static final int BOARDING_COST = 2;
-
-    // TODO compute actual costs depend on physical configuration of platforms at the station? No data available yet.
-    private static final int ENTER_PLATFORM_COST = 0;
-    private static final int LEAVE_PLATFORM_COST = 0;
-    private static final int ENTER_INTER_PLATFORM_COST = 0;
-    private static final int LEAVE_INTER_PLATFORM_COST = 0;
-
-    private int numberNodes;
-    private int numberRelationships;
-    private final GraphFilter graphFilter;
-    private final GraphDatabase graphDatabase;
-
-    public enum Labels implements Label
-    {
-        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
-    }
 
     // caching of various id's for peformance
     private final Map<String,TransportRelationshipTypes> boardings;
@@ -67,54 +42,23 @@ public class TransportGraphBuilder implements Startable {
     private final HashSet<String> timeNodeIds;
     private final Set<Long> nodesWithRouteRelationship;
     private final TransportData transportData;
-    private final NodeIdLabelMap nodeIdLabelMap;
-    private final NodeIdQuery nodeIdQuery;
     private final InterchangeRepository interchangeRepository;
-    private final TramchesterConfig config;
 
     public TransportGraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, TransportData transportData,
                                  NodeIdLabelMap nodeIdLabelMap, NodeIdQuery nodeIdQuery,
                                  InterchangeRepository interchangeRepository, TramchesterConfig config) {
-        this.graphFilter = graphFilter;
-        this.graphDatabase = graphDatabase;
+        super(graphDatabase, config, graphFilter, nodeIdLabelMap, nodeIdQuery);
         this.transportData = transportData;
-        this.nodeIdLabelMap = nodeIdLabelMap;
-        this.nodeIdQuery = nodeIdQuery;
         this.interchangeRepository = interchangeRepository;
-        this.config = config;
 
         boardings = new HashMap<>();
         departs = new HashMap<>();
         platforms = new LinkedList<>();
         timeNodeIds = new HashSet<>();
         nodesWithRouteRelationship = new HashSet<>();
-        numberNodes = 0;
-        numberRelationships = 0;
     }
 
-    @Override
-    public void start() {
-        logger.info("start");
-        if (config.getRebuildGraph()) {
-            logger.info("Rebuild of graph DB for " + config.getGraphName());
-            if (graphFilter.isFiltered()) {
-                buildGraphwithFilter(graphFilter, graphDatabase);
-            } else {
-                buildGraph(graphDatabase);
-            }
-            logger.info("Graph rebuild is finished for " + config.getGraphName());
-        } else {
-            logger.info("Load existing graph");
-            nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
-        }
-    }
-
-    @Override
-    public void stop() {
-        // no op
-    }
-
-    private void buildGraphwithFilter(GraphFilter filter, GraphDatabase graphDatabase) {
+    protected void buildGraphwithFilter(GraphFilter filter, GraphDatabase graphDatabase) {
         logger.info("Building graph from " + transportData.getFeedInfo());
         long start = System.currentTimeMillis();
 
@@ -149,16 +93,7 @@ public class TransportGraphBuilder implements Startable {
         clearBuildCaches();
     }
 
-    private void clearBuildCaches() {
-        nodesWithRouteRelationship.clear();
-        timeNodeIds.clear();
-        platforms.clear();
-        boardings.clear();
-        departs.clear();
-        nodeIdQuery.clearAfterGraphBuild();
-    }
-
-    private void buildGraph(GraphDatabase graphDatabase) {
+    protected void buildGraph(GraphDatabase graphDatabase) {
         logger.info("Building graph from " + transportData.getFeedInfo());
         logMemory("Before graph build");
         long start = System.currentTimeMillis();
@@ -188,8 +123,6 @@ public class TransportGraphBuilder implements Startable {
             logger.info("Wait for indexes online");
             graphDatabase.waitForIndexesReady();
 
-            //tx.success();
-
             long duration = System.currentTimeMillis()-start;
             logger.info("Graph rebuild finished, took " + duration);
 
@@ -197,25 +130,20 @@ public class TransportGraphBuilder implements Startable {
             logger.error("Exception while rebuilding the graph", except);
             return;
         }
-//        finally {
-//            tx.close();
-//        }
         reportStats();
         clearBuildCaches();
         logMemory("After graph build");
         System.gc();
     }
 
-    private void logMemory(String prefix) {
-        logger.warn(format("MemoryUsage %s free:%s total:%s ", prefix,
-                Runtime.getRuntime().freeMemory(), Runtime.getRuntime().totalMemory()));
+    private void clearBuildCaches() {
+        nodesWithRouteRelationship.clear();
+        timeNodeIds.clear();
+        platforms.clear();
+        boardings.clear();
+        departs.clear();
+        nodeIdQuery.clearAfterGraphBuild();
     }
-
-    private void reportStats() {
-        logger.info("Nodes created: " + numberNodes);
-        logger.info("Relationships created: " + numberRelationships);
-    }
-
 
     private void AddRouteServiceTrip(GraphDatabase graphBasebase, Route route, Service service, Trip trip, GraphFilter filter) {
         StopCalls stops = filter.filterStops(trip.getStops());
@@ -239,8 +167,8 @@ public class TransportGraphBuilder implements Startable {
             boolean firstStop = (currentStop.getGetSequenceNumber() == (byte)1); //stop seq num, not index
             boolean lastStop = nextStop.getGetSequenceNumber() == lastStopNum;
 
-            Node fromRouteStation = getOrCreateCallingPointAndStation(graphDatabase, currentStop, route, service, firstStop, false);
-            Node toRouteStation = getOrCreateCallingPointAndStation(graphDatabase, nextStop, route, service, false, lastStop);
+            Node fromRouteStation = getOrCreateCallingPointAndStation(currentStop, route, firstStop, false);
+            Node toRouteStation = getOrCreateCallingPointAndStation(nextStop, route, false, lastStop);
 
             int cost = TramTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
 
@@ -260,41 +188,29 @@ public class TransportGraphBuilder implements Startable {
         nodesWithRouteRelationship.add(fromNodeId);
     }
 
-    private Node getOrCreateStation(GraphDatabase graphBasebase, Location station) {
+    private Node getOrCreateStation(Location station) {
         String id = station.getId();
-        boolean tram = station.isTram();
-
         Node stationNode = station.isTram() ? nodeIdQuery.getTramStationNode(id) : nodeIdQuery.getBusStationNode(id);
 
         if (stationNode == null) {
-            Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
-            logger.debug(format("Creating station node: %s with label: %s ", station, label));
-            stationNode = createGraphNode(graphBasebase, label) ;
-            stationNode.setProperty(GraphStaticKeys.ID, id);
+            stationNode = createStationNode(station);
         }
 
         return stationNode;
     }
 
-    private Node getOrCreatePlatform(GraphDatabase graphDatabase, StopCall stop) {
+    private Node getOrCreatePlatform(StopCall stop) {
         String platformId = stop.getPlatformId();
 
         Node platformNode = nodeIdQuery.getPlatformNode(platformId);
         if (platformNode==null) {
-            platformNode = createGraphNode(graphDatabase, Labels.PLATFORM);
+            platformNode = createGraphNode(Labels.PLATFORM);
             platformNode.setProperty(GraphStaticKeys.ID, platformId);
         }
         return platformNode;
     }
 
-    private Node createGraphNode(GraphDatabase graphDatabase, Labels label) {
-        numberNodes++;
-        Node node = graphDatabase.createNode(label);
-        nodeIdLabelMap.put(node.getId(), label);
-        return node;
-    }
-
-    private Node getOrCreateCallingPointAndStation(GraphDatabase graphDatabase, StopCall stop, Route route, Service service,
+    private Node getOrCreateCallingPointAndStation(StopCall stop, Route route,
                                                    boolean firstStop, boolean lastStop) {
         Station station = stop.getStation();
         String stationId = station.getId();
@@ -302,7 +218,7 @@ public class TransportGraphBuilder implements Startable {
 
         Node routeStationNode = nodeIdQuery.getRouteStationNode(routeStationId);
         if ( routeStationNode == null) {
-             routeStationNode = createRouteStationNode(graphDatabase, station, route, routeStationId, service);
+             routeStationNode = createRouteStationNode(station, route);
         }
 
         boolean isInterchange = interchangeRepository.isInterchange(station);
@@ -314,7 +230,7 @@ public class TransportGraphBuilder implements Startable {
             leavePlatformCost = LEAVE_INTER_PLATFORM_COST;
         }
 
-        Node stationNode = getOrCreateStation(graphDatabase, station);
+        Node stationNode = getOrCreateStation(station);
 
         Node platformNode = stationNode;
 
@@ -327,18 +243,18 @@ public class TransportGraphBuilder implements Startable {
 
         if (station.isTram()) {
             // add a platform node between station and calling points
-            platformNode = getOrCreatePlatform(graphDatabase, stop);
+            platformNode = getOrCreatePlatform(stop);
 
             // station -> platform AND platform -> station
             if (!hasPlatform(stationId, stationOrPlatformID)) {
                 // station -> platform
-                Relationship crossToPlatform = createRelationships(stationNode, platformNode,
+                Relationship crossToPlatform = createRelationship(stationNode, platformNode,
                         TransportRelationshipTypes.ENTER_PLATFORM);
                 crossToPlatform.setProperty(COST, enterPlatformCost);
                 crossToPlatform.setProperty(GraphStaticKeys.PLATFORM_ID, stationOrPlatformID);
 
                 // platform -> station
-                Relationship crossFromPlatform = createRelationships(platformNode, stationNode,
+                Relationship crossFromPlatform = createRelationship(platformNode, stationNode,
                         TransportRelationshipTypes.LEAVE_PLATFORM);
                 crossFromPlatform.setProperty(COST, leavePlatformCost);
                 crossFromPlatform.setProperty(STATION_ID, stationId);
@@ -368,7 +284,7 @@ public class TransportGraphBuilder implements Startable {
         // no boarding at the last stop of a trip
         if (!lastStop) {
             if (!hasBoarding(stationOrPlatformID, routeStationId, boardType)) {
-                Relationship boardRelationship = createRelationships(platformNode, routeStationNode, boardType);
+                Relationship boardRelationship = createRelationship(platformNode, routeStationNode, boardType);
                 boardRelationship.setProperty(COST, boardCost);
                 boardRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
                 boardRelationship.setProperty(ROUTE_ID, route.getId());
@@ -385,7 +301,7 @@ public class TransportGraphBuilder implements Startable {
         // no towardsStation at first stop of a trip
         if (!firstStop) {
             if (!hasDeparting(routeStationId, stationOrPlatformID, departType)) {
-                Relationship departRelationship = createRelationships(routeStationNode, platformNode, departType);
+                Relationship departRelationship = createRelationship(routeStationNode, platformNode, departType);
                 departRelationship.setProperty(COST, departCost);
                 departRelationship.setProperty(GraphStaticKeys.ID, routeStationId);
                 departRelationship.setProperty(GraphStaticKeys.STATION_ID, station.getId());
@@ -395,12 +311,6 @@ public class TransportGraphBuilder implements Startable {
 
         return  routeStationNode;
     }
-
-    private Relationship createRelationships(Node node, Node platformNode, TransportRelationshipTypes relationshipType) {
-        numberRelationships++;
-        return node.createRelationshipTo(platformNode, relationshipType);
-    }
-
 
     private boolean hasPlatform(String stationId, String platformId) {
         String key = stationId + platformId;
@@ -431,17 +341,6 @@ public class TransportGraphBuilder implements Startable {
         return false;
     }
 
-    private Node createRouteStationNode(GraphDatabase graphDatabase, Location station, Route route, String routeStationId, Service service) {
-        Node routeStation = createGraphNode(graphDatabase, Labels.ROUTE_STATION);
-
-        logger.debug(format("Creating route station %s route %s service %s nodeId %s", station.getId(),route.getId(),
-                service.getId(), routeStation.getId()));
-        routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
-        routeStation.setProperty(STATION_ID, station.getId());
-        routeStation.setProperty(ROUTE_ID, route.getId());
-        return routeStation;
-    }
-
     private void createRelationships(GraphDatabase graphDatabase, Node routeStationStart, Node routeStationEnd,
                                      StopCall beginStop, StopCall endStop, Route route, Service service, Trip trip) {
         Location startLocation = beginStop.getStation();
@@ -456,13 +355,13 @@ public class TransportGraphBuilder implements Startable {
         String tripId = trip.getId();
 
         if (beginServiceNode==null) {
-            beginServiceNode = createGraphNode(graphDatabase, Labels.SERVICE);
+            beginServiceNode = createGraphNode(Labels.SERVICE);
             beginServiceNode.setProperty(GraphStaticKeys.ID, beginSvcNodeId);
             beginServiceNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
             beginServiceNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
 
             // start route station -> svc node
-            Relationship svcRelationship = createRelationships(routeStationStart, beginServiceNode, TransportRelationshipTypes.TO_SERVICE);
+            Relationship svcRelationship = createRelationship(routeStationStart, beginServiceNode, TransportRelationshipTypes.TO_SERVICE);
             svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
             svcRelationship.setProperty(COST, 0);
             svcRelationship.setProperty(GraphStaticKeys.TRIPS, tripId);
@@ -479,14 +378,14 @@ public class TransportGraphBuilder implements Startable {
         }
 
         TramTime departureTime = beginStop.getDepartureTime();
-        Node hourNode = getOrCreateHourNode(graphDatabase, beginServiceNode, beginSvcNodeId, departureTime);
+        Node hourNode = getOrCreateHourNode(beginServiceNode, beginSvcNodeId, departureTime);
         Node timeNode = getOrCreateTimeNode(graphDatabase, hourNode, beginSvcNodeId, departureTime, tripId);
 
         TransportRelationshipTypes transportRelationshipType =
                 route.isTram() ? TransportRelationshipTypes.TRAM_GOES_TO : TransportRelationshipTypes.BUS_GOES_TO;
 
         // endSvcNode node -> end route station
-        Relationship goesToRelationship = createRelationships(timeNode, routeStationEnd, transportRelationshipType);
+        Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
         goesToRelationship.setProperty(GraphStaticKeys.TRIP_ID, tripId);
 
         // common properties
@@ -494,18 +393,18 @@ public class TransportGraphBuilder implements Startable {
         addCommonProperties(goesToRelationship, route, service, cost);
     }
 
-    private Node getOrCreateHourNode(GraphDatabase graphDatabase, Node previousNode, String beginSvcNodeId, TramTime departureTime) {
+    private Node getOrCreateHourNode(Node previousNode, String beginSvcNodeId, TramTime departureTime) {
         // Node for the hour
         int hourOfDay = departureTime.getHourOfDay();
         String hourNodeId = beginSvcNodeId +"_"+ hourOfDay;
         Node hourNode = nodeIdQuery.getHourNode(hourNodeId);
         if (hourNode==null) {
-            hourNode = createGraphNode(graphDatabase, Labels.HOUR);
+            hourNode = createGraphNode(Labels.HOUR);
             hourNode.setProperty(GraphStaticKeys.ID, hourNodeId);
             hourNode.setProperty(HOUR, hourOfDay);
 
             // service node -> time node
-            Relationship fromPrevious = createRelationships(previousNode, hourNode, TransportRelationshipTypes.TO_HOUR);
+            Relationship fromPrevious = createRelationship(previousNode, hourNode, TransportRelationshipTypes.TO_HOUR);
             fromPrevious.setProperty(COST, 0);
             fromPrevious.setProperty(HOUR, hourOfDay);
         }
@@ -519,13 +418,13 @@ public class TransportGraphBuilder implements Startable {
         if (!timeNodeIds.contains(timeNodeId)) {
             LocalTime time = departureTime.asLocalTime();
 
-            timeNode = createGraphNode(graphDatabase, Labels.MINUTE);
+            timeNode = createGraphNode(Labels.MINUTE);
             timeNode.setProperty(GraphStaticKeys.ID, timeNodeId);
             timeNode.setProperty(TIME, time);
             timeNode.setProperty(TRIP_ID, tripId);
 
             // hour node -> time node
-            Relationship fromPrevious = createRelationships(previousNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
+            Relationship fromPrevious = createRelationship(previousNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
             fromPrevious.setProperty(COST, 0);
             fromPrevious.setProperty(TIME, time);
             fromPrevious.setProperty(TRIP_ID, tripId);

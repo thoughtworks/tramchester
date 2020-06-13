@@ -40,7 +40,7 @@ public class PostcodeRepository implements Disposable, Startable {
     @Override
     public void start() {
         if (!config.getLoadPostcodes()) {
-            logger.warn("Not loading postcodes, buses disabled");
+            logger.warn("Not loading postcodes");
             return;
         }
 

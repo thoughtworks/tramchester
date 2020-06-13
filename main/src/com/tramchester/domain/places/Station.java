@@ -143,4 +143,8 @@ public class Station implements Location {
     public Set<Agency> getAgencies() {
         return servesAgencies;
     }
+
+    public boolean servesRoute(Route route) {
+        return servesRoutes.contains(route);
+    }
 }

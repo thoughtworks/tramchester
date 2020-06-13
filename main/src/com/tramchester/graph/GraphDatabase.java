@@ -76,6 +76,7 @@ public class GraphDatabase implements Startable {
                 if (theDB.isAvailable(1000)) {
                     logger.info("Shutting down graphDB");
                     theDB.shutdown();
+                    logger.info("graphDB is shutdown");
                 } else {
                     logger.warn("Graph reported unavailable, attempt shutdown anyway");
                     theDB.shutdown();
