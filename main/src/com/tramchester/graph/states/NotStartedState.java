@@ -2,8 +2,8 @@ package com.tramchester.graph.states;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
@@ -31,7 +31,7 @@ public class NotStartedState extends TraversalState {
         return 0;
     }
 
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
                 return new WalkingState(this, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);

@@ -1,9 +1,9 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -19,7 +19,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class RouteStationState extends TraversalState {
     private final long routeStationNodeId;
     private final boolean justBoarded;
-    private Optional<String> maybeExistingTrip;
+    private final Optional<String> maybeExistingTrip;
 
     public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId,
                              int cost, boolean justBoarded) {
@@ -49,16 +49,16 @@ public class RouteStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node nextNode,
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
-        if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
+        if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
             return toPlatform(nextNode, journeyState, cost);
         }
 
-        if (nodeLabel == TransportGraphBuilder.Labels.SERVICE) {
+        if (nodeLabel == GraphBuilder.Labels.SERVICE) {
             return toService(nextNode, cost);
         }
-        if (config.getBus() && (nodeLabel == TransportGraphBuilder.Labels.BUS_STATION)) {
+        if (config.getBus() && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
             return toBusStation(nextNode, journeyState, cost);
         }
 

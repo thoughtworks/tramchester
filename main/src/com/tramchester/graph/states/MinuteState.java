@@ -1,8 +1,8 @@
 package com.tramchester.graph.states;
 
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -33,8 +33,8 @@ public class MinuteState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+        if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             return toRouteStation(node, cost);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

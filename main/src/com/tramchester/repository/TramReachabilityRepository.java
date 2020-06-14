@@ -19,8 +19,8 @@ public class TramReachabilityRepository {
     private final RouteReachable routeReachable;
     private final TransportData transportData;
 
-    private List<String> tramStationIndexing; // a list as we need ordering and IndexOf
-    private Map<String, boolean[]> matrix; // stationId -> boolean[]
+    private final List<String> tramStationIndexing; // a list as we need ordering and IndexOf
+    private final Map<String, boolean[]> matrix; // stationId -> boolean[]
 
     public TramReachabilityRepository(RouteReachable routeReachable, TransportData transportData) {
         this.routeReachable = routeReachable;

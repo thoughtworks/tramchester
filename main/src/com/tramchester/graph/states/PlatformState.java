@@ -1,8 +1,8 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -10,7 +10,6 @@ import org.neo4j.graphdb.Relationship;
 import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformState extends TraversalState {
@@ -31,11 +30,11 @@ public class PlatformState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
 
         long nodeId = node.getId();
 
-        if (nodeLabel == TransportGraphBuilder.Labels.TRAM_STATION) {
+        if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
             if (nodeId ==destinationNodeId) {
                 return new DestinationState(this, cost);
             }
@@ -44,7 +43,7 @@ public class PlatformState extends TraversalState {
                     cost, nodeId);
         }
 
-        if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
+        if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             try {
                 journeyState.boardTram();
             } catch (TramchesterException e) {

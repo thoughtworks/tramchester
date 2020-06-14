@@ -1,15 +1,17 @@
 package com.tramchester.graph.search;
 
 
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.VehicleStage;
+import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.repository.PlatformRepository;
@@ -18,7 +20,6 @@ import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,20 +41,18 @@ public class MapPathToStages {
     private final TransportData transportData;
     private final MyLocationFactory myLocationFactory;
     private final PlatformRepository platformRepository;
-    private final StationLocations stationLocations;
 
     public MapPathToStages(RouteCodeToClassMapper routeIdToClass, TransportData transportData,
-                           MyLocationFactory myLocationFactory, PlatformRepository platformRepository,
-                           StationLocations stationLocations) {
+                           MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
         this.routeIdToClass = routeIdToClass;
         this.transportData = transportData;
         this.myLocationFactory = myLocationFactory;
         this.platformRepository = platformRepository;
-        this.stationLocations = stationLocations;
     }
 
-    public List<TransportStage> mapDirect(Path path, TramTime queryTime) {
-        logger.info(format("Mapping path length %s to transport stages for %s", path.length(), queryTime));
+    public List<TransportStage> mapDirect(Path path, TramTime queryTime, JourneyRequest journeyRequest) {
+        logger.info(format("Mapping path length %s to transport stages for %s at %s",
+                path.length(), journeyRequest, queryTime));
         ArrayList<TransportStage> results = new ArrayList<>();
 
         List<Relationship> relationships = new ArrayList<>();
@@ -111,7 +110,12 @@ public class MapPathToStages {
                     throw new RuntimeException(format("Unexpected relationship %s in path %s", type, path));
             }
         }
-        logger.info(format("Mapped path length %s to transport %s stages", path.length(), results.size()));
+        String msg = format("Mapped path length %s to transport %s stages for %s", path.length(), results.size(), journeyRequest);
+        if (results.isEmpty()) {
+            logger.warn(msg);
+        } else {
+            logger.info(msg);
+        }
         return results;
     }
 

@@ -1,9 +1,9 @@
 package com.tramchester.graph.states;
 
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.BUS_GOES_TO;
 import static com.tramchester.graph.TransportRelationshipTypes.TRAM_GOES_TO;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -19,7 +20,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class HourState extends TraversalState {
 //    private static final Logger logger = LoggerFactory.getLogger(HourState.class);
 
-    private Optional<String> maybeExistingTrip;
+    private final Optional<String> maybeExistingTrip;
 
     public HourState(TraversalState parent, Iterable<Relationship> relationships,
                      Optional<String> maybeExistingTrip, int cost) {
@@ -28,9 +29,9 @@ public class HourState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         try {
-            if (nodeLabel == TransportGraphBuilder.Labels.MINUTE) {
+            if (nodeLabel == GraphBuilder.Labels.MINUTE) {
                 return toMinute(node, journeyState, cost);
             }
         } catch(TramchesterException exception) {
@@ -52,10 +53,17 @@ public class HourState extends TraversalState {
         } else {
             // starting a brand new journey
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
-            String tripId = nodeOperations.getTrip(node);
+            String tripId = getTrip(node);
             journeyState.recordTramDetails(time, getTotalCost());
             return new MinuteState(this, relationships, tripId, cost);
         }
+    }
+
+    private String getTrip(Node endNode) {
+        if (!endNode.hasProperty(TRIP_ID)) {
+            return "";
+        }
+        return endNode.getProperty(TRIP_ID).toString().intern();
     }
 
     private List<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, String tripId) {

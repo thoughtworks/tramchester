@@ -1,7 +1,7 @@
 package com.tramchester.graph.states;
 
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -28,7 +28,7 @@ public class TramStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node,
                                           JourneyState journeyState, int cost) {
         long nodeId = node.getId();
         if (nodeId == destinationNodeId) {
@@ -36,11 +36,11 @@ public class TramStationState extends TraversalState {
             return new DestinationState(this, cost);
         }
 
-        if (nodeLabel == TransportGraphBuilder.Labels.PLATFORM) {
+        if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
             return new PlatformState(this,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), nodeId, cost);
         }
-        if (nodeLabel == TransportGraphBuilder.Labels.QUERY_NODE) {
+        if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
             return new WalkingState(this, node.getRelationships(OUTGOING), cost);
         }
 

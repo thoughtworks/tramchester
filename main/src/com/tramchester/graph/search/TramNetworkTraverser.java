@@ -7,10 +7,7 @@ import com.tramchester.graph.states.ImmuatableTraversalState;
 import com.tramchester.graph.states.NotStartedState;
 import com.tramchester.graph.states.TraversalState;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.BranchOrderingPolicies;
-import org.neo4j.graphdb.traversal.BranchState;
-import org.neo4j.graphdb.traversal.InitialBranchState;
-import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +51,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
-        logger.info("Begin traversal");
+        logger.info("Create traversal");
 
-        TraversalDescription traverser =
+        TraversalDescription traversalDesc =
                 graphDatabaseService.traversalDescription(txn).
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
                 relationships(BUS_GOES_TO, Direction.OUTGOING).
@@ -76,19 +73,19 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 uniqueness(NONE).
                 order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST); // Breadth first hits shortest trips sooner
 
-        Spliterator<Path> spliterator = traverser.traverse(startNode).spliterator();
+        Traverser traverse = traversalDesc.traverse(startNode);
+        Spliterator<Path> spliterator = traverse.spliterator();
 
-        logger.info("Return traversal stream");
         Stream<Path> stream = StreamSupport.stream(spliterator, false);
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
-//            spliterator.close();
             reasons.reportReasons(queryTime);
             tramRouteEvaluator.dispose();
             traversalState.dispose();
         });
 
+        logger.info("Return traversal stream");
         return stream.filter(path -> path.endNode().getId()==destinationNodeId);
     }
 
@@ -110,7 +107,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         }
 
         Label firstLabel = endNode.getLabels().iterator().next();
-        TransportGraphBuilder.Labels nodeLabel = TransportGraphBuilder.Labels.valueOf(firstLabel.toString());
+        GraphBuilder.Labels nodeLabel = GraphBuilder.Labels.valueOf(firstLabel.toString());
 
         TraversalState traversalStateForChildren = traversalState.nextState(path, nodeLabel, endNode,
                 journeyStateForChildren, cost);

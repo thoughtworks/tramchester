@@ -60,7 +60,6 @@ public class RouteCalulatorTestKeyRoutes {
         checkRouteNextNDays(combinations, nextTuesday, TramTime.of(8,0), 7);
     }
 
-
     @Test
     void shouldFindEndOfLinesToEndOfLines() {
         // todo: changed from 9 to 10.15 as airport to eccles fails for 10.15am
@@ -125,7 +124,7 @@ public class RouteCalulatorTestKeyRoutes {
                 filter(journeyOrNot -> journeyOrNot.getValue().missing()).
                 map(Map.Entry::getValue).
                 collect(Collectors.toList());
-        assertTrue(failed.isEmpty(), "missing routes: " + failed.toString());
+        assertEquals(Collections.emptyList(), failed);
         return results;
     }
 
@@ -170,7 +169,8 @@ public class RouteCalulatorTestKeyRoutes {
             return "JourneyOrNot{" +
                     " queryDate=" + queryDate +
                     ", queryTime=" + queryTime +
-                    ", requested=" + requested +
+                    ", from=" + requested.getLeft().getName() +
+                    ", to=" + requested.getRight().getName() +
                     '}';
         }
     }

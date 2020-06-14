@@ -97,7 +97,7 @@ public class RouteReachable {
                 Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId<>(endStationId, route.getId(),
                         interchangeRepository);
 
-                TraversalDescription traverserDesc = txn.traversalDescription().
+                TraversalDescription traverserDesc = graphDatabaseService.traversalDescription(txn).
                         order(BranchOrderingPolicies.PREORDER_DEPTH_FIRST).
                         relationships(ON_ROUTE, Direction.OUTGOING).
                         relationships(ENTER_PLATFORM, Direction.OUTGOING).

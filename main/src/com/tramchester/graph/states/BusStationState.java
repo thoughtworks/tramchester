@@ -1,8 +1,8 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -21,17 +21,17 @@ public class BusStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         long nodeId = node.getId();
         if (nodeId == destinationNodeId) {
             // TODO Cost of bus depart?
             return new DestinationState(this, cost);
         }
 
-        if (nodeLabel == TransportGraphBuilder.Labels.QUERY_NODE) {
+        if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
             return new WalkingState(this, node.getRelationships(OUTGOING), cost);
         }
-        if (nodeLabel == TransportGraphBuilder.Labels.ROUTE_STATION) {
+        if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             try {
                 journeyState.boardBus();
             } catch (TramchesterException e) {

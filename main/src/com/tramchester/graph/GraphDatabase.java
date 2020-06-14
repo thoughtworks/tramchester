@@ -152,10 +152,6 @@ public class GraphDatabase implements Startable {
         return databaseService.isAvailable(timeoutMillis);
     }
 
-    public Node getNodeById(Transaction tx, int nodeId) {
-        return tx.getNodeById(nodeId);
-    }
-
     public EvaluationContext createContext(Transaction txn) {
         return new BasicEvaluationContext(txn, databaseService);
     }

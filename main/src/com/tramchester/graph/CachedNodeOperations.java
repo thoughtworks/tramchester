@@ -55,7 +55,8 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
 
     @NonNull
     private <T> Cache<Long, T> createCache(int maximumSize) {
-        return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(10, TimeUnit.MINUTES).recordStats().build();
+        return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(10, TimeUnit.MINUTES).
+                recordStats().build();
     }
 
     public List<Pair<String,CacheStats>> stats() {
@@ -71,66 +72,34 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
 
     public String getTrips(Relationship relationship) {
         long relationshipId = relationship.getId();
-        String ifPresent = tripRelationshipCache.getIfPresent(relationshipId);
-        if (ifPresent!=null) {
-            return ifPresent;
-        }
-        String trips = relationship.getProperty(TRIPS).toString();
-        tripRelationshipCache.put(relationshipId, trips);
-        return trips;
+        return tripRelationshipCache.get(relationshipId, id -> relationship.getProperty(TRIPS).toString());
     }
 
     public String getTrip(Relationship relationship) {
         long relationshipId = relationship.getId();
-        String ifPresent = tripRelationshipCache.getIfPresent(relationshipId);
-        if (ifPresent!=null) {
-            return ifPresent;
-        }
-        String trip = relationship.getProperty(TRIP_ID).toString().intern();
-        tripRelationshipCache.put(relationshipId, trip);
-        return trip;
-    }
-
-    public String getTrip(Node endNode) {
-        if (!endNode.hasProperty(TRIP_ID)) {
-            return "";
-        }
-        return endNode.getProperty(TRIP_ID).toString().intern();
+        return tripRelationshipCache.get(relationshipId, id -> relationship.getProperty(TRIP_ID).toString());
     }
 
     public TramTime getTime(Node node) {
         long nodeId = node.getId();
-        TramTime ifPresent = times.getIfPresent(nodeId);
-        if (ifPresent!=null) {
-            return ifPresent;
-        }
-        LocalTime value = (LocalTime) node.getProperty(TIME);
-        TramTime tramTime = TramTime.of(value);
-        times.put(nodeId,tramTime);
-        return tramTime;
+        return times.get(nodeId, id -> TramTime.of(((LocalTime) node.getProperty(TIME))));
     }
 
     public String getServiceId(Node node) {
         long id = node.getId();
-        String ifPresent = svcIdCache.getIfPresent(id);
-        if (ifPresent!=null) {
-            return ifPresent;
-        }
-        String svcId = node.getProperty(GraphStaticKeys.SERVICE_ID).toString().intern();
-        svcIdCache.put(id, svcId);
-        return svcId;
+        return svcIdCache.get(id, aLong -> node.getProperty(GraphStaticKeys.SERVICE_ID).toString());
     }
 
     public int getCost(Relationship relationship) {
         long relationshipId = relationship.getId();
-        Integer ifPresent = relationshipCostCache.getIfPresent(relationshipId);
-        if (ifPresent!=null) {
-            return ifPresent;
-        }
+        //noinspection ConstantConditions
+        return relationshipCostCache.get(relationshipId, id ->  ((int) relationship.getProperty(GraphStaticKeys.COST)));
+    }
 
-        int cost = (int) relationship.getProperty(GraphStaticKeys.COST);
-        relationshipCostCache.put(relationshipId,cost);
-        return cost;
+    public int getHour(Node node) {
+        long nodeId = node.getId();
+        //noinspection ConstantConditions
+        return hourNodeCache.get(nodeId, id -> (int) node.getProperty(GraphStaticKeys.HOUR));
     }
 
     public void deleteFromCache(Relationship relationship) {
@@ -155,17 +124,6 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
     }
 
     public boolean isBusStation(long nodeId) { return nodeIdLabelMap.has(BUS_STATION, nodeId); }
-
-    public int getHour(Node node) {
-        long id = node.getId();
-        Integer ifPresent = hourNodeCache.getIfPresent(id);
-        if (ifPresent!=null) {
-            return ifPresent;
-        }
-        int hour = (int) node.getProperty(GraphStaticKeys.HOUR);
-        hourNodeCache.put(id,hour);
-        return hour;
-    }
 
     // for creating query nodes, to support MyLocation journeys
     public Node createQueryNode(GraphDatabase graphDatabase, Transaction txn) {

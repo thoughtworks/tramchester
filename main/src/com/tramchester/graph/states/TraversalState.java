@@ -2,8 +2,8 @@ package com.tramchester.graph.states;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -57,10 +57,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalCost();
     }
 
-    protected abstract TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
+    protected abstract TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node,
                                                       JourneyState journeyState, int cost);
 
-    public TraversalState nextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node,
+    public TraversalState nextState(Path path, GraphBuilder.Labels nodeLabel, Node node,
                              JourneyState journeyState, int cost) {
         child = createNextState(path, nodeLabel, node, journeyState, cost);
         return child;

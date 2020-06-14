@@ -1,7 +1,7 @@
 package com.tramchester.graph.states;
 
+import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.TransportGraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -13,7 +13,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
-    private Optional<String> maybeExistingTrip;
+    private final Optional<String> maybeExistingTrip;
 
     public ServiceState(TraversalState parent, Iterable<Relationship> relationships, Optional<String> maybeExistingTrip,
                         int cost) {
@@ -30,8 +30,8 @@ public class ServiceState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, TransportGraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        if (nodeLabel == TransportGraphBuilder.Labels.HOUR) {
+    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+        if (nodeLabel == GraphBuilder.Labels.HOUR) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
             return new HourState(this, relationships, maybeExistingTrip, cost);
         }

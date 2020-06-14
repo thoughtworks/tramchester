@@ -18,14 +18,16 @@ public class ServiceReasons {
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
     private final ProvidesLocalNow providesLocalNow;
+    private final JourneyRequest journeyRequest;
     private final List<ServiceReason> reasons;
     // stats
     private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private boolean success;
 
-    public ServiceReasons(ProvidesLocalNow providesLocalNow) {
+    public ServiceReasons(ProvidesLocalNow providesLocalNow, JourneyRequest journeyRequest) {
         this.providesLocalNow = providesLocalNow;
+        this.journeyRequest = journeyRequest;
         reasons = new ArrayList<>();
         statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
@@ -45,6 +47,7 @@ public class ServiceReasons {
         }
 
         reportStats();
+
         if (debugEnabled) {
             createGraphFile(queryTime);
         }
@@ -52,9 +55,13 @@ public class ServiceReasons {
     }
 
     private void reportStats() {
-        logger.info("Total checked: " + totalChecked.get());
+        if (!success) {
+            logger.warn("No result found for " + journeyRequest.toString());
+        }
+        logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(
                 code -> logger.info(format("%s: %s", code, statistics.get(code))));
+
     }
 
     public ServiceReason recordReason(final ServiceReason serviceReason) {

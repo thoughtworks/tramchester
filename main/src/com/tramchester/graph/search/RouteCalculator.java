@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,8 +59,7 @@ public class RouteCalculator implements TramRouteCalculator {
 
     @Override
     public Stream<Journey> calculateRoute(Transaction txn, Station startStation, Station destination, JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s on %s", startStation, destination,
-                journeyRequest));
+        logger.info(format("Finding shortest path for %s --> %s for %s", startStation, destination, journeyRequest));
 
         Node startNode = getStationNodeSafe(txn, startStation);
         Node endNode = getStationNodeSafe(txn, destination);
@@ -101,8 +99,9 @@ public class RouteCalculator implements TramRouteCalculator {
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              List<Station> destinations, boolean walkAtStart) {
+
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
-        ServiceReasons serviceReasons = new ServiceReasons(providesLocalNow);
+        ServiceReasons serviceReasons = new ServiceReasons(providesLocalNow, journeyRequest);
 
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
 
@@ -111,10 +110,9 @@ public class RouteCalculator implements TramRouteCalculator {
         return queryTimes.stream().
                 map(time -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
                         time, runningServicesIds, destinations, serviceReasons, maxPathLength, journeyRequest.getMaxChanges())).
-                map(serviceHeuristics -> findShortestPath(txn, startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
-                flatMap(Function.identity()).
+                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
                 map(path -> {
-                    List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime());
+                    List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest);
                     return new Journey(stages, path.getQueryTime());
                 });
     }

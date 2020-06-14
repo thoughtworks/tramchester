@@ -4,12 +4,14 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class JourneyRequest {
     private final TramServiceDate date;
     private final TramTime time;
     private final boolean arriveBy;
     private final int maxChanges;
+    private final UUID uid;
 
     public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy) {
         this(date, time, arriveBy, Integer.MAX_VALUE);
@@ -20,6 +22,7 @@ public class JourneyRequest {
         this.time = time;
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
+        this.uid = UUID.randomUUID();
     }
 
     public TramServiceDate getDate() {
@@ -41,7 +44,8 @@ public class JourneyRequest {
     @Override
     public String toString() {
         return "JourneyRequest{" +
-                "date=" + date +
+                "uuid=" + uid.toString() +
+                " date=" + date +
                 ", time=" + time +
                 ", arriveBy=" + arriveBy +
                 ", maxChanges=" + maxChanges +

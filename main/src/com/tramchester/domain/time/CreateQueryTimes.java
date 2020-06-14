@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CreateQueryTimes {
-    private TramchesterConfig config;
+    private final TramchesterConfig config;
 
     public CreateQueryTimes(TramchesterConfig config) {
         this.config = config;
