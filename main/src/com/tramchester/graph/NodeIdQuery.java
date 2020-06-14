@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,9 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
+// TODO Delete this
+// Primarily supports TransportGraphBuilder, but is unsafe as caches nodes potentially across transaction boundaries
+@Deprecated
 public final class NodeIdQuery implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(NodeIdQuery.class);
 
@@ -28,13 +32,18 @@ public final class NodeIdQuery implements ReportsCacheStats {
     private final CacheOfNodes busStationNodeCache;
 
     private final GraphQuery graphQuery;
+    private final Transaction transaction;
     private final boolean buses;
-    // TODO remove
     private final boolean warnIfMissing = false;
 
-    public NodeIdQuery(GraphQuery graphQuery, TramchesterConfig config) {
+    private interface FindNode {
+        Node find(GraphQuery query, Transaction aTransaction, String id);
+    }
+
+    public NodeIdQuery(Transaction transaction, GraphQuery graphQuery, TramchesterConfig config) {
         this.graphQuery = graphQuery;
         this.buses = config.getBus();
+        this.transaction = transaction;
 
         caches = new ArrayList<>();
         // tuned via stats
@@ -74,7 +83,6 @@ public final class NodeIdQuery implements ReportsCacheStats {
         return hourNodeCache.getNode(hourId);
     }
 
-
     public Node getTramStationNode(String stationId) {
         return tramStationNodeCache.getNode(stationId);
     }
@@ -106,7 +114,7 @@ public final class NodeIdQuery implements ReportsCacheStats {
             return tramNode;
         }
 
-        Node busNode = graphQuery.getBusStationNode(stationId);
+        Node busNode = graphQuery.getBusStationNode(transaction, stationId);
         if (busNode!=null) {
             return busNode;
         }
@@ -132,10 +140,6 @@ public final class NodeIdQuery implements ReportsCacheStats {
         serviceNodeCache.clear();
     }
 
-    private interface FindNode {
-        Node find(GraphQuery query, String id);
-    }
-
     private class CacheOfNodes {
         private final Cache<String,Node> theCache;
         private final String name;
@@ -153,7 +157,7 @@ public final class NodeIdQuery implements ReportsCacheStats {
             if (ifPresent!=null) {
                 return ifPresent;
             }
-            Node node = findNode.find(graphQuery, nodeId);
+            Node node = findNode.find(graphQuery, transaction, nodeId);
             if (node!=null) {
                 theCache.put(nodeId, node);
             } else if (warnIfMissing) {

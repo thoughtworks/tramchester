@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,37 +29,37 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(Station startStation, Station destination, JourneyRequest journeyRequest) {
-        int costToDest = routeReachable.getApproxCostBetween(startStation.getId(), destination.getId());
+    public Stream<Journey> calculateRoute(Transaction txn, Station startStation, Station destination, JourneyRequest journeyRequest) {
+        int costToDest = routeReachable.getApproxCostBetween(txn, startStation, destination);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRoute(startStation, destination, departureTime);
+        return routeCalculator.calculateRoute(txn, startStation, destination, departureTime);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(Station start, Node endOfWalk, List<Station> destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, List<Station> destStations,
                                                    JourneyRequest journeyRequest) {
-        int costToDest = routeReachable.getApproxCostBetween(start.getId(), endOfWalk);
+        int costToDest = routeReachable.getApproxCostBetween(txn, start, endOfWalk);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtEnd(start, endOfWalk, destStations, departureTime);
+        return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Node origin, Station destination, JourneyRequest journeyRequest) {
-        int costToDest = routeReachable.getApproxCostBetween(origin, destination.getId());
+    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node origin, Station destination, JourneyRequest journeyRequest) {
+        int costToDest = routeReachable.getApproxCostBetween(txn, origin, destination);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtStart(origin, destination, departureTime);
+        return routeCalculator.calculateRouteWalkAtStart(txn, origin, destination, departureTime);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Node startNode, Node endNode, List<Station> destinationStations,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode, List<Station> destinationStations,
                                                            JourneyRequest journeyRequest) {
-        int costToDest = routeReachable.getApproxCostBetween(startNode, endNode);
+        int costToDest = routeReachable.getApproxCostBetween(txn, startNode, endNode);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtStartAndEnd(startNode, endNode, destinationStations, departureTime);
+        return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endNode, destinationStations, departureTime);
     }
 
     private JourneyRequest calcDepartTime(JourneyRequest originalRequest, int costToDest) {

@@ -10,16 +10,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class NodeIdLabelMap implements Disposable {
-    private static final Logger logger = LoggerFactory.getLogger(TransportGraphBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(GraphBuilder.class);
 
     // map from the NodeId to the Label
-    private final Map<TransportGraphBuilder.Labels, Set<Long>> map;
+    private final Map<GraphBuilder.Labels, Set<Long>> map;
     private final ConcurrentMap<Long, Boolean> queryNodes;
 
     public NodeIdLabelMap() {
-        map = new EnumMap<>(TransportGraphBuilder.Labels.class);
-        for (TransportGraphBuilder.Labels label: TransportGraphBuilder.Labels.values()) {
-            if (label != TransportGraphBuilder.Labels.QUERY_NODE) {
+        map = new EnumMap<>(GraphBuilder.Labels.class);
+        for (GraphBuilder.Labels label: GraphBuilder.Labels.values()) {
+            if (label != GraphBuilder.Labels.QUERY_NODE) {
                 map.put(label, new HashSet<>(getCapacity(label), 1.0F));
             }
         }
@@ -29,12 +29,12 @@ public class NodeIdLabelMap implements Disposable {
     // called when loaded from disc, instead of rebuild
     public void populateNodeLabelMap(GraphDatabase graphDatabase) {
         logger.info("Rebuilding node->label index");
-        TransportGraphBuilder.Labels[] labels = TransportGraphBuilder.Labels.values();
+        GraphBuilder.Labels[] labels = GraphBuilder.Labels.values();
         try (Transaction tx = graphDatabase.beginTx()) {
-            for (TransportGraphBuilder.Labels label : labels) {
-                graphDatabase.findNodes(label).stream().forEach(node -> put(node.getId(), label));
+            for (GraphBuilder.Labels label : labels) {
+                graphDatabase.findNodes(tx, label).stream().forEach(node -> put(node.getId(), label));
             }
-            tx.success();
+            tx.commit();
         }
     }
 
@@ -44,7 +44,7 @@ public class NodeIdLabelMap implements Disposable {
         map.clear();
     }
 
-    private int getCapacity(TransportGraphBuilder.Labels label) {
+    private int getCapacity(GraphBuilder.Labels label) {
         // approx. sizings
         switch (label) {
             case ROUTE_STATION: return 282;
@@ -57,12 +57,12 @@ public class NodeIdLabelMap implements Disposable {
         }
     }
 
-    public void put(long id, TransportGraphBuilder.Labels label) {
+    public void put(long id, GraphBuilder.Labels label) {
         map.get(label).add(id);
     }
 
-    public boolean has(final TransportGraphBuilder.Labels label, final long nodeId) {
-        if (label == TransportGraphBuilder.Labels.QUERY_NODE) {
+    public boolean has(final GraphBuilder.Labels label, final long nodeId) {
+        if (label == GraphBuilder.Labels.QUERY_NODE) {
             return queryNodes.containsKey(nodeId);
         }
         return map.get(label).contains(nodeId);

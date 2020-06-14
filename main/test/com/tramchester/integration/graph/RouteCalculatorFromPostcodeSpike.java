@@ -29,7 +29,7 @@ class RouteCalculatorFromPostcodeSpike {
     private static GraphDatabase database;
 
     private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
-    private Transaction tx;
+    private Transaction txn;
     private LocationJourneyPlanner locationJourneyPlanner;
     private PostcodeRepository postCodeRepository;
 
@@ -48,14 +48,14 @@ class RouteCalculatorFromPostcodeSpike {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tx = database.beginTx(60, TimeUnit.SECONDS);
+        txn = database.beginTx(60, TimeUnit.SECONDS);
         locationJourneyPlanner = dependencies.get(LocationJourneyPlanner.class);
         postCodeRepository = dependencies.get(PostcodeRepository.class);
     }
 
     @AfterEach
     void afterEachTestRuns() {
-        tx.close();
+        txn.close();
     }
 
     @Category(BusTest.class)
@@ -74,7 +74,7 @@ class RouteCalculatorFromPostcodeSpike {
         }));
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8,45), false);
         for (Pair locations : combinations) {
-            Stream<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(locations.begin.getLatLong(),
+            Stream<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, locations.begin.getLatLong(),
                     locations.dest.getLatLong(),
                     journeyRequest);
             if (journeys.findAny().isEmpty()) {

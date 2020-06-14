@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.picocontainer.Disposable;
 
 import java.time.LocalTime;
@@ -138,15 +139,15 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
     }
 
     public boolean isService(long nodeId) {
-        return nodeIdLabelMap.has(TransportGraphBuilder.Labels.SERVICE, nodeId);
+        return nodeIdLabelMap.has(GraphBuilder.Labels.SERVICE, nodeId);
     }
 
     public boolean isHour(long nodeId) {
-        return nodeIdLabelMap.has(TransportGraphBuilder.Labels.HOUR, nodeId);
+        return nodeIdLabelMap.has(GraphBuilder.Labels.HOUR, nodeId);
     }
 
     public boolean isTime(long nodeId) {
-        return nodeIdLabelMap.has(TransportGraphBuilder.Labels.MINUTE, nodeId);
+        return nodeIdLabelMap.has(GraphBuilder.Labels.MINUTE, nodeId);
     }
 
     public boolean isRouteStation(long nodeId) {
@@ -166,14 +167,14 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
         return hour;
     }
 
-    // for creating query nodes, to support MyLocation joruneys
-    public Node createQueryNode(GraphDatabase graphDatabase) {
-        Node result = graphDatabase.createNode(TransportGraphBuilder.Labels.QUERY_NODE);
+    // for creating query nodes, to support MyLocation journeys
+    public Node createQueryNode(GraphDatabase graphDatabase, Transaction txn) {
+        Node result = graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE);
         nodeIdLabelMap.putQueryNode(result.getId());
         return result;
     }
 
-    // for deleting query nodes, to support MyLocation joruneys
+    // for deleting query nodes, to support MyLocation journeys
     public void deleteNode(Node node) {
         long id = node.getId();
         node.delete();

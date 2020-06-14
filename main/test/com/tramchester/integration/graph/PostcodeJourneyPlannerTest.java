@@ -44,7 +44,7 @@ class PostcodeJourneyPlannerTest {
     private static GraphDatabase database;
 
     private static final LocalDate nextTuesday = TestEnv.nextTuesday(0);
-    private Transaction tx;
+    private Transaction txn;
     private LocationJourneyPlanner planner;
     private PostcodeRepository repository;
     private PostcodeLocation centralLocation;
@@ -65,7 +65,7 @@ class PostcodeJourneyPlannerTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         planner = dependencies.get(LocationJourneyPlanner.class);
         repository = dependencies.get(PostcodeRepository.class);
         //request = new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, arriveBy);
@@ -74,7 +74,7 @@ class PostcodeJourneyPlannerTest {
 
     @AfterEach
     void afterEachTestRuns() {
-        tx.close();
+        txn.close();
     }
 
     private static Stream<JourneyRequest> getRequest() {
@@ -86,7 +86,7 @@ class PostcodeJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromCentralPostcodeToBury(JourneyRequest request) {
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation.getLatLong(),
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, centralLocation.getLatLong(),
                 Stations.Bury, request);
 
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
@@ -100,7 +100,7 @@ class PostcodeJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromBuryToCentralPostcode(JourneyRequest request) {
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.Bury,
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, Stations.Bury,
                 centralLocation.getLatLong(), request);
 
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
@@ -116,7 +116,7 @@ class PostcodeJourneyPlannerTest {
     @MethodSource("getRequest")
     void shouldHavePostcodeToPostcodeJourney(JourneyRequest request) {
         PostcodeLocation buryPostcode = repository.getPostcode(Postcodes.CentralBury);
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(centralLocation.getLatLong(),
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, centralLocation.getLatLong(),
                 buryPostcode.getLatLong(), request);
 
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());

@@ -20,6 +20,7 @@ import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,22 +56,22 @@ public class ProcessPlanRequest {
         this.postcodeRepository = postcodeRepository;
     }
 
-    public JourneyPlanRepresentation directRequest(String startId, String endId, JourneyRequest journeyRequest,
+    public JourneyPlanRepresentation directRequest(Transaction txn, String startId, String endId, JourneyRequest journeyRequest,
                                                    String lat, String lon) {
         JourneyPlanRepresentation planRepresentation;
         if (isFromUserLocation(startId)) {
             LatLong latLong = decodeLatLong(lat, lon);
-            planRepresentation = startsWithPosition(latLong, endId, journeyRequest);
+            planRepresentation = startsWithPosition(txn, latLong, endId, journeyRequest);
         } else if (isFromUserLocation(endId)) {
             LatLong latLong = decodeLatLong(lat, lon);
-            planRepresentation = endsWithPosition(startId, latLong, journeyRequest);
+            planRepresentation = endsWithPosition(txn, startId, latLong, journeyRequest);
         } else {
-            planRepresentation = createJourneyPlan(startId, endId, journeyRequest);
+            planRepresentation = createJourneyPlan(txn, startId, endId, journeyRequest);
         }
         return planRepresentation;
     }
 
-    private JourneyPlanRepresentation createJourneyPlan(String startId, String endId, JourneyRequest journeyRequest) {
+    private JourneyPlanRepresentation createJourneyPlan(Transaction txn, String startId, String endId, JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", startId, endId, journeyRequest));
 
         boolean firstIsStation = startsWithDigit(startId);
@@ -79,63 +80,63 @@ public class ProcessPlanRequest {
         if (firstIsStation && secondIsStation) {
             Station start = getStation(startId, "start");
             Station dest = getStation(endId, "end");
-            return stationToStation(start, dest, journeyRequest);
+            return stationToStation(txn, start, dest, journeyRequest);
         }
 
         // Station -> Postcode
         if (firstIsStation) {
             PostcodeLocation dest = getPostcode(endId, "end");
-            return endsWithPosition(startId, dest.getLatLong(), journeyRequest);
+            return endsWithPosition(txn, startId, dest.getLatLong(), journeyRequest);
         }
 
         // Postcode -> Station
         if (secondIsStation) {
             PostcodeLocation start = getPostcode(startId, "start");
-            return startsWithPosition(start.getLatLong(), endId, journeyRequest);
+            return startsWithPosition(txn, start.getLatLong(), endId, journeyRequest);
         }
 
-        return postcodeToPostcode(startId, endId, journeyRequest);
+        return postcodeToPostcode(startId, endId, journeyRequest, txn);
     }
 
     @NotNull
-    private JourneyPlanRepresentation postcodeToPostcode(String startId, String endId, JourneyRequest journeyRequest) {
+    private JourneyPlanRepresentation postcodeToPostcode(String startId, String endId, JourneyRequest journeyRequest, Transaction txn) {
         Location start = getPostcode(startId, "start");
         Location dest = getPostcode(endId, "end");
-        Stream<Journey> journeys =  locToLocPlanner.quickestRouteForLocation(start.getLatLong(), dest.getLatLong(), journeyRequest);
+        Stream<Journey> journeys =  locToLocPlanner.quickestRouteForLocation(txn, start.getLatLong(), dest.getLatLong(), journeyRequest);
         JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
         journeys.close();
         return plan;
     }
 
-    private JourneyPlanRepresentation startsWithPosition(LatLong latLong, String destId,
+    private JourneyPlanRepresentation startsWithPosition(Transaction txn, LatLong latLong, String destId,
                                                          JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", latLong, destId, journeyRequest));
 
         Station dest = getStation(destId, "end");
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(latLong, dest, journeyRequest);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(txn, latLong, dest, journeyRequest);
         JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
         journeys.close();
         return plan;
     }
 
-    private JourneyPlanRepresentation endsWithPosition(String startId, LatLong latLong, JourneyRequest journeyRequest) {
+    private JourneyPlanRepresentation endsWithPosition(Transaction txn, String startId, LatLong latLong, JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", startId, latLong, journeyRequest));
 
         Station start = getStation(startId, "start");
 
-        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(start, latLong, journeyRequest);
+        Stream<Journey> journeys = locToLocPlanner.quickestRouteForLocation(txn, start, latLong, journeyRequest);
         JourneyPlanRepresentation plan = createPlan(journeyRequest.getDate(), journeys);
         journeys.close();
         return plan;
     }
 
-    private JourneyPlanRepresentation stationToStation(Station start, Station dest, JourneyRequest journeyRequest) {
+    private JourneyPlanRepresentation stationToStation(Transaction txn, Station start, Station dest, JourneyRequest journeyRequest) {
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRoute(start, dest, journeyRequest);
+            journeys = routeCalculatorArriveBy.calculateRoute(txn, start, dest, journeyRequest);
         } else {
-            journeys = routeCalculator.calculateRoute(start, dest, journeyRequest);
+            journeys = routeCalculator.calculateRoute(txn, start, dest, journeyRequest);
         }
         // ASSUME: Limit here rely's on search giving lowest cost routes first
         JourneyPlanRepresentation journeyPlanRepresentation = createPlan(journeyRequest.getDate(),

@@ -39,7 +39,7 @@ class LocationJourneyPlannerTest {
     private static GraphDatabase database;
 
     private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
-    private Transaction tx;
+    private Transaction txn;
     private LocationJourneyPlanner planner;
 
     @BeforeAll
@@ -57,13 +57,13 @@ class LocationJourneyPlannerTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         planner = dependencies.get(LocationJourneyPlanner.class);
     }
 
     @AfterEach
     void afterEachTestRuns() {
-        tx.close();
+        txn.close();
     }
 
     @Test
@@ -83,7 +83,7 @@ class LocationJourneyPlannerTest {
     }
 
     private Set<Journey> getJourneySet(JourneyRequest journeyRequest, LatLong nearPiccGardens, Station dest) {
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(nearPiccGardens, dest, journeyRequest);
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, nearPiccGardens, dest, journeyRequest);
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
         return journeySet;
@@ -93,7 +93,7 @@ class LocationJourneyPlannerTest {
     void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(nextTuesday);
 
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(Stations.PiccadillyGardens,
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, Stations.PiccadillyGardens,
                 nearPiccGardens, new JourneyRequest(queryDate, TramTime.of(9, 0), false));
         Set<Journey> unsortedResults = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
@@ -220,7 +220,7 @@ class LocationJourneyPlannerTest {
     private List<Journey> getSortedJourneysForTramThenWalk(Station start, LatLong latLong, TramTime queryTime, boolean arriveBy) {
         TramServiceDate date = new TramServiceDate(nextTuesday);
 
-        Stream<Journey> journeyStream = planner.quickestRouteForLocation(start, latLong,
+        Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, start, latLong,
                 new JourneyRequest(date, queryTime, arriveBy, Integer.MAX_VALUE)).sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));
         List<Journey> journeyList = journeyStream.collect(Collectors.toList());
         journeyStream.close();

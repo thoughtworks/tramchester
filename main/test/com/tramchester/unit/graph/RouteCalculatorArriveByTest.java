@@ -15,6 +15,7 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
@@ -28,9 +29,11 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     private RouteReachable routeReachable;
     private int costBetweenStartDest;
     private TramchesterConfig config;
+    private Transaction txn;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
+        txn = createStrictMock(Transaction.class);
         routeReachable = createStrictMock(RouteReachable.class);
         routeCalculator = createStrictMock(RouteCalculator.class);
         config = createStrictMock(TramchesterConfig.class);
@@ -50,15 +53,16 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
         Stream<Journey> journeyStream = Stream.empty();
 
         EasyMock.expect(config.getBus()).andReturn(false);
-        EasyMock.expect(routeReachable.getApproxCostBetween(start.getId(), destinationId.getId())).andReturn(costBetweenStartDest);
+
+        EasyMock.expect(routeReachable.getApproxCostBetween(txn, start, destinationId)).andReturn(costBetweenStartDest);
         TramTime requiredDepartTime = arriveBy.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(serviceDate, requiredDepartTime, true, 5);
-        EasyMock.expect(routeCalculator.calculateRoute(start, destinationId, updatedWithComputedDepartTime)).andReturn(journeyStream);
+        EasyMock.expect(routeCalculator.calculateRoute(txn, start, destinationId, updatedWithComputedDepartTime)).andReturn(journeyStream);
         EasyMock.expect(config.getMaxWait()).andReturn(34);
 
         replayAll();
         JourneyRequest originalRequest = new JourneyRequest(serviceDate, arriveBy, false, 5);
-        Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(start, destinationId, originalRequest);
+        Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(txn, start, destinationId, originalRequest);
         verifyAll();
         assertSame(journeyStream, result);
     }

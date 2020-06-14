@@ -2,18 +2,22 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.io.FileUtils;
+import org.neo4j.dbms.api.DatabaseManagementService;
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
+import org.neo4j.graphalgo.BasicEvaluationContext;
+import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +27,8 @@ public class GraphDatabase implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
 
     private final TramchesterConfig configuration;
-    private GraphDatabaseService theDB;
+    private GraphDatabaseService databaseService;
+    private DatabaseManagementService managementService;
 
     public GraphDatabase(TramchesterConfig configuration) {
         this.configuration = configuration;
@@ -48,21 +53,23 @@ public class GraphDatabase implements Startable {
             }
         }
 
-        theDB = createGraphDatabaseService(graphFile);
+        databaseService = createGraphDatabaseService(graphFile);
 
         logger.info("graph db ready for " + graphFile.getAbsolutePath());
     }
 
     private GraphDatabaseService createGraphDatabaseService(File graphFile) {
-        GraphDatabaseFactory graphDatabaseFactory = new GraphDatabaseFactory().setUserLogProvider(new Slf4jLogProvider());
 
-        GraphDatabaseBuilder builder = graphDatabaseFactory.
-                newEmbeddedDatabaseBuilder(graphFile).
-                loadPropertiesFromFile("config/neo4j.conf");
+        managementService = new DatabaseManagementServiceBuilder( graphFile ).
+                //setUserLogProvider(new Slf4jLogProvider()).
+                build();
 
-        GraphDatabaseService graphDatabaseService = builder.newGraphDatabase();
+        // for community edition must be DEFAULT_DATABASE_NAME
+        GraphDatabaseService graphDatabaseService = managementService.database(DEFAULT_DATABASE_NAME);
+
         if (!graphDatabaseService.isAvailable(1000)) {
-            logger.error("DB Service is not available");
+            logger.error("DB Service is not available, name: " + DEFAULT_DATABASE_NAME +
+                    " Path: " + graphFile.toPath().toAbsolutePath());
         }
         return graphDatabaseService;
     }
@@ -70,16 +77,16 @@ public class GraphDatabase implements Startable {
     @Override
     public void stop() {
         try {
-            if (theDB==null) {
+            if (databaseService ==null) {
                 logger.error("Unable to obtain GraphDatabaseService for shutdown");
             } else {
-                if (theDB.isAvailable(1000)) {
+                if (databaseService.isAvailable(1000)) {
                     logger.info("Shutting down graphDB");
-                    theDB.shutdown();
+                    managementService.shutdown();
                     logger.info("graphDB is shutdown");
                 } else {
                     logger.warn("Graph reported unavailable, attempt shutdown anyway");
-                    theDB.shutdown();
+                    managementService.shutdown();
                 }
             }
         } catch (Exception exceptionInClose) {
@@ -87,66 +94,69 @@ public class GraphDatabase implements Startable {
         }
     }
 
-
     public Transaction beginTx() {
-        return theDB.beginTx();
+        return databaseService.beginTx();
+    }
+
+    public Transaction beginTx(int timeout, TimeUnit timeUnit) {
+        return databaseService.beginTx(timeout, timeUnit);
     }
 
     public void createIndexs() {
         logger.info("Create DB indexes");
-        try ( Transaction tx = theDB.beginTx() )
+        try ( Transaction tx = databaseService.beginTx() )
         {
-            Schema schema = theDB.schema();
-            schema.indexFor(TransportGraphBuilder.Labels.TRAM_STATION).on(GraphStaticKeys.ID).create();
-            schema.indexFor(TransportGraphBuilder.Labels.BUS_STATION).on(GraphStaticKeys.ID).create();
-            schema.indexFor(TransportGraphBuilder.Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
-            schema.indexFor(TransportGraphBuilder.Labels.PLATFORM).on(GraphStaticKeys.ID).create();
-            schema.indexFor(TransportGraphBuilder.Labels.SERVICE).on(GraphStaticKeys.ID).create();
-            schema.indexFor(TransportGraphBuilder.Labels.HOUR).on(GraphStaticKeys.ID).create();
-            schema.indexFor(TransportGraphBuilder.Labels.MINUTE).on(GraphStaticKeys.ID).create();
+            Schema schema = tx.schema();
+            schema.indexFor(GraphBuilder.Labels.TRAM_STATION).on(GraphStaticKeys.ID).create();
+            schema.indexFor(GraphBuilder.Labels.BUS_STATION).on(GraphStaticKeys.ID).create();
+            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
+            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphStaticKeys.ID).create();
+            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphStaticKeys.ID).create();
+            schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphStaticKeys.ID).create();
+            schema.indexFor(GraphBuilder.Labels.MINUTE).on(GraphStaticKeys.ID).create();
 
-            tx.success();
+            tx.commit();
         }
     }
 
-    public void waitForIndexesReady() {
-        theDB.schema().awaitIndexesOnline(5, TimeUnit.SECONDS);
+    public void waitForIndexesReady(Transaction tx) {
+        tx.schema().awaitIndexesOnline(5, TimeUnit.SECONDS);
 
-        theDB.schema().getIndexes().forEach(indexDefinition -> {
+        tx.schema().getIndexes().forEach(indexDefinition -> {
             logger.info(String.format("Index label %s keys %s",
                     indexDefinition.getLabels(), indexDefinition.getPropertyKeys()));
         });
     }
 
-    public Node createNode(TransportGraphBuilder.Labels label) {
-        return theDB.createNode(label);
+    public Node createNode(Transaction tx, GraphBuilder.Labels label) {
+        return tx.createNode(label);
     }
 
-    public Node findNode(TransportGraphBuilder.Labels labels, String idField, String idValue) {
-        return theDB.findNode(labels, idField, idValue);
+    public Node findNode(Transaction tx, GraphBuilder.Labels labels, String idField, String idValue) {
+        return tx.findNode(labels, idField, idValue);
     }
 
     public boolean isAvailable(int timeoutMilli) {
-        return theDB.isAvailable(timeoutMilli);
+        return databaseService.isAvailable(timeoutMilli);
     }
 
-    public ResourceIterator<Node> findNodes(TransportGraphBuilder.Labels label) {
-        return theDB.findNodes(label);
+    public ResourceIterator<Node> findNodes(Transaction tx, GraphBuilder.Labels label) {
+        return tx.findNodes(label);
     }
 
-    public TraversalDescription traversalDescription() {
-        return theDB.traversalDescription();
+    public TraversalDescription traversalDescription(Transaction tx) {
+        return tx.traversalDescription();
     }
 
     public boolean isAvailable(long timeoutMillis) {
-        return theDB.isAvailable(timeoutMillis);
+        return databaseService.isAvailable(timeoutMillis);
     }
 
-    public Transaction beginTx(int timeout, TimeUnit timeUnit) {
-        return theDB.beginTx(timeout, timeUnit);
+    public Node getNodeById(Transaction tx, int nodeId) {
+        return tx.getNodeById(nodeId);
     }
 
-    public Node getNodeById(int nodeId) {
-        return theDB.getNodeById(nodeId);
+    public EvaluationContext createContext(Transaction txn) {
+        return new BasicEvaluationContext(txn, databaseService);
     }
 }

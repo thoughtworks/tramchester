@@ -51,8 +51,8 @@ public class TramReachabilityRepository {
                 if (destinationStationId.equals(startStationId)) {
                     result = true;
                 } else {
-                    result = routeReachable.getRouteReachableWithInterchange(startStationId,
-                            destinationStationId, routeStation.getRoute());
+                    result = routeReachable.getRouteReachableWithInterchange(routeStation.getRoute(), startStationId,
+                            destinationStationId);
                 }
                 flags[tramStationIndexing.indexOf(destinationStationId)] = result;
             });

@@ -32,7 +32,7 @@ class RouteCalculatorSubGraphMonsallTest {
 
     private RouteCalculator calculator;
     private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
-    private Transaction tx;
+    private Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -53,12 +53,12 @@ class RouteCalculatorSubGraphMonsallTest {
     @BeforeEach
     void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
-        tx = database.beginTx();
+        txn = database.beginTx();
     }
 
     @AfterEach
     void reproduceIssueWithTooManyStages() {
-        tx.close();
+        txn.close();
     }
 
     @Test
@@ -102,7 +102,7 @@ class RouteCalculatorSubGraphMonsallTest {
     }
 
     private void validateNumberOfStages(Station start, Station destination, TramTime time, LocalDate date, int numStages) {
-        Set<Journey> journeys = calculator.calculateRoute(start, destination, new JourneyRequest(new TramServiceDate(date), time,
+        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, new JourneyRequest(new TramServiceDate(date), time,
                 false)).
                 collect(Collectors.toSet());
 

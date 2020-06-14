@@ -40,8 +40,6 @@ class RouteCalculatorTestAllJourneys {
 
     private RouteCalculator calculator;
     private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
-    private Transaction tx;
-    private Map<Long, Transaction> threadToTxnMap;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
@@ -58,17 +56,7 @@ class RouteCalculatorTestAllJourneys {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tx = database.beginTx(TXN_TIMEOUT_SECS, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
-        threadToTxnMap = new HashMap<>();
-    }
-
-    @AfterEach
-    void afterEachTestRuns() {
-        tx.close();
-        // can't close transactions on other threads as neo4j uses thread local to cache the transaction
-//        threadToTxnMap.values().forEach(Transaction::close);
-        threadToTxnMap.clear();
     }
 
     @Test
@@ -119,9 +107,12 @@ class RouteCalculatorTestAllJourneys {
         combinations.forEach(pair -> results.put(pair, Optional.empty()));
 
         combinations.parallelStream().
-                map(this::checkForTx).
-                map(journey -> Pair.of(journey,
-                        calculator.calculateRoute(journey.getLeft(), journey.getRight(), journeyRequest).findAny())).
+                map(journey -> {
+                    try(Transaction txn=database.beginTx()) {
+                        return Pair.of(journey,
+                            calculator.calculateRoute(txn, journey.getLeft(), journey.getRight(), journeyRequest).findAny());
+                        }
+                }).
                 forEach(stationsJourneyPair -> results.put(stationsJourneyPair.getLeft(), stationsJourneyPair.getRight()));
 
         Assertions.assertEquals(combinations.size(), results.size(), "Not enough results");
@@ -133,16 +124,24 @@ class RouteCalculatorTestAllJourneys {
                 map(Map.Entry::getKey).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toList());
-        List<Journey> retry = failed.stream().map(pair -> calculator.calculateRoute(pair.getLeft(), pair.getRight(), journeyRequest)).
-                map(Stream::findAny).
-                filter(Optional::isPresent).
-                map(Optional::get).
-                collect(Collectors.toList());
+
+        // TODO Diagnose threading issue so this can be removed
+        List<Journey> retry;
+        try(Transaction txn = database.beginTx(TXN_TIMEOUT_SECS, TimeUnit.SECONDS)) {
+            retry = failed.stream().map(pair -> calculator.calculateRoute(txn, pair.getLeft(), pair.getRight(), journeyRequest)).
+                    map(Stream::findAny).
+                    filter(Optional::isPresent).
+                    map(Optional::get).
+                    collect(Collectors.toList());
+        }
+
         Assertions.assertEquals(
-                0L, failed.size(), format("Failed some of %s (finished %s) combinations %s retry is %s", results.size(), combinations.size(), displayFailed(failed), retry));
+                0L, failed.size(), format("Failed some of %s (finished %s) combinations %s retry is %s",
+                        results.size(), combinations.size(), displayFailed(failed), retry));
 
         return results;
     }
+
 
     private String displayFailed(List<Pair<Station, Station>> pairs) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -154,22 +153,5 @@ class RouteCalculatorTestAllJourneys {
                 append(" id=").append(dest.getId()).append("] "); });
         return stringBuilder.toString();
     }
-
-    private <A,B> Pair<A, B>  checkForTx(Pair<A, B> journey) {
-        long id = Thread.currentThread().getId();
-        if (threadToTxnMap.containsKey(id)) {
-            return journey;
-        }
-
-        try {
-            database.getNodeById(1);
-        }
-        catch (NotInTransactionException noTxnForThisThread) {
-            Transaction txn = database.beginTx(TXN_TIMEOUT_SECS, TimeUnit.SECONDS);
-            threadToTxnMap.put(id, txn);
-        }
-        return journey;
-    }
-
 
 }

@@ -48,16 +48,17 @@ class GraphBuildAndStartTest {
 
         GraphDatabase graphDatabase = new GraphDatabase(config);
         GraphQuery graphQuery = new GraphQuery(graphDatabase);
-        NodeIdQuery nodeIdQuery = new NodeIdQuery(graphQuery, config);
 
-        TransportGraphBuilder transportGraphBuilder = new TransportGraphBuilder(graphDatabase, new IncludeAllFilter(), transportData,
-                nodeIdLabelMap, nodeIdQuery, interchangeRepository, config);
+        GraphBuilder transportGraphBuilder = new TransportGraphBuilder(graphDatabase, new IncludeAllFilter(), transportData,
+                nodeIdLabelMap, interchangeRepository, config, graphQuery);
 
         transportData.start();
         interchangeRepository.start();
         graphDatabase.start();
         Assertions.assertTrue(graphDatabase.isAvailable(2000));
         transportGraphBuilder.start();
+
+
         graphDatabase.stop();
         interchangeRepository.dispose();
         transportData.dispose();

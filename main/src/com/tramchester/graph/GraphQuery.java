@@ -1,8 +1,10 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.places.Station;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -19,37 +21,37 @@ public class GraphQuery {
         this.graphDatabase = graphDatabase;
     }
 
-    public Node getTramStationNode(String stationId) {
-        return getNodeByLabel(stationId, TransportGraphBuilder.Labels.TRAM_STATION);
+    public Node getTramStationNode(Transaction txn, String stationId) {
+        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.TRAM_STATION);
     }
 
-    public Node getBusStationNode(String stationId) {
-        return getNodeByLabel(stationId, TransportGraphBuilder.Labels.BUS_STATION);
+    public Node getBusStationNode(Transaction txn, String stationId) {
+        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.BUS_STATION);
     }
 
-    public Node getPlatformNode(String id) {
-        return getNodeByLabel(id, TransportGraphBuilder.Labels.PLATFORM);
+    public Node getPlatformNode(Transaction txn, String id) {
+        return getNodeByLabel(txn, id, GraphBuilder.Labels.PLATFORM);
     }
 
-    public Node getServiceNode(String id) {
-        TransportGraphBuilder.Labels Label = TransportGraphBuilder.Labels.SERVICE;
-        return getNodeByLabel(id, Label);
+    public Node getServiceNode(Transaction txn, String id) {
+        GraphBuilder.Labels Label = GraphBuilder.Labels.SERVICE;
+        return getNodeByLabel(txn, id, Label);
     }
 
-    public Node getRouteStationNode(String id) {
-        return getNodeByLabel(id, TransportGraphBuilder.Labels.ROUTE_STATION);
+    public Node getRouteStationNode(Transaction txn, String id) {
+        return getNodeByLabel(txn, id,GraphBuilder.Labels.ROUTE_STATION);
     }
 
-    public Node getHourNode(String id) {
-        return getNodeByLabel(id, TransportGraphBuilder.Labels.HOUR);
+    public Node getHourNode(Transaction txn, String id) {
+        return getNodeByLabel(txn, id, GraphBuilder.Labels.HOUR);
     }
 
-    private Node getNodeByLabel(String id, TransportGraphBuilder.Labels label) {
-        return graphDatabase.findNode(label, GraphStaticKeys.ID, id);
+    private Node getNodeByLabel(Transaction txn, String id, GraphBuilder.Labels label) {
+        return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id);
     }
 
-    public List<Relationship> getRouteStationRelationships(String routeStationId, Direction direction) {
-        Node routeStationNode = getRouteStationNode(routeStationId);
+    public List<Relationship> getRouteStationRelationships(Transaction txn, String routeStationId, Direction direction) {
+        Node routeStationNode = getRouteStationNode(txn, routeStationId);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
@@ -58,4 +60,12 @@ public class GraphQuery {
         return result;
     }
 
+    public Node getStationNode(Transaction txn, Station station) {
+        String stationId = station.getId();
+        if (station.isTram()) {
+            return getTramStationNode(txn, stationId);
+        } else {
+            return getBusStationNode(txn, stationId);
+        }
+    }
 }

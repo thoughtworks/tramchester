@@ -9,12 +9,13 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.NodeIdQuery;
+import com.tramchester.graph.GraphQuery;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,67 +39,67 @@ public class RouteCalculator implements TramRouteCalculator {
     private final TransportData transportData;
     private final TramReachabilityRepository tramReachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
-    private final NodeIdQuery nodeIdQuery;
     private final GraphDatabase graphDatabaseService;
     private final ProvidesLocalNow providesLocalNow;
+    private final GraphQuery graphQuery;
 
     public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
-                           CreateQueryTimes createQueryTimes, NodeIdQuery nodeIdQuery, GraphDatabase graphDatabaseService,
-                           ProvidesLocalNow providesLocalNow) {
+                           CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
+                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.config = config;
         this.tramReachabilityRepository = tramReachabilityRepository;
         this.createQueryTimes = createQueryTimes;
-        this.nodeIdQuery = nodeIdQuery;
         this.graphDatabaseService = graphDatabaseService;
         this.providesLocalNow = providesLocalNow;
+        this.graphQuery = graphQuery;
     }
 
     @Override
-    public Stream<Journey> calculateRoute(Station startStation, Station destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> calculateRoute(Transaction txn, Station startStation, Station destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", startStation, destination,
                 journeyRequest));
 
-        Node startNode = getStationNodeSafe(startStation.getId());
-        Node endNode = getStationNodeSafe(destination.getId());
+        Node startNode = getStationNodeSafe(txn, startStation);
+        Node endNode = getStationNodeSafe(txn, destination);
 
         List<Station> destinations = Collections.singletonList(destination);
 
-        return getJourneyStream(startNode, endNode, journeyRequest, destinations, false);
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false);
     }
 
-    private Node getStationNodeSafe(String startStationId) {
-        Node stationNode = nodeIdQuery.getStationNode(startStationId);
+    private Node getStationNodeSafe(Transaction txn, Station startStation) {
+        Node stationNode = graphQuery.getStationNode(txn, startStation);
         if (stationNode==null) {
-            throw new RuntimeException("Unable to find station node based on " + startStationId);
+            throw new RuntimeException("Unable to find station node based on " + startStation.getId());
         }
         return stationNode;
     }
 
-    public Stream<Journey> calculateRouteWalkAtEnd(Station start, Node endOfWalk, List<Station> desinationStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, List<Station> desinationStations,
                                                    JourneyRequest journeyRequest)
     {
-        Node startNode = getStationNodeSafe(start.getId());
-        return getJourneyStream(startNode, endOfWalk, journeyRequest, desinationStations, false);
+        Node startNode = getStationNodeSafe(txn, start);
+        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, desinationStations, false);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Node startOfWalkNode, Station destination,
+    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node startOfWalkNode, Station destination,
                                                      JourneyRequest journeyRequest) {
-        Node endNode = getStationNodeSafe(destination.getId());
+        Node endNode = getStationNodeSafe(txn, destination);
         List<Station> destinationIds = Collections.singletonList(destination);
-        return getJourneyStream(startOfWalkNode, endNode, journeyRequest, destinationIds, true);
+        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinationIds, true);
     }
 
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Node startNode, Node endNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode,
                                                            List<Station> destinationStations, JourneyRequest journeyRequest) {
-        return getJourneyStream(startNode, endNode, journeyRequest, destinationStations, true);
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, true);
     }
 
-    private Stream<Journey> getJourneyStream(Node startNode, Node endNode, JourneyRequest journeyRequest,
+    private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              List<Station> destinations, boolean walkAtStart) {
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
         ServiceReasons serviceReasons = new ServiceReasons(providesLocalNow);
@@ -110,7 +111,7 @@ public class RouteCalculator implements TramRouteCalculator {
         return queryTimes.stream().
                 map(time -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
                         time, runningServicesIds, destinations, serviceReasons, maxPathLength, journeyRequest.getMaxChanges())).
-                map(serviceHeuristics -> findShortestPath(startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
+                map(serviceHeuristics -> findShortestPath(txn, startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
                 flatMap(Function.identity()).
                 map(path -> {
                     List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime());
@@ -118,7 +119,7 @@ public class RouteCalculator implements TramRouteCalculator {
                 });
     }
 
-    private Stream<TimedPath> findShortestPath(Node startNode, Node endNode,
+    private Stream<TimedPath> findShortestPath(Transaction txn, Node startNode, Node endNode,
                                                ServiceHeuristics serviceHeuristics,
                                                ServiceReasons reasons, List<Station> destinations) {
 
@@ -127,7 +128,7 @@ public class RouteCalculator implements TramRouteCalculator {
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
                 reasons, nodeOperations, endNode, endStationIds, config);
 
-        return tramNetworkTraverser.findPaths(startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
+        return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }
 
     private static class TimedPath {

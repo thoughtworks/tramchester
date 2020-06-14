@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,28 +35,29 @@ public abstract class GraphBuilder implements Startable {
         ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
     }
 
-    private final TramchesterConfig config;
+    protected final TramchesterConfig config;
     private final GraphFilter graphFilter;
     private final GraphDatabase graphDatabase;
     private final NodeIdLabelMap nodeIdLabelMap;
-    protected final NodeIdQuery nodeIdQuery;
+    protected final GraphQuery graphQuery;
 
     private int numberNodes;
     private int numberRelationships;
 
-    protected GraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter, NodeIdLabelMap nodeIdLabelMap, NodeIdQuery nodeIdQuery) {
+    protected GraphBuilder(GraphDatabase graphDatabase, GraphQuery graphQuery, GraphFilter graphFilter, TramchesterConfig config,
+                           NodeIdLabelMap nodeIdLabelMap) {
         this.graphDatabase = graphDatabase;
+        this.graphQuery = graphQuery;
         this.config = config;
         this.graphFilter = graphFilter;
         this.nodeIdLabelMap = nodeIdLabelMap;
-        this.nodeIdQuery = nodeIdQuery;
         numberNodes = 0;
         numberRelationships = 0;
     }
 
     @NotNull
-    protected Node createRouteStationNode(Location station, Route route) {
-        Node routeStation = createGraphNode(Labels.ROUTE_STATION);
+    protected Node createRouteStationNode(Transaction tx, Location station, Route route) {
+        Node routeStation = createGraphNode(tx, Labels.ROUTE_STATION);
         String routeStationId = RouteStation.formId(station, route);
 
         logger.debug(format("Creating route station %s route %s nodeId %s", station.getId(),route.getId(),
@@ -67,13 +69,13 @@ public abstract class GraphBuilder implements Startable {
     }
 
     @NotNull
-    protected Node createStationNode(Location station) {
+    protected Node createStationNode(Transaction tx, Location station) {
         boolean tram = station.isTram();
         String id = station.getId();
 
         Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
         logger.debug(format("Creating station node: %s with label: %s ", station, label));
-        Node stationNode = createGraphNode(label);;
+        Node stationNode = createGraphNode(tx, label);;
         stationNode.setProperty(GraphStaticKeys.ID, id);
         return stationNode;
     }
@@ -109,9 +111,9 @@ public abstract class GraphBuilder implements Startable {
         nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
     }
 
-    protected Node createGraphNode(Labels label) {
+    protected Node createGraphNode(Transaction tx, Labels label) {
         numberNodes++;
-        Node node = graphDatabase.createNode(label);
+        Node node = graphDatabase.createNode(tx, label);
         nodeIdLabelMap.put(node.getId(), label);
         return node;
     }

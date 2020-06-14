@@ -15,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Spliterator;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
@@ -45,7 +47,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.config = config;
     }
 
-    public Stream<Path> findPaths(Node startNode) {
+    public Stream<Path> findPaths(Transaction txn, Node startNode) {
 
         TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations,
                 destinationNodeId, reasons, config);
@@ -55,7 +57,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         logger.info("Begin traversal");
 
         TraversalDescription traverser =
-                graphDatabaseService.traversalDescription().
+                graphDatabaseService.traversalDescription(txn).
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
                 relationships(BUS_GOES_TO, Direction.OUTGOING).
                 relationships(BOARD, Direction.OUTGOING).
@@ -74,13 +76,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 uniqueness(NONE).
                 order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST); // Breadth first hits shortest trips sooner
 
-        ResourceIterator<Path> iterator =  traverser.traverse(startNode).iterator();
+        Spliterator<Path> spliterator = traverser.traverse(startNode).spliterator();
 
         logger.info("Return traversal stream");
-        Stream<Path> stream = iterator.stream();
+        Stream<Path> stream = StreamSupport.stream(spliterator, false);
+
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
-            iterator.close();
+//            spliterator.close();
             reasons.reportReasons(queryTime);
             tramRouteEvaluator.dispose();
             traversalState.dispose();

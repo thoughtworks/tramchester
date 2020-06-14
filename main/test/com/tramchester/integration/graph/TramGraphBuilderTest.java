@@ -28,7 +28,7 @@ class TramGraphBuilderTest {
     private static Dependencies dependencies;
 
     private TransportDataFromFiles transportData;
-    private Transaction transaction;
+    private Transaction txn;
     private GraphQuery graphQuery;
 
     @BeforeAll
@@ -43,12 +43,12 @@ class TramGraphBuilderTest {
         graphQuery = dependencies.get(GraphQuery.class);
         transportData = dependencies.get(TransportDataFromFiles.class);
         GraphDatabase service = dependencies.get(GraphDatabase.class);
-        transaction = service.beginTx();
+        txn = service.beginTx();
     }
 
     @AfterEach
     void afterEachTestRuns() {
-        transaction.close();
+        txn.close();
     }
 
     @AfterAll
@@ -60,8 +60,8 @@ class TramGraphBuilderTest {
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
         List<Relationship> outbounds = getOutboundRouteStationRelationships(
-                RouteStation.formId(Stations.MediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
-        outbounds.addAll(getOutboundRouteStationRelationships(RouteStation.formId(Stations.MediaCityUK,
+                txn, RouteStation.formId(Stations.MediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
+        outbounds.addAll(getOutboundRouteStationRelationships(txn, RouteStation.formId(Stations.MediaCityUK,
                 RoutesForTesting.ASH_TO_ECCLES )));
 
         Set<String> graphSvcIds = outbounds.stream().
@@ -79,19 +79,19 @@ class TramGraphBuilderTest {
         Assertions.assertEquals(0, fileSvcIds.size());
     }
 
-    private List<Relationship> getOutboundRouteStationRelationships(String routeStationId) {
-        return graphQuery.getRouteStationRelationships(routeStationId, Direction.OUTGOING);
+    private List<Relationship> getOutboundRouteStationRelationships(Transaction txn, String routeStationId) {
+        return graphQuery.getRouteStationRelationships(txn, routeStationId, Direction.OUTGOING);
     }
 
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
-        List<Relationship> outbounds = getOutboundRouteStationRelationships(RouteStation.formId(Stations.Cornbrook,
+        List<Relationship> outbounds = getOutboundRouteStationRelationships(txn, RouteStation.formId(Stations.Cornbrook,
                 RoutesForTesting.ALTY_TO_PICC));
 
         Assertions.assertTrue(outbounds.size()>1, "have at least one outbound");
 
-        outbounds = getOutboundRouteStationRelationships(RouteStation.formId(Stations.Cornbrook, RoutesForTesting.ASH_TO_ECCLES));
+        outbounds = getOutboundRouteStationRelationships(txn, RouteStation.formId(Stations.Cornbrook, RoutesForTesting.ASH_TO_ECCLES));
 
         Assertions.assertTrue(outbounds.size()>1);
 
@@ -138,7 +138,7 @@ class TramGraphBuilderTest {
     }
 
     private void checkOutboundConsistency(Station station, Route route) {
-        List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(RouteStation.formId(station, route));
+        List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(txn, RouteStation.formId(station, route));
 
         Assertions.assertTrue(graphOutbounds.size()>0);
 
@@ -166,7 +166,8 @@ class TramGraphBuilderTest {
     }
 
     private void checkInboundConsistency(Station station, Route route) {
-        List<Relationship> inbounds = graphQuery.getRouteStationRelationships(RouteStation.formId(station, route), Direction.INCOMING);
+        List<Relationship> inbounds = graphQuery.getRouteStationRelationships(txn,
+                RouteStation.formId(station, route), Direction.INCOMING);
 
         List<Relationship> graphTramsIntoStation = inbounds.stream().
                 filter(inbound -> inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).collect(Collectors.toList());

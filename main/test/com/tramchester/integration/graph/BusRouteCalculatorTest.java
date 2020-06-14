@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.testSupport.BusStations.*;
 
-//@Disabled("experimental")
+@Disabled("experimental")
 class BusRouteCalculatorTest {
     // TODO this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -28,7 +28,7 @@ class BusRouteCalculatorTest {
 
     private RouteCalculator calculator;
     private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
-    private Transaction tx;
+    private Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
@@ -45,26 +45,26 @@ class BusRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tx = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
     }
 
     @AfterEach
     void afterEachTestRuns() {
-        tx.close();
+        txn.close();
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveAltyToStockJourney() {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, AltrinchamInterchange, StockportBusStation,
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, AltrinchamInterchange, StockportBusStation,
                 TramTime.of(8, 0), nextTuesday, 5);
     }
 
     @Test
     void shouldHaveShudehillToStockJourney() {
         int maxChanges = 1;
-        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, ShudehillInterchange, StockportBusStation,
+        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, ShudehillInterchange, StockportBusStation,
                 TramTime.of(8, 0), nextTuesday, maxChanges);
         Journey journey = journeys.toArray(new Journey[1])[0];
         Assertions.assertFalse(journey.getStages().size()>(maxChanges+1));
@@ -73,7 +73,7 @@ class BusRouteCalculatorTest {
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveSimpleTramJourney() {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, Stations.Altrincham, Stations.Cornbrook,
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, Stations.Altrincham, Stations.Cornbrook,
                 TramTime.of(8, 0), nextTuesday, 5);
     }
 }

@@ -80,7 +80,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
                 JourneyPlanRepresentation planRepresentation;
                 try (Transaction tx = graphDatabaseService.beginTx() ) {
-                    planRepresentation =  processPlanRequest.directRequest(startId, endId, journeyRequest, lat, lon);
+                    planRepresentation =  processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
                 }
 
                 if (planRepresentation.getJourneys().size()==0) {

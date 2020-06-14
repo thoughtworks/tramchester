@@ -37,7 +37,7 @@ class RouteCalculatorSubGraphTest {
             Stations.StPetersSquare,
             Stations.Deansgate,
             Stations.Pomona);
-    private Transaction tx;
+    private Transaction txn;
     private TramTime tramTime;
 
     @BeforeAll
@@ -61,13 +61,13 @@ class RouteCalculatorSubGraphTest {
     @BeforeEach
     void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
-        tx = database.beginTx();
+        txn = database.beginTx();
         tramTime = TramTime.of(8, 0);
     }
 
     @AfterEach
     void onceAfterEveryTest() {
-        tx.close();
+        txn.close();
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -108,28 +108,28 @@ class RouteCalculatorSubGraphTest {
 
     @Test
     void shouldHaveSimpleOneStopJourney() {
-        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook, Stations.Pomona,
+        Set<Journey> results = calculator.calculateRoute(txn, Stations.Cornbrook, Stations.Pomona,
                 new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
-        Set<Journey> results = calculator.calculateRoute(Stations.Cornbrook, Stations.Pomona,
+        Set<Journey> results = calculator.calculateRoute(txn, Stations.Cornbrook, Stations.Pomona,
                 new JourneyRequest(new TramServiceDate(TestEnv.nextSaturday()), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare, Stations.Deansgate,
+        Set<Journey> results = calculator.calculateRoute(txn, Stations.StPetersSquare, Stations.Deansgate,
                 new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleJourney() {
-        Set<Journey> results = calculator.calculateRoute(Stations.StPetersSquare, Stations.Cornbrook,
+        Set<Journey> results = calculator.calculateRoute(txn, Stations.StPetersSquare, Stations.Cornbrook,
                 new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
@@ -154,6 +154,6 @@ class RouteCalculatorSubGraphTest {
     }
 
     private void validateAtLeastOneJourney(Station start, Station dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, start, dest, time, date, 5);
+        RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, start, dest, time, date, 5);
     }
 }

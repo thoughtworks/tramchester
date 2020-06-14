@@ -22,7 +22,8 @@ class TramRouteReachableTest {
 
     private RouteReachable reachable;
     private StationRepository stationRepository;
-    private Transaction tx;
+    private GraphDatabase database;
+//    private Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() throws IOException {
@@ -41,34 +42,34 @@ class TramRouteReachableTest {
 
         stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(RouteReachable.class);
-        GraphDatabase database = dependencies.get(GraphDatabase.class);
-        tx = database.beginTx();
+        database = dependencies.get(GraphDatabase.class);
+        //txn = database.beginTx();
     }
 
     @AfterEach
     void afterEachTestRuns() {
-        tx.close();
+//        txn.close();
     }
 
     @Test
     void shouldHaveCorrectReachabilityOrInterchanges() {
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(),
-                ALTY_TO_PICC));
-        assertFalse(reachable.getRouteReachableWithInterchange(Stations.NavigationRoad.getId(), Stations.ManAirport.getId(),
-                PICC_TO_ALTY));
+        assertTrue(reachable.getRouteReachableWithInterchange(ALTY_TO_PICC, Stations.NavigationRoad.getId(), Stations.ManAirport.getId()
+        ));
+        assertFalse(reachable.getRouteReachableWithInterchange(PICC_TO_ALTY, Stations.NavigationRoad.getId(), Stations.ManAirport.getId()
+        ));
 
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(),
-                AIR_TO_VIC));
-        assertFalse(reachable.getRouteReachableWithInterchange(Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId(),
-                VIC_TO_AIR));
+        assertTrue(reachable.getRouteReachableWithInterchange(AIR_TO_VIC, Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId()
+        ));
+        assertFalse(reachable.getRouteReachableWithInterchange(VIC_TO_AIR, Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId()
+        ));
     }
 
     @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.RochdaleRail.getId(), Stations.Monsall.getId(),
-                ROCH_TO_DIDS));
-        assertTrue(reachable.getRouteReachableWithInterchange(Stations.Monsall.getId(), Stations.RochdaleRail.getId(),
-                DIDS_TO_ROCH));
+        assertTrue(reachable.getRouteReachableWithInterchange(ROCH_TO_DIDS, Stations.RochdaleRail.getId(), Stations.Monsall.getId()
+        ));
+        assertTrue(reachable.getRouteReachableWithInterchange(DIDS_TO_ROCH, Stations.Monsall.getId(), Stations.RochdaleRail.getId()
+        ));
     }
 
     @Test
@@ -93,14 +94,16 @@ class TramRouteReachableTest {
     @Test
     void shouldComputeSimpleCostBetweenStations() {
 
-        assertEquals(62, reachable.getApproxCostBetween(Stations.Bury.getId(), Stations.Altrincham.getId()));
-        assertEquals(62, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.Bury.getId()));
+        try(Transaction txn = database.beginTx()) {
+            assertEquals(62, reachable.getApproxCostBetween(txn, Stations.Bury, Stations.Altrincham));
+            assertEquals(62, reachable.getApproxCostBetween(txn, Stations.Altrincham, Stations.Bury));
 
-        assertEquals(5, reachable.getApproxCostBetween(Stations.NavigationRoad.getId(), Stations.Altrincham.getId()));
-        assertEquals(6, reachable.getApproxCostBetween(Stations.Altrincham.getId(), Stations.NavigationRoad.getId()));
+            assertEquals(5, reachable.getApproxCostBetween(txn, Stations.NavigationRoad, Stations.Altrincham));
+            assertEquals(6, reachable.getApproxCostBetween(txn, Stations.Altrincham, Stations.NavigationRoad));
 
-        assertEquals(61, reachable.getApproxCostBetween(Stations.MediaCityUK.getId(), Stations.ManAirport.getId()));
-        assertEquals(61, reachable.getApproxCostBetween(Stations.ManAirport.getId(), Stations.MediaCityUK.getId()));
+            assertEquals(61, reachable.getApproxCostBetween(txn, Stations.MediaCityUK, Stations.ManAirport));
+            assertEquals(61, reachable.getApproxCostBetween(txn, Stations.ManAirport, Stations.MediaCityUK));
+        }
     }
 
 
