@@ -45,7 +45,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final InterchangeRepository interchangeRepository;
 
     public StagedTransportGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
-                                       GraphQuery graphQuery, NodeIdLabelMap nodeIdLabelMap, TransportData transportData,
+                                       GraphQuery graphQuery, NodeTypeRepository nodeIdLabelMap, TransportData transportData,
                                        InterchangeRepository interchangeRepository) {
         super(graphDatabase, graphQuery, graphFilter, config, nodeIdLabelMap);
         this.transportData = transportData;

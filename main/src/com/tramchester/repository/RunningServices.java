@@ -37,4 +37,8 @@ public class RunningServices {
     public TramTime getServiceEarliest(String svcId) {
         return earliestTimeMap.get(svcId);
     }
+
+    public long count() {
+        return serviceIds.size();
+    }
 }

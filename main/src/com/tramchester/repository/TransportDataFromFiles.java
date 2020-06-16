@@ -61,6 +61,7 @@ public class TransportDataFromFiles implements TransportDataSource {
         populateTrips(transportDataStreams.trips);
         populateStopTimes(transportDataStreams.stopTimes);
         populateCalendars(transportDataStreams.calendars, transportDataStreams.calendarsDates);
+        updateTimesForServices();
 
         logger.info(format("%s stations", stationsById.size()));
         logger.info(format("%s routes", this.routes.size()));
@@ -73,6 +74,12 @@ public class TransportDataFromFiles implements TransportDataSource {
         );
         transportDataStreams.closeAll();
         logger.info("Finished loading transport data");
+    }
+
+    private void updateTimesForServices() {
+        // Cannot do this until after all stops loaded into trips
+        logger.info("Updating timings for services");
+        services.values().forEach(Service::updateTimings);
     }
 
     @Override

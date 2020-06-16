@@ -48,9 +48,11 @@ public class Trip implements HasId {
 
     public void addStop(StopCall stop) {
         stops.add(stop);
-        TramTime departureTime = stop.getDepartureTime();
+
         // use stop index as avoids issues with crossing day boundaries
         byte stopIndex = stop.getGetSequenceNumber();
+        TramTime departureTime = stop.getDepartureTime();
+
         if (stopIndex == 1) {
             earliestDepart = departureTime;
         }
@@ -84,10 +86,16 @@ public class Trip implements HasId {
     }
 
     public TramTime earliestDepartTime() {
+        if (earliestDepart==null) {
+            throw new RuntimeException("earliestDepart not set");
+        }
         return earliestDepart;
     }
 
     public TramTime latestDepartTime() {
+        if (latestDepart==null) {
+            throw new RuntimeException("earliestDepart not set");
+        }
         return latestDepart;
     }
 

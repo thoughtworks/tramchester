@@ -48,7 +48,27 @@ public class Service implements HasId {
     }
 
     public void addTrip(Trip trip) {
-        trips.add(trip);
+        trips.add(trip); // stop population not done at this stage, see updateTimings
+    }
+
+    public void updateTimings() {
+        trips.forEach(this::updateEarliestAndLatest);
+    }
+
+    private void updateEarliestAndLatest(Trip trip) {
+        TramTime tripEarliest = trip.earliestDepartTime();
+        if (earliestDepart==null) {
+            earliestDepart = tripEarliest;
+        } else if (tripEarliest.isBefore(earliestDepart)) {
+            earliestDepart = tripEarliest;
+        }
+
+        TramTime tripLatest = trip.latestDepartTime();
+        if (latestDepart==null) {
+            latestDepart = tripLatest;
+        } else if (tripLatest.isAfter(latestDepart)) {
+            latestDepart = tripLatest;
+        }
     }
 
     public void setDays(boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
@@ -150,34 +170,10 @@ public class Service implements HasId {
     }
 
     public TramTime earliestDepartTime() {
-        if (earliestDepart!=null) {
-            return earliestDepart;
-        }
-
-        trips.forEach(trip -> {
-            TramTime departureTime = trip.earliestDepartTime();
-            if (earliestDepart==null) {
-                earliestDepart = departureTime;
-            } else if (departureTime.isBefore(earliestDepart)) {
-                earliestDepart = departureTime;
-            }
-        });
         return earliestDepart;
     }
 
     public TramTime latestDepartTime() {
-        if (latestDepart!=null) {
-            return latestDepart;
-        }
-
-        trips.forEach(trip -> {
-            TramTime departureTime = trip.latestDepartTime();
-            if (latestDepart==null) {
-                latestDepart = departureTime;
-            } else  if (departureTime.isAfter(latestDepart)) {
-                latestDepart = departureTime;
-            }
-        });
         return latestDepart;
     }
 
@@ -208,4 +204,5 @@ public class Service implements HasId {
         }
         return found.toString();
     }
+
 }

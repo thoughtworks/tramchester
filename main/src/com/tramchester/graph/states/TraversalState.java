@@ -8,10 +8,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
@@ -77,11 +76,19 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         return outbounds;
     }
 
+    // TODO Return iterable instead
     protected List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, long nodeIdToSkip) {
+        ArrayList<Relationship> results = new ArrayList<>();
+        for (Relationship relationship: relationships) {
+            if (relationship.getEndNode().getId() != nodeIdToSkip) {
+                results.add(relationship);
+            }
+        }
+        return results;
 
-        return  StreamSupport.stream(relationships.spliterator(), false).
-                filter(relationship -> relationship.getEndNode().getId()!= nodeIdToSkip).
-                collect(Collectors.toList());
+//        return  StreamSupport.stream(relationships.spliterator(), false).
+//                filter(relationship -> relationship.getEndNode().getId()!= nodeIdToSkip).
+//                collect(Collectors.toList());
     }
 
     public int getTotalCost() {

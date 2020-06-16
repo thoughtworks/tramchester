@@ -134,11 +134,16 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataRepository.class);
         picoContainer.addComponent(ClientForS3.class);
         picoContainer.addComponent(UploadsLiveData.class);
-        picoContainer.addComponent(CachedNodeOperations.class);
         picoContainer.addComponent(MyLocationFactory.class);
         picoContainer.addComponent(RouteReachable.class);
         picoContainer.addComponent(TramReachabilityRepository.class);
-        picoContainer.addComponent(NodeIdLabelMap.class);
+
+        //picoContainer.addComponent(CachedNodeOperations.class);
+        picoContainer.addComponent(NodeContentsDirect.class);
+
+        //picoContainer.addComponent(NodeIdLabelMap.class);
+        picoContainer.addComponent(NodeTypeDirect.class);
+
         picoContainer.addComponent(GraphQuery.class);
         picoContainer.addComponent(TramStationAdjacenyRepository.class);
         picoContainer.addComponent(new ObjectMapper());

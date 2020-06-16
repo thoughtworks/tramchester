@@ -12,6 +12,7 @@ public class JourneyRequest {
     private final boolean arriveBy;
     private final int maxChanges;
     private final UUID uid;
+    private boolean diagnostics;
 
     public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy) {
         this(date, time, arriveBy, Integer.MAX_VALUE);
@@ -23,6 +24,7 @@ public class JourneyRequest {
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
         this.uid = UUID.randomUUID();
+        diagnostics = false;
     }
 
     public TramServiceDate getDate() {
@@ -66,5 +68,14 @@ public class JourneyRequest {
     @Override
     public int hashCode() {
         return Objects.hash(date, time, arriveBy, maxChanges);
+    }
+
+    public boolean getDiagnosticsEnabled() {
+        return diagnostics;
+    }
+
+    public JourneyRequest setDiag(boolean flag) {
+        diagnostics = flag;
+        return this;
     }
 }

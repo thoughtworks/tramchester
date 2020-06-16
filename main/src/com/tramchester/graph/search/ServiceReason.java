@@ -33,7 +33,7 @@ public abstract class ServiceReason {
         LongerPath,
         PathTooLong,
         OnTram,
-        OnBus,
+        NotOnTram,
         RouteAlreadySeen,
         TooManyChanges,
         SeenBefore

@@ -54,7 +54,6 @@ public class ServiceHeuristics {
         endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toList());
         this.maxPathLength = maxPathLength;
 
-//        busRoutesSeen = new ArrayList<>();
     }
     
     public ServiceReason checkServiceDate(Node node, Path path) {
@@ -197,6 +196,8 @@ public class ServiceHeuristics {
     public TramTime getQueryTime() {
         return queryTime;
     }
+
+    public ServiceReasons getReasons() { return reasons; }
 
     public int getMaxPathLength() {
         return maxPathLength;

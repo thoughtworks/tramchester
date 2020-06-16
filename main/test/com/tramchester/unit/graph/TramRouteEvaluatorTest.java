@@ -44,7 +44,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
         JourneyRequest journeyRequest = new JourneyRequest(
                 TramServiceDate.of(TestEnv.nextSaturday()), TramTime.of(8,15), false);
-        reasons = new ServiceReasons(providesLocalNow, journeyRequest);
+        reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesLocalNow);
         config = TestEnv.GET();
 
         serviceHeuristics = createMock(ServiceHeuristics.class);

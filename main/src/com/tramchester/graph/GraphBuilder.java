@@ -38,14 +38,14 @@ public abstract class GraphBuilder implements Startable {
     protected final TramchesterConfig config;
     private final GraphFilter graphFilter;
     private final GraphDatabase graphDatabase;
-    private final NodeIdLabelMap nodeIdLabelMap;
+    private final NodeTypeRepository nodeIdLabelMap;
     protected final GraphQuery graphQuery;
 
     private int numberNodes;
     private int numberRelationships;
 
     protected GraphBuilder(GraphDatabase graphDatabase, GraphQuery graphQuery, GraphFilter graphFilter, TramchesterConfig config,
-                           NodeIdLabelMap nodeIdLabelMap) {
+                           NodeTypeRepository nodeIdLabelMap) {
         this.graphDatabase = graphDatabase;
         this.graphQuery = graphQuery;
         this.config = config;

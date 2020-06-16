@@ -44,6 +44,7 @@ public class RouteCalculator implements TramRouteCalculator {
     private final GraphDatabase graphDatabaseService;
     private final ProvidesLocalNow providesLocalNow;
     private final GraphQuery graphQuery;
+    private final int maxPathLength;
 
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
@@ -59,6 +60,8 @@ public class RouteCalculator implements TramRouteCalculator {
         this.providesLocalNow = providesLocalNow;
         this.graphQuery = graphQuery;
         this.nodeTypeRepository = nodeTypeRepository;
+
+        maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
     }
 
     @Override
@@ -105,34 +108,46 @@ public class RouteCalculator implements TramRouteCalculator {
                                              List<Station> destinations, boolean walkAtStart) {
 
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
-        ServiceReasons serviceReasons = new ServiceReasons(providesLocalNow, journeyRequest);
+
+        logger.info("Found " + runningServicesIds.count() + " running services for " +journeyRequest.getDate());
 
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
 
-        int maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
         int maxChanges = journeyRequest.getMaxChanges();
 
         return queryTimes.stream().
-                map(time -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
-                        time, runningServicesIds, destinations, serviceReasons, maxPathLength, maxChanges)).
+                map(time -> new TimeAndReasons(time, new ServiceReasons(journeyRequest, time, providesLocalNow))).
+                map(timeAndReasons -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
+                        timeAndReasons.queryTime, runningServicesIds, destinations, timeAndReasons.reasons, maxPathLength, maxChanges)).
                 flatMap(serviceHeuristics -> findShortestPath(txn, startNode, endNode, nodeTypeRepository, serviceHeuristics,
-                        serviceReasons, destinations)).
+                        destinations)).
                 map(path -> {
                     List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest);
                     return new Journey(stages, path.getQueryTime());
                 });
     }
 
-    private Stream<TimedPath> findShortestPath(Transaction txn, Node startNode, Node endNode,
-                                               NodeTypeRepository nodeTypeRepository, ServiceHeuristics serviceHeuristics,
-                                               ServiceReasons reasons, List<Station> destinations) {
+    private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, final Node endNode,
+                                               final NodeTypeRepository nodeTypeRepository, final ServiceHeuristics serviceHeuristics,
+                                               final List<Station> destinations) {
 
+        // TODO ->Set
         List<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toList());
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
-                reasons, nodeOperations, endNode, endStationIds, config, nodeTypeRepository);
+                nodeOperations, endNode, endStationIds, config, nodeTypeRepository);
 
         return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
+    }
+
+    private static class TimeAndReasons {
+        private final TramTime queryTime;
+        private final ServiceReasons reasons;
+
+        private TimeAndReasons(TramTime queryTime, ServiceReasons reasons) {
+            this.queryTime = queryTime;
+            this.reasons = reasons;
+        }
     }
 
     private static class TimedPath {

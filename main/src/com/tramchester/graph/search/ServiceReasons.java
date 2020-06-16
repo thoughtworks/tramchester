@@ -15,23 +15,27 @@ import static java.lang.String.format;
 public class ServiceReasons {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceReasons.class);
-    private static final boolean debugEnabled = logger.isDebugEnabled();
+    private static final boolean createDotFile = logger.isDebugEnabled();
 
+    private final TramTime queryTime;
     private final ProvidesLocalNow providesLocalNow;
     private final JourneyRequest journeyRequest;
     private final List<ServiceReason> reasons;
     // stats
     private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
     private final AtomicInteger totalChecked = new AtomicInteger(0);
+    private final boolean statsOn;
     private boolean success;
 
-    public ServiceReasons(ProvidesLocalNow providesLocalNow, JourneyRequest journeyRequest) {
+    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesLocalNow providesLocalNow) {
+        this.queryTime = queryTime;
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;
         reasons = new ArrayList<>();
         statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
         success = false;
+        statsOn = journeyRequest.getDiagnosticsEnabled();
     }
 
     private void reset() {
@@ -40,23 +44,21 @@ public class ServiceReasons {
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(TramTime queryTime) {
-        if (success && !debugEnabled) {
-            reset();
-            return;
+    public void reportReasons() {
+        if (createDotFile) {
+            createGraphFile();
         }
 
-        reportStats();
-
-        if (debugEnabled) {
-            createGraphFile(queryTime);
+        if (!success || statsOn) {
+            reportStats();
         }
+
         reset();
     }
 
     private void reportStats() {
         if (!success) {
-            logger.warn("No result found for " + journeyRequest.toString());
+            logger.warn("No result found for " + journeyRequest.toString() + " at " + queryTime);
         }
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(
@@ -65,7 +67,7 @@ public class ServiceReasons {
     }
 
     public ServiceReason recordReason(final ServiceReason serviceReason) {
-        if (debugEnabled) {
+        if (createDotFile) {
             reasons.add(serviceReason);
         }
         incrementStat(serviceReason.getReasonCode());
@@ -80,7 +82,19 @@ public class ServiceReasons {
         statistics.get(reasonCode).incrementAndGet();
     }
 
-    private void createGraphFile(TramTime queryTime) {
+    public void recordSuccess() {
+        success = true;
+    }
+
+    public void record(final ImmutableJourneyState journeyState) {
+        if (journeyState.onTram()) {
+            incrementStat(ServiceReason.ReasonCode.OnTram);
+        } else {
+            incrementStat(ServiceReason.ReasonCode.NotOnTram);
+        }
+    }
+
+    private void createGraphFile() {
         String fileName = format("%s%s_at_%s.dot", queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
                 providesLocalNow.getDateTime().toLocalDate().toString());
         fileName = fileName.replaceAll(":","");
@@ -108,19 +122,6 @@ public class ServiceReasons {
         }
         catch (IOException e) {
             logger.warn("Unable to create diagnostic graph file", e);
-        }
-    }
-
-    public void recordSuccess() {
-        success = true;
-    }
-
-    public void record(final ImmutableJourneyState journeyState) {
-        if (journeyState.onTram()) {
-            incrementStat(ServiceReason.ReasonCode.OnTram);
-        } else {
-            // TODO not quite right, might not be boarded....
-            incrementStat(ServiceReason.ReasonCode.OnBus);
         }
     }
 

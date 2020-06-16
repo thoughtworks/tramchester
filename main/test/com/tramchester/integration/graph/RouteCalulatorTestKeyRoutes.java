@@ -13,6 +13,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalulatorTestKeyRoutes {
@@ -56,7 +57,34 @@ class RouteCalulatorTestKeyRoutes {
     @Test
     void shouldFindInterchangesToEndOfLines() {
         Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges, Stations.EndOfTheLine );
+
         validateAllHaveAtLeastOneJourney(nextTuesday, combinations, TramTime.of(8,0));
+    }
+
+    @Test
+    void shouldRepoServiceTimeIssueForConcurrency() {
+        List<Pair<Station, Station>> combinations = new ArrayList<>();
+        for (int i = 0; i < 99; i++) {
+            combinations.add(Pair.of(Stations.ShawAndCrompton, Stations.Ashton));
+        }
+
+        LocalDate queryDate = nextTuesday;
+        TramTime queryTime = TramTime.of(8,0);
+        boolean diag = true;
+
+        Optional<Pair<Pair<Station, Station>, JourneyOrNot>> failed = combinations.parallelStream().
+                map(requested -> {
+                    try (Transaction txn = database.beginTx()) {
+                        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false);
+                        journeyRequest.setDiag(diag);
+                        Optional<Journey> optionalJourney = calculator.calculateRoute(txn, requested.getLeft(), requested.getRight(),
+                                journeyRequest).limit(1).findAny();
+                        JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
+                        return Pair.of(requested, journeyOrNot);
+                    }
+                }).filter(pair -> pair.getRight().missing()).findAny();
+
+        assertFalse(failed.isPresent());
     }
 
     @Test
@@ -106,17 +134,7 @@ class RouteCalulatorTestKeyRoutes {
             final LocalDate queryDate, final Set<Pair<Station, Station>> combinations, final TramTime queryTime) {
 
         // check each pair, collect results into (station,station)->result
-        Map<Pair<Station, Station>, JourneyOrNot> results =
-                combinations.parallelStream().
-                        map(requested -> {
-                            try (Transaction txn = database.beginTx()) {
-                                Optional<Journey> optionalJourney = calculator.calculateRoute(txn, requested.getLeft(), requested.getRight(),
-                                        new JourneyRequest(new TramServiceDate(queryDate), queryTime, false)).limit(1).findAny();
-                                JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
-                                return Pair.of(requested, journeyOrNot);
-                            }
-                        }).
-                        collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+        Map<Pair<Station, Station>, JourneyOrNot> results = computeJourneys(queryDate, combinations, queryTime, false);
 
         assertEquals(combinations.size(), results.size());
         // check all results present, collect failures into a list
@@ -124,8 +142,28 @@ class RouteCalulatorTestKeyRoutes {
                 filter(journeyOrNot -> journeyOrNot.getValue().missing()).
                 map(Map.Entry::getValue).
                 collect(Collectors.toList());
+
+        // retry, only to assist in tracking down concurrency issue
+        Set<Pair<Station, Station>> retries = failed.stream().map(failure -> failure.requested).collect(Collectors.toSet());
+        computeJourneys(queryDate, retries, queryTime, true);
+
         assertEquals(Collections.emptyList(), failed);
         return results;
+    }
+
+    @NotNull
+    private Map<Pair<Station, Station>, JourneyOrNot> computeJourneys(LocalDate queryDate, Set<Pair<Station, Station>> combinations,
+                                                                      TramTime queryTime, boolean diag) {
+        return combinations.parallelStream().
+                map(requested -> {
+                    try (Transaction txn = database.beginTx()) {
+                        Optional<Journey> optionalJourney = calculator.calculateRoute(txn, requested.getLeft(), requested.getRight(),
+                                new JourneyRequest(new TramServiceDate(queryDate), queryTime, false).setDiag(diag)).limit(1).findAny();
+                        JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
+                        return Pair.of(requested, journeyOrNot);
+                    }
+                }).
+                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
     private Set<Pair<Station, Station>> createJourneyPairs(List<Station> starts, List<Station> ends) {

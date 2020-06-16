@@ -33,11 +33,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final ServiceReasons reasons;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
-                                ServiceReasons reasons, NodeContentsRepository nodeContentsRepository, Node destinationNode,
+                                NodeContentsRepository nodeContentsRepository, Node destinationNode,
                                 List<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
-        this.reasons = reasons;
+        this.reasons = serviceHeuristics.getReasons();
         this.nodeContentsRepository = nodeContentsRepository;
         this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeId = destinationNode.getId();
@@ -48,8 +48,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
 
-        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
+        final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
                 destinationNodeId, nodeTypeRepository, reasons, config);
+
         final NotStartedState traversalState = new NotStartedState(nodeContentsRepository, destinationNodeId, endStationIds, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
@@ -82,7 +83,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
-            reasons.reportReasons(queryTime);
+            reasons.reportReasons();
             tramRouteEvaluator.dispose();
             traversalState.dispose();
         });
