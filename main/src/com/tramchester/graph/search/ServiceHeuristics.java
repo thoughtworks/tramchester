@@ -4,7 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.RunningServices;
@@ -30,13 +30,13 @@ public class ServiceHeuristics {
     private final int maxPathLength;
 
     private final StationRepository stationRepository;
-    private final CachedNodeOperations nodeOperations;
+    private final NodeContentsRepository nodeOperations;
     private final int maxJourneyDuration;
 
     private final int maxWaitMinutes;
     private final int changesLimit;
 
-    public ServiceHeuristics(StationRepository stationRepository, CachedNodeOperations nodeOperations,
+    public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config,
                              TramTime queryTime, RunningServices runningServices, List<Station> endStations,
                              ServiceReasons reasons, int maxPathLength, int maxChanges) {
@@ -115,7 +115,9 @@ public class ServiceHeuristics {
         return elapsedTimed.between(earliest, nodeTime);
     }
 
-    public ServiceReason interestedInHour(Path path, int hour, TramTime journeyClockTime) {
+    public ServiceReason interestedInHour(Path path, Node node, TramTime journeyClockTime) {
+        int hour = nodeOperations.getHour(node);
+
         reasons.incrementTotalChecked();
 
         int queryTimeHour = journeyClockTime.getHourOfDay();
@@ -146,7 +148,9 @@ public class ServiceHeuristics {
         RouteStation routeStation = stationRepository.getRouteStation(routeStationId);
 
         if (routeStation==null) {
-            throw new RuntimeException("Missing routestation " + routeStationId);
+            String message = "Missing routestation " + routeStationId;
+            logger.warn(message);
+            throw new RuntimeException(message);
         }
 
         if (routeStation.isTram()) {
@@ -173,7 +177,6 @@ public class ServiceHeuristics {
         if (totalCost>maxJourneyDuration) {
             return reasons.recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), path));
         }
-
         return valid(path);
     }
 

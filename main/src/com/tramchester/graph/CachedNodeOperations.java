@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.picocontainer.Disposable;
 
 import java.time.LocalTime;
@@ -18,10 +17,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.GraphBuilder.Labels.BUS_STATION;
-import static com.tramchester.graph.GraphBuilder.Labels.ROUTE_STATION;
 
-public class CachedNodeOperations implements ReportsCacheStats, Disposable {
+public class CachedNodeOperations implements ReportsCacheStats, Disposable, NodeContentsRepository {
 
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, String> tripRelationshipCache;
@@ -30,12 +27,8 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
 
     // cached times
     private final Cache<Long, TramTime> times;
-    // node types
-    private final NodeIdLabelMap nodeIdLabelMap;
 
-    public CachedNodeOperations(NodeIdLabelMap nodeIdLabelMap) {
-        this.nodeIdLabelMap = nodeIdLabelMap;
-
+    public CachedNodeOperations() {
         // size tuned from stats
         relationshipCostCache = createCache(85000);
         svcIdCache = createCache(3000);
@@ -86,14 +79,8 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
     }
 
     public String getServiceId(Node node) {
-        long id = node.getId();
-        return svcIdCache.get(id, aLong -> node.getProperty(GraphStaticKeys.SERVICE_ID).toString());
-    }
-
-    public int getCost(Relationship relationship) {
-        long relationshipId = relationship.getId();
-        //noinspection ConstantConditions
-        return relationshipCostCache.get(relationshipId, id ->  ((int) relationship.getProperty(GraphStaticKeys.COST)));
+        long nodeId = node.getId();
+        return svcIdCache.get(nodeId, id -> node.getProperty(GraphStaticKeys.SERVICE_ID).toString());
     }
 
     public int getHour(Node node) {
@@ -102,41 +89,15 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable {
         return hourNodeCache.get(nodeId, id -> (int) node.getProperty(GraphStaticKeys.HOUR));
     }
 
-    public void deleteFromCache(Relationship relationship) {
+    public int getCost(Relationship relationship) {
+        long relationshipId = relationship.getId();
+        //noinspection ConstantConditions
+        return relationshipCostCache.get(relationshipId, id ->  ((int) relationship.getProperty(GraphStaticKeys.COST)));
+    }
+
+    public void deleteFromCostCache(Relationship relationship) {
         long relationshipId = relationship.getId();
         relationshipCostCache.invalidate(relationshipId);
-    }
-
-    public boolean isService(long nodeId) {
-        return nodeIdLabelMap.has(GraphBuilder.Labels.SERVICE, nodeId);
-    }
-
-    public boolean isHour(long nodeId) {
-        return nodeIdLabelMap.has(GraphBuilder.Labels.HOUR, nodeId);
-    }
-
-    public boolean isTime(long nodeId) {
-        return nodeIdLabelMap.has(GraphBuilder.Labels.MINUTE, nodeId);
-    }
-
-    public boolean isRouteStation(long nodeId) {
-        return nodeIdLabelMap.has(ROUTE_STATION, nodeId);
-    }
-
-    public boolean isBusStation(long nodeId) { return nodeIdLabelMap.has(BUS_STATION, nodeId); }
-
-    // for creating query nodes, to support MyLocation journeys
-    public Node createQueryNode(GraphDatabase graphDatabase, Transaction txn) {
-        Node result = graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE);
-        nodeIdLabelMap.putQueryNode(result.getId());
-        return result;
-    }
-
-    // for deleting query nodes, to support MyLocation journeys
-    public void deleteNode(Node node) {
-        long id = node.getId();
-        node.delete();
-        nodeIdLabelMap.removeQueryNode(id);
     }
 
 }

@@ -97,10 +97,7 @@ class RouteCalculatorSubGraphTest {
         for (Station start: stations) {
             for (Station destination: stations) {
                 if (!start.equals(destination)) {
-                    for (int i = 0; i < 7; i++) {
-                        LocalDate day = nextTuesday.plusDays(i);
-                        validateAtLeastOneJourney(start, destination, tramTime, day);
-                    }
+                    validateAtLeastOneJourney(start, destination, tramTime, nextTuesday);
                 }
             }
         }

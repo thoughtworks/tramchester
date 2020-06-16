@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.Stations.HeatonPark;
+import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,18 +72,18 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveSimpleOneStopJourney() {
-        checkRouteNextNDays(Stations.TraffordBar, Stations.Altrincham, nextTuesday, TramTime.of(9,0), 1);
+    void shouldHaveSimpleOneStopJourneyNextDays() {
+        checkRouteNextNDays(Stations.TraffordBar, Stations.Altrincham, nextTuesday, TramTime.of(9,0), DAYS_AHEAD);
     }
 
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, nextTuesday, TramTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, nextTuesday, TramTime.of(9,0), DAYS_AHEAD);
     }
 
     @Test
-    void shouldHaveSimpleManyStopJourneyViaInterchange() {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Bury, nextTuesday, TramTime.of(9,0), 1);
+    void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
+        checkRouteNextNDays(Stations.Altrincham, Stations.Bury, nextTuesday, TramTime.of(9,0), DAYS_AHEAD);
     }
 
     @Test
@@ -299,7 +300,7 @@ public class RouteCalculatorTest {
 
     @Test
     void reproduceIssueWithImmediateDepartOffABoardedTram() {
-        checkRouteNextNDays(Stations.Deansgate, Stations.Ashton, nextTuesday, TramTime.of(8,0), 7);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Ashton, TramTime.of(8,0), nextTuesday);
     }
 
     @Test
@@ -320,8 +321,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproduceIssueCornbrookToAshtonSatursdays() {
-        LocalDate date = TestEnv.nextSaturday();
-        checkRouteNextNDays(Stations.Cornbrook, Stations.Ashton, date, TramTime.of(9,0), 7);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Ashton, TramTime.of(9,0), TestEnv.nextSaturday());
     }
 
     @Test
@@ -358,7 +358,7 @@ public class RouteCalculatorTest {
         Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
         journeyStream.close();
 
-        String message = "from " + start + " to " + destination + " at " + time + " on " + queryDate;
+        String message = "from " + start.getName() + " to " + destination.getName() + " at " + time + " on " + queryDate;
         assertTrue(journeys.size() > 0, "Unable to find journey " + message);
         journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), message + " missing stages for journey" + journey));
         journeys.forEach(RouteCalculatorTest::checkStages);

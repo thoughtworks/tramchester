@@ -26,7 +26,7 @@ class JourneyStateTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         List<String> destinationStationIds = Collections.singletonList("destinationStationId");
-        traversalState = new NotStartedState(new CachedNodeOperations(new NodeIdLabelMap()),
+        traversalState = new NotStartedState(new CachedNodeOperations(),
                 42, destinationStationIds, TestEnv.GET());
         queryTime = TramTime.of(9, 15);
     }

@@ -24,7 +24,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     private final GraphDatabase graphDatabaseService;
     private final ServiceHeuristics serviceHeuristics;
-    private final CachedNodeOperations nodeOperations;
+    private final NodeContentsRepository nodeContentsRepository;
+    private final NodeTypeRepository nodeTypeRepository;
     private final TramTime queryTime;
     private final long destinationNodeId;
     private final List<String> endStationIds;
@@ -32,23 +33,24 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final ServiceReasons reasons;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
-                                ServiceReasons reasons, CachedNodeOperations nodeOperations, Node destinationNode,
-                                List<String> endStationIds, TramchesterConfig config) {
+                                ServiceReasons reasons, NodeContentsRepository nodeContentsRepository, Node destinationNode,
+                                List<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.reasons = reasons;
-        this.nodeOperations = nodeOperations;
+        this.nodeContentsRepository = nodeContentsRepository;
         this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeId = destinationNode.getId();
         this.endStationIds = endStationIds;
         this.config = config;
+        this.nodeTypeRepository = nodeTypeRepository;
     }
 
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
 
-        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics, nodeOperations,
-                destinationNodeId, reasons, config);
-        final NotStartedState traversalState = new NotStartedState(nodeOperations, destinationNodeId, endStationIds, config);
+        TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
+                destinationNodeId, nodeTypeRepository, reasons, config);
+        final NotStartedState traversalState = new NotStartedState(nodeContentsRepository, destinationNodeId, endStationIds, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Create traversal");
@@ -99,7 +101,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         int cost = 0;
         if (path.lastRelationship()!=null) {
-            cost = nodeOperations.getCost(path.lastRelationship());
+            cost = nodeContentsRepository.getCost(path.lastRelationship());
             if (cost>0) {
                 int total = traversalState.getTotalCost() + cost;
                 journeyStateForChildren.updateJourneyClock(total);

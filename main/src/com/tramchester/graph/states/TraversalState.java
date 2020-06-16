@@ -1,8 +1,8 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.GraphBuilder;
+import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -21,7 +21,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private TraversalState child;
 
     protected final TramchesterConfig config;
-    protected final CachedNodeOperations nodeOperations;
+    protected final NodeContentsRepository nodeOperations;
     protected final long destinationNodeId;
     protected final TraversalState parent;
     protected final List<String> destinationStationIds;
@@ -32,7 +32,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     // initial only
-    protected TraversalState(TraversalState parent, CachedNodeOperations nodeOperations, Iterable<Relationship> outbounds,
+    protected TraversalState(TraversalState parent, NodeContentsRepository nodeOperations, Iterable<Relationship> outbounds,
                              long destinationNodeId, List<String> destinationStationdId, int costForLastEdge,
                              TramchesterConfig config) {
         this.parent = parent;

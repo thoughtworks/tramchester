@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.picocontainer.Disposable;
 import org.slf4j.Logger;
@@ -9,8 +10,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class NodeIdLabelMap implements Disposable {
-    private static final Logger logger = LoggerFactory.getLogger(GraphBuilder.class);
+import static com.tramchester.graph.GraphBuilder.Labels.BUS_STATION;
+import static com.tramchester.graph.GraphBuilder.Labels.ROUTE_STATION;
+
+public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
+    private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);
 
     // map from the NodeId to the Label
     private final Map<GraphBuilder.Labels, Set<Long>> map;
@@ -34,8 +38,13 @@ public class NodeIdLabelMap implements Disposable {
             for (GraphBuilder.Labels label : labels) {
                 graphDatabase.findNodes(tx, label).stream().forEach(node -> put(node.getId(), label));
             }
-            tx.commit();
         }
+        for (GraphBuilder.Labels label : labels) {
+            if (label != GraphBuilder.Labels.QUERY_NODE) {
+                logger.info("Loaded " + map.get(label).size() + " for label " + label);
+            }
+        }
+        logger.info("Finished populating map");
     }
 
     @Override
@@ -61,18 +70,40 @@ public class NodeIdLabelMap implements Disposable {
         map.get(label).add(id);
     }
 
-    public boolean has(final GraphBuilder.Labels label, final long nodeId) {
+    public boolean isService(Node nodeId) {
+        return has(GraphBuilder.Labels.SERVICE, nodeId.getId());
+    }
+
+    public boolean isHour(Node node) {
+        return has(GraphBuilder.Labels.HOUR, node.getId());
+    }
+
+    public boolean isTime(Node node) { return has(GraphBuilder.Labels.MINUTE, node.getId()); }
+
+    public boolean isRouteStation(Node node) {
+        return has(ROUTE_STATION, node.getId());
+    }
+
+    public boolean isBusStation(Node node) { return has(BUS_STATION, node.getId()); }
+
+    private boolean has(final GraphBuilder.Labels label, final long nodeId) {
         if (label == GraphBuilder.Labels.QUERY_NODE) {
             return queryNodes.containsKey(nodeId);
         }
         return map.get(label).contains(nodeId);
     }
 
-    public void putQueryNode(long id) {
-        queryNodes.put(id,true);
+    // for creating query nodes, to support MyLocation journeys
+    public Node createQueryNode(GraphDatabase graphDatabase, Transaction txn) {
+        Node result = graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE);
+        queryNodes.put(result.getId(),true);
+        return result;
     }
 
-    public void removeQueryNode(long id) {
+    // for deleting query nodes, to support MyLocation journeys
+    public void deleteQueryNode(Node node) {
+        long id = node.getId();
+        node.delete();
         queryNodes.remove(id);
     }
 

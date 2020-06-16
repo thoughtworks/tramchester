@@ -30,8 +30,8 @@ public class RouteResourceTest {
     void shouldGetAllRoutes() {
         List<RouteDTO> routes = getRouteResponse();
 
-        // TODO Lockdown 14->12
-        assertEquals(12, routes.size());
+        // Lockdown 14->12
+        assertEquals(14, routes.size());
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 

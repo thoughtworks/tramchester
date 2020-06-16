@@ -21,6 +21,8 @@ import static java.lang.String.format;
 public class TestEnv {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
+    public static final int DAYS_AHEAD = 7;
+
     public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);

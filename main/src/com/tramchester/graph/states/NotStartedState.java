@@ -1,8 +1,8 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.GraphBuilder;
+import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -16,7 +16,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 // TODO seperate class for Bus?
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(CachedNodeOperations nodeOperations, long destinationNodeId, List<String> destinationStationIds,
+    public NotStartedState(NodeContentsRepository nodeOperations, long destinationNodeId, List<String> destinationStationIds,
                            TramchesterConfig config) {
         super(null, nodeOperations, new ArrayList<>(), destinationNodeId, destinationStationIds, 0, config);
     }

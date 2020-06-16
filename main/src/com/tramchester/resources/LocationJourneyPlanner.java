@@ -35,13 +35,14 @@ public class LocationJourneyPlanner {
     private final TramchesterConfig config;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
-    private final CachedNodeOperations nodeOperations;
+    private final NodeContentsRepository nodeOperations;
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabase;
+    private final NodeTypeRepository nodeTypeRepository;
 
     public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config, RouteCalculator routeCalculator,
-                                  RouteCalculatorArriveBy routeCalculatorArriveBy, CachedNodeOperations nodeOperations,
-                                  GraphQuery graphQuery, GraphDatabase graphDatabase) {
+                                  RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
+                                  GraphQuery graphQuery, GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository) {
         this.spatialService = spatialService;
         this.config = config;
         this.routeCalculator = routeCalculator;
@@ -49,6 +50,7 @@ public class LocationJourneyPlanner {
         this.nodeOperations = nodeOperations;
         this.graphQuery = graphQuery;
         this.graphDatabase = graphDatabase;
+        this.nodeTypeRepository = nodeTypeRepository;
     }
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong latLong, Station destination, JourneyRequest journeyRequest) {
@@ -168,21 +170,23 @@ public class LocationJourneyPlanner {
     }
 
     private Node createWalkingNode(Transaction txn, LatLong origin) {
-        Node startOfWalkNode = nodeOperations.createQueryNode(graphDatabase, txn);
+        Node startOfWalkNode = nodeTypeRepository.createQueryNode(graphDatabase, txn);
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }
 
+    // TODO Creation and deletion of walk nodes into own facade which can then be autoclosable
+    @Deprecated
     private void removeWalkNodeAndRelationships(List<Relationship> relationshipsToDelete, Node... nodesToDelete) {
         logger.info("Removed added walks and walk node(s)");
         relationshipsToDelete.forEach(relationship -> {
-            nodeOperations.deleteFromCache(relationship);
+            nodeOperations.deleteFromCostCache(relationship);
             relationship.delete();
         });
         for (Node node : nodesToDelete) {
-            nodeOperations.deleteNode(node);
+            nodeTypeRepository.deleteQueryNode(node);
         }
     }
 

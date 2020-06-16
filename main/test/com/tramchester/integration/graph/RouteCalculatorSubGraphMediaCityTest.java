@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static java.lang.String.format;
 
 class RouteCalculatorSubGraphMediaCityTest {
@@ -88,13 +89,13 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     @Test
-    void shouldHaveJourneyFromEveryStationToEveryOther() {
+    void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
         List<String> failures = new LinkedList<>();
 
         for (Station start: stations) {
             for (Station destination: stations) {
                 if (!start.equals(destination)) {
-                    for (int i = 0; i < 7; i++) {
+                    for (int i = 0; i < DAYS_AHEAD; i++) {
                         LocalDate day = nextTuesday.plusDays(i);
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0), false);
                         Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).collect(Collectors.toSet());

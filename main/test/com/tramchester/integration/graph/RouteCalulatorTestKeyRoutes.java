@@ -21,13 +21,12 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-public class RouteCalulatorTestKeyRoutes {
-
+class RouteCalulatorTestKeyRoutes {
 
     private static Dependencies dependencies;
     private static TramchesterConfig testConfig;
@@ -56,27 +55,27 @@ public class RouteCalulatorTestKeyRoutes {
 
     @Test
     void shouldFindInterchangesToEndOfLines() {
-        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges,Stations.EndOfTheLine );
-        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(8,0), 7);
-    }
-
-    @Test
-    void shouldFindEndOfLinesToEndOfLines() {
-        // todo: changed from 9 to 10.15 as airport to eccles fails for 10.15am
-        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
-        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(10,15), 7);
-    }
-
-    @Test
-    void shouldFindInterchangesToInterchanges() {
-        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges, Stations.Interchanges);
-        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges, Stations.EndOfTheLine );
+        validateAllHaveAtLeastOneJourney(nextTuesday, combinations, TramTime.of(8,0));
     }
 
     @Test
     void shouldFindEndOfLinesToInterchanges() {
         Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.Interchanges);
-        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(9,0), 7);
+        validateAllHaveAtLeastOneJourney(nextTuesday, combinations, TramTime.of(8,0));
+    }
+
+    @Test
+    void shouldFindInterchangesToInterchanges() {
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.Interchanges, Stations.Interchanges);
+        validateAllHaveAtLeastOneJourney(nextTuesday, combinations, TramTime.of(8,0));
+    }
+
+    @Test
+    void shouldFindEndOfLinesToEndOfLinesNextDays() {
+        // todo: changed from 9 to 10.15 as airport to eccles fails for 10.15am
+        Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
+        checkRouteNextNDays(combinations, nextTuesday, TramTime.of(10,15), DAYS_AHEAD);
     }
 
     @Test
@@ -104,7 +103,7 @@ public class RouteCalulatorTestKeyRoutes {
     }
 
     private Map<Pair<Station, Station>, JourneyOrNot> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<Pair<Station, Station>> combinations, TramTime queryTime) {
+            final LocalDate queryDate, final Set<Pair<Station, Station>> combinations, final TramTime queryTime) {
 
         // check each pair, collect results into (station,station)->result
         Map<Pair<Station, Station>, JourneyOrNot> results =
@@ -119,6 +118,7 @@ public class RouteCalulatorTestKeyRoutes {
                         }).
                         collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
+        assertEquals(combinations.size(), results.size());
         // check all results present, collect failures into a list
         List<JourneyOrNot> failed = results.entrySet().stream().
                 filter(journeyOrNot -> journeyOrNot.getValue().missing()).

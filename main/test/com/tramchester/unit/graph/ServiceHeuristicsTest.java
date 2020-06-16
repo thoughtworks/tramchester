@@ -7,6 +7,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -29,6 +30,7 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
+import static com.tramchester.graph.GraphStaticKeys.HOUR;
 import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,7 +40,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private final List<Station> endStationIds = Collections.singletonList(Stations.Deansgate);
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
-    private CachedNodeOperations nodeOperations;
+    private NodeContentsRepository nodeOperations;
     private RunningServices runningServices;
     private Path path;
     private TramReachabilityRepository tramReachabilityRepository;
@@ -49,7 +51,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
-        nodeOperations = new CachedNodeOperations(nodeIdLabelMap);
+        nodeOperations = new CachedNodeOperations();
         runningServices = createMock(RunningServices.class);
         path = createMock(Path.class);
         providesLocalNow = new ProvidesLocalNow();
@@ -160,11 +162,22 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         int costSoFar = 58; // 9.59
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
+        Node node = createMock(Node.class);
+        EasyMock.expect(node.getId()).andReturn(42L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(8);
+        EasyMock.expect(node.getId()).andReturn(43L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(9);
+        EasyMock.expect(node.getId()).andReturn(44L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(10);
+        EasyMock.expect(node.getId()).andReturn(45L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(11);
 
-        assertFalse(serviceHeuristics.interestedInHour(path, 8, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 10, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 11, elapsed).isValid());
+        replayAll();
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        verifyAll();
     }
 
     @Test
@@ -176,10 +189,23 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 queryTime, runningServices, endStationIds, new ServiceReasons(providesLocalNow, journeyRequest), maxPathLength, 5);
 
         TramTime elapsed = TramTime.of(10,29);
-        assertFalse(serviceHeuristics.interestedInHour(path, 8, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 9, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 10, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 11, elapsed).isValid());
+        Node node = createMock(Node.class);
+
+        EasyMock.expect(node.getId()).andReturn(42L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(8);
+        EasyMock.expect(node.getId()).andReturn(43L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(9);
+        EasyMock.expect(node.getId()).andReturn(44L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(10);
+        EasyMock.expect(node.getId()).andReturn(45L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(11);
+
+        replayAll();
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        verifyAll();
     }
 
     @Test
@@ -193,10 +219,23 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;  // 23.25
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+        Node node = createMock(Node.class);
+        EasyMock.expect(node.getId()).andReturn(42L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(22);
+        EasyMock.expect(node.getId()).andReturn(43L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(23);
+        EasyMock.expect(node.getId()).andReturn(44L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(0);
+        EasyMock.expect(node.getId()).andReturn(45L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(1);
+
+
+        replayAll();
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        verifyAll();
     }
 
     @Test
@@ -210,11 +249,23 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;  // 23.55
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid()); // before
-        assertTrue(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
+        Node node = createMock(Node.class);
+        EasyMock.expect(node.getId()).andReturn(42L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(22);
+        EasyMock.expect(node.getId()).andReturn(43L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(23);
+        EasyMock.expect(node.getId()).andReturn(44L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(0);
+        EasyMock.expect(node.getId()).andReturn(45L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(1);
 
-        assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+        replayAll();
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid()); // before
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        verifyAll();
     }
 
     @Test
@@ -228,9 +279,19 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;  // 23.55
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        assertFalse(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+        Node node = createMock(Node.class);
+        EasyMock.expect(node.getId()).andReturn(42L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(23);
+        EasyMock.expect(node.getId()).andReturn(43L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(0);
+        EasyMock.expect(node.getId()).andReturn(44L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(1);
+
+        replayAll();
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        verifyAll();
     }
 
     @Test
@@ -244,9 +305,19 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int costSoFar = 15;  // 23.55
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
-        assertFalse(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+        Node node = createMock(Node.class);
+        EasyMock.expect(node.getId()).andStubReturn(42L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(23);
+        EasyMock.expect(node.getId()).andReturn(43L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(0);
+        EasyMock.expect(node.getId()).andReturn(44L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(1);
+
+        replayAll();
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        verifyAll();
     }
 
     @Test
@@ -317,11 +388,23 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 queryTime, runningServices, endStationIds, new ServiceReasons(providesLocalNow, journeyRequest), maxPathLength, 5);
 
         TramTime elapsed = TramTime.of(0,1);
+        Node node = createStrictMock(Node.class);
 
-        assertFalse(serviceHeuristics.interestedInHour(path, 22, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 23, elapsed).isValid());
-        assertTrue(serviceHeuristics.interestedInHour(path, 0, elapsed).isValid());
-        assertFalse(serviceHeuristics.interestedInHour(path, 1, elapsed).isValid());
+        EasyMock.expect(node.getId()).andReturn(42L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(22);
+        EasyMock.expect(node.getId()).andReturn(43L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(23);
+        EasyMock.expect(node.getId()).andReturn(44L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(0);
+        EasyMock.expect(node.getId()).andReturn(45L);
+        EasyMock.expect(node.getProperty(HOUR)).andReturn(1);
+
+        replayAll();
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertTrue(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        assertFalse(serviceHeuristics.interestedInHour(path, node, elapsed).isValid());
+        verifyAll();
     }
 
     @Test

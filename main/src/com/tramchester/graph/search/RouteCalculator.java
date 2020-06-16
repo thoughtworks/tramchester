@@ -7,9 +7,10 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.TransportData;
@@ -34,7 +35,9 @@ public class RouteCalculator implements TramRouteCalculator {
 
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
-    private final CachedNodeOperations nodeOperations;
+    private final NodeContentsRepository nodeOperations;
+    private final NodeTypeRepository nodeTypeRepository;
+
     private final TransportData transportData;
     private final TramReachabilityRepository tramReachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
@@ -42,10 +45,10 @@ public class RouteCalculator implements TramRouteCalculator {
     private final ProvidesLocalNow providesLocalNow;
     private final GraphQuery graphQuery;
 
-    public RouteCalculator(TransportData transportData, CachedNodeOperations nodeOperations, MapPathToStages pathToStages,
+    public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
                            CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
-                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery) {
+                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
@@ -55,6 +58,7 @@ public class RouteCalculator implements TramRouteCalculator {
         this.graphDatabaseService = graphDatabaseService;
         this.providesLocalNow = providesLocalNow;
         this.graphQuery = graphQuery;
+        this.nodeTypeRepository = nodeTypeRepository;
     }
 
     @Override
@@ -106,11 +110,13 @@ public class RouteCalculator implements TramRouteCalculator {
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
 
         int maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
+        int maxChanges = journeyRequest.getMaxChanges();
 
         return queryTimes.stream().
                 map(time -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
-                        time, runningServicesIds, destinations, serviceReasons, maxPathLength, journeyRequest.getMaxChanges())).
-                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, endNode, serviceHeuristics, serviceReasons, destinations)).
+                        time, runningServicesIds, destinations, serviceReasons, maxPathLength, maxChanges)).
+                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, endNode, nodeTypeRepository, serviceHeuristics,
+                        serviceReasons, destinations)).
                 map(path -> {
                     List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest);
                     return new Journey(stages, path.getQueryTime());
@@ -118,13 +124,13 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     private Stream<TimedPath> findShortestPath(Transaction txn, Node startNode, Node endNode,
-                                               ServiceHeuristics serviceHeuristics,
+                                               NodeTypeRepository nodeTypeRepository, ServiceHeuristics serviceHeuristics,
                                                ServiceReasons reasons, List<Station> destinations) {
 
         List<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toList());
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
-                reasons, nodeOperations, endNode, endStationIds, config);
+                reasons, nodeOperations, endNode, endStationIds, config, nodeTypeRepository);
 
         return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }

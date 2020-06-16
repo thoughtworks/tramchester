@@ -6,10 +6,7 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.parsers.CalendarDatesDataMapper;
-import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -20,6 +17,7 @@ import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,8 +82,8 @@ class TransportDataFromFilesTest {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
 
-        // TODO lockdown 14->12
-        assertEquals(12, tramRoutes);
+        // lockdown 14->12
+        assertEquals(14, tramRoutes);
     }
 
     @Test
@@ -130,7 +129,21 @@ class TransportDataFromFilesTest {
     }
 
     @Test
-    void shouldHaveServicesRunningAtReasonableTimes() {
+    void shouldHaveServiceEndDatesBeyondNextNDays() {
+        LocalDate queryDate = LocalDate.now().plusDays(DAYS_AHEAD);
+
+        Collection<Service> services = transportData.getServices();
+        Set<Service> expiringServices = services.stream().
+                filter(svc -> {
+                    return !svc.operatesOn(queryDate);
+                }).collect(Collectors.toSet());
+        Set<String> routes = expiringServices.stream().map(Service::getRouteId).collect(Collectors.toSet());
+
+        assertEquals(Collections.emptySet(), expiringServices, routes.toString() + " with expiring svcs " +HasId.asIds(expiringServices));
+    }
+
+    @Test
+    void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
 
         // temporary 23 -> 22, 6->7
         int latestHour = 22;
@@ -138,7 +151,7 @@ class TransportDataFromFilesTest {
 
         int maxwait = 25;
 
-        for (int day = 0; day < 7; day++) {
+        for (int day = 0; day < DAYS_AHEAD; day++) {
             LocalDate date = TestEnv.nextTuesday(day);
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);

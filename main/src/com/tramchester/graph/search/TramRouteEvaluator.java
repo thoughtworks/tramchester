@@ -25,7 +25,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
-    private final CachedNodeOperations nodeOperations;
+
+    private final NodeTypeRepository nodeTypeRepository;
     private final ServiceReasons reasons;
     private int success;
     private int currentLowestCost;
@@ -33,11 +34,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Set<Long> busStationNodes;
     private final boolean bus;
 
-    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, CachedNodeOperations nodeOperations, long destinationNodeId,
-                              ServiceReasons reasons, TramchesterConfig config) {
+    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, long destinationNodeId,
+                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
-        this.nodeOperations = nodeOperations;
         this.destinationNodeId = destinationNodeId;
+        this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         bus = config.getBus();
         success = 0;
@@ -61,13 +62,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         TramTime journeyClock = journeyState.getJourneyClock();
 
         Node endNode = path.endNode();
-        long nodeId = endNode.getId();
+        long endNodeId = endNode.getId();
 
-        if (previousSuccessfulVisit.containsKey(nodeId)) {
+        if (previousSuccessfulVisit.containsKey(endNodeId)) {
             // can *only* safely exclude previous nodes if there is only one outbound path
 
-            TramTime previousVisitTime = previousSuccessfulVisit.get(nodeId);
-            if (nodeOperations.isTime(nodeId)) {
+            TramTime previousVisitTime = previousSuccessfulVisit.get(endNodeId);
+            if (nodeTypeRepository.isTime(endNode)) {
                 // no way to get different response for same service/minute - boarding time has to be same
                 // since time nodes encode a specific time, so the previous time *must* match for this node id
                 reasons.recordReason(ServiceReason.Cached(previousVisitTime, path));
@@ -75,16 +76,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
 
             // NOTE: We only cache previous for certian node types
-            if (nodeOperations.isHour(nodeId) && previousVisitTime.equals(journeyClock)) {
+            if (nodeTypeRepository.isHour(endNode) && previousVisitTime.equals(journeyClock)) {
                 reasons.recordReason(ServiceReason.Cached(previousVisitTime, path));
                 return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue
             }
         }
 
-        Evaluation result = doEvaluate(path, journeyState, endNode, nodeId);
+        Evaluation result = doEvaluate(path, journeyState, endNode, endNodeId);
 
-        if (result.continues() && (nodeOperations.isTime(nodeId) || nodeOperations.isHour(nodeId))) {
-                previousSuccessfulVisit.put(nodeId, journeyClock);
+        if (result.continues() && (nodeTypeRepository.isTime(endNode) || nodeTypeRepository.isHour(endNode))) {
+                previousSuccessfulVisit.put(endNodeId, journeyClock);
         }
         return result;
     }
@@ -122,7 +123,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         reasons.record(journeyState);
 
         if (bus) {
-            if (nodeOperations.isBusStation(endNodeId)) {
+            if (nodeTypeRepository.isBusStation(endNode)) {
                 if (busStationNodes.contains(endNodeId)) {
                     reasons.recordReason(ServiceReason.SeenBefore(path));
                     return Evaluation.EXCLUDE_AND_PRUNE;
@@ -143,7 +144,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // is even reachable from here?
-        if (nodeOperations.isRouteStation(endNodeId)) {
+        if (nodeTypeRepository.isRouteStation(endNode)) {
             // Note: journeyState.onTram() not true for all tram journeys as we might just be boarding....
             if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
@@ -151,7 +152,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // is the service running today
-        boolean isService = nodeOperations.isService(endNodeId);
+        boolean isService = nodeTypeRepository.isService(endNode);
         if (isService) {
             if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
@@ -182,15 +183,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // check time, just hour first
-        if (nodeOperations.isHour(endNodeId)) {
-            int hour = nodeOperations.getHour(endNode);
-            if (!serviceHeuristics.interestedInHour(path, hour, visitingTime).isValid()) {
+        if (nodeTypeRepository.isHour(endNode)) {
+            if (!serviceHeuristics.interestedInHour(path, endNode, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
 
         // check time
-        if (nodeOperations.isTime(endNodeId)) {
+        if (nodeTypeRepository.isTime(endNode)) {
             if (!serviceHeuristics.checkTime(path, endNode, visitingTime).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }

@@ -77,7 +77,7 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     @Override
     public void stop() {
-
+        // no op
     }
 
     @Override
