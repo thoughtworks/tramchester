@@ -85,6 +85,8 @@ class ServiceTest {
         assertThat(service.getTrips()).hasSize(1);
         assertThat(service.getTrips()).contains(trip);
 
+        service.updateTimings();
+
         Assertions.assertEquals(TramTime.of(6,30), service.earliestDepartTime());
         Assertions.assertEquals(TramTime.of(0,1), service.latestDepartTime());
     }

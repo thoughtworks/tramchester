@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
+// KEEP for assisting with debugging
 public class NodeTypeDirect implements NodeTypeRepository {
     @Override
     public boolean isTime(Node node) {

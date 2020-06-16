@@ -104,8 +104,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     void shouldUpdateStatusWhenRefreshingDataOK() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        addStationInfoWithDueTram(info, lastUpdate.plusMinutes(14), "yyy", "platformIdA", "some message", Stations.Altrincham);
-        addStationInfoWithDueTram(info, lastUpdate.plusMinutes(21), "303", "platformIdB", "some message", Stations.Altrincham);
+        addStationInfoWithDueTram(info, lastUpdate.plusMinutes(14), "yyy", "platformIdA",
+                "some message", Stations.Altrincham);
+        addStationInfoWithDueTram(info, lastUpdate.plusMinutes(21), "303", "platformIdB",
+                "some message", Stations.Altrincham);
 
         EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());

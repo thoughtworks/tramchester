@@ -165,6 +165,8 @@ public class TransportDataForTest implements TransportDataSource {
 
         addTrip(tripA);
         addTrip(tripC);
+
+        services.forEach(Service::updateTimings);
     }
 
     private void addRouteStation(Station station, Route route) {

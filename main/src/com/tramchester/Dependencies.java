@@ -138,11 +138,11 @@ public class Dependencies {
         picoContainer.addComponent(RouteReachable.class);
         picoContainer.addComponent(TramReachabilityRepository.class);
 
-        //picoContainer.addComponent(CachedNodeOperations.class);
-        picoContainer.addComponent(NodeContentsDirect.class);
+        picoContainer.addComponent(CachedNodeOperations.class);
+//        picoContainer.addComponent(NodeContentsDirect.class);
 
-        //picoContainer.addComponent(NodeIdLabelMap.class);
-        picoContainer.addComponent(NodeTypeDirect.class);
+        picoContainer.addComponent(NodeIdLabelMap.class);
+//        picoContainer.addComponent(NodeTypeDirect.class);
 
         picoContainer.addComponent(GraphQuery.class);
         picoContainer.addComponent(TramStationAdjacenyRepository.class);

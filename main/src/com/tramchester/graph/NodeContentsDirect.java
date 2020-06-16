@@ -8,6 +8,7 @@ import java.time.LocalTime;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
 
+// KEEP for assisting with debugging
 public class NodeContentsDirect implements NodeContentsRepository{
 
     @Override
